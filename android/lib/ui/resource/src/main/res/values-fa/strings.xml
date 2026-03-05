@@ -438,6 +438,7 @@
     <string name="type">نوع</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">‏UDP روی TCP</string>
+    <string name="unable_to_reach_api">امکان دسترسی به API وجود ندارد</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">اپلیکیشن به دلیل برقرار نشدن ارتباط با API مربوط به Mullvad نتوانست حساب ایجاد کند.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">اپلیکیشن به دلیل برقرار نشدن ارتباط با API مربوط به Mullvad نتوانست وارد حساب شود.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">دستگاه‌تان را دوباره راه‌اندازی کنید</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">فعال کردن همهٔ روش‌های دسترسی در اپلیکیشن</string>
     <string name="unable_to_reach_api_dialog_message_second">این ممکن است به دلیل سانسور یا مشکلات شبکه باشد. لطفاً موارد زیر را امتحان کنید:</string>
     <string name="unable_to_reach_api_dialog_message_third">اگر این مراحل کار نکرد، لطفاً با استفاده از دکمهٔ زیر به پشتیبانی ایمیل بزنید. این کار به‌طور خودکار گزارش‌ها را که ناشناس‌ شده‌اند، پیوست خواهد کرد.</string>
-    <string name="unable_to_reach_api_dialog_title">امکان دسترسی به API وجود ندارد</string>
     <string name="unavailable">ناموجود</string>
     <string name="undo">لغو انجام</string>
     <string name="unsupported_version">نسخهٔ پشتیبانی‌نشده</string>

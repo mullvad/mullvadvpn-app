@@ -68,8 +68,9 @@ class ApiAccessMethodDetailsViewModelTest {
                 Unit.right()
             coEvery { mockApiAccessRepository.setCurrentApiAccessMethod(any()) } returns
                 Unit.right()
-            coEvery { delayAtLeast<Either<TestApiAccessMethodError, Unit>>(any(), any()) } returns
-                Unit.right()
+            coEvery {
+                delayAtLeast<Either<TestApiAccessMethodError, Unit>>(any<Long>(), any())
+            } returns Unit.right()
 
             // Act
             apiAccessMethodDetailsViewModel.setCurrentMethod()

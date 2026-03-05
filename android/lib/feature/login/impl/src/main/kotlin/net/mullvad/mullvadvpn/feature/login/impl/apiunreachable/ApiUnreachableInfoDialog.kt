@@ -113,7 +113,7 @@ fun ApiUnreachableInfoDialog(
     onDismiss: () -> Unit,
 ) {
     InfoDialog(
-        title = stringResource(id = R.string.unable_to_reach_api_dialog_title),
+        title = stringResource(id = R.string.unable_to_reach_api),
         message =
             buildAnnotatedString {
                 append(

@@ -403,6 +403,27 @@ impl AccountService {
         }
         result.map_err(map_rest_error)
     }
+
+    #[cfg(target_os = "android")]
+    pub async fn delete_account(&self, account_number: AccountNumber) -> Result<(), Error> {
+        let proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
+
+        let factory = move || {
+            let account_number = account_number.clone();
+
+            proxy.delete_account(account_number)
+        };
+        retry_future(
+            factory,
+            move |result| should_retry(result, &api_handle),
+            RETRY_ACTION_STRATEGY,
+        )
+        .await
+        .map_err(map_rest_error)?;
+
+        Ok(())
+    }
 }
 
 pub fn spawn_account_service(
@@ -491,7 +512,9 @@ fn map_rest_error(error: rest::Error) -> Error {
     match error {
         rest::Error::ApiError(_status, ref code) => match code.as_str() {
             // TODO: Implement invalid payment
-            mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
+            mullvad_api::DEVICE_NOT_FOUND | mullvad_api::INVALID_ACCESS_TOKEN => {
+                Error::InvalidDevice
+            }
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
             mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
             mullvad_api::INVALID_VOUCHER => Error::InvalidVoucher,

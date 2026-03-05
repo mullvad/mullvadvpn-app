@@ -438,6 +438,7 @@
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP över TCP</string>
+    <string name="unable_to_reach_api">Det går inte att nå API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Appen kunde inte skapa ett konto eftersom det inte gick att nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Appen kunde inte logga in eftersom det inte gick att nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Starta om enheten</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Aktivera alla åtkomstmetoder i appen</string>
     <string name="unable_to_reach_api_dialog_message_second">Det kan bero på censur- eller nätverksfel. Försök att:</string>
     <string name="unable_to_reach_api_dialog_message_third">Om dessa steg inte fungerar kan du skicka ett e-postmeddelande till supporten via knappen nedan. Detta bifogar automatisk loggarna som har anonymiserats.</string>
-    <string name="unable_to_reach_api_dialog_title">Det går inte att nå API</string>
     <string name="unavailable">Inte tillgänglig</string>
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>

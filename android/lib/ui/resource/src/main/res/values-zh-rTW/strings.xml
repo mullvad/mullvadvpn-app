@@ -438,6 +438,7 @@
     <string name="type">類型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
+    <string name="unable_to_reach_api">無法存取 API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">由於無法連至 Mullvad API，本應用程式無法建立帳戶。</string>
     <string name="unable_to_reach_api_dialog_message_first_login">由於無法連至 Mullvad API，本應用程式無法登入。</string>
     <string name="unable_to_reach_api_dialog_message_list_first">重新啟動裝置</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">啟用應用程式中所有存取方式</string>
     <string name="unable_to_reach_api_dialog_message_second">這可能是由於審查或網路問題所造成。請嘗試：</string>
     <string name="unable_to_reach_api_dialog_message_third">若以上步驟無效，請使用下方按鈕傳送電子郵件至支援團隊。電子郵件將自動附加已匿名處理的日誌記錄。</string>
-    <string name="unable_to_reach_api_dialog_title">無法存取 API</string>
     <string name="unavailable">無法使用</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>

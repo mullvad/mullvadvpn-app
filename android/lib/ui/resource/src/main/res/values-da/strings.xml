@@ -438,6 +438,7 @@
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
+    <string name="unable_to_reach_api">Kan ikke nå API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Appen kunne ikke oprette en konto, da den ikke kunne nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Appen kunne ikke logge på, da den ikke kunne nå Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Genstart din enhed</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Aktiver alle adgangsmetoder i appen</string>
     <string name="unable_to_reach_api_dialog_message_second">Det kan være pga. censur eller netværksproblemer. Prøv at:</string>
     <string name="unable_to_reach_api_dialog_message_third">Hvis disse trin ikke virker, kan du sende en e-mail til support via knappen nedenfor. Den vil automatisk vedhæfte de logfiler, som er blevet anonymiseret.</string>
-    <string name="unable_to_reach_api_dialog_title">Kan ikke nå API</string>
     <string name="unavailable">Ikke tilgængelig</string>
     <string name="undo">Fortryd</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>

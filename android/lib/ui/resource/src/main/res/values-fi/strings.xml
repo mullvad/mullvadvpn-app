@@ -438,6 +438,7 @@
     <string name="type">Tyyppi</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP TCP:n kautta</string>
+    <string name="unable_to_reach_api">Yhteyden muodostaminen API:hin ei onnistu</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Sovellus ei voinut luoda tiliä, koska se ei saanut yhteyttä Mullvad API:hin.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Sovellus ei voinut kirjautua, koska se ei saanut yhteyttä Mullvad API:hin.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Käynnistä laitteesi uudelleen</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Ota kaikki käyttötavat käyttöön sovelluksessa</string>
     <string name="unable_to_reach_api_dialog_message_second">Tämä voi johtua sensuurista tai verkko-ongelmista. Kokeile seuraavia:</string>
     <string name="unable_to_reach_api_dialog_message_third">Jos nämä vaiheet eivät toimi, lähetä sähköpostiviesti tuelle käyttämällä alla olevaa painiketta. Se liittää automaattisesti anonymisoidut lokit.</string>
-    <string name="unable_to_reach_api_dialog_title">Yhteyden muodostaminen API:hin ei onnistu</string>
     <string name="unavailable">Ei saatavilla</string>
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>

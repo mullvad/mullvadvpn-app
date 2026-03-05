@@ -23,7 +23,10 @@ fun ZonedDateTime.toExpiryDateString(): String =
 
 fun ZonedDateTime.millisFromNow(): Long = Duration.between(ZonedDateTime.now(), this).toMillis()
 
-fun ZonedDateTime.daysFromNow(): Long = Duration.between(ZonedDateTime.now(), this).toDays()
+fun ZonedDateTime.daysLeft(): Long? {
+    val duration = Duration.between(ZonedDateTime.now(), this)
+    return if (duration.isNegative) null else duration.toDays()
+}
 
 fun ZonedDateTime.isBeforeNowInstant(): Boolean = toInstant().isBefore(Instant.now())
 

@@ -308,6 +308,8 @@ enum AccountManagerCommand {
     #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<()>, PlayPurchase),
     CheckExpiry(ResponseTx<DateTime<Utc>>),
+    #[cfg(target_os = "android")]
+    Delete(ResponseTx<()>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -375,6 +377,11 @@ impl AccountManagerHandle {
     pub async fn verify_play_purchase(&self, play_purchase: PlayPurchase) -> Result<(), Error> {
         self.send_command(move |tx| AccountManagerCommand::VerifyPlayPurchase(tx, play_purchase))
             .await
+    }
+
+    #[cfg(target_os = "android")]
+    pub async fn delete(&self) -> Result<(), Error> {
+        self.send_command(AccountManagerCommand::Delete).await
     }
 
     pub async fn shutdown(self) {
@@ -538,6 +545,11 @@ impl AccountManager {
                         #[cfg(target_os = "android")]
                         Some(AccountManagerCommand::VerifyPlayPurchase(tx, play_purchase)) => {
                             self.handle_verify_play_purchase(tx, play_purchase, &mut current_api_call);
+                        },
+                        #[cfg(target_os = "android")]
+                        Some(AccountManagerCommand::Delete(tx)) => {
+                            current_api_call.clear();
+                            self.delete(tx).await;
                         },
 
                         None => {
@@ -1010,6 +1022,45 @@ impl AccountManager {
             _ => {
                 // The state was `revoked`.
                 let _ = tx.send(Ok(()));
+            }
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    async fn delete(&mut self, tx: ResponseTx<()>) {
+        Self::drain_requests(&mut self.data_requests, || Err(Error::AccountChange));
+        if self.data.logged_out() {
+            let _ = tx.send(Err(Error::AccountChange));
+            return;
+        }
+
+        let old_config = self.data.device().ok_or(Error::NoDevice);
+
+        let Ok(old_config) = old_config else {
+            let _ = tx.send(old_config.map(|_| ()));
+            return;
+        };
+
+        let service = self.account_service.clone();
+        match service
+            .delete_account(old_config.clone().account_number)
+            .await
+        {
+            Ok(_) => {
+                if let Err(err) = self.cacher.write(&PrivateDeviceState::LoggedOut).await {
+                    let _ = tx.send(Err(err));
+                    return;
+                }
+                self.data.logout();
+                self.listeners.retain(|listener| {
+                    listener
+                        .send(AccountEvent::Device(PrivateDeviceEvent::Logout))
+                        .is_ok()
+                });
+                let _ = tx.send(Ok(()));
+            }
+            Err(err) => {
+                let _ = tx.send(Err(err));
             }
         }
     }

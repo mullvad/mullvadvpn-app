@@ -66,6 +66,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -359,6 +360,22 @@ class ManagementService(
                     else -> {
                         Logger.e("Unknown login account error")
                         LoginAccountError.Unknown(it)
+                    }
+                }
+            }
+            .mapEmpty()
+
+    suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
+        Either.catch { grpc.deleteAccount(Empty.getDefaultInstance()) }
+            .onLeft { Logger.e("Delete account error") }
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.INVALID_ARGUMENT -> DeleteAccountError.AccountNumberDoesNotMatch
+                    Status.Code.DEADLINE_EXCEEDED,
+                    Status.Code.UNAVAILABLE -> DeleteAccountError.UnableToReachApi(it)
+                    else -> {
+                        Logger.e("Unknown delete account error")
+                        DeleteAccountError.Unknown(it)
                     }
                 }
             }
