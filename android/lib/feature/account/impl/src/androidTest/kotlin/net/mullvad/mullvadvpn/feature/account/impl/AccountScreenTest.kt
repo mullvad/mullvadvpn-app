@@ -46,6 +46,7 @@ class AccountScreenTest {
         onPlayPaymentInfoClick: () -> Unit = {},
         onBackClick: () -> Unit = {},
         onManageDevicesClick: () -> Unit = {},
+        navigateToDeleteAccount: () -> Unit = {},
     ) {
         setContentWithTheme {
             AccountScreen(
@@ -56,6 +57,7 @@ class AccountScreenTest {
                 onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
                 onBackClick = onBackClick,
+                navigateToDeleteAccount = navigateToDeleteAccount,
             )
         }
     }

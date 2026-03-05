@@ -438,6 +438,7 @@
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
+    <string name="unable_to_reach_api">Kan API niet bereiken</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Er kan geen account worden aangemaakt in de app omdat de Mullvad API niet bereikbaar is.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Aanmelden bij de app is niet mogelijk omdat de Mullvad API niet bereikbaar is.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Start het apparaat opnieuw op</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Schakel alle toegangsmethoden in de app in</string>
     <string name="unable_to_reach_api_dialog_message_second">Dit kan komen door censuur of netwerkproblemen. Probeer om:</string>
     <string name="unable_to_reach_api_dialog_message_third">Als deze stappen niet werken, kunt u het ondersteuningsteam een e-mail sturen via de knop hieronder. De (geanonimiseerde) logboeken worden automatisch bijgevoegd.</string>
-    <string name="unable_to_reach_api_dialog_title">Kan API niet bereiken</string>
     <string name="unavailable">Niet beschikbaar</string>
     <string name="undo">Ongedaan maken</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>

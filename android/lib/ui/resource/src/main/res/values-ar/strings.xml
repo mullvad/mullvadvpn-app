@@ -438,6 +438,7 @@
     <string name="type">النوع</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
+    <string name="unable_to_reach_api">يتعذَّر الوصول إلى واجهة API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">لم يتمكن التطبيق من إنشاء حساب لعدم قدرته على الوصول إلى Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">لم يتمكن التطبيق من تسجيل الدخول بسبب عدم قدرته على الوصول إلى Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">إعادة تشغيل الجهاز</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">تفعيل جميع طرق الوصول في التطبيق</string>
     <string name="unable_to_reach_api_dialog_message_second">قد يكون هذا بسبب الرقابة أو مشكلات في الشبكة. يُرجى تجربة ما يلي:</string>
     <string name="unable_to_reach_api_dialog_message_third">إذا لم تنجح هذه الخطوات في حال المشكلة، يُرجى مراسلة فريق الدعم عبر البريد الإلكتروني باستخدام الزر أدناه. سيتم تلقائيًا إرفاق السجلات التي تم إخفاء هويتها.</string>
-    <string name="unable_to_reach_api_dialog_title">يتعذَّر الوصول إلى واجهة API</string>
     <string name="unavailable">غير متوفر</string>
     <string name="undo">تراجع</string>
     <string name="unsupported_version">إصدار غير مدعوم</string>

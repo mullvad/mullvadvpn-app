@@ -443,7 +443,7 @@
     <string name="login_error_invalid_input">Account number is too long, please enter a valid number</string>
     <string name="create_account_fail_title">Creating account failed</string>
     <string name="read_more_here">read more here</string>
-    <string name="unable_to_reach_api_dialog_title">Unable to reach API</string>
+    <string name="unable_to_reach_api">Unable to reach API</string>
     <string name="unable_to_reach_api_dialog_message_first_login">The app was unable to login due to not being able to reach the Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">The app was unable to create an account due to not being able to reach the Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_second">This might be due to censorship or network issues. Please try to:</string>
@@ -496,4 +496,23 @@
     <string name="you_can_add_more_time_play">You can add more time via the account view to continue using the VPN.</string>
     <string name="you_can_add_more_time_oss">You can add more time via the account view or website to continue using the VPN.</string>
     <string name="invalid_ipv6_config">Invalid IPv6 config, please try to change the VPN settings.</string>
+    <string name="delete_account">Delete account</string>
+    <string name="cont">Continue</string>
+    <string name="delete_account_info">You are about to delete your Mullvad VPN account. Deleting your account will:</string>
+    <string name="delete_account_first_item">Invalidate your account number</string>
+    <string name="delete_account_second_item">Delete and invalidate <u>all devices</u></string>
+    <string name="delete_account_third_item">Nullify any remaining time</string>
+    <string name="delete_account_forth_item">Remove links to past purchases</string>
+    <string name="delete_account_fifth_item">Make refunds for remaining time unavailable</string>
+    <string name="delete_account_confirmation_check">By checking this box I agree to the risks involved with deleting my account</string>
+    <string name="delete_account_confirmation_enter_account_number">To delete your Mullvad VPN account, please enter your account number below.</string>
+    <string name="delete_account_cant_be_undone">Deleting your account cannot be undone.</string>
+    <string name="account_delete_placeholder">Enter account number digits</string>
+    <string name="account_deleted">Account deleted</string>
+    <string name="delete_account_complete_subtitle">Thanks for being part of our community.\nPrivacy is for the people!</string>
+    <string name="delete_account_failed_loading_days">Could not display remaining days.</string>
+    <string name="delete_account_loading_days">You will lose your remaining</string>
+    <string name="delete_account_number_must_match">Account number must match</string>
+    <string name="delete_account_unable_to_verify">Unable to verify account number, please contact support</string>
+    <string name="delete_account_error">Failed to delete account, please contact support</string>
 </resources>

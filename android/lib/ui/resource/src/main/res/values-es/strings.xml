@@ -438,6 +438,7 @@
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP sobre TCP</string>
+    <string name="unable_to_reach_api">No se puede conectar con la API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">La aplicación no ha podido crear una cuenta al no poder acceder a la API de Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">La aplicación no ha podido iniciar sesión al no poder acceder a la API de Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Reiniciar su dispositivo</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Habilitar todos los métodos de acceso en la aplicación</string>
     <string name="unable_to_reach_api_dialog_message_second">Esto podría deberse a problemas de red o de censura. Intente lo siguiente:</string>
     <string name="unable_to_reach_api_dialog_message_third">Si no funcionan estos pasos, envíe un correo electrónico al servicio de asistencia usando el botón de abajo. Adjuntará automáticamente los registros que se han anonimizado.</string>
-    <string name="unable_to_reach_api_dialog_title">No se puede conectar con la API</string>
     <string name="unavailable">No disponible</string>
     <string name="undo">Deshacer</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>

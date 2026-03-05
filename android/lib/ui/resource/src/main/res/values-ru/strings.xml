@@ -438,6 +438,7 @@
     <string name="type">Тип</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP через TCP</string>
+    <string name="unable_to_reach_api">Невозможно подключиться к API</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">Приложению не удалось создать учетную запись из-за отсутствия доступа к API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">Приложению не удалось выполнить вход из-за отсутствия доступа к API Mullvad.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">Перезагрузить устройство.</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">Включить все методы доступа в приложении</string>
     <string name="unable_to_reach_api_dialog_message_second">Это могло произойти из-за цензуры или проблем с сетью. Попробуйте следующее:</string>
     <string name="unable_to_reach_api_dialog_message_third">Если описанные выше шаги не помогли, отправьте письмо в службу поддержки, нажав кнопку ниже. К письму будут автоматически прикреплены анонимизированные журналы активности.</string>
-    <string name="unable_to_reach_api_dialog_title">Невозможно подключиться к API</string>
     <string name="unavailable">Недоступно</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>

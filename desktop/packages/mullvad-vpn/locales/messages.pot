@@ -2796,7 +2796,13 @@ msgstr ""
 msgid "Account credit expires in a few minutes"
 msgstr ""
 
+msgid "Account deleted"
+msgstr ""
+
 msgid "Account number is too long, please enter a valid number"
+msgstr ""
+
+msgid "Account number must match"
 msgstr ""
 
 msgid "Account time reminders"
@@ -2889,6 +2895,9 @@ msgstr ""
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr ""
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr ""
+
 msgid "Can't connect?"
 msgstr ""
 
@@ -2913,6 +2922,9 @@ msgstr ""
 msgid "Connecting..."
 msgstr ""
 
+msgid "Continue"
+msgstr ""
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr ""
 
@@ -2920,6 +2932,9 @@ msgid "Copied logs to clipboard"
 msgstr ""
 
 msgid "Copy"
+msgstr ""
+
+msgid "Could not display remaining days."
 msgstr ""
 
 msgid "Create"
@@ -2946,10 +2961,19 @@ msgstr ""
 msgid "Delete \"%s\"?"
 msgstr ""
 
+msgid "Delete account"
+msgstr ""
+
+msgid "Delete and invalidate <u>all devices</u>"
+msgstr ""
+
 msgid "Delete method"
 msgstr ""
 
 msgid "Delete method?"
+msgstr ""
+
+msgid "Deleting your account cannot be undone."
 msgstr ""
 
 msgid "Direct"
@@ -3018,6 +3042,9 @@ msgstr ""
 msgid "Enter MTU"
 msgstr ""
 
+msgid "Enter account number digits"
+msgstr ""
+
 msgid "Entry relay is the same as exit relay"
 msgstr ""
 
@@ -3034,6 +3061,9 @@ msgid "FAILED TO CONNECT"
 msgstr ""
 
 msgid "Failed to apply patch"
+msgstr ""
+
+msgid "Failed to delete account, please contact support"
 msgstr ""
 
 msgid "Failed to load products, please try again"
@@ -3108,6 +3138,9 @@ msgstr ""
 msgid "Invalid or missing value \"%1$s\""
 msgstr ""
 
+msgid "Invalidate your account number"
+msgstr ""
+
 msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
 msgstr ""
 
@@ -3130,6 +3163,9 @@ msgid "Locations were changed for \"%s\""
 msgstr ""
 
 msgid "Log in"
+msgstr ""
+
+msgid "Make refunds for remaining time unavailable"
 msgstr ""
 
 msgid "Makes sure the device is always on the VPN tunnel."
@@ -3195,6 +3231,9 @@ msgstr ""
 msgid "Notes"
 msgstr ""
 
+msgid "Nullify any remaining time"
+msgstr ""
+
 msgid "Open app details"
 msgstr ""
 
@@ -3253,6 +3292,9 @@ msgid "Remove %s?"
 msgstr ""
 
 msgid "Remove custom port"
+msgstr ""
+
+msgid "Remove links to past purchases"
 msgstr ""
 
 msgid "Reset"
@@ -3324,6 +3366,9 @@ msgstr ""
 msgid "Text"
 msgstr ""
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr ""
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr ""
 
@@ -3378,6 +3423,9 @@ msgstr ""
 msgid "To create a custom list press the \"+\""
 msgstr ""
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr ""
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr ""
 
@@ -3406,6 +3454,9 @@ msgid "Unable to start tunnel connection. Please disable Always-on VPN before us
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr ""
+
+msgid "Unable to verify account number, please contact support"
 msgstr ""
 
 msgid "Unavailable"
@@ -3492,10 +3543,16 @@ msgstr ""
 msgid "Yes, log out device"
 msgstr ""
 
+msgid "You are about to delete your Mullvad VPN account. Deleting your account will:"
+msgstr ""
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr ""
 
 msgid "You can add more time via the account view to continue using the VPN."
+msgstr ""
+
+msgid "You will lose your remaining"
 msgstr ""
 
 msgid "\"%s\" was created"
@@ -3551,5 +3608,10 @@ msgstr[1] ""
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
 msgstr[0] ""
 msgstr[1] ""

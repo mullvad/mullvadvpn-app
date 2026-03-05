@@ -45,6 +45,7 @@ include(
     ":lib:feature:autoconnect:impl",
     ":lib:feature:customlist:impl",
     ":lib:feature:daita:impl",
+    ":lib:feature:deleteaccount:impl",
     ":lib:feature:filter:impl",
     ":lib:feature:home:impl",
     ":lib:feature:location:impl",
