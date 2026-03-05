@@ -1033,6 +1033,8 @@
 		F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D02D01B55C00299F09 /* ChipModel.swift */; };
 		F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */; };
 		F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D42D01DCFD00299F09 /* ChipView.swift */; };
+		F0AF894F2F55A78B00DE9740 /* UITestSettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */; };
+		F0AF89502F55A8F400DE9740 /* UITestSettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */; };
 		F0B06BC22EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B06BC32EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
 		F0B06BC42EAA4191008C0A0B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */; };
@@ -1071,6 +1073,8 @@
 		F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC0B2A4EE672007ED3B4 /* SetupAccountCompletedController.swift */; };
 		F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4BA2A56C9F100ED26A3 /* WelcomeInteractor.swift */; };
 		F0E8E4C32A602E0D00ED26A3 /* AccountDeletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */; };
+		F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */; };
+		F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */; };
 		F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */; };
 		F0F146942D9462E100BF78E7 /* RustProblemReportRequestTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */; };
 		F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F266682EB3B71A00AAD7DA /* RelayLocationList.swift */; };
@@ -2485,6 +2489,7 @@
 		F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureIndicatorsViewModel.swift; sourceTree = "<group>"; };
 		F0ADF1D42D01DCFD00299F09 /* ChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipView.swift; sourceTree = "<group>"; };
 		F0AE6DB72E4A3285001A7B23 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestSettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0B06BC12EAA4191008C0A0B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
@@ -2528,6 +2533,8 @@
 		F0E8E4C22A602E0D00ED26A3 /* AccountDeletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountDeletionViewModel.swift; sourceTree = "<group>"; };
 		F0EE6E772E4A321B0089DFF3 /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0EEFB9E2D8D60E1007FE4B3 /* RustProblemReportRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequest.swift; sourceTree = "<group>"; };
+		F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppResetManager.swift; sourceTree = "<group>"; };
+		F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsResetPolicy.swift; sourceTree = "<group>"; };
 		F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogViewModel.swift; sourceTree = "<group>"; };
 		F0F146912D94491200BF78E7 /* RustProblemReportRequestTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustProblemReportRequestTests.swift; sourceTree = "<group>"; };
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
@@ -3699,10 +3706,12 @@
 		589A454A28DDF59B00565204 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
+				F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */,
 				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
+				F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */,
 				F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */,
+				F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -3798,6 +3807,7 @@
 				F00FEA1F2E9FCF7C00F7EC6C /* RecentConnectionsRepositoryProtocol.swift */,
 				58FF2C02281BDE02009EF542 /* SettingsManager.swift */,
 				06410E03292D0F7100AFC18C /* SettingsParser.swift */,
+				F0EF2B7C2F4F5FC900C7ECA7 /* SettingsResetPolicy.swift */,
 				06410E06292D108E00AFC18C /* SettingsStore.swift */,
 				A92ECC232A7802520052F1B1 /* StoredAccountData.swift */,
 				A92ECC272A7802AB0052F1B1 /* StoredDeviceData.swift */,
@@ -6216,6 +6226,7 @@
 				7A9F293B2CAC4443005F2089 /* InfoHeaderConfig.swift in Sources */,
 				F0E61CAB2BF2911D000C4A95 /* MultihopSettings.swift in Sources */,
 				F053601D2EA03D8A00D6EDFF /* RecentConnectionsRepository.swift in Sources */,
+				F0EF2B7D2F4F5FCC00C7ECA7 /* SettingsResetPolicy.swift in Sources */,
 				F053601E2EA03D8A00D6EDFF /* RecentConnections.swift in Sources */,
 				F053601F2EA03D8A00D6EDFF /* RecentConnectionsRepositoryProtocol.swift in Sources */,
 				58B2FDE82AA71D5C003EB5C6 /* KeychainSettingsStore.swift in Sources */,
@@ -6629,6 +6640,7 @@
 				7A6652B82BB44C3E0042D848 /* LocationDiffableDataSourceProtocol.swift in Sources */,
 				5827B0A82B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift in Sources */,
 				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
+				F0AF894F2F55A78B00DE9740 /* UITestSettingsResetPolicy.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				7A2F41092EC38FD20013D3C5 /* StoreSubscription.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
@@ -6716,6 +6728,7 @@
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
+				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,
@@ -6955,6 +6968,7 @@
 				4495ECD12D0B170700A7358B /* UDPOverTCPObfuscationSettingsPage.swift in Sources */,
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,
 				7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */,
+				F0AF89502F55A8F400DE9740 /* UITestSettingsResetPolicy.swift in Sources */,
 				7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */,
 				7AA564522F30E033001D1FB9 /* LwoObfuscationSettingsPage.swift in Sources */,
 				852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */,

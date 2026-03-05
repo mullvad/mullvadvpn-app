@@ -42,6 +42,7 @@ class ShadowsocksObfuscationSettingsPage: Page {
     }
 
     @discardableResult func typeTextIntoCustomField(_ text: String) -> Self {
+        customTextField.tapWhenHittable()
         customTextField.typeText(text)
         return self
     }
