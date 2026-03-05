@@ -6,7 +6,7 @@ import {
   ICustomList,
 } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
-import { useCustomLists } from '../../../../../features/custom-lists/hooks';
+import { useAddLocationToCustomList } from '../../../../../features/custom-lists/hooks';
 import type { GeographicalLocation } from '../../../../../features/locations/types';
 import { IconButton } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
@@ -18,7 +18,7 @@ interface SelectListProps {
 }
 
 export function SelectList({ list, location }: SelectListProps) {
-  const { addLocationToCustomList } = useCustomLists();
+  const addLocationToCustomList = useAddLocationToCustomList();
   const [loading, setLoading] = React.useState(false);
 
   // List should be disabled if location already is in list.
