@@ -52,6 +52,7 @@ import com.ramcosta.composedestinations.generated.customlist.destinations.EditCu
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountDestination
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
@@ -131,6 +132,7 @@ annotation class MainGraph {
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DeleteAccountDestination>
+    @ExternalDestination<DeleteAccountConfirmationDestination>
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DeviceIpInfoDestination>

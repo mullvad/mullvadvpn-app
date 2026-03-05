@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SecureTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,7 +25,10 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlinx.coroutines.flow.collectLatest
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
@@ -39,7 +44,8 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewDeleteAccountConfirmation() {
     AppTheme {
         DeleteAccountConfirmation(
-            state = DeleteAccountConfirmationUiState(),
+            state = Lc.Content(DeleteAccountConfirmationUiState()),
+            onAccountInputChanged = {},
             deleteAccount = {},
             onBackClick = {},
         )
@@ -55,6 +61,7 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
     DeleteAccountConfirmation(
         state = uiState.value,
         deleteAccount = vm::deleteAccount,
+        onAccountInputChanged = vm::onAccountInputChanged,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -62,7 +69,8 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
 @ExperimentalMaterial3Api
 @Composable
 fun DeleteAccountConfirmation(
-    state: DeleteAccountConfirmationUiState,
+    state: Lc<Unit, DeleteAccountConfirmationUiState>,
+    onAccountInputChanged: (String) -> Unit,
     deleteAccount: () -> Unit,
     onBackClick: () -> Unit,
 ) {
@@ -71,29 +79,54 @@ fun DeleteAccountConfirmation(
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         bottomBar = {
             DeleteAccountConfirmationBottomBar(
-                state.hasConfirmedAccount,
+                state.contentOrNull()?.hasConfirmedAccount ?: false,
+                state.contentOrNull()?.isLoading ?: false,
                 onClickDeleteAccount = deleteAccount,
                 onClickCancel = onBackClick,
             )
         },
     ) { modifier ->
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
-        ) {
-            val textFieldState = rememberTextFieldState()
-            SecureTextField(state = textFieldState)
-
-            DeleteAccountConfirmationContent()
+        when (state) {
+            is Lc.Content ->
+                DeleteAccountConfirmationContent(modifier, state.value, onAccountInputChanged)
+            is Lc.Loading -> CircularProgressIndicator()
         }
     }
 }
 
-@Composable private fun DeleteAccountConfirmationContent() {}
+@Composable
+private fun DeleteAccountConfirmationContent(
+    modifier: Modifier,
+    state: DeleteAccountConfirmationUiState,
+    onAccountInputChanged: (String) -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
+    ) {
+        val textFieldState = rememberTextFieldState()
+        LaunchedEffect(textFieldState) {
+            snapshotFlow { textFieldState.text.toString() }
+                .collectLatest { onAccountInputChanged(it) }
+        }
+        SecureTextField(
+            state = textFieldState,
+            isError = state.deleteAccountError != null,
+            supportingText = state.deleteAccountError?.let { { Text(text = it.toErrorMessage()) } },
+        )
+    }
+}
+
+@Composable
+private fun DeleteAccountError.toErrorMessage(): String =
+    when (this) {
+        is DeleteAccountError.Unknown -> "Something went wrong: ${t.message}"
+    }
 
 @Composable
 private fun DeleteAccountConfirmationBottomBar(
     hasConfirmedAccount: Boolean,
+    isLoading: Boolean,
     onClickDeleteAccount: () -> Unit,
     onClickCancel: () -> Unit,
 ) {
@@ -105,6 +138,7 @@ private fun DeleteAccountConfirmationBottomBar(
             text = stringResource(R.string.delete_account),
             onClick = onClickDeleteAccount,
             isEnabled = hasConfirmedAccount,
+            isLoading = isLoading,
         )
         PrimaryButton(onClick = onClickCancel, text = stringResource(R.string.cancel))
     }
