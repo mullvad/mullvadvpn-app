@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -27,14 +28,11 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.NativeClipboard
-import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
@@ -44,11 +42,13 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
@@ -81,9 +81,19 @@ private fun PreviewDeleteAccountConfirmation() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
+fun DeleteAccountConfirmation(navigator: DestinationsNavigator, navController: NavController) {
     val vm = koinViewModel<DeleteAccountConfirmationViewModel>()
     val uiState = vm.uiState.collectAsStateWithLifecycle()
+
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
+        when(it) {
+            DeleteAccountConfirmationUiSideEffect.NavigateToLogin ->
+                navController.navigate(LoginDestination.baseRoute) {
+                    launchSingleTop = true
+                    popUpTo("main") { inclusive = true }
+                }
+        }
+    }
     DeleteAccountConfirmation(
         state = uiState.value,
         deleteAccount = vm::deleteAccount,
@@ -128,7 +138,8 @@ private fun DeleteAccountConfirmationContent(
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
+        modifier =
+            modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
     ) {
         val textFieldState = rememberTextFieldState()
         LaunchedEffect(textFieldState) {
@@ -211,27 +222,6 @@ private fun DeleteAccountConfirmationBottomBar(
         )
         PrimaryButton(onClick = onClickCancel, text = stringResource(R.string.cancel))
     }
-}
-
-@Composable
-private fun DisableCutCopy(content: @Composable () -> Unit) {
-    val currentToolbar = LocalTextToolbar.current
-    val copyDisabledToolbar =
-        remember(currentToolbar) {
-            object : TextToolbar by currentToolbar {
-                override fun showMenu(
-                    rect: Rect,
-                    onCopyRequested: (() -> Unit)?,
-                    onPasteRequested: (() -> Unit)?,
-                    onCutRequested: (() -> Unit)?,
-                    onSelectAllRequested: (() -> Unit)?,
-                    onAutofillRequested: (() -> Unit)?,
-                ) {
-                    currentToolbar.hide()
-                }
-            }
-        }
-    CompositionLocalProvider(LocalTextToolbar provides copyDisabledToolbar, content)
 }
 
 // Hack to disable pasting

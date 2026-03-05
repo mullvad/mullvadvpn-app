@@ -2,12 +2,14 @@ package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -17,6 +19,8 @@ import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 
 class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepository) : ViewModel() {
 
+    private val _uiSideEffect = Channel<DeleteAccountConfirmationUiSideEffect>()
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
     private val accountInput = MutableStateFlow("")
     private val isLoading = MutableStateFlow(false)
 
@@ -41,7 +45,13 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
     fun deleteAccount() =
         viewModelScope.launch {
             accountRepository.accountData.value
-            accountRepository.deleteAccount().onLeft {}
+            accountRepository
+                .deleteAccount()
+                .fold(
+                    {
+                    },
+                    { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToLogin) },
+                )
         }
 
     fun onAccountInputChanged(input: String) {
@@ -54,3 +64,7 @@ data class DeleteAccountConfirmationUiState(
     val hasConfirmedAccount: Boolean = false,
     val deleteAccountError: DeleteAccountError? = null,
 )
+
+sealed interface DeleteAccountConfirmationUiSideEffect {
+    object NavigateToLogin : DeleteAccountConfirmationUiSideEffect
+}
