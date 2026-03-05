@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useCustomLists } from '../../../hooks';
+import { useCreateCustomList } from '../../../hooks';
 import { useCreateCustomListDialogContext } from '../CreateCustomListDialogContext';
 
 export function useHandleSubmitAddCustomList() {
-  const { createCustomList: contextCreateCustomList } = useCustomLists();
+  const createCustomList = useCreateCustomList();
   const { onLoadingChange } = useCreateCustomListDialogContext();
   const {
     onOpenChange,
@@ -17,16 +17,16 @@ export function useHandleSubmitAddCustomList() {
   const submitCustomList = React.useCallback(
     async (name: string) => {
       onLoadingChange?.(true);
-      const result = await contextCreateCustomList(name);
-      if (result) {
-        setError(true);
-      } else {
+      const { success } = await createCustomList(name);
+      if (success) {
         reset();
         onOpenChange?.(false);
+      } else {
+        setError(true);
       }
       onLoadingChange?.(false);
     },
-    [contextCreateCustomList, onOpenChange, reset, onLoadingChange, setError],
+    [createCustomList, onOpenChange, reset, onLoadingChange, setError],
   );
 
   return React.useCallback(
