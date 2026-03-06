@@ -1498,9 +1498,9 @@ mod new {
     // - [x] test_multihop_providers ()
     // - [-] test_load_balancing
     // - [x] test_daita_smart_routing_overrides_multihop
-    // - [ ] test_selecting_endpoint_with_auto_obfuscation
-    // - [ ] test_selecting_location_will_consider_multihop
-    // - [ ] test_providers
+    // - [-] test_selecting_endpoint_with_auto_obfuscation
+    // - [-] test_selecting_location_will_consider_multihop
+    // - [x] test_providers
     // - [ ] test_multihop_ownership
     // - [ ] test_entry
     // - [ ] test_ownership
@@ -1512,6 +1512,52 @@ mod new {
     // # AutoHop (TODO)
     // # Multihop/Entry (TODO)
     // # Multihop/Exit (TODO)
+
+    /// Construct a query for a relay with specific providers and verify that every chosen relay has
+    /// the correct associated provider.
+    ///
+    /// This is a port of test_providers
+    #[test]
+    fn providers() {
+        let providers = Providers::new(["31173", "100TB"]).unwrap();
+
+        let constraints = EntryConstraints {
+            providers: providers.clone().into(),
+            ..Default::default()
+        };
+        let multihop_constraints = MultihopConstraints {
+            entry: constraints.clone(),
+            exit: ExitConstraints {
+                // NOTE: Providers are (currently) mirrored both entry + exit, so we set this manually.
+                providers: providers.clone().into(),
+                ..Default::default()
+            },
+        };
+
+        for scenario in [
+            Predicate::Singlehop(constraints.clone()),
+            Predicate::Autohop(constraints),
+            Predicate::Entry(multihop_constraints.clone()),
+            Predicate::Exit(multihop_constraints),
+        ] {
+            let query = RELAY_SELECTOR.partition_relays(scenario);
+            assert!(!query.matches.is_empty());
+            for relay in &query.matches {
+                let provider = &relay.provider;
+                assert!(providers.providers().contains(provider), "{relay:#?}");
+            }
+
+            for reasons in query.unique_reasons() {
+                match reasons.as_slice() {
+                    &[Reason::Inactive, Reason::Providers]
+                    | &[Reason::Providers, Reason::Inactive]
+                    | &[Reason::Providers]
+                    | &[Reason::Inactive] => (),
+                    _ => panic!("{reasons:#?}"),
+                }
+            }
+        }
+    }
 
     /// Construct a query for a relay with specific providers and verify that every chosen relay has
     /// the correct associated provider and that it works to select a separate set of providers for
