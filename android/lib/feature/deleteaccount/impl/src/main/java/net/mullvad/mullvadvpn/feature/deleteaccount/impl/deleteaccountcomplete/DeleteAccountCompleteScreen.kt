@@ -94,7 +94,7 @@ private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContin
             Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
             Text(
                 modifier = Modifier.padding(horizontal = Dimens.mediumSpacer),
-                text = "Thanks for being part of our community. \nPrivacy is for the people!",
+                text = stringResource(R.string.delete_account_complete_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha60),
                 textAlign = TextAlign.Center,

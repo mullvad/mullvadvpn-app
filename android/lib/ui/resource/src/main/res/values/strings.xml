@@ -509,4 +509,5 @@
     <string name="delete_account_cant_be_undone">Deleting your account cannot be undone.</string>
     <string name="account_delete_placeholder">Enter account number digits</string>
     <string name="account_deleted">Account deleted</string>
+    <string name="delete_account_complete_subtitle">Thanks for being part of our community.\nPrivacy is for the people!</string>
 </resources>
