@@ -55,7 +55,7 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
                 .deleteAccount()
                 .fold(
                     { deleteError.value = it },
-                    { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToLogin) },
+                    { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToComplete) },
                 )
             isLoading.value = false
         }
@@ -74,5 +74,5 @@ data class DeleteAccountConfirmationUiState(
 )
 
 sealed interface DeleteAccountConfirmationUiSideEffect {
-    object NavigateToLogin : DeleteAccountConfirmationUiSideEffect
+    object NavigateToComplete : DeleteAccountConfirmationUiSideEffect
 }

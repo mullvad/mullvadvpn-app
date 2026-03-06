@@ -498,9 +498,16 @@
     <string name="invalid_ipv6_config">Invalid IPv6 config, please try to change the VPN settings.</string>
     <string name="delete_account">Delete account</string>
     <string name="cont">Continue</string>
+    <string name="delete_account_info">You are about to delete your Mullvad VPN account. Deleting your account will:</string>
+    <string name="delete_account_first_item">Invalidate your account number</string>
+    <string name="delete_account_second_item">Delete and invalidate all devices</string>
+    <string name="delete_account_third_item">Nullify any remaining time</string>
+    <string name="delete_account_forth_item">Remove links to past purchases</string>
+    <string name="delete_account_fifth_item">Make refunds for remaining time unavailable</string>
     <string name="delete_account_confirmation_check">By checking this box I agree to the risks involved with deleting my account</string>
     <string name="delete_account_days_left_warning">You will lose your remaining %d days.</string>
     <string name="delete_account_confirmation_enter_account_number">To delete your Mullvad VPN account, please enter your account number below.</string>
     <string name="delete_account_cant_be_undone">Deleting your account cannot be undone.</string>
     <string name="account_delete_placeholder">Enter account number digits</string>
+    <string name="account_deleted">Account deleted</string>
 </resources>

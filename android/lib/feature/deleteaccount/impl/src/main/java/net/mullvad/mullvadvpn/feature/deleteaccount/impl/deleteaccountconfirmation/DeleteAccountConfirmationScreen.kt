@@ -38,7 +38,6 @@ import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
@@ -48,7 +47,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
+import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountCompleteDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -93,11 +92,8 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator, navController: N
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            DeleteAccountConfirmationUiSideEffect.NavigateToLogin ->
-                navController.navigate(LoginDestination.baseRoute) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            DeleteAccountConfirmationUiSideEffect.NavigateToComplete ->
+                navigator.navigate(DeleteAccountCompleteDestination())
         }
     }
     DeleteAccountConfirmation(
@@ -145,12 +141,9 @@ private fun DeleteAccountConfirmationContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            modifier
-                .animateContentSize()
-                .padding(horizontal = Dimens.sideMarginNew)
-                .imePadding(),
+            modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
     ) {
-        if(state.daysLeft > 0) {
+        if (state.daysLeft > 0) {
             DaysLostWarning(state.daysLeft)
         }
         Spacer(modifier = Modifier.height(Dimens.largeSpacer))
@@ -202,9 +195,7 @@ private fun AccountNumberInput(
         state = textFieldState,
         modifier =
             // Fix for DPad navigation
-            Modifier
-                .semantics { contentType = ContentType.Password }
-                .fillMaxWidth(),
+            Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
         trailingIcon = {
             IconButton(onClick = { showPassword = !showPassword }) {
                 Icon(
@@ -217,9 +208,7 @@ private fun AccountNumberInput(
                 )
             }
         },
-        placeholder = {
-            Text(stringResource(R.string.account_delete_placeholder))
-        },
+        placeholder = { Text(stringResource(R.string.account_delete_placeholder)) },
         keyboardOptions =
             KeyboardOptions(
                 imeAction = ImeAction.Done,

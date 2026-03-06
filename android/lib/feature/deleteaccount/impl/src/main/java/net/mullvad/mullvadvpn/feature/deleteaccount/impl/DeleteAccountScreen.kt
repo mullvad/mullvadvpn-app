@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -103,12 +104,19 @@ private fun DeleteAccountContent(daysLeft: Long) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
         Text(
             text =
-                "You are about to delete your Mullvad VPN account. Deleting your account will:\n" +
-                    "Invalidate your account number\n" +
-                    "Delete and invalidate all devices\n" +
-                    "Nullify any remaining time\n" +
-                    "Remove links to past purchases\n" +
-                    "Make refunds for remaining time unavailable"
+                buildAnnotatedString {
+                    append(stringResource(id = R.string.delete_account_info))
+                    val bulletItems =
+                        listOf(
+                                R.string.delete_account_first_item,
+                                R.string.delete_account_second_item,
+                                R.string.delete_account_third_item,
+                                R.string.delete_account_forth_item,
+                                R.string.delete_account_fifth_item,
+                            )
+                            .map { stringResource(it) }
+                    withBulletList { bulletItems.forEach { withBulletListItem { append(it) } } }
+                }
         )
         if (daysLeft > 0) {
             Spacer(Modifier.height(Dimens.mediumSpacer))
