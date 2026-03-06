@@ -27,18 +27,19 @@ class MullvadApi {
     private let context: SwiftApiContext
 
     init(apiAddress: String, hostname: String) throws {
-
-
         let directRaw = convert_builtin_access_method_setting(
             UUID().uuidString, "Direct", true, UInt8(KindDirect.rawValue), nil
         )
+        // Bridges and EncryptedDNS must be disabled because the shadowsocks bridge provider
+        // is initialized with a nil loader. If Direct fails and the access method selector
+        // falls back to Bridges, it will dereference the nil pointer and SIGABRT.
         let bridgesRaw = convert_builtin_access_method_setting(
-            UUID().uuidString, "Bridges", true, UInt8(KindBridge.rawValue), nil
+            UUID().uuidString, "Bridges", false, UInt8(KindBridge.rawValue), nil
         )
         let encryptedDNSRaw = convert_builtin_access_method_setting(
             UUID().uuidString,
             "EncryptedDNS",
-            true,
+            false,
             UInt8(
                 KindEncryptedDnsProxy.rawValue
             ),
