@@ -190,7 +190,7 @@ private fun createCustomListSection(
     customLists: List<RelayItem.CustomList>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
-    add(RelayListItem.CustomListHeader)
+    add(RelayListItem.CustomListHeader(canEdit = customLists.isNotEmpty()))
     val customListItems =
         createCustomListRelayItems(
             customLists = customLists,
@@ -211,7 +211,7 @@ private fun createCustomListSectionSearching(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (customLists.isNotEmpty()) {
-        add(RelayListItem.CustomListHeader)
+        add(RelayListItem.CustomListHeader(false))
         val customListItems =
             createCustomListRelayItems(
                 customLists = customLists,
