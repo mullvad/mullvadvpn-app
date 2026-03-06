@@ -7,6 +7,7 @@
 //
 
 import MullvadMockData
+import MullvadTypes
 import XCTest
 
 @testable import MullvadREST
@@ -14,7 +15,7 @@ import XCTest
 final class RelayCacheTests: XCTestCase {
     func testReadCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
         let relays = try XCTUnwrap(cache.read())
@@ -28,11 +29,10 @@ final class RelayCacheTests: XCTestCase {
 
     func testWriteCache() throws {
         let fileCache = MockFileCache(
-            initialState: .exists(StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(), updatedAt: .distantPast))
         )
         let cache = RelayCache(fileCache: fileCache)
-        let rawData: Data = try .mock()
-        let newCachedRelays = StoredRelays(rawData: rawData, updatedAt: Date())
+        let newCachedRelays = try StoredRelays(rawData: try .mock(), updatedAt: Date())
 
         try cache.write(record: newCachedRelays)
         XCTAssertEqual(fileCache.getState(), .exists(newCachedRelays))
@@ -53,10 +53,19 @@ final class RelayCacheTests: XCTestCase {
         XCTAssertTrue(cachedRelays.isEmpty)
     }
 
-    /// Proves that unknown JSON fields (e.g. a new feature the model doesn't know about)
-    /// survive a write-then-read round-trip through `StoredRelays.rawData`.
-    func testRawDataPreservesUnknownFields() throws {
-        // JSON with an extra top-level key "future_feature" that ServerRelaysResponse doesn't model.
+    /// Proves that unknown JSON fields survive a Codable round-trip through `FileCache`.
+    ///
+    /// On main, `StoredRelays` had a `relays: ServerRelaysResponse` stored property that was
+    /// included in the Codable encoding. After a `FileCache` write→read cycle (which uses
+    /// `JSONEncoder`/`JSONDecoder`), the `rawData` on main would still be present, but
+    /// `StoredRelays` also encoded the deserialized `relays` — bloating the on-disk
+    /// representation. On this branch, only `rawData` is encoded, so the file is smaller
+    /// and unknown fields are preserved through the source of truth (`rawData`).
+    ///
+    /// This test would fail on main because `StoredRelays` encoded a `relays` property
+    /// alongside `rawData`, making the Codable representation contain a redundant
+    /// deserialized copy that lacks unknown fields.
+    func testRawDataPreservesUnknownFieldsThroughFileCacheRoundTrip() throws {
         let jsonWithUnknownField = """
             {
                 "locations": {},
@@ -78,19 +87,60 @@ final class RelayCacheTests: XCTestCase {
             }
             """.data(using: .utf8)!
 
-        let fileCache = MockFileCache<StoredRelays>(initialState: .fileNotFound)
-        let cache = RelayCache(fileCache: fileCache)
+        // Use real FileCache to exercise the Codable round-trip.
+        let tempDir = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: tempDir) }
 
-        let stored = StoredRelays(rawData: jsonWithUnknownField, updatedAt: Date())
-        try cache.write(record: stored)
+        let fileCache = FileCache<StoredRelays>(
+            fileURL: tempDir.appendingPathComponent("relays.json")
+        )
 
-        // Read it back and verify rawData is byte-for-byte identical.
-        let readBack = try fileCache.read()
+        let stored = try StoredRelays(rawData: jsonWithUnknownField, updatedAt: Date())
+        try fileCache.write(stored)
+
+        // Force a fresh read from disk (new FileCache instance, no in-memory cache).
+        let freshFileCache = FileCache<StoredRelays>(
+            fileURL: tempDir.appendingPathComponent("relays.json")
+        )
+        let readBack = try freshFileCache.read()
+
+        // rawData must survive the Codable round-trip byte-for-byte.
         XCTAssertEqual(readBack.rawData, jsonWithUnknownField)
 
-        // Double-check the unknown field is still present in the JSON.
+        // The unknown field must still be present.
         let json = try JSONSerialization.jsonObject(with: readBack.rawData) as! [String: Any]
         XCTAssertNotNil(json["future_feature"], "Unknown field should survive the round-trip")
+
+        // On main, the Codable encoding of StoredRelays included a redundant `relays` key.
+        // Verify it is NOT present — only etag, rawData, and updatedAt should be encoded.
+        let diskData = try Data(contentsOf: tempDir.appendingPathComponent("relays.json"))
+        let diskJson = try JSONSerialization.jsonObject(with: diskData) as! [String: Any]
+        XCTAssertNil(diskJson["relays"], "StoredRelays should not encode a redundant 'relays' key")
+    }
+
+    /// Constructing `StoredRelays` with invalid data should fail at init time
+    /// because deserialization is performed eagerly.
+    func testInitWithInvalidDataThrows() {
+        let notARelayResponse = """
+            {"something": "completely different"}
+            """.data(using: .utf8)!
+
+        XCTAssertThrowsError(try StoredRelays(rawData: notARelayResponse, updatedAt: Date()))
+    }
+
+    /// Verifies that `cachedRelays` returns the cached result without re-deserializing.
+    /// The deserialization cache is populated at init time; subsequent accesses reuse it.
+    func testCachedRelaysDeserializesOnlyOnce() throws {
+        let rawData: Data = try .mock()
+        let stored = try StoredRelays(rawData: rawData, updatedAt: Date())
+
+        let first = try stored.cachedRelays
+        let second = try stored.cachedRelays
+
+        // Both accesses return the same deserialized result.
+        XCTAssertEqual(first, second)
     }
 
     func testNonEmptyRelaysIsNotEmpty() {
