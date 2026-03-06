@@ -20,7 +20,10 @@ struct Device {
 
 private struct NewAccountResponse: Decodable { let number: String }
 private struct AccountResponse: Decodable { let expiry: Date }
-private struct DeviceResponse: Decodable { let id: String; let name: String }
+private struct DeviceResponse: Decodable {
+    let id: String
+    let name: String
+}
 
 /// - Warning: Do not change the `apiAddress` or the `hostname` after the time `MullvadApi.init` has been invoked.
 class MullvadApi {
