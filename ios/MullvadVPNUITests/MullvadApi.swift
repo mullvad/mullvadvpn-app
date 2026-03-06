@@ -7,148 +7,139 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 
-struct ApiError: Error {
+struct MullvadApiError: Error {
     let description: String
-    let kind: MullvadApiErrorKind
-    init(_ result: MullvadApiError) {
-        kind = result.kind
-        if result.description != nil {
-            description = String(cString: result.description)
-        } else {
-            description = "No error"
-        }
-        mullvad_api_error_drop(result)
-    }
-
-    func throwIfErr() throws {
-        if self.kind.rawValue != 0 {
-            throw self
-        }
-    }
-}
-
-struct InitMutableBufferError: Error {
-    let description = "Failed to allocate memory for mutable buffer"
 }
 
 struct Device {
     let name: String
     let id: UUID
-
-    init(device_struct: MullvadApiDevice) {
-        name = String(cString: device_struct.name_ptr)
-        id = UUID(uuid: device_struct.id)
-    }
 }
 
-/// - Warning: Do not change the `apiAddress` or the `hostname` after the time `MullvadApi.init` has been invoked
-/// The Mullvad API crate is using a global static variable to store those. They will be initialized only once.
-///
-class MullvadApi {
-    private var clientContext = MullvadApiClient()
+private struct NewAccountResponse: Decodable { let number: String }
+private struct AccountResponse: Decodable { let expiry: Date }
+private struct DeviceResponse: Decodable { let id: String; let name: String }
 
-    /// Initialize the Mullvad API client
-    /// - Parameters:
-    ///   - apiAddress: Address of the Mullvad API server in the format \<IP-address\>:\<port\>
-    ///   - hostname: Hostname of the Mullvad API server
+/// - Warning: Do not change the `apiAddress` or the `hostname` after the time `MullvadApi.init` has been invoked.
+class MullvadApi {
+    private let context: SwiftApiContext
+
     init(apiAddress: String, hostname: String) throws {
-        let result = mullvad_api_client_initialize(
-            &clientContext,
+
+
+        let directRaw = convert_builtin_access_method_setting(
+            UUID().uuidString, "Direct", true, UInt8(KindDirect.rawValue), nil
+        )
+        let bridgesRaw = convert_builtin_access_method_setting(
+            UUID().uuidString, "Bridges", true, UInt8(KindBridge.rawValue), nil
+        )
+        let encryptedDNSRaw = convert_builtin_access_method_setting(
+            UUID().uuidString,
+            "EncryptedDNS",
+            true,
+            UInt8(
+                KindEncryptedDnsProxy.rawValue
+            ),
+            nil
+        )
+        let settingsWrapper = init_access_method_settings_wrapper(
+            directRaw, bridgesRaw, encryptedDNSRaw, nil, 0
+        )
+        let bridgeProvider = SwiftShadowsocksLoaderWrapper(
+            _0: SwiftShadowsocksLoaderWrapperContext(shadowsocks_loader: nil)
+        )
+        context = mullvad_api_init_inner(
+            hostname,
             apiAddress,
             hostname,
-            false
+            false,
+            bridgeProvider,
+            settingsWrapper,
+            nil,
+            nil
         )
-        try ApiError(result).throwIfErr()
-    }
-
-    /// Removes all devices assigned to the specified account
-    func removeAllDevices(forAccount: String) throws {
-        let result = mullvad_api_remove_all_devices(
-            clientContext,
-            forAccount
-        )
-
-        try ApiError(result).throwIfErr()
-    }
-
-    /// Public key must be at least 32 bytes long - only 32 bytes of it will be read
-    func addDevice(forAccount: String, publicKey: Data) throws {
-        var device = MullvadApiDevice()
-        let result = mullvad_api_add_device(
-            clientContext,
-            forAccount,
-            (publicKey as NSData).bytes,
-            &device
-        )
-
-        try ApiError(result).throwIfErr()
-    }
-
-    /// Returns a unix timestamp of the expiry date for the specified account.
-    func getExpiry(forAccount: String) throws -> UInt64 {
-        var expiry = UInt64(0)
-        let result = mullvad_api_get_expiry(clientContext, forAccount, &expiry)
-
-        try ApiError(result).throwIfErr()
-
-        return expiry
     }
 
     func createAccount() throws -> String {
-        var newAccountPtr: UnsafePointer<CChar>?
-        let result = mullvad_api_create_account(
-            clientContext,
-            &newAccountPtr
-        )
-        try ApiError(result).throwIfErr()
-
-        let newAccount = String(cString: newAccountPtr!)
-        return newAccount
-    }
-
-    func listDevices(forAccount: String) throws -> [Device] {
-        var iterator = MullvadApiDeviceIterator()
-        let result = mullvad_api_list_devices(clientContext, forAccount, &iterator)
-        try ApiError(result).throwIfErr()
-
-        return DeviceIterator(iter: iterator).collect()
+        let response = try makeRequest { cookie, strategy in
+            mullvad_ios_create_account(context, cookie, strategy)
+        }
+        let data = try requireBody(response)
+        return try JSONDecoder().decode(NewAccountResponse.self, from: data).number
     }
 
     func delete(account: String) throws {
-        let result = mullvad_api_delete_account(clientContext, account)
-        try ApiError(result).throwIfErr()
-    }
-
-    deinit {
-        mullvad_api_client_drop(clientContext)
-    }
-
-    class DeviceIterator {
-        private let backingIter: MullvadApiDeviceIterator
-
-        init(iter: MullvadApiDeviceIterator) {
-            backingIter = iter
+        _ = try makeRequest { cookie, strategy in
+            mullvad_ios_delete_account(context, cookie, strategy, account)
         }
+    }
 
-        func collect() -> [Device] {
-            var nextDevice = MullvadApiDevice()
-            var devices: [Device] = []
-            while mullvad_api_device_iter_next(backingIter, &nextDevice) {
-                devices.append(Device(device_struct: nextDevice))
-                mullvad_api_device_drop(nextDevice)
+    func addDevice(forAccount: String, publicKey: Data) throws {
+        _ = try publicKey.withUnsafeBytes { ptr -> MullvadApiResponse in
+            try makeRequest { cookie, strategy in
+                mullvad_ios_create_device(
+                    context,
+                    cookie,
+                    strategy,
+                    forAccount,
+                    ptr.baseAddress!.assumingMemoryBound(to: UInt8.self)
+                )
             }
-            return devices
-        }
-
-        deinit {
-            mullvad_api_device_iter_drop(backingIter)
         }
     }
-}
 
-private extension String {
-    func lengthOfBytes() -> UInt {
-        return UInt(self.lengthOfBytes(using: String.Encoding.utf8))
+    func getExpiry(forAccount: String) throws -> UInt64 {
+        let response = try makeRequest { cookie, strategy in
+            mullvad_ios_get_account(context, cookie, strategy, forAccount)
+        }
+        let data = try requireBody(response)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(AccountResponse.self, from: data)
+        return UInt64(decoded.expiry.timeIntervalSince1970)
+    }
+
+    func listDevices(forAccount: String) throws -> [Device] {
+        let response = try makeRequest { cookie, strategy in
+            mullvad_ios_get_devices(context, cookie, strategy, forAccount)
+        }
+        let data = try requireBody(response)
+        let deviceResponses = try JSONDecoder().decode([DeviceResponse].self, from: data)
+        return deviceResponses.compactMap { d in
+            guard let uuid = UUID(uuidString: d.id) else { return nil }
+            return Device(name: d.name, id: uuid)
+        }
+    }
+
+    private func requireBody(_ response: MullvadApiResponse) throws -> Data {
+        guard response.success, let data = response.body else {
+            throw MullvadApiError(description: response.errorDescription ?? "Request failed")
+        }
+        return data
+    }
+
+    @discardableResult
+    private func makeRequest(
+        _ call: (UnsafeMutableRawPointer, SwiftRetryStrategy) -> SwiftCancelHandle
+    ) throws -> MullvadApiResponse {
+        let semaphore = DispatchSemaphore(value: 0)
+        nonisolated(unsafe) var apiResponse: MullvadApiResponse?
+
+        let completion = MullvadApiCompletion { response in
+            apiResponse = response
+            semaphore.signal()
+        }
+        let cookie = Unmanaged.passRetained(completion).toOpaque()
+        let strategy = mullvad_api_retry_strategy_constant(3, 1)
+        var handle = call(cookie, strategy)
+        semaphore.wait()
+        mullvad_api_cancel_task_drop(&handle)
+
+        guard let response = apiResponse else {
+            throw MullvadApiError(description: "No response received")
+        }
+        return response
     }
 }
