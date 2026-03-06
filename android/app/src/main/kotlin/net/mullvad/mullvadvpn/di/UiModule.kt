@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.Custo
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.CustomListsViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
+import net.mullvad.mullvadvpn.feature.deleteaccount.impl.DeleteAccountViewModel
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmation.DeleteAccountConfirmationViewModel
 import net.mullvad.mullvadvpn.feature.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectViewModel
@@ -257,6 +258,7 @@ val uiModule = module {
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }
     viewModel { DeleteAccountConfirmationViewModel(get()) }
+    viewModel { DeleteAccountViewModel(get()) }
     viewModel { ChangelogViewModel(get(), get(), get()) }
     viewModel {
         AppInfoViewModel(
