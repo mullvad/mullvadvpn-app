@@ -20,7 +20,7 @@ final class IPOverrideWrapperTests: XCTestCase {
         ]
 
         let fileCache = MockFileCache(
-            initialState: .exists(StoredRelays(rawData: try .mock(serverRelays: relays), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(serverRelays: relays), updatedAt: .distantPast))
         )
 
         let override = try IPOverride(hostname: "Host 1", ipv4Address: .loopback, ipv6Address: .broadcast)
@@ -50,7 +50,7 @@ final class IPOverrideWrapperTests: XCTestCase {
         ]
 
         let fileCache = MockFileCache(
-            initialState: .exists(StoredRelays(rawData: try .mock(bridgeRelays: relays), updatedAt: .distantPast))
+            initialState: .exists(try StoredRelays(rawData: try .mock(bridgeRelays: relays), updatedAt: .distantPast))
         )
 
         let override = try IPOverride(hostname: "Host 1", ipv4Address: .loopback, ipv6Address: .broadcast)
