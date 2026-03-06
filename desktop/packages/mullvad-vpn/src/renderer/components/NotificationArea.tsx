@@ -15,7 +15,6 @@ import {
   TroubleshootStep,
   UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
-import { ExternalLink } from './ExternalLink';
 import { RoutePath } from '../../shared/routes';
 import { useAppContext } from '../context';
 import { useSplitTunnelingSupported } from '../features/split-tunneling/hooks';
@@ -41,6 +40,7 @@ import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
+import { ExternalLink } from './ExternalLink';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
