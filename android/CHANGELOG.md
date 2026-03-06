@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Added support for account deletion
+
 ### Changed
 - Hide password by default on login screen.
 

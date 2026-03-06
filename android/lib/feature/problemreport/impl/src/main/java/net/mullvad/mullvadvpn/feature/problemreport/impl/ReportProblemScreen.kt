@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.problemreport.impl
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +26,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
@@ -43,7 +41,6 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -60,12 +57,11 @@ import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
-import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
-import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
@@ -281,53 +277,18 @@ private fun IncludeAccountInformationCheckBox(
         LocalUriHandler.current.createUriHook(
             stringResource(R.string.privacy_policy_url).appendHideNavOnPlayBuild(isPlayBuild)
         )
-    Column(
-        modifier =
-            Modifier.animateContentSize()
-                .border(
-                    width = Dp.Hairline,
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = MaterialTheme.shapes.medium,
-                )
-                .clip(shape = MaterialTheme.shapes.medium)
-                .padding(
-                    bottom =
-                        if (includeAccountInformation) Dimens.smallPadding else Dimens.tinyPadding,
-                    end = Dimens.tinyPadding,
-                    start = Dimens.tinyPadding,
-                    top = Dimens.tinyPadding,
-                )
+    CheckboxConfirmation(
+        text = stringResource(R.string.include_account_token_checkbox_text),
+        includeAccountInformation,
+        onIncludeAccountInformationCheckChange,
     ) {
-        Row(
-            modifier =
-                Modifier.defaultMinSize(minHeight = ListTokens.listItemMinHeight)
-                    .fillMaxWidth()
-                    .clickable(
-                        onClick = {
-                            onIncludeAccountInformationCheckChange(!includeAccountInformation)
-                        }
-                    ),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Checkbox(
-                modifier = Modifier.padding(end = Dimens.smallPadding),
-                checked = includeAccountInformation,
-                onCheckedChange = onIncludeAccountInformationCheckChange,
-            )
-            Text(
-                style = MaterialTheme.typography.bodyMedium,
-                text = stringResource(R.string.include_account_token_checkbox_text),
-            )
-        }
-        if (includeAccountInformation) {
-            AccountInformationWarning(
-                showIncludeAccountInformationWarningMessage =
-                    showIncludeAccountInformationWarningMessage,
-                toggleShowIncludeAccountInformationWarningMessage =
-                    toggleShowIncludeAccountInformationWarningMessage,
-                openPrivacyPolicy = openPrivacyPolicy,
-            )
-        }
+        AccountInformationWarning(
+            showIncludeAccountInformationWarningMessage =
+                showIncludeAccountInformationWarningMessage,
+            toggleShowIncludeAccountInformationWarningMessage =
+                toggleShowIncludeAccountInformationWarningMessage,
+            openPrivacyPolicy = openPrivacyPolicy,
+        )
     }
 }
 
