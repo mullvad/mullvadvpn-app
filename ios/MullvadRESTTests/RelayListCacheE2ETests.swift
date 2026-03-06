@@ -14,8 +14,6 @@ import XCTest
 
 @testable import MullvadREST
 @testable import MullvadSettings
-import Network
-import MullvadMockData
 
 /// End-to-end test that verifies relay list responses are stored verbatim in the cache,
 /// preserving unknown JSON fields that `ServerRelaysResponse` doesn't model.
