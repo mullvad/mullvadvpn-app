@@ -1484,7 +1484,7 @@ mod new {
     // - [x] test_runtime_ipv4_unavailable
     // - [-] test_selecting_endpoint_with_udp2tcp_obfuscation
     // - [-] test_selecting_ignore_extra_ips_override_v4
-    // - [ ] test_include_in_country
+    // - [-] test_include_in_country
     // - [-] test_selecting_ignore_extra_ips_override_v6
     // - [x] test_selecting_over_lwo
     // - [x] test_selecting_over_quic
@@ -1497,7 +1497,7 @@ mod new {
     // - [-] valid_user_setting_should_yield_relay
     // - [x] test_multihop_providers ()
     // - [-] test_load_balancing
-    // - [ ] test_daita_smart_routing_overrides_multihop
+    // - [x] test_daita_smart_routing_overrides_multihop
     // - [ ] test_selecting_endpoint_with_auto_obfuscation
     // - [ ] test_selecting_location_will_consider_multihop
     // - [ ] test_providers
@@ -1737,6 +1737,52 @@ mod new {
             assert!(!query.matches.is_empty());
             let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
             assert!(query.matches.is_empty());
+        }
+    }
+
+    /// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
+    /// multihop is enabled. This applies even if the entry is set explicitly.
+    ///
+    /// This is a port of test_daita_smart_routing_overrides_multihop
+    #[test]
+    fn daita_smart_routing_overrides_multihop() {
+        let daita_constraints = EntryConstraints {
+            daita: DaitaSettings {
+                enabled: true,
+                ..Default::default()
+            }
+            .into(),
+            ..Default::default()
+        };
+        for non_daita_relay in RELAY_SELECTOR
+            .partition_relays(Predicate::Singlehop(daita_constraints.clone()))
+            .discards
+            .into_iter()
+            .filter_map(|(discard, reasons)| {
+                if reasons.contains(&Reason::Daita) && !reasons.contains(&Reason::Inactive) {
+                    Some(discard)
+                } else {
+                    None
+                }
+            })
+        {
+            let mut constraints = daita_constraints.clone();
+            // Force the entry relay to be a relay without DAITA.
+            constraints.general.location =
+                LocationConstraint::from(GeographicLocationConstraint::hostname(
+                    non_daita_relay.location.country.clone(),
+                    non_daita_relay.location.city.clone(),
+                    non_daita_relay.hostname.clone(),
+                ))
+                .into();
+
+            // Make sure a DAITA-enabled relay is always selected due to smart routing.
+            let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
+            for relay in query.matches {
+                assert!(relay.endpoint_data.daita, "{relay:#?}");
+            }
+            // Note: We have already asserted that the same query without smart routing works at
+            // this point.
         }
     }
 
