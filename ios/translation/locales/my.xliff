@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,14 +48,6 @@
       <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
         <source>%@ was added to your account.</source>
         <target state="final">%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
-        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="final">"လိုကယ် ကွန်ရက် ဝေမျှမှု %@” သည် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပါသည်၊ ပြန်လည်စတင်သည့်အခါ ချိတ်ဆက်မှုကို ဖြုတ်လိုက်ပြီး အင်တာနက်ပေါ်သို့ ကူးလူးနေသော ဒေတာတို့ကို အများက ခဏတာ မြင်တွေ့နိုင်ပါသည်။
-ဤကဲ့သို့ မဖြစ်စေရန် ဆက်မလုပ်မီ Airplane Mode ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။ "လိုကယ် ကွန်ရက် ဝေမျှမှု"ကို ဖွင့်ရန် ဆက်လုပ်လိုပါသလား။</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
@@ -243,11 +235,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">တစ်ခုခု</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
-        <source>App Store receipt is not found on disk.</source>
-        <target state="final">App Store ပြေစာကို Disk တွင် ရှာမတွေ့ပါ။</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
         <target state="final">အက်ပ် မှတ်တမ်းများ</target>
@@ -342,6 +329,16 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Barcelona</source>
         <target state="final">ဘာစီလိုနာ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Be cautious when using automatic updates as this will trigger the network connectivity loss." xml:space="preserve" approved="yes">
+        <source>Be cautious when using automatic updates as this will trigger the network connectivity loss.</source>
+        <target state="final">ကွန်ရက် ချိတ်ဆက်မှု ဆုံးရှုံးခြင်းကို ဖြစ်စေနိုင်သောကြောင့် အော်တိုအပ်ဒိတ်များကို အသုံးပြုချိန်တွင် သတိထားပါ။</target>
+        <note from="auto-generated">Text displayed in a settings page explaining the potential consequences of using automatic updates when the IAN is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device." xml:space="preserve" approved="yes">
+        <source>Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</source>
+        <target state="final">ဤ iOS အကန့်အသတ်များ ရှိသောကြောင့် ဤအရာကို ဖွင့်ထားချိန်တွင် Mullvad VPN ကို အပ်ဒိတ်လုပ်ပြီး VPN နှင့် ချိတ်ဆက်လိုက်ပါက ကွန်ရက် ချိတ်ဆက်မှုကို ဆုံးရှုံးသွားပါမည်။ စက်ကို ပြန်လည်စတင်မှသာ ကွန်ရက်ချိတ်ဆက်မှုသည် မူလအခြေအနေသို့ ပြန်ရောက်နိုင်ပါသည်။</target>
+        <note from="auto-generated">Text describing the potential network connectivity loss when the IAN feature is enabled and the device is connected to the VPN.</note>
       </trans-unit>
       <trans-unit id="Belgium" xml:space="preserve" approved="yes">
         <source>Belgium</source>
@@ -463,20 +460,20 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ဝယ်ယူမှုကို ပြီးမြောက်အောင် ဆောင်ရွက်၍ မရနိုင်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
-        <source>Cannot read the App Store receipt from disk</source>
-        <target state="final">App Store ပြေစာကို Disk မှ ဖတ်၍ မရပါ</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
-        <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="final">App Store ပြေစာကို ပြန်လည်လုပ်ဆောင်၍ မရပါ- %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
         <target state="final">ဝယ်ယူမှုများကို ပြန်လည်ရယူ၍ မရပါ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
+        <source>Changing language will disconnect you from the VPN and restart the app</source>
+        <target state="final">ဘာသာစကား ပြောင်းလဲခြင်းခြင့် VPN နှင့် ချိတ်ဆက်မှု ပြတ်တောက်သွားမည်ဖြစ်ပြီး စက်ကို ပြန်လည်စတင်ပါမည်</target>
+        <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Checked" xml:space="preserve" approved="yes">
+        <source>Checked</source>
+        <target state="final">အမှန်ခြစ်ခြစ်ပြီး</target>
+        <note from="auto-generated">Text describing a checked checkbox.</note>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
         <source>Checking account number</source>
@@ -518,15 +515,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှုများကို ရှင်းလင်းခြင်းဖြင့် တည်နေရာ ရွေးရန် ပြသမှုတွင် ဆာဗာ IP များကို ပုံသေအဖြစ် ပြန်ပြောင်းလိုက်ပါမည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
-        <source>Client is not allowed to issue the request.</source>
-        <target state="final">တောင်းဆိုချက် ပေးပို့ရန် Client ကို ခွင့်မပြုထားပါ။</target>
-        <note/>
+      <trans-unit id="Collapse" xml:space="preserve" approved="yes">
+        <source>Collapse</source>
+        <target state="final">ချုံ့ရန်</target>
+        <note from="auto-generated">Name of the accessibility action that collapses a location.</note>
       </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
         <target state="final">%@ ကို ချုံ့ရန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Collapse connection details" xml:space="preserve" approved="yes">
+        <source>Collapse connection details</source>
+        <target state="final">ချိတ်ဆက်မှုဆိုင်ရာ အသေးစိတ်များကို ချုံ့ရန်</target>
+        <note from="auto-generated">Accessibility label for the button that collapses the connection details.</note>
+      </trans-unit>
+      <trans-unit id="Collapsed" xml:space="preserve" approved="yes">
+        <source>Collapsed</source>
+        <target state="final">ချုံ့ပြီး</target>
+        <note from="auto-generated">A description of a list item that is collapsed.</note>
       </trans-unit>
       <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
@@ -603,6 +610,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">အကောင့်သစ် ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new custom list" xml:space="preserve" approved="yes">
+        <source>Create new custom list</source>
+        <target state="final">စိတ်ကြိုက်စာရင်းအသစ် ဖန်တီးရန်</target>
+        <note from="auto-generated">An accessibility label for the button that allows the user to create a new custom list.</note>
+      </trans-unit>
       <trans-unit id="Create new list" xml:space="preserve" approved="yes">
         <source>Create new list</source>
         <target state="final">စာရင်းသစ် ဖန်တီးမည်</target>
@@ -628,6 +640,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">လက်ရှိစက်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN." xml:space="preserve" approved="yes">
+        <source>Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</source>
+        <target state="final">လက်ရှိအချိန်တွင် ကွန်ရက် ချိတ်ဆက်မှု ဆုံးရှုံးခြင်းကို ရှောင်လွှဲ၍ ဆောင်ရွက်ရန် နည်းလမ်း မရှိသေးသော်လည်း Mullvad VPN အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက် ပိတ်ခြင်း သို့မဟုတ် ချိတ်ဆက်မှု ဖြုတ်ခြင်းဖြင့် ကွန်ရက် ချိတ်ဆက်မှု ဆုံးရှုံးခြင်းကို ရှောင်ရှားနိုင်ပါသည်။</target>
+        <note from="auto-generated">Text displayed on the last page of the IAN settings info view, explaining that there is no way to work around the current behaviour, but that they can avoid losing network connectivity by disabling the feature or disconnecting before</note>
+      </trans-unit>
       <trans-unit id="Custom" xml:space="preserve" approved="yes">
         <source>Custom</source>
         <target state="final">စိတ်ကြိုက်</target>
@@ -642,6 +659,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Custom lists</source>
         <target state="final">စိတ်ကြိုက်စာရင်းများ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Cycle through available servers" xml:space="preserve" approved="yes">
+        <source>Cycle through available servers</source>
+        <target state="final">ရရှိနိုင်သော ဆာဗာများကို အစဉ်လိုက် တစ်ခုချင်း ပြောင်းကြည့်ပါ</target>
+        <note from="auto-generated">Accessibility hint for the "Reconnect" action button in the "Select location" split button.</note>
       </trans-unit>
       <trans-unit id="Cyprus" xml:space="preserve" approved="yes">
         <source>Cyprus</source>
@@ -783,11 +805,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">လတ်တလောအရာများကို ပိတ်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">ပိတ်ခြင်း</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။</target>
@@ -833,6 +850,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ဒါဘလင်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="final">iOS ကန့်သတ်ချက်များကြောင့် ပုံသေအနေဖြင့် မဖွင့်ထားပါ။ ပုံသေအားဖြင့် ကျွန်ုပ်တို့၏ အခြားအက်ပ်များသည် ဒေတာကူးလူးမှုကို VPN မှတစ်ဆင့် ပေးပို့ပါသည်။</target>
+        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+      </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
         <source>Dusseldorf</source>
         <target state="final">ဒူဆင်ဒေါ့ဖ်</target>
@@ -852,6 +874,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Edit custom lists</source>
         <target state="final">စိတ်ကြိုက် စာရင်းများ ဖန်တီးရန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Edit list" xml:space="preserve" approved="yes">
+        <source>Edit list</source>
+        <target state="final">စာရင်းကို တည်းဖြတ်ရန်</target>
+        <note from="auto-generated">A button label that opens a form to edit an existing custom list.</note>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve" approved="yes">
         <source>Edit message</source>
@@ -888,14 +915,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">မာလ်တီဟော့ပ်ကို ဖွင့်ရန်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
+        <source>Enable notifications</source>
+        <target state="final">အသိပေးချက်များ ဖွင့်ရန်</target>
+        <note from="auto-generated">Text for an action button that enables notifications.</note>
+      </trans-unit>
       <trans-unit id="Enable recents" xml:space="preserve" approved="yes">
         <source>Enable recents</source>
         <target state="final">လတ်တလောအရာများကို ဖွင့်ရန်</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">ဖွင့်ခြင်း</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -928,10 +955,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">အထွက်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve" approved="yes">
+        <source>Expand</source>
+        <target state="final">ဖြန့်ရန်</target>
+        <note from="auto-generated">Name of the accessibility action that expands a location.</note>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
         <target state="final">%@ ကို ဖြန့်ပြရန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Expand connection details" xml:space="preserve" approved="yes">
+        <source>Expand connection details</source>
+        <target state="final">ချိတ်ဆက်မှုဆိုင်ရာ အသေးစိတ်များကို ဖြန့်ရန်</target>
+        <note from="auto-generated">Accessibility label for the button that expands or collapses the connection details section.</note>
+      </trans-unit>
+      <trans-unit id="Expanded" xml:space="preserve" approved="yes">
+        <source>Expanded</source>
+        <target state="final">ဖြန့်ပြီး</target>
+        <note from="auto-generated">A label describing the expanded state of a list item.</note>
       </trans-unit>
       <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
@@ -956,11 +998,6 @@ Would you like to continue to enable “Local network sharing”?</source>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
         <source>Failed to send</source>
         <target state="final">ပို့ရန် မအောင်မြင်ခဲ့ပါ</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
-        <source>Failed to send the receipt to server: %@</source>
-        <target state="final">ပြေစာကို ဆာဗာသို့ ပေးပို့၍ မရပါ- %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
@@ -1012,6 +1049,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Finland</source>
         <target state="final">ဖင်လန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">အက်ပ်အားလုံး၌ မဖြစ်မနေ လုပ်ဆောင်ရန်</target>
+        <note from="auto-generated">Title of the settings screen for forcing all apps to use the IAN tunnel.</note>
+      </trans-unit>
+      <trans-unit id="Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected." xml:space="preserve" approved="yes">
+        <source>Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</source>
+        <target state="final">စက်ပေါ်ရှိ အက်ပ်အားလုံး၏ ဒေတာကူးလူးမှုကို VPN Tunnel ထဲသို့ မဖြစ်မနေ ပေးပို့ပါသည်၊ ဤသို့ဖြင့် မတော်တဆ သို့မဟုတ် မသမာနည်းလမ်းတစ်ခုခုကြောင့် အခြားအက်ပ်များက ဒေတာပေါက်ကြားခြင်း မရှိကြောင်း သေချာစေပါသည်။ စက်လည်ပတ်မှုအတွက် လိုအပ်သော Apple စနစ်အက်ပ်များနှင့် ဝန်ဆောင်မှုများကို မထိခိုက်ပါ။</target>
+        <note from="auto-generated">Description of the IAN feature, including a note that Apple system apps and services are not affected.</note>
+      </trans-unit>
+      <trans-unit id="Forces all apps on the device to use the VPN tunnel, preventing data leaks" xml:space="preserve" approved="yes">
+        <source>Forces all apps on the device to use the VPN tunnel, preventing data leaks</source>
+        <target state="final">ဒေတာပေါက်ကြားမှုများကို ကာကွယ်ရန် VPN Tunnel သုံးရန် စက်ပေါ်ရှိ အက်ပ်အားလုံး၌ မဖြစ်မနေ လုပ်ဆောင်ပါ</target>
+        <note from="auto-generated">Footer text in the VPN settings section of the settings screen.</note>
       </trans-unit>
       <trans-unit id="Fortaleza" xml:space="preserve" approved="yes">
         <source>Fortaleza</source>
@@ -1103,6 +1155,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ဟန်ဂေရီ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="I understand the benefits and risks of using this feature" xml:space="preserve" approved="yes">
+        <source>I understand the benefits and risks of using this feature</source>
+        <target state="final">ဤလုပ်ဆောင်ချက်ကို သုံးခြင်းကြောင့် ရရှိလာမည့် အကျိုးခံစားခွင့်များနှင့် ဖြစ်နိုင်ခြေရှိသော အန္တရာယ်များကို နားလည်သဘောပေါက်ပါသည်</target>
+        <note from="auto-generated">Label for a toggle switch in the "Include all networks" settings view, indicating that the user has understood the benefits and risks of using this feature.</note>
+      </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve" approved="yes">
         <source>IMPORT SUCCESSFUL</source>
         <target state="final">ထည့်သွင်းမှု အောင်မြင်ပါသည်</target>
@@ -1117,6 +1174,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>If needed we will contact you at %@</source>
         <target state="final">လိုအပ်ပါက %@ မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
+        <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
+        <target state="final">မဖွင့်ထားပါက ဤစက်ပေါ်ရှိ အန္တရာယ်ဖြစ်နိုင်သော အက်ပ်များသည် Tunnel ပြင်ပတွင် ဒေတာကူးလူးမှု လမ်းကြောင်းမှ ဒေတာပေါက်ကြားနိုင်သည်။</target>
+        <note from="auto-generated">Text describing the potential risk of data leakage when the IAN feature is disabled.</note>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
@@ -1203,11 +1265,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">အသုံးပြုဆဲ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
-        <source>Include all networks</source>
-        <target state="final">ကွန်ရက်အားလုံး ထည့်သွင်းပါ</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
         <target state="final">ငွေပေးချေမှု သို့မဟုတ် အကောင့်နှင့်ဆိုင်သောပြဿနာများအတွက် ပိုမိုမြန်ဆန်စွာအကူအညီရရှိနိုင်ရန်၊ သင့်အကောင့်တိုကင်ကို ထည့်ပါ</target>
@@ -1217,6 +1274,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Indonesia</source>
         <target state="final">အင်ဒိုနီးရှား</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
+        <source>Install the latest app version to stay up to date.</source>
+        <target state="final">အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။</target>
+        <note from="auto-generated">Body text of an in-app notification that reminds the user to update their app to the latest version.</note>
       </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
@@ -1238,19 +1300,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">အကောင့်နံပါတ် မမှန်ကန်ပါ</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
-        <source>Invalid account number: %@</source>
-        <target state="final">အကောင့်နံပါတ် မမှန်ကန်ပါ- %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
         <target state="final">စက်အခြေအနေ မမှန်ကန်ပါ။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
-        <source>Invalid purchase identifier.</source>
-        <target state="final">ဝယ်ယူမှု အထောက်အထားနံပါတ်သည် မမှန်ကန်ပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1377,6 +1429,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Locations</source>
         <target state="final">တည်နေရာများ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve" approved="yes">
+        <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
+        <target state="final">တည်နေရာများကို တိုက်ရိုက် ရွေးချယ်နိုင်သည် သို့မဟုတ် အကျယ်ဖြန့်နိုင်သည်။ မြို့ သို့မဟုတ် နိုင်ငံတစ်ခုကို ရွေးချယ်သည့်အခါ Tunnel ချိတ်ဆက်မှု လုပ်ဆောင်ရန်အတွက် ထိုနေရာရှိ ကိုက်ညီသော ဆာဗာအားလုံးကို ထည့်သွင်းစဉ်းစား၍ ထိုအထဲမှ ရွေးချယ်သွားပါမည်။</target>
+        <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
@@ -1638,6 +1695,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$@ ကိုဖွင့်ထားခြင်းမရှိပါ။ ထို့ကြောင့် ကျွန်ုပ်တို့သည် မည်သည့်ဆာဗာနှင့်မဆို %2$@ ကိုဖွင့်ရန် မာလ်တီဟော့ပ်ကို အလိုအလျောက်အသုံးပြုပါသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Notifications" xml:space="preserve" approved="yes">
+        <source>Notifications</source>
+        <target state="final">အသိပေးချက်များ</target>
+        <note from="auto-generated">Title of the screen where a user can configure their notification settings.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</source>
+        <target state="final">ဤစက်တွင် Mullvad VPN အတွက် အသိပေးချက်များကို ပိတ်ထားပါသည်။ အသိပေးချက်များကို ပြန်ဖွင့်လိုပါက Mullvad VPN အတွက် သင့်စနစ်ဆက်တင်များကို ပြောင်းလဲပေးပါ။</target>
+        <note from="auto-generated">A message displayed to users who have disabled notifications for Mullvad VPN on their device. It instructs them to open their system settings to re-enable notifications.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</source>
+        <target state="final">ဤစက်တွင် Mullvad VPN အတွက် အသိပေးချက်များကို ပိတ်ထားပါသည်။ အသိပေးချက်များကို ပြန်ဖွင့်လိုပါက Mullvad VPN အတွက် သင့်စနစ်ဆက်တင်များကို ပြောင်းလဲပေးပါ။ ဤဆက်တင်များကို အချိန်မရွေး ပြောင်းနိုင်ပါသည်။</target>
+        <note from="auto-generated">Text displayed in a notification prompt view model when notifications are disabled on the device.</note>
+      </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve" approved="yes">
         <source>OUT OF TIME</source>
         <target state="final">အချိန်စေ့သွားပါပြီ</target>
@@ -1687,6 +1759,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Open %@ settings</source>
         <target state="final">%@ ဆက်တင်များကို ဖွင့်ရန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
+        <source>Open system settings</source>
+        <target state="final">စနစ်ဆက်တင်ကို ဖွင့်ရန်</target>
+        <note from="auto-generated">Text for a button that opens the user's system settings.</note>
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve" approved="yes">
         <source>Optional</source>
@@ -1788,10 +1865,10 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">အောက်ပါစာရင်းမှ အနည်းဆုံး တစ်ခုကို ဖယ်ရှားခြင်းဖြင့် ၎င်းမှ ထွက်ပါ။ စက်၏ အကောင့်ဆက်တင်အောက်တွင် သက်ဆိုင်သော စက်အမည်ကို သင် ရှာနိုင်သည်။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
-        <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="final">'ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်' ခလုတ်ကို အသုံးပြု၍ ထပ်မံကြိုးစားပါ။</target>
-        <note/>
+      <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
+        <source>Please swipe through and read all information in order to activate this feature</source>
+        <target state="final">ဤလုပ်ဆောင်ချက်ကို သက်ဝင်လုပ်ဆောင်ရန်အလို့ငှာ အချက်အလက်အပြည့်အစုံ အဆုံးထိ ဆွဲ၍ ဖတ်ပေးပါ</target>
+        <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
         <source>Poland</source>
@@ -1872,6 +1949,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Recents</source>
         <target state="final">လတ်တလောအရာများ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Reconnect" xml:space="preserve" approved="yes">
+        <source>Reconnect</source>
+        <target state="final">ပြန်ချိတ်ဆက်ရန်</target>
+        <note from="auto-generated">Text for the secondary action on the button panel in the connection view.</note>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
@@ -1990,6 +2072,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဆီကောကတ်စ်၊ နယူးဂျာစီ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Select %@" xml:space="preserve" approved="yes">
+        <source>Select %@</source>
+        <target state="final">%@ ကို ရွေးချယ်ရန်</target>
+        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+      </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
         <target state="final">တည်နေရာ ရွေးရန်</target>
@@ -2040,6 +2127,21 @@ Do you want to remove the saved account number?</source>
         <target state="final">ဆာဗာ အသေးစိတ်အချက်များ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Server hostname: %@" xml:space="preserve" approved="yes">
+        <source>Server hostname: %@</source>
+        <target state="final">ဆာဗာ၏ Hostname- %@</target>
+        <note from="auto-generated">A string that describes the hostname of the VPN server.</note>
+      </trans-unit>
+      <trans-unit id="Server hostnames: %@ via %@" xml:space="preserve" approved="yes">
+        <source>Server hostnames: %1$@ via %2$@</source>
+        <target state="final">ဆာဗာ၏ Hostname များ- %2$@ မှတစ်ဆင့် %1$@</target>
+        <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
+      </trans-unit>
+      <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
+        <source>Set up notifications</source>
+        <target state="final">အသိပေးချက်များ သတ်မှတ်ရန်</target>
+        <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
         <target state="final">ဆက်တင်- %@</target>
@@ -2070,6 +2172,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">အကောင့်နံပါတ်ကို ပြရန်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Show additional details about your connection" xml:space="preserve" approved="yes">
+        <source>Show additional details about your connection</source>
+        <target state="final">သင့်ချိတ်ဆက်မှုနှင့်ပတ်သက်၍ အပိုဆောင်းအချက်အလက်များကို ပြသရန်</target>
+        <note from="auto-generated">Accessibility hint for the button that expands the chip container view.</note>
+      </trans-unit>
       <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
         <target state="final">%2$lld ခုအနက်မှ %1$lld ခုကို ပြသနေသည်</target>
@@ -2079,6 +2186,11 @@ Do you want to remove the saved account number?</source>
         <source>Singapore</source>
         <target state="final">စင်ကာပူ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Skip" xml:space="preserve" approved="yes">
+        <source>Skip</source>
+        <target state="final">ကျော်ရန်</target>
+        <note from="auto-generated">Text for a button that skips the notification prompt.</note>
       </trans-unit>
       <trans-unit id="Slovakia" xml:space="preserve" approved="yes">
         <source>Slovakia</source>
@@ -2125,6 +2237,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">Stavanger</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Stay informed about your VPN connection and any actions needed to ensure it works correctly." xml:space="preserve" approved="yes">
+        <source>Stay informed about your VPN connection and any actions needed to ensure it works correctly.</source>
+        <target state="final">သင့် VPN ချိတ်ဆက်မှုနှင့် VPN မှန်ကန်စွာ လည်ပတ်နိုင်စေရန် လိုအပ်သော လုပ်ဆောင်ချက်မှန်သမျှနှင့် ဆက်စပ်၍ အသိပေးသွားပါမည်။</target>
+        <note from="auto-generated">Message in the notification prompt view model explaining the purpose of the notifications.</note>
+      </trans-unit>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">စတော့ဟုမ်း</target>
@@ -2165,6 +2282,51 @@ Do you want to remove the saved account number?</source>
         <target state="final">TUNNEL ချို့ယွင်းချက်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_CONNECTION" xml:space="preserve" approved="yes">
+        <source>Blocked connection</source>
+        <target state="final">ပိတ်ဆို့ထားသော ချိတ်ဆက်မှု</target>
+        <note>VoiceOver announcement when connection is blocked</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_WITH_REASON" xml:space="preserve" approved="yes">
+        <source>Blocked connection: %@</source>
+        <target state="final">ပိတ်ဆို့ထားသော ချိတ်ဆက်မှု- %@</target>
+        <note>VoiceOver announcement for blocked/error state with reason</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connected to %1$@, %2$@</source>
+        <target state="final">Tunnel ကို %1$@ ၊ %2$@ နှင့် ချိတ်ထားသည်</target>
+        <note>VoiceOver announcement when connected to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting</source>
+        <target state="final">Tunnel ချိတ်ဆက်နေဆဲ</target>
+        <note>VoiceOver announcement when connecting without relay info</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting to %1$@, %2$@</source>
+        <target state="final">Tunnel ကို %1$@ ၊ %2$@ နှင့် ချိတ်ထားသည်</target>
+        <note>VoiceOver announcement when connecting to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnected</source>
+        <target state="final">Tunnel မချိတ်ဆက်ထားပါ</target>
+        <note>VoiceOver announcement when disconnected</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnecting</source>
+        <target state="final">Tunnel ချိတ်ဆက်မှုဖြုတ်နေသည်</target>
+        <note>VoiceOver announcement when disconnecting</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve" approved="yes">
+        <source>No network</source>
+        <target state="final">ကွန်ရက် မရှိပါ</target>
+        <note>VoiceOver announcement when no network is available</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel reconnecting to %1$@, %2$@</source>
+        <target state="final">Tunnel ကို %1$@ ၊ %2$@ နှင့် ပြန်ချိတ်ဆက်နေသည်</target>
+        <note>VoiceOver announcement when reconnecting to a relay</note>
+      </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
         <source>Tallinn</source>
         <target state="final">တောလ်လင်း</target>
@@ -2174,6 +2336,11 @@ Do you want to remove the saved account number?</source>
         <source>Tap **Edit** to add at least one DNS server.</source>
         <target state="final">အနည်းဆုံး DNS ဆာဗာတစ်ခု ထည့်ရန်တွက် **ပြင်ရန်**ကို နှိပ်ပါ။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
+        <source>Tap here to go to AppStore</source>
+        <target state="final">AppStore သို့ သွားရန် ဤနေရာကို နှိပ်ပါ</target>
+        <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
         <source>Tel Aviv</source>
@@ -2255,11 +2422,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">လက်ရှိတွင် %1$@ အတွက် အဝင်ဆာဗာကို %2$@ က ကျော်လွန် ပယ်ဖျက်ထားပါသည်။ အဝင်ဆာဗာတစ်ခု ရွေးချယ်ရန် ဦးစွာ ဆက်တင်တွင် “%3$@” ကို ဖွင့်ပါ သို့မဟုတ် “%4$@“ ကို ပိတ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
-        <source>The payment request was cancelled.</source>
-        <target state="final">ငွေပေးချေမှု တောင်းဆိုချက်ကို ပယ်ဖျက်လိုက်ပါပြီ။</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
         <target state="final">ရွေးချယ်ထားသော WireGuard ပေါ့တ်ကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိသဖြင့် ** VPN ဆက်တင် များ ** တွင်ပြောင်းပေးပါ။</target>
@@ -2270,6 +2432,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">စက်ပေါ်တွင် သိမ်းဆည်းထားသော ဆက်တင်များ၏ ဗားရှင်းကို မသိရှိပါ။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
+        <source>These settings can be changed at any time</source>
+        <target state="final">ဤဆက်တင်များကို အချိန်မရွေး ပြောင်းနိုင်သည်</target>
+        <note from="auto-generated">Text displayed in a notification when a user enables notifications for the first time.</note>
+      </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
         <target state="final">API ကို စိစစ်ဖြတ်တောက်မှုများ ပြုလုပ်ထားသော်လည်း Mullvad ၏ ပေါင်းကူးဆာဗာများကို မပြုလုပ်ထားပါက ၎င်းသည် အသုံးဝင်နိုင်သည်။</target>
@@ -2278,11 +2445,6 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
         <source>This can be useful when you are not affected by censorship.</source>
         <target state="final">သင့်အပေါ် စိစစ်ဖြတ်တောက်မှု၏ အကျိုးသက်ရောက်ခြင်း မရှိသည့်အခါ ၎င်းသည် အသုံးဝင်နိုင်ပါသည်။</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
-        <source>This device is not allowed to make the payment.</source>
-        <target state="final">ဤစက်တွင် ငွေပေးချေမှု ပြုလုပ်ခြင်းကို ခွင့်မပြုထားပါ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
@@ -2460,6 +2622,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Unchecked" xml:space="preserve" approved="yes">
+        <source>Unchecked</source>
+        <target state="final">အမှန်ခြစ်ဖြုတ်ထားသည်</target>
+        <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
+      </trans-unit>
       <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
         <target state="final">မမျှော်မှန်းထားသော ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</target>
@@ -2475,10 +2642,10 @@ Do you want to remove the saved account number?</source>
         <target state="final">မမျှော်လင့်ထားသော ဆာဗာတုံ့ပြန်မှု- %d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
-        <source>Unknown error.</source>
-        <target state="final">အမျိုးအမည်မသိ ချို့ယွင်းချက်။</target>
-        <note/>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</target>
+        <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
@@ -2574,6 +2741,11 @@ Do you want to remove the saved account number?</source>
         <source>We will look into this.</source>
         <target state="final">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
+        <source>We will never send you any ads or tips.</source>
+        <target state="final">ကြော်ငြာမှန်သမျှ သို့မဟုတ် အကြံပြုချက်မှန်သမျှ သင့်ထံ မည်သည့်အခါမျှ မပေးပို့ပါ။</target>
+        <note from="auto-generated">Additional information about the privacy policy of Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
@@ -2773,49 +2945,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -2827,28 +2999,45 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="my" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
+        <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
+        <target state="final">ကွန်ရက် ချိတ်ဆက်မှု မဆုံးရှုံးစေရန် အပ်ဒိတ်မလုပ်မီ “%@” ကို ပိတ်ပါ သို့မဟုတ် ချိတ်ဆက်မှု ဖြုတ်ပါ။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="my" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>

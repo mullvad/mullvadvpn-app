@@ -997,6 +997,7 @@
 		F09D04BD2AEBB7C5003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
 		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
 		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
+		F09D616B2F5AD5E200C85C9E /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = F09D616A2F5AD5E200C85C9E /* Localizable.xcstrings */; };
 		F0A005572F3DFDDC00B09EFC /* NotificationPromptPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */; };
 		F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */; };
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
@@ -2458,6 +2459,7 @@
 		F09D04BA2AE95396003D4F89 /* URLSessionStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionStub.swift; sourceTree = "<group>"; };
 		F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionService.swift; sourceTree = "<group>"; };
 		F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingConnectionServiceTests.swift; sourceTree = "<group>"; };
+		F09D616A2F5AD5E200C85C9E /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		F09F45242E4A35D600FF5C82 /* ko */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ko; path = ko.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0A005562F3DFDCF00B09EFC /* NotificationPromptPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPromptPage.swift; sourceTree = "<group>"; };
 		F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsStrategyTests.swift; sourceTree = "<group>"; };
@@ -3998,6 +4000,7 @@
 		58CE5E7A224146470008646E /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
+				F09D616A2F5AD5E200C85C9E /* Localizable.xcstrings */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
 				7A9ED2A82F3CC057005BC0D9 /* Notifications */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
@@ -5704,6 +5707,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F09D616B2F5AD5E200C85C9E /* Localizable.xcstrings in Resources */,
 				A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
