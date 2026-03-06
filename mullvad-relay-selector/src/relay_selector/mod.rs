@@ -27,7 +27,7 @@ use mullvad_types::{
     location::Coordinates,
     relay_constraints::{
         LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
-        RelaySettings, ShadowsocksSettings, WireguardConstraints,
+        RelaySettings, WireguardConstraints,
     },
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
     settings::Settings,
@@ -857,7 +857,7 @@ impl RelaySelector {
         // The relay selection algorithm is embarrassingly parallel: https://en.wikipedia.org/wiki/Embarrassingly_parallel.
         // We may explore the entire search space (`relays` x `criteria`) without any synchronisation
         // between different branches.
-        self.get_relays()
+        let (matches, discards) = self.get_relays()
             .into_relays()
             .map(|relay| {
                 let verdict = Criteria::fold(criteria.iter(), &relay);
@@ -868,8 +868,8 @@ impl RelaySelector {
             .partition_map(|(relay, verdict)| match verdict {
                 Verdict::Accept => Either::Left(relay),
                 Verdict::Reject(rejected) => Either::Right((relay, rejected)),
-            })
-            .into()
+            });
+        RelayPartitions { matches, discards }
     }
 
     /// Calculate the set of criteria each predicate will render for scrutinizing relays.
@@ -1299,16 +1299,6 @@ impl VerdictExt for bool {
     /// Reject with `reason` if `self` is true.
     fn if_true(self, reason: Reason) -> Verdict {
         (!self).if_false(reason)
-    }
-}
-
-impl From<(Vec<WireguardRelay>, Vec<(WireguardRelay, Vec<Reason>)>)> for RelayPartitions {
-    /// Map the result of [`Itertools::partition_map`] to [`RelayPartitions`].
-    fn from(partitions: (Vec<WireguardRelay>, Vec<(WireguardRelay, Vec<Reason>)>)) -> Self {
-        Self {
-            matches: partitions.0,
-            discards: partitions.1,
-        }
     }
 }
 
