@@ -29,6 +29,19 @@ public enum ServerRelaysResponseStubs {
         return try REST.Coding.makeJSONDecoder().decode(REST.ServerRelaysResponse.self, from: data)
     }
 
+    /// Returns JSON data based on `sampleRelays` with an additional unknown top-level field
+    /// (`"future_feature"`) that `ServerRelaysResponse` doesn't model.
+    /// Use this to verify that unknown fields survive round-trips through the cache.
+    public static func sampleRelaysJSONWithUnknownField() throws -> Data {
+        var json = try JSONSerialization.jsonObject(
+            with: REST.Coding.makeJSONEncoder().encode(sampleRelays)
+        ) as! [String: Any]
+
+        json["future_feature"] = ["key": "value", "nested": [1, 2, 3]] as [String: Any]
+
+        return try JSONSerialization.data(withJSONObject: json)
+    }
+
     public static let sampleRelays = REST.ServerRelaysResponse(
         locations: [
             "es-mad": REST.ServerLocation(

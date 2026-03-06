@@ -56,26 +56,7 @@ final class RelayCacheTests: XCTestCase {
 
     /// Proves that unknown relay list JSON fields survive a Codable round-trip through `FileCache`.
     func testRawDataPreservesUnknownFieldsThroughFileCacheRoundTrip() throws {
-        let jsonWithUnknownField = """
-            {
-                "locations": {},
-                "wireguard": {
-                    "ipv4_gateway": "10.64.0.1",
-                    "ipv6_gateway": "fc00:bbbb:bbbb:bb01::1",
-                    "port_ranges": [],
-                    "relays": [],
-                    "shadowsocks_port_ranges": []
-                },
-                "bridge": {
-                    "shadowsocks": [],
-                    "relays": []
-                },
-                "future_feature": {
-                    "key": "value",
-                    "nested": [1, 2, 3]
-                }
-            }
-            """.data(using: .utf8)!
+        let jsonWithUnknownField = try ServerRelaysResponseStubs.sampleRelaysJSONWithUnknownField()
 
         // Use real FileCache to exercise the Codable round-trip.
         let tempDir = FileManager.default.temporaryDirectory
