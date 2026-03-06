@@ -20,6 +20,7 @@ public struct ObfuscationMethodSelector {
             .shadowsocks,
             .quic,
             .udpOverTcp,
+            .lwo,
         ]
     }
 

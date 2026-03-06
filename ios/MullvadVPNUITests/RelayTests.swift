@@ -242,8 +242,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverLwoCustomPort() throws {
-        try XCTSkipIf(true, "TODO: Enable again when LWO is working as intended everywhere")
-
         addTeardownBlock {
             HeaderBar(self.app)
                 .tapSettingsButton()
@@ -454,8 +452,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverLwoManually() throws {
-        try XCTSkipIf(true, "TODO: Enable again when LWO is working as intended everywhere")
-
         addTeardownBlock {
             HeaderBar(self.app)
                 .tapSettingsButton()

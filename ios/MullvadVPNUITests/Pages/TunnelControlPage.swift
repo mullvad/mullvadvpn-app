@@ -146,25 +146,18 @@ class TunnelControlPage: Page {
     @discardableResult func verifyConnectionAttemptsOrder() -> Self {
         // Number of connection attempts should be equal to the number of obfuscation methods (incl. "off").
         var connectionAttempts = waitForConnectionAttempts(5, timeout: 80)
-        var totalAttemptsOffset = 0
         XCTAssertEqual(connectionAttempts.count, 5)
 
-        /// Sometimes, the UI will only show an IP address for the first connection attempt, which gets skipped by
-        /// `waitForConnectionAttempts`, and offsets expected attempts count by 1, but still counts towards
-        /// total connection attempts. Remove that last attempt which would be the first one of a new series
-        /// of connection attempts.
-        if connectionAttempts.last?.protocolName == "UDP" {
-            connectionAttempts.removeLast()
-            totalAttemptsOffset = 1
+        let expectedProtocols = [
+            "UDP",
+            "UDP",
+            "UDP",
+            "TCP",
+            "UDP",
+        ]
+        for (attempt, expectedProtocol) in zip(connectionAttempts, expectedProtocols) {
+            XCTAssertEqual(attempt.protocolName, expectedProtocol)
         }
-        for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-            if attemptIndex == 3 - totalAttemptsOffset {
-                XCTAssertEqual(attempt.protocolName, "TCP")
-            } else {
-                XCTAssertEqual(attempt.protocolName, "UDP")
-            }
-        }
-
         return self
     }
 
