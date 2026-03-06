@@ -33,7 +33,7 @@ ARG COMMAND_LINE_TOOLS_VERSION=13114758 \
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
 ARG NDK_VERSION_NAME=r27d \
     NDK_SHA1_CHECKSUM=22105e410cf29afcf163760cc95522b9fb981121 \
-    MIN_SDK_VERSION=26 \
+    MIN_SDK_VERSION=28 \
     NDK_VERSION=27.3.13750724
 
 ENV ANDROID_SDK_ROOT=/opt/android
