@@ -29,27 +29,9 @@ class RelayListCacheTests: XCTestCase {
     }
 
     func testRelayListWithUnknownFieldsSurvivesFullPipeline() async throws {
-        // Relay JSON with a "future_feature" key unknown to ServerRelaysResponse.
-        let relayJSON = """
-            {
-                "locations": {},
-                "wireguard": {
-                    "ipv4_gateway": "10.64.0.1",
-                    "ipv6_gateway": "fc00:bbbb:bbbb:bb01::1",
-                    "port_ranges": [],
-                    "relays": [],
-                    "shadowsocks_port_ranges": []
-                },
-                "bridge": {
-                    "shadowsocks": [],
-                    "relays": []
-                },
-                "future_feature": {
-                    "key": "value",
-                    "nested": [1, 2, 3]
-                }
-            }
-            """
+        // Relay JSON based on sampleRelays with an extra unknown top-level field.
+        let relayJSONData = try ServerRelaysResponseStubs.sampleRelaysJSONWithUnknownField()
+        let relayJSON = String(data: relayJSONData, encoding: .utf8)!
 
         // 1. Mock the relay list endpoint with our JSON containing unknown fields.
         let mock = MullvadApiMock.get(
