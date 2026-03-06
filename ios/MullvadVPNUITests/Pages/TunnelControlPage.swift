@@ -158,7 +158,7 @@ class TunnelControlPage: Page {
             totalAttemptsOffset = 1
         }
         for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-            if attemptIndex == 4 - totalAttemptsOffset {
+            if attemptIndex == 3 - totalAttemptsOffset {
                 XCTAssertEqual(attempt.protocolName, "TCP")
             } else {
                 XCTAssertEqual(attempt.protocolName, "UDP")
