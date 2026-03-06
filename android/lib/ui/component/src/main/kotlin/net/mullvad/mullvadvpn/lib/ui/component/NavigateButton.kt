@@ -13,8 +13,8 @@ import androidx.compose.ui.res.stringResource
 @Composable
 fun NavigateBackIconButton(
     modifier: Modifier = Modifier,
-    onNavigateBack: () -> Unit,
     enabled: Boolean = true,
+    onNavigateBack: () -> Unit,
 ) {
     IconButton(onClick = onNavigateBack, enabled = enabled, modifier = modifier) {
         Icon(

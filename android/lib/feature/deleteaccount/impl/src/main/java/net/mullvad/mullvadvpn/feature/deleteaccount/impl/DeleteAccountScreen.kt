@@ -143,7 +143,7 @@ internal fun DaysLostWarning(daysLeft: Int) {
             contentDescription = null,
         )
         Text(
-            pluralStringResource(R.plurals.delete_account_days_left_warning, daysLeft),
+            pluralStringResource(R.plurals.delete_account_days_left_warning, daysLeft, daysLeft),
             style = MaterialTheme.typography.bodyLarge,
         )
     }
