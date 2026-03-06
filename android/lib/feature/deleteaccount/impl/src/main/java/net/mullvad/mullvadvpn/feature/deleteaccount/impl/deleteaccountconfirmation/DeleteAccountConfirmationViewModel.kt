@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmat
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
+import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 
@@ -51,8 +53,7 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
     fun deleteAccount() =
         viewModelScope.launch {
             isLoading.value = true
-            accountRepository
-                .deleteAccount()
+            delayAtLeast(1.seconds) { accountRepository.deleteAccount() }
                 .fold(
                     { deleteError.value = it },
                     { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToComplete) },

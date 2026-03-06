@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -103,10 +104,11 @@ fun DeleteAccount(
 @Composable
 private fun DeleteAccountContent(daysLeft: Int) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
+        Text(stringResource(id = R.string.delete_account_info))
+        Spacer(modifier = Modifier.height(Dimens.tinyPadding))
         Text(
             text =
                 buildAnnotatedString {
-                    append(stringResource(id = R.string.delete_account_info))
                     val bulletItems =
                         listOf(
                                 R.string.delete_account_first_item,
@@ -115,7 +117,7 @@ private fun DeleteAccountContent(daysLeft: Int) {
                                 R.string.delete_account_forth_item,
                                 R.string.delete_account_fifth_item,
                             )
-                            .map { stringResource(it) }
+                            .map { annotatedStringResource(it) }
                     withBulletList { bulletItems.forEach { withBulletListItem { append(it) } } }
                 },
             style = MaterialTheme.typography.bodyLarge,

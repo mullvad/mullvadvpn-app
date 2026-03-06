@@ -70,6 +70,9 @@ fun DeleteAccountComplete(onContinue: () -> Unit) {
     }
 }
 
+const val DeleteWeightTop = 0.4f
+const val DeleteWeightBottom = 0.6f
+
 @Composable
 private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContinue: () -> Unit) {
     Column(Modifier.padding(horizontal = Dimens.sideMarginNew)) {
@@ -78,7 +81,7 @@ private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContin
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier = Modifier.weight(0.4f))
+            Spacer(modifier = Modifier.weight(DeleteWeightTop))
             Image(
                 painter = painterResource(id = R.drawable.icon_success),
                 contentDescription = null,
@@ -96,7 +99,7 @@ private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContin
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = Alpha60),
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.weight(0.6f))
+            Spacer(modifier = Modifier.weight(DeleteWeightBottom))
         }
 
         PrimaryButton(

@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountCompleteDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
@@ -87,7 +89,7 @@ private fun PreviewDeleteAccountConfirmation() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun DeleteAccountConfirmation(navigator: DestinationsNavigator, navController: NavController) {
+fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
     val vm = koinViewModel<DeleteAccountConfirmationViewModel>()
     val uiState = vm.uiState.collectAsStateWithLifecycle()
 
@@ -190,7 +192,7 @@ private fun AccountNumberInput(
 
     LaunchedEffect(textFieldState.text) {
         showLastChar = true
-        delay(3000)
+        delay(2.seconds)
         showLastChar = false
     }
 
@@ -202,40 +204,39 @@ private fun AccountNumberInput(
         remember(showPassword, showLastChar) {
             accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
         }
-    // TODO Restore this before merging
-    //        CompositionLocalProvider(LocalClipboard provides clipboard) {
-    TextField(
-        state = textFieldState,
-        modifier =
-            // Fix for DPad navigation
-            Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
-        trailingIcon = {
-            IconButton(onClick = { showPassword = !showPassword }) {
-                Icon(
-                    imageVector =
-                        if (showPassword) Icons.Outlined.VisibilityOff
-                        else Icons.Outlined.Visibility,
-                    contentDescription =
-                        if (showPassword) stringResource(id = R.string.hide_account_number)
-                        else stringResource(id = R.string.show_account_number),
-                )
-            }
-        },
-        placeholder = { Text(stringResource(R.string.account_delete_placeholder)) },
-        keyboardOptions =
-            KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
-            ),
-        outputTransformation = transformation,
-        lineLimits = TextFieldLineLimits.SingleLine,
-        enabled = !state.isLoading,
-        colors = mullvadDarkTextFieldColors(),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
-        isError = state.deleteAccountError != null,
-        supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
-    )
-    //        }
+    CompositionLocalProvider(LocalClipboard provides clipboard) {
+        TextField(
+            state = textFieldState,
+            modifier =
+                // Fix for DPad navigation
+                Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
+            trailingIcon = {
+                IconButton(onClick = { showPassword = !showPassword }) {
+                    Icon(
+                        imageVector =
+                            if (showPassword) Icons.Outlined.VisibilityOff
+                            else Icons.Outlined.Visibility,
+                        contentDescription =
+                            if (showPassword) stringResource(id = R.string.hide_account_number)
+                            else stringResource(id = R.string.show_account_number),
+                    )
+                }
+            },
+            placeholder = { Text(stringResource(R.string.account_delete_placeholder)) },
+            keyboardOptions =
+                KeyboardOptions(
+                    imeAction = ImeAction.Done,
+                    keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
+                ),
+            outputTransformation = transformation,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            enabled = !state.isLoading,
+            colors = mullvadDarkTextFieldColors(),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+            isError = state.deleteAccountError != null,
+            supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
+        )
+    }
 }
 
 @Composable
