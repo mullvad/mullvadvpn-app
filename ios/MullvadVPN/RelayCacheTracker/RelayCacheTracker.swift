@@ -293,13 +293,13 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     }
 
     private func storeResponse(etag: String?, rawData: Data) throws {
-        let newCachedData = try StoredRelays(
+        let storedRelays = try StoredRelays(
             etag: etag,
             rawData: rawData,
             updatedAt: Date()
         )
 
-        try cache.write(record: newCachedData)
+        try cache.write(record: storedRelays)
         try refreshCachedRelays()
     }
 
