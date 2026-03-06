@@ -102,7 +102,7 @@ fun DeleteAccount(
 }
 
 @Composable
-private fun DeleteAccountContent(daysLeft: Int) {
+private fun DeleteAccountContent(daysLeft: Int?) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
         Text(stringResource(id = R.string.delete_account_info))
         Spacer(modifier = Modifier.height(Dimens.tinyPadding))
@@ -122,7 +122,7 @@ private fun DeleteAccountContent(daysLeft: Int) {
                 },
             style = MaterialTheme.typography.bodyLarge,
         )
-        if (daysLeft > 0) {
+        if (daysLeft != null && daysLeft >= 0) {
             Spacer(Modifier.height(Dimens.mediumSpacer))
             DaysLostWarning(daysLeft)
         }

@@ -154,7 +154,7 @@ private fun DeleteAccountConfirmationContent(
         modifier =
             modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
     ) {
-        if (state.daysLeft > 0) {
+        if (state.daysLeft != null && state.daysLeft >= 0) {
             DaysLostWarning(state.daysLeft)
         }
         Spacer(modifier = Modifier.height(Dimens.largeSpacer))

@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.isSuccess
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
-import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
+import net.mullvad.mullvadvpn.lib.common.util.daysLeft
 import net.mullvad.mullvadvpn.lib.common.util.withPrev
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -113,7 +113,7 @@ class ConnectViewModel(
                     tunnelState = tunnelState,
                     inAppNotification = notifications.firstOrNull(),
                     deviceName = deviceName,
-                    daysLeftUntilExpiry = accountData?.expiryDate?.daysFromNow(),
+                    daysLeftUntilExpiry = accountData?.expiryDate?.daysLeft(),
                     isPlayBuild = isPlayBuild,
                 )
             }

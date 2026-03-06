@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
+import net.mullvad.mullvadvpn.lib.common.util.daysLeft
 import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
@@ -40,7 +40,7 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
                         isLoading = isLoading,
                         hasConfirmedAccount = accountInput == accountData.accountNumber.value,
                         deleteAccountError = error,
-                        daysLeft = accountData.expiryDate.daysFromNow().toInt(),
+                        daysLeft = accountData.expiryDate.daysLeft()?.toInt(),
                     )
                 )
             }
@@ -71,7 +71,7 @@ data class DeleteAccountConfirmationUiState(
     val isLoading: Boolean = false,
     val hasConfirmedAccount: Boolean = false,
     val deleteAccountError: DeleteAccountError? = null,
-    val daysLeft: Int,
+    val daysLeft: Int?,
 )
 
 sealed interface DeleteAccountConfirmationUiSideEffect {
