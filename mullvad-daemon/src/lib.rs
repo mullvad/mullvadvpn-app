@@ -2060,7 +2060,7 @@ impl Daemon {
         let account_manager = self.account_manager.clone();
         tokio::spawn(async move {
             let result = account_manager.delete().await.map_err(|error| {
-                log::error!("{}", error.display_chain_with_msg("Logout failed"));
+                log::error!("{}", error.display_chain_with_msg("Delete account failed"));
                 Error::DeleteAccountError(error)
             });
             Self::oneshot_send(tx, result, "delete_account response");
