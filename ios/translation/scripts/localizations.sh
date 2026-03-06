@@ -29,7 +29,7 @@ on_fail() {
   cleanup_build_folder
   cleanup_temp_folder
   mkdir -p "$(dirname "$LOG_FILE")"
-  cat "$TMP_LOG" >"$LOG_FILE"
+  cat "$TMP_LOG" > "$LOG_FILE"
   echo "Full log saved to: $LOG_FILE"
   exit 1
 }
@@ -55,7 +55,7 @@ build_project() {
     -quiet \
     CODE_SIGNING_REQUIRED=NO \
     CODE_SIGNING_ALLOWED=NO \
-    clean build >"$TMP_LOG" 2>&1; then
+    clean build > "$TMP_LOG" 2>&1; then
     echo "Failed to build project"
     on_fail
   fi
@@ -65,7 +65,7 @@ build_project() {
 export_localizations() {
   echo "Exporting localizations for languages: $EXPORT_LANGUAGES"
 
-  IFS=',' read -r -a LANG_ARRAY <<<"$EXPORT_LANGUAGES"
+  IFS=',' read -r -a LANG_ARRAY <<< "$EXPORT_LANGUAGES"
 
   for lang in "${LANG_ARRAY[@]}"; do
     # Run xcodebuild and capture errors
@@ -78,7 +78,7 @@ export_localizations() {
       -quiet \
       CODE_SIGNING_REQUIRED=NO \
       CODE_SIGNING_ALLOWED=NO \
-      >"$TMP_LOG" 2>&1; then
+      > "$TMP_LOG" 2>&1; then
       echo "Failed to export localization for $lang"
       on_fail
     fi
@@ -118,6 +118,8 @@ clean_xliff_translations() {
   )
   for xliff in "$xliff_dir"/*.xliff; do
     if [[ -f "$xliff" ]]; then
+      # remove stale/obsolete strings
+      sed -i '' -E '/<trans-unit[^>]*state="(obsolete|deprecated)"[^>]*>/,/<\/trans-unit>/d' "$xliff"
       for key in "${!UNNEEDED_KEYS[@]}"; do
         sed -i '' -E "/<trans-unit[^>]*id=\"$key\"[^>]*>/,/<\/trans-unit>/d" "$xliff"
       done
@@ -125,7 +127,6 @@ clean_xliff_translations() {
       echo "File not found: $xliff, skipping"
     fi
   done
-
 }
 
 import_localizations() {
@@ -151,7 +152,7 @@ import_localizations() {
       -quiet \
       CODE_SIGNING_REQUIRED=NO \
       CODE_SIGNING_ALLOWED=NO \
-      >"$TMP_LOG" 2>&1; then
+      > "$TMP_LOG" 2>&1; then
       echo "Failed to import $xliff_file"
       on_fail
     fi
@@ -183,19 +184,19 @@ localization_to_import() {
 # Main entrypoint
 main() {
   case "${1:-}" in
-  export)
-    localization_to_export
-    ;;
-  import)
-    localization_to_import
-    ;;
-  "")
-    echo "Available subcommands: export, import"
-    ;;
-  *)
-    echo "Unknown parameter: $1"
-    exit 1
-    ;;
+    export)
+      localization_to_export
+      ;;
+    import)
+      localization_to_import
+      ;;
+    "")
+      echo "Available subcommands: export, import"
+      ;;
+    *)
+      echo "Unknown parameter: $1"
+      exit 1
+      ;;
   esac
 }
 
