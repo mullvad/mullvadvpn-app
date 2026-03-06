@@ -1,7 +1,5 @@
 import { sprintf } from 'sprintf-js';
 
-import { InternalLink } from '../../renderer/components/InternalLink';
-import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings, urls } from '../constants';
 import {
   AuthFailedError,
@@ -11,7 +9,6 @@ import {
   TunnelState,
 } from '../daemon-rpc-types';
 import { messages } from '../gettext';
-import { RoutePath } from '../routes';
 import {
   InAppNotification,
   InAppNotificationAction,
