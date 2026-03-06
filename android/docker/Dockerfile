@@ -14,7 +14,7 @@
 # for more information.
 
 # === Base image (built from: ../../Dockerfile) ===
-FROM ghcr.io/mullvad/mullvadvpn-app-build:dbc170b2c5
+FROM ghcr.io/mullvad/mullvadvpn-app-build:c40d52f462
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
