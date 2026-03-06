@@ -53,18 +53,7 @@ final class RelayCacheTests: XCTestCase {
         XCTAssertTrue(cachedRelays.isEmpty)
     }
 
-    /// Proves that unknown JSON fields survive a Codable round-trip through `FileCache`.
-    ///
-    /// On main, `StoredRelays` had a `relays: ServerRelaysResponse` stored property that was
-    /// included in the Codable encoding. After a `FileCache` write→read cycle (which uses
-    /// `JSONEncoder`/`JSONDecoder`), the `rawData` on main would still be present, but
-    /// `StoredRelays` also encoded the deserialized `relays` — bloating the on-disk
-    /// representation. On this branch, only `rawData` is encoded, so the file is smaller
-    /// and unknown fields are preserved through the source of truth (`rawData`).
-    ///
-    /// This test would fail on main because `StoredRelays` encoded a `relays` property
-    /// alongside `rawData`, making the Codable representation contain a redundant
-    /// deserialized copy that lacks unknown fields.
+    /// Proves that unknown relay list JSON fields survive a Codable round-trip through `FileCache`.
     func testRawDataPreservesUnknownFieldsThroughFileCacheRoundTrip() throws {
         let jsonWithUnknownField = """
             {
