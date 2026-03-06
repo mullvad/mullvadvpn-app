@@ -1,5 +1,4 @@
 //! Client that returns and takes mullvad types as arguments instead of prost-generated types
-
 use crate::types;
 #[cfg(not(target_os = "android"))]
 use futures::{Stream, StreamExt};
@@ -93,7 +92,7 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
 impl MullvadProxyClient {
     pub async fn new() -> Result<Self> {
         #[expect(deprecated)]
-        super::new_rpc_client().await.map(Self)
+        crate::new_management_service_client().await.map(Self)
     }
 
     pub fn from_rpc_client(client: crate::ManagementServiceClient) -> Self {
@@ -726,5 +725,28 @@ impl TryFrom<types::LeakInfo> for LeakInfo {
             interface: leak.interface,
             reachable_nodes,
         })
+    }
+}
+
+// TODO: Move this somewhere else
+#[cfg(not(target_os = "android"))]
+pub struct RelaySelectorClient(crate::RelaySelectorServiceClient);
+
+// TODO: Move this somewhere else
+#[cfg(not(target_os = "android"))]
+impl RelaySelectorClient {
+    pub async fn new() -> Result<Self> {
+        let channel = crate::grpc_transport_channel().await?;
+        let client = crate::RelaySelectorServiceClient::new(channel);
+        Ok(Self(client))
+    }
+
+    // TODO: Define a nice, hand-rolled type echoing Predicate + RelayPartitions.
+    pub async fn partition_relays(
+        &mut self,
+        predicate: crate::types::relay_selector::Predicate,
+    ) -> Result<crate::types::relay_selector::RelayPartitions> {
+        let result = self.0.partition_relays(predicate).await?.into_inner();
+        Ok(result)
     }
 }
