@@ -241,6 +241,13 @@ pub enum Ownership {
     Rented,
 }
 
+impl Ownership {
+    /// Returns `true` if ownership is Mullvad.
+    pub const fn mullvad(self) -> bool {
+        matches!(self, Self::MullvadOwned)
+    }
+}
+
 impl Match<WireguardRelay> for &Ownership {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
