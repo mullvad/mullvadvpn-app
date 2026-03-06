@@ -8,13 +8,13 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 
@@ -28,20 +28,17 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
 
     val uiState: StateFlow<Lc<Unit, DeleteAccountConfirmationUiState>> =
         combine(
-                combine(accountInput, accountRepository.accountData.filterNotNull()) {
-                        input,
-                        account ->
-                        input == account.accountNumber.value
-                    }
-                    .distinctUntilChanged(),
+                accountRepository.accountData.filterNotNull(),
+                accountInput,
                 isLoading,
                 deleteError,
-            ) { hasEnterCorrectInput, isLoading, error ->
+            ) { accountData, accountInput, isLoading, error ->
                 Lc.Content(
                     DeleteAccountConfirmationUiState(
                         isLoading = isLoading,
-                        hasEnterCorrectInput,
+                        hasConfirmedAccount = accountInput == accountData.accountNumber.value,
                         deleteAccountError = error,
+                        daysLeft = accountData.expiryDate.daysFromNow(),
                     )
                 )
             }
@@ -69,11 +66,11 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
     }
 }
 
-// 2731114520706402
 data class DeleteAccountConfirmationUiState(
     val isLoading: Boolean = false,
     val hasConfirmedAccount: Boolean = false,
     val deleteAccountError: DeleteAccountError? = null,
+    val daysLeft: Long,
 )
 
 sealed interface DeleteAccountConfirmationUiSideEffect {

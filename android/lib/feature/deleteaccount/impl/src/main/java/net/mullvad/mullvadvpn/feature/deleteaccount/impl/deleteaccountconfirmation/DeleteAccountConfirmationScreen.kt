@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
@@ -54,6 +56,8 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.feature.deleteaccount.impl.CantBeUndoneText
+import net.mullvad.mullvadvpn.feature.deleteaccount.impl.DaysLostWarning
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -72,7 +76,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewDeleteAccountConfirmation() {
     AppTheme {
         DeleteAccountConfirmation(
-            state = Lc.Content(DeleteAccountConfirmationUiState()),
+            state = Lc.Content(DeleteAccountConfirmationUiState(daysLeft = 12)),
             onAccountInputChanged = {},
             deleteAccount = {},
             onBackClick = {},
@@ -141,62 +145,20 @@ private fun DeleteAccountConfirmationContent(
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
-            modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
+            modifier
+                .animateContentSize()
+                .padding(horizontal = Dimens.sideMarginNew)
+                .imePadding(),
     ) {
-        val textFieldState = rememberTextFieldState()
-        LaunchedEffect(textFieldState) {
-            snapshotFlow { textFieldState.text.toString() }
-                .collectLatest { onAccountInputChanged(it) }
+        if(state.daysLeft > 0) {
+            DaysLostWarning(state.daysLeft)
         }
-
-        var showLastChar by remember { mutableStateOf(false) }
-
-        LaunchedEffect(textFieldState.text) {
-            showLastChar = true
-            delay(3000)
-            showLastChar = false
-        }
-
-        var showPassword by remember { mutableStateOf(false) }
-        val localClipboard = LocalClipboard.current
-        val clipboard = remember(localClipboard) { NoOpClipboardManager(localClipboard) }
-
-        val transformation =
-            remember(showPassword, showLastChar) {
-                accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
-            }
-        // TODO Restore this before merging
-        //        CompositionLocalProvider(LocalClipboard provides clipboard) {
-        TextField(
-            state = textFieldState,
-            modifier =
-                // Fix for DPad navigation
-                Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(
-                        imageVector =
-                            if (showPassword) Icons.Outlined.VisibilityOff
-                            else Icons.Outlined.Visibility,
-                        contentDescription =
-                            if (showPassword) stringResource(id = R.string.hide_account_number)
-                            else stringResource(id = R.string.show_account_number),
-                    )
-                }
-            },
-            keyboardOptions =
-                KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
-                ),
-            outputTransformation = transformation,
-            lineLimits = TextFieldLineLimits.SingleLine,
-            colors = mullvadWhiteTextFieldColors(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
-            isError = state.deleteAccountError != null,
-            supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
-        )
-        //        }
+        Spacer(modifier = Modifier.height(Dimens.largeSpacer))
+        Text(stringResource(R.string.delete_account_confirmation_enter_account_number))
+        Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
+        AccountNumberInput(onAccountInputChanged, state)
+        Spacer(modifier = Modifier.height(Dimens.largeSpacer))
+        CantBeUndoneText()
 
         Spacer(Modifier.weight(1f))
         DeleteAccountConfirmationBottomBar(
@@ -206,6 +168,71 @@ private fun DeleteAccountConfirmationContent(
             onClickCancel = onClickCancel,
         )
     }
+}
+
+@Composable
+private fun AccountNumberInput(
+    onAccountInputChanged: (String) -> Unit,
+    state: DeleteAccountConfirmationUiState,
+) {
+    val textFieldState = rememberTextFieldState()
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }.collectLatest { onAccountInputChanged(it) }
+    }
+
+    var showLastChar by remember { mutableStateOf(false) }
+
+    LaunchedEffect(textFieldState.text) {
+        showLastChar = true
+        delay(3000)
+        showLastChar = false
+    }
+
+    var showPassword by remember { mutableStateOf(false) }
+    val localClipboard = LocalClipboard.current
+    val clipboard = remember(localClipboard) { NoOpClipboardManager(localClipboard) }
+
+    val transformation =
+        remember(showPassword, showLastChar) {
+            accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
+        }
+    // TODO Restore this before merging
+    //        CompositionLocalProvider(LocalClipboard provides clipboard) {
+    TextField(
+        state = textFieldState,
+        modifier =
+            // Fix for DPad navigation
+            Modifier
+                .semantics { contentType = ContentType.Password }
+                .fillMaxWidth(),
+        trailingIcon = {
+            IconButton(onClick = { showPassword = !showPassword }) {
+                Icon(
+                    imageVector =
+                        if (showPassword) Icons.Outlined.VisibilityOff
+                        else Icons.Outlined.Visibility,
+                    contentDescription =
+                        if (showPassword) stringResource(id = R.string.hide_account_number)
+                        else stringResource(id = R.string.show_account_number),
+                )
+            }
+        },
+        placeholder = {
+            Text(stringResource(R.string.account_delete_placeholder))
+        },
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
+            ),
+        outputTransformation = transformation,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        colors = mullvadWhiteTextFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+        isError = state.deleteAccountError != null,
+        supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
+    )
+    //        }
 }
 
 @Composable
