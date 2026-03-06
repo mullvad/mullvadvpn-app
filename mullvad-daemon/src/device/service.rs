@@ -512,7 +512,9 @@ fn map_rest_error(error: rest::Error) -> Error {
     match error {
         rest::Error::ApiError(_status, ref code) => match code.as_str() {
             // TODO: Implement invalid payment
-            mullvad_api::DEVICE_NOT_FOUND => Error::InvalidDevice,
+            mullvad_api::DEVICE_NOT_FOUND | mullvad_api::INVALID_ACCESS_TOKEN => {
+                Error::InvalidDevice
+            }
             mullvad_api::INVALID_ACCOUNT => Error::InvalidAccount,
             mullvad_api::MAX_DEVICES_REACHED => Error::MaxDevicesReached,
             mullvad_api::INVALID_VOUCHER => Error::InvalidVoucher,
