@@ -3947,7 +3947,6 @@ dependencies = [
  "inventory",
  "ipnetwork 0.21.1",
  "itertools 0.10.5",
- "libc",
  "log",
  "mullvad-api",
  "mullvad-api-constants",

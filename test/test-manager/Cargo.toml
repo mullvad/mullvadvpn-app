@@ -25,7 +25,6 @@ hyper-util = { workspace = true }
 inventory = "0.3"
 ipnetwork = "0.21.1"
 itertools = "0.10.5"
-libc = "0.2.14"
 log = { workspace = true }
 mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
 mullvad-api-constants = { path = "../../mullvad-api/mullvad-api-constants" }
