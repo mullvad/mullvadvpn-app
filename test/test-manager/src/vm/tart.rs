@@ -213,6 +213,15 @@ impl MachineCopy {
     fn destroy_inner(&mut self) -> Result<()> {
         let output = tart()
             .into_std()
+            .args(["stop", &self.name])
+            .status()
+            .context("Failed to run 'tart stop'")?;
+        if !output.success() {
+            return Err(anyhow!("'tart stop' failed: {output}"));
+        }
+
+        let output = tart()
+            .into_std()
             .args(["delete", &self.name])
             .status()
             .context("Failed to run 'tart delete'")?;
