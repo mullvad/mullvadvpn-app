@@ -45,7 +45,7 @@ pub async fn relaunch_with_rootlesskit(vnc_port: Option<u16>) {
 }
 
 #[cfg(target_os = "macos")]
-async fn relaunch_with_sudo() {
+pub async fn relaunch_with_sudo() {
     // check if user is root (`man getuid`).
     if nix::unistd::geteuid().is_root() {
         return;
