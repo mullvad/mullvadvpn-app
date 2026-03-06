@@ -1250,6 +1250,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
         log::debug!("app_upgrade_events_listen");
         let rx = self.app_upgrade_broadcast.subscribe();
+        #[expect(clippy::result_large_err)]
         let upgrade_event_stream =
             tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
                 Ok(event) => Ok(event.into()),

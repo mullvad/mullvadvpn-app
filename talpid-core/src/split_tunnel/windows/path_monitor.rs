@@ -127,7 +127,7 @@ macro_rules! get_reparse_path {
         } else {
             let path_buffer = reparse_data.path_buffer.as_ptr();
             let parsed_path = std::slice::from_raw_parts(
-                path_buffer.add((reparse_data.sub_name_offset as usize / mem::size_of::<u16>())),
+                path_buffer.add(reparse_data.sub_name_offset as usize / mem::size_of::<u16>()),
                 reparse_data.sub_name_length as usize / mem::size_of::<u16>(),
             );
             Ok::<PathBuf, io::Error>(PathBuf::from(OsString::from_wide(parsed_path)))

@@ -605,10 +605,12 @@ mod test {
 
     #[test]
     fn deserialize_netlink_message() {
-        assert!(
-            cfg!(target_endian = "little"),
-            "this test assumes little-endian"
-        );
+        const {
+            assert!(
+                cfg!(target_endian = "little"),
+                "this test assumes little-endian"
+            );
+        }
 
         #[rustfmt::skip]
         let payload = vec![
@@ -845,10 +847,12 @@ mod test {
 
     #[test]
     fn serialize_netlink_message() {
-        assert!(
-            cfg!(target_endian = "little"),
-            "this test assumes little-endian"
-        );
+        const {
+            assert!(
+                cfg!(target_endian = "little"),
+                "this test assumes little-endian"
+            );
+        }
 
         let expected_payload: &[u8] = &[
             0x01, 0x01, 0x00, 0x00, 0x0c, 0x00, 0x02, 0x00, 0x77, 0x67, 0x2d, 0x74, 0x65, 0x73,

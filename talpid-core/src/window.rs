@@ -70,7 +70,7 @@ pub fn create_hidden_window<F: (Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT) + Send
                 GWLP_WNDPROC,
                 // Clippy does not like casting function pointers to anything but usize.
                 // But this is correct, since the Windows API expects a signed int for pointer.
-                window_procedure::<F> as usize as isize,
+                window_procedure::<F> as *const () as usize as isize,
             );
         }
 
