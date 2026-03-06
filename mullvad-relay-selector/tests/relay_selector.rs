@@ -1759,11 +1759,8 @@ mod new {
             .discards
             .into_iter()
             .filter_map(|(discard, reasons)| {
-                if reasons.contains(&Reason::Daita) && !reasons.contains(&Reason::Inactive) {
-                    Some(discard)
-                } else {
-                    None
-                }
+                (reasons.contains(&Reason::Daita) && !reasons.contains(&Reason::Inactive))
+                    .then_some(discard)
             })
         {
             let mut constraints = daita_constraints.clone();
