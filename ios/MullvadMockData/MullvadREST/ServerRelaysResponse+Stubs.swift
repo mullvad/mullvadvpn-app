@@ -33,9 +33,10 @@ public enum ServerRelaysResponseStubs {
     /// (`"future_feature"`) that `ServerRelaysResponse` doesn't model.
     /// Use this to verify that unknown fields survive round-trips through the cache.
     public static func sampleRelaysJSONWithUnknownField() throws -> Data {
-        var json = try JSONSerialization.jsonObject(
-            with: REST.Coding.makeJSONEncoder().encode(sampleRelays)
-        ) as! [String: Any]
+        var json =
+            try JSONSerialization.jsonObject(
+                with: REST.Coding.makeJSONEncoder().encode(sampleRelays)
+            ) as! [String: Any]
 
         json["future_feature"] = ["key": "value", "nested": [1, 2, 3]] as [String: Any]
 
