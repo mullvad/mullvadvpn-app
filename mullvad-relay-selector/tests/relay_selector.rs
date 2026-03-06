@@ -1503,7 +1503,7 @@ mod new {
     // - [x] test_providers
     // - [ ] test_multihop_ownership
     // - [ ] test_entry
-    // - [ ] test_ownership
+    // - [x] test_ownership
     // - [ ] test_udp2tcp_use_correct_port_ranges
     //
     // Additionally we should make sure to cover these test scenarios:
@@ -1605,6 +1605,75 @@ mod new {
         for (relay, reasons) in query.discards {
             assert!(reasons.contains(&Reason::Providers), "{relay:#?}");
         }
+    }
+
+    /// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector.
+    ///
+    /// This is a port of test_ownership
+    #[test]
+    fn ownership() {
+        for ownership in [Ownership::MullvadOwned, Ownership::Rented] {
+            let constraints = EntryConstraints {
+                ownership: ownership.into(),
+                ..Default::default()
+            };
+            let multihop_constraints = MultihopConstraints {
+                entry: constraints.clone(),
+                exit: ExitConstraints {
+                    // NOTE: Ownership is (currently) mirrored both entry + exit, so we set this manually.
+                    ownership: ownership.into(),
+                    ..Default::default()
+                },
+            };
+
+            for scenario in [
+                Predicate::Singlehop(constraints.clone()),
+                Predicate::Autohop(constraints),
+                Predicate::Entry(multihop_constraints.clone()),
+                Predicate::Exit(multihop_constraints),
+            ] {
+                let query = RELAY_SELECTOR.partition_relays(scenario);
+                assert!(!query.matches.is_empty());
+                for relay in &query.matches {
+                    assert_eq!(relay.owned, ownership.mullvad(), "{relay:#?}");
+                }
+
+                for reasons in query.unique_reasons() {
+                    match reasons.as_slice() {
+                        &[Reason::Inactive, Reason::Ownership]
+                        | &[Reason::Ownership, Reason::Inactive]
+                        | &[Reason::Ownership]
+                        | &[Reason::Inactive] => (),
+                        _ => panic!("{reasons:#?}"),
+                    }
+                }
+            }
+        }
+
+        /*
+        let relay_selector = default_relay_selector();
+
+        for _ in 0..100 {
+            // Construct an arbitrary query for owned relays.
+            let query = RelayQueryBuilder::new()
+                .ownership(Ownership::MullvadOwned)
+                .build();
+            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            // Check that the relay is owned by Mullvad.
+            assert!(unwrap_relay(relay).owned);
+        }
+
+        for _ in 0..100 {
+            // Construct an arbitrary query for rented relays.
+            let query = RelayQueryBuilder::new()
+                .ownership(Ownership::Rented)
+                .build();
+            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            // Check that the relay is rented.
+            assert!(!unwrap_relay(relay).owned);
+        }
+             *
+             * */
     }
 
     /// If a multihop constraint has the same entry and exit relay, the relay selector
