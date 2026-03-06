@@ -25,6 +25,7 @@ class ConnectionViewViewModel: ObservableObject {
         case cancel
         case reconnect
         case selectLocation
+
     }
 
     @Published private(set) var tunnelStatus: TunnelStatus

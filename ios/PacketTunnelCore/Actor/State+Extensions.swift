@@ -48,8 +48,8 @@ extension State {
         switch self {
         case let .connecting(connState), let .connected(connState), let .reconnecting(connState):
             """
-            \(name) to \(connState.selectedRelays.entry.flatMap { "entry location: \($0.hostname) " } ?? ""),\
-            exit location: \(connState.selectedRelays.exit.hostname), \
+            \(name) to \(connState.selectedRelays.entry.flatMap { "entry location: \($0.description) " } ?? ""),\
+            exit location: \(connState.selectedRelays.exit.description), \
             key: \(connState.keyPolicy.logFormat()), \
             net: \(connState.networkReachability), \
             attempt: \(connState.connectionAttemptCount)

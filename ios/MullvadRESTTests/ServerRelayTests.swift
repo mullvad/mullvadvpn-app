@@ -69,7 +69,8 @@ class ServerRelayTests: XCTestCase {
                         token: "test"
                     ),
                     lwo: .init()
-                )
+                ),
+                isOverridden: nil
             ))
     }
 

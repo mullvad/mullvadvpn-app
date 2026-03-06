@@ -33,22 +33,30 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
     /// Relay geo location.
     public let location: Location
 
+    public let isOverridden: Bool
+
     /// Relay features, such as `DAITA` or `QUIC`.
     public let features: REST.ServerRelay.Features?
 
     /// Designated initializer.
-    public init(endpoint: SelectedEndpoint, hostname: String, location: Location, features: REST.ServerRelay.Features?)
-    {
+    public init(
+        endpoint: SelectedEndpoint,
+        hostname: String,
+        location: Location,
+        isOverridden: Bool = false,
+        features: REST.ServerRelay.Features?
+    ) {
         self.endpoint = endpoint
         self.hostname = hostname
         self.location = location
         self.features = features
+        self.isOverridden = isOverridden
     }
 }
 
-extension SelectedRelay: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        "\(hostname) -> \(endpoint.socketAddress)"
+extension SelectedRelay: CustomStringConvertible {
+    public var description: String {
+        "\(hostname)(\(endpoint.socketAddress))\(isOverridden ? " [IP Overridden]" : "")"
     }
 }
 

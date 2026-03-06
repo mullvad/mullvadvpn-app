@@ -55,4 +55,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
             includeAllNetworks: IncludeAllNetworksSettings()
         )
     }
+    public var debugDescription: String {
+        "TunnelSettingsV6(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation), tunnelQuantumResistance: \(tunnelQuantumResistance), tunnelMultihopState: \(tunnelMultihopState), daita: \(daita))"
+    }
 }
