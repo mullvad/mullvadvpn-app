@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -61,7 +62,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -90,6 +91,10 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator, navController: N
     val vm = koinViewModel<DeleteAccountConfirmationViewModel>()
     val uiState = vm.uiState.collectAsStateWithLifecycle()
 
+    if (uiState.value.contentOrNull()?.isLoading ?: false) {
+        // Consume back
+        BackHandler() {}
+    }
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             DeleteAccountConfirmationUiSideEffect.NavigateToComplete ->
@@ -114,7 +119,12 @@ fun DeleteAccountConfirmation(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.delete_account),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = {
+            NavigateBackIconButton(
+                onNavigateBack = onBackClick,
+                enabled = state.contentOrNull()?.isLoading?.not() ?: true,
+            )
+        },
     ) { modifier ->
         when (state) {
             is Lc.Content ->
@@ -147,7 +157,10 @@ private fun DeleteAccountConfirmationContent(
             DaysLostWarning(state.daysLeft)
         }
         Spacer(modifier = Modifier.height(Dimens.largeSpacer))
-        Text(stringResource(R.string.delete_account_confirmation_enter_account_number))
+        Text(
+            stringResource(R.string.delete_account_confirmation_enter_account_number),
+            style = MaterialTheme.typography.bodyLarge,
+        )
         Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
         AccountNumberInput(onAccountInputChanged, state)
         Spacer(modifier = Modifier.height(Dimens.largeSpacer))
@@ -216,7 +229,8 @@ private fun AccountNumberInput(
             ),
         outputTransformation = transformation,
         lineLimits = TextFieldLineLimits.SingleLine,
-        colors = mullvadWhiteTextFieldColors(),
+        enabled = !state.isLoading,
+        colors = mullvadDarkTextFieldColors(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
         isError = state.deleteAccountError != null,
         supportingText = state.deleteAccountError?.let { { Text(it.toErrorMessage()) } },
@@ -244,7 +258,11 @@ private fun DeleteAccountConfirmationBottomBar(
             isEnabled = !isLoading && hasConfirmedAccount,
             isLoading = isLoading,
         )
-        PrimaryButton(onClick = onClickCancel, text = stringResource(R.string.cancel))
+        PrimaryButton(
+            onClick = onClickCancel,
+            text = stringResource(R.string.cancel),
+            isEnabled = !isLoading,
+        )
     }
 }
 

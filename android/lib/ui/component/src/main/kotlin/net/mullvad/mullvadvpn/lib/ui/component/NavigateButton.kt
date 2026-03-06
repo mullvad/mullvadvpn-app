@@ -11,8 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 
 @Composable
-fun NavigateBackIconButton(modifier: Modifier = Modifier, onNavigateBack: () -> Unit) {
-    IconButton(onClick = onNavigateBack, modifier = modifier) {
+fun NavigateBackIconButton(
+    modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit,
+    enabled: Boolean = true,
+) {
+    IconButton(onClick = onNavigateBack, enabled = enabled, modifier = modifier) {
         Icon(
             imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
             contentDescription = stringResource(id = R.string.back),

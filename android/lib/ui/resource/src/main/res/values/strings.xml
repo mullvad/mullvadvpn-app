@@ -505,7 +505,6 @@
     <string name="delete_account_forth_item">Remove links to past purchases</string>
     <string name="delete_account_fifth_item">Make refunds for remaining time unavailable</string>
     <string name="delete_account_confirmation_check">By checking this box I agree to the risks involved with deleting my account</string>
-    <string name="delete_account_days_left_warning">You will lose your remaining %d days.</string>
     <string name="delete_account_confirmation_enter_account_number">To delete your Mullvad VPN account, please enter your account number below.</string>
     <string name="delete_account_cant_be_undone">Deleting your account cannot be undone.</string>
     <string name="account_delete_placeholder">Enter account number digits</string>

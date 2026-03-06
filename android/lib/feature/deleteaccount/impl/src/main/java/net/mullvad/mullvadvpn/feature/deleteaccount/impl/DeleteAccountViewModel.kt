@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.deleteaccount.impl
 
+import androidx.compose.runtime.snapshots.toInt
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,7 +19,9 @@ class DeleteAccountViewModel(accountRepository: AccountRepository) : ViewModel()
         accountRepository.accountData
             .filterNotNull()
             .map { accountData ->
-                Lc.Content(DeleteAccountUiState(daysLeft = accountData.expiryDate.daysFromNow()))
+                Lc.Content(
+                    DeleteAccountUiState(daysLeft = accountData.expiryDate.daysFromNow().toInt())
+                )
             }
             .stateIn(
                 viewModelScope,
@@ -27,4 +30,4 @@ class DeleteAccountViewModel(accountRepository: AccountRepository) : ViewModel()
             )
 }
 
-data class DeleteAccountUiState(val daysLeft: Long)
+data class DeleteAccountUiState(val daysLeft: Int)

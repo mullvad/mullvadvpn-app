@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -100,7 +101,7 @@ fun DeleteAccount(
 }
 
 @Composable
-private fun DeleteAccountContent(daysLeft: Long) {
+private fun DeleteAccountContent(daysLeft: Int) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
         Text(
             text =
@@ -116,7 +117,8 @@ private fun DeleteAccountContent(daysLeft: Long) {
                             )
                             .map { stringResource(it) }
                     withBulletList { bulletItems.forEach { withBulletListItem { append(it) } } }
-                }
+                },
+            style = MaterialTheme.typography.bodyLarge,
         )
         if (daysLeft > 0) {
             Spacer(Modifier.height(Dimens.mediumSpacer))
@@ -130,7 +132,7 @@ private fun DeleteAccountContent(daysLeft: Long) {
 }
 
 @Composable
-internal fun DaysLostWarning(daysLeft: Long) {
+internal fun DaysLostWarning(daysLeft: Int) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(Dimens.tinyPadding),
@@ -140,7 +142,10 @@ internal fun DaysLostWarning(daysLeft: Long) {
             tint = MaterialTheme.colorScheme.error,
             contentDescription = null,
         )
-        Text(stringResource(R.string.delete_account_days_left_warning, daysLeft))
+        Text(
+            pluralStringResource(R.plurals.delete_account_days_left_warning, daysLeft),
+            style = MaterialTheme.typography.bodyLarge,
+        )
     }
 }
 

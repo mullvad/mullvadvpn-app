@@ -38,7 +38,7 @@ class DeleteAccountConfirmationViewModel(val accountRepository: AccountRepositor
                         isLoading = isLoading,
                         hasConfirmedAccount = accountInput == accountData.accountNumber.value,
                         deleteAccountError = error,
-                        daysLeft = accountData.expiryDate.daysFromNow(),
+                        daysLeft = accountData.expiryDate.daysFromNow().toInt(),
                     )
                 )
             }
@@ -70,7 +70,7 @@ data class DeleteAccountConfirmationUiState(
     val isLoading: Boolean = false,
     val hasConfirmedAccount: Boolean = false,
     val deleteAccountError: DeleteAccountError? = null,
-    val daysLeft: Long,
+    val daysLeft: Int,
 )
 
 sealed interface DeleteAccountConfirmationUiSideEffect {

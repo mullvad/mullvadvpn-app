@@ -27,4 +27,8 @@
         <item quantity="one">%d location</item>
         <item quantity="other">%d locations</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">You will lose your remaining day.</item>
+        <item quantity="other">You will lose your remaining %d days.</item>
+    </plurals>
 </resources>
