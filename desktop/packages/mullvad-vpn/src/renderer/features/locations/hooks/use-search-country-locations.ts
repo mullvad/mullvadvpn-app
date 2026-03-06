@@ -8,49 +8,40 @@ export function useSearchCountryLocations(
   if (!searchTerm) {
     return locations;
   }
-  const result: CountryLocation[] = [];
-  locations.forEach((country) => {
-    const countriesResult: CountryLocation[] = [];
-    const citiesResult: CityLocation[] = [];
-    const relaysResult: RelayLocation[] = [];
-    const pushedCities = new Set<string>();
-    const pushedCountries = new Set<string>();
+  return formatCountriesResult(locations, searchTerm);
+}
 
-    const countryKey = country.details.country;
-    country.cities.forEach((city, index) => {
-      const cityKey = `${city.details.country}-${city.details.city}`;
-      city.relays.forEach((relay, index) => {
-        if (searchMatchesLocation(relay.searchText, searchTerm)) {
-          relaysResult.push(relay);
-        }
-        // If it's the last relay in the city and we have a match, push the city with
-        // a copy of relay result array. Then reset the relay result array for the next city
-        if (index === city.relays.length - 1 && relaysResult.length > 0) {
-          citiesResult.push({ ...city, expanded: true, relays: Array.from(relaysResult) });
-          pushedCities.add(cityKey);
-          relaysResult.length = 0;
-        }
-      });
-      if (!pushedCities.has(cityKey)) {
-        if (searchMatchesLocation(city.searchText, searchTerm)) {
-          citiesResult.push(city);
-        }
+export function formatCountriesResult(countries: CountryLocation[], searchTerm: string) {
+  return countries
+    .map((country) => {
+      const citiesResult = formatCitiesResult(country, searchTerm);
+      if (citiesResult.length > 0) {
+        return { ...country, expanded: true, cities: citiesResult };
       }
-      // Handle countries in the same way as was described for cities above
-      if (index === country.cities.length - 1 && citiesResult.length > 0) {
-        countriesResult.push({ ...country, expanded: true, cities: Array.from(citiesResult) });
-        pushedCountries.add(countryKey);
-        citiesResult.length = 0;
-      }
-    });
-    // If country not already has been pushed and matches search, add country with all locations
-    if (!pushedCountries.has(countryKey)) {
       if (searchMatchesLocation(country.searchText, searchTerm)) {
-        countriesResult.push(country);
+        return country;
       }
-    }
-    result.push(...countriesResult);
-  });
+      return undefined;
+    })
+    .filter((country) => country !== undefined);
+}
 
-  return result;
+export function formatCitiesResult(country: CountryLocation, searchTerm: string): CityLocation[] {
+  return country.cities
+    .map((city) => {
+      const relaysResult = formatRelaysResult(city, searchTerm);
+      if (relaysResult.length > 0) {
+        return { ...city, expanded: true, relays: relaysResult };
+      }
+      if (searchMatchesLocation(city.searchText, searchTerm)) {
+        return city;
+      }
+
+      return undefined;
+    })
+    .filter((city) => city !== undefined);
+}
+
+export function formatRelaysResult(city: CityLocation, searchTerm: string): RelayLocation[] {
+  return city.relays.filter((relay) => searchMatchesLocation(relay.searchText, searchTerm));
 }
