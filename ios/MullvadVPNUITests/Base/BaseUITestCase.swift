@@ -78,16 +78,6 @@ class BaseUITestCase: XCTestCase {
         return false
     }
 
-    static func uninstallAppInTestSuiteTearDown() -> Bool {
-        if let uninstallAppInTestSuiteTearDown = Bundle(for: BaseUITestCase.self)
-            .infoDictionary?["UninstallAppInTestSuiteTearDown"] as? String
-        {
-            return uninstallAppInTestSuiteTearDown == "1"
-        }
-
-        return false
-    }
-
     /// Get an account number with time. If an account with time is specified in the configuration file that account will be used, else a temporary account will be created if partner API token has been configured.
     func getAccountWithTime() -> String {
         if let configuredAccountWithTime = bundleHasTimeAccountNumber, !configuredAccountWithTime.isEmpty {
@@ -187,26 +177,54 @@ class BaseUITestCase: XCTestCase {
 
     // MARK: - Setup & teardown
 
-    /// Override this class function to change the uninstall behaviour in suite level teardown
-    class func shouldUninstallAppInTeardown() -> Bool {
-        return true
-    }
+    /// Controls which secure settings are reset before launching the app in a UI test.
+    class var settingsResetPolicy: UITestSettingsResetPolicy { .none }
 
-    /// Suite level teardown ran after all tests in suite have been executed
-    override class func tearDown() {
-        // This function is not marked `@MainActor` therefore cannot legally enter its context without help
-        Task { @MainActor in
-            if shouldUninstallAppInTeardown() && uninstallAppInTestSuiteTearDown() {
-                uninstallApp()
-            }
-        }
-    }
+    /// Controls the authentication state the app should start with in a UI test.
+    class var authenticationState: LaunchArguments.AuthenticationState { .none }
+
+    /// Controls which UserDefaults preferences are reset before launching the app in a UI test.
+    class var appPreferencesPolicy: UITestAppPreferencesPolicy { .none }
+
+    class var executableTarget: MullvadExecutableTarget { .uiTests }
 
     /// Test level setup
     override func setUp() async throws {
         currentTestCaseShouldCapturePackets = false  // Reset for each test case run
         continueAfterFailure = false
+        let argumentsJsonString = try? LaunchArguments(
+            target: Self.executableTarget,
+            areAnimationsDisabled: true,
+            authenticationState: Self.authenticationState,
+            settingsResetPolicy: Self.settingsResetPolicy,
+            appPreferencesResetPolicy: Self.appPreferencesPolicy
+        ).toJSON()
+        app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
         app.launch()
+
+        // Wait until the app finishes launching and displays the initial screen.
+        agreeToTermsOfServiceIfShown()
+        handleRevokedDeviceIfShown()
+    }
+
+    func agreeToTermsOfServiceIfShown() {
+        let timeout: XCUIElement.Timeout =
+            Self.authenticationState == .forceLoggedOut && isLoggedIn()
+            ? .longerThanMullvadAPITimeout
+            : .short
+
+        if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: timeout) {
+            TermsOfServicePage(app)
+                .tapAgreeButton()
+        }
+    }
+
+    func handleRevokedDeviceIfShown() {
+        if app.otherElements[.revokedDeviceView].existsAfterWait(timeout: .short) {
+            RevokedDevicePage(app)
+                .tapGoToLogin()
+        }
+
     }
 
     /// Test level teardown
@@ -243,7 +261,7 @@ class BaseUITestCase: XCTestCase {
         app.terminate()
 
         if let testRun = self.testRun, testRun.failureCount > 0, attachAppLogsOnFailure == true {
-            app.launch()
+            try app.relaunch(Self.executableTarget)
 
             HeaderBar(app)
                 .tapSettingsButton()
@@ -284,13 +302,6 @@ class BaseUITestCase: XCTestCase {
             .exists
     }
 
-    func agreeToTermsOfServiceIfShown() {
-        if app.otherElements[.termsOfServiceView].existsAfterWait(timeout: .short) {
-            TermsOfServicePage(app)
-                .tapAgreeButton()
-        }
-    }
-
     /// Login with specified account number. It is a prerequisite that the login page is currently shown.
     func login(accountNumber: String) {
         var successIconShown = false
@@ -300,11 +311,10 @@ class BaseUITestCase: XCTestCase {
         LoginPage(app)
             .tapAccountNumberTextField()
             .enterText(accountNumber)
+            .tapAccountNumberSubmitButton()
 
         repeat {
-            successIconShown = LoginPage(app)
-                .tapAccountNumberSubmitButton()
-                .getSuccessIconShown()
+            successIconShown = LoginPage(app).getSuccessIconShown()
 
             if successIconShown == false {
                 // If the login happened too fast, the UI harness will miss the success icon being shown
@@ -320,6 +330,7 @@ class BaseUITestCase: XCTestCase {
 
             retryCount += 1
         } while successIconShown == false && retryCount < maxRetryCount
+        removeExistingDeviceSessionIfNeeded()
 
         skipNotificationPromptIfShown()
 
@@ -327,10 +338,26 @@ class BaseUITestCase: XCTestCase {
             .verifyDeviceLabelShown()
     }
 
-    func skipNotificationPromptIfShown() {
-        if app.otherElements[.notificationPromptView].existsAfterWait() {
+    private func skipNotificationPromptIfShown() {
+        if app.otherElements[.notificationPromptView].existsAfterWait(timeout: .short) {
             NotificationPromptPage(app)
                 .tapSkipButton()
+        }
+    }
+
+    private func removeExistingDeviceSessionIfNeeded() {
+        if app.otherElements[.deviceManagementView].existsAfterWait(timeout: .short) {
+            DeviceManagementPage(app)
+                .waitForDeviceList()
+                .tapRemoveDeviceButton(cellIndex: 1)
+
+            DeviceManagementLogOutDeviceConfirmationAlert(app)
+                .tapYesLogOutDeviceButton()
+
+            DeviceManagementPage(app)
+                .waitForDeviceList()
+                .waitForNoLoading()
+                .tapContinueWithLoginButton()
         }
     }
 
@@ -356,49 +383,33 @@ class BaseUITestCase: XCTestCase {
             LoginPage(app)
         }
     }
+}
 
-    static func uninstallApp() {
-        let appName = "Mullvad VPN"
-        let searchQuery =
-            appName
-            .replacingOccurrences(
-                of: " ",
-                with: ""
-            )  // With space in the query Spotlight search sometimes don't match the Mullvad VPN app
+extension XCUIApplication {
 
-        let timeout: XCUIElement.Timeout = .default
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let spotlight = XCUIApplication(bundleIdentifier: "com.apple.Spotlight")
+    func relaunch(
+        _ target: MullvadExecutableTarget = .uiTests,
+        authenticationState: LaunchArguments.AuthenticationState = .keepLoggedIn,
+        settingsResetPolicy: UITestSettingsResetPolicy = .none,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
 
-        /// iPhone uses spotlight, iPad uses springboard. But the usage is quite similar
-        let spotlightOrSpringboard = BaseUITestCase.testDeviceIsIPad() ? springboard : spotlight
-        var mullvadAppIcon: XCUIElement
+        self.terminate()
+        XCTAssertTrue(
+            self.wait(for: .notRunning, timeout: 5),
+            "App did not terminate correctly",
+            file: file,
+            line: line
+        )
 
-        // How to navigate to Spotlight search differs between iPhone and iPad
-        if BaseUITestCase.testDeviceIsIPad() == false {  // iPhone
-            springboard.swipeDown()
-            spotlight.textFields["SpotlightSearchField"].typeText(searchQuery)
-            mullvadAppIcon = spotlightOrSpringboard.icons[appName]
-        } else {  // iPad
-            // Swipe left enough times to reach the last page
-            for _ in 0..<3 {
-                springboard.swipeLeft()
-                Thread.sleep(forTimeInterval: 0.5)
-            }
+        let arguments = LaunchArguments(
+            target: target,
+            authenticationState: authenticationState,
+            settingsResetPolicy: settingsResetPolicy
+        )
 
-            springboard.swipeDown()
-            springboard.searchFields.firstMatch.typeText(searchQuery)
-            mullvadAppIcon = spotlightOrSpringboard.icons.matching(identifier: appName).allElementsBoundByIndex[1]
-        }
-
-        // The rest of the delete app flow is same for iPhone and iPad with the exception that iPhone uses spotlight and iPad uses springboard
-        if mullvadAppIcon.existsAfterWait() {
-            mullvadAppIcon.press(forDuration: 2)
-        } else {
-            XCTFail("Failed to find app icon named \(appName)")
-        }
-
-        spotlightOrSpringboard.buttons["Delete App"].tapWhenHittable()
-        springboard.alerts.buttons["Delete"].tapWhenHittable()
+        self.launchEnvironment[LaunchArguments.tag] = try arguments.toJSON()
+        self.launch()
     }
 }
