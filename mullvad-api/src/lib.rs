@@ -31,8 +31,6 @@ pub mod device;
 pub mod domain_fronting;
 mod relay_list;
 
-pub mod ffi;
-
 pub use address_cache::Error as AddressCacheError;
 pub use address_cache::{AddressCache, AddressCacheBacking, FileAddressCacheBacking};
 pub use device::DevicesProxy;
