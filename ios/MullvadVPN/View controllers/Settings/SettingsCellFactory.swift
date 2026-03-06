@@ -108,7 +108,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString("Multihop", comment: "")
 
             cell.detailTitleLabel.text =
-                viewModel.multihopState.isEnabled
+                viewModel.multihopState.isUserSelected
                 ? NSLocalizedString("On", comment: "")
                 : NSLocalizedString("Off", comment: "")
 

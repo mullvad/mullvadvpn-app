@@ -33,7 +33,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
         value = tunnelManager.settings.daita
 
         var isAutomaticRoutingActive: Bool {
-            tunnelManager.tunnelStatus.state.isMultihop && !tunnelManager.settings.tunnelMultihopState.isEnabled
+            tunnelManager.tunnelStatus.state.isMultihop && !tunnelManager.settings.tunnelMultihopState.isUserSelected
         }
         self.isAutomaticRoutingActive = isAutomaticRoutingActive
 
@@ -99,7 +99,7 @@ extension DAITATunnelSettingsViewModel {
             // only are enabled, we should return a DAITA related error since the current settings would have
             // resulted in the relay selector not being able to select a DAITA relay anyway.
             if relays == nil {
-                compatibilityError = tunnelSettings.tunnelMultihopState.isEnabled ? .multihop : .singlehop
+                compatibilityError = tunnelSettings.tunnelMultihopState.isUserSelected ? .multihop : .singlehop
             }
         }
 

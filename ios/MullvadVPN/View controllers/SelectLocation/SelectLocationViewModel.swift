@@ -108,7 +108,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         // If multihop is enabled, we should check if there's a DAITA related error when opening the location
         // view. If there is, help the user by showing the entry instead of the exit view.
-        isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isEnabled
+        isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isUserSelected
 
         // Reactively keep `isRecentsEnabled` in sync with the interactor's enabled state.
         recentsInteractor
@@ -152,7 +152,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 },
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
-                    isMultihopEnabled = settings.tunnelMultihopState.isEnabled
+                    isMultihopEnabled = settings.tunnelMultihopState.isUserSelected
                     if !isMultihopEnabled {
                         multihopContext = .exit
                     }

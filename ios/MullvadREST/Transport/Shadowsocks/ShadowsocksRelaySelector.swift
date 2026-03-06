@@ -29,8 +29,8 @@ final public class ShadowsocksRelaySelector: ShadowsocksRelaySelectorProtocol {
 
         let locationConstraint =
             switch settings.tunnelMultihopState {
-            case .on: settings.relayConstraints.entryLocations
-            case .off: settings.relayConstraints.exitLocations
+            case .on, .always: settings.relayConstraints.entryLocations
+            case .off, .never, .whenNeeded: settings.relayConstraints.exitLocations
             }
 
         return RelaySelector.Shadowsocks.closestBridge(
