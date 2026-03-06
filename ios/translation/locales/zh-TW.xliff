@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,15 +48,6 @@
       <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
         <source>%@ was added to your account.</source>
         <target state="final">%@ 已新增至您的帳戶。</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
-        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="final">「%@ 本機網路分享」需要重新啟動 VPN 連線，這會導致您中斷連線，並短暫暴露您的網路流量。
-為避免此情形，請在繼續操作前手動啟用飛行模式並關閉 Wi-Fi。
-您是否要繼續啟用「本機網路分享」？</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
@@ -244,11 +235,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">任何</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
-        <source>App Store receipt is not found on disk.</source>
-        <target state="final">未在磁碟上找到 App Store 收據。</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
         <target state="final">應用程式日誌</target>
@@ -343,6 +329,16 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Barcelona</source>
         <target state="final">巴塞隆納</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Be cautious when using automatic updates as this will trigger the network connectivity loss." xml:space="preserve" approved="yes">
+        <source>Be cautious when using automatic updates as this will trigger the network connectivity loss.</source>
+        <target state="final">使用自動更新時請留意，因為這會觸發網路連線中斷。</target>
+        <note from="auto-generated">Text displayed in a settings page explaining the potential consequences of using automatic updates when the IAN is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device." xml:space="preserve" approved="yes">
+        <source>Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</source>
+        <target state="final">由於 iOS 的限制，如果在啟用此功能且已連上 VPN 時，更新 Mullvad VPN，網路連線就會中斷。只有重新啟動裝置，才能恢復網路連線。</target>
+        <note from="auto-generated">Text describing the potential network connectivity loss when the IAN feature is enabled and the device is connected to the VPN.</note>
       </trans-unit>
       <trans-unit id="Belgium" xml:space="preserve" approved="yes">
         <source>Belgium</source>
@@ -464,20 +460,20 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">無法完成購買</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
-        <source>Cannot read the App Store receipt from disk</source>
-        <target state="final">無法從磁碟讀取 App Store 收據</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
-        <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="final">無法重新整理 App Store 收據：%@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
         <target state="final">無法恢復購買項目</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
+        <source>Changing language will disconnect you from the VPN and restart the app</source>
+        <target state="final">變更語言會讓 VPN 連線中斷，並重新啟動應用程式</target>
+        <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Checked" xml:space="preserve" approved="yes">
+        <source>Checked</source>
+        <target state="final">已勾選</target>
+        <note from="auto-generated">Text describing a checked checkbox.</note>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
         <source>Checking account number</source>
@@ -519,15 +515,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">清除已匯入的覆蓋，會將「選取位置」視圖中的伺服器 IP 變更回預設值。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
-        <source>Client is not allowed to issue the request.</source>
-        <target state="final">不允許用戶端送出此請求。</target>
-        <note/>
+      <trans-unit id="Collapse" xml:space="preserve" approved="yes">
+        <source>Collapse</source>
+        <target state="final">折疊</target>
+        <note from="auto-generated">Name of the accessibility action that collapses a location.</note>
       </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
         <target state="final">收合 %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Collapse connection details" xml:space="preserve" approved="yes">
+        <source>Collapse connection details</source>
+        <target state="final">收合連線詳細資訊</target>
+        <note from="auto-generated">Accessibility label for the button that collapses the connection details.</note>
+      </trans-unit>
+      <trans-unit id="Collapsed" xml:space="preserve" approved="yes">
+        <source>Collapsed</source>
+        <target state="final">已收合</target>
+        <note from="auto-generated">A description of a list item that is collapsed.</note>
       </trans-unit>
       <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
@@ -604,6 +610,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">建立新帳戶</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new custom list" xml:space="preserve" approved="yes">
+        <source>Create new custom list</source>
+        <target state="final">建立新的自訂清單</target>
+        <note from="auto-generated">An accessibility label for the button that allows the user to create a new custom list.</note>
+      </trans-unit>
       <trans-unit id="Create new list" xml:space="preserve" approved="yes">
         <source>Create new list</source>
         <target state="final">建立新清單</target>
@@ -629,6 +640,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">目前裝置</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN." xml:space="preserve" approved="yes">
+        <source>Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</source>
+        <target state="final">目前無法透過任何方式解決此問題，但可以先停用此功能，或在更新 Mullvad VPN 前，先中斷連線，以避免網路連線中斷。</target>
+        <note from="auto-generated">Text displayed on the last page of the IAN settings info view, explaining that there is no way to work around the current behaviour, but that they can avoid losing network connectivity by disabling the feature or disconnecting before</note>
+      </trans-unit>
       <trans-unit id="Custom" xml:space="preserve" approved="yes">
         <source>Custom</source>
         <target state="final">自訂</target>
@@ -643,6 +659,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Custom lists</source>
         <target state="final">自訂清單</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Cycle through available servers" xml:space="preserve" approved="yes">
+        <source>Cycle through available servers</source>
+        <target state="final">在可用的伺服器間循環切換</target>
+        <note from="auto-generated">Accessibility hint for the "Reconnect" action button in the "Select location" split button.</note>
       </trans-unit>
       <trans-unit id="Cyprus" xml:space="preserve" approved="yes">
         <source>Cyprus</source>
@@ -784,11 +805,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">停用最近使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">正在停用</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">停用「最近使用」也會一併清除歷史紀錄。</target>
@@ -834,6 +850,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">都柏林</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="final">由於 iOS 的限制，這項功能預設不會啟用。我們其他應用程式預設透過 VPN 傳輸所有流量。</target>
+        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+      </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
         <source>Dusseldorf</source>
         <target state="final">杜塞道夫</target>
@@ -853,6 +874,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Edit custom lists</source>
         <target state="final">編輯自訂清單</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Edit list" xml:space="preserve" approved="yes">
+        <source>Edit list</source>
+        <target state="final">編輯清單</target>
+        <note from="auto-generated">A button label that opens a form to edit an existing custom list.</note>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve" approved="yes">
         <source>Edit message</source>
@@ -889,14 +915,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">啟用多點跳躍</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
+        <source>Enable notifications</source>
+        <target state="final">啟用通知</target>
+        <note from="auto-generated">Text for an action button that enables notifications.</note>
+      </trans-unit>
       <trans-unit id="Enable recents" xml:space="preserve" approved="yes">
         <source>Enable recents</source>
         <target state="final">啟用最近使用</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">正在啟用</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -929,10 +955,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">出口</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve" approved="yes">
+        <source>Expand</source>
+        <target state="final">展開</target>
+        <note from="auto-generated">Name of the accessibility action that expands a location.</note>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
         <target state="final">展開 %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Expand connection details" xml:space="preserve" approved="yes">
+        <source>Expand connection details</source>
+        <target state="final">展開連線詳細資訊</target>
+        <note from="auto-generated">Accessibility label for the button that expands or collapses the connection details section.</note>
+      </trans-unit>
+      <trans-unit id="Expanded" xml:space="preserve" approved="yes">
+        <source>Expanded</source>
+        <target state="final">已展開</target>
+        <note from="auto-generated">A label describing the expanded state of a list item.</note>
       </trans-unit>
       <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
@@ -957,11 +998,6 @@ Would you like to continue to enable “Local network sharing”?</source>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
         <source>Failed to send</source>
         <target state="final">無法傳送</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
-        <source>Failed to send the receipt to server: %@</source>
-        <target state="final">無法傳送收據至伺服器：%@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
@@ -1013,6 +1049,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Finland</source>
         <target state="final">芬蘭</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">強制所有應用程式</target>
+        <note from="auto-generated">Title of the settings screen for forcing all apps to use the IAN tunnel.</note>
+      </trans-unit>
+      <trans-unit id="Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected." xml:space="preserve" approved="yes">
+        <source>Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</source>
+        <target state="final">強制讓裝置上所有應用程式的流量都通過 VPN 通道進行傳輸，從而確保其他應用程式不會意外或惡意洩漏資料。Apple 系統應用程式與維持裝置功能所需的服務不受影響。</target>
+        <note from="auto-generated">Description of the IAN feature, including a note that Apple system apps and services are not affected.</note>
+      </trans-unit>
+      <trans-unit id="Forces all apps on the device to use the VPN tunnel, preventing data leaks" xml:space="preserve" approved="yes">
+        <source>Forces all apps on the device to use the VPN tunnel, preventing data leaks</source>
+        <target state="final">強制讓裝置上所有應用程式使用 VPN 通道，避免資料外洩</target>
+        <note from="auto-generated">Footer text in the VPN settings section of the settings screen.</note>
       </trans-unit>
       <trans-unit id="Fortaleza" xml:space="preserve" approved="yes">
         <source>Fortaleza</source>
@@ -1104,6 +1155,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">匈牙利</target>
         <note/>
       </trans-unit>
+      <trans-unit id="I understand the benefits and risks of using this feature" xml:space="preserve" approved="yes">
+        <source>I understand the benefits and risks of using this feature</source>
+        <target state="final">我瞭解使用此功能的優點與風險</target>
+        <note from="auto-generated">Label for a toggle switch in the "Include all networks" settings view, indicating that the user has understood the benefits and risks of using this feature.</note>
+      </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve" approved="yes">
         <source>IMPORT SUCCESSFUL</source>
         <target state="final">匯入成功</target>
@@ -1118,6 +1174,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>If needed we will contact you at %@</source>
         <target state="final">如有需要，我們將透過 %@ 與您聯絡</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
+        <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
+        <target state="final">如果未啟用此功能，裝置上的惡意應用程式可能會將流量洩漏到通道之外。</target>
+        <note from="auto-generated">Text describing the potential risk of data leakage when the IAN feature is disabled.</note>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
@@ -1204,11 +1265,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">正在使用</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
-        <source>Include all networks</source>
-        <target state="final">加入所有網路</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
         <target state="final">加入我的帳戶權杖，就能更快取得付款或帳戶等相關問題的協助</target>
@@ -1218,6 +1274,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Indonesia</source>
         <target state="final">印尼</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
+        <source>Install the latest app version to stay up to date.</source>
+        <target state="final">安裝最新版本的應用程式以保持最新狀態。</target>
+        <note from="auto-generated">Body text of an in-app notification that reminds the user to update their app to the latest version.</note>
       </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
@@ -1239,19 +1300,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">帳號無效</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
-        <source>Invalid account number: %@</source>
-        <target state="final">帳號無效：%@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
         <target state="final">裝置狀態無效。</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
-        <source>Invalid purchase identifier.</source>
-        <target state="final">購買識別碼無效。</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1378,6 +1429,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Locations</source>
         <target state="final">位置</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve" approved="yes">
+        <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
+        <target state="final">可以直接選取位置，也可以展開位置。選取城市或國家/地區後，該位置內所有相容伺服器都可能成為任何給定通道連線的候選伺服器。</target>
+        <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
@@ -1639,6 +1695,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">我們有些伺服器並未啟用 %1$@。因此，我們使用多點跳躍自動來為任意伺服器啟用 %2$@ 。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Notifications" xml:space="preserve" approved="yes">
+        <source>Notifications</source>
+        <target state="final">通知</target>
+        <note from="auto-generated">Title of the screen where a user can configure their notification settings.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</source>
+        <target state="final">此裝置已停用 Mullvad VPN 的通知。如要再次啟用，請在系統設定中變更 Mullvad VPN 的設定。</target>
+        <note from="auto-generated">A message displayed to users who have disabled notifications for Mullvad VPN on their device. It instructs them to open their system settings to re-enable notifications.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</source>
+        <target state="final">此裝置已停用 Mullvad VPN 的通知。如要再次啟用，請在系統設定中變更 Mullvad VPN 的設定。這些設定隨時都能變更。</target>
+        <note from="auto-generated">Text displayed in a notification prompt view model when notifications are disabled on the device.</note>
+      </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve" approved="yes">
         <source>OUT OF TIME</source>
         <target state="final">逾時</target>
@@ -1688,6 +1759,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Open %@ settings</source>
         <target state="final">開啟 %@ 設定</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
+        <source>Open system settings</source>
+        <target state="final">開啟系統設定</target>
+        <note from="auto-generated">Text for a button that opens the user's system settings.</note>
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve" approved="yes">
         <source>Optional</source>
@@ -1789,10 +1865,10 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">請從底下清單至少移除一個裝置來將其登出。您可以在裝置的「帳戶」設定下找到相應裝置名稱。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
-        <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="final">請使用「恢復購買」按鈕重試。</target>
-        <note/>
+      <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
+        <source>Please swipe through and read all information in order to activate this feature</source>
+        <target state="final">請滑動瀏覽並閱讀所有資訊，以啟用此功能</target>
+        <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
         <source>Poland</source>
@@ -1873,6 +1949,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Recents</source>
         <target state="final">最近使用</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Reconnect" xml:space="preserve" approved="yes">
+        <source>Reconnect</source>
+        <target state="final">重新連線</target>
+        <note from="auto-generated">Text for the secondary action on the button panel in the connection view.</note>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
@@ -1991,6 +2072,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">紐澤西州，錫考克斯</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Select %@" xml:space="preserve" approved="yes">
+        <source>Select %@</source>
+        <target state="final">選取 %@</target>
+        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+      </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
         <target state="final">選取位置</target>
@@ -2041,6 +2127,21 @@ Do you want to remove the saved account number?</source>
         <target state="final">伺服器詳細資訊</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Server hostname: %@" xml:space="preserve" approved="yes">
+        <source>Server hostname: %@</source>
+        <target state="final">伺服器主機名稱：%@</target>
+        <note from="auto-generated">A string that describes the hostname of the VPN server.</note>
+      </trans-unit>
+      <trans-unit id="Server hostnames: %@ via %@" xml:space="preserve" approved="yes">
+        <source>Server hostnames: %1$@ via %2$@</source>
+        <target state="final">伺服器主機名稱：%1$@ (透過 %2$@)</target>
+        <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
+      </trans-unit>
+      <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
+        <source>Set up notifications</source>
+        <target state="final">設定通知</target>
+        <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
         <target state="final">設定：%@</target>
@@ -2071,6 +2172,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">顯示帳號</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Show additional details about your connection" xml:space="preserve" approved="yes">
+        <source>Show additional details about your connection</source>
+        <target state="final">顯示您連線的附加詳細資訊</target>
+        <note from="auto-generated">Accessibility hint for the button that expands the chip container view.</note>
+      </trans-unit>
       <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
         <target state="final">顯示第 %1$lld 筆，共 %2$lld 筆</target>
@@ -2080,6 +2186,11 @@ Do you want to remove the saved account number?</source>
         <source>Singapore</source>
         <target state="final">新加坡</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Skip" xml:space="preserve" approved="yes">
+        <source>Skip</source>
+        <target state="final">跳過</target>
+        <note from="auto-generated">Text for a button that skips the notification prompt.</note>
       </trans-unit>
       <trans-unit id="Slovakia" xml:space="preserve" approved="yes">
         <source>Slovakia</source>
@@ -2126,6 +2237,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">斯塔萬格</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Stay informed about your VPN connection and any actions needed to ensure it works correctly." xml:space="preserve" approved="yes">
+        <source>Stay informed about your VPN connection and any actions needed to ensure it works correctly.</source>
+        <target state="final">隨時掌握 VPN 連線狀態，以及為確保其正常運作所需採取的任何動作。</target>
+        <note from="auto-generated">Message in the notification prompt view model explaining the purpose of the notifications.</note>
+      </trans-unit>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">斯德哥爾摩</target>
@@ -2166,6 +2282,51 @@ Do you want to remove the saved account number?</source>
         <target state="final">通道錯誤</target>
         <note/>
       </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_CONNECTION" xml:space="preserve" approved="yes">
+        <source>Blocked connection</source>
+        <target state="final">連線已封鎖</target>
+        <note>VoiceOver announcement when connection is blocked</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_WITH_REASON" xml:space="preserve" approved="yes">
+        <source>Blocked connection: %@</source>
+        <target state="final">連線已封鎖：%@</target>
+        <note>VoiceOver announcement for blocked/error state with reason</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connected to %1$@, %2$@</source>
+        <target state="final">通道已連線至 %1$@，%2$@</target>
+        <note>VoiceOver announcement when connected to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting</source>
+        <target state="final">通道正在連線</target>
+        <note>VoiceOver announcement when connecting without relay info</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting to %1$@, %2$@</source>
+        <target state="final">通道正在連線至 %1$@，%2$@</target>
+        <note>VoiceOver announcement when connecting to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnected</source>
+        <target state="final">通道已中斷連線</target>
+        <note>VoiceOver announcement when disconnected</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnecting</source>
+        <target state="final">通道正在中斷連線</target>
+        <note>VoiceOver announcement when disconnecting</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve" approved="yes">
+        <source>No network</source>
+        <target state="final">沒有網路</target>
+        <note>VoiceOver announcement when no network is available</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel reconnecting to %1$@, %2$@</source>
+        <target state="final">通道正在重新連線至 %1$@，%2$@</target>
+        <note>VoiceOver announcement when reconnecting to a relay</note>
+      </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
         <source>Tallinn</source>
         <target state="final">塔林</target>
@@ -2175,6 +2336,11 @@ Do you want to remove the saved account number?</source>
         <source>Tap **Edit** to add at least one DNS server.</source>
         <target state="final">輕點**編輯**以新增至少一個 DNS 伺服器。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
+        <source>Tap here to go to AppStore</source>
+        <target state="final">輕按此處前往 App Store</target>
+        <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
         <source>Tel Aviv</source>
@@ -2256,11 +2422,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">%1$@ 的入口伺服器目前已由 %2$@ 覆寫。若要選擇入口伺服器，請先在設定中啟用「%3$@」或停用「%4$@」。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
-        <source>The payment request was cancelled.</source>
-        <target state="final">已取消付款請求。</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
         <target state="final">不支援所選的 WireGuard 連接埠，請至**VPN 設定**下變更。</target>
@@ -2271,6 +2432,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">無法辨識裝置上儲存的設定版本。設定將重設為預設，裝置將登出。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
+        <source>These settings can be changed at any time</source>
+        <target state="final">可以隨時變更這些設定</target>
+        <note from="auto-generated">Text displayed in a notification when a user enables notifications for the first time.</note>
+      </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
         <target state="final">如果 API 受到審查，但 Mullvad 的橋接伺服器未受到審查，此方式可能會很有用。</target>
@@ -2279,11 +2445,6 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
         <source>This can be useful when you are not affected by censorship.</source>
         <target state="final">當您不受審查影響時，此方式可能會很有用。</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
-        <source>This device is not allowed to make the payment.</source>
-        <target state="final">不允許此裝置進行付款。</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
@@ -2461,6 +2622,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">無法啟動通道連線。請傳送問題回報。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Unchecked" xml:space="preserve" approved="yes">
+        <source>Unchecked</source>
+        <target state="final">未勾選</target>
+        <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
+      </trans-unit>
       <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
         <target state="final">發生意外錯誤。</target>
@@ -2476,10 +2642,10 @@ Do you want to remove the saved account number?</source>
         <target state="final">意外的伺服器回應：%d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
-        <source>Unknown error.</source>
-        <target state="final">未知錯誤.</target>
-        <note/>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">已推出更新</target>
+        <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
@@ -2575,6 +2741,11 @@ Do you want to remove the saved account number?</source>
         <source>We will look into this.</source>
         <target state="final">我們會對此進行調查。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
+        <source>We will never send you any ads or tips.</source>
+        <target state="final">我們絕不會向您傳送任何廣告或提示。</target>
+        <note from="auto-generated">Additional information about the privacy policy of Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
@@ -2773,49 +2944,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -2827,28 +2998,45 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
+        <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
+        <target state="final">更新前，請停用「%@」或中斷連線，以避免網路連線中斷。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">已推出更新</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="zh-Hant" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>

@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,15 +48,6 @@
       <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
         <source>%@ was added to your account.</source>
         <target state="final">%@ lisättiin tilillesi.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
-        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="final">"%@ Paikallisen verkon jakaminen" vaatii VPN-yhteyden käynnistämistä uudelleen, mikä katkaisee yhteytesi ja paljastaa liikenteesi hetkeksi.
-Voit estää tämän ottamalla lentokonetilan käyttöön ja poistamalla WiFi-yhteyden käytöstä manuaalisesti ennen jatkamista.
-Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
@@ -244,11 +235,6 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Mikä tahansa</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
-        <source>App Store receipt is not found on disk.</source>
-        <target state="final">App Storen kuittia ei löydy levyltä.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
         <target state="final">Sovelluslokit</target>
@@ -343,6 +329,16 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Barcelona</source>
         <target state="final">Barcelona</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Be cautious when using automatic updates as this will trigger the network connectivity loss." xml:space="preserve" approved="yes">
+        <source>Be cautious when using automatic updates as this will trigger the network connectivity loss.</source>
+        <target state="final">Ole varovainen käyttäessäsi automaattisia päivityksiä, koska tämä aiheuttaa verkkoyhteyden menettämisen.</target>
+        <note from="auto-generated">Text displayed in a settings page explaining the potential consequences of using automatic updates when the IAN is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device." xml:space="preserve" approved="yes">
+        <source>Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</source>
+        <target state="final">Näiden iOS:n rajoitusten takia menetät verkkoyhteyden, jos Mullvad VPN päivitetään, kun tämä on käytössä ja olet yhteydessä VPN:ään. Verkkoyhteyden voi palauttaa vain käynnistämällä laitteen uudelleen.</target>
+        <note from="auto-generated">Text describing the potential network connectivity loss when the IAN feature is enabled and the device is connected to the VPN.</note>
       </trans-unit>
       <trans-unit id="Belgium" xml:space="preserve" approved="yes">
         <source>Belgium</source>
@@ -464,20 +460,20 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Osto ei onnistu</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
-        <source>Cannot read the App Store receipt from disk</source>
-        <target state="final">App Storen kuitin lukeminen levyltä ei onnistu</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
-        <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="final">App Storen kuitin päivittäminen ei onnistu: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
         <target state="final">Ostojen palauttaminen ei onnistu</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
+        <source>Changing language will disconnect you from the VPN and restart the app</source>
+        <target state="final">Kielen vaihtaminen katkaisee yhteytesi VPN:ään ja käynnistää sovelluksen uudelleen</target>
+        <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Checked" xml:space="preserve" approved="yes">
+        <source>Checked</source>
+        <target state="final">Valittu</target>
+        <note from="auto-generated">Text describing a checked checkbox.</note>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
         <source>Checking account number</source>
@@ -519,15 +515,25 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Tuotujen ohitusten poistaminen vaihtaa palvelimien IP-osoitteet takaisin oletusarvoisiksi sijainnin valintanäkymässä.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
-        <source>Client is not allowed to issue the request.</source>
-        <target state="final">Asiakkaalla ei ole lupaa laatia pyyntöä.</target>
-        <note/>
+      <trans-unit id="Collapse" xml:space="preserve" approved="yes">
+        <source>Collapse</source>
+        <target state="final">Näytä vähemmän</target>
+        <note from="auto-generated">Name of the accessibility action that collapses a location.</note>
       </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
         <target state="final">Kutista %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Collapse connection details" xml:space="preserve" approved="yes">
+        <source>Collapse connection details</source>
+        <target state="final">Supista yhteyden tiedot</target>
+        <note from="auto-generated">Accessibility label for the button that collapses the connection details.</note>
+      </trans-unit>
+      <trans-unit id="Collapsed" xml:space="preserve" approved="yes">
+        <source>Collapsed</source>
+        <target state="final">Supistettu</target>
+        <note from="auto-generated">A description of a list item that is collapsed.</note>
       </trans-unit>
       <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
@@ -604,6 +610,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Luo uusi tili</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new custom list" xml:space="preserve" approved="yes">
+        <source>Create new custom list</source>
+        <target state="final">Luo uusi mukautettu luettelo</target>
+        <note from="auto-generated">An accessibility label for the button that allows the user to create a new custom list.</note>
+      </trans-unit>
       <trans-unit id="Create new list" xml:space="preserve" approved="yes">
         <source>Create new list</source>
         <target state="final">Luo uusi luettelo</target>
@@ -629,6 +640,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Nykyinen laite</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN." xml:space="preserve" approved="yes">
+        <source>Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</source>
+        <target state="final">Tällä hetkellä ratkaisua ei ole, mutta voit välttää verkkoyhteyden menettämisen poistamalla ominaisuuden käytöstä tai katkaisemalla yhteyden ennen Mullvad VPN:n päivittämistä.</target>
+        <note from="auto-generated">Text displayed on the last page of the IAN settings info view, explaining that there is no way to work around the current behaviour, but that they can avoid losing network connectivity by disabling the feature or disconnecting before</note>
+      </trans-unit>
       <trans-unit id="Custom" xml:space="preserve" approved="yes">
         <source>Custom</source>
         <target state="final">Mukautettu</target>
@@ -643,6 +659,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Custom lists</source>
         <target state="final">Mukautetut luettelot</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Cycle through available servers" xml:space="preserve" approved="yes">
+        <source>Cycle through available servers</source>
+        <target state="final">Selaa käytettävissä olevat palvelimet läpi</target>
+        <note from="auto-generated">Accessibility hint for the "Reconnect" action button in the "Select location" split button.</note>
       </trans-unit>
       <trans-unit id="Cyprus" xml:space="preserve" approved="yes">
         <source>Cyprus</source>
@@ -784,11 +805,6 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Poista viimeisimmät käytöstä</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">Poistetaan käytöstä</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">Viimeisimpien poistaminen käytöstä tyhjentää myös historian.</target>
@@ -834,6 +850,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Dublin</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="final">iOS:n rajoitusten takia tämä ei ole käytössä oletuksena. Muut sovelluksemme tunneloivat kaiken liikenteen VPN:n kautta oletuksena.</target>
+        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+      </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
         <source>Dusseldorf</source>
         <target state="final">Düsseldorf</target>
@@ -853,6 +874,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Edit custom lists</source>
         <target state="final">Muokkaa mukautettuja luetteloita</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Edit list" xml:space="preserve" approved="yes">
+        <source>Edit list</source>
+        <target state="final">Muokkaa luetteloa</target>
+        <note from="auto-generated">A button label that opens a form to edit an existing custom list.</note>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve" approved="yes">
         <source>Edit message</source>
@@ -889,14 +915,14 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Ota multihop käyttöön</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
+        <source>Enable notifications</source>
+        <target state="final">Ota ilmoitukset käyttöön</target>
+        <note from="auto-generated">Text for an action button that enables notifications.</note>
+      </trans-unit>
       <trans-unit id="Enable recents" xml:space="preserve" approved="yes">
         <source>Enable recents</source>
         <target state="final">Ota viimeisimmät käyttöön</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">Otetaan käyttöön</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -929,10 +955,25 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Lähtö</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve" approved="yes">
+        <source>Expand</source>
+        <target state="final">Näytä enemmän</target>
+        <note from="auto-generated">Name of the accessibility action that expands a location.</note>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
         <target state="final">Laajenna %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Expand connection details" xml:space="preserve" approved="yes">
+        <source>Expand connection details</source>
+        <target state="final">Laajenna yhteyden tiedot</target>
+        <note from="auto-generated">Accessibility label for the button that expands or collapses the connection details section.</note>
+      </trans-unit>
+      <trans-unit id="Expanded" xml:space="preserve" approved="yes">
+        <source>Expanded</source>
+        <target state="final">Laajennettu</target>
+        <note from="auto-generated">A label describing the expanded state of a list item.</note>
       </trans-unit>
       <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
@@ -957,11 +998,6 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
         <source>Failed to send</source>
         <target state="final">Lähetys epäonnistui</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
-        <source>Failed to send the receipt to server: %@</source>
-        <target state="final">Kuitin lähettäminen palvelimelle epäonnistui: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
@@ -1013,6 +1049,21 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Finland</source>
         <target state="final">Suomi</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">Pakota kaikki sovellukset</target>
+        <note from="auto-generated">Title of the settings screen for forcing all apps to use the IAN tunnel.</note>
+      </trans-unit>
+      <trans-unit id="Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected." xml:space="preserve" approved="yes">
+        <source>Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</source>
+        <target state="final">Pakottaa kaiken laitteen sovellusliikenteen VPN-tunneliin varmistaen, etteivät muut sovellukset voi vuotaa tietoja vahingossa tai tarkoituksellisesti. Tämä ei vaikuta Applen järjestelmäsovelluksiin ja laitteen toiminnan kannalta välttämättömiin palveluihin.</target>
+        <note from="auto-generated">Description of the IAN feature, including a note that Apple system apps and services are not affected.</note>
+      </trans-unit>
+      <trans-unit id="Forces all apps on the device to use the VPN tunnel, preventing data leaks" xml:space="preserve" approved="yes">
+        <source>Forces all apps on the device to use the VPN tunnel, preventing data leaks</source>
+        <target state="final">Pakottaa kaikki laitteen sovellukset käyttämään VPN-tunnelia, mikä estää tietovuodot</target>
+        <note from="auto-generated">Footer text in the VPN settings section of the settings screen.</note>
       </trans-unit>
       <trans-unit id="Fortaleza" xml:space="preserve" approved="yes">
         <source>Fortaleza</source>
@@ -1104,6 +1155,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Unkari</target>
         <note/>
       </trans-unit>
+      <trans-unit id="I understand the benefits and risks of using this feature" xml:space="preserve" approved="yes">
+        <source>I understand the benefits and risks of using this feature</source>
+        <target state="final">Ymmärrän tämän ominaisuuden käyttämisen edut ja riskit</target>
+        <note from="auto-generated">Label for a toggle switch in the "Include all networks" settings view, indicating that the user has understood the benefits and risks of using this feature.</note>
+      </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve" approved="yes">
         <source>IMPORT SUCCESSFUL</source>
         <target state="final">TUONTI ONNISTUI</target>
@@ -1118,6 +1174,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>If needed we will contact you at %@</source>
         <target state="final">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %@</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
+        <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
+        <target state="final">Jos tämä ei ole käytössä, haitalliset sovellukset laitteellasi voivat vuotaa liikennettä tunnelin ulkopuolelle.</target>
+        <note from="auto-generated">Text describing the potential risk of data leakage when the IAN feature is disabled.</note>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
@@ -1204,11 +1265,6 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Käytössä</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
-        <source>Include all networks</source>
-        <target state="final">Sisällytä kaikki verkot</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
         <target state="final">Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin liittyvissä ongelmissa</target>
@@ -1218,6 +1274,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Indonesia</source>
         <target state="final">Indonesia</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
+        <source>Install the latest app version to stay up to date.</source>
+        <target state="final">Pysy ajan tasalla asentamalla sovelluksen uusin versio.</target>
+        <note from="auto-generated">Body text of an in-app notification that reminds the user to update their app to the latest version.</note>
       </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
@@ -1239,19 +1300,9 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Virheellinen tilin numero</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
-        <source>Invalid account number: %@</source>
-        <target state="final">Virheellinen tilin numero: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
         <target state="final">Virheellinen laitteen tila.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
-        <source>Invalid purchase identifier.</source>
-        <target state="final">Virheellinen oston tunnus.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1378,6 +1429,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Locations</source>
         <target state="final">Sijainnit</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve" approved="yes">
+        <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
+        <target state="final">Sijainteja voi valita suoraan tai laajennettuna. Kun kaupunki tai maa valitaan, kaikki tämän sijainnin yhteensopivat palvelimet ovat mahdollisia vaihtoehtoja mille tahansa tunneliyhteydelle.</target>
+        <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
@@ -1639,6 +1695,21 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Kaikissa palvelimissamme ei ole %1$@-tukea. Siksi käytämme multihopia automaattisesti mahdollistaaksemme %2$@:n millä tahansa palvelimella.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Notifications" xml:space="preserve" approved="yes">
+        <source>Notifications</source>
+        <target state="final">Ilmoitukset</target>
+        <note from="auto-generated">Title of the screen where a user can configure their notification settings.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</source>
+        <target state="final">Mullvad VPN:n ilmoitukset eivät ole käytössä tällä laitteella. Muuta järjestelmäasetuksiasi Mullvad VPN:lle, jos haluat ottaa ne käyttöön uudelleen.</target>
+        <note from="auto-generated">A message displayed to users who have disabled notifications for Mullvad VPN on their device. It instructs them to open their system settings to re-enable notifications.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</source>
+        <target state="final">Mullvad VPN:n ilmoitukset eivät ole käytössä tällä laitteella. Muuta järjestelmäasetuksiasi Mullvad VPN:lle, jos haluat ottaa ne käyttöön uudelleen. Näitä asetuksia voi muuttaa milloin tahansa.</target>
+        <note from="auto-generated">Text displayed in a notification prompt view model when notifications are disabled on the device.</note>
+      </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve" approved="yes">
         <source>OUT OF TIME</source>
         <target state="final">EI KÄYTTÖAIKAA</target>
@@ -1688,6 +1759,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Open %@ settings</source>
         <target state="final">Avaa %@-asetukset</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
+        <source>Open system settings</source>
+        <target state="final">Avaa järjestelmäasetukset</target>
+        <note from="auto-generated">Text for a button that opens the user's system settings.</note>
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve" approved="yes">
         <source>Optional</source>
@@ -1789,10 +1865,10 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <target state="final">Kirjaudu ulos vähintään yhdestä luettelon laitteesta poistamalla se. Löydät vastaavan laitteen nimen laitteen tiliasetuksista.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
-        <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="final">Yritä uudelleen käyttämällä Palauta ostokset -painiketta.</target>
-        <note/>
+      <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
+        <source>Please swipe through and read all information in order to activate this feature</source>
+        <target state="final">Sipaise läpi ja lue kaikki tiedot, jotta voit aktivoida tämän ominaisuuden</target>
+        <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
         <source>Poland</source>
@@ -1873,6 +1949,11 @@ Haluatko jatkaa paikallisen verkon jakamisen käyttöönottoa?</target>
         <source>Recents</source>
         <target state="final">Viimeisimmät</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Reconnect" xml:space="preserve" approved="yes">
+        <source>Reconnect</source>
+        <target state="final">Yhdistä uudelleen</target>
+        <note from="auto-generated">Text for the secondary action on the button panel in the connection view.</note>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
@@ -1991,6 +2072,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Secaucus, NJ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Select %@" xml:space="preserve" approved="yes">
+        <source>Select %@</source>
+        <target state="final">Valitse %@</target>
+        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+      </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
         <target state="final">Valitse sijainti</target>
@@ -2041,6 +2127,21 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Palvelimen tiedot</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Server hostname: %@" xml:space="preserve" approved="yes">
+        <source>Server hostname: %@</source>
+        <target state="final">Palvelimen isäntänimi: %@</target>
+        <note from="auto-generated">A string that describes the hostname of the VPN server.</note>
+      </trans-unit>
+      <trans-unit id="Server hostnames: %@ via %@" xml:space="preserve" approved="yes">
+        <source>Server hostnames: %1$@ via %2$@</source>
+        <target state="final">Palvelimien isäntänimet: %1$@ palvelimen %2$@ kautta</target>
+        <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
+      </trans-unit>
+      <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
+        <source>Set up notifications</source>
+        <target state="final">Määritä ilmoitukset</target>
+        <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
         <target state="final">Asetus: %@</target>
@@ -2071,6 +2172,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Näytä tilin numero</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Show additional details about your connection" xml:space="preserve" approved="yes">
+        <source>Show additional details about your connection</source>
+        <target state="final">Näytä lisätietoja yhteydestäsi</target>
+        <note from="auto-generated">Accessibility hint for the button that expands the chip container view.</note>
+      </trans-unit>
       <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
         <target state="final">Näytetään %1$lld/%2$lld</target>
@@ -2080,6 +2186,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <source>Singapore</source>
         <target state="final">Singapore</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Skip" xml:space="preserve" approved="yes">
+        <source>Skip</source>
+        <target state="final">Ohita</target>
+        <note from="auto-generated">Text for a button that skips the notification prompt.</note>
       </trans-unit>
       <trans-unit id="Slovakia" xml:space="preserve" approved="yes">
         <source>Slovakia</source>
@@ -2126,6 +2237,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Stavanger</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Stay informed about your VPN connection and any actions needed to ensure it works correctly." xml:space="preserve" approved="yes">
+        <source>Stay informed about your VPN connection and any actions needed to ensure it works correctly.</source>
+        <target state="final">Havainnoi VPN-yhteytesi tilaa ja tarvittavia toimia, jotta yhteys toimisi oikein.</target>
+        <note from="auto-generated">Message in the notification prompt view model explaining the purpose of the notifications.</note>
+      </trans-unit>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">Tukholma</target>
@@ -2166,6 +2282,51 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">TUNNELIVIRHE</target>
         <note/>
       </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_CONNECTION" xml:space="preserve" approved="yes">
+        <source>Blocked connection</source>
+        <target state="final">Estetty yhteys</target>
+        <note>VoiceOver announcement when connection is blocked</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_WITH_REASON" xml:space="preserve" approved="yes">
+        <source>Blocked connection: %@</source>
+        <target state="final">Estetty yhteys: %@</target>
+        <note>VoiceOver announcement for blocked/error state with reason</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connected to %1$@, %2$@</source>
+        <target state="final">Tunneli yhdistetty välityspalvelimeen %1$@, %2$@</target>
+        <note>VoiceOver announcement when connected to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting</source>
+        <target state="final">Tunneli muodostaa yhteyttä</target>
+        <note>VoiceOver announcement when connecting without relay info</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting to %1$@, %2$@</source>
+        <target state="final">Tunneli muodostaa yhteyttä välityspalvelimeen %1$@, %2$@</target>
+        <note>VoiceOver announcement when connecting to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnected</source>
+        <target state="final">Tunnelin yhteys katkaistu</target>
+        <note>VoiceOver announcement when disconnected</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnecting</source>
+        <target state="final">Tunnelin yhteys katkaistaan</target>
+        <note>VoiceOver announcement when disconnecting</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve" approved="yes">
+        <source>No network</source>
+        <target state="final">Ei verkkoa</target>
+        <note>VoiceOver announcement when no network is available</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel reconnecting to %1$@, %2$@</source>
+        <target state="final">Tunneli muodostaa uudelleen yhteyttä välityspalvelimeen %1$@, %2$@</target>
+        <note>VoiceOver announcement when reconnecting to a relay</note>
+      </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
         <source>Tallinn</source>
         <target state="final">Tallinna</target>
@@ -2175,6 +2336,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <source>Tap **Edit** to add at least one DNS server.</source>
         <target state="final">Lisää vähintään yksi DNS-palvelin napauttamalla **Muokkaa**.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
+        <source>Tap here to go to AppStore</source>
+        <target state="final">Siirry App Storeen napauttamalla tätä</target>
+        <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
         <source>Tel Aviv</source>
@@ -2256,11 +2422,6 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">%2$@ ohittaa tällä hetkellä %1$@in tulopalvelimen. Jos haluat valita tulopalvelimen, ota ensin käyttöön "%3$@" tai poista "%4$@" käytöstä asetuksista.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
-        <source>The payment request was cancelled.</source>
-        <target state="final">Maksupyyntö peruutettiin.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
         <target state="final">Valittua Wireguard-porttia ei tueta. Vaihda se **VPN-asetuksissa**.</target>
@@ -2271,6 +2432,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Laitteelle tallennettujen asetusten versiota ei tunnisteta. Asetukset palautetaan oletuksiin, ja laite kirjataan ulos.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
+        <source>These settings can be changed at any time</source>
+        <target state="final">Näitä asetuksia voi muuttaa milloin tahansa</target>
+        <note from="auto-generated">Text displayed in a notification when a user enables notifications for the first time.</note>
+      </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
         <target state="final">Tästä voi olla hyötyä, jos ohjelmointirajapinta on sensuroitu, mutta Mullvadin siltauspalvelimet eivät.</target>
@@ -2279,11 +2445,6 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
         <source>This can be useful when you are not affected by censorship.</source>
         <target state="final">Tästä voi olla hyötyä, kun sensuurilla ei ole vaikutusta toimintaasi.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
-        <source>This device is not allowed to make the payment.</source>
-        <target state="final">Tämä laite ei voi suorittaa maksua.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
@@ -2461,6 +2622,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Unchecked" xml:space="preserve" approved="yes">
+        <source>Unchecked</source>
+        <target state="final">Ei valittu</target>
+        <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
+      </trans-unit>
       <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
         <target state="final">Tapahtui odottamaton virhe.</target>
@@ -2476,10 +2642,10 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <target state="final">Odottamaton palvelimen vastaus: %d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
-        <source>Unknown error.</source>
-        <target state="final">Tuntematon virhe.</target>
-        <note/>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">Päivitys saatavilla</target>
+        <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
@@ -2575,6 +2741,11 @@ Haluatko varmasti poistaa tallennetun tilin numeron?</target>
         <source>We will look into this.</source>
         <target state="final">Tutkimme asiaa.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
+        <source>We will never send you any ads or tips.</source>
+        <target state="final">Emme koskaan lähetä sinulle mainoksia tai vinkkejä.</target>
+        <note from="auto-generated">Additional information about the privacy policy of Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
@@ -2773,49 +2944,49 @@ Uskomme vahvasti mahdollisimman pienen tietomäärän säilyttämiseen, koska ha
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -2827,28 +2998,45 @@ Uskomme vahvasti mahdollisimman pienen tietomäärän säilyttämiseen, koska ha
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve">
+        <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
+        <target state="translated">Poista "%@" käytöstä tai katkaise sen yhteys ennen päivittämistä, jotta et menetä verkkoyhteyttä.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">Päivitys saatavilla</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="fi" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>

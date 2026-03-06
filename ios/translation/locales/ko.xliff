@@ -2,7 +2,7 @@
 <xliff xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
   <file original="Assets/Localizable.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="" translate="no" xml:space="preserve">
@@ -48,15 +48,6 @@
       <trans-unit id="%@ was added to your account." xml:space="preserve" approved="yes">
         <source>%@ was added to your account.</source>
         <target state="final">%@이(가) 계정에 추가되었습니다.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.&#10;To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.&#10;Would you like to continue to enable “Local network sharing”?" xml:space="preserve" approved="yes">
-        <source>%@ “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic.
-To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.
-Would you like to continue to enable “Local network sharing”?</source>
-        <target state="final">"%@ 로컬 네트워크 공유"를 수행하려면 VPN 연결을 재시작해야 하며, 사용자의 연결이 해제되고 잠시 트래픽이 노출됩니다.
-이를 방지하려면 계속하기 전 수동으로 비행기 모드를 활성화하고 Wi-Fi를 끄세요.
-"로컬 네트워크 공유"를 활성화하시겠습니까?</target>
         <note/>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
@@ -244,11 +235,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">모두</target>
         <note/>
       </trans-unit>
-      <trans-unit id="App Store receipt is not found on disk." xml:space="preserve" approved="yes">
-        <source>App Store receipt is not found on disk.</source>
-        <target state="final">디스크에서 App Store 영수증을 찾을 수 없습니다.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="App logs" xml:space="preserve" approved="yes">
         <source>App logs</source>
         <target state="final">앱 로그</target>
@@ -343,6 +329,16 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Barcelona</source>
         <target state="final">바르셀로나</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Be cautious when using automatic updates as this will trigger the network connectivity loss." xml:space="preserve" approved="yes">
+        <source>Be cautious when using automatic updates as this will trigger the network connectivity loss.</source>
+        <target state="final">자동 업데이트를 사용하면 네트워크 연결이 해제되므로 주의하시기 바랍니다.</target>
+        <note from="auto-generated">Text displayed in a settings page explaining the potential consequences of using automatic updates when the IAN is enabled.</note>
+      </trans-unit>
+      <trans-unit id="Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device." xml:space="preserve" approved="yes">
+        <source>Because of these iOS limitations, you will lose network connectivity if Mullvad VPN is updated when this is enabled and you are connected to the VPN. Network connectivity can only be restored by rebooting the device.</source>
+        <target state="final">이러한 iOS 제한으로 인해, 이 기능을 활성화하고 VPN에 연결 중인 상황에서 Mullvad VPN을 업데이트하는 경우 네트워크 연결이 해제됩니다. 네트워크 연결은 장치를 재부팅해야만 복원할 수 있습니다.</target>
+        <note from="auto-generated">Text describing the potential network connectivity loss when the IAN feature is enabled and the device is connected to the VPN.</note>
       </trans-unit>
       <trans-unit id="Belgium" xml:space="preserve" approved="yes">
         <source>Belgium</source>
@@ -464,20 +460,20 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">구매를 완료할 수 없습니다</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Cannot read the App Store receipt from disk" xml:space="preserve" approved="yes">
-        <source>Cannot read the App Store receipt from disk</source>
-        <target state="final">디스크에서 App Store 영수증을 읽을 수 없습니다</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Cannot refresh the App Store receipt: %@" xml:space="preserve" approved="yes">
-        <source>Cannot refresh the App Store receipt: %@</source>
-        <target state="final">App Store 영수증을 갱신할 수 없습니다: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Cannot restore purchases" xml:space="preserve" approved="yes">
         <source>Cannot restore purchases</source>
         <target state="final">구매를 복원할 수 없습니다</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Changing language will disconnect you from the VPN and restart the app" xml:space="preserve" approved="yes">
+        <source>Changing language will disconnect you from the VPN and restart the app</source>
+        <target state="final">언어를 변경하면 VPN 연결이 해제되고 앱이 재시작됩니다</target>
+        <note from="auto-generated">Footer text in the settings screen that explains the impact of changing the app's language.</note>
+      </trans-unit>
+      <trans-unit id="Checked" xml:space="preserve" approved="yes">
+        <source>Checked</source>
+        <target state="final">선택됨</target>
+        <note from="auto-generated">Text describing a checked checkbox.</note>
       </trans-unit>
       <trans-unit id="Checking account number" xml:space="preserve" approved="yes">
         <source>Checking account number</source>
@@ -519,15 +515,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">가져온 재정의를 지우면 '위치 선택' 보기에서 서버 IP가 다시 기본값으로 변경됩니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Client is not allowed to issue the request." xml:space="preserve" approved="yes">
-        <source>Client is not allowed to issue the request.</source>
-        <target state="final">클라이언트의 요청 발행은 허용되지 않습니다.</target>
-        <note/>
+      <trans-unit id="Collapse" xml:space="preserve" approved="yes">
+        <source>Collapse</source>
+        <target state="final">접기</target>
+        <note from="auto-generated">Name of the accessibility action that collapses a location.</note>
       </trans-unit>
       <trans-unit id="Collapse %@" xml:space="preserve" approved="yes">
         <source>Collapse %@</source>
         <target state="final">%@ 접기</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Collapse connection details" xml:space="preserve" approved="yes">
+        <source>Collapse connection details</source>
+        <target state="final">연결 세부 정보 접기</target>
+        <note from="auto-generated">Accessibility label for the button that collapses the connection details.</note>
+      </trans-unit>
+      <trans-unit id="Collapsed" xml:space="preserve" approved="yes">
+        <source>Collapsed</source>
+        <target state="final">접힘</target>
+        <note from="auto-generated">A description of a list item that is collapsed.</note>
       </trans-unit>
       <trans-unit id="Collapses this location." xml:space="preserve" approved="yes">
         <source>Collapses this location.</source>
@@ -604,6 +610,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">새 계정 생성</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Create new custom list" xml:space="preserve" approved="yes">
+        <source>Create new custom list</source>
+        <target state="final">새 사용자 지정 목록 생성</target>
+        <note from="auto-generated">An accessibility label for the button that allows the user to create a new custom list.</note>
+      </trans-unit>
       <trans-unit id="Create new list" xml:space="preserve" approved="yes">
         <source>Create new list</source>
         <target state="final">새 목록 생성</target>
@@ -629,6 +640,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">현재 장치</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN." xml:space="preserve" approved="yes">
+        <source>Currently there is no way to work around this behaviour, but you can avoid losing network connectivity by disabling this feature or disconnecting before updating Mullvad VPN.</source>
+        <target state="final">현재 이 동작을 우회할 수 있는 방법은 없습니다. 단, 이 기능을 비활성화하거나 Mullvad VPN을 업데이트하기 전에 연결을 해제하여 네트워크 연결 해제를 방지할 수 있습니다.</target>
+        <note from="auto-generated">Text displayed on the last page of the IAN settings info view, explaining that there is no way to work around the current behaviour, but that they can avoid losing network connectivity by disabling the feature or disconnecting before</note>
+      </trans-unit>
       <trans-unit id="Custom" xml:space="preserve" approved="yes">
         <source>Custom</source>
         <target state="final">사용자 지정</target>
@@ -643,6 +659,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Custom lists</source>
         <target state="final">사용자 지정 목록</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Cycle through available servers" xml:space="preserve" approved="yes">
+        <source>Cycle through available servers</source>
+        <target state="final">사용 가능한 서버를 순서대로 전환합니다</target>
+        <note from="auto-generated">Accessibility hint for the "Reconnect" action button in the "Select location" split button.</note>
       </trans-unit>
       <trans-unit id="Cyprus" xml:space="preserve" approved="yes">
         <source>Cyprus</source>
@@ -784,11 +805,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">최근 항목 비활성화</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
-        <source>Disabling</source>
-        <target state="final">비활성화:</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">최근 항목을 비활성화하면 내역 또한 삭제됩니다.</target>
@@ -834,6 +850,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">더블린</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="final">해당 기능은 iOS 제한으로 인해 기본적으로 활성화되지 않았습니다. 당사의 다른 앱들은 기본적으로 VPN을 통해 모든 트래픽을 터널링합니다.</target>
+        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+      </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
         <source>Dusseldorf</source>
         <target state="final">뒤셀도르프</target>
@@ -853,6 +874,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Edit custom lists</source>
         <target state="final">사용자 지정 목록 편집</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Edit list" xml:space="preserve" approved="yes">
+        <source>Edit list</source>
+        <target state="final">목록 편집</target>
+        <note from="auto-generated">A button label that opens a form to edit an existing custom list.</note>
       </trans-unit>
       <trans-unit id="Edit message" xml:space="preserve" approved="yes">
         <source>Edit message</source>
@@ -889,14 +915,14 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">멀티홉 사용</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Enable notifications" xml:space="preserve" approved="yes">
+        <source>Enable notifications</source>
+        <target state="final">알림 활성화</target>
+        <note from="auto-generated">Text for an action button that enables notifications.</note>
+      </trans-unit>
       <trans-unit id="Enable recents" xml:space="preserve" approved="yes">
         <source>Enable recents</source>
         <target state="final">최근 항목 활성화</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
-        <source>Enabling</source>
-        <target state="final">활성화:</target>
         <note/>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
@@ -929,10 +955,25 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">종료</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Expand" xml:space="preserve" approved="yes">
+        <source>Expand</source>
+        <target state="final">펼치기</target>
+        <note from="auto-generated">Name of the accessibility action that expands a location.</note>
+      </trans-unit>
       <trans-unit id="Expand %@" xml:space="preserve" approved="yes">
         <source>Expand %@</source>
         <target state="final">%@ 펼치기</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Expand connection details" xml:space="preserve" approved="yes">
+        <source>Expand connection details</source>
+        <target state="final">연결 세부 정보 펼치기</target>
+        <note from="auto-generated">Accessibility label for the button that expands or collapses the connection details section.</note>
+      </trans-unit>
+      <trans-unit id="Expanded" xml:space="preserve" approved="yes">
+        <source>Expanded</source>
+        <target state="final">펼쳐짐</target>
+        <note from="auto-generated">A label describing the expanded state of a list item.</note>
       </trans-unit>
       <trans-unit id="Expands this location." xml:space="preserve" approved="yes">
         <source>Expands this location.</source>
@@ -957,11 +998,6 @@ Would you like to continue to enable “Local network sharing”?</source>
       <trans-unit id="Failed to send" xml:space="preserve" approved="yes">
         <source>Failed to send</source>
         <target state="final">전송하지 못함</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Failed to send the receipt to server: %@" xml:space="preserve" approved="yes">
-        <source>Failed to send the receipt to server: %@</source>
-        <target state="final">서버에 영수증을 보내지 못했습니다: %@</target>
         <note/>
       </trans-unit>
       <trans-unit id="Failed to start the tunnel." xml:space="preserve" approved="yes">
@@ -1013,6 +1049,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Finland</source>
         <target state="final">핀란드</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">모든 앱에 강제 적용</target>
+        <note from="auto-generated">Title of the settings screen for forcing all apps to use the IAN tunnel.</note>
+      </trans-unit>
+      <trans-unit id="Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected." xml:space="preserve" approved="yes">
+        <source>Forces all app traffic on the device into the VPN tunnel, ensuring that other apps can’t accidentally or maliciously leak data. Apple system apps and services necessary for device functionality are not affected.</source>
+        <target state="final">장치의 모든 앱 트래픽을 VPN 터널에 강제로 밀어넣어 다른 앱이 실수로 또는 악의적으로 데이터를 유출할 수 없게 만듭니다. 장치 작동에 필요한 Apple 시스템 앱 및 서비스에는 영향이 미치지 않습니다.</target>
+        <note from="auto-generated">Description of the IAN feature, including a note that Apple system apps and services are not affected.</note>
+      </trans-unit>
+      <trans-unit id="Forces all apps on the device to use the VPN tunnel, preventing data leaks" xml:space="preserve" approved="yes">
+        <source>Forces all apps on the device to use the VPN tunnel, preventing data leaks</source>
+        <target state="final">장치의 모든 앱이 VPN 터널을 사용하도록 강제하여 데이터 유출을 막습니다</target>
+        <note from="auto-generated">Footer text in the VPN settings section of the settings screen.</note>
       </trans-unit>
       <trans-unit id="Fortaleza" xml:space="preserve" approved="yes">
         <source>Fortaleza</source>
@@ -1104,6 +1155,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">헝가리</target>
         <note/>
       </trans-unit>
+      <trans-unit id="I understand the benefits and risks of using this feature" xml:space="preserve" approved="yes">
+        <source>I understand the benefits and risks of using this feature</source>
+        <target state="final">본인은 이 기능을 사용하는 데 따르는 장점과 위험을 이해합니다</target>
+        <note from="auto-generated">Label for a toggle switch in the "Include all networks" settings view, indicating that the user has understood the benefits and risks of using this feature.</note>
+      </trans-unit>
       <trans-unit id="IMPORT SUCCESSFUL" xml:space="preserve" approved="yes">
         <source>IMPORT SUCCESSFUL</source>
         <target state="final">가져오기 성공</target>
@@ -1118,6 +1174,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>If needed we will contact you at %@</source>
         <target state="final">필요한 경우 %@(으)로 연락드리겠습니다.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="If this is not enabled, malicious apps on your device can leak traffic outside the tunnel." xml:space="preserve" approved="yes">
+        <source>If this is not enabled, malicious apps on your device can leak traffic outside the tunnel.</source>
+        <target state="final">이 기능이 활성화되지 않은 경우 장치에 있는 악성 앱이 터널 외부로 트래픽을 유출할 수 있습니다.</target>
+        <note from="auto-generated">Text describing the potential risk of data leakage when the IAN feature is disabled.</note>
       </trans-unit>
       <trans-unit id="If you are having issues connecting to VPN servers, please contact support." xml:space="preserve" approved="yes">
         <source>If you are having issues connecting to VPN servers, please contact support.</source>
@@ -1204,11 +1265,6 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">사용 중</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Include all networks" xml:space="preserve" approved="yes">
-        <source>Include all networks</source>
-        <target state="final">모든 네트워크 포함</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Include my account token for faster help with payment or account related issues" xml:space="preserve" approved="yes">
         <source>Include my account token for faster help with payment or account related issues</source>
         <target state="final">결제 또는 계정 관련 문제에 대해 더 빠른 도움을 받을 수 있도록 계정 토큰을 포함합니다</target>
@@ -1218,6 +1274,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Indonesia</source>
         <target state="final">인도네시아</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve" approved="yes">
+        <source>Install the latest app version to stay up to date.</source>
+        <target state="final">최신 앱 버전을 설치하여 최신 상태로 유지하세요.</target>
+        <note from="auto-generated">Body text of an in-app notification that reminds the user to update their app to the latest version.</note>
       </trans-unit>
       <trans-unit id="Internal error occurred. Settings will be reset to defaults and device logged out." xml:space="preserve" approved="yes">
         <source>Internal error occurred. Settings will be reset to defaults and device logged out.</source>
@@ -1239,19 +1300,9 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">유효하지 않은 계정 번호</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Invalid account number: %@" xml:space="preserve" approved="yes">
-        <source>Invalid account number: %@</source>
-        <target state="final">유효하지 않은 계정 번호: %@</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="Invalid device state." xml:space="preserve" approved="yes">
         <source>Invalid device state.</source>
         <target state="final">장치 상태가 유효하지 않습니다.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Invalid purchase identifier." xml:space="preserve" approved="yes">
-        <source>Invalid purchase identifier.</source>
-        <target state="final">구매 식별자가 유효하지 않습니다.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Ireland" xml:space="preserve" approved="yes">
@@ -1378,6 +1429,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Locations</source>
         <target state="final">위치</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve" approved="yes">
+        <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
+        <target state="final">위치는 직접 또는 펼쳐서 선택할 수 있습니다. 도시나 국가를 선택하면 그 위치에 있는 모든 호환 서버가 터널 연결의 후보가 됩니다.</target>
+        <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
         <source>Log out</source>
@@ -1639,6 +1695,21 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">일부 서버에는 %1$@가 활성화되어 있지 않습니다. 따라서 당사는 모든 서버에서 %2$@를 활성화하기 위해 자동으로 멀티홉을 사용합니다.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Notifications" xml:space="preserve" approved="yes">
+        <source>Notifications</source>
+        <target state="final">알림</target>
+        <note from="auto-generated">Title of the screen where a user can configure their notification settings.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again.</source>
+        <target state="final">이 장치에는 Mullvad VPN 알림이 켜져 있지 않습니다. 알림을 다시 활성화하려면 Mullvad VPN에 대한 시스템 설정을 변경하세요.</target>
+        <note from="auto-generated">A message displayed to users who have disabled notifications for Mullvad VPN on their device. It instructs them to open their system settings to re-enable notifications.</note>
+      </trans-unit>
+      <trans-unit id="Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time." xml:space="preserve" approved="yes">
+        <source>Notifications for Mullvad VPN are disabled on this device. Please change your system settings for Mullvad VPN if you wish to enable them again. These settings can be changed at any time.</source>
+        <target state="final">이 장치에는 Mullvad VPN 알림이 켜져 있지 않습니다. 알림을 다시 활성화하려면 Mullvad VPN에 대한 시스템 설정을 변경하세요. 해당 설정은 언제든지 변경할 수 있습니다.</target>
+        <note from="auto-generated">Text displayed in a notification prompt view model when notifications are disabled on the device.</note>
+      </trans-unit>
       <trans-unit id="OUT OF TIME" xml:space="preserve" approved="yes">
         <source>OUT OF TIME</source>
         <target state="final">시간 초과</target>
@@ -1688,6 +1759,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Open %@ settings</source>
         <target state="final">%@ 설정 열기</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Open system settings" xml:space="preserve" approved="yes">
+        <source>Open system settings</source>
+        <target state="final">시스템 설정 열기</target>
+        <note from="auto-generated">Text for a button that opens the user's system settings.</note>
       </trans-unit>
       <trans-unit id="Optional" xml:space="preserve" approved="yes">
         <source>Optional</source>
@@ -1789,10 +1865,10 @@ Would you like to continue to enable “Local network sharing”?</source>
         <target state="final">하나 이상의 항목을 아래 목록에서 제거하여 로그아웃하세요. 장치의 계정 설정에서 해당 장치 이름을 찾을 수 있습니다.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Please retry by using the &quot;Restore purchases&quot; button." xml:space="preserve" approved="yes">
-        <source>Please retry by using the "Restore purchases" button.</source>
-        <target state="final">"구매 복원" 버튼을 사용해 다시 시도해 주세요.</target>
-        <note/>
+      <trans-unit id="Please swipe through and read all information in order to activate this feature" xml:space="preserve" approved="yes">
+        <source>Please swipe through and read all information in order to activate this feature</source>
+        <target state="final">이 기능을 활성화하려면 화면을 넘겨 모든 정보를 읽어주세요</target>
+        <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
         <source>Poland</source>
@@ -1873,6 +1949,11 @@ Would you like to continue to enable “Local network sharing”?</source>
         <source>Recents</source>
         <target state="final">최근 항목</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Reconnect" xml:space="preserve" approved="yes">
+        <source>Reconnect</source>
+        <target state="final">다시 연결</target>
+        <note from="auto-generated">Text for the secondary action on the button panel in the connection view.</note>
       </trans-unit>
       <trans-unit id="Reconnecting to %@" xml:space="preserve" approved="yes">
         <source>Reconnecting to %@</source>
@@ -1991,6 +2072,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">세코커스, NJ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Select %@" xml:space="preserve" approved="yes">
+        <source>Select %@</source>
+        <target state="final">%@ 선택</target>
+        <note from="auto-generated">A button that can be used to trigger an action, such as selecting an option or expanding/collapsing a list item. The label of the button is generated from the `accessibilityName` property.</note>
+      </trans-unit>
       <trans-unit id="Select location" xml:space="preserve" approved="yes">
         <source>Select location</source>
         <target state="final">위치 선택</target>
@@ -2041,6 +2127,21 @@ Do you want to remove the saved account number?</source>
         <target state="final">서버 상세 정보</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Server hostname: %@" xml:space="preserve" approved="yes">
+        <source>Server hostname: %@</source>
+        <target state="final">서버 호스트 이름: %@</target>
+        <note from="auto-generated">A string that describes the hostname of the VPN server.</note>
+      </trans-unit>
+      <trans-unit id="Server hostnames: %@ via %@" xml:space="preserve" approved="yes">
+        <source>Server hostnames: %1$@ via %2$@</source>
+        <target state="final">서버 호스트 이름: %1$@(%2$@ 경유)</target>
+        <note from="auto-generated">A string that describes the server hostnames visible to a user, including both the exit and entry server. The first argument is the hostname of the exit server. The second argument is the hostname of the entry server.</note>
+      </trans-unit>
+      <trans-unit id="Set up notifications" xml:space="preserve" approved="yes">
+        <source>Set up notifications</source>
+        <target state="final">알림 설정</target>
+        <note from="auto-generated">Title of a section in the notification prompt view that instructs the user to set up notifications.</note>
+      </trans-unit>
       <trans-unit id="Setting: %@" xml:space="preserve" approved="yes">
         <source>Setting: %@</source>
         <target state="final">설정: %@</target>
@@ -2071,6 +2172,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">계정 번호 표시</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Show additional details about your connection" xml:space="preserve" approved="yes">
+        <source>Show additional details about your connection</source>
+        <target state="final">연결에 관한 추가 세부 정보를 표시합니다</target>
+        <note from="auto-generated">Accessibility hint for the button that expands the chip container view.</note>
+      </trans-unit>
       <trans-unit id="Showing %lld of %lld" xml:space="preserve" approved="yes">
         <source>Showing %1$lld of %2$lld</source>
         <target state="final">%1$lld/%2$lld 표시 중</target>
@@ -2080,6 +2186,11 @@ Do you want to remove the saved account number?</source>
         <source>Singapore</source>
         <target state="final">싱가포르</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Skip" xml:space="preserve" approved="yes">
+        <source>Skip</source>
+        <target state="final">건너뛰기</target>
+        <note from="auto-generated">Text for a button that skips the notification prompt.</note>
       </trans-unit>
       <trans-unit id="Slovakia" xml:space="preserve" approved="yes">
         <source>Slovakia</source>
@@ -2126,6 +2237,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">스타방에르</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Stay informed about your VPN connection and any actions needed to ensure it works correctly." xml:space="preserve" approved="yes">
+        <source>Stay informed about your VPN connection and any actions needed to ensure it works correctly.</source>
+        <target state="final">VPN 연결과 정상 작동에 필요한 작업에 관한 최신 정보를 받아보세요.</target>
+        <note from="auto-generated">Message in the notification prompt view model explaining the purpose of the notifications.</note>
+      </trans-unit>
       <trans-unit id="Stockholm" xml:space="preserve" approved="yes">
         <source>Stockholm</source>
         <target state="final">스톡홀름</target>
@@ -2166,6 +2282,51 @@ Do you want to remove the saved account number?</source>
         <target state="final">터널 오류</target>
         <note/>
       </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_CONNECTION" xml:space="preserve" approved="yes">
+        <source>Blocked connection</source>
+        <target state="final">연결이 차단되었습니다</target>
+        <note>VoiceOver announcement when connection is blocked</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_BLOCKED_WITH_REASON" xml:space="preserve" approved="yes">
+        <source>Blocked connection: %@</source>
+        <target state="final">연결이 차단되었습니다: %@</target>
+        <note>VoiceOver announcement for blocked/error state with reason</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connected to %1$@, %2$@</source>
+        <target state="final">터널이 %1$@, %2$@에 연결되었습니다</target>
+        <note>VoiceOver announcement when connected to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting</source>
+        <target state="final">터널을 연결하는 중입니다</target>
+        <note>VoiceOver announcement when connecting without relay info</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_CONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel connecting to %1$@, %2$@</source>
+        <target state="final">터널을 %1$@, %2$@에 연결하는 중입니다</target>
+        <note>VoiceOver announcement when connecting to a relay</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTED" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnected</source>
+        <target state="final">터널 연결이 해제되었습니다</target>
+        <note>VoiceOver announcement when disconnected</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_DISCONNECTING" xml:space="preserve" approved="yes">
+        <source>Tunnel disconnecting</source>
+        <target state="final">터널 연결을 해제하는 중입니다</target>
+        <note>VoiceOver announcement when disconnecting</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_NO_NETWORK" xml:space="preserve" approved="yes">
+        <source>No network</source>
+        <target state="final">네트워크가 없습니다</target>
+        <note>VoiceOver announcement when no network is available</note>
+      </trans-unit>
+      <trans-unit id="TUNNEL_STATE_RECONNECTING_TO" xml:space="preserve" approved="yes">
+        <source>Tunnel reconnecting to %1$@, %2$@</source>
+        <target state="final">터널을 %1$@, %2$@에 다시 연결하는 중입니다</target>
+        <note>VoiceOver announcement when reconnecting to a relay</note>
+      </trans-unit>
       <trans-unit id="Tallinn" xml:space="preserve" approved="yes">
         <source>Tallinn</source>
         <target state="final">탈린</target>
@@ -2175,6 +2336,11 @@ Do you want to remove the saved account number?</source>
         <source>Tap **Edit** to add at least one DNS server.</source>
         <target state="final">**편집**을 눌러 하나 이상의 DNS 서버를 추가하세요.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
+        <source>Tap here to go to AppStore</source>
+        <target state="final">App Store로 이동하려면 여기를 탭하세요</target>
+        <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
         <source>Tel Aviv</source>
@@ -2256,11 +2422,6 @@ Do you want to remove the saved account number?</source>
         <target state="final">%1$@ 진입 서버가 현재 %2$@에 의해 재정의되었습니다. 진입 서버를 선택하려면 먼저 설정에서 "%3$@"을(를) 활성화하거나 "%4$@"을(를) 비활성화하세요.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="The payment request was cancelled." xml:space="preserve" approved="yes">
-        <source>The payment request was cancelled.</source>
-        <target state="final">결제 요청이 취소되었습니다.</target>
-        <note/>
-      </trans-unit>
       <trans-unit id="The selected WireGuard port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
         <source>The selected WireGuard port is not supported, please change it under **VPN settings**.</source>
         <target state="final">선택한 WireGuard 포트는 지원되지 않습니다. **VPN 설정**에서 변경하세요.</target>
@@ -2271,6 +2432,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">장치에 저장된 설정의 버전을 확인할 수 없습니다. 설정이 기본값으로 초기화되고 장치가 로그아웃됩니다.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="These settings can be changed at any time" xml:space="preserve" approved="yes">
+        <source>These settings can be changed at any time</source>
+        <target state="final">이 설정은 언제든지 변경할 수 있습니다</target>
+        <note from="auto-generated">Text displayed in a notification when a user enables notifications for the first time.</note>
+      </trans-unit>
       <trans-unit id="This can be useful if the API is censored but Mullvad’s bridge servers are not." xml:space="preserve" approved="yes">
         <source>This can be useful if the API is censored but Mullvad’s bridge servers are not.</source>
         <target state="final">API가 검열되지만 Mullvad의 브리지 서버는 검열되지 않는 경우 유용할 수 있습니다.</target>
@@ -2279,11 +2445,6 @@ Do you want to remove the saved account number?</source>
       <trans-unit id="This can be useful when you are not affected by censorship." xml:space="preserve" approved="yes">
         <source>This can be useful when you are not affected by censorship.</source>
         <target state="final">검열의 영향을 받지 않는 경우 유용할 수 있습니다.</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="This device is not allowed to make the payment." xml:space="preserve" approved="yes">
-        <source>This device is not allowed to make the payment.</source>
-        <target state="final">이 장치에서는 결제가 허용되지 않습니다.</target>
         <note/>
       </trans-unit>
       <trans-unit id="This device is now named **%@**. See more under &quot;Manage devices&quot; in Account." xml:space="preserve" approved="yes">
@@ -2461,6 +2622,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Unchecked" xml:space="preserve" approved="yes">
+        <source>Unchecked</source>
+        <target state="final">선택 해제됨</target>
+        <note from="auto-generated">Accessibility label for a location cell when it is not selected.</note>
+      </trans-unit>
       <trans-unit id="Unexpected error occured." xml:space="preserve" approved="yes">
         <source>Unexpected error occured.</source>
         <target state="final">예상치 못한 오류가 발생했습니다.</target>
@@ -2476,10 +2642,10 @@ Do you want to remove the saved account number?</source>
         <target state="final">예상치 못한 서버 응답: %d</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Unknown error." xml:space="preserve" approved="yes">
-        <source>Unknown error.</source>
-        <target state="final">알 수 없는 오류.</target>
-        <note/>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">업데이트 가능</target>
+        <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
@@ -2575,6 +2741,11 @@ Do you want to remove the saved account number?</source>
         <source>We will look into this.</source>
         <target state="final">조사해보겠습니다.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="We will never send you any ads or tips." xml:space="preserve" approved="yes">
+        <source>We will never send you any ads or tips.</source>
+        <target state="final">사용자에게 광고나 팁을 전송하지 않습니다.</target>
+        <note from="auto-generated">Additional information about the privacy policy of Mullvad VPN.</note>
       </trans-unit>
       <trans-unit id="What’s new" xml:space="preserve" approved="yes">
         <source>What’s new</source>
@@ -2773,49 +2944,49 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Assets/MullvadSettings-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Assets/MullvadTypes-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadLogging-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadMockData/MullvadMockData-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadREST/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadRustRuntime-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="MullvadVPN/Supporting Files/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
       <trans-unit id="NSLocalNetworkUsageDescription" xml:space="preserve" approved="yes">
@@ -2827,28 +2998,45 @@ We strongly believe in retaining as little data as possible because we want you 
   </file>
   <file original="Operations/Operations-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="PacketTunnel/InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
+  <file original="PacketTunnel/Localizable.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
+    </header>
+    <body>
+      <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
+        <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
+        <target state="final">네트워크 연결 해제를 방지하려면 업데이트 전에 "%@" 기능을 비활성화하거나 연결을 해제하세요.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Update available" xml:space="preserve" approved="yes">
+        <source>Update available</source>
+        <target state="final">업데이트 가능</target>
+        <note/>
+      </trans-unit>
+    </body>
+  </file>
   <file original="PacketTunnelCore/PacketTunnelCore-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
   </file>
   <file original="Routing/Routing-InfoPlist.xcstrings" source-language="en" target-language="ko" datatype="plaintext">
     <header>
-      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="16.4" build-num="16F6"/>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="26.2" build-num="17C52"/>
     </header>
     <body>
     </body>
