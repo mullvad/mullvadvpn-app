@@ -55,7 +55,6 @@ pub async fn relaunch_with_sudo() {
     cmd.args(std::env::args());
 
     log::info!("Root privileges required. Re-launching with sudo.");
-    eprintln!("{cmd:?}");
 
     let status = cmd.status().await.unwrap_or_else(|e| {
         panic!("failed to execute [{cmd:?}]: {e}");
