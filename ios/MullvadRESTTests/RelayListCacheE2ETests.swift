@@ -9,6 +9,7 @@
 import MullvadMockData
 import MullvadRustRuntime
 import MullvadTypes
+import Network
 import XCTest
 
 @testable import MullvadREST
