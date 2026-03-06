@@ -97,6 +97,7 @@ const viteConfig = defineConfig({
               external: [
                 // Packages in workspace which can not be bundled
                 'windows-utils',
+                'nseventforwarder',
                 // External dependencies
                 '@grpc/grpc-js',
                 'google-protobuf',
