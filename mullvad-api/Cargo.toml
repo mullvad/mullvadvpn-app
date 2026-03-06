@@ -52,17 +52,12 @@ tokio-rustls = { version = "0.26.0", default-features = false, features = [
 tokio-socks = "0.5.1"
 tower = { workspace = true }
 tracing-subscriber = { workspace = true, optional = true }
-uuid = { version = "1.4.1", features = ["v4"] }
 vec1 = { workspace = true, features = ["serde"] }
 webpki-roots = { workspace = true, optional = true }
 
 [dev-dependencies]
-mockito = "1.6.1"
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util", "time"] }
-
-[build-dependencies]
-cbindgen = { version = "0.28.0", default-features = false }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos", target_os = "linux"))'.dependencies]
 mullvad-update = { path = "../mullvad-update", features = ["client"] }

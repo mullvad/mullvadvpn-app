@@ -2929,7 +2929,6 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "cbindgen",
  "chrono",
  "clap",
  "futures",
@@ -2940,7 +2939,6 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
- "mockito",
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
@@ -2959,7 +2957,6 @@ dependencies = [
  "tokio-socks",
  "tower",
  "tracing-subscriber",
- "uuid",
  "vec1",
  "webpki-roots 1.0.4",
 ]
