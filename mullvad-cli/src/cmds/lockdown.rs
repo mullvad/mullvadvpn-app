@@ -51,14 +51,16 @@ impl LockdownMode {
         let mut relay_selector = RelaySelectorClient::new().await?;
         println!("Connected to relay selector gRPC client!");
         let predicate = {
-            let mut constraints = EntryConstraints::default();
-            constraints.obfuscation_settings = Some(
-                ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Lwo,
-                    ..Default::default()
-                }
-                .into(),
-            );
+            let mut constraints = EntryConstraints {
+                obfuscation_settings: Some(
+                    ObfuscationSettings {
+                        selected_obfuscation: SelectedObfuscation::Lwo,
+                        ..Default::default()
+                    }
+                    .into(),
+                ),
+                ..Default::default()
+            };
             Predicate {
                 context: Some(predicate::Context::Singlehop(constraints)),
             }
