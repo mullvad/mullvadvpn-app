@@ -229,3 +229,24 @@ reason = "wireguard-go does not use html.Parse"
 id = "GO-2026-4337"
 ignoreUntil = 2027-02-06
 reason = "wireguard(-go) does not use tls"
+
+# Incorrect parsing of IPv6 host literals in net/url
+# https://osv.dev/vulnerability/GO-2026-4601
+[[IgnoredVulns]]
+id = "GO-2026-4601"
+ignoreUntil = 2027-03-09
+reason = "wireguard-go does not use net/url"
+
+# FileInfo can escape from a Root in os
+# https://osv.dev/vulnerability/GO-2026-4602
+[[IgnoredVulns]]
+id = "GO-2026-4602"
+ignoreUntil = 2027-03-09
+reason = "wireguard-go does not call ReadDir or Readdir"
+
+# URLs in meta content attribute actions are not escaped in html/template
+# https://osv.dev/vulnerability/GO-2026-4603
+[[IgnoredVulns]]
+id = "GO-2026-4603"
+ignoreUntil = 2027-03-09
+reason = "wireguard-go does not use html/template"
