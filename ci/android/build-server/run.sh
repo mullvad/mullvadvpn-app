@@ -52,7 +52,7 @@ function run_in_linux_container {
 function build {
     CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-    ./building/containerized-build.sh android --app-bundle || return 1
+    ./building/containerized-build.sh android "$@" || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }
@@ -104,8 +104,11 @@ function build_sign_and_publish_ref {
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
 
-    echo "Building Android app"
-    artifact_dir=$artifact_dir build || return 1
+    echo "Building Android app with bundle"
+    artifact_dir=$artifact_dir build --app-bundle || return 1
+
+    echo "Building Android app with fdroid"
+    artifact_dir=$artifact_dir build --fdroid || return 1
 
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
