@@ -395,6 +395,15 @@ pub enum DaemonCommand {
     /// Returns all processes currently being excluded from the tunnel
     #[cfg(target_os = "windows")]
     GetSplitTunnelProcesses(ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>),
+    /// Add an IP network (CIDR) whose traffic should bypass the VPN firewall
+    #[cfg(target_os = "windows")]
+    AddSplitTunnelIpNetwork(ResponseTx<(), Error>, ipnetwork::IpNetwork),
+    /// Remove an IP network (CIDR) from the split tunnel firewall exclusion list
+    #[cfg(target_os = "windows")]
+    RemoveSplitTunnelIpNetwork(ResponseTx<(), Error>, ipnetwork::IpNetwork),
+    /// Clear all IP networks from the split tunnel firewall exclusion list
+    #[cfg(target_os = "windows")]
+    ClearSplitTunnelIpNetworks(ResponseTx<(), Error>),
     /// Notify the split tunnel monitor that a volume was mounted or dismounted
     #[cfg(target_os = "windows")]
     CheckVolumes(ResponseTx<(), Error>),
@@ -923,6 +932,8 @@ impl Daemon {
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
                 exclude_paths,
+                #[cfg(target_os = "windows")]
+                excluded_subnets: settings.split_tunnel.ip_exclusions.clone(),
             },
             parameters_generator.clone(),
             config.log_dir,
@@ -1582,6 +1593,18 @@ impl Daemon {
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
             #[cfg(target_os = "windows")]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
+            #[cfg(target_os = "windows")]
+            AddSplitTunnelIpNetwork(tx, network) => {
+                self.on_add_split_tunnel_ip_network(tx, network).await
+            }
+            #[cfg(target_os = "windows")]
+            RemoveSplitTunnelIpNetwork(tx, network) => {
+                self.on_remove_split_tunnel_ip_network(tx, network).await
+            }
+            #[cfg(target_os = "windows")]
+            ClearSplitTunnelIpNetworks(tx) => {
+                self.on_clear_split_tunnel_ip_networks(tx).await
+            }
             #[cfg(target_os = "windows")]
             CheckVolumes(tx) => self.on_check_volumes(tx),
             SetObfuscationSettings(tx, settings) => {
@@ -2458,6 +2481,78 @@ impl Daemon {
     fn on_check_volumes(&mut self, tx: ResponseTx<(), Error>) {
         if self.volume_update_tx.unbounded_send(()).is_ok() {
             let _ = tx.send(Ok(()));
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    async fn on_add_split_tunnel_ip_network(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        network: ipnetwork::IpNetwork,
+    ) {
+        let mut new_list = self.settings.to_settings().split_tunnel.ip_exclusions.clone();
+        if new_list.contains(&network) {
+            Self::oneshot_send(tx, Ok(()), "add_split_tunnel_ip_network response");
+            return;
+        }
+        new_list.push(network);
+        self.set_split_tunnel_ip_exclusions(tx, new_list).await;
+    }
+
+    #[cfg(target_os = "windows")]
+    async fn on_remove_split_tunnel_ip_network(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        network: ipnetwork::IpNetwork,
+    ) {
+        let mut new_list = self.settings.to_settings().split_tunnel.ip_exclusions.clone();
+        new_list.retain(|n| *n != network);
+        self.set_split_tunnel_ip_exclusions(tx, new_list).await;
+    }
+
+    #[cfg(target_os = "windows")]
+    async fn on_clear_split_tunnel_ip_networks(&mut self, tx: ResponseTx<(), Error>) {
+        self.set_split_tunnel_ip_exclusions(tx, vec![]).await;
+    }
+
+    #[cfg(target_os = "windows")]
+    async fn set_split_tunnel_ip_exclusions(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        new_exclusions: Vec<ipnetwork::IpNetwork>,
+    ) {
+        let exclusions_for_command = new_exclusions.clone();
+        match self
+            .settings
+            .update(move |settings| {
+                settings.split_tunnel.ip_exclusions = new_exclusions;
+            })
+            .await
+        {
+            Ok(settings_changed) => {
+                if settings_changed {
+                    self.send_tunnel_command(TunnelCommand::SetExcludedSubnets(
+                        exclusions_for_command,
+                        oneshot_map(tx, |tx, ()| {
+                            Self::oneshot_send(
+                                tx,
+                                Ok(()),
+                                "set_split_tunnel_ip_exclusions response",
+                            );
+                        }),
+                    ));
+                } else {
+                    Self::oneshot_send(tx, Ok(()), "set_split_tunnel_ip_exclusions response");
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::SettingsError(e)),
+                    "set_split_tunnel_ip_exclusions response",
+                );
+            }
         }
     }
 

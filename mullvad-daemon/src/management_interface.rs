@@ -1035,6 +1035,62 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(windows)]
+    async fn add_split_tunnel_ip_network(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("add_split_tunnel_ip_network");
+        let network: ipnetwork::IpNetwork = request
+            .into_inner()
+            .parse()
+            .map_err(|e| Status::invalid_argument(format!("Invalid CIDR: {e}")))?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AddSplitTunnelIpNetwork(tx, network))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+
+    #[cfg(not(windows))]
+    async fn add_split_tunnel_ip_network(&self, _: Request<String>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(windows)]
+    async fn remove_split_tunnel_ip_network(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("remove_split_tunnel_ip_network");
+        let network: ipnetwork::IpNetwork = request
+            .into_inner()
+            .parse()
+            .map_err(|e| Status::invalid_argument(format!("Invalid CIDR: {e}")))?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelIpNetwork(tx, network))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+
+    #[cfg(not(windows))]
+    async fn remove_split_tunnel_ip_network(&self, _: Request<String>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(windows)]
+    async fn clear_split_tunnel_ip_networks(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_split_tunnel_ip_networks");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearSplitTunnelIpNetworks(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+
+    #[cfg(not(windows))]
+    async fn clear_split_tunnel_ip_networks(&self, _: Request<()>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
     async fn apply_json_settings(&self, blob: Request<String>) -> ServiceResult<()> {
         log::debug!("apply_json_settings");
         let (tx, rx) = oneshot::channel();
