@@ -1,7 +1,6 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 
-import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { type AnyLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
@@ -23,7 +22,7 @@ export type AnyLocationListItemProps = React.PropsWithChildren<{
   level: ListItemProps['level'];
   position?: ListItemProps['position'];
   disabled?: boolean;
-  onSelect: (value: DaemonRelayLocation) => void;
+  onSelect: (location: AnyLocation) => void;
 }>;
 
 function AnyLocationListItemImpl({
@@ -41,11 +40,9 @@ function AnyLocationListItemImpl({
   const hasChildren = childLocations.length > 0;
   const showEmptySubtitle = location.type === 'customList' && !hasChildren;
 
-  const handleClick = useCallback(() => {
-    if (!location.selected) {
-      onSelect(location.details);
-    }
-  }, [location.details, location.selected, onSelect]);
+  const handleClick = React.useCallback(() => {
+    onSelect(location);
+  }, [location, onSelect]);
 
   const selectedRef = location.selected ? selectedLocationRef : undefined;
   return (
