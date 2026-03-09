@@ -1027,7 +1027,7 @@ impl RelaySelector {
                 ObfuscationVerdict::AcceptWireguardEndpoint => wg_endpoint_ip_version.eval(relay),
                 ObfuscationVerdict::AcceptSeparateEndpoint => Verdict::Accept,
                 ObfuscationVerdict::Reject(reason) => {
-                    Verdict::Reject(vec![reason]).compose(wg_endpoint_ip_version.eval(relay))
+                    Verdict::reject(reason).compose(wg_endpoint_ip_version.eval(relay))
                 }
             }
         });
@@ -1223,17 +1223,6 @@ impl<'a> Criteria<'a, WireguardRelay> {
         (self.f)(relay)
     }
 
-    /// Compose two [`Criteria`] into one.
-    ///
-    /// See [`Verdict::compose`].
-    fn compose(self, other: Self) -> Self {
-        Criteria::new(move |relay| {
-            let verdict1 = self.eval(relay);
-            let verdict2 = other.eval(relay);
-            verdict1.compose(verdict2)
-        })
-    }
-
     /// Evaluate all criterias for a given relay, resulting in a single final verdict.
     ///
     /// This function is biased towards [`Verdict::Accept`]. E.g. if `criterias` is emtpy, the
@@ -1290,9 +1279,9 @@ impl VerdictExt for bool {
     /// Reject with `reason` if `self` is false.
     fn if_false(self, reason: Reason) -> Verdict {
         if self {
-            Verdict::Accept
+            Verdict::accept()
         } else {
-            Verdict::Reject(vec![reason])
+            Verdict::reject(reason)
         }
     }
 
