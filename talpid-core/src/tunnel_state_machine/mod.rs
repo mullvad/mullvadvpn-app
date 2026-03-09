@@ -112,6 +112,9 @@ pub struct InitialTunnelState {
     /// Apps to exclude from the tunnel.
     #[cfg(target_os = "android")]
     pub exclude_paths: Vec<String>,
+    /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+    #[cfg(target_os = "windows")]
+    pub excluded_subnets: Vec<ipnetwork::IpNetwork>,
 }
 
 /// Identifiers for various network resources that should be unique to a given instance of a tunnel
@@ -240,6 +243,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    /// Set IP networks whose traffic should bypass the VPN firewall.
+    #[cfg(target_os = "windows")]
+    SetExcludedSubnets(Vec<ipnetwork::IpNetwork>, oneshot::Sender<()>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -481,6 +487,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(target_os = "macos")]
             filtering_resolver,
+            #[cfg(target_os = "windows")]
+            excluded_subnets: args.settings.excluded_subnets,
         };
 
         tokio::task::spawn_blocking(move || {
@@ -587,6 +595,10 @@ struct SharedTunnelStateValues {
     /// Filtering resolver handle
     #[cfg(target_os = "macos")]
     filtering_resolver: crate::resolver::ResolverHandle,
+
+    /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+    #[cfg(target_os = "windows")]
+    excluded_subnets: Vec<ipnetwork::IpNetwork>,
 }
 
 impl SharedTunnelStateValues {
@@ -651,6 +663,17 @@ impl SharedTunnelStateValues {
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> bool {
         if self.allow_lan != allow_lan {
             self.allow_lan = allow_lan;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Update the excluded subnets. Returns true if the value changed.
+    #[cfg(target_os = "windows")]
+    pub fn set_excluded_subnets(&mut self, subnets: Vec<ipnetwork::IpNetwork>) -> bool {
+        if self.excluded_subnets != subnets {
+            self.excluded_subnets = subnets;
             true
         } else {
             false
