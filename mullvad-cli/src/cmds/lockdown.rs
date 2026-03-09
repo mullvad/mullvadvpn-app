@@ -42,9 +42,8 @@ impl LockdownMode {
     // TODO: Remove
     #[expect(unused)]
     async fn test() -> Result<()> {
-        use mullvad_management_interface::types::LocationConstraint;
-        //use mullvad_management_interface::types::location_constraints::*;
         use mullvad_management_interface::types::IpVersion;
+        use mullvad_management_interface::types::LocationConstraint;
         use mullvad_management_interface::types::location_constraint::Type;
         use mullvad_management_interface::types::relay_selector::*;
         use mullvad_types::relay_constraints::GeographicLocationConstraint;
