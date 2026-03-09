@@ -1,42 +1,30 @@
 package net.mullvad.mullvadvpn.core.animation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import androidx.compose.animation.togetherWith
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.ui.NavDisplay
 
-object LoginTransition : DestinationStyle.Animated() {
-    override val enterTransition:
-        (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
-        {
-            fadeIn(spring())
-        }
+fun loginTransition(shouldFadeOut: () -> Boolean): Map<String, Any> = metadata {
 
-    override val exitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
-            when (this.targetState.destination.route) {
-                "home/out_of_time",
-                "home/welcome",
-                "home/connect",
-                "login/device_list" -> fadeOut(spring())
-                else -> ExitTransition.None
-            }
-        }
+    // Fade in the pushed screen together with optionally fading out the current screen
+    put(NavDisplay.TransitionKey) {
+        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
+            if (shouldFadeOut()) fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+            else ExitTransition.None
+    }
 
-    override val popEnterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        {
-            fadeIn(spring())
-        }
+    // Fade out the popped screen and fade in the new top screen
+    put(NavDisplay.PopTransitionKey) {
+        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
+            fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
 
-    override val popExitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
-            fadeOut(spring())
-        }
+    put(NavDisplay.PredictivePopTransitionKey) {
+        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
+            fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
 }

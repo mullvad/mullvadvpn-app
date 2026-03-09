@@ -47,6 +47,12 @@ gradlePlugin {
         }
     }
     plugins {
+        register("android-library-feature-api") {
+            id = "mullvad.android-library-feature-api"
+            implementationClass = "AndroidLibraryFeatureApiPlugin"
+        }
+    }
+    plugins {
         register("android-library-compose") {
             id = "mullvad.android-library-compose"
             implementationClass = "AndroidLibraryComposePlugin"

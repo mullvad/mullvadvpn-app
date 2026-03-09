@@ -3,16 +3,12 @@ package net.mullvad.mullvadvpn.feature.vpnsettings.impl.info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DeviceIpInfo(navigator: DestinationsNavigator) {
+fun DeviceIpInfo(navigator: Navigator) {
     InfoDialog(
         message =
             buildString {
@@ -21,6 +17,6 @@ fun DeviceIpInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 append(stringResource(R.string.device_ip_info_second_paragraph))
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }

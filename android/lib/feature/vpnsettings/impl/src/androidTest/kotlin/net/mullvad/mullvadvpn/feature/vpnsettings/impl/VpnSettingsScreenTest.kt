@@ -14,7 +14,7 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeWithContentDescriptionAndParentTag
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.util.onNodeWithContentDescriptionAndParentTag
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.Constraint

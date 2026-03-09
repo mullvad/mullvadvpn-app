@@ -17,20 +17,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
-import com.ramcosta.composedestinations.generated.home.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
-import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.app.MainGraph
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
+import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
+import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.screen.navigation.PrivacyDisclaimerNavKey
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -40,9 +37,8 @@ private fun PreviewLoadingScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination<MainGraph>(start = true)
 @Composable
-fun Splash(navigator: DestinationsNavigator) {
+fun Splash(navigator: Navigator) {
     val viewModel: SplashViewModel = koinViewModel()
 
     // We use CollectSideEffectWithLifecycle to re-evaluate the splash decision if the user
@@ -50,25 +46,15 @@ fun Splash(navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             SplashUiSideEffect.NavigateToConnect ->
-                navigator.navigate(ConnectDestination) {
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToLogin ->
-                navigator.navigate(LoginDestination()) {
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
-                navigator.navigate(PrivacyDisclaimerDestination) {
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(PrivacyDisclaimerNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToRevoked ->
-                navigator.navigate(DeviceRevokedDestination) {
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
             SplashUiSideEffect.NavigateToOutOfTime ->
-                navigator.navigate(OutOfTimeDestination) {
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
         }
     }
 

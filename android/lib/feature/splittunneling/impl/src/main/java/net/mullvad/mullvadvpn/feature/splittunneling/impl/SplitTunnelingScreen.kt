@@ -2,9 +2,7 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
@@ -38,13 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
@@ -65,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("ShowAppList|Loading")
 @Composable
@@ -85,19 +80,13 @@ private fun PreviewSplitTunnelingScreen(
     }
 }
 
-@Parcelize data class SplitTunnelingNavArgs(val isModal: Boolean = false) : Parcelable
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = SplitTunnelingNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.SplitTunneling(
-    navigator: DestinationsNavigator,
+    isModal: Boolean,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val viewModel = koinViewModel<SplitTunnelingViewModel>()
+    val viewModel = koinViewModel<SplitTunnelingViewModel> { parametersOf(isModal) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val packageManager = remember(context) { context.packageManager }
@@ -113,7 +102,7 @@ fun SharedTransitionScope.SplitTunneling(
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }

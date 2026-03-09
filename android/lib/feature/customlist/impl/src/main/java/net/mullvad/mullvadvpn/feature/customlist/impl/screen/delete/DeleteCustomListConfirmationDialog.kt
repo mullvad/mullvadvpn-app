@@ -6,18 +6,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -31,28 +29,22 @@ private fun PreviewRemoveDeviceConfirmationDialog() {
     }
 }
 
-data class DeleteCustomListNavArgs(val customListId: CustomListId, val name: CustomListName)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = DeleteCustomListNavArgs::class,
-)
-fun DeleteCustomList(navigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>) {
-    val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel()
+fun DeleteCustomList(navArgs: DeleteCustomListNavKey, navigator: Navigator) {
+    val viewModel: DeleteCustomListConfirmationViewModel = koinViewModel() { parametersOf(navArgs) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is DeleteCustomListConfirmationSideEffect.ReturnWithResult ->
-                navigator.navigateBack(result = it.result)
+                navigator.goBack(result = DeleteCustomListNavResult(it.result))
         }
     }
 
     DeleteCustomListConfirmationDialog(
         state = state,
         onDelete = viewModel::deleteCustomList,
-        onBack = dropUnlessResumed { navigator.navigateBack() },
+        onBack = dropUnlessResumed { navigator.goBack() },
     )
 }
 

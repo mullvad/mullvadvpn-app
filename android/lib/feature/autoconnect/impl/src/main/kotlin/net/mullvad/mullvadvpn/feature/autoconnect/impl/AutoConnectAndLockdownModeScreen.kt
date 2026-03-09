@@ -56,11 +56,8 @@ import androidx.constraintlayout.compose.ConstraintLayoutScope
 import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
@@ -84,15 +81,14 @@ private fun PreviewAutoConnectAndLockdownModeScreen(
     AppTheme { AutoConnectAndLockdownModeScreen(state = state, onBackClick = {}) }
 }
 
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
+fun AutoConnectAndLockdownMode(navigator: Navigator) {
     val vm = koinViewModel<AutoConnectAndLockdownModeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     AutoConnectAndLockdownModeScreen(
         state = state,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

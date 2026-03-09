@@ -25,18 +25,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -67,48 +64,40 @@ private fun PreviewAccountScreen(
 }
 
 @Composable
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
-fun CustomLists(
-    navigator: DestinationsNavigator,
-    editCustomListResultRecipient:
-        ResultRecipient<EditCustomListDestination, CustomListActionResultData.Success.Deleted>,
-) {
+fun CustomLists(navigator: Navigator) {
     val viewModel = koinViewModel<CustomListsViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    editCustomListResultRecipient.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {
-                /* Do nothing */
+    LocalResultStore.current.consumeResult<EditCustomListNavResult>()?.let { result ->
+        val value = result.value
+        if (value is CustomListActionResultData.Success.Deleted) {
+            scope.launch {
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(
+                            R.string.delete_custom_list_message,
+                            value.customListName,
+                        ),
+                    actionLabel = resources.getString(R.string.undo),
+                    duration = SnackbarDuration.Long,
+                    onAction = { viewModel.undoDeleteCustomList(value.undo) },
+                )
             }
-            is NavResult.Value ->
-                scope.launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                R.string.delete_custom_list_message,
-                                result.value.customListName,
-                            ),
-                        actionLabel = resources.getString(R.string.undo),
-                        duration = SnackbarDuration.Long,
-                        onAction = { viewModel.undoDeleteCustomList(result.value.undo) },
-                    )
-                }
         }
     }
 
     CustomListsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        addCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListDestination(null)) },
+        addCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListNavKey(null)) },
         openCustomList =
             dropUnlessResumed { customList ->
-                navigator.navigate(EditCustomListDestination(customListId = customList.id))
+                navigator.navigate(EditCustomListNavKey(customListId = customList.id))
             },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

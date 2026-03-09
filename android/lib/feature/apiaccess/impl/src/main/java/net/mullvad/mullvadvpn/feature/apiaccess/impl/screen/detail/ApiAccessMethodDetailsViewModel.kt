@@ -1,11 +1,9 @@
 package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.raise.either
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessMethodDetailsDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -24,13 +22,10 @@ import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 
 class ApiAccessMethodDetailsViewModel(
+    private val apiAccessMethodId: ApiAccessMethodId,
     private val apiAccessRepository: ApiAccessRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private var testingJob: Job? = null
-
-    private val apiAccessMethodId: ApiAccessMethodId =
-        ApiAccessMethodDetailsDestination.argsFrom(savedStateHandle).accessMethodId
 
     private val _uiSideEffect = Channel<ApiAccessMethodDetailsSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

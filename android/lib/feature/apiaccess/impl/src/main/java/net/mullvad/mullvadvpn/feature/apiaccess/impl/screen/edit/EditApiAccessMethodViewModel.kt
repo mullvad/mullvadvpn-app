@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
@@ -10,7 +9,6 @@ import arrow.core.getOrElse
 import arrow.core.nel
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.EditApiAccessMethodDestination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -39,13 +37,11 @@ import org.apache.commons.validator.routines.InetAddressValidator
 
 @Suppress("TooManyFunctions")
 class EditApiAccessMethodViewModel(
+    private val apiAccessMethodId: ApiAccessMethodId?,
     private val apiAccessRepository: ApiAccessRepository,
     private val inetAddressValidator: InetAddressValidator,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
     private var testingJob: Job? = null
-    private val apiAccessMethodId =
-        EditApiAccessMethodDestination.argsFrom(savedStateHandle).accessMethodId
 
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()

@@ -1,38 +1,31 @@
 package net.mullvad.mullvadvpn.core.animation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
-import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import androidx.compose.animation.togetherWith
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.ui.NavDisplay
 
-object TopLevelTransition : DestinationStyle.Animated() {
+fun topLevelTransition(): Map<String, Any> = metadata {
 
-    override val enterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        {
-            fadeIn(spring()) + scaleIn(initialScale = ENTER_TRANSITION_SCALE_IN_FACTOR)
-        }
-
-    override val exitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
+    // Fade and scale in the pushed screen
+    put(NavDisplay.TransitionKey) {
+        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) +
+            scaleIn(initialScale = ENTER_TRANSITION_SCALE_IN_FACTOR) togetherWith
             ExitTransition.None
-        }
+    }
 
-    override val popEnterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        {
-            EnterTransition.None
-        }
+    // Fade out the popped screen
+    put(NavDisplay.PopTransitionKey) {
+        EnterTransition.None togetherWith fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
 
-    override val popExitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
-            fadeOut(spring())
-        }
+    // Slide the popped screen out from start to end
+    put(NavDisplay.PredictivePopTransitionKey) {
+        EnterTransition.None togetherWith fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
 }

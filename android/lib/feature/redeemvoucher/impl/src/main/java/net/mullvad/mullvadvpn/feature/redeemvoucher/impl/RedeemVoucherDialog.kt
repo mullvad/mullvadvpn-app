@@ -29,11 +29,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import java.util.concurrent.TimeUnit
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavResult
 import net.mullvad.mullvadvpn.lib.model.DAYS_PER_VOUCHER_MONTH
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
@@ -101,16 +100,18 @@ private fun PreviewRedeemVoucherDialogSuccess() {
     }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
+fun RedeemVoucher(navigator: Navigator) {
     val vm = koinViewModel<VoucherDialogViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
     RedeemVoucherDialog(
         state = state,
         onVoucherInputChange = vm::onVoucherInputChange,
         onRedeem = vm::onRedeem,
-        onDismiss = { resultBackNavigator.navigateBack(result = it) },
+        onDismiss =
+            dropUnlessResumed { isTimeAdded ->
+                navigator.goBack(result = RedeemVoucherNavResult(isTimeAdded))
+            },
     )
 }
 

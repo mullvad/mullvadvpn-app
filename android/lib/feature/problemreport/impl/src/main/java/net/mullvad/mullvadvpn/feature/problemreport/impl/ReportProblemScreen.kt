@@ -43,19 +43,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
-import com.ramcosta.composedestinations.generated.problemreport.destinations.ViewLogsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailConfirmedNavResult
+import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailNavKey
+import net.mullvad.mullvadvpn.feature.problemreport.api.ViewLogsNavKey
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
@@ -94,43 +91,33 @@ private fun PreviewReportProblemScreen(
     }
 }
 
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun ReportProblem(
-    navigator: DestinationsNavigator,
-    noEmailConfirmResultRecipent: ResultRecipient<ReportProblemNoEmailDestination, Boolean>,
-) {
+fun ReportProblem(navigator: Navigator) {
     val vm = koinViewModel<ReportProblemViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             is ReportProblemSideEffect.ShowConfirmNoEmail ->
-                navigator.navigate(ReportProblemNoEmailDestination)
+                navigator.navigate(ProblemReportNoEmailNavKey)
         }
     }
 
-    noEmailConfirmResultRecipent.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {}
-            is NavResult.Value -> vm.sendReport(state.email, state.description, true)
-        }
+    LocalResultStore.current.consumeResult<ProblemReportNoEmailConfirmedNavResult>()?.let {
+        vm.sendReport(state.email, state.description, true)
     }
 
     ReportProblemScreen(
         state = state,
         onSendReport = { vm.sendReport(state.email, state.description) },
         onClearSendResult = vm::clearSendResult,
-        onNavigateToViewLogs =
-            dropUnlessResumed {
-                navigator.navigate(ViewLogsDestination()) { launchSingleTop = true }
-            },
+        onNavigateToViewLogs = dropUnlessResumed { navigator.navigate(ViewLogsNavKey) },
         onEmailChanged = vm::updateEmail,
         onDescriptionChanged = vm::updateDescription,
         onIncludeAccountIdCheckChange = vm::onIncludeAccountIdCheckChange,
         toggleShowIncludeAccountInformationWarningMessage =
             vm::showIncludeAccountInformationWarningMessage,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

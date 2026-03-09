@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.create
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,12 +21,9 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.CreateWithLocationsError
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 
 class CreateCustomListDialogViewModel(
+    private val locationCode: GeoLocationId?,
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
-    private val locationCode: GeoLocationId? =
-        CreateCustomListDestination.argsFrom(savedStateHandle).locationCode
 
     private val _uiSideEffect =
         Channel<CreateCustomListDialogSideEffect>(1, BufferOverflow.DROP_OLDEST)

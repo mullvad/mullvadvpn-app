@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl
 
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.customlist.navargs.toSavedStateHandle
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
@@ -9,7 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlist.EditCustomListUiState
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlist.EditCustomListViewModel
-import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -30,7 +28,7 @@ class EditCustomListViewModelTest {
         val name = CustomListName.fromString("test")
         val customList = CustomList(id = CustomListId("1"), name = name, locations = emptyList())
         every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
-        val viewModel = createViewModel(customListId, name)
+        val viewModel = createViewModel(customListId)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -46,7 +44,7 @@ class EditCustomListViewModelTest {
         val name = CustomListName.fromString("test")
         val customList = CustomList(id = customListId, name = name, locations = emptyList())
         every { mockCustomListsRepository.customLists } returns MutableStateFlow(listOf(customList))
-        val viewModel = createViewModel(customListId, name)
+        val viewModel = createViewModel(customListId)
 
         // Act, Assert
         viewModel.uiState.test {
@@ -58,11 +56,9 @@ class EditCustomListViewModelTest {
         }
     }
 
-    private fun createViewModel(customListId: CustomListId, initialName: CustomListName) =
+    private fun createViewModel(customListId: CustomListId) =
         EditCustomListViewModel(
+            customListId = customListId,
             customListsRepository = mockCustomListsRepository,
-            savedStateHandle =
-                EditCustomListNameNavArgs(customListId = customListId, initialName = initialName)
-                    .toSavedStateHandle(),
         )
 }

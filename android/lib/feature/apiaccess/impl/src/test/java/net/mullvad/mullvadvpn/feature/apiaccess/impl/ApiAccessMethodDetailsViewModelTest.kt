@@ -4,7 +4,6 @@ import app.cash.turbine.test
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.apiaccess.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -15,7 +14,6 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.time.delay
-import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMethodDetailsNavArgs
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMethodDetailsSideEffect
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMethodDetailsViewModel
@@ -53,10 +51,8 @@ class ApiAccessMethodDetailsViewModelTest {
 
         apiAccessMethodDetailsViewModel =
             ApiAccessMethodDetailsViewModel(
+                apiAccessMethodId = apiAccessMethodId,
                 apiAccessRepository = mockApiAccessRepository,
-                savedStateHandle =
-                    ApiAccessMethodDetailsNavArgs(accessMethodId = apiAccessMethodId)
-                        .toSavedStateHandle(),
             )
     }
 

@@ -43,24 +43,20 @@ import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
 import co.touchlab.kermit.Logger
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
-import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.home.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.home.destinations.DeviceNameInfoDestination
-import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.account.impl.CopyAnimatedIconButton
+import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
-import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
+import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
+import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
@@ -94,9 +90,8 @@ private fun PreviewWelcomeScreen(
     }
 }
 
-@Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
-fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
+fun Welcome(navigator: Navigator) {
     val vm = koinViewModel<WelcomeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -108,11 +103,9 @@ fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
-            WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
-                navController.navigate(ConnectDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
+            }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -134,14 +127,12 @@ fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
     WelcomeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        navigateToDeviceInfoDialog =
-            dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
+        onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
+        navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
-        onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
+        onPlayPaymentInfoClick = dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
     )
 }
 

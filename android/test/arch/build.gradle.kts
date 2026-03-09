@@ -28,7 +28,6 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
 
     testImplementation(libs.compose.ui.tooling.android.preview)
-    testImplementation(libs.compose.destinations)
     testImplementation(libs.androidx.appcompat)
     testImplementation(libs.konsist)
 }

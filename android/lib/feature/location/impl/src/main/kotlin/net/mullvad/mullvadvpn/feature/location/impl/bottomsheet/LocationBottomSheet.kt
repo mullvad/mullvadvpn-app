@@ -32,15 +32,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.feature.location.impl.R
@@ -618,33 +614,6 @@ private fun CustomListActionResultData.message(resources: Resources): String =
             resources.getString(R.string.name_was_changed_to, newName)
         CustomListActionResultData.GenericError -> resources.getString(R.string.error_occurred)
     }
-
-@Composable
-internal fun <D : DestinationSpec, R : CustomListActionResultData> ResultRecipient<D, R>
-    .OnCustomListNavResult(
-    snackbarHostState: SnackbarHostState,
-    performAction: (action: CustomListAction) -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    val resources = LocalResources.current
-    this.onNavResult { result ->
-        when (result) {
-            NavResult.Canceled -> {
-                /* Do nothing */
-            }
-            is NavResult.Value -> {
-                // Handle result
-                scope.launch {
-                    snackbarHostState.showResultSnackbar(
-                        resources = resources,
-                        result = result.value,
-                        onUndo = performAction,
-                    )
-                }
-            }
-        }
-    }
-}
 
 sealed interface LocationBottomSheetState {
     val item: RelayItem

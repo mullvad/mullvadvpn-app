@@ -3,41 +3,41 @@ package net.mullvad.mullvadvpn.core.animation
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import androidx.compose.animation.togetherWith
+import androidx.navigation3.runtime.metadata
+import androidx.navigation3.ui.NavDisplay
 
-object SlideInFromRightTransition : DestinationStyle.Animated() {
-    override val enterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        {
-            fadeIn(spring()) +
-                slideIntoContainer(
-                    towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                    initialOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
-                )
-        }
+fun slideInHorizontalTransition(): Map<String, Any> = metadata {
 
-    override val exitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
-            ExitTransition.None
-        }
+    // Slide the pushed screen in from end to start
+    put(NavDisplay.TransitionKey) {
+        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) +
+            slideIntoContainer(
+                animationSpec = tween(TRANSITION_DEFAULT_DURATION_MS),
+                towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                initialOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
+            ) togetherWith ExitTransition.None
+    }
 
-    override val popEnterTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
-        {
-            EnterTransition.None
-        }
-
-    override val popExitTransition:
-        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
-        {
+    // Slide the popped screen out from start to end
+    put(NavDisplay.PopTransitionKey) {
+        EnterTransition.None togetherWith
             slideOutOfContainer(
+                animationSpec = tween(TRANSITION_DEFAULT_DURATION_MS),
                 towards = AnimatedContentTransitionScope.SlideDirection.End,
                 targetOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
-            ) + fadeOut(spring())
-        }
+            ) + fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
+
+    put(NavDisplay.PredictivePopTransitionKey) {
+        EnterTransition.None togetherWith
+            slideOutOfContainer(
+                animationSpec = tween(TRANSITION_DEFAULT_DURATION_MS),
+                towards = AnimatedContentTransitionScope.SlideDirection.End,
+                targetOffset = { (it * ENTER_TRANSITION_SLIDE_FACTOR).toInt() },
+            ) + fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
+    }
 }

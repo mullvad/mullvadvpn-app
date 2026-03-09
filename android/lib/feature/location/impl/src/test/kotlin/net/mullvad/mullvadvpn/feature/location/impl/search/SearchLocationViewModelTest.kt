@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.location.navargs.toSavedStateHandle
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
@@ -80,6 +79,7 @@ class SearchLocationViewModelTest {
 
         viewModel =
             SearchLocationViewModel(
+                relayListType = RelayListType.Single,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
@@ -93,8 +93,6 @@ class SearchLocationViewModelTest {
                 settingsRepository = mockSettingsRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 relayListRepository = mockRelayListRepository,
-                savedStateHandle =
-                    SearchLocationNavArgs(relayListType = RelayListType.Single).toSavedStateHandle(),
             )
     }
 

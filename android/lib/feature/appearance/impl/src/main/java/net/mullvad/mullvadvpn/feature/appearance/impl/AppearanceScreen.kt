@@ -26,13 +26,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscation
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -68,9 +65,8 @@ private fun PreviewAppObfusctionScreen() {
     }
 }
 
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun Appearance(navigator: DestinationsNavigator) {
+fun Appearance(navigator: Navigator) {
     val viewModel = koinViewModel<AppearanceViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
 
@@ -91,7 +87,7 @@ fun Appearance(navigator: DestinationsNavigator) {
         state = uiState,
         snackbarHostState = snackbarHostState,
         onObfuscationSelected = viewModel::setAppObfuscation,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 
