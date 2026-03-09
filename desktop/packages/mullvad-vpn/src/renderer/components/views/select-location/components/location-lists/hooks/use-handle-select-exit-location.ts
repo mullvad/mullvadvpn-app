@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { type RelayLocation } from '../../../../../../../shared/daemon-rpc-types';
 import { RoutePath } from '../../../../../../../shared/routes';
 import { useAppContext } from '../../../../../../context';
 import { useRelayLocations } from '../../../../../../features/locations/hooks';
+import type { AnyLocation } from '../../../../../../features/locations/types';
 import { useHistory } from '../../../../../../lib/history';
 
 export function useHandleSelectExitLocation() {
@@ -12,9 +12,9 @@ export function useHandleSelectExitLocation() {
   const { connectTunnel } = useAppContext();
 
   const handleSelectExitLocation = React.useCallback(
-    async (relayLocation: RelayLocation) => {
+    async (location: AnyLocation) => {
       history.push(RoutePath.main);
-      await selectExitRelayLocation(relayLocation);
+      await selectExitRelayLocation(location.details);
       await connectTunnel();
     },
     [connectTunnel, history, selectExitRelayLocation],
