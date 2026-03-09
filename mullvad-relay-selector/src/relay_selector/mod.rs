@@ -1200,8 +1200,8 @@ impl<'a, T> Criteria<'a, T> {
 }
 
 impl<'a> Criteria<'a, WireguardRelay> {
-    /// If the given criteria [`f`] evaulates to `false`, the second provided function `reason` is
-    /// run to provide a single [`Reject`] reason. `reason` gets access to the failing relay, which
+    /// If the given criteria `f` evaulates to `false`, the second provided function `reason` is
+    /// run to provide a single reason for rejection. `reason` gets access to the rejected relay, which
     /// means that `reason` may derivce additional information for why this particular relay was
     /// rejected.
     ///
