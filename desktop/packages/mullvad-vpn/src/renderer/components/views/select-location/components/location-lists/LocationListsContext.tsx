@@ -1,12 +1,11 @@
 import React from 'react';
 
-import type { RelayLocation as DaemonRelayLocation } from '../../../../../../shared/daemon-rpc-types';
-import { LocationType } from '../../../../../features/locations/types';
+import { type AnyLocation, LocationType } from '../../../../../features/locations/types';
 import { useHandleSelectEntryLocation, useHandleSelectExitLocation } from './hooks';
 import type { LocationsListsProps } from './LocationLists';
 
 type LocationListsContextProps = Omit<LocationListsProviderProps, 'children'> & {
-  handleSelect: (relayLocation: DaemonRelayLocation) => Promise<void>;
+  handleSelect: (location: AnyLocation) => Promise<void>;
 };
 
 const LocationListsContext = React.createContext<LocationListsContextProps | undefined>(undefined);
