@@ -1036,14 +1036,14 @@ impl AccountManager {
 
         let old_config = self.data.device().ok_or(Error::NoDevice);
 
-        if let Err(err) = old_config {
-            let _ = tx.send(Err(err));
+        let Ok(old_config) = old_config else {
+            let _ = tx.send(old_config.map(|_| ()));
             return;
-        }
+        };
 
         let service = self.account_service.clone();
         match service
-            .delete_account(old_config.unwrap().clone().account_number)
+            .delete_account(old_config.clone().account_number)
             .await
         {
             Ok(_) => {
