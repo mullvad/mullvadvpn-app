@@ -72,12 +72,57 @@ install_mobile_provisioning() {
 install_mobile_provisioning
 
 ###########################################
-# Sign and export IPA
+# Resolve entitlements
 ###########################################
+
+# The .entitlements files use build setting variables that need to be resolved.
+SECURITY_GROUP_IDENTIFIER="group.net.mullvad.MullvadVPN"
+
+resolve_entitlements() {
+    local src="$1"
+    local dst="$2"
+    sed "s/\$(SECURITY_GROUP_IDENTIFIER)/$SECURITY_GROUP_IDENTIFIER/g" "$src" > "$dst"
+}
+
+APP_ENTITLEMENTS=$(mktemp)
+PACKET_TUNNEL_ENTITLEMENTS=$(mktemp)
+trap 'rm -f "$APP_ENTITLEMENTS" "$PACKET_TUNNEL_ENTITLEMENTS"' EXIT
+
+resolve_entitlements "$SCRIPT_DIR/MullvadVPN/Supporting Files/MullvadVPN.entitlements" "$APP_ENTITLEMENTS"
+resolve_entitlements "$SCRIPT_DIR/PacketTunnel/PacketTunnel.entitlements" "$PACKET_TUNNEL_ENTITLEMENTS"
+
+###########################################
+# Sign archive binaries with entitlements
+###########################################
+
+APP_PATH="$XCODE_ARCHIVE_DIR/Products/Applications/MullvadVPN.app"
+SIGNING_IDENTITY="Apple Distribution: Mullvad VPN AB"
 
 echo ""
 echo "Signing archive: $XCODE_ARCHIVE_DIR"
 echo ""
+
+# Sign frameworks first (no entitlements needed)
+for framework in "$APP_PATH"/Frameworks/*.framework; do
+    echo "Signing framework: $(basename "$framework")"
+    codesign --force --sign "$SIGNING_IDENTITY" "$framework"
+done
+
+# Sign the packet tunnel extension with its entitlements
+echo "Signing PacketTunnel.appex"
+codesign --force --sign "$SIGNING_IDENTITY" \
+    --entitlements "$PACKET_TUNNEL_ENTITLEMENTS" \
+    "$APP_PATH/PlugIns/PacketTunnel.appex"
+
+# Sign the main app with its entitlements
+echo "Signing MullvadVPN.app"
+codesign --force --sign "$SIGNING_IDENTITY" \
+    --entitlements "$APP_ENTITLEMENTS" \
+    "$APP_PATH"
+
+###########################################
+# Export IPA
+###########################################
 
 xcodebuild \
     -exportArchive \
