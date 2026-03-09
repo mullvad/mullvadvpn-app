@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.test.e2e.misc.ClearFirewallRules
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.DropRule
 import net.mullvad.mullvadvpn.test.e2e.router.firewall.FirewallClient
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -446,6 +447,9 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
+    @Disabled(
+        "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. "
+    )
     fun testConnectUsingIpv6() = runTest {
         // Given
         app.launchAndLogIn(accountTestRule.validAccountNumber)
