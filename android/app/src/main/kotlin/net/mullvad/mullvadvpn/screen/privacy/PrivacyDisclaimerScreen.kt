@@ -31,18 +31,14 @@ import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.NavGraphs
-import com.ramcosta.composedestinations.generated.destinations.SplashDestination
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.app.MainActivity
-import net.mullvad.mullvadvpn.app.MainGraph
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -51,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.splash.DAEMON_READY_TIMEOUT_MS
 import org.koin.androidx.compose.koinViewModel
 
@@ -65,9 +62,8 @@ private fun PreviewPrivacyDisclaimerScreen() {
     }
 }
 
-@Destination<MainGraph>
 @Composable
-fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
+fun PrivacyDisclaimer(navigator: Navigator) {
     val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -75,10 +71,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
-                navigator.navigate(LoginDestination(null)) {
-                    launchSingleTop = true
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             PrivacyDisclaimerUiSideEffect.StartService ->
                 launch {
                     try {
@@ -91,11 +84,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
                         viewModel.onServiceStartedTimeout()
                     }
                 }
-            PrivacyDisclaimerUiSideEffect.NavigateToSplash ->
-                navigator.navigate(SplashDestination) {
-                    launchSingleTop = true
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+            PrivacyDisclaimerUiSideEffect.NavigateToSplash -> navigator.navigate(SplashNavKey)
         }
     }
     PrivacyDisclaimerScreen(

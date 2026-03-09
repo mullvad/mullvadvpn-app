@@ -21,14 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessMethodDetailsDestination
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessMethodInfoDestination
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.EditApiAccessMethodDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessMethodDetailsNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessMethodInfoNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -61,24 +58,17 @@ private fun PreviewApiAccessList(
     }
 }
 
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun ApiAccessList(navigator: DestinationsNavigator) {
+fun ApiAccessList(navigator: Navigator) {
     val viewModel = koinViewModel<ApiAccessListViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     ApiAccessListScreen(
         state = state,
-        onAddMethodClick = {
-            navigator.navigate(EditApiAccessMethodDestination(null)) { launchSingleTop = true }
-        },
-        onApiAccessMethodClick = {
-            navigator.navigate(ApiAccessMethodDetailsDestination(it.id)) { launchSingleTop = true }
-        },
-        onApiAccessInfoClick = {
-            navigator.navigate(ApiAccessMethodInfoDestination) { launchSingleTop = true }
-        },
-        onBackClick = navigator::navigateUp,
+        onAddMethodClick = { navigator.navigate(EditApiAccessMethodNavKey()) },
+        onApiAccessMethodClick = { navigator.navigate(ApiAccessMethodDetailsNavKey(it.id)) },
+        onApiAccessInfoClick = { navigator.navigate(ApiAccessMethodInfoNavKey) },
+        onBackClick = navigator::goBack,
     )
 }
 

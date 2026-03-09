@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl
 
-import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,15 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -57,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Udp2Tcp|Loading")
 @Composable
@@ -76,24 +71,13 @@ private fun PreviewAntiCensorshipSettingsScreen(
     }
 }
 
-@Parcelize
-data class AntiCensorshipSettingsNavArgs(
-    val selectedFeature: FeatureIndicator? = null,
-    val isModal: Boolean = false,
-) : Parcelable
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = AntiCensorshipSettingsNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.AntiCensorshipSettings(
-    navigator: DestinationsNavigator,
-    navArgs: AntiCensorshipSettingsNavArgs,
+    navigator: Navigator,
+    navArgs: AntiCensorshipNavKey,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val viewModel = koinViewModel<AntiCensorshipSettingsViewModel>()
+    val viewModel = koinViewModel<AntiCensorshipSettingsViewModel> { parametersOf(navArgs.isModal) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     AntiCensorshipSettingsScreen(
@@ -106,12 +90,12 @@ fun SharedTransitionScope.AntiCensorshipSettings(
             },
         state = state,
         navigateToShadowSocksSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Shadowsocks)) },
+            dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Shadowsocks)) },
         navigateToUdp2TcpSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Udp2Tcp)) },
+            dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Udp2Tcp)) },
         navigateToWireguardPortSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Wireguard)) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Wireguard)) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectObfuscationMode = viewModel::onSelectObfuscationMode,
     )
 }

@@ -6,12 +6,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -22,12 +20,11 @@ private fun PreviewAndroid16UpgradeWarningInfoDialog() {
     AppTheme { Android16UpgradeWarningInfoDialog(onDismiss = {}, onClickEmail = {}) }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun Android16UpgradeWarningInfo(navigator: DestinationsNavigator) {
+fun Android16UpgradeWarningInfo(navigator: Navigator) {
     val copyToClipboard = createCopyToClipboardHandle(isSensitive = false)
     Android16UpgradeWarningInfoDialog(
-        onDismiss = navigator::navigateUp,
+        onDismiss = dropUnlessResumed { navigator.goBack() },
         onClickEmail = { email -> copyToClipboard(email, null) },
     )
 }

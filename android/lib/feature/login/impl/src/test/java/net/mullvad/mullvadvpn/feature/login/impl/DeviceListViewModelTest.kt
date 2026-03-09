@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.login.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -18,7 +17,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListNavArgs
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListSideEffect
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListUiState
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListViewModel
@@ -74,10 +72,9 @@ class DeviceListViewModelTest {
 
         viewModel =
             DeviceListViewModel(
+                accountNumber = testAccountNumber,
                 deviceRepository = mockDeviceRepository,
                 dispatcher = UnconfinedTestDispatcher(),
-                savedStateHandle =
-                    DeviceListNavArgs(accountNumber = testAccountNumber).toSavedStateHandle(),
             )
     }
 

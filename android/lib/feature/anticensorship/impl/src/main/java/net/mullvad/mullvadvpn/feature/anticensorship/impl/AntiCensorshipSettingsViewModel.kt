@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -30,11 +28,10 @@ sealed interface AntiCensorshipSideEffect {
 }
 
 class AntiCensorshipSettingsViewModel(
+    private val isModal: Boolean,
     private val settingsRepository: SettingsRepository,
-    savedStateHandle: SavedStateHandle,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = AntiCensorshipSettingsDestination.argsFrom(savedStateHandle)
 
     private val _uiSideEffect = Channel<AntiCensorshipSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -44,7 +41,7 @@ class AntiCensorshipSettingsViewModel(
             .filterNotNull()
             .map { settings ->
                 AntiCensorshipSettingsUiState.from(
-                        isModal = navArgs.isModal,
+                        isModal = isModal,
                         obfuscationMode = settings.selectedObfuscationMode(),
                         selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
                         selectedShadowsocksObfuscationPort =

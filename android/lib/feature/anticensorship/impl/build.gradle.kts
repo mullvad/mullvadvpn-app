@@ -7,20 +7,14 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.anticensorship.impl"
-    ksp { arg("compose-destinations.moduleName", "anticensorship") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.anticensorship.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.navigation)
     implementation(projects.lib.ui.util)
+    implementation(projects.lib.feature.anticensorship.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

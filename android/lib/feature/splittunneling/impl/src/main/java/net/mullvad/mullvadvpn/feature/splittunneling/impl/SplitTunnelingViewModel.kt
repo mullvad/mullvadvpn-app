@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,12 +19,11 @@ import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
 class SplitTunnelingViewModel(
+    isModal: Boolean,
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
-    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-    private val navArgs = SplitTunnelingDestination.argsFrom(savedStateHandle)
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)
     private val showSystemApps = MutableStateFlow(false)
@@ -39,7 +36,7 @@ class SplitTunnelingViewModel(
                 showSystemApps,
             ) { excludedApps, enabled, allApps, showSystemApps ->
                 if (allApps == null) {
-                    return@combine Lc.Loading(Loading(enabled = enabled, isModal = navArgs.isModal))
+                    return@combine Lc.Loading(Loading(enabled = enabled, isModal = isModal))
                 }
 
                 val (excludedApps, includedApps) =
@@ -58,14 +55,14 @@ class SplitTunnelingViewModel(
                             if (showSystemApps) includedApps
                             else includedApps.filter { appData -> !appData.isSystemApp },
                         showSystemApps = showSystemApps,
-                        isModal = navArgs.isModal,
+                        isModal = isModal,
                     )
                     .toLc()
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                Lc.Loading(Loading(enabled = false, isModal = navArgs.isModal)),
+                Lc.Loading(Loading(enabled = false, isModal = isModal)),
             )
 
     init {

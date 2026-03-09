@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.managedevices.impl"
-    ksp { arg("compose-destinations.moduleName", "managedevices") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.managedevices.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
@@ -18,8 +15,5 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    implementation(projects.lib.feature.managedevices.api)
 }

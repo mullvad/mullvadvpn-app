@@ -7,17 +7,11 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.autoconnect.impl"
-    ksp { arg("compose-destinations.moduleName", "autoconnect") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.autoconnect.impl" }
 
 dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.compose.constrainlayout)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    implementation(projects.lib.feature.autoconnect.api)
 }

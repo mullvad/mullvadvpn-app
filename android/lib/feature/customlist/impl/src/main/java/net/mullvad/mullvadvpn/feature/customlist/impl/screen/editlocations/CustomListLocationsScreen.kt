@@ -28,24 +28,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.customlist.destinations.DiscardChangesDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.animateScrollAndCentralizeItem
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.DiscardCustomListChangesConfirmedNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.DiscardCustomListChangesNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.ContentType
 import net.mullvad.mullvadvpn.lib.common.Lce
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -56,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Content|Empty|Loading")
 @Composable
@@ -75,26 +71,18 @@ private fun PreviewCustomListLocationScreen(
     }
 }
 
-data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = CustomListLocationsNavArgs::class,
-)
-fun CustomListLocations(
-    navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListActionResultData>,
-    discardChangesResultRecipient: ResultRecipient<DiscardChangesDestination, Confirmed>,
-) {
-    val customListsViewModel = koinViewModel<CustomListLocationsViewModel>()
+fun CustomListLocations(navArgs: EditCustomListLocationsNavKey, navigator: Navigator) {
+    val customListsViewModel = koinViewModel<CustomListLocationsViewModel> { parametersOf(navArgs) }
 
-    discardChangesResultRecipient.OnNavResultValue { backNavigator.navigateBack() }
+    LocalResultStore.current.consumeResult<DiscardCustomListChangesConfirmedNavResult>()?.let {
+        navigator.goBack()
+    }
 
     CollectSideEffectWithLifecycle(customListsViewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is CustomListLocationsSideEffect.ReturnWithResultData ->
-                backNavigator.navigateBack(result = sideEffect.result)
+                navigator.goBack(result = EditCustomListNavResult(sideEffect.result))
         }
     }
 
@@ -108,9 +96,9 @@ fun CustomListLocations(
         onBackClick =
             dropUnlessResumed {
                 if (state.content.contentOrNull()?.hasUnsavedChanges == true) {
-                    navigator.navigate(DiscardChangesDestination)
+                    navigator.navigate(DiscardCustomListChangesNavKey)
                 } else {
-                    backNavigator.navigateBack()
+                    navigator.goBack()
                 }
             },
     )

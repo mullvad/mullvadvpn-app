@@ -3,24 +3,18 @@ package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewApiAccessMethodInfoDialog() {
-    AppTheme { ApiAccessMethodInfo(EmptyDestinationsNavigator) }
+    //    AppTheme { ApiAccessMethodInfo(EmptyDestinationsNavigator) }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ApiAccessMethodInfo(navigator: DestinationsNavigator) {
+fun ApiAccessMethodInfo(navigator: Navigator) {
     InfoDialog(
         message =
             buildString {
@@ -32,6 +26,6 @@ fun ApiAccessMethodInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 appendLine(stringResource(id = R.string.api_access_method_info_fourth_line))
             },
-        onDismiss = navigator::navigateUp,
+        onDismiss = navigator::goBack,
     )
 }

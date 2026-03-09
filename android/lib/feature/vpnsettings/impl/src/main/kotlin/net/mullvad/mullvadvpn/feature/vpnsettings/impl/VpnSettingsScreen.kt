@@ -3,7 +3,6 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl
 
 import android.content.res.Resources
-import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -47,39 +46,36 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
-import com.ramcosta.composedestinations.generated.autoconnect.destinations.AutoConnectAndLockdownModeDestination
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ConnectOnStartupInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ContentBlockersInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.CustomDnsInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DeviceIpInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DnsDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.Ipv6InfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.LocalNetworkSharingInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MalwareInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MtuDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.QuantumResistanceInfoDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
 import net.mullvad.mullvadvpn.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
+import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.ConnectOnStartupInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.ContentBlockersInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.CustomDnsInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DeviceIpInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavResult
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.Ipv6InfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.LocalNetworkSharingInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MalwareInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.QuantumResistanceInfoNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -114,6 +110,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Default|NonDefault")
 @Composable
@@ -158,41 +155,30 @@ private fun PreviewVpnSettings(
     }
 }
 
-@Parcelize
-data class VpnSettingsNavArgs(
-    val scrollToFeature: FeatureIndicator? = null,
-    val isModal: Boolean = false,
-) : Parcelable
-
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = VpnSettingsNavArgs::class,
-)
 @Composable
 @Suppress("LongMethod")
 fun SharedTransitionScope.VpnSettings(
-    navigator: DestinationsNavigator,
+    navArgs: VpnSettingsNavKey,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    navArgs: VpnSettingsNavArgs,
-    dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
-    mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
 ) {
-    val vm = koinViewModel<VpnSettingsViewModel>()
+    val vm = koinViewModel<VpnSettingsViewModel>() { parametersOf(navArgs) }
     val state by vm.uiState.collectAsStateWithLifecycle()
+    val resultStore = LocalResultStore.current
 
-    dnsDialogResult.OnNavResultValue { result ->
+    resultStore.consumeResult<DnsNavResult>()?.let { result ->
         when (result) {
-            is DnsDialogResult.Success -> {
+            is DnsNavResult.Success -> {
                 vm.showApplySettingChangesWarningToast()
             }
-            DnsDialogResult.Error -> {
+            DnsNavResult.Error -> {
                 vm.showGenericErrorToast()
             }
         }
     }
 
-    mtuDialogResult.OnNavResultValue { result ->
-        if (!result) {
+    resultStore.consumeResult<MtuNavResult>()?.let { result ->
+        if (!result.complete) {
             vm.showGenericErrorToast()
         }
     }
@@ -205,8 +191,7 @@ fun SharedTransitionScope.VpnSettings(
                 launch {
                     snackbarHostState.showSnackbarImmediately(message = it.message(resources))
                 }
-            VpnSettingsSideEffect.NavigateToDnsDialog ->
-                navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
+            VpnSettingsSideEffect.NavigateToDnsDialog -> navigator.navigate(DnsNavKey())
         }
     }
 
@@ -224,18 +209,16 @@ fun SharedTransitionScope.VpnSettings(
             } else Modifier,
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
-            dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
-        navigateToAutoConnectScreen =
-            dropUnlessResumed { navigator.navigate(AutoConnectAndLockdownModeDestination) },
-        navigateToCustomDnsInfo =
-            dropUnlessResumed { navigator.navigate(CustomDnsInfoDestination) },
-        navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoDestination) },
+            dropUnlessResumed { navigator.navigate(ContentBlockersInfoNavKey) },
+        navigateToAutoConnectScreen = dropUnlessResumed { navigator.navigate(AutoConnectNavKey) },
+        navigateToCustomDnsInfo = dropUnlessResumed { navigator.navigate(CustomDnsInfoNavKey) },
+        navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
         navigateToQuantumResistanceInfo =
-            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
+            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
         navigateToLocalNetworkSharingInfo =
-            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
+            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
         navigateToServerIpOverrides =
-            dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination()) },
+            dropUnlessResumed { navigator.navigate(ServerIpOverrideNavKey()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleAllBlockers = vm::onToggleAllBlockers,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -245,24 +228,22 @@ fun SharedTransitionScope.VpnSettings(
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
-        navigateToMtuDialog =
-            dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuDestination(mtu)) },
+        navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },
         navigateToDns =
             dropUnlessResumed { index: Int?, address: String? ->
-                navigator.navigate(DnsDestination(index, address))
+                navigator.navigate(DnsNavKey(index, address))
             },
         onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
         onToggleIpv6 = vm::setIpv6Enabled,
-        navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoDestination) },
-        navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoDestination) },
+        navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoNavKey) },
+        navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoNavKey) },
         navigateToConnectOnDeviceOnStartUpInfo =
-            dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoDestination) },
-        navigateToAntiCensorship =
-            dropUnlessResumed { navigator.navigate(AntiCensorshipSettingsDestination()) },
+            dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoNavKey) },
+        navigateToAntiCensorship = dropUnlessResumed { navigator.navigate(AntiCensorshipNavKey()) },
     )
 }
 

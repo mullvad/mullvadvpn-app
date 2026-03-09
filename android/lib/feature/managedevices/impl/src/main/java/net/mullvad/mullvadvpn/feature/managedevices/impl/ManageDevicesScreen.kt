@@ -22,21 +22,17 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfirmationNavKey
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfirmationNavResult
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
-import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -47,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview("Normal|TooMany|Empty|Loading|Error")
@@ -67,23 +64,13 @@ private fun PreviewDeviceListScreenContent(
 
 private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 
-data class ManageDevicesNavArgs(val accountNumber: AccountNumber)
-
-@Destination<ExternalModuleGraph>(
-    style = DefaultTransition::class,
-    navArgs = ManageDevicesNavArgs::class,
-)
 @Composable
-fun ManageDevices(
-    navigator: DestinationsNavigator,
-    confirmRemoveResultRecipient:
-        ResultRecipient<ManageDevicesRemoveConfirmationDestination, DeviceId>,
-) {
-    val viewModel = koinViewModel<ManageDevicesViewModel>()
+fun ManageDevices(accountNumber: AccountNumber, navigator: Navigator) {
+    val viewModel = koinViewModel<ManageDevicesViewModel> { parametersOf(accountNumber) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    confirmRemoveResultRecipient.OnNavResultValue { deviceId ->
-        viewModel.removeDevice(deviceIdToRemove = deviceId)
+    LocalResultStore.current.consumeResult<ManageDevicesRemoveConfirmationNavResult>()?.let {
+        viewModel.removeDevice(deviceIdToRemove = it.deviceId)
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,11 +93,11 @@ fun ManageDevices(
     ManageDevicesScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
-                navigator.navigate(ManageDevicesRemoveConfirmationDestination(it))
+                navigator.navigate(ManageDevicesRemoveConfirmationNavKey(it))
             },
     )
 }

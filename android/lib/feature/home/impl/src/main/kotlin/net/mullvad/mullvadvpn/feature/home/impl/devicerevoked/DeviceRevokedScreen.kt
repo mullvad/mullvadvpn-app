@@ -21,13 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -46,9 +43,8 @@ private fun PreviewDeviceRevokedScreen(
     AppTheme { DeviceRevokedScreen(state = state, onSettingsClicked = {}, onGoToLoginClicked = {}) }
 }
 
-@Destination<ExternalModuleGraph>
 @Composable
-fun DeviceRevoked(navController: NavController, navigator: DestinationsNavigator) {
+fun DeviceRevoked(navigator: Navigator) {
     val viewModel = koinViewModel<DeviceRevokedViewModel>()
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -56,16 +52,13 @@ fun DeviceRevoked(navController: NavController, navigator: DestinationsNavigator
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             DeviceRevokedSideEffect.NavigateToLogin ->
-                navController.navigate(LoginDestination.baseRoute) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
         }
     }
 
     DeviceRevokedScreen(
         state = state,
-        onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
         onGoToLoginClicked = viewModel::onGoToLoginClicked,
     )
 }

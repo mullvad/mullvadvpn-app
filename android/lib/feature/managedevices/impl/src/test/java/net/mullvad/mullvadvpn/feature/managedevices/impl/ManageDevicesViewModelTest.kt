@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.managedevices.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -55,10 +54,9 @@ class ManageDevicesViewModelTest {
 
         viewModel =
             ManageDevicesViewModel(
+                accountNumber = testAccountNumber,
                 deviceRepository = mockDeviceRepository,
                 dispatcher = UnconfinedTestDispatcher(),
-                savedStateHandle =
-                    ManageDevicesNavArgs(accountNumber = testAccountNumber).toSavedStateHandle(),
             )
     }
 

@@ -7,19 +7,13 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.addtime.impl"
-    ksp { arg("compose-destinations.moduleName", "addtime") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.addtime.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.payment)
+    implementation(projects.lib.feature.addtime.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

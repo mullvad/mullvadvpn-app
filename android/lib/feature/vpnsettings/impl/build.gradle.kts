@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.vpnsettings.impl"
-    ksp { arg("compose-destinations.moduleName", "vpnsettings") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.vpnsettings.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
@@ -18,8 +15,13 @@ dependencies {
     implementation(projects.lib.navigation)
     // Used for destinations
     implementation(projects.lib.feature.autoconnect.impl)
+    implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.serveripoverride.api)
+    implementation(projects.lib.feature.vpnsettings.api)
+    implementation(libs.androidx.navigation3.ui)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
@@ -33,8 +35,4 @@ dependencies {
         // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
         exclude("commons-beanutils", "commons-beanutils")
     }
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

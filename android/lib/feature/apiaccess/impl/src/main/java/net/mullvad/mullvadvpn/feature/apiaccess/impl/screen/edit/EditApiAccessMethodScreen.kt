@@ -48,19 +48,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.DiscardApiAccessChangesDestination
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApiAccessMethodDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DiscardApiAccessChangesConfirmedNavResult
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DiscardApiAccessChangesNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavResult
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavResult
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.component.TestMethodButton
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
@@ -68,7 +66,6 @@ import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
@@ -84,6 +81,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Default|Shadowsocks|Socks5|Socks5Errors")
 @Composable
@@ -110,21 +108,10 @@ private fun PreviewEditApiAccessMethodScreen(
     }
 }
 
-data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
-
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = EditApiAccessMethodNavArgs::class,
-)
 @Composable
 @Suppress("LongMethod")
-fun EditApiAccessMethod(
-    navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<Boolean>,
-    saveApiAccessMethodResultRecipient: ResultRecipient<SaveApiAccessMethodDestination, Boolean>,
-    discardChangesResultRecipient: ResultRecipient<DiscardApiAccessChangesDestination, Confirmed>,
-) {
-    val viewModel = koinViewModel<EditApiAccessMethodViewModel>()
+fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Navigator) {
+    val viewModel = koinViewModel<EditApiAccessMethodViewModel> { parametersOf(apiAccessMethodId) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -134,14 +121,12 @@ fun EditApiAccessMethod(
         when (it) {
             is EditApiAccessSideEffect.OpenSaveDialog ->
                 navigator.navigate(
-                    SaveApiAccessMethodDestination(
+                    SaveApiAccessMethodNavKey(
                         id = it.id,
                         name = it.name,
                         customProxy = it.customProxy,
                     )
-                ) {
-                    launchSingleTop = true
-                }
+                )
 
             is EditApiAccessSideEffect.TestApiAccessMethodResult -> {
                 launch {
@@ -160,9 +145,11 @@ fun EditApiAccessMethod(
         }
     }
 
-    saveApiAccessMethodResultRecipient.OnNavResultValue { saveSuccessful ->
-        if (saveSuccessful) {
-            backNavigator.navigateBack(result = true)
+    val resultStore = LocalResultStore.current
+
+    resultStore.consumeResult<SaveApiAccessMethodNavResult>()?.let { result ->
+        if (result.success) {
+            navigator.goBack(result = EditApiAccessMethodNavResult(true))
         } else {
             // Show error snackbar
             scope.launch {
@@ -173,7 +160,9 @@ fun EditApiAccessMethod(
         }
     }
 
-    discardChangesResultRecipient.OnNavResultValue { navigator.navigateUp() }
+    resultStore.consumeResult<DiscardApiAccessChangesConfirmedNavResult>()?.let {
+        navigator.goBack()
+    }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -205,9 +194,9 @@ fun EditApiAccessMethod(
         onAddMethod = viewModel::trySave,
         onNavigateBack = {
             if (state.hasChanges()) {
-                navigator.navigate(DiscardApiAccessChangesDestination) { launchSingleTop = true }
+                navigator.navigate(DiscardApiAccessChangesNavKey)
             } else {
-                navigator.navigateUp()
+                navigator.goBack()
             }
         },
     )

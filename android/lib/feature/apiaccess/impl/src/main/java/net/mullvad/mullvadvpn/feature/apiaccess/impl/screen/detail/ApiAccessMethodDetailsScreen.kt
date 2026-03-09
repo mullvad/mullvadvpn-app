@@ -35,18 +35,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.DeleteApiAccessMethodConfirmationDestination
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.EditApiAccessMethodDestination
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.EncryptedDnsProxyInfoDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodConfirmedNavResult
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.EncryptedDnsProxyInfoNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.component.TestMethodButton
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
@@ -69,6 +66,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.menuItemColors
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|NonEditable|Editable")
 @Composable
@@ -91,20 +89,11 @@ private fun PreviewApiAccessMethodDetailsScreen(
     }
 }
 
-data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
-
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = ApiAccessMethodDetailsNavArgs::class,
-)
 @Composable
 @Suppress("LongMethod")
-fun ApiAccessMethodDetails(
-    navigator: DestinationsNavigator,
-    confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteApiAccessMethodConfirmationDestination, Boolean>,
-) {
-    val viewModel = koinViewModel<ApiAccessMethodDetailsViewModel>()
+fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navigator) {
+    val viewModel =
+        koinViewModel<ApiAccessMethodDetailsViewModel> { parametersOf(apiAccessMethodId) }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -119,9 +108,7 @@ fun ApiAccessMethodDetails(
                     )
                 }
             is ApiAccessMethodDetailsSideEffect.OpenEditPage ->
-                navigator.navigate(EditApiAccessMethodDestination(it.apiAccessMethodId)) {
-                    launchSingleTop = true
-                }
+                navigator.navigate(EditApiAccessMethodNavKey(it.apiAccessMethodId))
             is ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -150,7 +137,9 @@ fun ApiAccessMethodDetails(
         }
     }
 
-    confirmDeleteListResultRecipient.OnNavResultValue { navigator.navigateUp() }
+    LocalResultStore.current.consumeResult<DeleteApiAccessMethodConfirmedNavResult>()?.let {
+        navigator.goBack()
+    }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -184,14 +173,10 @@ fun ApiAccessMethodDetails(
                 }
             }
         },
-        onDeleteApiAccessMethodClicked = {
-            navigator.navigate(DeleteApiAccessMethodConfirmationDestination(it)) {
-                launchSingleTop = true
-            }
-        },
+        onDeleteApiAccessMethodClicked = { navigator.navigate(DeleteApiAccessMethodNavKey(it)) },
         onNavigateToEncryptedDnsInfoDialog =
-            dropUnlessResumed { navigator.navigate(EncryptedDnsProxyInfoDestination) },
-        onBackClicked = navigator::navigateUp,
+            dropUnlessResumed { navigator.navigate(EncryptedDnsProxyInfoNavKey) },
+        onBackClicked = navigator::goBack,
     )
 }
 

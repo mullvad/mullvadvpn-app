@@ -27,20 +27,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.EditCustomListListItem
@@ -53,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.menuItemColors
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Content|Loading|NotFound")
 @Composable
@@ -71,28 +68,12 @@ private fun PreviewEditCustomListScreen(
     }
 }
 
-data class EditCustomListNavArgs(val customListId: CustomListId)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = EditCustomListNavArgs::class,
-)
-fun EditCustomList(
-    navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Deleted>,
-    confirmDeleteListResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
-) {
-    val viewModel = koinViewModel<EditCustomListViewModel>()
+fun EditCustomList(customListId: CustomListId, navigator: Navigator) {
+    val viewModel = koinViewModel<EditCustomListViewModel> { parametersOf(customListId) }
 
-    confirmDeleteListResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                // Do nothing
-            }
-            is NavResult.Value -> backNavigator.navigateBack(result = it.value)
-        }
+    LocalResultStore.current.consumeResult<DeleteCustomListNavResult>()?.let { result ->
+        navigator.goBack(result = EditCustomListNavResult(result.value))
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -101,21 +82,19 @@ fun EditCustomList(
         state = state,
         onDeleteList =
             dropUnlessResumed { id, name ->
-                navigator.navigate(DeleteCustomListDestination(customListId = id, name = name))
+                navigator.navigate(DeleteCustomListNavKey(customListId = id, name = name))
             },
         onNameClicked =
             dropUnlessResumed { id, name ->
-                navigator.navigate(
-                    EditCustomListNameDestination(customListId = id, initialName = name)
-                )
+                navigator.navigate(EditCustomListNameNavKey(customListId = id, initialName = name))
             },
         onLocationsClicked =
             dropUnlessResumed { id ->
                 navigator.navigate(
-                    CustomListLocationsDestination(customListId = id, newList = false)
+                    EditCustomListLocationsNavKey(customListId = id, newList = false)
                 )
             },
-        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

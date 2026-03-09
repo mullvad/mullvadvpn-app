@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.home.impl"
-    ksp { arg("compose-destinations.moduleName", "home") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.home.impl" }
 
 dependencies {
     implementation(projects.lib.map)
@@ -20,18 +17,33 @@ dependencies {
     implementation(projects.lib.tv)
     implementation(projects.lib.usecase)
     implementation(projects.lib.feature.account.impl)
+    implementation(projects.lib.feature.account.api)
     implementation(projects.lib.feature.addtime.impl)
+    implementation(projects.lib.feature.addtime.api)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.appinfo.impl)
+    implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.daita.impl)
+    implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.location.impl)
+    implementation(projects.lib.feature.location.api)
     implementation(projects.lib.feature.login.impl)
+    implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.multihop.impl)
+    implementation(projects.lib.feature.multihop.api)
     implementation(projects.lib.feature.redeemvoucher.impl)
+    implementation(projects.lib.feature.redeemvoucher.api)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.settings.impl)
+    implementation(projects.lib.feature.settings.api)
     implementation(projects.lib.feature.splittunneling.impl)
+    implementation(projects.lib.feature.splittunneling.api)
     implementation(projects.lib.feature.vpnsettings.impl)
+    implementation(projects.lib.feature.vpnsettings.api)
+    implementation(projects.lib.feature.home.api)
+    implementation(libs.androidx.navigation3.ui)
 
     implementation(libs.androidx.animation)
     implementation(libs.koin.compose)
@@ -44,8 +56,4 @@ dependencies {
         // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
         exclude("androidx.biometric", "biometric")
     }
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

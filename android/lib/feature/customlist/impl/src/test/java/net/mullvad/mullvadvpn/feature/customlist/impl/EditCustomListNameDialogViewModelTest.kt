@@ -3,15 +3,14 @@ package net.mullvad.mullvadvpn.feature.customlist.impl
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.customlist.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameDialogSideEffect
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameDialogViewModel
-import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustomListNameNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -92,12 +91,11 @@ class EditCustomListNameDialogViewModelTest {
 
     private fun createViewModel(customListId: CustomListId, initialName: String) =
         EditCustomListNameDialogViewModel(
+            navArgs =
+                EditCustomListNameNavKey(
+                    customListId = customListId,
+                    initialName = CustomListName.fromString(initialName),
+                ),
             customListActionUseCase = mockCustomListActionUseCase,
-            savedStateHandle =
-                EditCustomListNameNavArgs(
-                        customListId = customListId,
-                        initialName = CustomListName.fromString(initialName),
-                    )
-                    .toSavedStateHandle(),
         )
 }

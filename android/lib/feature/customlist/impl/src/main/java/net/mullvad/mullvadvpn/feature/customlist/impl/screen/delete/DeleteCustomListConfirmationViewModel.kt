@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.delete
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -21,10 +20,9 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.DeleteWithUndoError
 
 class DeleteCustomListConfirmationViewModel(
+    navArgs: DeleteCustomListNavKey,
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val navArgs = DeleteCustomListDestination.argsFrom(savedStateHandle)
     private val name: CustomListName = navArgs.name
     private val customListId: CustomListId = navArgs.customListId
 

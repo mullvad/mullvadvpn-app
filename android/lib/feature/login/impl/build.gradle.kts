@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.login.impl"
-    ksp { arg("compose-destinations.moduleName", "login") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.login.impl" }
 
 dependencies {
     implementation(projects.lib.pushNotification)
@@ -19,11 +16,10 @@ dependencies {
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.settings.impl)
+    implementation(projects.lib.feature.login.api)
+    implementation(projects.lib.feature.home.api)
+    implementation(projects.lib.feature.settings.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.daita.impl
 
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.daita.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -29,11 +28,7 @@ class DaitaViewModelTest {
     @BeforeEach
     fun setUp() {
         every { mockSettingsRepository.settingsUpdates } returns settings
-        viewModel =
-            DaitaViewModel(
-                mockSettingsRepository,
-                savedStateHandle = DaitaNavArgs().toSavedStateHandle(),
-            )
+        viewModel = DaitaViewModel(isModal = false, mockSettingsRepository)
     }
 
     @Test

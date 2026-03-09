@@ -7,19 +7,14 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.deleteaccount.impl"
-    ksp { arg("compose-destinations.moduleName", "deleteaccount") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.deleteaccount.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.feature.login.impl)
+    implementation(projects.lib.feature.login.api)
+    implementation(projects.lib.feature.deleteaccount.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

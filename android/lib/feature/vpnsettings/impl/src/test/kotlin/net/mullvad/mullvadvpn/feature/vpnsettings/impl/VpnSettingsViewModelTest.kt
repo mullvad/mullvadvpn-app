@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.vpnsettings.impl
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.vpnsettings.navargs.toSavedStateHandle
 import io.mockk.Awaits
 import io.mockk.Runs
 import io.mockk.coEvery
@@ -20,6 +19,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -72,12 +72,12 @@ class VpnSettingsViewModelTest {
 
         viewModel =
             VpnSettingsViewModel(
+                navArgs = VpnSettingsNavKey(),
                 settingsRepository = mockSettingsRepository,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
                 dispatcher = UnconfinedTestDispatcher(),
                 autoStartAndConnectOnBootRepository = mockAutoStartAndConnectOnBootRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                savedStateHandle = VpnSettingsNavArgs().toSavedStateHandle(),
             )
     }
 
