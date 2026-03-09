@@ -519,8 +519,33 @@ async fn configure_devices(
 
     #[cfg(feature = "personal-vpn")]
     if config.custom_vpn.is_some() && config.exit_peer.is_none() {
-        // TODO:
-        log::error!("Not reconfiguring tunnel when personal VPN is enabled.");
+        let Devices::SinglehopWithCustom { outer_device, .. } = devices else {
+            return Err(TunnelError::ConfigureGotaTunDevice(
+                ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
+            ));
+        };
+
+        // TODO: untested
+        // TODO: reconfig personal VPN? or make it clear that it's ignored here
+
+        outer_device
+            .write(async |device| {
+                device.clear_peers();
+                device.set_private_key(private_key).await;
+                device.add_peer(entry_peer);
+                #[cfg(target_os = "linux")]
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
+
         return Ok(());
     }
 
