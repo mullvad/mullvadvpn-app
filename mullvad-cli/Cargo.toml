@@ -37,6 +37,9 @@ tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 clap_complete = { version = "4.4.8" }
 nix = { workspace = true, features = ["signal"] }
 
+[target.'cfg(windows)'.dependencies]
+ipnetwork = { workspace = true }
+
 [target.'cfg(windows)'.build-dependencies]
 mullvad-version = { path = "../mullvad-version" }
 winres = "0.1"
