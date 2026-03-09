@@ -329,6 +329,8 @@ async fn create_devices(
     if let Some(custom_vpn) = &config.custom_vpn
         && config.exit_peer.is_none()
     {
+        log::debug!("Configuring tunnel with personal VPN");
+
         let multihop_overhead = match custom_vpn.peer.endpoint.ip() {
             IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
             IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
@@ -524,6 +526,8 @@ async fn configure_devices(
                 ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
             ));
         };
+
+        log::debug!("Reconfiguring outer tunnel with personal VPN");
 
         // TODO: untested
         // TODO: reconfig personal VPN? or make it clear that it's ignored here
