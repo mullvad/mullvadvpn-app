@@ -1649,31 +1649,6 @@ mod new {
                 }
             }
         }
-
-        /*
-        let relay_selector = default_relay_selector();
-
-        for _ in 0..100 {
-            // Construct an arbitrary query for owned relays.
-            let query = RelayQueryBuilder::new()
-                .ownership(Ownership::MullvadOwned)
-                .build();
-            let relay = relay_selector.get_relay_by_query(query).unwrap();
-            // Check that the relay is owned by Mullvad.
-            assert!(unwrap_relay(relay).owned);
-        }
-
-        for _ in 0..100 {
-            // Construct an arbitrary query for rented relays.
-            let query = RelayQueryBuilder::new()
-                .ownership(Ownership::Rented)
-                .build();
-            let relay = relay_selector.get_relay_by_query(query).unwrap();
-            // Check that the relay is rented.
-            assert!(!unwrap_relay(relay).owned);
-        }
-             *
-             * */
     }
 
     /// If a multihop constraint has the same entry and exit relay, the relay selector
@@ -1930,6 +1905,67 @@ mod new {
         for reasons in query.unique_reasons() {
             match reasons.as_slice() {
                 &[Reason::Providers, Reason::Daita] | &[Reason::Providers] | &[Reason::Daita] => (),
+                _ => panic!("{reasons:#?}"),
+            }
+        }
+    }
+
+    /// Test a scenario where there are no compatible, alternative entry relays but we would need to
+    /// multihop, because the relay we did select does not support DAITA (for example).
+    #[test]
+    fn autohop_no_alternate_entry() {
+        // A slightly more contrieved example than `daita_no_direct_only_provider`: perform a
+        // pre-step pruning all DAITA relays from the relay list. As such, no other factor comes
+        // into play (provider, ownership).
+        let relay_selector = {
+            // A relay list with exactly one relay, which does not have DAITA.
+            let relay_list = r#" [ { "countries": [ { "name": "Albania", "code": "al", "cities": [ { "name": "Tirana", "code": "tia", "latitude": 41.327953, "longitude": 19.819025, "relays": [ { "overridden_ipv4": false, "overridden_ipv6": false, "include_in_country": true, "owned": false, "provider": "iRegister", "endpoint_data": { "public_key": "x62J1c4gfHu/bF3DSjwIjC0qOE3azRG03i/YW6bOEGY=", "daita": false, "quic": { "addr_in": [ "2a04:27c0:0:d::f00a", "103.124.165.196" ], "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a", "domain": "al-tia-wg-004.blockerad.eu" }, "lwo": true, "shadowsocks_extra_addr_in": [ "103.124.165.197" ] }, "inner": { "hostname": "al-tia-wg-004", "ipv4_addr_in": "103.124.165.191", "ipv6_addr_in": "2a04:27c0:0:d::f001", "active": true, "weight": 100, "location": { "country": "Albania", "country_code": "al", "city": "Tirana", "city_code": "tia", "latitude": 41.327953, "longitude": 19.819025 } } } ] } ] } ],
+    "wireguard": {
+      "port_ranges": [ ],
+      "ipv4_gateway": "10.64.0.1",
+      "ipv6_gateway": "fc00:bbbb:bbbb:bb01::1",
+      "shadowsocks_port_ranges": [ ],
+      "udp2tcp_ports": [ ]
+    }
+  },
+  {
+    "bridges": [ ],
+    "bridge_endpoint": { "shadowsocks": [ ] }
+  }
+  ]"#;
+            let (relay_list, bridge_list): (RelayList, BridgeList) =
+                serde_json::from_str(relay_list).unwrap();
+
+            RelaySelector::new(
+                SelectorConfig::default(),
+                relay_list.clone(),
+                bridge_list.clone(),
+            )
+        };
+
+        let constraints = EntryConstraints {
+            daita: mullvad_types::wireguard::DaitaSettings {
+                enabled: true,
+                // NOTE: This does nothing in the new relay selector algorithm, as smart routing /
+                // autohop is dictated by if the in-parameter to `partition_relays` is `Predicate::Autohop`.
+                // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
+                use_multihop_if_necessary: Default::default(),
+            }
+            .into(),
+            ..Default::default()
+        };
+
+        let query = relay_selector.partition_relays(Predicate::Autohop(constraints));
+        assert_eq!(query.matches.len(), 0);
+
+        // Assert that a relay was discarded because we could not select an entry because of
+        // DAITA and provider constraints not making sense.
+        //
+        // Note that some relays will be discarded simply because they lack DAITA OR are operated
+        // by the wrong provider.
+        for reasons in query.unique_reasons() {
+            match reasons.as_slice() {
+                &[Reason::Daita] => (),
                 _ => panic!("{reasons:#?}"),
             }
         }
