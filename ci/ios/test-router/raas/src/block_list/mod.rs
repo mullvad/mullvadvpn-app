@@ -62,7 +62,8 @@ impl BlockList {
         let mut buffer = vec![0; nftnl::nft_nlmsg_maxsize() as usize];
 
         let seq = 0;
-        while let Some(message) = Self::socket_recv(&socket, &mut buffer[..])? {
+        for message in socket.recv(&mut buffer[..])? {
+            let message = message?;
             match mnl::cb_run(message, seq, portid)? {
                 mnl::CbResult::Stop => {
                     break;
@@ -72,15 +73,6 @@ impl BlockList {
         }
 
         Ok(())
-    }
-
-    fn socket_recv<'a>(socket: &mnl::Socket, buf: &'a mut [u8]) -> io::Result<Option<&'a [u8]>> {
-        let ret = socket.recv(buf)?;
-        if ret > 0 {
-            Ok(Some(&buf[..ret]))
-        } else {
-            Ok(None)
-        }
     }
 
     fn nft_forward_rules<'a>(&'a self, chain: &'a Chain<'a>) -> impl Iterator<Item = Rule<'a>> {
