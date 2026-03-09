@@ -114,6 +114,11 @@ service ManagementService {
   rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
 
+  // Split tunnel IP/subnet exclusions (Windows)
+  rpc AddSplitTunnelIpNetwork(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelIpNetwork(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc ClearSplitTunnelIpNetworks(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
   // Play payment (Android)
   rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayPurchasePaymentToken) {}
   rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
@@ -546,6 +551,8 @@ message Recent {
 message SplitTunnelSettings {
   bool enable_exclusions = 1;
   repeated string apps = 2;
+  // IP networks (CIDR notation) whose traffic should bypass the VPN firewall.
+  repeated string ip_exclusions = 3;
 }
 
 message RelaySettings {

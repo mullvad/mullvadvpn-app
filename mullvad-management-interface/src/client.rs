@@ -601,6 +601,29 @@ impl MullvadProxyClient {
             .collect::<Vec<_>>())
     }
 
+    /// Add an IP network (CIDR) to the split tunnel exclusion list.
+    /// Traffic to this network will bypass the VPN firewall.
+    pub async fn add_split_tunnel_ip_network(&mut self, network: String) -> Result<()> {
+        self.0
+            .add_split_tunnel_ip_network(network)
+            .await?;
+        Ok(())
+    }
+
+    /// Remove an IP network (CIDR) from the split tunnel exclusion list.
+    pub async fn remove_split_tunnel_ip_network(&mut self, network: String) -> Result<()> {
+        self.0
+            .remove_split_tunnel_ip_network(network)
+            .await?;
+        Ok(())
+    }
+
+    /// Remove all IP networks from the split tunnel exclusion list.
+    pub async fn clear_split_tunnel_ip_networks(&mut self) -> Result<()> {
+        self.0.clear_split_tunnel_ip_networks(()).await?;
+        Ok(())
+    }
+
     // check_volumes
 
     pub async fn apply_json_settings(&mut self, blob: String) -> Result<()> {
