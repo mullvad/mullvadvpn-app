@@ -46,10 +46,9 @@ use gotatun::{
     device::Peer,
     packet::PacketBufPool,
     tun::{
-        demux::DemuxIpSend,
         merge::MergingIpRecv,
         nat::{NatIpRecv, NatIpSend},
-        router::ChannelIpRecv,
+        router::{SplitIpRecv, TunRxRouter, TunTxRouter},
     },
 };
 
@@ -69,13 +68,13 @@ type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
 type CustomInnerDevice = gotatun::device::Device<(
     UdpChannelFactory,
     NatIpSend<gotatun::tun::tun_async_device::TunDevice>,
-    NatIpRecv<ChannelIpRecv>,
+    NatIpRecv<SplitIpRecv>,
 )>;
 #[cfg(feature = "personal-vpn")]
 type CustomOuterDevice = gotatun::device::Device<(
     UdpFactory,
-    DemuxIpSend<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
-    MergingIpRecv<ChannelIpRecv, TunChannelRx>,
+    TunTxRouter<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
+    MergingIpRecv<SplitIpRecv, TunChannelRx>,
 )>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
@@ -146,7 +145,7 @@ enum Devices {
     SinglehopWithCustom {
         inner_device: CustomInnerDevice,
         outer_device: CustomOuterDevice,
-        _router_task: gotatun::task::Task,
+        router_task: tokio::task::JoinHandle<()>,
     },
 
     Multihop {
@@ -165,10 +164,11 @@ impl Devices {
             Devices::SinglehopWithCustom {
                 inner_device,
                 outer_device,
-                _router_task,
+                router_task,
             } => {
                 inner_device.stop().await;
                 outer_device.stop().await;
+                router_task.abort();
             }
             Devices::Multihop {
                 entry_device,
@@ -326,7 +326,7 @@ async fn create_devices(
     let udp_factory = UdpSocketFactory;
 
     #[cfg(feature = "personal-vpn")]
-    if let Some(custom_vpn) = custom_vpn
+    if let Some(custom_vpn) = &config.custom_vpn
         && config.exit_peer.is_none()
     {
         let multihop_overhead = match custom_vpn.peer.endpoint.ip() {
@@ -359,8 +359,11 @@ async fn create_devices(
             new_udp_tun_channel(4000, outer_tun_ip, Ipv6Addr::UNSPECIFIED, mtu);
 
         // TUN router (split real TUN reads by dest IP)
-        let (_router_task, alt_output, default_output) =
-            gotatun::tun::router::tun_router(tun_dev.clone(), custom_vpn.peer.allowed_ip, 4000);
+        let mut router = TunRxRouter::new(tun_dev.clone());
+        let default_output = router.add_default_route(4000);
+        let alt_output = router.add_route(custom_vpn.peer.allowed_ip, 4000);
+        // TODO: Do we need to drop explicitly?
+        let router_task = tokio::spawn(router.run(PacketBufPool::new(100)));
 
         // Outer device IpRecv: merge direct + inner encrypted
         let outer_ip_recv =
@@ -368,7 +371,7 @@ async fn create_devices(
 
         // Outer device IpSend: demux decrypted packets
         let outer_ip_send =
-            DemuxIpSend::new(bridge_tun_tx, tun_dev.clone(), custom_vpn.peer.endpoint);
+            TunTxRouter::new(bridge_tun_tx, tun_dev.clone(), custom_vpn.peer.endpoint);
 
         // NAT: rewrite src/dst IPs between inner and outer tunnel addresses
         let tun_send =
@@ -425,7 +428,7 @@ async fn create_devices(
         return Ok(Devices::SinglehopWithCustom {
             outer_device,
             inner_device,
-            _router_task,
+            router_task,
         });
     }
 
@@ -515,9 +518,7 @@ async fn configure_devices(
     let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
 
     #[cfg(feature = "personal-vpn")]
-    if let Some(custom_vpn) = custom_vpn
-        && config.exit_peer.is_none()
-    {
+    if config.custom_vpn.is_some() && config.exit_peer.is_none() {
         // TODO:
         log::error!("Not reconfiguring tunnel when personal VPN is enabled.");
         return Ok(());
@@ -642,7 +643,7 @@ impl Tunnel for GotaTun {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
             #[cfg(feature = "personal-vpn")]
             Some(Devices::SinglehopWithCustom {
-                inner_device,
+                inner_device: _,
                 outer_device,
                 ..
             }) => {
