@@ -30,7 +30,7 @@ static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
                 .expect("ring crypt-prover should support TLS 1.3")
                 .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
                 .with_no_client_auth();
-        // This assumes that the server hello will include certificate for the domain.
+        // This assumes that the server hello/certificates will include certificate for the domain.
         config.enable_sni = false;
         config
     };
