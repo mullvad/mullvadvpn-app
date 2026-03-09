@@ -9,6 +9,7 @@ use crate::{
     },
     wireguard,
 };
+use ipnetwork::IpNetwork;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
@@ -20,7 +21,7 @@ mod dns;
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration
 /// being added to `mullvad-daemon`.
-pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V15;
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V16;
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
@@ -39,6 +40,7 @@ pub enum SettingsVersion {
     V13 = 13,
     V14 = 14,
     V15 = 15,
+    V16 = 16,
 }
 
 impl<'de> Deserialize<'de> for SettingsVersion {
@@ -61,6 +63,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
             v if v == SettingsVersion::V13 as u32 => Ok(SettingsVersion::V13),
             v if v == SettingsVersion::V14 as u32 => Ok(SettingsVersion::V14),
             v if v == SettingsVersion::V15 as u32 => Ok(SettingsVersion::V15),
+            v if v == SettingsVersion::V16 as u32 => Ok(SettingsVersion::V16),
             v => Err(serde::de::Error::custom(format!(
                 "{v} is not a valid SettingsVersion"
             ))),
@@ -188,6 +191,11 @@ pub struct SplitTunnelSettings {
     pub enable_exclusions: bool,
     /// Set of applications to exclude from the tunnel.
     pub apps: HashSet<SplitApp>,
+    /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+    /// Unlike app exclusions which use the kernel driver, these create WFP
+    /// firewall permit rules so any app can reach these subnets.
+    #[serde(default)]
+    pub ip_exclusions: Vec<IpNetwork>,
 }
 
 /// An application whose traffic should be excluded from any active tunnel.
