@@ -176,21 +176,22 @@ where
     use futures::TryStreamExt;
 
     let endpoint = create_endpoint(rpc_socket_path)?;
-    let endpoint_path = endpoint.path().to_owned();
 
     let incoming = endpoint
+        .clone()
         .incoming()
         .map_err(Error::StartServerError)?
         .map_ok(StreamBox);
 
     // TODO: Can we skip this in favor of `TipsyEndpoint.security_attributes`?
     #[cfg(unix)]
-    if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
+    if let Some(group_name) = MULLVAD_MANAGEMENT_SOCKET_GROUP.as_ref() {
+        let endpoint_path = endpoint.path();
         let group = nix::unistd::Group::from_name(group_name)
             .map_err(Error::ObtainGidError)?
             .ok_or(Error::NoGidError)?;
-        nix::unistd::chown(&endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
-        fs::set_permissions(&endpoint_path, PermissionsExt::from_mode(0o760))
+        nix::unistd::chown(endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(endpoint_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
 
