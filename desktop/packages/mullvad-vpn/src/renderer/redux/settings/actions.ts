@@ -92,6 +92,11 @@ export interface ISetSplitTunnelingSupportedAction {
   supported: boolean;
 }
 
+export interface ISetSplitTunnelingIpExclusionsAction {
+  type: 'SET_SPLIT_TUNNELING_IP_EXCLUSIONS';
+  ipExclusions: string[];
+}
+
 export interface ISetObfuscationSettings {
   type: 'SET_OBFUSCATION_SETTINGS';
   obfuscationSettings: ObfuscationSettings;
@@ -134,6 +139,7 @@ export type SettingsAction =
   | IUpdateSplitTunnelingStateAction
   | ISetSplitTunnelingApplicationsAction
   | ISetSplitTunnelingSupportedAction
+  | ISetSplitTunnelingIpExclusionsAction
   | ISetObfuscationSettings
   | ISetCustomLists
   | ISetApiAccessMethods
@@ -260,6 +266,13 @@ function setSplitTunnelingSupported(supported: boolean): ISetSplitTunnelingSuppo
   };
 }
 
+function setSplitTunnelingIpExclusions(ipExclusions: string[]): ISetSplitTunnelingIpExclusionsAction {
+  return {
+    type: 'SET_SPLIT_TUNNELING_IP_EXCLUSIONS',
+    ipExclusions,
+  };
+}
+
 function updateObfuscationSettings(
   obfuscationSettings: ObfuscationSettings,
 ): ISetObfuscationSettings {
@@ -314,6 +327,7 @@ export default {
   updateSplitTunnelingState,
   setSplitTunnelingApplications,
   setSplitTunnelingSupported,
+  setSplitTunnelingIpExclusions,
   updateObfuscationSettings,
   updateCustomLists,
   updateApiAccessMethods,

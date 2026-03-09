@@ -476,6 +476,18 @@ export class DaemonRpc extends GrpcClient {
     await this.callBool(this.client.setSplitTunnelState, enabled);
   }
 
+  public async addSplitTunnelIpNetwork(network: string): Promise<void> {
+    await this.callString(this.client.addSplitTunnelIpNetwork, network);
+  }
+
+  public async removeSplitTunnelIpNetwork(network: string): Promise<void> {
+    await this.callString(this.client.removeSplitTunnelIpNetwork, network);
+  }
+
+  public async clearSplitTunnelIpNetworks(): Promise<void> {
+    await this.callEmpty(this.client.clearSplitTunnelIpNetworks);
+  }
+
   public async splitTunnelIsSupported(): Promise<boolean> {
     try {
       const isSupported = await this.callEmpty<BoolValue>(this.client.splitTunnelIsSupported);

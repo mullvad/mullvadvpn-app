@@ -28,6 +28,7 @@ export function getDefaultSettings(): ISettings {
     splitTunnel: {
       enableExclusions: true,
       appsList: [],
+      ipExclusionsList: [],
     },
     relaySettings: {
       normal: getDefaultRelaySettingsNormal(),

@@ -5,6 +5,7 @@ export * from './debug-list-item';
 export * from './multihop-list-item';
 export * from './quit-button';
 export * from './split-tunneling-list-item';
+export * from './split-tunneling-ip-list-item';
 export * from './support-list-item';
 export * from './user-interface-settings-list-item';
 export * from './vpn-settings-list-item';

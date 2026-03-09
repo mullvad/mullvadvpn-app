@@ -88,6 +88,7 @@ export interface ISettingsReduxState {
   dns: IDnsOptions;
   splitTunneling: boolean;
   splitTunnelingApplications: ISplitTunnelingApplication[];
+  splitTunnelingIpExclusions: string[];
   splitTunnelingSupported: boolean;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
@@ -143,6 +144,7 @@ const initialState: ISettingsReduxState = {
   },
   splitTunneling: false,
   splitTunnelingApplications: [],
+  splitTunnelingIpExclusions: [],
   splitTunnelingSupported: false,
   obfuscationSettings: {
     selectedObfuscation: ObfuscationType.auto,
@@ -269,6 +271,12 @@ export default function (
       return {
         ...state,
         splitTunnelingSupported: action.supported,
+      };
+
+    case 'SET_SPLIT_TUNNELING_IP_EXCLUSIONS':
+      return {
+        ...state,
+        splitTunnelingIpExclusions: action.ipExclusions,
       };
 
     case 'SET_OBFUSCATION_SETTINGS':

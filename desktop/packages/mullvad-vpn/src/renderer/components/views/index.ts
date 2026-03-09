@@ -22,6 +22,7 @@ export * from './settings-text-import';
 export * from './select-language';
 export * from './shadowsocks-settings';
 export * from './split-tunneling';
+export * from './split-tunneling-ip';
 export * from './support';
 export * from './too-many-devices';
 export * from './udp-over-tcp-settings';

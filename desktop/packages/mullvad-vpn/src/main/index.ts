@@ -918,6 +918,15 @@ class ApplicationMain
     IpcMainEventChannel.splitTunneling.handleGetSupported(() => {
       return this.daemonRpc.splitTunnelIsSupported();
     });
+    IpcMainEventChannel.splitTunneling.handleAddIpNetwork((network) => {
+      return this.daemonRpc.addSplitTunnelIpNetwork(network);
+    });
+    IpcMainEventChannel.splitTunneling.handleRemoveIpNetwork((network) => {
+      return this.daemonRpc.removeSplitTunnelIpNetwork(network);
+    });
+    IpcMainEventChannel.splitTunneling.handleClearIpNetworks(() => {
+      return this.daemonRpc.clearSplitTunnelIpNetworks();
+    });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
       const fullDiskState = await this.daemonRpc.needFullDiskPermissions();
       this.needFullDiskAccess = fullDiskState;

@@ -435,7 +435,7 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const settingsObject = settings.toObject();
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
-  const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
+  const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [], ipExclusionsList: [] };
   const obfuscationSettings = convertFromObfuscationSettings(settingsObject.obfuscationSettings);
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);

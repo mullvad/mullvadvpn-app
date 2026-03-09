@@ -19,6 +19,7 @@ export enum RoutePath {
   udpOverTcp = '/settings/advanced/wireguard/udp-over-tcp',
   shadowsocks = '/settings/advanced/shadowsocks',
   splitTunneling = '/settings/split-tunneling',
+  splitTunnelingIp = '/settings/split-tunneling-ip',
   apiAccessMethods = '/settings/api-access-methods',
   settingsImport = '/settings/settings-import',
   settingsTextImport = '/settings/settings-import/text-import',

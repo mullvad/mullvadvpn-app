@@ -436,6 +436,12 @@ export default class AppRenderer {
     IpcRendererEventChannel.splitTunneling.addApplication(application);
   public forgetManuallyAddedSplitTunnelingApplication = (application: ISplitTunnelingApplication) =>
     IpcRendererEventChannel.splitTunneling.forgetManuallyAddedApplication(application);
+  public addSplitTunnelIpNetwork = (network: string) =>
+    IpcRendererEventChannel.splitTunneling.addIpNetwork(network);
+  public removeSplitTunnelIpNetwork = (network: string) =>
+    IpcRendererEventChannel.splitTunneling.removeIpNetwork(network);
+  public clearSplitTunnelIpNetworks = () =>
+    IpcRendererEventChannel.splitTunneling.clearIpNetworks();
   public needFullDiskPermissions = () =>
     IpcRendererEventChannel.macOsSplitTunneling.needFullDiskPermissions();
   public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
@@ -848,6 +854,7 @@ export default class AppRenderer {
     reduxSettings.updateWireguardDaita(newSettings.tunnelOptions.daita);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
     reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
+    reduxSettings.setSplitTunnelingIpExclusions(newSettings.splitTunnel.ipExclusionsList);
     reduxSettings.updateObfuscationSettings(newSettings.obfuscationSettings);
     reduxSettings.updateCustomLists(newSettings.customLists);
     reduxSettings.updateApiAccessMethods(newSettings.apiAccessMethods);
