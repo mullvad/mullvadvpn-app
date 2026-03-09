@@ -157,7 +157,8 @@ class ConnectViewModel(
         viewModelScope.launch {
             connectionProxy.connect().onLeft { connectError ->
                 when (connectError) {
-                    is ConnectError.Unknown -> _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+                    is ConnectError.Unknown ->
+                        _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
                     is ConnectError.NotPrepared ->
                         _uiSideEffect.send(UiSideEffect.NotPrepared(connectError.error))
                 }

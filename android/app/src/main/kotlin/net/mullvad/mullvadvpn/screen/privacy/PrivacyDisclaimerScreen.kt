@@ -43,6 +43,9 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.app.MainActivity
 import net.mullvad.mullvadvpn.app.MainGraph
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.core.nav3.SplashNavKey
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -67,7 +70,7 @@ private fun PreviewPrivacyDisclaimerScreen() {
 
 @Destination<MainGraph>
 @Composable
-fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
+fun PrivacyDisclaimer(navigator: Navigator) {
     val viewModel: PrivacyDisclaimerViewModel = koinViewModel()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -75,10 +78,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
-                navigator.navigate(LoginDestination(null)) {
-                    launchSingleTop = true
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey)
             PrivacyDisclaimerUiSideEffect.StartService ->
                 launch {
                     try {
@@ -92,10 +92,7 @@ fun PrivacyDisclaimer(navigator: DestinationsNavigator) {
                     }
                 }
             PrivacyDisclaimerUiSideEffect.NavigateToSplash ->
-                navigator.navigate(SplashDestination) {
-                    launchSingleTop = true
-                    popUpTo(NavGraphs.main) { inclusive = true }
-                }
+                navigator.navigate(SplashNavKey)
         }
     }
     PrivacyDisclaimerScreen(

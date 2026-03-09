@@ -25,6 +25,8 @@ androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
 androidx-ktx = "1.18.0"
 androidx-lifecycle = "2.10.0"
+androidx-nav3 = "1.1.0-beta01"
+androidx-material3-adaptive = "1.2.0"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
 androidx-testorchestrator = "1.6.1"
@@ -98,6 +100,10 @@ androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-kt
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
+androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "androidx-material3-adaptive" }
+androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidx-nav3" }
+androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidx-nav3" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test" }
 androidx-test-monitor = { module = "androidx.test:monitor", version.ref = "androidx-testmonitor" }
@@ -196,6 +202,7 @@ protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plu
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
 # Convention plugins
 mullvad-android-library = { id = "mullvad.android-library" }
+mullvad-android-library-feature-api = { id = "mullvad.android-library-feature-api" }
 mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-impl" }
 mullvad-android-library-compose = { id = "mullvad.android-library-compose" }
 mullvad-android-library-unit-test = { id = "mullvad.android-library-unit-test" }

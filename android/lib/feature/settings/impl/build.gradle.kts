@@ -23,6 +23,7 @@ dependencies {
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.feature.vpnsettings.impl)
+    implementation(projects.lib.feature.settings.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

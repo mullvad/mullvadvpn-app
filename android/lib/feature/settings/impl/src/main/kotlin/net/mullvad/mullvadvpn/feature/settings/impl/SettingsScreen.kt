@@ -30,7 +30,6 @@ import com.ramcosta.composedestinations.generated.multihop.destinations.Multihop
 import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
@@ -83,7 +82,9 @@ fun Settings(navigator: DestinationsNavigator) {
     val state by vm.uiState.collectAsStateWithLifecycle()
     SettingsScreen(
         state = state,
-        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+        onVpnSettingCellClick = dropUnlessResumed {
+//            navigator.navigate(VpnSettingsDestination())
+                                                  },
         onSplitTunnelingCellClick =
             dropUnlessResumed { navigator.navigate(SplitTunnelingDestination()) },
         onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoDestination) },

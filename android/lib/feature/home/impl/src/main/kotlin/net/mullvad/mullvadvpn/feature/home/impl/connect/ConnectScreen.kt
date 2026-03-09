@@ -64,25 +64,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination.invoke
-import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
-import com.ramcosta.composedestinations.generated.home.destinations.Android16UpgradeWarningInfoDestination
-import com.ramcosta.composedestinations.generated.home.destinations.DeviceRevokedDestination
-import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDestination
-import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
@@ -95,8 +83,7 @@ import net.mullvad.mullvadvpn.common.compose.fallbackLatLong
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogNavArgs
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
@@ -104,6 +91,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.Connectio
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
@@ -178,10 +166,9 @@ private fun PreviewAccountScreen(
 @Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
-    navController: NavController,
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    selectLocationResultRecipient: ResultRecipient<SelectLocationDestination, Boolean>,
+    onNavigateToSelectLocation: () -> Unit,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
@@ -207,17 +194,17 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
 
-            is ConnectViewModel.UiSideEffect.OutOfTime ->
-                navController.navigate(OutOfTimeDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            is ConnectViewModel.UiSideEffect.OutOfTime -> {}
+            //                    navController.navigate(OutOfTimeDestination.route) {
+            //                        launchSingleTop = true
+            //                        popUpTo("main") { inclusive = true }
+            //                    }
 
-            ConnectViewModel.UiSideEffect.RevokedDevice ->
-                navController.navigate(DeviceRevokedDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            ConnectViewModel.UiSideEffect.RevokedDevice -> {}
+            //                    navController.navigate(DeviceRevokedDestination.route) {
+            //                        launchSingleTop = true
+            //                        popUpTo("main") { inclusive = true }
+            //                    }
 
             is ConnectViewModel.UiSideEffect.NotPrepared ->
                 when (sideEffect.prepareError) {
@@ -282,11 +269,11 @@ fun Connect(
         }
     }
 
-    selectLocationResultRecipient.OnNavResultValue { result ->
-        if (result) {
-            connectViewModel.onConnectClick()
-        }
-    }
+    //    selectLocationResultRecipient.OnNavResultValue { result ->
+    //        if (result) {
+    //            connectViewModel.onConnectClick()
+    //        }
+    //    }
 
     CompositionLocalProvider(LocalNavAnimatedVisibilityScope provides animatedVisibilityScope) {
         ConnectScreen(
@@ -296,28 +283,41 @@ fun Connect(
             onReconnectClick = connectViewModel::onReconnectClick,
             onConnectClick = connectViewModel::onConnectClick,
             onCancelClick = connectViewModel::onCancelClick,
-            onSwitchLocationClick =
-                dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
+            onSwitchLocationClick = dropUnlessResumed { onNavigateToSelectLocation() },
             onOpenAppListing = connectViewModel::openAppListing,
             onManageAccountClick = connectViewModel::onManageAccountClick,
             onChangelogClick =
                 dropUnlessResumed {
-                    navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
+                    //
+                    // navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
                 },
             onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-            onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+            onSettingsClick =
+                dropUnlessResumed {
+                    //                navigator.navigate(SettingsDestination)
+                },
+            onAccountClick =
+                dropUnlessResumed {
+                    //                navigator.navigate(AccountDestination)
+                },
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
             onNavigateToFeature =
                 dropUnlessResumed { feature: FeatureIndicator ->
-                    navigator.navigate(feature.destination())
+                    navigator.navigate(VpnSettingsNavKey(scrollToFeature = feature, isModal = true))
+                    //
+                    // navigator.navigate(feature.destination())
                 },
             onClickShowWireguardPortSettings =
-                dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+                dropUnlessResumed {
+                    //                    navigator.navigate(VpnSettingsDestination())
+                },
             onClickDismissAndroid16UpgradeWarning =
                 connectViewModel::dismissAndroid16UpgradeWarning,
             onClickShowAndroid16UpgradeInfo =
-                dropUnlessResumed { navigator.navigate(Android16UpgradeWarningInfoDestination()) },
+                dropUnlessResumed {
+                    //
+                    // navigator.navigate(Android16UpgradeWarningInfoDestination())
+                },
         )
     }
 }
@@ -825,5 +825,6 @@ private fun FeatureIndicator.destination() =
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS,
         FeatureIndicator.CUSTOM_MTU ->
-            VpnSettingsDestination(scrollToFeature = this, isModal = true)
+            AntiCensorshipSettingsDestination(selectedFeature = this, isModal = true)
+    //            VpnSettingsDestination(scrollToFeature = this, isModal = true)
     }

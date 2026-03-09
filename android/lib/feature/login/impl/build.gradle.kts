@@ -19,6 +19,8 @@ dependencies {
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.settings.impl)
+    implementation(projects.lib.feature.login.api)
+    implementation(projects.lib.feature.home.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

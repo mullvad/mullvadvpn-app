@@ -314,7 +314,9 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
+    viewModel { params ->
+        VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get(), get())
+    }
     viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
@@ -386,8 +388,9 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel {
+    viewModel { params ->
         ApiUnreachableViewModel(
+            navArgs = params.get(),
             apiAccessRepository = get(),
             supportEmailUseCase = get(),
             savedStateHandle = get(),

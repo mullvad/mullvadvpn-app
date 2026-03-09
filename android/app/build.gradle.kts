@@ -404,8 +404,10 @@ dependencies {
     implementation(projects.lib.feature.deleteaccount.impl)
     implementation(projects.lib.feature.filter.impl)
     implementation(projects.lib.feature.home.impl)
+    implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.location.impl)
     implementation(projects.lib.feature.login.impl)
+    implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.notification.impl)
@@ -415,6 +417,7 @@ dependencies {
     implementation(projects.lib.feature.settings.impl)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.feature.vpnsettings.impl)
+    implementation(projects.lib.feature.vpnsettings.api)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
     implementation(projects.lib.pushNotification)
@@ -432,6 +435,7 @@ dependencies {
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.navigation3.ui)
 
     // Baseline profile
     baselineProfile(projects.test.baselineprofile)

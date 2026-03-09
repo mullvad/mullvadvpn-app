@@ -11,30 +11,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
+import kotlinx.serialization.Serializable
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.NavigationResult
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Preview
 @Composable
 private fun PreviewCreateAccountConfirmationDialog() {
-    AppTheme { CreateAccountConfirmation(EmptyResultBackNavigator()) }
+    //        AppTheme { CreateAccountConfirmation(EmptyResultBackNavigator()) }
 }
+
+@Serializable
+data class CreateAccountConfirmationDialogResult(val confirmed: Boolean) : NavigationResult
 
 @Composable
 @Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
-fun CreateAccountConfirmation(navigator: ResultBackNavigator<Confirmed>) {
+fun CreateAccountConfirmation(navigator: Navigator) {
+    val resultStore = LocalResultStore.current
     InfoConfirmationDialog(
         onResult = {
             if (it != null) {
-                navigator.navigateBack(it)
+                navigator.goBack(resultStore, result = CreateAccountConfirmationDialogResult(true))
             } else {
-                navigator.navigateBack()
+                navigator.goBack(resultStore, result = CreateAccountConfirmationDialogResult(false))
             }
         },
         titleType = InfoConfirmationDialogTitleType.IconOnly,

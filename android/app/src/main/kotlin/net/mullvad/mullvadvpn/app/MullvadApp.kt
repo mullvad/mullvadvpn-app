@@ -12,19 +12,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.ui.NavDisplay
 import co.touchlab.kermit.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
-import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
-import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
@@ -65,7 +67,6 @@ import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDes
 import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
-import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
 import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
 import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
 import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
@@ -94,14 +95,26 @@ import com.ramcosta.composedestinations.generated.vpnsettings.destinations.Local
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MalwareInfoDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MtuDestination
 import com.ramcosta.composedestinations.generated.vpnsettings.destinations.QuantumResistanceInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.dependency
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.core.nav3.ResultStore
+import net.mullvad.mullvadvpn.core.nav3.SplashNavKey
+import net.mullvad.mullvadvpn.core.nav3.rememberNavigationState
+import net.mullvad.mullvadvpn.core.nav3.rememberResultStore
+import net.mullvad.mullvadvpn.core.nav3.toEntries
+import net.mullvad.mullvadvpn.feature.home.impl.navigation.connectEntry
+import net.mullvad.mullvadvpn.feature.login.impl.navigation.apiUnreachableEntry
+import net.mullvad.mullvadvpn.feature.login.impl.navigation.createAccountConfirmationEntry
+import net.mullvad.mullvadvpn.feature.login.impl.navigation.loginEntry
+import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
+import net.mullvad.mullvadvpn.screen.privacy.navigation.privacyDisclaimerEntry
+import net.mullvad.mullvadvpn.screen.splash.navigation.splashEntry
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.util.BackstackObserver
@@ -115,7 +128,6 @@ annotation class MainGraph {
     @ExternalDestination<ApiAccessListDestination>
     @ExternalDestination<ApiAccessMethodDetailsDestination>
     @ExternalDestination<ApiAccessMethodInfoDestination>
-    @ExternalDestination<ApiUnreachableInfoDestination>
     @ExternalDestination<AppearanceDestination>
     @ExternalDestination<AppInfoDestination>
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
@@ -176,7 +188,6 @@ annotation class MainGraph {
     @ExternalDestination<SplitTunnelingDestination>
     @ExternalDestination<VerificationPendingDestination>
     @ExternalDestination<ViewLogsDestination>
-    @ExternalDestination<VpnSettingsDestination>
     @ExternalDestination<WelcomeDestination>
     companion object Includes
 }
@@ -195,6 +206,10 @@ fun MullvadApp(
     val navHostController: NavHostController = engine.rememberNavController()
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
+    val navigationState = rememberNavigationState(SplashNavKey)
+    val navigator3 = remember { Navigator(navigationState) }
+    val resultStore = rememberResultStore()
+
     val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
     DisposableEffect(Unit) {
@@ -206,18 +221,29 @@ fun MullvadApp(
         CheckNotificationPermission(serviceConnectionManager)
     }
 
+    val entryProvider = entryProvider {
+        splashEntry(navigator3)
+        loginEntry(navigator3)
+        connectEntry(navigator3)
+        createAccountConfirmationEntry(navigator3)
+        apiUnreachableEntry(navigator3)
+        vpnSettingsEntry(navigator3)
+        privacyDisclaimerEntry(navigator3)
+    }
+
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
-            DestinationsNavHost(
-                modifier =
-                    Modifier.semantics { testTagsAsResourceId = true }
-                        .fillMaxSize()
-                        .accessibilityDataSensitive(),
-                engine = engine,
-                navController = navHostController,
-                navGraph = NavGraphs.main,
-                dependenciesContainerBuilder = { dependency(this@SharedTransitionLayout) },
-            )
+            CompositionLocalProvider(LocalResultStore provides resultStore) {
+                NavDisplay(
+                    modifier =
+                        Modifier.semantics { testTagsAsResourceId = true }
+                            .fillMaxSize()
+                            .accessibilityDataSensitive(),
+                    entries = navigationState.toEntries(entryProvider),
+                    onBack = { navigator3.goBack() },
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                )
+            }
         }
     }
 

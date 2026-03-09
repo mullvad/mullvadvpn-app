@@ -73,6 +73,8 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -114,6 +116,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Default|NonDefault")
 @Composable
@@ -164,38 +167,40 @@ data class VpnSettingsNavArgs(
     val isModal: Boolean = false,
 ) : Parcelable
 
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = VpnSettingsNavArgs::class,
-)
+//@Destination<ExternalModuleGraph>(
+//    style = SlideInFromRightTransition::class,
+//    navArgs = VpnSettingsNavArgs::class,
+//)
 @Composable
 @Suppress("LongMethod")
 fun SharedTransitionScope.VpnSettings(
-    navigator: DestinationsNavigator,
+    navArgs: VpnSettingsNavKey,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    navArgs: VpnSettingsNavArgs,
-    dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
-    mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
+//    dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
+//    mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
 ) {
-    val vm = koinViewModel<VpnSettingsViewModel>()
+    val vm = koinViewModel<VpnSettingsViewModel>() {
+        parametersOf(navArgs)
+    }
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    dnsDialogResult.OnNavResultValue { result ->
-        when (result) {
-            is DnsDialogResult.Success -> {
-                vm.showApplySettingChangesWarningToast()
-            }
-            DnsDialogResult.Error -> {
-                vm.showGenericErrorToast()
-            }
-        }
-    }
-
-    mtuDialogResult.OnNavResultValue { result ->
-        if (!result) {
-            vm.showGenericErrorToast()
-        }
-    }
+//    dnsDialogResult.OnNavResultValue { result ->
+//        when (result) {
+//            is DnsDialogResult.Success -> {
+//                vm.showApplySettingChangesWarningToast()
+//            }
+//            DnsDialogResult.Error -> {
+//                vm.showGenericErrorToast()
+//            }
+//        }
+//    }
+//
+//    mtuDialogResult.OnNavResultValue { result ->
+//        if (!result) {
+//            vm.showGenericErrorToast()
+//        }
+//    }
 
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
@@ -205,8 +210,8 @@ fun SharedTransitionScope.VpnSettings(
                 launch {
                     snackbarHostState.showSnackbarImmediately(message = it.message(resources))
                 }
-            VpnSettingsSideEffect.NavigateToDnsDialog ->
-                navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
+            VpnSettingsSideEffect.NavigateToDnsDialog -> {}
+//                navigator.navigate(DnsDestination(null, null)) { launchSingleTop = true }
         }
     }
 
@@ -224,18 +229,25 @@ fun SharedTransitionScope.VpnSettings(
             } else Modifier,
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
-            dropUnlessResumed { navigator.navigate(ContentBlockersInfoDestination) },
+            dropUnlessResumed { //navigator.navigate(ContentBlockersInfoDestination)
+                 },
         navigateToAutoConnectScreen =
-            dropUnlessResumed { navigator.navigate(AutoConnectAndLockdownModeDestination) },
+            dropUnlessResumed { //navigator.navigate(AutoConnectAndLockdownModeDestination)
+                              },
         navigateToCustomDnsInfo =
-            dropUnlessResumed { navigator.navigate(CustomDnsInfoDestination) },
-        navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoDestination) },
+            dropUnlessResumed { //navigator.navigate(CustomDnsInfoDestination)
+                              },
+        navigateToMalwareInfo = dropUnlessResumed {// navigator.navigate(MalwareInfoDestination)
+                                                  },
         navigateToQuantumResistanceInfo =
-            dropUnlessResumed { navigator.navigate(QuantumResistanceInfoDestination) },
+            dropUnlessResumed { //navigator.navigate(QuantumResistanceInfoDestination)
+                              },
         navigateToLocalNetworkSharingInfo =
-            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
+            dropUnlessResumed {// navigator.navigate(LocalNetworkSharingInfoDestination)
+                              },
         navigateToServerIpOverrides =
-            dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination()) },
+            dropUnlessResumed { //navigator.navigate(ServerIpOverridesDestination())
+                              },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleAllBlockers = vm::onToggleAllBlockers,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -246,23 +258,29 @@ fun SharedTransitionScope.VpnSettings(
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         navigateToMtuDialog =
-            dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuDestination(mtu)) },
+            dropUnlessResumed { mtu: Mtu? ->
+//                navigator.navigate(MtuDestination(mtu))
+                              },
         navigateToDns =
             dropUnlessResumed { index: Int?, address: String? ->
-                navigator.navigate(DnsDestination(index, address))
+//                navigator.navigate(DnsDestination(index, address))
             },
         onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
         onToggleIpv6 = vm::setIpv6Enabled,
-        navigateToIpv6Info = dropUnlessResumed { navigator.navigate(Ipv6InfoDestination) },
-        navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoDestination) },
+        navigateToIpv6Info = dropUnlessResumed { //navigator.navigate(Ipv6InfoDestination)
+                                               },
+        navigateToDeviceIpInfo = dropUnlessResumed { //navigator.navigate(DeviceIpInfoDestination)
+                                                   },
         navigateToConnectOnDeviceOnStartUpInfo =
-            dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoDestination) },
+            dropUnlessResumed {// navigator.navigate(ConnectOnStartupInfoDestination)
+                              },
         navigateToAntiCensorship =
-            dropUnlessResumed { navigator.navigate(AntiCensorshipSettingsDestination()) },
+            dropUnlessResumed { //navigator.navigate(AntiCensorshipSettingsDestination())
+                              },
     )
 }
 

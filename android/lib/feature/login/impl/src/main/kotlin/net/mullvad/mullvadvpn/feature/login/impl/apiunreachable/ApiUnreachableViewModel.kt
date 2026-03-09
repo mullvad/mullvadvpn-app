@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.login.impl.apiunreachable
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -14,17 +13,18 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogNavArgs
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 import net.mullvad.mullvadvpn.lib.ui.component.NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.usecase.SupportEmailUseCase
 
 class ApiUnreachableViewModel(
+    private val navArgs: ApiUnreachableInfoDialogNavArgs,
     private val apiAccessRepository: ApiAccessRepository,
     private val supportEmailUseCase: SupportEmailUseCase,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val navArgs = ApiUnreachableInfoDestination.argsFrom(savedStateHandle)
 
     private val noEmailAppAvailable = MutableStateFlow(false)
     private val hasEnabledAllApiAccessMethods = MutableStateFlow(false)

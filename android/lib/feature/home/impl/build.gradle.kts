@@ -32,6 +32,9 @@ dependencies {
     implementation(projects.lib.feature.settings.impl)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.feature.vpnsettings.impl)
+    implementation(projects.lib.feature.home.api)
+    implementation(projects.lib.feature.vpnsettings.api)
+    implementation(libs.androidx.navigation3.ui)
 
     implementation(libs.androidx.animation)
     implementation(libs.koin.compose)

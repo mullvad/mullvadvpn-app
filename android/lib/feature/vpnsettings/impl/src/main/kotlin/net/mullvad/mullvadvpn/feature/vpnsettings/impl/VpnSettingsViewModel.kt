@@ -7,7 +7,6 @@ import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import co.touchlab.kermit.Logger
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,6 +23,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -57,6 +57,7 @@ sealed interface VpnSettingsSideEffect {
 
 @Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
+    private val navArgs: VpnSettingsNavKey,
     private val settingsRepository: SettingsRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
@@ -64,7 +65,6 @@ class VpnSettingsViewModel(
     savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
     private val _mutableIsContentBlockersExpanded = MutableStateFlow<Option<Boolean>>(None)
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()

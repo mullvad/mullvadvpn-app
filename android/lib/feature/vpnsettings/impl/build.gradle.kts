@@ -20,6 +20,8 @@ dependencies {
     implementation(projects.lib.feature.autoconnect.impl)
     implementation(projects.lib.feature.anticensorship.impl)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.vpnsettings.api)
+    implementation(libs.androidx.navigation3.ui)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.login.impl.apiunreachable
 
 import android.content.ActivityNotFoundException
-import android.os.Parcelable
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,12 +15,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import co.touchlab.kermit.Logger
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogNavArgs
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogResult
+import net.mullvad.mullvadvpn.feature.login.api.LoginAction
 import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.createShareLogFile
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
@@ -30,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -49,31 +49,13 @@ private fun PreviewApiUnreachableInfoDialog() {
     }
 }
 
-@Parcelize
-enum class LoginAction : Parcelable {
-    LOGIN,
-    CREATE_ACCOUNT,
-}
-
-@Parcelize data class ApiUnreachableInfoDialogNavArgs(val action: LoginAction) : Parcelable
-
-sealed interface ApiUnreachableInfoDialogResult : Parcelable {
-    @Parcelize
-    data class Success(val arg: ApiUnreachableInfoDialogNavArgs) : ApiUnreachableInfoDialogResult
-
-    @Parcelize data object Error : ApiUnreachableInfoDialogResult
-}
-
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = ApiUnreachableInfoDialogNavArgs::class,
-)
 @Composable
-fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogResult>) {
-    val viewModel = koinViewModel<ApiUnreachableViewModel>()
+fun ApiUnreachableInfo(navigator: Navigator, navArgs: ApiUnreachableInfoDialogNavArgs) {
+    val viewModel = koinViewModel<ApiUnreachableViewModel> { parametersOf(navArgs) }
 
     val launcher = rememberLauncherForActivityResult(SendEmail()) {}
     val context = LocalContext.current
+    val resultStore = LocalResultStore.current
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is ApiUnreachableSideEffect.SendEmail -> {
@@ -91,7 +73,7 @@ fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogRe
                 }
             }
             is ApiUnreachableSideEffect.EnableAllApiAccessMethods ->
-                navigator.navigateBack(result = sideEffect.toResult())
+                navigator.goBack(resultStore, result = sideEffect.toResult())
         }
     }
 
@@ -101,7 +83,7 @@ fun ApiUnreachableInfo(navigator: ResultBackNavigator<ApiUnreachableInfoDialogRe
         state = state,
         onEnableAllApiMethods = viewModel::enableAllApiAccess,
         onSendEmail = viewModel::sendProblemReportEmail,
-        onDismiss = navigator::navigateBack,
+        onDismiss = navigator::goBack,
     )
 }
 

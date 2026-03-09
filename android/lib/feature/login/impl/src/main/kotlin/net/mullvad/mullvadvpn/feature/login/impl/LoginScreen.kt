@@ -66,15 +66,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.login.destinations.ApiUnreachableInfoDestination
-import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
-import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -85,13 +78,19 @@ import net.mullvad.mullvadvpn.common.compose.accountNumberVisualTransformation
 import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.LoginTransition
-import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableInfoDialogNavArgs
-import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableInfoDialogResult
-import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.LoginAction
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
+import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
+import net.mullvad.mullvadvpn.feature.home.api.WelcomeNavKey
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogNavArgs
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogResult
+import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
+import net.mullvad.mullvadvpn.feature.login.api.CreateAccountConfirmationNavKey
+import net.mullvad.mullvadvpn.feature.login.api.DeviceListNavKey
+import net.mullvad.mullvadvpn.feature.login.api.LoginAction
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
@@ -132,14 +131,9 @@ private val LAST_CHAR_VISIBILITY_TIMEOUT = 2.seconds
 @Destination<ExternalModuleGraph>(style = LoginTransition::class)
 @Composable
 fun Login(
-    navController: NavController,
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     accountNumber: String? = null,
     vm: LoginViewModel = koinViewModel(),
-    createAccountConfirmationDialogResult:
-        ResultRecipient<CreateAccountConfirmationDestination, Confirmed>,
-    apiUnreachableInfoDialogResult:
-        ResultRecipient<ApiUnreachableInfoDestination, ApiUnreachableInfoDialogResult>,
 ) {
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -155,9 +149,15 @@ fun Login(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    createAccountConfirmationDialogResult.OnNavResultValue { vm.onCreateAccountConfirmed() }
+    if (
+        LocalResultStore.current
+            .consumeResult<CreateAccountConfirmationDialogResult>()
+            ?.confirmed == true
+    ) {
+        vm.onCreateAccountConfirmed()
+    }
 
-    apiUnreachableInfoDialogResult.OnNavResultValue {
+    LocalResultStore.current.consumeResult<ApiUnreachableInfoDialogResult>()?.let {
         when (it) {
             ApiUnreachableInfoDialogResult.Error ->
                 scope.launch {
@@ -176,27 +176,12 @@ fun Login(
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            LoginUiSideEffect.NavigateToWelcome ->
-                navController.navigate("home/welcome") {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
-            is LoginUiSideEffect.NavigateToConnect ->
-                navController.navigate("home/connect") {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
-            is LoginUiSideEffect.TooManyDevices ->
-                navigator.navigate(DeviceListDestination(it.accountNumber)) {
-                    launchSingleTop = true
-                }
-            LoginUiSideEffect.NavigateToOutOfTime ->
-                navController.navigate("home/out_of_time") {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            LoginUiSideEffect.NavigateToWelcome -> navigator.navigate(WelcomeNavKey)
+            is LoginUiSideEffect.NavigateToConnect -> navigator.navigate(ConnectNavKey)
+            is LoginUiSideEffect.TooManyDevices -> navigator.navigate(DeviceListNavKey)
+            LoginUiSideEffect.NavigateToOutOfTime -> navigator.navigate(OutOfTimeNavKey)
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
-                navigator.navigate(CreateAccountConfirmationDestination)
+                navigator.navigate(CreateAccountConfirmationNavKey)
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -210,10 +195,13 @@ fun Login(
         onCreateAccountClick = vm::onCreateAccountClick,
         onDeleteHistoryClick = vm::clearAccountHistory,
         onAccountNumberChange = vm::onAccountNumberChange,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onSettingsClick =
+            dropUnlessResumed {
+                //                navigator.navigate(SettingsNavKey)
+            },
         onShowApiUnreachableDialog =
             dropUnlessResumed { error: LoginUiStateError ->
-                navigator.navigate(ApiUnreachableInfoDestination(error.toApiUnreachableNavArg()))
+                navigator.navigate(ApiUnreachableNavKey(args = error.toApiUnreachableNavArg()))
             },
     )
 }
