@@ -100,6 +100,9 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
+        /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+        #[cfg(target_os = "windows")]
+        excluded_subnets: Vec<IpNetwork>,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -119,6 +122,9 @@ pub enum FirewallPolicy {
         /// Interface to redirect (VPN tunnel) traffic to
         #[cfg(target_os = "macos")]
         redirect_interface: Option<String>,
+        /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+        #[cfg(target_os = "windows")]
+        excluded_subnets: Vec<IpNetwork>,
     },
 
     /// Block all network traffic in and out from the computer.
@@ -127,6 +133,9 @@ pub enum FirewallPolicy {
         allow_lan: bool,
         /// Host that should be reachable while in the blocked state.
         allowed_endpoint: Option<AllowedEndpoint>,
+        /// IP networks (CIDR) whose traffic should bypass the VPN firewall.
+        #[cfg(target_os = "windows")]
+        excluded_subnets: Vec<IpNetwork>,
     },
 }
 

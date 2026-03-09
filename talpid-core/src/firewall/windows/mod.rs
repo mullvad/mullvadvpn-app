@@ -134,16 +134,29 @@ impl Firewall {
                 allow_lan,
                 allowed_endpoint,
                 allowed_tunnel_traffic,
+                excluded_subnets,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connecting_state(
+                let subnet_wstrs: Vec<WideCString> = excluded_subnets
+                    .iter()
+                    .map(|net| WideCString::from_str_truncate(net.to_string()))
+                    .collect();
+                let subnet_ptrs: Vec<*const u16> =
+                    subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
+                let cfg = &WinFwSettings::new(
+                    allow_lan,
+                    subnet_ptrs.len(),
+                    subnet_ptrs.as_ptr(),
+                );
+                let result = self.set_connecting_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
                     cfg,
                     tunnel.as_ref(),
                     allowed_endpoint,
                     &allowed_tunnel_traffic,
-                )
+                );
+                drop(subnet_wstrs);
+                result
             }
             FirewallPolicy::Connected {
                 peer_endpoints,
@@ -151,25 +164,51 @@ impl Firewall {
                 tunnel,
                 allow_lan,
                 dns_config,
+                excluded_subnets,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(
+                let subnet_wstrs: Vec<WideCString> = excluded_subnets
+                    .iter()
+                    .map(|net| WideCString::from_str_truncate(net.to_string()))
+                    .collect();
+                let subnet_ptrs: Vec<*const u16> =
+                    subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
+                let cfg = &WinFwSettings::new(
+                    allow_lan,
+                    subnet_ptrs.len(),
+                    subnet_ptrs.as_ptr(),
+                );
+                let result = self.set_connected_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
                     cfg,
                     &tunnel,
                     &dns_config,
-                )
+                );
+                drop(subnet_wstrs);
+                result
             }
             FirewallPolicy::Blocked {
                 allow_lan,
                 allowed_endpoint,
+                excluded_subnets,
             } => {
-                let cfg = &WinFwSettings::new(allow_lan);
-                self.set_blocked_state(
+                let subnet_wstrs: Vec<WideCString> = excluded_subnets
+                    .iter()
+                    .map(|net| WideCString::from_str_truncate(net.to_string()))
+                    .collect();
+                let subnet_ptrs: Vec<*const u16> =
+                    subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
+                let cfg = &WinFwSettings::new(
+                    allow_lan,
+                    subnet_ptrs.len(),
+                    subnet_ptrs.as_ptr(),
+                );
+                let result = self.set_blocked_state(
                     cfg,
                     allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
-                )
+                );
+                drop(subnet_wstrs);
+                result
             }
         };
 

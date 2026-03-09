@@ -37,6 +37,7 @@
     <ClCompile Include="rules\baseline\permitdns.cpp" />
     <ClCompile Include="rules\baseline\permitlan.cpp" />
     <ClCompile Include="rules\baseline\permitlanservice.cpp" />
+    <ClCompile Include="rules\baseline\permitsplittunnelsubnets.cpp" />
     <ClCompile Include="rules\baseline\permitloopback.cpp" />
     <ClCompile Include="rules\baseline\permitndp.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="rules\baseline\permitdns.h" />
     <ClInclude Include="rules\baseline\permitlan.h" />
     <ClInclude Include="rules\baseline\permitlanservice.h" />
+    <ClInclude Include="rules\baseline\permitsplittunnelsubnets.h" />
     <ClInclude Include="rules\baseline\permitloopback.h" />
     <ClInclude Include="rules\baseline\permitndp.h" />
     <ClInclude Include="rules\baseline\permitvpntunnel.h" />

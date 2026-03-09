@@ -68,6 +68,11 @@ public:
 	static const GUID &Filter_Baseline_PermitNdp_Inbound_Neighbor_Advertisement();
 	static const GUID &Filter_Baseline_PermitNdp_Inbound_Redirect();
 
+	static const GUID &Filter_Baseline_PermitSplitTunnelSubnets_Outbound_Ipv4();
+	static const GUID &Filter_Baseline_PermitSplitTunnelSubnets_Inbound_Ipv4();
+	static const GUID &Filter_Baseline_PermitSplitTunnelSubnets_Outbound_Ipv6();
+	static const GUID &Filter_Baseline_PermitSplitTunnelSubnets_Inbound_Ipv6();
+
 	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv4();
 	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv6();
 
