@@ -18,11 +18,11 @@ pub mod version;
 
 mod abortable_stream;
 pub mod access_mode;
-mod https_client_with_sni;
+mod https_client;
 pub mod proxy;
 mod tls_stream;
 #[cfg(target_os = "android")]
-pub use crate::https_client_with_sni::SocketBypassRequest;
+pub use crate::https_client::SocketBypassRequest;
 
 mod access;
 mod address_cache;
