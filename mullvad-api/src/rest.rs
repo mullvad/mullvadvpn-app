@@ -1,10 +1,10 @@
 #[cfg(target_os = "android")]
-pub use crate::https_client_with_sni::SocketBypassRequest;
+pub use crate::https_client::SocketBypassRequest;
 use crate::{
     DnsResolver,
     access::AccessTokenStore,
     availability::ApiAvailability,
-    https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
+    https_client::{HttpsConnector, HttpsConnectorHandle},
     proxy::ConnectionModeProvider,
 };
 use futures::{
@@ -141,15 +141,14 @@ impl Error {
 }
 
 // TODO: Look into an alternative to using the legacy hyper client `DES-1288`
-type RequestClient =
-    hyper_util::client::legacy::Client<HttpsConnectorWithSni, BoxBody<Bytes, Error>>;
+type RequestClient = hyper_util::client::legacy::Client<HttpsConnector, BoxBody<Bytes, Error>>;
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
 pub(crate) struct RequestService<T: ConnectionModeProvider> {
     command_tx: Weak<mpsc::UnboundedSender<RequestCommand>>,
     command_rx: mpsc::UnboundedReceiver<RequestCommand>,
-    connector_handle: HttpsConnectorWithSniHandle,
+    connector_handle: HttpsConnectorHandle,
     client: RequestClient,
     connection_mode_provider: T,
     connection_mode_generation: usize,
@@ -165,7 +164,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
-        let (connector, connector_handle) = HttpsConnectorWithSni::new(
+        let (connector, connector_handle) = HttpsConnector::new(
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),

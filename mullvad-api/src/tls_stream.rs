@@ -1,4 +1,5 @@
-//! Provides a TLS 1.3 stream with SNI and LE root cert only.
+//! Provides a TLS 1.3 stream, accepting only LE for root cert.
+//! SNI is disabled.
 use std::{
     io::{self, ErrorKind},
     pin::Pin,
@@ -22,12 +23,17 @@ pub struct TlsStream<S: AsyncRead + AsyncWrite + Unpin> {
 }
 
 static TLS_CONFIG: LazyLock<Arc<ClientConfig>> = LazyLock::new(|| {
-    let config =
-        ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
-            .with_protocol_versions(&[&rustls::version::TLS13])
-            .expect("ring crypt-prover should support TLS 1.3")
-            .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
-            .with_no_client_auth();
+    let config = {
+        let mut config =
+            ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
+                .with_protocol_versions(&[&rustls::version::TLS13])
+                .expect("ring crypt-prover should support TLS 1.3")
+                .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
+                .with_no_client_auth();
+        // This assumes that the server hello will include certificate for the domain.
+        config.enable_sni = false;
+        config
+    };
     Arc::new(config)
 });
 

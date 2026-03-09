@@ -47,11 +47,11 @@ use crate::proxy::ConnectionDecorator;
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Clone)]
-pub struct HttpsConnectorWithSniHandle {
+pub struct HttpsConnectorHandle {
     tx: mpsc::UnboundedSender<HttpsConnectorRequest>,
 }
 
-impl HttpsConnectorWithSniHandle {
+impl HttpsConnectorHandle {
     /// Stop all streams produced by this connector
     pub fn reset(&self) {
         let _ = self.tx.unbounded_send(HttpsConnectorRequest::Reset);
@@ -206,7 +206,7 @@ impl InnerConnectionMode {
         ProxyFuture: Future<Output = io::Result<Proxy>>,
         Proxy: AsyncRead + AsyncWrite + Unpin + Send + 'static,
     {
-        let socket = HttpsConnectorWithSni::open_socket(
+        let socket = HttpsConnector::open_socket(
             first_hop,
             #[cfg(target_os = "android")]
             socket_bypass_tx,
@@ -295,8 +295,8 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
-pub struct HttpsConnectorWithSni {
-    inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
+pub struct HttpsConnector {
+    inner: Arc<Mutex<HttpsConnectorInner>>,
     abort_notify: Arc<tokio::sync::Notify>,
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
@@ -305,7 +305,7 @@ pub struct HttpsConnectorWithSni {
     disable_tls: bool,
 }
 
-struct HttpsConnectorWithSniInner {
+struct HttpsConnectorInner {
     stream_handles: Vec<AbortableStreamHandle>,
     proxy_config: InnerConnectionMode,
 }
@@ -313,15 +313,15 @@ struct HttpsConnectorWithSniInner {
 #[cfg(target_os = "android")]
 pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
-impl HttpsConnectorWithSni {
+impl HttpsConnector {
     pub fn new(
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
-    ) -> (Self, HttpsConnectorWithSniHandle) {
+    ) -> (Self, HttpsConnectorHandle) {
         let (tx, mut rx) = mpsc::unbounded();
         let abort_notify = Arc::new(tokio::sync::Notify::new());
-        let inner = Arc::new(Mutex::new(HttpsConnectorWithSniInner {
+        let inner = Arc::new(Mutex::new(HttpsConnectorInner {
             stream_handles: vec![],
             proxy_config: InnerConnectionMode::Direct,
         }));
@@ -329,7 +329,7 @@ impl HttpsConnectorWithSni {
         let inner_copy = inner.clone();
         let notify = abort_notify.clone();
         tokio::spawn(async move {
-            // Handle requests by `HttpsConnectorWithSniHandle`s
+            // Handle requests by `HttpsConnectorHandle`s
             while let Some(request) = rx.next().await {
                 let handles = {
                     let mut inner = inner_copy.lock().unwrap();
@@ -360,7 +360,7 @@ impl HttpsConnectorWithSni {
         });
 
         (
-            HttpsConnectorWithSni {
+            HttpsConnector {
                 inner,
                 abort_notify,
                 dns_resolver,
@@ -369,7 +369,7 @@ impl HttpsConnectorWithSni {
                 #[cfg(any(feature = "api-override", test))]
                 disable_tls,
             },
-            HttpsConnectorWithSniHandle { tx },
+            HttpsConnectorHandle { tx },
         )
     }
 
@@ -426,13 +426,13 @@ impl HttpsConnectorWithSni {
     }
 }
 
-impl fmt::Debug for HttpsConnectorWithSni {
+impl fmt::Debug for HttpsConnector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("HttpsConnectorWithSni").finish()
+        f.debug_struct("HttpsConnector").finish()
     }
 }
 
-impl Service<Uri> for HttpsConnectorWithSni {
+impl Service<Uri> for HttpsConnector {
     type Response = TokioIo<AbortableStream<ApiConnection>>;
     type Error = io::Error;
     type Future =
