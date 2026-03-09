@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
   WireGuard spec by implementing padding to multiples of 16 bytes, fixes a minor
   vulnerability when generating peer indices, and fixes another when registering incoming
   decoy packets for DAITA.
+- Disable SNI for Mullvad API traffic. This prevents DPI based on hostname when obfuscation is
+  disabled.
 
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
