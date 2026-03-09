@@ -303,6 +303,13 @@ impl PresharedKey {
     pub fn as_bytes(&self) -> &[u8; 32] {
         &self.0
     }
+
+    /// Mutably access the PSK as bytes. Try to move or dereference this data as little
+    /// as possible, since copying it to more memory locations potentially leaves the secret in
+    /// more memory locations.
+    pub fn as_bytes_mut(&mut self) -> &mut [u8; 32] {
+        &mut self.0
+    }
 }
 
 impl From<Box<[u8; 32]>> for PresharedKey {
