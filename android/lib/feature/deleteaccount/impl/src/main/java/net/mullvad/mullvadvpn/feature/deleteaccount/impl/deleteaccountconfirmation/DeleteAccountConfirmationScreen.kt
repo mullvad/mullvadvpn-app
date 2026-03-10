@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -234,6 +235,8 @@ private fun AccountNumberInput(
         remember(showPassword, showLastChar) {
             accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
         }
+
+    val keyboardController = LocalSoftwareKeyboardController.current
     CompositionLocalProvider(LocalClipboard provides clipboard) {
         TextField(
             state = textFieldState,
@@ -258,6 +261,7 @@ private fun AccountNumberInput(
                     imeAction = ImeAction.Done,
                     keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
                 ),
+            onKeyboardAction = { keyboardController?.hide() },
             outputTransformation = transformation,
             lineLimits = TextFieldLineLimits.SingleLine,
             enabled = !state.isLoading,
