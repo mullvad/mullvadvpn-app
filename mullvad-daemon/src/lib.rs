@@ -1602,9 +1602,7 @@ impl Daemon {
                 self.on_remove_split_tunnel_ip_network(tx, network).await
             }
             #[cfg(target_os = "windows")]
-            ClearSplitTunnelIpNetworks(tx) => {
-                self.on_clear_split_tunnel_ip_networks(tx).await
-            }
+            ClearSplitTunnelIpNetworks(tx) => self.on_clear_split_tunnel_ip_networks(tx).await,
             #[cfg(target_os = "windows")]
             CheckVolumes(tx) => self.on_check_volumes(tx),
             SetObfuscationSettings(tx, settings) => {
@@ -2490,7 +2488,12 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
         network: ipnetwork::IpNetwork,
     ) {
-        let mut new_list = self.settings.to_settings().split_tunnel.ip_exclusions.clone();
+        let mut new_list = self
+            .settings
+            .to_settings()
+            .split_tunnel
+            .ip_exclusions
+            .clone();
         if new_list.contains(&network) {
             Self::oneshot_send(tx, Ok(()), "add_split_tunnel_ip_network response");
             return;
@@ -2505,7 +2508,12 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
         network: ipnetwork::IpNetwork,
     ) {
-        let mut new_list = self.settings.to_settings().split_tunnel.ip_exclusions.clone();
+        let mut new_list = self
+            .settings
+            .to_settings()
+            .split_tunnel
+            .ip_exclusions
+            .clone();
         new_list.retain(|n| *n != network);
         self.set_split_tunnel_ip_exclusions(tx, new_list).await;
     }

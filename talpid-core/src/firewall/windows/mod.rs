@@ -142,11 +142,7 @@ impl Firewall {
                     .collect();
                 let subnet_ptrs: Vec<*const u16> =
                     subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
-                let cfg = &WinFwSettings::new(
-                    allow_lan,
-                    subnet_ptrs.len(),
-                    subnet_ptrs.as_ptr(),
-                );
+                let cfg = &WinFwSettings::new(allow_lan, subnet_ptrs.len(), subnet_ptrs.as_ptr());
                 let result = self.set_connecting_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -172,11 +168,7 @@ impl Firewall {
                     .collect();
                 let subnet_ptrs: Vec<*const u16> =
                     subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
-                let cfg = &WinFwSettings::new(
-                    allow_lan,
-                    subnet_ptrs.len(),
-                    subnet_ptrs.as_ptr(),
-                );
+                let cfg = &WinFwSettings::new(allow_lan, subnet_ptrs.len(), subnet_ptrs.as_ptr());
                 let result = self.set_connected_state(
                     &peer_endpoints,
                     exit_endpoint_ip,
@@ -198,11 +190,7 @@ impl Firewall {
                     .collect();
                 let subnet_ptrs: Vec<*const u16> =
                     subnet_wstrs.iter().map(|s| s.as_ptr()).collect();
-                let cfg = &WinFwSettings::new(
-                    allow_lan,
-                    subnet_ptrs.len(),
-                    subnet_ptrs.as_ptr(),
-                );
+                let cfg = &WinFwSettings::new(allow_lan, subnet_ptrs.len(), subnet_ptrs.as_ptr());
                 let result = self.set_blocked_state(
                     cfg,
                     allowed_endpoint.map(WinFwAllowedEndpointContainer::from),

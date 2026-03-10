@@ -8,7 +8,9 @@ export type SplitTunnelingIpListItemProps = Omit<ListItemProps, 'children'>;
 export function SplitTunnelingIpListItem(props: SplitTunnelingIpListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.splitTunnelingIp} {...props}>
-      <SettingsNavigationListItem.Label>{strings.splitTunnelingIp}</SettingsNavigationListItem.Label>
+      <SettingsNavigationListItem.Label>
+        {strings.splitTunnelingIp}
+      </SettingsNavigationListItem.Label>
       <SettingsNavigationListItem.ActionGroup>
         <SettingsNavigationListItem.Icon icon="chevron-right" />
       </SettingsNavigationListItem.ActionGroup>

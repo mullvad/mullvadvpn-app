@@ -604,17 +604,13 @@ impl MullvadProxyClient {
     /// Add an IP network (CIDR) to the split tunnel exclusion list.
     /// Traffic to this network will bypass the VPN firewall.
     pub async fn add_split_tunnel_ip_network(&mut self, network: String) -> Result<()> {
-        self.0
-            .add_split_tunnel_ip_network(network)
-            .await?;
+        self.0.add_split_tunnel_ip_network(network).await?;
         Ok(())
     }
 
     /// Remove an IP network (CIDR) from the split tunnel exclusion list.
     pub async fn remove_split_tunnel_ip_network(&mut self, network: String) -> Result<()> {
-        self.0
-            .remove_split_tunnel_ip_network(network)
-            .await?;
+        self.0.remove_split_tunnel_ip_network(network).await?;
         Ok(())
     }
 

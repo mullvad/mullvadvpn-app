@@ -27,10 +27,7 @@ fn add_ip_exclusions(settings: &mut serde_json::Value) -> Option<()> {
         .and_then(|st| st.as_object_mut())?;
 
     if !split_tunnel.contains_key("ip_exclusions") {
-        split_tunnel.insert(
-            "ip_exclusions".to_string(),
-            serde_json::json!([]),
-        );
+        split_tunnel.insert("ip_exclusions".to_string(), serde_json::json!([]));
     }
 
     Some(())

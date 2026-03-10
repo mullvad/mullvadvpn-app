@@ -266,7 +266,9 @@ function setSplitTunnelingSupported(supported: boolean): ISetSplitTunnelingSuppo
   };
 }
 
-function setSplitTunnelingIpExclusions(ipExclusions: string[]): ISetSplitTunnelingIpExclusionsAction {
+function setSplitTunnelingIpExclusions(
+  ipExclusions: string[],
+): ISetSplitTunnelingIpExclusionsAction {
   return {
     type: 'SET_SPLIT_TUNNELING_IP_EXCLUSIONS',
     ipExclusions,

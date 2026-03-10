@@ -4,18 +4,18 @@ import styled from 'styled-components';
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
+import { usePop } from '../../../history/hooks';
 import { Flex, Icon, IconButton } from '../../../lib/components';
 import { AnimatedList } from '../../../lib/components/animated-list';
 import { View } from '../../../lib/components/view';
 import { colors, spacings } from '../../../lib/foundations';
-import { usePop } from '../../../history/hooks';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
 import * as Cell from '../../cell';
 import { normalText } from '../../common-styles';
 import { BackAction } from '../../keyboard-navigation';
-import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from '../../SettingsHeader';
 
 const StyledSearchContainer = styled.div({
@@ -62,6 +62,66 @@ const StyledRowContainer = styled(Cell.Container)({
   backgroundColor: colors.blue40,
 });
 
+function validateCidr(value: string): boolean {
+  const ipv4Cidr = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
+  const ipv6Cidr = /^[0-9a-fA-F:.]+(\/\d{1,3})?$/;
+  return ipv4Cidr.test(value) || ipv6Cidr.test(value);
+}
+
+function normalizeNetwork(value: string): string {
+  if (!value.includes('/')) {
+    return value.includes(':') ? `${value}/128` : `${value}/32`;
+  }
+  return value;
+}
+
+interface IncludedIpRowProps {
+  network: string;
+  onRemove: (network: string) => void;
+}
+
+function IncludedIpRow({ network, onRemove }: IncludedIpRowProps) {
+  const handleRemove = useCallback(() => onRemove(network), [network, onRemove]);
+  return (
+    <StyledRowContainer>
+      <Cell.Label>{network}</Cell.Label>
+      <IconButton variant="secondary" onClick={handleRemove} aria-label={`Remove ${network}`}>
+        <IconButton.Icon icon="remove-circle" />
+      </IconButton>
+    </StyledRowContainer>
+  );
+}
+
+interface ExcludedIpRowProps {
+  network: string;
+  onRestore: (network: string) => void;
+  onPermanentlyRemove: (network: string) => void;
+}
+
+function ExcludedIpRow({ network, onRestore, onPermanentlyRemove }: ExcludedIpRowProps) {
+  const handleRestore = useCallback(() => onRestore(network), [network, onRestore]);
+  const handleRemove = useCallback(
+    () => onPermanentlyRemove(network),
+    [network, onPermanentlyRemove],
+  );
+  return (
+    <StyledRowContainer>
+      <Cell.Label>{network}</Cell.Label>
+      <Flex gap="small">
+        <IconButton variant="secondary" onClick={handleRestore} aria-label={`Restore ${network}`}>
+          <IconButton.Icon icon="add-circle" />
+        </IconButton>
+        <IconButton
+          variant="secondary"
+          onClick={handleRemove}
+          aria-label={`Permanently remove ${network}`}>
+          <IconButton.Icon icon="remove-circle" />
+        </IconButton>
+      </Flex>
+    </StyledRowContainer>
+  );
+}
+
 export function SplitTunnelingIpView() {
   const pop = usePop();
   const ipExclusions = useSelector((state) => state.settings.splitTunnelingIpExclusions);
@@ -69,33 +129,28 @@ export function SplitTunnelingIpView() {
   const [inputValue, setInputValue] = useState('');
   const [removedIps, setRemovedIps] = useState<string[]>([]);
 
-  if (window.env.platform !== 'win32') {
-    return null;
-  }
+  const onRemoveFromIncluded = useCallback(
+    (network: string) => {
+      void removeSplitTunnelIpNetwork(network);
+      setRemovedIps((prev) => (prev.includes(network) ? prev : [...prev, network]));
+    },
+    [removeSplitTunnelIpNetwork],
+  );
 
-  const validateCidr = (value: string): boolean => {
-    const ipv4Cidr = /^(\d{1,3}\.){3}\d{1,3}(\/\d{1,2})?$/;
-    const ipv6Cidr = /^[0-9a-fA-F:.]+(\/\d{1,3})?$/;
-    return ipv4Cidr.test(value) || ipv6Cidr.test(value);
-  };
+  const onRestoreFromExcluded = useCallback(
+    (network: string) => {
+      void addSplitTunnelIpNetwork(network).then(() => {
+        setRemovedIps((prev) => prev.filter((ip) => ip !== network));
+      });
+    },
+    [addSplitTunnelIpNetwork],
+  );
 
-  const normalizeNetwork = (value: string): string => {
-    if (!value.includes('/')) {
-      return value.includes(':') ? `${value}/128` : `${value}/32`;
-    }
-    return value;
-  };
+  const onPermanentlyRemove = useCallback((network: string) => {
+    setRemovedIps((prev) => prev.filter((ip) => ip !== network));
+  }, []);
 
-  const isValidInput = (): boolean => {
-    const trimmed = inputValue.trim();
-    if (!trimmed) return false;
-    if (!validateCidr(trimmed)) return false;
-    const network = normalizeNetwork(trimmed);
-    if (ipExclusions.includes(network)) return false;
-    return true;
-  };
-
-  const onAdd = async () => {
+  const onAdd = useCallback(async () => {
     const trimmed = inputValue.trim();
     if (!trimmed) return;
     if (!validateCidr(trimmed)) return;
@@ -110,40 +165,36 @@ export function SplitTunnelingIpView() {
     } catch {
       // silently fail
     }
-  };
+  }, [inputValue, ipExclusions, addSplitTunnelIpNetwork]);
 
-  const onRemoveFromIncluded = useCallback(
-    (network: string) => {
-      void removeSplitTunnelIpNetwork(network);
-      setRemovedIps((prev) => (prev.includes(network) ? prev : [...prev, network]));
-    },
-    [removeSplitTunnelIpNetwork],
-  );
+  const handleAddClick = useCallback(() => {
+    void onAdd();
+  }, [onAdd]);
 
-  const onRestoreFromExcluded = useCallback(
-    async (network: string) => {
-      try {
-        await addSplitTunnelIpNetwork(network);
-        setRemovedIps((prev) => prev.filter((ip) => ip !== network));
-      } catch {
-        // silently fail
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        void onAdd();
       }
     },
-    [addSplitTunnelIpNetwork],
+    [onAdd],
   );
 
-  const onPermanentlyRemove = useCallback((network: string) => {
-    setRemovedIps((prev) => prev.filter((ip) => ip !== network));
+  const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
   }, []);
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      void onAdd();
-    }
-  };
+  if (window.env.platform !== 'win32') {
+    return null;
+  }
 
-  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const isValidInput = (): boolean => {
+    const trimmed = inputValue.trim();
+    if (!trimmed) return false;
+    if (!validateCidr(trimmed)) return false;
+    const network = normalizeNetwork(trimmed);
+    if (ipExclusions.includes(network)) return false;
+    return true;
   };
 
   const includedTitle = (
@@ -194,14 +245,11 @@ export function SplitTunnelingIpView() {
                   value={inputValue}
                   onInput={onInputChange}
                   onKeyDown={onKeyDown}
-                  placeholder={messages.pgettext(
-                    'split-tunneling-ip-view',
-                    'Add IP or subnet...',
-                  )}
+                  placeholder={messages.pgettext('split-tunneling-ip-view', 'Add IP or subnet...')}
                 />
                 <StyledAddIcon
                   icon={canAdd ? 'add-circle' : 'alert-circle'}
-                  onClick={() => canAdd && void onAdd()}
+                  onClick={handleAddClick}
                 />
               </StyledSearchContainer>
 
@@ -210,15 +258,7 @@ export function SplitTunnelingIpView() {
                   <AnimatedList>
                     {ipExclusions.map((network) => (
                       <AnimatedList.Item key={network}>
-                        <StyledRowContainer>
-                          <Cell.Label>{network}</Cell.Label>
-                          <IconButton
-                            variant="secondary"
-                            onClick={() => onRemoveFromIncluded(network)}
-                            aria-label={`Remove ${network}`}>
-                            <IconButton.Icon icon="remove-circle" />
-                          </IconButton>
-                        </StyledRowContainer>
+                        <IncludedIpRow network={network} onRemove={onRemoveFromIncluded} />
                       </AnimatedList.Item>
                     ))}
                   </AnimatedList>
@@ -228,23 +268,11 @@ export function SplitTunnelingIpView() {
                   <AnimatedList>
                     {actualRemovedIps.map((network) => (
                       <AnimatedList.Item key={network}>
-                        <StyledRowContainer>
-                          <Cell.Label>{network}</Cell.Label>
-                          <Flex gap="small">
-                            <IconButton
-                              variant="secondary"
-                              onClick={() => void onRestoreFromExcluded(network)}
-                              aria-label={`Restore ${network}`}>
-                              <IconButton.Icon icon="add-circle" />
-                            </IconButton>
-                            <IconButton
-                              variant="secondary"
-                              onClick={() => onPermanentlyRemove(network)}
-                              aria-label={`Permanently remove ${network}`}>
-                              <IconButton.Icon icon="remove-circle" />
-                            </IconButton>
-                          </Flex>
-                        </StyledRowContainer>
+                        <ExcludedIpRow
+                          network={network}
+                          onRestore={onRestoreFromExcluded}
+                          onPermanentlyRemove={onPermanentlyRemove}
+                        />
                       </AnimatedList.Item>
                     ))}
                   </AnimatedList>

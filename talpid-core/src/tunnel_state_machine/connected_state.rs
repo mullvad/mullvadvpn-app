@@ -401,9 +401,7 @@ impl ConnectedState {
                         Ok(()) => SameState(self),
                         Err(error) => self.disconnect(
                             shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
-                                error,
-                            )),
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                         ),
                     }
                 } else {
