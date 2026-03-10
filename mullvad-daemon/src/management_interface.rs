@@ -1556,6 +1556,7 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::AlreadyLoggedIn => Status::already_exists(error.to_string()),
         DaemonError::LoginError(error) => map_device_error(&error),
         DaemonError::LogoutError(error) => map_device_error(&error),
+        DaemonError::DeleteAccountError(error) => map_device_error(&error),
         DaemonError::KeyRotationError(error) => map_device_error(&error),
         DaemonError::ListDevicesError(error) => map_device_error(&error),
         DaemonError::RemoveDeviceError(error) => map_device_error(&error),
