@@ -49,6 +49,7 @@
     <string name="appearance">Внешний вид</string>
     <string name="appearance_description">Измените название и значок приложения Mullvad VPN на устройстве Android. Это не повлияет на значок уведомлений, связанных с Mullvad VPN.</string>
     <string name="appearance_description_warning"><b>Внимание:</b> после выбора нового значка и названия приложение автоматически закроется и его потребуется открыть вручную. Это не повлияет на ваше VPN-соединение.</string>
+    <string name="appearance_description_warning_restart">Если после закрытия приложения значок и название не изменились, попробуйте перезагрузить устройство.</string>
     <string name="apply">Применить</string>
     <string name="applying_changes">Применяем изменения...</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>
@@ -106,6 +107,7 @@
     <string name="copy">Копировать</string>
     <string name="copy_account_number">Копировать номер учетной записи</string>
     <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Создать</string>
     <string name="create_account_fail_title">Не удалось создать учетную запись</string>
     <string name="create_custom_list_message">Список «%1$s» создан</string>

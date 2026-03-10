@@ -49,6 +49,7 @@
     <string name="appearance">Aparência</string>
     <string name="appearance_description">Altere o título e o ícone da aplicação Mullvad VPN no seu dispositivo Android. Isto não irá alterar o ícone de nenhuma notificação relacionada com a Mullvad VPN.</string>
     <string name="appearance_description_warning"><b>Atenção:</b> a aplicação será encerrada automaticamente e terá de ser aberta manualmente novamente após selecionar um novo ícone e título. Isto não afetará a sua ligação VPN.</string>
+    <string name="appearance_description_warning_restart">Se o ícone e o título ainda não tiverem sido alterados após o encerramento da aplicação, tente reiniciar o dispositivo.</string>
     <string name="apply">Aplicar</string>
     <string name="applying_changes">A aplicar alterações...</string>
     <string name="at_least_on_method_needs_to_enabled">É necessário ativar pelo menos um método</string>
@@ -83,7 +84,7 @@
     <string name="clear_input">Limpar entrada</string>
     <string name="click_here">clique aqui</string>
     <string name="close">Fechar</string>
-    <string name="collapse">Colapsar</string>
+    <string name="collapse">Comprimir</string>
     <string name="confirm_ipv6_dns">O servidor DNS IPv6 não funcionará a menos que ative a \"IPv6\" nas definições de VPN.</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará a menos que ative a \"Partilha de rede local\" nas definições de VPN.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
@@ -106,6 +107,7 @@
     <string name="copy">Copiar</string>
     <string name="copy_account_number">Copiar número de conta</string>
     <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Criar</string>
     <string name="create_account_fail_title">Falha ao criar conta</string>
     <string name="create_custom_list_message">\"%1$s\" foi criada</string>
@@ -348,7 +350,7 @@
     <string name="problem_report_description">Para ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
     <string name="providers">Fornecedores</string>
     <string name="quantum_resistant_info_first_paragaph">Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos.</string>
-    <string name="quantum_resistant_info_second_paragaph">Fá-lo ao realizar uma troca de chaves adicional utilizando um algoritmo de segurança quântica e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
+    <string name="quantum_resistant_info_second_paragaph">Para isso, realiza uma troca de chaves adicional utilizando um algoritmo resistente à computação quântica, e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
     <string name="quantum_resistant_title">Túnel com resistência quântica</string>
     <string name="read_more_here">leia mais aqui</string>
     <string name="recents">Recentes</string>
