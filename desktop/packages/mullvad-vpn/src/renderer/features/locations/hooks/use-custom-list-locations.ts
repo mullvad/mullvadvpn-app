@@ -1,41 +1,35 @@
 import React from 'react';
 
+import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
 import { useCustomLists } from '../../custom-lists/hooks';
 import {
+  type CountryLocation,
   type CustomListLocation,
   DisabledReason,
   type GeographicalLocation,
-  type LocationType,
 } from '../types';
-import { isCustomListDisabled, isLocationSelected, searchMatchesLocation } from '../utils';
-import { createLocationMap } from '../utils';
-import { useCountryLocations } from './use-country-locations';
-import { useSelectedLocation } from './use-selected-location';
+import {
+  createLocationMap,
+  isCustomListDisabled,
+  isLocationSelected,
+  searchMatchesLocation,
+} from '../utils';
 
-export function useCustomListLocations(
-  locationType: LocationType,
-  searchTerm: string,
-): CustomListLocation[] {
+export function useCustomListLocations({
+  locations,
+  selectedLocation,
+  searchTerm,
+}: {
+  locations: CountryLocation[];
+  selectedLocation?: RelayLocation;
+  searchTerm: string;
+}): CustomListLocation[] {
   const { customLists } = useCustomLists();
-  const { filteredLocations, searchedLocations } = useCountryLocations(locationType, searchTerm);
-  const selectedLocation = useSelectedLocation(locationType);
 
-  const activeSearch = searchTerm.length > 0;
-
-  const searchedLocationMap = React.useMemo(
-    () => createLocationMap(searchedLocations),
-    [searchedLocations],
-  );
-  const filteredLocationMap = React.useMemo(
-    () => createLocationMap(filteredLocations),
-    [filteredLocations],
-  );
+  const locationMap = React.useMemo(() => createLocationMap(locations), [locations]);
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
     const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
-
-    const locationMap =
-      activeSearch && !customListMatchesSearch ? searchedLocationMap : filteredLocationMap;
 
     // Get all ids of locations that are in the custom list
     const customListLocationIds = customList.locations.flatMap((location) => {

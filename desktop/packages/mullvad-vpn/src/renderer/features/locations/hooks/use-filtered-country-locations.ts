@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { useSelector } from '../../../redux/store';
 import { useObfuscation } from '../../anti-censorship/hooks';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../daita/hooks';
@@ -9,9 +7,8 @@ import { type LocationType } from '../types';
 import { filterLocations } from '../utils';
 import { useOwnership, useProviders } from '.';
 import { useMapReduxCountriesToCountryLocations } from './use-map-redux-countries-to-country-locations';
-import { useSearchCountryLocations } from './use-search-country-locations';
 
-export function useCountryLocations(locationType: LocationType, searchTerm: string) {
+export function useFilteredCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
   const { activeOwnership } = useOwnership();
   const { providers } = useProviders();
@@ -33,17 +30,5 @@ export function useCountryLocations(locationType: LocationType, searchTerm: stri
     ipVersion,
   });
 
-  const filteredLocations = useMapReduxCountriesToCountryLocations(
-    filteredRelayLocations,
-    locationType,
-  );
-  const searchedLocations = useSearchCountryLocations(filteredLocations, searchTerm);
-
-  return React.useMemo(
-    () => ({
-      filteredLocations,
-      searchedLocations,
-    }),
-    [filteredLocations, searchedLocations],
-  );
+  return useMapReduxCountriesToCountryLocations(filteredRelayLocations, locationType);
 }
