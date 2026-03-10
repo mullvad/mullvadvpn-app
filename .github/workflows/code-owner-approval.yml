@@ -54,18 +54,18 @@ jobs:
 
             // Returns an array of file paths changed in the PR
             async function getChangedFiles() {
-              const changedFiles = await github.rest.pulls.listFiles({
+              const changedFiles = await github.paginate(github.rest.pulls.listFiles, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number
               });
 
-              return changedFiles.data.map(file => file.filename);
+              return changedFiles.map(file => file.filename);
             }
 
             // Returns a list of usernames who approved the PR (based on their latest review)
             async function getApprovers() {
-              const reviews = await github.rest.pulls.listReviews({
+              const reviews = await github.paginate(github.rest.pulls.listReviews, {
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: context.issue.number
@@ -73,7 +73,7 @@ jobs:
 
               const latestReviews = new Map();
 
-              for (const review of reviews.data) {
+              for (const review of reviews) {
                 const currentLatest = latestReviews.get(review.user.id);
 
                 // Keep the most recent review (higher ID = more recent)
