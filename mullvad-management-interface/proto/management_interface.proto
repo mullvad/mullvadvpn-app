@@ -64,6 +64,8 @@ service ManagementService {
   rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
   rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
+  // Android only
+  rpc DeleteAccount(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 
   // Device management
   rpc GetDevice(google.protobuf.Empty) returns (DeviceState) {}

@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
+import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -118,6 +119,9 @@ class AccountRepository(
     fun resetIsNewAccount() {
         _isNewAccount.value = false
     }
+
+    suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
+        managementService.deleteAccount()
 
     private fun ZonedDateTime?.canFetchAccountData(): Boolean =
         this == null || this.isBefore(ZonedDateTime.now().minusMinutes(1))

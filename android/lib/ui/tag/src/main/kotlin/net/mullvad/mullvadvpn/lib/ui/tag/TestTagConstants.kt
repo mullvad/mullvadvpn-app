@@ -53,7 +53,6 @@ const val LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG =
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
 const val SELECT_LOCATION_MENU_BUTTON_TEST_TAG = "select_location_screen_test_tag"
-
 const val SELECT_LOCATION_LIST_TEST_TAG = "select_location_list_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_test_tag"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"

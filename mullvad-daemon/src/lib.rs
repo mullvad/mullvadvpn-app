@@ -160,6 +160,9 @@ pub enum Error {
     #[error("Failed to log out of account")]
     LogoutError(#[source] device::Error),
 
+    #[error("Failed to delete account")]
+    DeleteAccountError(#[source] device::Error),
+
     #[error("Failed to rotate WireGuard key")]
     KeyRotationError(#[source] device::Error),
 
@@ -258,6 +261,9 @@ pub enum DaemonCommand {
     ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
+    /// Delete the account and log out the user
+    #[cfg(target_os = "android")]
+    DeleteAccount(ResponseTx<(), Error>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
@@ -1618,6 +1624,8 @@ impl Daemon {
             AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx).await,
             GetAppUpgradeCacheDir(tx) => self.on_get_app_upgrade_cache_dir(tx).await,
             GetBridges(tx) => self.on_get_bridges(tx),
+            #[cfg(target_os = "android")]
+            DeleteAccount(tx) => self.on_delete_account(tx),
         }
     }
 
@@ -2044,6 +2052,18 @@ impl Daemon {
                 })
             };
             Self::oneshot_send(tx, result.await, "logout_account response");
+        });
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_delete_account(&mut self, tx: ResponseTx<(), Error>) {
+        let account_manager = self.account_manager.clone();
+        tokio::spawn(async move {
+            let result = account_manager.delete().await.map_err(|error| {
+                log::error!("{}", error.display_chain_with_msg("Delete account failed"));
+                Error::DeleteAccountError(error)
+            });
+            Self::oneshot_send(tx, result, "delete_account response");
         });
     }
 

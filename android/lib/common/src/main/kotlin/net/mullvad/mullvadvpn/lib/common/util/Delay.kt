@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
+import kotlin.time.Duration
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -9,3 +10,6 @@ suspend fun <T> delayAtLeast(duration: Long, f: suspend () -> T): T = coroutineS
     delay(timeMillis = duration)
     result.await()
 }
+
+suspend fun <T> delayAtLeast(duration: Duration, f: suspend () -> T): T =
+    delayAtLeast(duration.inWholeMilliseconds, f)

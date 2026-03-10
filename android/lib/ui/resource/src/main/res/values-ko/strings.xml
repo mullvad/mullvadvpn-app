@@ -438,6 +438,7 @@
     <string name="type">유형</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp">UDP-over-TCP</string>
+    <string name="unable_to_reach_api">API에 연결할 수 없습니다</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">앱에서 Mullvad API를 사용할 수 없어 계정을 생성하지 못했습니다.</string>
     <string name="unable_to_reach_api_dialog_message_first_login">앱에서 Mullvad API를 사용할 수 없어 로그인하지 못했습니다.</string>
     <string name="unable_to_reach_api_dialog_message_list_first">장치 재시작</string>
@@ -445,7 +446,6 @@
     <string name="unable_to_reach_api_dialog_message_list_third">앱의 모든 액세스 방법을 활성화합니다</string>
     <string name="unable_to_reach_api_dialog_message_second">검열 또는 네트워크 문제가 원인일 수 있습니다. 다음을 시도해 보세요.</string>
     <string name="unable_to_reach_api_dialog_message_third">이 단계가 통하지 않는 경우 아래 버튼을 사용해 지원팀에 이메일로 문의해 주세요. 익명 처리된 로그가 자동으로 첨부됩니다.</string>
-    <string name="unable_to_reach_api_dialog_title">API에 연결할 수 없습니다</string>
     <string name="unavailable">사용할 수 없음</string>
     <string name="undo">실행 취소</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
