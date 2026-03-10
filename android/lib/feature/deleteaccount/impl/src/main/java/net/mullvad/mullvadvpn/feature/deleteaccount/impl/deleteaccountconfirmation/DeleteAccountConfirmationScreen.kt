@@ -259,6 +259,7 @@ private fun AccountNumberInput(
             keyboardOptions =
                 KeyboardOptions(
                     imeAction = ImeAction.Done,
+                    autoCorrectEnabled = false,
                     keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
                 ),
             onKeyboardAction = { keyboardController?.hide() },
