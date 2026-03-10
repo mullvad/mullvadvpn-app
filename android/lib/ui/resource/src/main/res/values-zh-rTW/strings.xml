@@ -48,8 +48,8 @@
     <string name="app_name_weather">天氣</string>
     <string name="appearance">外觀</string>
     <string name="appearance_description">變更您 Android 裝置上 Mullvad VPN 應用程式的圖示與標題。這不會變更 Mullvad VPN 相關通知所使用的圖示。</string>
-    <string name="appearance_description_warning">&lt;b&gt;請注意：&lt;/b&gt;應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。</string>
-    <string name="appearance_description_warning_tv">在電視裝置上，您可能還需要重新啟動裝置。</string>
+    <string name="appearance_description_warning"><b>請注意：</b>應用程式將自動關閉，在選擇新的圖示與標題後，需手動重新開啟。這不會影響您的 VPN 連線。</string>
+    <string name="appearance_description_warning_restart">如果關閉應用程式後，圖示和標題仍未變更，請嘗試重新啟動裝置。</string>
     <string name="apply">套用</string>
     <string name="applying_changes">正在套用變更…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
@@ -106,6 +106,8 @@
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>
     <string name="copy">複製</string>
     <string name="copy_account_number">複製帳號</string>
+    <string name="country_comma_city">%2$s%1$s</string>
+    <string name="country_comma_city_comma_relay">%1$s，%2$s，%3$s</string>
     <string name="create">建立</string>
     <string name="create_account_fail_title">建立帳戶失敗</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>

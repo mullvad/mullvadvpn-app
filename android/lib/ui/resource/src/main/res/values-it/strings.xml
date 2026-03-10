@@ -48,8 +48,8 @@
     <string name="app_name_weather">Meteo</string>
     <string name="appearance">Aspetto</string>
     <string name="appearance_description">Cambia il titolo e l\'icona dell\'app Mullvad VPN sul tuo dispositivo Android. Questa operazione non modificherà l\'icona delle notifiche relative a Mullvad VPN.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Attenzione:&lt;/b&gt; l\'app si chiuderà automaticamente e dovrà essere riaperta manualmente dopo aver selezionato una nuova icona e un nuovo titolo. Ciò non influirà sulla connessione VPN.</string>
-    <string name="appearance_description_warning_tv">Sui dispositivi TV potrebbe essere necessario anche riavviare il dispositivo.</string>
+    <string name="appearance_description_warning"><b>Attenzione:</b> l\'app si chiuderà automaticamente e dovrà essere riaperta manualmente dopo aver selezionato una nuova icona e un nuovo titolo. Ciò non influirà sulla connessione VPN.</string>
+    <string name="appearance_description_warning_restart">Se l\'icona e il titolo non cambiano dopo aver chiuso l\'app, prova a riavviare il dispositivo.</string>
     <string name="apply">Applica</string>
     <string name="applying_changes">Applicazione modifiche...</string>
     <string name="at_least_on_method_needs_to_enabled">È necessario abilitare almeno un metodo</string>
@@ -106,6 +106,8 @@
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
     <string name="copy">Copia</string>
     <string name="copy_account_number">Copia numero di account</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Crea</string>
     <string name="create_account_fail_title">Creazione dell\'account non riuscita</string>
     <string name="create_custom_list_message">\"%1$s\" creato</string>

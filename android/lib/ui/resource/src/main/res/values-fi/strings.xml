@@ -48,8 +48,8 @@
     <string name="app_name_weather">Sää</string>
     <string name="appearance">Ulkoasu</string>
     <string name="appearance_description">Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu.</string>
-    <string name="appearance_description_warning">&lt;b&gt;Huomio:&lt;/b&gt; Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
-    <string name="appearance_description_warning_tv">TV-laitteilla saatat myös joutua käynnistämään laitteesi uudelleen.</string>
+    <string name="appearance_description_warning"><b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi.</string>
+    <string name="appearance_description_warning_restart">Jos kuvake ja otsikko eivät vaihdu sovelluksen sulkemisen jälkeenkään, kokeile käynnistää laite uudelleen.</string>
     <string name="apply">Ota käyttöön</string>
     <string name="applying_changes">Muutoksia otetaan käyttöön...</string>
     <string name="at_least_on_method_needs_to_enabled">Vähintään yhden menetelmän on oltava käytössä</string>
@@ -106,6 +106,8 @@
     <string name="copied_mullvad_account_number">Mullvad-tilin numero kopioitu leikepöydälle</string>
     <string name="copy">Kopioi</string>
     <string name="copy_account_number">Kopioi tilin numero</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Luo</string>
     <string name="create_account_fail_title">Tilin luominen epäonnistui</string>
     <string name="create_custom_list_message">\"%1$s\" luotiin</string>

@@ -48,8 +48,8 @@
     <string name="app_name_weather">สภาพอากาศ</string>
     <string name="appearance">รูปลักษณ์</string>
     <string name="appearance_description">เปลี่ยนชื่อและไอคอนของแอป Mullvad VPN บนอุปกรณ์ Android ของคุณ การดำเนินการนี้จะไม่เปลี่ยนไอคอนสำหรับการแจ้งเตือนที่เกี่ยวข้องกับ Mullvad VPN</string>
-    <string name="appearance_description_warning">&lt;b&gt;ข้อควรระวัง:&lt;/b&gt; แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ</string>
-    <string name="appearance_description_warning_tv">คุณอาจต้องรีสตาร์ทอุปกรณ์ทีวีของคุณด้วย</string>
+    <string name="appearance_description_warning"><b>ข้อควรระวัง:</b> แอปจะปิดโดยอัตโนมัติและต้องเปิดใหม่ด้วยตนเองหลังจากเลือกไอคอนและชื่อใหม่ การดำเนินการนี้จะไม่ส่งผลต่อการเชื่อมต่อ VPN ของคุณ</string>
+    <string name="appearance_description_warning_restart">หากไอคอนและชื่อยังไม่เปลี่ยนหลังจากปิดแอปแล้ว โปรดลองรีสตาร์ทอุปกรณ์</string>
     <string name="apply">ใช้</string>
     <string name="applying_changes">กำลังปรับใช้การเปลี่ยนแปลง...</string>
     <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
@@ -106,6 +106,8 @@
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
     <string name="copy">คัดลอก</string>
     <string name="copy_account_number">คัดลอกหมายเลขบัญชี</string>
+    <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">สร้าง</string>
     <string name="create_account_fail_title">การสร้างบัญชีล้มเหลว</string>
     <string name="create_custom_list_message">\"%1$s\" ถูกสร้างแล้ว</string>
