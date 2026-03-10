@@ -1454,9 +1454,8 @@ mod new {
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
-    use mullvad_types::{
-        relay_constraints::{LocationConstraint, ObfuscationSettings, SelectedObfuscation},
-        wireguard::DaitaSettings,
+    use mullvad_types::relay_constraints::{
+        LocationConstraint, ObfuscationSettings, SelectedObfuscation,
     };
 
     use super::*;
@@ -1523,18 +1522,11 @@ mod new {
     fn providers() {
         let providers = Providers::new(["31173", "100TB"]).unwrap();
 
-        let constraints = EntryConstraints {
-            providers: providers.clone().into(),
-            ..Default::default()
-        };
-        let multihop_constraints = MultihopConstraints {
-            entry: constraints.clone(),
-            exit: ExitConstraints {
-                // NOTE: Providers are (currently) mirrored both entry + exit, so we set this manually.
-                providers: providers.clone().into(),
-                ..Default::default()
-            },
-        };
+        let constraints = EntryConstraints::default().providers(providers.clone());
+        let multihop_constraints = MultihopConstraints::default()
+            .entry(constraints.clone())
+            // NOTE: Providers are (currently) mirrored both entry + exit, so we set this manually.
+            .exit(ExitConstraints::default().providers(providers.clone()));
 
         for scenario in [
             Predicate::Singlehop(constraints.clone()),
@@ -1615,18 +1607,11 @@ mod new {
     #[test]
     fn ownership() {
         for ownership in [Ownership::MullvadOwned, Ownership::Rented] {
-            let constraints = EntryConstraints {
-                ownership: ownership.into(),
-                ..Default::default()
-            };
-            let multihop_constraints = MultihopConstraints {
-                entry: constraints.clone(),
-                exit: ExitConstraints {
-                    // NOTE: Ownership is (currently) mirrored both entry + exit, so we set this manually.
-                    ownership: ownership.into(),
-                    ..Default::default()
-                },
-            };
+            let constraints = EntryConstraints::default().ownership(ownership);
+            let multihop_constraints = MultihopConstraints::default()
+                .entry(constraints.clone())
+                // NOTE: Ownership is (currently) mirrored both entry + exit, so we set this manually.
+                .exit(ExitConstraints::default().ownership(ownership));
 
             for scenario in [
                 Predicate::Singlehop(constraints.clone()),
@@ -1714,10 +1699,7 @@ mod new {
         };
 
         for obfuscation in [quic, lwo, shadowsocks] {
-            let constraints = EntryConstraints {
-                obfuscation_settings: obfuscation.into(),
-                ..Default::default()
-            };
+            let constraints = EntryConstraints::default().obfuscation(obfuscation);
             let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
 
             for reasons in query.unique_reasons() {
@@ -1736,10 +1718,7 @@ mod new {
     /// This is a port of test_runtime_ipv4_unavailable.
     #[test]
     fn runtime_ipv4_unavailable() {
-        let constraints = EntryConstraints {
-            ip_version: IpVersion::V6.into(),
-            ..Default::default()
-        };
+        let constraints = EntryConstraints::default().ip_version(IpVersion::V6);
         // Query for all DAITA relays.
         let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
         assert!(!query.matches.is_empty());
@@ -1754,15 +1733,12 @@ mod new {
     /// This is a port of test_shadowsocks_runtime_ipv4_unavailable.
     #[test]
     fn shadowsocks_runtime_ipv4_unavailable() {
-        let constraints = EntryConstraints {
-            ip_version: IpVersion::V6.into(),
-            obfuscation_settings: ObfuscationSettings {
+        let constraints = EntryConstraints::default()
+            .ip_version(IpVersion::V6)
+            .obfuscation(ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Shadowsocks,
                 ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+            });
         // Query for all DAITA relays.
         let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
         assert!(!query.matches.is_empty());
@@ -1776,15 +1752,7 @@ mod new {
     /// This is a port of `test_daita`
     #[test]
     fn daita() {
-        let constraints = EntryConstraints {
-            daita: DaitaSettings {
-                enabled: true,
-                // Do not use smart routing / "autohop".
-                use_multihop_if_necessary: false,
-            }
-            .into(),
-            ..Default::default()
-        };
+        let constraints = EntryConstraints::default().daita(true);
         // Query for all DAITA relays.
         let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
         for relay in &query.matches {
@@ -1806,24 +1774,13 @@ mod new {
             .collect();
         for relay in non_daita_relays {
             // Force the entry relay to be a relay without DAITA.
-            let location = LocationConstraint::from(GeographicLocationConstraint::hostname(
-                relay.location.country.clone(),
-                relay.location.city.clone(),
-                relay.hostname.clone(),
-            ));
-            let constraints = EntryConstraints {
-                general: ExitConstraints {
-                    location: location.into(),
-                    ..Default::default()
-                },
-                daita: DaitaSettings {
-                    enabled: true,
-                    // NOTE: This does not actually do anything.
-                    use_multihop_if_necessary: false,
-                }
-                .into(),
-                ..Default::default()
-            };
+            let constraints = EntryConstraints::default().daita(true).general(
+                ExitConstraints::default().location(GeographicLocationConstraint::hostname(
+                    relay.location.country.clone(),
+                    relay.location.city.clone(),
+                    relay.hostname.clone(),
+                )),
+            );
             // Demonstrate the difference between autohop / singlehop.
             let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
             assert!(!query.matches.is_empty());
@@ -1838,14 +1795,7 @@ mod new {
     /// This is a port of test_daita_smart_routing_overrides_multihop
     #[test]
     fn daita_smart_routing_overrides_multihop() {
-        let daita_constraints = EntryConstraints {
-            daita: DaitaSettings {
-                enabled: true,
-                ..Default::default()
-            }
-            .into(),
-            ..Default::default()
-        };
+        let daita_constraints = EntryConstraints::default().daita(true);
         for non_daita_relay in RELAY_SELECTOR
             .partition_relays(Predicate::Singlehop(daita_constraints.clone()))
             .discards
@@ -1883,18 +1833,7 @@ mod new {
         // and exit even if we're autohoppin', we should not show any matching relays.
         let providers = Providers::new(["100TB"]).unwrap();
 
-        let constraints = EntryConstraints {
-            providers: providers.into(),
-            daita: mullvad_types::wireguard::DaitaSettings {
-                enabled: true,
-                // NOTE: This does nothing in the new relay selector algorithm, as smart routing /
-                // autohop is dictated by if the in-parameter to `partition_relays` is `Predicate::Autohop`.
-                // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
-                use_multihop_if_necessary: Default::default(),
-            }
-            .into(),
-            ..Default::default()
-        };
+        let constraints = EntryConstraints::default().providers(providers).daita(true);
 
         let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints));
         assert_eq!(query.matches.len(), 0);
@@ -2086,11 +2025,6 @@ mod relay_list_builder {
                     self.relay_list.countries.last_mut().unwrap()
                 }
             };
-            self.relay_list.countries.push(country);
-        }
-
-        pub fn add_city(&mut self, code: &str) {
-            let country = self.relay_list.countries.last_mut().unwrap();
             let city = RelayListCity {
                 code: city.to_string(),
                 name: city.to_string(),

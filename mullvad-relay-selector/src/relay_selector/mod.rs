@@ -1320,13 +1320,35 @@ impl EntryConstraints {
     pub fn daita(mut self, enabled: bool) -> Self {
         self.daita = Constraint::Only(DaitaSettings {
             enabled,
-            use_multihop_if_necessary: false, // Unused for partition relays, overridden by "Autohop" predicate.
+            // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
+            // Unused for partition relays, overridden by "Autohop" predicate.
+            use_multihop_if_necessary: false,
         });
         self
     }
 
     pub fn general(mut self, general: ExitConstraints) -> Self {
         self.general = general;
+        self
+    }
+
+    pub fn providers(mut self, providers: Providers) -> Self {
+        self.providers = Constraint::Only(providers);
+        self
+    }
+
+    pub fn ownership(mut self, ownership: Ownership) -> Self {
+        self.ownership = Constraint::Only(ownership);
+        self
+    }
+
+    pub fn obfuscation(mut self, obfuscation_settings: ObfuscationSettings) -> Self {
+        self.obfuscation_settings = Constraint::Only(obfuscation_settings);
+        self
+    }
+
+    pub fn ip_version(mut self, ip_version: IpVersion) -> Self {
+        self.ip_version = Constraint::Only(ip_version);
         self
     }
 }
@@ -1368,6 +1390,18 @@ impl ExitConstraints {
 pub struct MultihopConstraints {
     pub entry: EntryConstraints,
     pub exit: ExitConstraints,
+}
+
+impl MultihopConstraints {
+    pub fn entry(mut self, entry: EntryConstraints) -> Self {
+        self.entry = entry;
+        self
+    }
+
+    pub fn exit(mut self, exit: ExitConstraints) -> Self {
+        self.exit = exit;
+        self
+    }
 }
 
 // TODO: Work with references instead of copies?
