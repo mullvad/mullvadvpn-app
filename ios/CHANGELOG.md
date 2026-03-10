@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 ### Add
+- Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
 - Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
   This helps circumvent censorship.
 - Add button to manually update relay list
@@ -30,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add recent connections in the Select location view.
 - Show disabled servers in location view.
 - Add ability which types of local notifications are delivered.
+
+[TunnelCrack]: https://tunnelcrack.mathyvanhoef.com/
 
 ### Changed
 - Improve reliability of the bridge API connection method.
