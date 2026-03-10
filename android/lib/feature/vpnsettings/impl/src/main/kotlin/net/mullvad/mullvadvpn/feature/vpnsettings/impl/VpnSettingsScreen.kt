@@ -42,6 +42,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -716,7 +717,12 @@ fun VpnSettingsContent(
                             position = if (it.expanded) Position.Top else Position.Single,
                             content = { _ ->
                                 Row {
-                                    Text(stringResource(R.string.dns_content_blockers))
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = stringResource(R.string.dns_content_blockers),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
                                     if (it.numberOfContentBlockersEnabled > 0) {
                                         Text(SPACE_CHAR.toString())
                                         Text(
