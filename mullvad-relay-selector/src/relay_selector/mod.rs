@@ -27,6 +27,7 @@ use mullvad_types::{
         ObfuscationSettings, RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_list::{Bridge, BridgeList, Relay, RelayList, WireguardRelay},
+    relay_selector::{Predicate, RelayPartitions},
     settings::Settings,
     wireguard::QuantumResistantState,
 };
@@ -809,6 +810,10 @@ impl RelaySelector {
         let endpoint = detailer::bridge_endpoint(&bridge_list.bridge_endpoint, &bridge)
             .ok_or(Error::NoBridge)?;
         Ok((endpoint, bridge))
+    }
+
+    pub fn partition_relays(&self, _: Predicate) -> RelayPartitions {
+        todo!("Implement this algorithm.")
     }
 }
 
