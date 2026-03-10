@@ -7,4 +7,3 @@
 //
 
 #import <Foundation/Foundation.h>
-#include "mullvad-api.h"
