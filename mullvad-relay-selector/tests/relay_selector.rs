@@ -1916,7 +1916,7 @@ mod new {
     /// to. I.e. all relays which may be connected to directly should of course not be discarded.
     #[test]
     fn autohop_no_need_for_alternate_entry() {
-        // A slightly more contrieved example than `daita_no_direct_only_provider`: perform a
+        // A slightly more contrived example than `daita_no_direct_only_provider`: perform a
         // pre-step pruning all DAITA relays from the relay list. As such, no other factor comes
         // into play (provider, ownership).
         let mut relay_list = RelayListBuilder::new();
