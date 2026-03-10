@@ -35,6 +35,10 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
+### Security
+#### macOS
+- Fix LPE in `preinstall` script that allowed administrator users to elevate themselves to `root`.
+
 
 ## [2026.1-beta1] - 2026-02-23
 ### Changed
