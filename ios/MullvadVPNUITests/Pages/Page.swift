@@ -41,7 +41,9 @@ class Page {
 
     /// Fast swipe down action to dismiss a modal view. Will swipe on the middle of the screen.
     @discardableResult func swipeDownToDismissModal() -> Self {
-        app.swipeDown(velocity: .fast)
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.2))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.8))
+        start.press(forDuration: 0, thenDragTo: end)
         return self
     }
 

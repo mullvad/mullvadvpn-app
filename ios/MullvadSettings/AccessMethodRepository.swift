@@ -60,6 +60,8 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         direct
     }
 
+    private lazy var defaultConnectionMethods = [direct, bridge, encryptedDNS]
+
     private var cancellables: Set<Combine.AnyCancellable> = []
 
     public init() {
@@ -150,11 +152,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
     }
 
     public func addDefaultsMethods() {
-        add([
-            direct,
-            bridge,
-            encryptedDNS,
-        ])
+        add(defaultConnectionMethods)
     }
 
     private func add(_ methods: [PersistentAccessMethod]) {
@@ -182,7 +180,9 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
             return try parser.parseUnversionedPayload(as: PersistentAccessMethodStore.self, from: data)
         } catch {
             logger.error("Could not load access method store: \(error)")
-            return PersistentAccessMethodStore(lastReachableAccessMethod: direct, accessMethods: [])
+            return PersistentAccessMethodStore(
+                lastReachableAccessMethod: direct,
+                accessMethods: defaultConnectionMethods)
         }
     }
 

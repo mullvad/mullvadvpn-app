@@ -223,7 +223,7 @@ extension XCUIElement {
 
 extension XCUIElement {
     func clearText(app: XCUIApplication) {
-        tap()
+        tapWhenHittable()
         press(forDuration: 1.0)
 
         let selectAll = app.menuItems["Select All"]

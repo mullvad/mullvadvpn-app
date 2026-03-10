@@ -10,30 +10,29 @@ import XCTest
 
 @MainActor
 class ScreenshotTests: LoggedInWithTimeUITestCase {
+    override class var executableTarget: MullvadExecutableTarget {
+        .screenshots
+    }
+    override class var settingsResetPolicy: UITestSettingsResetPolicy { .only([.customRelayLists, .settings]) }
+
     override func setUp() async throws {
         setupSnapshot(app, waitForAnimations: false)
-
-        let argumentsJsonString = try? LaunchArguments(
-            target: .screenshots,
-            areAnimationsDisabled: true
-        ).toJSON()
-        app.launchEnvironment[LaunchArguments.tag] = argumentsJsonString
-
         try await super.setUp()
     }
 
-    func testTakeScreenshotOfAQuantumSecuredConnection() async throws {
+    func testTakeScreenshotOfQuantumSecuredConnection() async throws {
         // We can't close banners in the screenshot tests due to how the NotificationController view
         // is overridden, so we need to restart the app once to make sure the "new device" notification
         // isn't visible.
-        app.terminate()
-        app.launch()
+        try app.relaunch(Self.executableTarget)
 
         TunnelControlPage(app)
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
             .tapLocationCell(withName: "Sweden")
+
+        allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
             .waitForConnectedLabel()
@@ -56,15 +55,15 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
             .addOrEditLocations()
 
         AddCustomListLocationsPage(app)
-            .scrollToLocationWith(identifier: "se")
-            .unfoldLocationwith(identifier: "se")
-            .unfoldLocationwith(identifier: "se-got")
+            .scrollToLocationWith(identifier: "Sweden")
+            .unfoldLocationwith(identifier: "Sweden")
+            .unfoldLocationwith(identifier: "Gothenburg")
             .toggleLocationCheckmarkWith(identifier: "se-got-wg-101")
-            .scrollToLocationWith(identifier: "de")
-            .unfoldLocationwith(identifier: "de")
-            .toggleLocationCheckmarkWith(identifier: "de-ber")
-            .scrollToLocationWith(identifier: "fi")
-            .toggleLocationCheckmarkWith(identifier: "fi")
+            .scrollToLocationWith(identifier: "Germany")
+            .unfoldLocationwith(identifier: "Germany")
+            .toggleLocationCheckmarkWith(identifier: "Berlin")
+            .scrollToLocationWith(identifier: "Finland")
+            .toggleLocationCheckmarkWith(identifier: "Finland")
             .tapBackButton()
 
         CustomListPage(app)
