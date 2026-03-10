@@ -444,17 +444,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.didFinish = { [weak self] in
             guard let self else { return }
             router.dismiss(.welcome, animated: false)
-            #if DEBUG
-                if appPreferences.isNotificationPermissionAsked == false {
-                    presentNotificationsPrompt(animated: animated) { coordinator in
-                        self.continueFlow(animated: false)
-                    }
-                } else {
+            if appPreferences.isNotificationPermissionAsked == false {
+                presentNotificationsPrompt(animated: animated) { coordinator in
                     self.continueFlow(animated: false)
                 }
-            #else
+            } else {
                 self.continueFlow(animated: false)
-            #endif
+            }
 
         }
         coordinator.didLogout = { [weak self] preferredAccountNumber in
