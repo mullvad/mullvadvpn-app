@@ -119,6 +119,9 @@
         }
       }
     },
+    "Force all apps" : {
+
+    },
     "Update available" : {
       "localizations" : {
         "da" : {

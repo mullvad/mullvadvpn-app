@@ -69,18 +69,17 @@ LwoObfuscationSettingsViewModel
     }
 
     func portRangesString() -> String {
-        var string = "Valid ranges: "
-
+        var portsString = ""
         portRanges.enumerated().forEach { (index, range) in
             if let minPort = range.first, let maxPort = range.last {
                 if index != 0 {
-                    string.append(", ")
+                    portsString.append(", ")
                 }
 
-                string.append(String(format: "%d - %d", minPort, maxPort))
+                portsString.append(String(format: "%d - %d", minPort, maxPort))
             }
         }
 
-        return NSLocalizedString(string, comment: "")
+        return String(format: NSLocalizedString("Valid ranges: %@", comment: ""), portsString)
     }
 }
