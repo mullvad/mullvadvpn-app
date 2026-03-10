@@ -14,9 +14,9 @@ export function createLocationLabel(
   // In some situations the exit/entry server should be marked on a location
   let info: string | undefined;
   if (disabledReason === DisabledReason.entry) {
-    info = messages.pgettext('select-location-view', 'Entry');
+    info = messages.pgettext('locations-feature', 'Entry');
   } else if (disabledReason === DisabledReason.exit) {
-    info = messages.pgettext('select-location-view', 'Exit');
+    info = messages.pgettext('locations-feature', 'Exit');
   }
 
   return info !== undefined
@@ -26,7 +26,7 @@ export function createLocationLabel(
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(location)s - Translated location name
         // TRANSLATORS: %(info)s - Information about the location
-        messages.pgettext('select-location-view', '%(location)s (%(info)s)'),
+        messages.pgettext('locations-feature', '%(location)s (%(info)s)'),
         {
           location: translatedName,
           info,

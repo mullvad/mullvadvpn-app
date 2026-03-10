@@ -13,7 +13,7 @@ export function useIsCustomListNameValid() {
     (name: string): boolean | string => {
       const trimmedName = name.trim();
       if (existingNames.has(trimmedName)) {
-        return messages.pgettext('select-location-view', 'List names must be unique');
+        return messages.pgettext('custom-list-feature', 'List names must be unique');
       }
 
       const customListNameValid = trimmedName.length > 0;
