@@ -41,8 +41,8 @@ const StyledSearchInput = styled.input.attrs({ type: 'text' })({
     color: colors.whiteOnDarkBlue60,
   },
   '&&:focus': {
-    color: colors.whiteAlpha60,
-    backgroundColor: colors.whiteOnDarkBlue10,
+    color: colors.blue,
+    backgroundColor: colors.white,
   },
 });
 
