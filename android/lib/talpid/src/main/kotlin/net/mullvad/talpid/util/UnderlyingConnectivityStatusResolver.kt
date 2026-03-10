@@ -59,7 +59,7 @@ class UnderlyingConnectivityStatusResolver(
 
     private fun DatagramSocket.connectSafe(address: InetSocketAddress): Either<Throwable, Unit> =
         Either.catch { connect(address) }
-            .onLeft { Logger.i("${address.toIpVersionString()} is not available") }
+            .onLeft { Logger.d("${address.toIpVersionString()} is not available") }
             .also { close() }
 
     private fun InetSocketAddress.toIpVersionString(): String =
