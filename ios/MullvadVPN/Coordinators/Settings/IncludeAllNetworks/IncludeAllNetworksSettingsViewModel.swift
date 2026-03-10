@@ -161,11 +161,13 @@ extension IncludeAllNetworksSettingsViewModel {
 
     func getReconsiderNotificationsAlert(completion: @escaping () -> Void) -> MullvadAlert {
         let message = [
-            ("You currently have notifications disabled. This means that we cannot send you a "
-                + "notification when an update is available so that you can disable this "
-                + "feature or disconnect before updating."),
-            ("Please enable notifications to ensure that you do not lose network connectivity. "
-                + "Would you like to continue anyways?"),
+            (NSLocalizedString(
+                "You currently have notifications disabled. This means that we cannot send you a "
+                    + "notification when an update is available so that you can disable this "
+                    + "feature or disconnect before updating.", comment: "")),
+            (NSLocalizedString(
+                "Please enable notifications to ensure that you do not lose network connectivity. "
+                    + "Would you like to continue anyways?", comment: "")),
         ].joinedParagraphs()
 
         return MullvadAlert(
@@ -196,11 +198,13 @@ extension IncludeAllNetworksSettingsViewModel {
 
     func getLanSharingInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
         let messageInfo = [
-            ("This feature allows access to other devices on the local network, "
-                + "such as for sharing, printing, streaming, etc."),
-            ("It does this by allowing network communication outside the tunnel "
-                + "to local multicast and broadcast ranges as well as to and from "
-                + "these private IP ranges:"),
+            (NSLocalizedString(
+                "This feature allows access to other devices on the local network, "
+                    + "such as for sharing, printing, streaming, etc.", comment: "")),
+            (NSLocalizedString(
+                "It does this by allowing network communication outside the tunnel "
+                    + "to local multicast and broadcast ranges as well as to and from "
+                    + "these private IP ranges:", comment: "")),
         ].joinedParagraphs()
 
         let ipList = [
@@ -259,21 +263,28 @@ extension IncludeAllNetworksSettingsViewModel {
         var message = [
             String(
                 format:
-                    "%@ “%@“ requires restarting the VPN connection, which will disconnect "
-                    + "you and briefly expose your traffic. To prevent this, manually enable "
-                    + "Airplane Mode and turn off Wi-Fi before continuing.",
-                enabled ? "Enabling" : "Disabling",
+                    NSLocalizedString(
+                        "%@ “%@“ requires restarting the VPN connection, which will disconnect "
+                            + "you and briefly expose your traffic. To prevent this, manually enable "
+                            + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
+                enabled ? NSLocalizedString("Enabling", comment: "") : NSLocalizedString("Disabling", comment: ""),
                 feature.rawValue
             ),
             String(
-                format: "Would you like to continue to %@ “%@”?",
-                enabled ? "enable" : "disable",
+                format: NSLocalizedString("Would you like to continue to %@ “%@”?", comment: ""),
+                enabled ? NSLocalizedString("enable", comment: "") : NSLocalizedString("disable", comment: ""),
                 feature.rawValue
             ),
         ]
 
         if !enabled && feature == .includeAllNetworks {
-            message.insert("This will also disable “Local Network Sharing“.", at: 1)
+            message.insert(
+                String(
+                    format: NSLocalizedString("This will also disable “%@“.", comment: ""),
+                    NSLocalizedString("Local Network Sharing", comment: ""),
+                ),
+                at: 1
+            )
         }
 
         return MullvadAlert(

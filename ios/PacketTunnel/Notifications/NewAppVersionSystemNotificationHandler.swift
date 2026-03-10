@@ -51,7 +51,7 @@ final class NewAppVersionSystemNotificationHandler {
                 "Disable “%@” or disconnect before updating in order not to lose network connectivity.",
                 comment: ""
             ),
-            "Force all apps"
+            NSLocalizedString("Force all apps", comment: "")
         )
 
         // When scheduling a user notification we need to make sure that the date has not passed
