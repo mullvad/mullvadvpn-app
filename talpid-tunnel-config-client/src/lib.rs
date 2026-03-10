@@ -187,12 +187,12 @@ pub async fn request_ephemeral_peer_with(
 
         // Store the PSK data on the heap. So it can be passed around and then zeroized on drop
         // without being stored in a bunch of places on the stack.
-        let mut psk_data = Box::new([0u8; 32]);
+        let mut psk = PresharedKey::from(Box::default());
 
         // Decapsulate ML-KEM and mix into PSK
         {
             let mut shared_secret = ml_kem_keypair.decapsulate(ml_kem_ciphertext)?;
-            xor_assign(&mut psk_data, &shared_secret);
+            xor_assign(psk.as_bytes_mut(), &shared_secret);
 
             // The shared secret is sadly stored in an array on the stack. So we can't get any
             // guarantees that it's not copied around on the stack. The best we can do here
@@ -203,7 +203,7 @@ pub async fn request_ephemeral_peer_with(
         // Decapsulate HQC and mix into PSK
         {
             let mut shared_secret = hqc_keypair.decapsulate(hqc_ciphertext)?;
-            xor_assign(&mut psk_data, &shared_secret);
+            xor_assign(psk.as_bytes_mut(), &shared_secret);
 
             // The shared secret is sadly stored in an array on the stack. So we can't get any
             // guarantees that it's not copied around on the stack. The best we can do here
@@ -212,7 +212,7 @@ pub async fn request_ephemeral_peer_with(
             shared_secret.zeroize();
         }
 
-        Some(PresharedKey::from(psk_data))
+        Some(psk)
     } else {
         None
     };
