@@ -197,6 +197,7 @@ private fun DeleteAccountConfirmationContent(
         )
         Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
         AccountNumberInput(onAccountInputChanged, state)
+        Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
 
         Spacer(Modifier.weight(1f))
         DeleteAccountConfirmationBottomBar(
