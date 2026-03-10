@@ -89,7 +89,7 @@ private extension NotificationKeys {
     var title: String {
         switch self {
         case .account:
-            "Account time reminders"
+            NSLocalizedString("Account time reminders", comment: "")
         }
     }
 

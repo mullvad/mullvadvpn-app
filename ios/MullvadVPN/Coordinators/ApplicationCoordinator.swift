@@ -898,28 +898,21 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
 
         let message = [
-            NSLocalizedString(
-                String(
-                    format:
+            String(
+                format:
+                    NSLocalizedString(
                         "“%@“ is enabled, please disable it before updating or you will lose network connectivity. "
-                        + "This will briefly expose your traffic as you reconnect to the VPN.",
-                    "Force all apps"
-                ),
-                comment: ""
+                            + "This will briefly expose your traffic as you reconnect to the VPN.", comment: ""),
+                NSLocalizedString("Force all apps", comment: "")
             ),
-            NSLocalizedString(
-                String(
-                    format: "After updating, you will have to enable “%@” manually again.",
-                    "Force all apps"
-                ),
-                comment: ""
+            String(
+                format: NSLocalizedString("After updating, you will have to enable “%@” manually again.", comment: ""),
+                NSLocalizedString("Force all apps", comment: "")
             ),
-            NSLocalizedString(
-                String(
-                    format: "If you do not wish to disable “%@“, you can disconnect from the VPN instead.",
-                    "Force all apps"
-                ),
-                comment: ""
+            String(
+                format: NSLocalizedString(
+                    "If you do not wish to disable “%@“, you can disconnect from the VPN instead.", comment: ""),
+                NSLocalizedString("Force all apps", comment: "")
             ),
         ].joinedParagraphs(lineBreaks: 1)
 
@@ -942,10 +935,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             message: message,
             buttons: [
                 AlertAction(
-                    title: NSLocalizedString(
-                        String(format: "Disable “%@”", "Force all apps"),
-                        comment: ""
-                    ),
+                    title:
+                        String(
+                            format: NSLocalizedString("Disable “%@”", comment: ""),
+                            NSLocalizedString("Force all apps", comment: ""),
+                        ),
                     style: .default,
                     interactiveHandler: { [weak self] alertViewController, button in
                         guard let self else { return }

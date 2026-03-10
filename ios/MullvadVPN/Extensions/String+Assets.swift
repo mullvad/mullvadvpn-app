@@ -11,20 +11,18 @@ import Foundation
 extension String {
     enum Alerts {
         static func disconnectWarning(action: String, feature: String) -> String {
-            NSLocalizedString(
-                [
-                    String(
-                        format:
+            [
+                String(
+                    format:
+                        NSLocalizedString(
                             "%@ %@ requires restarting the VPN connection, which will disconnect "
-                            + "you and briefly expose your traffic. To prevent this, manually enable "
-                            + "Airplane Mode and turn off Wi-Fi before continuing.",
-                        action.capitalized,
-                        feature
-                    ),
-                    "Would you like to continue?",
-                ].joinedParagraphs(lineBreaks: 1),
-                comment: ""
-            )
+                                + "you and briefly expose your traffic. To prevent this, manually enable "
+                                + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
+                    action.capitalized,
+                    feature
+                ),
+                NSLocalizedString("Would you like to continue?", comment: ""),
+            ].joinedParagraphs(lineBreaks: 1)
         }
     }
 }
