@@ -4,20 +4,20 @@ import { sprintf } from 'sprintf-js';
 import {
   compareRelayLocationGeographical,
   ICustomList,
-} from '../../../../../../shared/daemon-rpc-types';
-import { messages } from '../../../../../../shared/gettext';
-import { useAddLocationToCustomList } from '../../../../../features/custom-lists/hooks';
-import type { GeographicalLocation } from '../../../../../features/locations/types';
-import { IconButton } from '../../../../../lib/components';
-import { ListItem } from '../../../../../lib/components/list-item';
-import { SelectableLabel } from '../../../../../lib/components/selectable-label';
+} from '../../../../../../../shared/daemon-rpc-types';
+import { messages } from '../../../../../../../shared/gettext';
+import { IconButton } from '../../../../../../lib/components';
+import { ListItem } from '../../../../../../lib/components/list-item';
+import { SelectableLabel } from '../../../../../../lib/components/selectable-label';
+import type { GeographicalLocation } from '../../../../../locations/types';
+import { useAddLocationToCustomList } from '../../../../hooks';
 
 interface SelectListProps {
   list: ICustomList;
   location: GeographicalLocation;
 }
 
-export function SelectList({ list, location }: SelectListProps) {
+export function AddLocationToCustomListListItem({ list, location }: SelectListProps) {
   const addLocationToCustomList = useAddLocationToCustomList();
   const [loading, setLoading] = React.useState(false);
 

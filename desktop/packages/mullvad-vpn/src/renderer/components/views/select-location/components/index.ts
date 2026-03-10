@@ -13,7 +13,6 @@ export * from './providers-filter-chip';
 export * from './geographical-location-list-item';
 export * from './scope-bar';
 export * from './scope-bar-item';
-export * from './select-list';
 export * from './space-pre-allocation-view';
 export * from './quic-filter-chip';
 export * from './location-lists';
