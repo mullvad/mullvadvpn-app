@@ -1,20 +1,24 @@
 import React from 'react';
 
-import { useCustomListLocations } from '../../../features/locations/hooks';
-import { useCountryLocations } from '../../../features/locations/hooks/use-country-locations';
+import {
+  useCustomListLocations,
+  useFilteredCountryLocations,
+  useSearchCountryLocations,
+  useSelectedLocation,
+} from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import useActions from '../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
 import userInterface from '../../../redux/userinterface/actions';
 
-type SelectLocationViewContextProps = {
+type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'children'> & {
   locationType: LocationType;
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  filteredLocations: ReturnType<typeof useCountryLocations>['filteredLocations'];
-  searchedLocations: ReturnType<typeof useCountryLocations>['searchedLocations'];
+  filteredLocations: ReturnType<typeof useFilteredCountryLocations>;
+  searchedLocations: ReturnType<typeof useSearchCountryLocations>;
   customListLocations: ReturnType<typeof useCustomListLocations>;
 };
 
@@ -39,11 +43,17 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = React.useState('');
   const relaySettings = useNormalRelaySettings();
-  const { filteredLocations, searchedLocations } = useCountryLocations(
-    locationTypeSelector,
+  const selectedLocation = useSelectedLocation(locationTypeSelector);
+  const filteredLocations = useFilteredCountryLocations(locationTypeSelector);
+  const searchedLocations = useSearchCountryLocations(filteredLocations, searchTerm);
+
+  const activeSearch = searchTerm.length > 0;
+
+  const customListLocations = useCustomListLocations({
+    locations: activeSearch ? searchedLocations : filteredLocations,
+    selectedLocation,
     searchTerm,
-  );
-  const customListLocations = useCustomListLocations(locationTypeSelector, searchTerm);
+  });
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = relaySettings?.wireguard.useMultihop;
@@ -70,6 +80,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       locationType,
       searchTerm,
       searchedLocations,
+      setSearchTerm,
       setSelectLocationView,
     ],
   );
