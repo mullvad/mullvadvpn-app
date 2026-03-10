@@ -49,6 +49,7 @@
     <string name="appearance">ပုံသဏ္ဌာန်</string>
     <string name="appearance_description">Android စက်ရှိ Mullvad VPN အက်ပ်၏ ခေါင်းစဉ်နှင့် အိုင်ကွန်ကို ပြောင်းပါ။ ဤသို့ ပြောင်းခြင်းသည် Mullvad VPN ဆက်စပ်သော အသိပေးချက်မှန်သမျှအတွက် အိုင်ကွန်ကို မပြောင်းစေပါ။</string>
     <string name="appearance_description_warning"><b>သတိပြုရန်-</b> အိုင်ကွန်နှင့် ခေါင်းစဉ်အသစ်ကို ရွေးပြီးသည်နှင့် အက်ပ်က အော်တို ပိတ်သွားမည်ဖြစ်ပြီး ကိုယ်တိုင် ပြန်ဖွင့်ရန် လိုအပ်ပါသည်။ ဤလုပ်ဆောင်မှုသည် VPN ချိတ်ဆက်မှုကို မထိခိုက်ပါ။</string>
+    <string name="appearance_description_warning_restart">အက်ပ်ပိတ်ပြီးနောက် အိုင်ကွန်နှင့် ခေါင်းစဉ်သည် မပြောင်းလဲသေးပါက စက်ကို ပြန်လည်စတင်ကြည့်ပါ။</string>
     <string name="apply">သုံးရန်</string>
     <string name="applying_changes">ပြောင်းလဲမှုများ လုပ်ဆောင်နေဆဲ...</string>
     <string name="at_least_on_method_needs_to_enabled">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်</string>
@@ -106,6 +107,7 @@
     <string name="copy">ကူးယူရန်</string>
     <string name="copy_account_number">အကောင့်နံပါတ်ကို ကူးရန်</string>
     <string name="country_comma_city">%1$s၊ %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s ၊ %2$s ၊ %3$s</string>
     <string name="create">ဖန်တီးမည်</string>
     <string name="create_account_fail_title">အကောင့်ဖန်တီးခြင်း မအောင်မြင်ပါ</string>
     <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးလိုက်ပြီ</string>

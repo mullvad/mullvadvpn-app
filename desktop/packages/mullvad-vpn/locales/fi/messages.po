@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-01-22 08:53\n"
+"PO-Revision-Date: 2026-03-10 10:11\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -222,6 +222,9 @@ msgstr "Nimi"
 msgid "Next"
 msgstr "Seuraava"
 
+msgid "No matching servers found"
+msgstr "Vastaavia palvelimia ei löytynyt"
+
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Ei tuloksia haulle <b>%(searchTerm)s</b>."
 
@@ -273,6 +276,10 @@ msgstr "Tallenna"
 
 msgid "Search for..."
 msgstr "Hae..."
+
+#. Placeholder text for search field in select location view
+msgid "Search locations or servers"
+msgstr "Hae sijainteja tai palvelimia"
 
 msgid "SECURE CONNECTION"
 msgstr "SUOJATTU YHTEYS"
@@ -1301,6 +1308,12 @@ msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
 msgstr "LADATAAN PÄIVITYSTÄ... %(appUpgradeDownloadProgressValue)s %%"
 
+#. Label for the in-app banner when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "in-app-notifications"
+msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgstr "%(splitTunneling)s ei onnistunut käynnistymään. <a>Lähetä ongelmaraportti.</a> Voit poistaa verkkoliikenteen eston poistamalla sovelluskohtaisen yhdistämisen käytöstä."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -1685,6 +1698,12 @@ msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muodostaa yhteys uudelleen tai poista sovelluskohtainen yhdistäminen käytöstä."
+
+#. Label for the system notification when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "notifications"
+msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgstr "%(splitTunneling)s ei onnistunut käynnistymään. Lähetä ongelmaraportti. Voit poistaa verkkoliikenteen eston poistamalla sovelluskohtaisen yhdistämisen käytöstä."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2624,8 +2643,8 @@ msgid "If an observer monitors these data packets, %(daita)s makes it significan
 msgstr "Jos havaitsija valvoo näitä datapaketteja, %(daita)s tekee hänelle huomattavasti hankalammaksi tunnistaa, millä verkkosivuilla käyt tai kenen kanssa viestit."
 
 msgctxt "wireguard-settings-view"
-msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
-msgstr "Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan."
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
+msgstr "Se tekee tämän tekemällä ylimääräisen avaimen vaihdon käyttämällä kvanttisuojattua algoritmia ja sekoittamalla tuloksen WireGuardin tavalliseen salaukseen."
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2720,6 +2739,9 @@ msgstr "%1$s lisättiin luetteloon \"%2$s\""
 
 msgid "%1$s was removed from \"%2$s\""
 msgstr "%1$s poistettiin luettelosta \"%2$s\""
+
+msgid "%1$s, %2$s, %3$s"
+msgstr "%1$s, %2$s, %3$s"
 
 msgid "%s (Entry)"
 msgstr "%s (tulo)"
@@ -2852,9 +2874,6 @@ msgstr "Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallise
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski."
-
-msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr "Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita)."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa."
@@ -3069,6 +3088,9 @@ msgstr "IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus
 msgid "Icon and title"
 msgstr "Kuvake ja otsikko"
 
+msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
+msgstr "Jos kuvake ja otsikko eivät vaihdu sovelluksen sulkemisen jälkeenkään, kokeile käynnistää laite uudelleen."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Jos käytetään sovelluskohtaista yhdistämistä, sovellus pyytää järjestelmältäsi luettelon kaikista siihen asennetuista sovelluksista. Luettelo noudetaan vain sovelluskohtaisen yhdistämisen näkymässä. Asennettujen sovellusten luetteloa ei koskaan lähetetä laitteelta."
 
@@ -3092,6 +3114,9 @@ msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin l
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
+
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan."
 
 msgid "Less than a day left on this account"
 msgstr "Tilin käyttöaikaa on jäljellä alle päivä"
@@ -3176,12 +3201,6 @@ msgstr "Ei löydy"
 
 msgid "Notes"
 msgstr "Huomautukset"
-
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi."
-
-msgid "On TV devices you may also need to restart your device."
-msgstr "TV-laitteilla saatat myös joutua käynnistämään laitteesi uudelleen."
 
 msgid "Open app details"
 msgstr "Avaa sovelluksen tiedot"

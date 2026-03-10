@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2026-01-22 08:53\n"
+"PO-Revision-Date: 2026-03-06 09:26\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -222,6 +222,9 @@ msgstr "Name"
 msgid "Next"
 msgstr "Weiter"
 
+msgid "No matching servers found"
+msgstr "Keine passenden Server gefunden"
+
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Keine Ergebnisse für <b>%(searchTerm)s</b>."
 
@@ -273,6 +276,10 @@ msgstr "Speichern"
 
 msgid "Search for..."
 msgstr "Suchen nach …"
+
+#. Placeholder text for search field in select location view
+msgid "Search locations or servers"
+msgstr "Suche nach Standorten oder Servern"
 
 msgid "SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG"
@@ -1301,6 +1308,12 @@ msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
 msgstr "UPDATE WIRD HERUNTERGELADEN … %(appUpgradeDownloadProgressValue)s%%"
 
+#. Label for the in-app banner when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "in-app-notifications"
+msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgstr "%(splitTunneling)s konnte nicht gestartet werden. <a>Senden Sie bitte einen Problembericht.</a> Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie Split-Tunneling deaktivieren."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -1685,6 +1698,12 @@ msgstr "Split Tunneling konnte nicht aktiviert werden."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Split Tunneling konnte nicht aktiviert werden. Versuchen Sie, die Verbindung erneut herzustellen oder deaktivieren Sie Split Tunneling."
+
+#. Label for the system notification when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "notifications"
+msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgstr "%(splitTunneling)s konnte nicht gestartet werden. Senden Sie bitte einen Problembericht. Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie Split-Tunneling deaktivieren."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2625,8 +2644,8 @@ msgid "If an observer monitors these data packets, %(daita)s makes it significan
 msgstr "Wenn ein Beobachter diese Datenpakete überwacht, macht %(daita)s es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren."
 
 msgctxt "wireguard-settings-view"
-msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
-msgstr "Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr."
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
+msgstr "Dies geschieht durch einen zusätzlichen Schlüsselaustausch mit einem quantensicheren Algorithmus, dessen Ergebnis mit der regulären Verschlüsselung von WireGuard gemischt wird."
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2721,6 +2740,9 @@ msgstr "%1$s wurde zu „%2$s“ hinzugefügt"
 
 msgid "%1$s was removed from \"%2$s\""
 msgstr "%1$s wurde von „%2$s“ entfernt"
+
+msgid "%1$s, %2$s, %3$s"
+msgstr "%1$s, %2$s, %3$s"
 
 msgid "%s (Entry)"
 msgstr "%s (Eingang)"
@@ -2853,9 +2875,6 @@ msgstr "Achtung: Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, funk
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Achtung! Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, haben Split-Apps keine Internetverbindung. Denken Sie immer daran, dass Split-Tunneling ein Datenschutzrisiko darstellt."
-
-msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr "Achtung! Shadowsocks kann den Akkuverbrauch je nach Datennutzung erhöhen, z. B. beim Streaming eines Videos."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Achtung: Diese Einstellung kann nicht in Kombination mit der Option „Benutzerdefinierten DNS-Server verwenden“ verwendet werden."
@@ -3070,6 +3089,9 @@ msgstr "IPv6 ist nicht verfügbar, bitte versuchen Sie, die Einstellung „Gerä
 msgid "Icon and title"
 msgstr "Symbol und Titel"
 
+msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
+msgstr "Wenn sich das Symbol und der Titel nach dem Schließen der App immer noch nicht geändert haben, starten Sie das Gerät bitte neu."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Wenn Split Tunneling verwendet wird, fragt die App Ihr System nach einer Liste aller installierten Anwendungen ab. Diese Liste wird nur in der Split-Tunneling-Ansicht abgerufen. Die Liste der installierten Anwendungen wird nie vom Gerät gesendet."
 
@@ -3093,6 +3115,9 @@ msgstr "Meinen Konto-Token hinzufügen, um schnellere Hilfe bei Zahlungen oder k
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Ungültiger oder fehlender Wert „%1$s“"
+
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr."
 
 msgid "Less than a day left on this account"
 msgstr "Weniger als ein Tag verbleibend auf diesem Konto"
@@ -3177,12 +3202,6 @@ msgstr "Nicht gefunden"
 
 msgid "Notes"
 msgstr "Hinweise"
-
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde."
-
-msgid "On TV devices you may also need to restart your device."
-msgstr "Bei Fernsehgeräten müssen Sie Ihr Gerät möglicherweise ebenfalls neu starten."
 
 msgid "Open app details"
 msgstr "App-Details öffnen"

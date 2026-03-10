@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2026-01-22 08:53\n"
+"PO-Revision-Date: 2026-03-06 09:26\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mere..."
@@ -222,6 +222,9 @@ msgstr "Navn"
 msgid "Next"
 msgstr "Næste"
 
+msgid "No matching servers found"
+msgstr "Der blev ikke fundet nogen matchende servere"
+
 msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "Intet resultat for <b>%(searchTerm)s</b>."
 
@@ -273,6 +276,10 @@ msgstr "Gem"
 
 msgid "Search for..."
 msgstr "Søg efter..."
+
+#. Placeholder text for search field in select location view
+msgid "Search locations or servers"
+msgstr "Søg placeringer eller servere"
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILSLUTNING"
@@ -1301,6 +1308,12 @@ msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
 msgstr "DOWNLOADER OPDATERING ... %(appUpgradeDownloadProgressValue)s%%"
 
+#. Label for the in-app banner when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "in-app-notifications"
+msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgstr "Kunne ikke starte %(splitTunneling)s. <a>Send en problemrapport.</a> For at ophæve blokering af netværkstrafik skal du deaktivere split tunneling."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -1685,6 +1698,12 @@ msgstr "Kunne ikke aktivere split tunneling."
 msgctxt "notifications"
 msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
 msgstr "Kunne ikke aktivere split tunneling. Prøv at oprette forbindelse igen eller deaktiver split tunneling."
+
+#. Label for the system notification when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "notifications"
+msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgstr "Kunne ikke starte %(splitTunneling)s. Send en problemrapport. Deaktiver split tunneling for at ophæve blokering af netværkstrafik."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2624,8 +2643,8 @@ msgid "If an observer monitors these data packets, %(daita)s makes it significan
 msgstr "Hvis en observatør overvåger disse datapakker, gør %(daita)s det betydeligt sværere for dem at identificere, hvilke hjemmesider du besøger, eller hvem du kommunikerer med."
 
 msgctxt "wireguard-settings-view"
-msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
-msgstr "Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres."
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
+msgstr "Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering."
 
 #. The title for the WireGuard MTU setting. MTU stands for Maximum
 #. Transmission Unit and controls the maximum size of packets sent over
@@ -2720,6 +2739,9 @@ msgstr "%1$s blev tilføjet til \"%2$s\""
 
 msgid "%1$s was removed from \"%2$s\""
 msgstr "%1$s blev fjernet fra \"%2$s\""
+
+msgid "%1$s, %2$s, %3$s"
+msgstr "%1$s, %2$s, %3$s"
 
 msgid "%s (Entry)"
 msgstr "%s (indgang)"
@@ -2852,9 +2874,6 @@ msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil delte apps ikke have internet. Husk altid, at delt tunnelføring er en risiko for privatlivets fred."
-
-msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
-msgstr "Bemærk: Shadowsocks kan øge batteriforbruget afhængigt af dataforbruget, f.eks. under streaming af en video."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Bemærk: Denne indstilling kan ikke bruges i kombination med \"Brug brugerdefineret DNS-server\"."
@@ -3069,6 +3088,9 @@ msgstr "IPv6 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-v
 msgid "Icon and title"
 msgstr "Ikon og titel"
 
+msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
+msgstr "Hvis ikonet og titlen stadig ikke er ændret, efter at appen er lukket, skal du prøve at genstarte enheden."
+
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
 msgstr "Hvis funktionen split tunneling bruges, beder appen dit system om en liste over alle installerede programmer. Denne liste hentes kun i split tunnel-visningen. Listen over installerede programmer sendes aldrig fra enheden."
 
@@ -3092,6 +3114,9 @@ msgstr "Inkluder min konto-token for hurtigere hjælp med betalings- eller konto
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Ugyldig eller manglende værdi \"%1$s\""
+
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Det gør den ved at udføre en ekstra nøgleudveksling ved hjælp af en kvantesikker algoritme og blande resultatet med WireGuards almindelige kryptering. Dette ekstra trin bruger cirka 500 kB trafik, hver gang en ny tunnel etableres."
 
 msgid "Less than a day left on this account"
 msgstr "Mindre end en dag tilbage på denne konto"
@@ -3176,12 +3201,6 @@ msgstr "Ikke fundet"
 
 msgid "Notes"
 msgstr "Noter"
-
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
-msgstr "Tilsløring skjuler WireGuard-trafikken inden i en anden protokol. Det kan bruges til at hjælpe med at omgå censur og andre typer filtrering, hvor en almindelig WireGuard-forbindelse ville blive blokeret."
-
-msgid "On TV devices you may also need to restart your device."
-msgstr "På tv-enheder skal du muligvis også genstarte din enhed."
 
 msgid "Open app details"
 msgstr "Se oplysninger om app"
