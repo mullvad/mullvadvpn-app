@@ -62,7 +62,7 @@ enum CustomDNSPrecondition {
                     format: NSLocalizedString(
                         "Disable all \"%@\" above to activate this setting.",
                         comment: ""
-                    ), "DNS content blockers"),
+                    ), NSLocalizedString("DNS content blockers", comment: "")),
                 attributes: [.font: preferredFont]
             )
         }
