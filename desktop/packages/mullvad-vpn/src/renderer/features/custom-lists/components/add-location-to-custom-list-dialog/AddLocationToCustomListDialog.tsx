@@ -38,7 +38,7 @@ export function AddLocationToCustomListDialog({
                   // TRANSLATORS: This is a label shown above a list of options.
                   // TRANSLATORS: Available placeholder:
                   // TRANSLATORS: %(locationType) - Could be either "Country", "City" and "Relay"
-                  messages.pgettext('select-location-view', 'Add %(locationType)s to list'),
+                  messages.pgettext('custom-list-feature', 'Add %(locationType)s to list'),
                   {
                     locationType: locationTypeMessage,
                   },
