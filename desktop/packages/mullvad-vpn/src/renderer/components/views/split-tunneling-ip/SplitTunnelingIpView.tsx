@@ -184,7 +184,7 @@ export function SplitTunnelingIpView() {
                 <HeaderSubTitle>
                   {messages.pgettext(
                     'split-tunneling-ip-view',
-                    'Exclude traffic to specific IP addresses or subnets from the VPN tunnel.',
+                    'Exclude traffic to specific IP addresses or subnets from the VPN tunnel (e.g. 100.64.0.0/10).',
                   )}
                 </HeaderSubTitle>
               </SettingsHeader>
@@ -196,7 +196,7 @@ export function SplitTunnelingIpView() {
                   onKeyDown={onKeyDown}
                   placeholder={messages.pgettext(
                     'split-tunneling-ip-view',
-                    'Enter IP or CIDR (e.g. 100.64.0.0/10)',
+                    'Add IP or subnet...',
                   )}
                 />
                 <StyledAddIcon
