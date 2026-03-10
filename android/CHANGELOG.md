@@ -21,10 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.3-beta1] - 2025-03-10
 ### Added
 - Add link to notifications system settings from notifications screen
-- Added support for account deletion
+- Add support for account deletion
 
 ### Changed
 - Hide password by default on login screen.
