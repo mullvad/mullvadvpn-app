@@ -1,3 +1,5 @@
+import React from 'react';
+
 import type { CityLocation, CountryLocation, RelayLocation } from '../types';
 import { searchMatchesLocation } from '../utils';
 
@@ -5,13 +7,13 @@ export function useSearchCountryLocations(
   locations: CountryLocation[],
   searchTerm: string,
 ): CountryLocation[] {
-  if (!searchTerm) {
-    return locations;
-  }
-  return formatCountriesResult(locations, searchTerm);
+  return React.useMemo(() => formatCountriesResult(locations, searchTerm), [locations, searchTerm]);
 }
 
 export function formatCountriesResult(countries: CountryLocation[], searchTerm: string) {
+  if (!searchTerm) {
+    return countries;
+  }
   return countries
     .map((country) => {
       const citiesResult = formatCitiesResult(country, searchTerm);

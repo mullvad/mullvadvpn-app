@@ -11,6 +11,6 @@ export * from './use-relay-locations';
 export * from './use-selected-location';
 export * from './use-active-filters';
 export * from './use-search-country-locations';
-export * from './use-country-locations';
+export * from './use-filtered-country-locations';
 export * from './use-map-redux-countries-to-country-locations';
 export * from './use-custom-list-locations';
