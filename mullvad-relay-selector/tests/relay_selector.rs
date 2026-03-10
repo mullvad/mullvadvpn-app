@@ -1931,7 +1931,12 @@ mod new {
 
         let query = relay_selector.partition_relays(Predicate::Autohop(constraints));
         // The single relay in the relay list ought to be matched in this instance.
-        assert_eq!(query.matches.len(), 1);
+        assert_eq!(query.discards, vec![], "Discard should be empty");
+        assert_eq!(query.matches.len(), 1,);
+        assert_eq!(
+            query.matches.first().map(|relay| relay.hostname.as_ref()),
+            Some("non-daita-relay")
+        );
     }
 }
 
