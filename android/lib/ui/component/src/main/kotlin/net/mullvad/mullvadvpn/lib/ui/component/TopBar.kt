@@ -350,7 +350,7 @@ fun MullvadTopBarWithDeviceName(
         val appBarContainerColor by
             animateColorAsState(
                 targetValue = containerColor,
-                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                animationSpec = spring(stiffness = Spring.StiffnessMedium),
                 label = "ColorAnimation",
             )
         Row(
