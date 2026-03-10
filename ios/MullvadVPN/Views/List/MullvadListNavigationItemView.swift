@@ -1,18 +1,33 @@
 import SwiftUI
 
 struct MullvadListNavigationItem: Hashable, Identifiable {
+    enum State: CustomStringConvertible {
+        case off
+        case inUse
+        case warning(String)
+        case error(String)
+
+        var description: String {
+            switch self {
+            case .off:
+                NSLocalizedString("Off", comment: "")
+            case .inUse:
+                NSLocalizedString("In use", comment: "")
+            case .warning(let message), .error(let message):
+                NSLocalizedString(message, comment: "")
+            }
+        }
+    }
+
     let id: UUID
     let title: String
-    let state: String?
+    let state: State?
     let detail: String?
     let accessibilityIdentifier: AccessibilityIdentifier?
     let didSelect: (() -> Void)?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
-        hasher.combine(title)
-        hasher.combine(state)
-        hasher.combine(detail)
     }
 
     static func == (lhs: MullvadListNavigationItem, rhs: MullvadListNavigationItem) -> Bool {
@@ -22,7 +37,7 @@ struct MullvadListNavigationItem: Hashable, Identifiable {
 
 struct MullvadListNavigationItemView: View {
     private let title: String
-    private let state: String?
+    private let state: MullvadListNavigationItem.State?
     private let detail: String?
     private let accessibilityIdentifier: AccessibilityIdentifier?
     private let didSelect: (() -> Void)?
@@ -31,7 +46,7 @@ struct MullvadListNavigationItemView: View {
         item: MullvadListNavigationItem
     ) {
         self.title = item.title
-        self.state = item.state.flatMap { $0.isEmpty ? nil : $0 }
+        self.state = item.state
         self.detail = item.detail.flatMap { $0.isEmpty ? nil : $0 }
         self.accessibilityIdentifier = item.accessibilityIdentifier
         self.didSelect = item.didSelect
@@ -56,10 +71,21 @@ struct MullvadListNavigationItemView: View {
                 }
                 Spacer()
                 if let state {
-                    Text(state)
-                        .foregroundStyle(Color(.Cell.titleTextColor.withAlphaComponent(0.6)))
-                        .font(.mullvadTiny)
-                        .fixedSize(horizontal: false, vertical: true)
+                    HStack(alignment: .center) {
+                        Text(state.description)
+                            .foregroundStyle(Color(.Cell.titleTextColor.withAlphaComponent(0.6)))
+                            .font(.mullvadTiny)
+                            .fixedSize(horizontal: false, vertical: true)
+                        if case .warning = state {
+                            Image.mullvadIconStateIssue
+                                .resizable()
+                                .frame(width: 18, height: 18)
+                        } else if case .error = state {
+                            Image.mullvadIconStateOffline
+                                .resizable()
+                                .frame(width: 18, height: 18)
+                        }
+                    }
                 }
                 Image(.iconChevron)
             }
@@ -107,7 +133,7 @@ private struct MullvadListButtonStyle: ButtonStyle {
                     MullvadListNavigationItem(
                         id: UUID(),
                         title: "Test method",
-                        state: "In use",
+                        state: .inUse,
                         detail: "Very good method",
                         accessibilityIdentifier: nil,
                         didSelect: { print("selected") }
@@ -115,8 +141,8 @@ private struct MullvadListButtonStyle: ButtonStyle {
                     MullvadListNavigationItem(
                         id: UUID(),
                         title: "Test method2",
-                        state: "In use",
-                        detail: nil,
+                        state: .error("Unsupported cipher"),
+                        detail: "Shadowsocks",
                         accessibilityIdentifier: nil,
                         didSelect: { print("selected") }
                     ),

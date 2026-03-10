@@ -577,6 +577,17 @@ const void *new_socks5_access_method_setting(const uint8_t *address,
                                              const char *c_username,
                                              const char *c_password);
 
+char *get_shadowsocks_chipers(void);
+
+/**
+ * Deallocates a CString returned by the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
+ */
+void mullvad_api_cstring_drop(char *cstr_ptr);
+
 /**
  * # Safety
  *

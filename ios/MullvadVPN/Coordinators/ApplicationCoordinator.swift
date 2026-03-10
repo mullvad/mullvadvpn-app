@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadREST
+import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Routing
@@ -38,7 +39,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let preferredAccountNumberSubject = PassthroughSubject<String, Never>()
 
     private let notificationController = NotificationController()
-
     private var splitTunnelCoordinator: TunnelCoordinator?
     private var splitLocationCoordinator: LocationCoordinator?
 
@@ -56,6 +56,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private var accessMethodRepository: AccessMethodRepositoryProtocol
     private let ipOverrideRepository: IPOverrideRepository
     private let relaySelectorWrapper: RelaySelectorWrapper
+    private let breadcrumbsProvider: BreadcrumbsProvider
+    private var breadcrumbsObserver: BreadcrumbsBlockObserver?
 
     private var outOfTimeTimer: Timer?
 
@@ -74,7 +76,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         appPreferences: AppPreferencesDataSource,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         ipOverrideRepository: IPOverrideRepository,
-        relaySelectorWrapper: RelaySelectorWrapper
+        relaySelectorWrapper: RelaySelectorWrapper,
+        breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -87,13 +90,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.accessMethodRepository = accessMethodRepository
         self.ipOverrideRepository = ipOverrideRepository
         self.relaySelectorWrapper = relaySelectorWrapper
+        self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init()
-        navigationContainer.delegate = self
 
+        navigationContainer.delegate = self
         router = ApplicationRouter(self)
 
         addTunnelObserver()
+        setUpBreadcrumbs()
+
         Task { @MainActor in
             self.tunnelStateAccessibilityAnnouncer = TunnelStateAccessibilityAnnouncer(tunnelManager: tunnelManager)
         }
@@ -131,6 +137,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         case .daita:
             presentDAITA(animated: animated, completion: completion)
+
+        case .apiAccess:
+            presentAccessMethods(animated: animated, completion: completion)
 
         case .includeAllNetworks:
             presentIncludeAllNetworks(animated: animated, completion: completion)
@@ -282,6 +291,36 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     // MARK: - Private
 
     private var isPresentingAccountExpiryBanner = false
+
+    /**
+     Sets up breadcrumbs and observers for them.
+     */
+    private func setUpBreadcrumbs() {
+        let breadcrumbsObserver = BreadcrumbsBlockObserver(didUpdateBreadcrumbsHandler: { [weak self] in
+            self?.navigationContainer.breadcrumbs = $0
+        })
+        self.breadcrumbsObserver = breadcrumbsObserver
+        breadcrumbsProvider.add(observer: breadcrumbsObserver)
+
+        checkForAccessMethodCipherErrors()
+    }
+
+    private func checkForAccessMethodCipherErrors() {
+        let ciphers = accessMethodRepository.shadowsocksCiphers
+        let methods = accessMethodRepository.fetchAll()
+
+        let methodsWithInvalidCiphers = methods.filter { method in
+            if case .shadowsocks(let config) = method.proxyConfiguration {
+                !ciphers.contains(config.cipher)
+            } else {
+                false
+            }
+        }
+
+        if !methodsWithInvalidCiphers.isEmpty {
+            breadcrumbsProvider.add(breadcrumb: .warning(.apiAccess))
+        }
+    }
 
     /**
      Continues application flow by evaluating what route to present next.
@@ -485,10 +524,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let coordinator = LoginCoordinator(
             navigationController: navigationContainer,
             tunnelManager: tunnelManager,
-            devicesProxy: devicesProxy
+            devicesProxy: devicesProxy,
+            breadcrumbsProvider: breadcrumbsProvider
         )
 
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
+
+        coordinator.navigateToAccessMethods = { [weak self] in
+            self?.router.present(.apiAccess, animated: true)
+        }
 
         coordinator.didFinish = { [weak self] _ in
             guard let self else { return }
@@ -633,7 +677,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: configurationTester,
             ipOverrideRepository: ipOverrideRepository,
-            appPreferences: appPreferences
+            appPreferences: appPreferences,
+            breadcrumbsProvider: breadcrumbsProvider
         )
 
         coordinator.didUpdateNotificationSettings = { [weak self] notificationSettings in
@@ -703,6 +748,26 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.didFinish = { [weak self] _ in
             self?.router.dismiss(.daita, animated: true)
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentAccessMethods(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let coordinator = ListAccessMethodCoordinator(
+            navigationController: CustomNavigationController(),
+            accessMethodRepository: accessMethodRepository,
+            proxyConfigurationTester: ProxyConfigurationTester(apiProxy: apiProxy),
+            breadcrumbsProvider: breadcrumbsProvider,
+            route: .apiAccess
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.apiAccess, animated: true)
         }
 
         coordinator.start(animated: animated)
@@ -1151,6 +1216,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                 router.present(.settings(.vpnSettings))
             default: break
             }
+        case .invalidShadowsocksCipherInAppNotificationProvider:
+            router.present(.apiAccess)
         default: return
         }
     }

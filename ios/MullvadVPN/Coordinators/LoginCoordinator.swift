@@ -17,6 +17,8 @@ import UIKit
 final class LoginCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
     private let devicesProxy: DeviceHandling
+    private let breadcrumbsProvider: BreadcrumbsProvider
+    private var breadcrumbsObserver: BreadcrumbsObserver?
 
     private var loginController: LoginViewController?
     nonisolated(unsafe) private var lastLoginAction: LoginAction?
@@ -24,6 +26,7 @@ final class LoginCoordinator: Coordinator, Presenting {
 
     var didFinish: (@MainActor @Sendable (LoginCoordinator) -> Void)?
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
+    var navigateToAccessMethods: (() -> Void)?
 
     var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
     var presentationContext: UIViewController {
@@ -35,11 +38,13 @@ final class LoginCoordinator: Coordinator, Presenting {
     init(
         navigationController: RootContainerViewController,
         tunnelManager: TunnelManager,
-        devicesProxy: DeviceHandling
+        devicesProxy: DeviceHandling,
+        breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.devicesProxy = devicesProxy
+        self.breadcrumbsProvider = breadcrumbsProvider
     }
 
     func start(animated: Bool) {
@@ -48,6 +53,8 @@ final class LoginCoordinator: Coordinator, Presenting {
             interactor: interactor,
             alertPresenter: AlertPresenter(context: self)
         )
+
+        loginController.navigateToAccessMethods = navigateToAccessMethods
 
         loginController.didFinishLogin = { [weak self] action, error in
             self?.didFinishLogin(action: action, error: error) ?? .nothing
@@ -65,9 +72,21 @@ final class LoginCoordinator: Coordinator, Presenting {
         navigationController.pushViewController(loginController, animated: animated)
 
         self.loginController = loginController
+
+        setUpBreadcrumbs()
     }
 
     // MARK: - Private
+
+    private func setUpBreadcrumbs() {
+        loginController?.showInvalidAccessMethodView(breadcrumbsProvider.breadcrumbs.contains(.warning(.apiAccess)))
+
+        let breadcrumbsObserver = BreadcrumbsBlockObserver(didUpdateBreadcrumbsHandler: { [weak self] in
+            self?.loginController?.showInvalidAccessMethodView($0.contains(.warning(.apiAccess)))
+        })
+        self.breadcrumbsObserver = breadcrumbsObserver
+        breadcrumbsProvider.add(observer: breadcrumbsObserver)
+    }
 
     private func didFinishLogin(action: LoginAction, error: Error?) -> EndLoginAction {
         guard let error else {

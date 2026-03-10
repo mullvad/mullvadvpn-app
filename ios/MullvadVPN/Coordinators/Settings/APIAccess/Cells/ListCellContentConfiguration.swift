@@ -40,6 +40,15 @@ struct ListCellContentConfiguration: UIContentConfiguration, Equatable {
     /// Content view layout margins.
     var directionalLayoutMargins = UIMetrics.SettingsCell.defaultLayoutMargins
 
+    /// Enabled state.
+    var isEnabled = true
+
+    /// Selected state.
+    var isSelected = false
+
+    /// Breadcrumb.
+    var showBreadcrumb = false
+
     func makeContentView() -> UIView & UIContentView {
         return ListCellContentView(configuration: self)
     }

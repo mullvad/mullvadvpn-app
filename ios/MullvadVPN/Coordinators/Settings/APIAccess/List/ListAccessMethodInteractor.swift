@@ -34,12 +34,20 @@ struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {
             .eraseToAnyPublisher()
     }
 
+    var shadowsocksCiphers: [String] {
+        repository.shadowsocksCiphers
+    }
+
     func item(by id: UUID) -> ListAccessMethodItem? {
-        repository.fetch(by: id)?.toListItem()
+        accessMethod(by: id)?.toListItem()
     }
 
     func fetch() -> [ListAccessMethodItem] {
         repository.fetchAll().map { $0.toListItem() }
+    }
+
+    func accessMethod(by id: UUID) -> PersistentAccessMethod? {
+        repository.fetch(by: id)
     }
 }
 

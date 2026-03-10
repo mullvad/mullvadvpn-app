@@ -23,8 +23,8 @@ struct AccessMethodProtocolPicker {
     func present(currentValue: AccessMethodKind, completion: @escaping (AccessMethodKind) -> Void) {
         let navigationController = navigationController
 
-        let dataSource = AccessMethodProtocolPickerDataSource()
-        let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
+        let dataSource = AccessMethodProtocolPickerDataSource(currentValue: currentValue)
+        let controller = ListItemPickerViewController(dataSource: dataSource)
         controller.view.setAccessibilityIdentifier(.accessMethodProtocolPickerView)
 
         controller.navigationItem.title = NSLocalizedString("Type", comment: "")
@@ -43,23 +43,29 @@ struct AccessMethodProtocolPickerDataSource: ListItemDataSourceProtocol {
     struct Item: ListItemDataSourceItem {
         let method: AccessMethodKind
 
-        var id: AccessMethodKind { method }
+        var id: String { method.localizedDescription }
         var text: String { method.localizedDescription }
+        var detailText: String? { nil }
+        var isEnabled: Bool { true }
     }
 
     let items: [Item] = AccessMethodKind.allUserDefinedKinds.map { Item(method: $0) }
+    var selectedItem: Item?
 
     var itemCount: Int {
         items.count
+    }
+
+    init(currentValue: AccessMethodKind) {
+        self.selectedItem = Item(method: currentValue)
     }
 
     func item(at indexPath: IndexPath) -> Item {
         items[indexPath.row]
     }
 
-    func indexPath(for itemID: AccessMethodKind) -> IndexPath? {
-        guard let index = items.firstIndex(where: { $0.id == itemID }) else { return nil }
-
+    func indexPath(for item: Item) -> IndexPath? {
+        guard let index = items.firstIndex(where: { $0.id == item.id }) else { return nil }
         return IndexPath(row: index, section: 0)
     }
 }

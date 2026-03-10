@@ -10,6 +10,12 @@ import MullvadSettings
 
 /// The type implementing the interface for persisting changes to the underlying access method view model in the editing context.
 protocol EditAccessMethodInteractorProtocol: ProxyConfigurationInteractorProtocol {
+    /// Available Shadowsocks ciphers.
+    var shadowsocksCiphers: [String] { get }
+
+    /// Whether the view should show a breadcrumb or not.
+    var shouldShowBreadcrumb: Bool { get }
+
     /// Save changes to persistent store.
     ///
     /// - Calling this method when the underlying view model fails validation does nothing.

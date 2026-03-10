@@ -13,7 +13,7 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
 
     var icon: UIImageView {
         let view = UIImageView(image: UIImage.Buttons.alert.withTintColor(.dangerColor))
-        view.heightAnchor.constraint(equalToConstant: 14).isActive = true
+        view.heightAnchor.constraint(equalToConstant: 18).isActive = true
         view.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1).isActive = true
         return view
     }
@@ -41,7 +41,7 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
     init(configuration: SettingsFieldValidationErrorConfiguration) {
         actualConfiguration = configuration
 
-        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
+        super.init(frame: .zero)
 
         addSubviews()
         configureSubviews()
@@ -74,12 +74,12 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
             label.text = error.errorDescription
             label.numberOfLines = 0
             label.adjustsFontForContentSizeCategory = true
-            label.font = .mullvadMini
-            label.textColor = .white.withAlphaComponent(0.6)
+            label.font = .mullvadTiny
+            label.textColor = .white
 
             let stackView = UIStackView(arrangedSubviews: [icon, label])
-            stackView.alignment = .top
-            stackView.spacing = 6
+            stackView.alignment = .center
+            stackView.spacing = 4
 
             contentView.addArrangedSubview(stackView)
         }

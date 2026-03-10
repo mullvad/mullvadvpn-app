@@ -98,16 +98,18 @@ enum MethodSettingsItemIdentifier: Hashable {
                 case .port: .proxyConfiguration(.shadowsocks(.port))
                 case .username: nil
                 case .password: .proxyConfiguration(.shadowsocks(.password))
+                case .cipher: .proxyConfiguration(.shadowsocks(.cipher))
                 }
             }
         case .socks5:
-            errors.map { error in
+            errors.compactMap { error in
                 switch error.field {
                 case .name: .name
                 case .server: .proxyConfiguration(.socks(.server))
                 case .port: .proxyConfiguration(.socks(.port))
                 case .username: .proxyConfiguration(.socks(.username))
                 case .password: .proxyConfiguration(.socks(.password))
+                case .cipher: nil
                 }
             }
         }

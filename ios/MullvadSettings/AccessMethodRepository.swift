@@ -16,6 +16,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
     public static let bridgeId = UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!
     public static let encryptedDNSId = UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!
 
+    public let shadowsocksCiphers: [String]
     private let logger = Logger(label: "AccessMethodRepository")
 
     // The access method names will be localised on creation time. As they are persisted
@@ -62,7 +63,9 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
     private var cancellables: Set<Combine.AnyCancellable> = []
 
-    public init() {
+    public init(shadowsocksCiphers: [String]) {
+        self.shadowsocksCiphers = shadowsocksCiphers
+
         accessMethodsSubject = CurrentValueSubject([])
         requestAccessMethodSubject = PassthroughSubject()
         currentAccessMethodSubject = CurrentValueSubject(direct)

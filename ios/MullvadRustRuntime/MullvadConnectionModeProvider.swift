@@ -63,7 +63,7 @@ public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeM
             UInt(serverAddress.count),
             configuration.port,
             configuration.password,
-            configuration.cipher.rawValue.rawValue
+            configuration.cipher
         )
         let shadowsocksMethodRaw = convert_builtin_access_method_setting(
             accessMethod.id.uuidString,
