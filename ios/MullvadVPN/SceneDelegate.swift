@@ -59,6 +59,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         guard !isSceneConfigured else { return }
 
         isSceneConfigured = true
+        disableAnimationsIfNeeded()
 
         accountDataThrottling = AccountDataThrottling(tunnelManager: tunnelManager)
         deviceDataThrottling = DeviceDataThrottling(tunnelManager: tunnelManager)
@@ -101,6 +102,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         window?.rootViewController = appCoordinator?.rootViewController
         appCoordinator?.start()
+    }
+
+    private func disableAnimationsIfNeeded() {
+        guard appDelegate.launchArguments.areAnimationsDisabled else { return }
+        [privacyOverlayWindow, window]
+            .compactMap { $0 }
+            .forEach { $0.layer.speed = 100 }
     }
 
     private func setShowsPrivacyOverlay(_ showOverlay: Bool) {
@@ -167,21 +175,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
+        let launchViewController = LaunchViewController(
+            launchArguments: appDelegate.launchArguments,
+            tunnelManager: tunnelManager,
+            accessMethodRepository: accessMethodRepository)
+
+        launchViewController.onAppReady = { [weak self] in
+            guard let self = self else { return }
+            if tunnelManager.isConfigurationLoaded {
+                isSceneConfigured = false
+                configureScene()
+            }
+        }
 
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = LaunchViewController()
+        window?.rootViewController = launchViewController
 
         privacyOverlayWindow = UIWindow(windowScene: windowScene)
-        privacyOverlayWindow?.rootViewController = LaunchViewController()
+        privacyOverlayWindow?.rootViewController = launchViewController
         privacyOverlayWindow?.windowLevel = .alert + 1
 
         window?.makeKeyAndVisible()
-
         addTunnelObserver()
-
-        if tunnelManager.isConfigurationLoaded {
-            configureScene()
-        }
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {}

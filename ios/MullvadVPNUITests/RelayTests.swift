@@ -17,6 +17,9 @@ private struct RelayInfo {
 class RelayTests: LoggedInWithTimeUITestCase {
     var removeFirewallRulesInTearDown = false
 
+    override class var settingsResetPolicy: UITestSettingsResetPolicy { .only([.settings]) }
+    override class var appPreferencesPolicy: UITestAppPreferencesPolicy { .only([.includeAllNetworksConsent]) }
+
     override func setUp() async throws {
         try await super.setUp()
 
@@ -31,35 +34,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         try await super.tearDown()
     }
 
-    /// Restore default country by selecting it in location selector and immediately disconnecting when app starts connecting to relay in it
-    private func restoreDefaultCountry() {
-        TunnelControlPage(self.app)
-            .tapSelectLocationButton()
-
-        SelectLocationPage(self.app)
-            .tapLocationCell(withName: BaseUITestCase.appDefaultCountry)
-
-        TunnelControlPage(self.app)
-            .tapCancelOrDisconnectButton()
-    }
-
     func testAdBlockingViaDNS() throws {
-        // Undo enabling block ads in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapDNSSettingsCell()
-
-            DNSSettingsPage(self.app)
-                .tapDNSContentBlockersHeaderExpandButton()
-                .tapBlockAdsSwitchIfOn()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -105,10 +80,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
         FirewallClient().removeRules()
         removeFirewallRulesInTearDown = true
 
-        addTeardownBlock {
-            self.restoreDefaultCountry()
-        }
-
         // Run actual test
         try FirewallClient().createRule(
             // Block all traffic not going to the router.
@@ -131,18 +102,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverTCPCustomPort80() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -186,18 +145,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverShadowsocksCustomPort() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -242,18 +189,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverLwoCustomPort() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -298,18 +233,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverTCPManually() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationAutomaticCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -339,18 +262,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverShadowsocksManually() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -380,18 +291,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverQuicManually() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         let deviceIPAddress = try FirewallClient().getDeviceIPAddress()
 
         HeaderBar(app)
@@ -452,18 +351,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testWireGuardOverLwoManually() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapWireGuardObfuscationExpandButton()
-                .tapWireGuardObfuscationOffCell()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -522,8 +409,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testDAITASettings() throws {
-        try disableDaitaInTeardown()
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -601,8 +486,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyDAITAOn()
             .tapDoneButton()
 
-        try disableDaitaInTeardown()
-
         // Get packet capture #2
         let (secondIpAddress, secondPort, streamWithDaita) = try generateTrafficSample()
 
@@ -635,18 +518,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testMultihopSettings() throws {
-        // Undo enabling Multihop in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapMultihopCell()
-
-            MultihopPage(self.app)
-                .tapEnableSwitchIfOn()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -675,24 +546,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testMultihopSelection() throws {
-        // Undo enabling Multihop in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapMultihopCell()
-
-            MultihopPage(self.app)
-                .tapEnableSwitchIfOn()
-                .tapBackButton()
-
-            SettingsPage(self.app)
-                .tapDoneButton()
-
-            self.restoreDefaultCountry()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -783,18 +636,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testQuantumResistanceSettings() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapQuantumResistantTunnelExpandButton()
-                .tapQuantumResistantTunnelAutomaticCell()
-        }
-
         TunnelControlPage(app)
             .tapConnectButton()
 
@@ -825,19 +666,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testIncludeAllNetworksSettings() throws {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapIncludeAllNetworksCell()
-
-            IncludeAllNetworksPage(self.app)
-                .tapEnableLocalNetworkSharing()
-                .tapEnableIncludeAllNetworks()
-                .tapBackButton()
-        }
-
         TunnelControlPage(app)
             .tapConnectButton()
 
@@ -883,20 +711,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
 }
 
 extension RelayTests {
-    private func disableDaitaInTeardown() throws {
-        // Undo enabling DAITA in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapDAITACell()
-
-            DAITAPage(self.app)
-                .tapEnableSwitchIfOn()
-        }
-    }
-
     /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
     private func getDefaultRelayInfo() -> RelayInfo {
         TunnelControlPage(app)
