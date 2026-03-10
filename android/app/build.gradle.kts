@@ -30,8 +30,8 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.mullvad.unit.test)
+    alias(libs.plugins.rust.android)
     id("de.mannodermaus.android-junit5")
-    id("net.mullvad.rust-android")
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath

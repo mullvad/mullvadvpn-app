@@ -72,6 +72,7 @@ protobuf = "4.33.5"
 protobuf-gradle-plugin = "0.9.6"
 turbine = "1.2.1"
 annotation-jvm = "1.9.1"
+rust-android = "0.10.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -170,6 +171,7 @@ play-services-location = { module = "com.google.android.gms:play-services-locati
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
@@ -190,6 +192,7 @@ ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
+rust-android = { id = "net.mullvad.rust-android", version.ref = "rust-android" }
 # Convention plugins
 mullvad-android-library = { id = "mullvad.android-library" }
 mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-impl" }
