@@ -22,7 +22,7 @@ exec > $LOG_DIR/preinstall.log 2>&1
 
 echo "Running preinstall at $(date)"
 
-# Stop the existing daemon
+# Stop the existing daemon. INSTALL_DIR is writeable by admins, so we drop privileges before executing mullvad-setup.
 sudo -u nobody "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart &>/dev/null || \
     echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
 
