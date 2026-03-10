@@ -37,6 +37,12 @@ export function DeleteCustomListDialog({
     onOpenChange?.(false);
   }, [onOpenChange]);
 
+  // Workaround to autofocus element since autoFocus prop currently does not
+  // work inside a dialog element.
+  const cancelButtonRefCallback = React.useCallback((button: HTMLButtonElement | null) => {
+    button?.setAttribute('autofocus', 'true');
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -66,7 +72,7 @@ export function DeleteCustomListDialog({
                 disabled={loading || !open}>
                 <Dialog.Button.Text>{messages.gettext('Delete list')}</Dialog.Button.Text>
               </Dialog.Button>
-              <Dialog.Button key="cancel" onClick={handleCancel}>
+              <Dialog.Button ref={cancelButtonRefCallback} key="cancel" onClick={handleCancel}>
                 <Dialog.Button.Text>{messages.gettext('Cancel')}</Dialog.Button.Text>
               </Dialog.Button>
             </Dialog.ButtonGroup>
