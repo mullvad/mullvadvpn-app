@@ -84,14 +84,12 @@ final class NewAppVersionInAppNotificationProvider:
         // want to urge people to update while we're using phased releases on AppStore.
         let body: String
         if includeAllNetworksIsEnabled {
-            body = NSLocalizedString(
-                String(
-                    format:
+            body = String(
+                format:
+                    NSLocalizedString(
                         "“%@” is enabled, please disable it or disconnect before updating or you will "
-                        + "lose network connectivity.",
-                    "Force all apps"
-                ),
-                comment: ""
+                            + "lose network connectivity.", comment: ""),
+                NSLocalizedString("Force all apps", comment: "")
             )
         } else if hasEnabledIncludeAllNetworksAtLeastOnce {
             body = NSLocalizedString("Install the latest app version to stay up to date.", comment: "")
