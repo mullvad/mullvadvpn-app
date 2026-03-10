@@ -1453,7 +1453,7 @@ mod new {
     //! The long term goal is to completely remove all old tests, but they will have to remain until
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
-    use mullvad_relay_selector::{EntryConstraints, ExitConstraints};
+    use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
     use mullvad_types::{
         relay_constraints::{LocationConstraint, ObfuscationSettings, SelectedObfuscation},
         wireguard::DaitaSettings,
@@ -1921,11 +1921,7 @@ mod new {
         // into play (provider, ownership).
         let mut relay_list = RelayListBuilder::new();
         relay_list.add_relay("non-daita-relay");
-        let relay_selector = RelaySelector::new(
-            SelectorConfig::default(),
-            relay_list.finish(),
-            BridgeList::default(),
-        );
+        let relay_selector = RelaySelector::from(relay_list);
 
         let constraints = EntryConstraints::default();
 
@@ -1938,6 +1934,42 @@ mod new {
             Some("non-daita-relay")
         );
     }
+
+    #[test]
+    fn no_entry_constraints_on_autohop_exit() {
+        // A slightly more contrived example than `daita_no_direct_only_provider`: perform a
+        // pre-step pruning all DAITA relays from the relay list. As such, no other factor comes
+        // into play (provider, ownership).
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_location("non-daita-land", "non-daita-city");
+        relay_list.add_relay("non-daita-relay");
+        relay_list.add_location("daita-land", "daita-city");
+        let daita_relay = relay_list.add_relay("daita-relay");
+        daita_relay.endpoint_data.daita = true;
+        let relay_selector = RelaySelector::from(relay_list);
+
+        // Constraint with DAITA and a location that doesn't have it
+        let constraints = EntryConstraints::default()
+            .daita(true)
+            .general(ExitConstraints::default().country("non-daita-land"));
+
+        let RelayPartitions {
+            mut matches,
+            mut discards,
+        } = relay_selector.partition_relays(Predicate::Autohop(constraints));
+
+        // Should match on the non-daita relay
+        assert_eq!(matches.len(), 1);
+        assert_eq!(
+            matches.pop().unwrap().hostname,
+            "non-daita-relay".to_string()
+        );
+        // The daita-relay should be discarded due to location
+        assert_eq!(discards.len(), 1);
+        let (discarded_relay, reasons) = discards.pop().unwrap();
+        assert_eq!(discarded_relay.hostname, "daita-relay".to_string());
+        assert_eq!(reasons.as_slice(), &[Reason::Location]);
+    }
 }
 
 // use relay_list_builder::RelayListBuilder;
@@ -1945,11 +1977,11 @@ mod new {
 mod relay_list_builder {
     use std::{fmt::Display, net::Ipv4Addr};
 
-    use mullvad_relay_selector::Relay;
+    use mullvad_relay_selector::{Relay, RelaySelector, SelectorConfig};
     use mullvad_types::{
         location::Location,
         relay_list::{
-            EndpointData, RelayList, RelayListCity, RelayListCountry, WireguardRelay,
+            BridgeList, EndpointData, RelayList, RelayListCity, RelayListCountry, WireguardRelay,
             WireguardRelayEndpointData,
         },
     };
@@ -1957,6 +1989,16 @@ mod relay_list_builder {
 
     pub struct RelayListBuilder {
         relay_list: RelayList,
+    }
+
+    impl From<RelayListBuilder> for RelaySelector {
+        fn from(val: RelayListBuilder) -> Self {
+            RelaySelector::new(
+                SelectorConfig::default(),
+                val.finish(),
+                BridgeList::default(),
+            )
+        }
     }
 
     impl RelayListBuilder {
@@ -1990,7 +2032,7 @@ mod relay_list_builder {
             Self { relay_list }
         }
 
-        /// Add relay into the active city and country
+        /// Add a relay into the previously added location, which defaults to "test-country".
         pub fn add_relay(&mut self, hostname: impl Display) -> &mut WireguardRelay {
             let country = self
                 .relay_list
@@ -2026,22 +2068,23 @@ mod relay_list_builder {
             city.relays.last_mut().unwrap()
         }
 
-        pub fn last_relay_mut(&mut self) -> &mut WireguardRelay {
-            let country = self.relay_list.countries.last_mut().unwrap();
-            let city = country.cities.last_mut().unwrap();
-            city.relays.last_mut().unwrap()
-        }
-
-        pub fn endpoint_data_mut(&mut self) -> &mut WireguardRelayEndpointData {
-            let relay = self.last_relay_mut();
-            &mut relay.endpoint_data
-        }
-
-        pub fn add_country(&mut self, code: &str) {
-            let country = RelayListCountry {
-                code: code.to_string(),
-                name: format!("{code}-country"),
-                cities: vec![],
+        pub fn add_location(&mut self, country: &str, city: &str) {
+            let country = match self
+                .relay_list
+                .countries
+                .iter_mut()
+                .find(|c| c.code == country)
+            {
+                Some(country) => country,
+                None => {
+                    let country = RelayListCountry {
+                        code: country.to_string(),
+                        name: country.to_string(),
+                        cities: vec![],
+                    };
+                    self.relay_list.countries.push(country);
+                    self.relay_list.countries.last_mut().unwrap()
+                }
             };
             self.relay_list.countries.push(country);
         }
@@ -2049,8 +2092,8 @@ mod relay_list_builder {
         pub fn add_city(&mut self, code: &str) {
             let country = self.relay_list.countries.last_mut().unwrap();
             let city = RelayListCity {
-                code: code.to_string(),
-                name: format!("{code}-city"),
+                code: city.to_string(),
+                name: city.to_string(),
                 latitude: 0.0,
                 longitude: 0.0,
                 relays: vec![],

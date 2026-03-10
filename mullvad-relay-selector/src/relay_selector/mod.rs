@@ -26,8 +26,8 @@ use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::Coordinates,
     relay_constraints::{
-        LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
-        RelaySettings, WireguardConstraints,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, Ownership,
+        Providers, RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
     settings::Settings,
@@ -1316,6 +1316,21 @@ pub struct EntryConstraints {
     pub ownership: Constraint<Ownership>,
 }
 
+impl EntryConstraints {
+    pub fn daita(mut self, enabled: bool) -> Self {
+        self.daita = Constraint::Only(DaitaSettings {
+            enabled,
+            use_multihop_if_necessary: false, // Unused for partition relays, overridden by "Autohop" predicate.
+        });
+        self
+    }
+
+    pub fn general(mut self, general: ExitConstraints) -> Self {
+        self.general = general;
+        self
+    }
+}
+
 // TODO: Document
 // TODO: Should all fields be pub??
 #[derive(Debug, Default, Clone)]
@@ -1323,6 +1338,28 @@ pub struct ExitConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
+}
+
+impl ExitConstraints {
+    pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
+        self.location = Constraint::Only(location.into());
+        self
+    }
+
+    pub fn country(mut self, country: impl Into<String>) -> Self {
+        self.location = Constraint::Only(GeographicLocationConstraint::country(country).into());
+        self
+    }
+
+    pub fn providers(mut self, providers: Providers) -> Self {
+        self.providers = Constraint::Only(providers);
+        self
+    }
+
+    pub fn ownership(mut self, ownership: Ownership) -> Self {
+        self.ownership = Constraint::Only(ownership);
+        self
+    }
 }
 
 // TODO: Document
