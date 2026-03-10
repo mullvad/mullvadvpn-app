@@ -49,6 +49,7 @@
     <string name="appearance">Wygląd</string>
     <string name="appearance_description">Zmień tytuł i ikonę aplikacji Mullvad VPN na urządzeniu z systemem Android. Nie spowoduje to zmiany ikony żadnych powiadomień związanych z Mullvad VPN.</string>
     <string name="appearance_description_warning"><b>Uwaga:</b> aplikacja zostanie zamknięta automatycznie i trzeba będzie ręcznie otworzyć ją ponownie po wybraniu nowej ikony i tytułu. Nie wpłynie to na połączenie VPN.</string>
+    <string name="appearance_description_warning_restart">Jeśli ikona i tytuł nadal nie zmienią się po zamknięciu aplikacji, spróbuj ponownie uruchomić urządzenie.</string>
     <string name="apply">Zastosuj</string>
     <string name="applying_changes">Stosowanie zmian...</string>
     <string name="at_least_on_method_needs_to_enabled">Należy włączyć co najmniej jedną metodę</string>
@@ -106,6 +107,7 @@
     <string name="copy">Kopiuj</string>
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Utwórz</string>
     <string name="create_account_fail_title">Nie udało się utworzyć konta</string>
     <string name="create_custom_list_message">Utworzono „%1$s”</string>

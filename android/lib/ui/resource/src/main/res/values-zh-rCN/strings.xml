@@ -49,6 +49,7 @@
     <string name="appearance">外观</string>
     <string name="appearance_description">更改 Android 设备上 Mullvad VPN 应用的标题和图标。这不会更改任何 Mullvad VPN 相关通知的图标。</string>
     <string name="appearance_description_warning"><b>注意</b>：应用将自动关闭，在选择新的图标和标题后，需要手动再次打开。这不会影响您的 VPN 连接。</string>
+    <string name="appearance_description_warning_restart">如果 App 关闭后图标和标题仍未更改，请尝试重新启动设备。</string>
     <string name="apply">应用</string>
     <string name="applying_changes">正在应用更改…</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要启用一个方法</string>
@@ -106,6 +107,7 @@
     <string name="copy">复制</string>
     <string name="copy_account_number">复制帐号</string>
     <string name="country_comma_city">%2$s%1$s</string>
+    <string name="country_comma_city_comma_relay">%1$s，%2$s，%3$s</string>
     <string name="create">创建</string>
     <string name="create_account_fail_title">创建帐户失败</string>
     <string name="create_custom_list_message">“%1$s”已创建</string>

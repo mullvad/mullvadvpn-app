@@ -49,6 +49,7 @@
     <string name="appearance">ظاهر</string>
     <string name="appearance_description">عنوان و آیکون اپلیکیشن Mullvad VPN را روی دستگاه اندرویدی خود تغییر دهید. این کار، آیکون هیچ‌یک از اعلان‌های مرتبط با Mullvad VPN را تغییر نخواهد داد.</string>
     <string name="appearance_description_warning"><b>توجه:</b> اپلیکیشن به‌صورت خودکار بسته می‌شود و پس از انتخاب آیکون و عنوان جدید، باید دوباره به‌صورت دستی باز شود. این موضوع بر اتصال VPN شما تأثیری نخواهد داشت.</string>
+    <string name="appearance_description_warning_restart">اگر پس از بستن برنامه، نماد و عنوان همچنان تغییر نکرده‌اند، لطفاً دستگاه خود را مجدد راه‌اندازی کنید.</string>
     <string name="apply">اعمال</string>
     <string name="applying_changes">اعمال تغییرات...</string>
     <string name="at_least_on_method_needs_to_enabled">حداقل یک روش باید فعال باشد</string>
@@ -106,6 +107,7 @@
     <string name="copy">کپی</string>
     <string name="copy_account_number">کپی کردن شمارهٔ حساب</string>
     <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s‏، %2$s‏، %3$s</string>
     <string name="create">ایجاد کردن</string>
     <string name="create_account_fail_title">ایجاد حساب کاربری ناموفق بود</string>
     <string name="create_custom_list_message">%1$s ایجاد شد</string>

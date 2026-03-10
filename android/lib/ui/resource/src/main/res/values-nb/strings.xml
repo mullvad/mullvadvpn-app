@@ -49,6 +49,7 @@
     <string name="appearance">Utseende</string>
     <string name="appearance_description">Endre tittelen og ikonet for Mullvad VPN-appen på Android-enheten din. Dette vil ikke endre ikonet for varsler knyttet til Mullvad VPN.</string>
     <string name="appearance_description_warning"><b>Merk:</b> Appen lukkes automatisk og må åpnes manuelt igjen etter at du har valgt et nytt ikon og en ny tittel. Dette vil ikke ha innvirkning VPN-tilkoblingen din.</string>
+    <string name="appearance_description_warning_restart">Hvis ikonet og tittelen fortsatt ikke er endret etter at appen er lukket, kan du prøve å starte enheten på nytt.</string>
     <string name="apply">Angi</string>
     <string name="applying_changes">Tar i bruk endringer …</string>
     <string name="at_least_on_method_needs_to_enabled">Minst én metode må være aktivert</string>
@@ -106,6 +107,7 @@
     <string name="copy">Kopier</string>
     <string name="copy_account_number">Kopier kontonummer</string>
     <string name="country_comma_city">%1$s, %2$s</string>
+    <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Opprett</string>
     <string name="create_account_fail_title">Opprettelse av konto mislyktes</string>
     <string name="create_custom_list_message">«%1$s» ble opprettet</string>
