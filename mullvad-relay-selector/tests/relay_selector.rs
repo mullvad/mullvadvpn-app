@@ -1910,10 +1910,10 @@ mod new {
         }
     }
 
-    /// Test a scenario where there are no compatible, alternative entry relays but we would need to
-    /// multihop, because the relay we did select does not support DAITA (for example).
+    /// Autohopping through an alternate entry relay should only be done iff the settings force us
+    /// to. I.e. all relays which may be connected to directly should of course not be discarded.
     #[test]
-    fn autohop_no_alternate_entry() {
+    fn autohop_no_need_for_alternate_entry() {
         // A slightly more contrieved example than `daita_no_direct_only_provider`: perform a
         // pre-step pruning all DAITA relays from the relay list. As such, no other factor comes
         // into play (provider, ownership).
@@ -1943,31 +1943,10 @@ mod new {
             )
         };
 
-        let constraints = EntryConstraints {
-            daita: mullvad_types::wireguard::DaitaSettings {
-                enabled: true,
-                // NOTE: This does nothing in the new relay selector algorithm, as smart routing /
-                // autohop is dictated by if the in-parameter to `partition_relays` is `Predicate::Autohop`.
-                // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
-                use_multihop_if_necessary: Default::default(),
-            }
-            .into(),
-            ..Default::default()
-        };
+        let constraints = EntryConstraints::default();
 
         let query = relay_selector.partition_relays(Predicate::Autohop(constraints));
-        assert_eq!(query.matches.len(), 0);
-
-        // Assert that a relay was discarded because we could not select an entry because of
-        // DAITA and provider constraints not making sense.
-        //
-        // Note that some relays will be discarded simply because they lack DAITA OR are operated
-        // by the wrong provider.
-        for reasons in query.unique_reasons() {
-            match reasons.as_slice() {
-                &[Reason::Daita] => (),
-                _ => panic!("{reasons:#?}"),
-            }
-        }
+        // The single relay in the relay list ought to be matched in this instance.
+        assert_eq!(query.matches.len(), 1);
     }
 }

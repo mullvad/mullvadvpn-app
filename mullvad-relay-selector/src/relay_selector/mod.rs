@@ -891,6 +891,7 @@ impl RelaySelector {
                 // We may run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
+                // TODO: This should only apply iff we *need* to route through an alternative relay.
                 let occupied = {
                     let mut constraints = constraints.clone();
                     constraints.general.location = Constraint::Any;
