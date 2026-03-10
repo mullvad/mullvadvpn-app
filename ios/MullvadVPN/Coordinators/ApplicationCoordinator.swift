@@ -568,6 +568,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             navigationController: navigationController,
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: CustomListRepository(),
             recentConnectionsRepository: RecentConnectionsRepository(store: SettingsManager.store)
         )

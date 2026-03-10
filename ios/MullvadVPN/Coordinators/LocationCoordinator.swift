@@ -16,6 +16,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let tunnelManager: TunnelManager
     private var tunnelObserver: TunnelObserver?
     private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relayCacheTracker: RelayCacheTrackerProtocol
     private let customListRepository: CustomListRepositoryProtocol
     private let recentConnectionsRepository: RecentConnectionsRepositoryProtocol
 
@@ -33,12 +34,14 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
         relaySelectorWrapper: RelaySelectorWrapper,
+        relayCacheTracker: RelayCacheTrackerProtocol,
         customListRepository: CustomListRepositoryProtocol,
         recentConnectionsRepository: RecentConnectionsRepositoryProtocol
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.relaySelectorWrapper = relaySelectorWrapper
+        self.relayCacheTracker = relayCacheTracker
         self.customListRepository = customListRepository
         self.recentConnectionsRepository = recentConnectionsRepository
     }
@@ -47,6 +50,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         let selectLocationViewModelImpl = SelectLocationViewModelImpl(
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository,
             recentConnectionsRepository: recentConnectionsRepository,
             delegate: .init(
