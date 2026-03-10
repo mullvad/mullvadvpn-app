@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Hide password by default on login screen.
+- Drop support for Android 8/8.1 (Android 9/API level 28 or later is now required).
 
 
 ## [android/2026.2] - 2025-02-06
