@@ -74,6 +74,7 @@ turbine = "1.2.1"
 annotation-jvm = "1.9.1"
 junit-version = "4.13.2"
 material = "1.13.0"
+rust-android = "0.10.0"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -194,6 +195,7 @@ ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
+rust-android = { id = "net.mullvad.rust-android", version.ref = "rust-android" }
 # Convention plugins
 mullvad-android-library = { id = "mullvad.android-library" }
 mullvad-android-library-feature-impl = { id = "mullvad.android-library-feature-impl" }
