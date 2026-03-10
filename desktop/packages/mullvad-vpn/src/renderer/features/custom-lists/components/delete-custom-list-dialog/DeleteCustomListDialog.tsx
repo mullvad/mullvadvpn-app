@@ -57,7 +57,7 @@ export function DeleteCustomListDialog({
                   // TRANSLATORS: Available placeholder:
                   // TRANSLATORS: %(list)s - The name of the custom list that is about to be deleted.
                   messages.pgettext(
-                    'select-location-view',
+                    'custom-list-feature',
                     'Do you want to delete the list %(list)s?',
                   ),
                   { list: customList.label },

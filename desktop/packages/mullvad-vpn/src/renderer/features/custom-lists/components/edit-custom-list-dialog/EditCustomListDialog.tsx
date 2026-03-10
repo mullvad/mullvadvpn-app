@@ -63,7 +63,7 @@ function EditCustomListDialogImpl(props: EditListImplProps) {
   const textFieldDescription = showTextFieldInvalidReason
     ? invalidReason
     : // TRANSLATORS: Helper text under input for editing the name of a custom list.
-      messages.pgettext('select-location-view', 'Enter a new name for the custom list');
+      messages.pgettext('custom-list-feature', 'Enter a new name for the custom list');
   const saveButtonDisabled = error || invalid || loading || !open || !dirty;
 
   return (
@@ -78,7 +78,7 @@ function EditCustomListDialogImpl(props: EditListImplProps) {
                 invalid={textFieldInvalid}>
                 <Dialog.TextGroup gap="small" flexGrow="1">
                   <TextField.Label color="whiteAlpha60">
-                    {messages.pgettext('select-location-view', 'Edit list name')}
+                    {messages.pgettext('custom-list-feature', 'Edit list name')}
                   </TextField.Label>
                   <FlexColumn gap="small">
                     <TextField.Input
