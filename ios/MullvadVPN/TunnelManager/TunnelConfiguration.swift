@@ -20,9 +20,7 @@ struct TunnelConfiguration {
         let protocolConfig = NETunnelProviderProtocol()
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
-        #if DEBUG
-            protocolConfig.includeAllNetworks = includeAllNetworks
-        #endif
+        protocolConfig.includeAllNetworks = includeAllNetworks
         protocolConfig.excludeLocalNetworks = excludeLocalNetworks
 
         let alwaysOnRule = NEOnDemandRuleConnect()
