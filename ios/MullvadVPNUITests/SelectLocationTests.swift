@@ -53,21 +53,6 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
     }
 
     func testMultihopToggle() {
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapMultihopCell()
-
-            MultihopPage(self.app)
-                .tapEnableSwitchIfOn()
-                .tapBackButton()
-
-            SettingsPage(self.app)
-                .tapDoneButton()
-        }
-
         HeaderBar(app)
             .tapSettingsButton()
 

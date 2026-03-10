@@ -1,5 +1,5 @@
 //
-//  SettingsTests.swift
+//  SettingsLoggedOutTests.swift
 //  MullvadVPNUITests
 //
 //  Created by Niklas Berglund on 2024-02-23.
