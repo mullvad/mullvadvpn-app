@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import net.mullvad.talpid.model.Connectivity
+import net.mullvad.talpid.model.IpAvailability
 
 private val CONNECTIVITY_DEBOUNCE = 300.milliseconds
 
@@ -223,7 +224,11 @@ fun ConnectivityManager.hasInternetConnectivity(
         .distinctUntilChanged()
         .onEach {
             if (it is Connectivity.Online) {
-                Logger.i("Device is online")
+                when (it.ipAvailability) {
+                    IpAvailability.Ipv4 -> Logger.i("Device is online IPv4 only")
+                    IpAvailability.Ipv6 -> Logger.i("Device is online IPv6 only")
+                    IpAvailability.Ipv4AndIpv6 -> Logger.i("Device is online IPv4 and IPv6")
+                }
             } else {
                 Logger.i("Device is offline")
             }
