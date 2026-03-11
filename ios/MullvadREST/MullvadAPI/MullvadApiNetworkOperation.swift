@@ -70,11 +70,16 @@ extension REST {
             }
 
             let transport = transportProvider.makeTransport()
+
             do {
+                logger.info("\(#function): using transport=\(transport?.name ?? "Unknown")")
                 networkTask = try transport?.sendRequest(request) { [weak self] response in
                     guard let self else { return }
 
+                    logger.debug("\(#function): \(request.name) API response received")
+
                     if let apiError = response.error {
+                        logger.error("Request failed to send error=\(apiError)")
                         finish(result: .failure(restError(apiError: apiError)))
                         return
                     }
@@ -83,18 +88,24 @@ extension REST {
 
                     switch decodedResponse {
                     case let .success(value):
+                        logger.debug("API response decoded successfully")
                         finish(result: .success(value))
                     case let .decoding(block):
                         do {
-                            finish(result: .success(try block()))
+                            let value = try block()
+                            logger.debug("API response decoded via block")
+                            finish(result: .success(value))
                         } catch {
+                            logger.error("Response decoding failed error=\(error)")
                             finish(result: .failure(REST.Error.unhandledResponse(0, nil)))
                         }
                     case let .unhandledResponse(error):
+                        logger.error("Unhandled API response error=\(String(describing: error))")
                         finish(result: .failure(REST.Error.unhandledResponse(0, error)))
                     }
                 }
             } catch {
+                logger.error("Request failed to send error=\(error)")
                 finish(result: .failure(error))
             }
         }

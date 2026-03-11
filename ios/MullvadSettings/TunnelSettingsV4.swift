@@ -43,4 +43,8 @@ public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
             tunnelMultihopState: .off
         )
     }
+
+    public var debugDescription: String {
+        "TunnelSettingsV4(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation), tunnelQuantumResistance: \(tunnelQuantumResistance))"
+    }
 }

@@ -42,7 +42,8 @@ class AllLocationDataSource: SearchableLocationDataSource {
                     code: countryCode,
                     locations: [countryLocation],
                     isActive: true,
-                    showsChildren: expandedCodes.contains(countryCode)
+                    showsChildren: expandedCodes.contains(countryCode),
+                    isIPOverriden: relay.isOverridden ?? false
                 )
                 countryNodesByCode[countryCode] = countryNode
                 rootNode.children.append(countryNode)
@@ -60,7 +61,8 @@ class AllLocationDataSource: SearchableLocationDataSource {
                     locations: [cityLocation],
                     isActive: true,
                     parent: countryNode,
-                    showsChildren: expandedCodes.contains(countryCityCode)
+                    showsChildren: expandedCodes.contains(countryCityCode),
+                    isIPOverriden: relay.isOverridden ?? false
                 )
                 cityNodesByCode[countryCityCode] = cityNode
                 countryNode.children.append(cityNode)
@@ -74,7 +76,8 @@ class AllLocationDataSource: SearchableLocationDataSource {
                 locations: [hostLocation],
                 isActive: relay.active,
                 parent: cityNode,
-                showsChildren: expandedCodes.contains(relay.hostname)
+                showsChildren: expandedCodes.contains(relay.hostname),
+                isIPOverriden: relay.isOverridden ?? false
             )
             cityNode.children.append(hostNode)
 

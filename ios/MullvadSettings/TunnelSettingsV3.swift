@@ -37,4 +37,8 @@ public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
             tunnelQuantumResistance: .automatic
         )
     }
+
+    public var debugDescription: String {
+        "TunnelSettingsV3(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation))"
+    }
 }

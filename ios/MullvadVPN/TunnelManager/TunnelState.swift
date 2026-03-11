@@ -99,8 +99,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
                 """
                 connecting \(isPostQuantum ? "(PQ) " : ""), \
                 daita: \(isDaita), \
-                to \(tunnelRelays.exit.hostname)\
-                \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+                to \(tunnelRelays.exit.description)\
+                \(tunnelRelays.entry.flatMap { " via \($0.description)" } ?? "")
                 """
             } else {
                 "connecting\(isPostQuantum ? " (PQ)" : ""), fetching relay"
@@ -109,8 +109,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
             """
             connected \(isPostQuantum ? "(PQ) " : ""), \
             daita: \(isDaita), \
-            to \(tunnelRelays.exit.hostname)\
-            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+            to \(tunnelRelays.exit.description)\
+            \(tunnelRelays.entry.flatMap { " via \($0.description)" } ?? "")
             """
         case let .disconnecting(actionAfterDisconnect):
             "disconnecting and then \(actionAfterDisconnect)"
@@ -120,8 +120,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
             """
             reconnecting \(isPostQuantum ? "(PQ) " : ""), \
             daita: \(isDaita), \
-            to \(tunnelRelays.exit.hostname)\
-            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
+            to \(tunnelRelays.exit.description)\
+            \(tunnelRelays.entry.flatMap { " via \($0.description)" } ?? "")
             """
         case .waitingForConnectivity:
             "waiting for connectivity"
@@ -129,8 +129,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
             "error state: \(blockedStateReason)"
         case let .negotiatingEphemeralPeer(tunnelRelays, _, isPostQuantum, isDaita):
             """
-            negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
-            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? ""), \
+            negotiating key with exit relay: \(tunnelRelays.exit.description)\
+            \(tunnelRelays.entry.flatMap { " via \($0.description)" } ?? ""), \
             isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
             """
         }

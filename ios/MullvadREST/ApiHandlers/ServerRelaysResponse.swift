@@ -25,7 +25,8 @@ extension REST {
         }
     }
 
-    public struct BridgeRelay: Codable, Equatable, Sendable {
+    public struct BridgeRelay: Codable, Equatable, Sendable, AnyRelay {
+
         public let hostname: String
         public let active: Bool
         public let owned: Bool
@@ -35,6 +36,7 @@ extension REST {
         public let weight: UInt64
         public let includeInCountry: Bool
         public var daita: Bool?
+        public var isOverridden: Bool? = false
 
         public func override(ipv4AddrIn: IPv4Address?) -> Self {
             BridgeRelay(
@@ -45,12 +47,13 @@ extension REST {
                 provider: provider,
                 ipv4AddrIn: ipv4AddrIn ?? self.ipv4AddrIn,
                 weight: weight,
-                includeInCountry: includeInCountry
+                includeInCountry: includeInCountry,
+                isOverridden: true
             )
         }
     }
 
-    public struct ServerRelay: Codable, Equatable, Sendable {
+    public struct ServerRelay: Codable, Equatable, Sendable, AnyRelay {
         public struct Features: Codable, Equatable, Sendable {
             public struct DAITA: Codable, Equatable, Sendable {
                 // Intentionally left blank.
@@ -84,6 +87,7 @@ extension REST {
         public let daita: Bool?
         public let shadowsocksExtraAddrIn: [String]?
         public let features: Features?
+        public var isOverridden: Bool? = false
 
         public var supportsDaita: Bool {
             (features?.daita != nil) || daita == true
@@ -111,7 +115,8 @@ extension REST {
                 includeInCountry: includeInCountry,
                 daita: daita,
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
-                features: features
+                features: features,
+                isOverridden: true
             )
         }
 
@@ -129,7 +134,8 @@ extension REST {
                 includeInCountry: includeInCountry,
                 daita: daita,
                 shadowsocksExtraAddrIn: shadowsocksExtraAddrIn,
-                features: features
+                features: features,
+                isOverridden: true
             )
         }
     }

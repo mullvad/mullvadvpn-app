@@ -30,7 +30,7 @@ public enum LocalNetworkSharingState: Codable, Sendable {
     }
 }
 
-public struct IncludeAllNetworksSettings: Codable, Equatable, Sendable {
+public struct IncludeAllNetworksSettings: Codable, Equatable, Sendable, CustomDebugStringConvertible {
     public var includeAllNetworksState: InclueAllNetworksState
     public var localNetworkSharingState: LocalNetworkSharingState
 
@@ -48,5 +48,8 @@ public struct IncludeAllNetworksSettings: Codable, Equatable, Sendable {
     ) {
         self.includeAllNetworksState = includeAllNetworksState
         self.localNetworkSharingState = localNetworkSharingState
+    }
+    public var debugDescription: String {
+        "IncludeAllNetworksSettings(includeAllNetworksState: \(includeAllNetworksState), localNetworkSharingState: \(localNetworkSharingState))"
     }
 }

@@ -7,7 +7,7 @@
 //
 
 /// Persistent proxy configuration; formerly contained in PersistentAccessMethod.swift.
-public enum PersistentProxyConfiguration: Codable, Equatable, Sendable {
+public enum PersistentProxyConfiguration: Codable, Equatable, Sendable, CustomDebugStringConvertible {
     /// Direct communication without proxy.
     case direct
 
@@ -22,6 +22,21 @@ public enum PersistentProxyConfiguration: Codable, Equatable, Sendable {
 
     /// Communication over socks5 proxy.
     case socks5(SocksConfiguration)
+
+    public var debugDescription: String {
+        switch self {
+        case .direct:
+            return "Direct"
+        case .bridges:
+            return "Bridges"
+        case .encryptedDNS:
+            return "Encrypted DNS"
+        case .shadowsocks(let config):
+            return "Shadowsocks: \(config)"
+        case .socks5(let config):
+            return "Socks5: \(config)"
+        }
+    }
 }
 
 extension PersistentProxyConfiguration {
@@ -42,7 +57,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Socks v5 proxy configuration.
-    public struct SocksConfiguration: Codable, Equatable, Sendable {
+    public struct SocksConfiguration: Codable, Equatable, Sendable, CustomDebugStringConvertible {
         /// Proxy server address.
         public var server: AnyIPAddress
 
@@ -51,6 +66,10 @@ extension PersistentProxyConfiguration {
 
         /// Authentication method.
         public var authentication: SocksAuthentication
+
+        public var debugDescription: String {
+            "(server: \(server), port: \(port))"
+        }
 
         public init(server: AnyIPAddress, port: UInt16, authentication: SocksAuthentication) {
             self.server = server
@@ -76,7 +95,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Shadowsocks configuration.
-    public struct ShadowsocksConfiguration: Codable, Equatable, Sendable {
+    public struct ShadowsocksConfiguration: Codable, Equatable, Sendable, CustomDebugStringConvertible {
         /// Server address.
         public var server: AnyIPAddress
 
@@ -88,6 +107,10 @@ extension PersistentProxyConfiguration {
 
         /// Server cipher.
         public var cipher: ShadowsocksCipherOptions
+
+        public var debugDescription: String {
+            "(server: \(server), port: \(port), cipher: \(cipher))"
+        }
 
         public init(server: AnyIPAddress, port: UInt16, password: String, cipher: ShadowsocksCipherOptions) {
             self.server = server

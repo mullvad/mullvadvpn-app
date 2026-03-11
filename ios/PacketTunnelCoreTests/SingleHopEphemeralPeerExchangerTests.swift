@@ -46,6 +46,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             ),
             hostname: match.relay.hostname,
             location: match.location,
+            isOverridden: false,
             features: nil
         )
     }

@@ -280,6 +280,9 @@ extension PacketTunnelActor {
 
         let settings: Settings = try settingsReader.read()
         try await self.applyNetworkSettingsIfNeeded(settings: settings)
+        logger.info(
+            "\(#function): Tunnel settings: relay=\(settings.relayConstraints) multihop=\(settings.multihopState) obfuscation=\(settings.obfuscation) quantum=\(settings.quantumResistance) dns=\(settings.dnsServers)"
+        )
 
         if settings.quantumResistance.isEnabled || settings.daita.daitaState.isEnabled {
             try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
