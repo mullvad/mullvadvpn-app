@@ -921,8 +921,7 @@ impl RelaySelector {
                     constraints.general.location = Constraint::Any;
                     self.entry_criteria(constraints)
                 };
-                let criteria =
-                    Criteria::otherwise2(Criteria::flatten(apply_entry_guards), occupied);
+                let criteria = Criteria::otherwise(Criteria::flatten(apply_entry_guards), occupied);
                 vec![criteria]
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
@@ -1208,20 +1207,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     /// In the happy case this carries minimal additional runtime overhead compared to [`Criteria::new`],
     /// but upon a rejection two functions will run instead of one. For more fine-grained control over this
     /// behavior, prefer [`Criteria::new`].
-    fn otherwise(
-        f: impl Fn(&WireguardRelay) -> Verdict + 'a,
-        g: impl Fn(&WireguardRelay) -> Verdict + 'a,
-    ) -> Self {
-        Criteria::new(move |relay| match f(relay) {
-            Verdict::Accept => Verdict::accept(),
-            Verdict::Reject(reasons) => reasons
-                .into_iter()
-                .map(Verdict::reject)
-                .fold(g(relay), Verdict::compose),
-        })
-    }
-
-    fn otherwise2(f: Self, g: Self) -> Self {
+    fn otherwise(f: Self, g: Self) -> Self {
         Criteria::new(move |relay| match f.eval(relay) {
             Verdict::Accept => Verdict::accept(),
             Verdict::Reject(reasons) => reasons
@@ -1237,7 +1223,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     }
 
     /// Flatten a nested structure of different criteria into one.
-    fn flatten(criterias: Vec<Self>) -> Self {
+    fn flatten(criterias: impl IntoIterator<Item = &'a Self>) -> Self {
         Criteria::new(move |relay| {
             criterias
                 .iter()
