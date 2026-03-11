@@ -12,10 +12,10 @@ import XCTest
 final class TunnelSettingsStrategyTests: XCTestCase {
     func testConnectToNewRelayOnMultihopChanges() {
         var currentSettings = LatestTunnelSettings()
-        TunnelSettingsUpdate.multihop(.off).apply(to: &currentSettings)
+        TunnelSettingsUpdate.multihop(.never).apply(to: &currentSettings)
 
         var updatedSettings = currentSettings
-        TunnelSettingsUpdate.multihop(.on).apply(to: &updatedSettings)
+        TunnelSettingsUpdate.multihop(.always).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
         XCTAssertTrue(

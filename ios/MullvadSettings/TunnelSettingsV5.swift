@@ -30,7 +30,7 @@ public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
-        tunnelMultihopState: MultihopState = .off
+        tunnelMultihopState: MultihopState = .never
 
     ) {
         self.relayConstraints = relayConstraints

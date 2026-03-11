@@ -141,7 +141,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
             state: .off,
             udpOverTcpPort: .automatic
         )
-        settingsV6.tunnelMultihopState = .off
+        settingsV6.tunnelMultihopState = .never
         settingsV6.daita = .init(daitaState: .on)
 
         try migrateToLatest(settingsV6, version: .v6)
@@ -168,7 +168,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
             state: .off,
             udpOverTcpPort: .automatic
         )
-        settingsV5.tunnelMultihopState = .off
+        settingsV5.tunnelMultihopState = .never
 
         try migrateToLatest(settingsV5, version: .v5)
 

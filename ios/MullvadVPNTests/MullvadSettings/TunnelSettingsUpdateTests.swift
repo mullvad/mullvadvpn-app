@@ -131,11 +131,11 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         var settings = LatestTunnelSettings()
 
         // When:
-        let update = TunnelSettingsUpdate.multihop(.on)
+        let update = TunnelSettingsUpdate.multihop(.always)
         update.apply(to: &settings)
 
         // Then:
-        XCTAssertEqual(settings.tunnelMultihopState, .on)
+        XCTAssertEqual(settings.tunnelMultihopState, .always)
     }
 
     func testApplyDAITA() {
