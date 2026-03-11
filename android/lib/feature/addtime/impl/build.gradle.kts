@@ -15,6 +15,7 @@ android {
 dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.payment)
+    implementation(projects.lib.feature.addtime.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

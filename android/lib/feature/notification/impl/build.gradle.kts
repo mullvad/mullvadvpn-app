@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.protobuf.kotlin.lite)
+    implementation(projects.lib.feature.notification.api)
 
     // Destinations
     implementation(libs.compose.destinations)

@@ -58,6 +58,7 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.account.impl.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
@@ -96,7 +97,7 @@ private fun PreviewWelcomeScreen(
 
 @Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
-fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
+fun Welcome(navigator: Navigator) {
     val vm = koinViewModel<WelcomeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -108,11 +109,11 @@ fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
         uiSideEffect ->
         when (uiSideEffect) {
             is WelcomeViewModel.UiSideEffect.OpenAccountView -> openAccountPage(uiSideEffect.token)
-            WelcomeViewModel.UiSideEffect.OpenConnectScreen ->
-                navController.navigate(ConnectDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+            WelcomeViewModel.UiSideEffect.OpenConnectScreen -> {}
+//                navController.navigate(ConnectDestination.route) {
+//                    launchSingleTop = true
+//                    popUpTo("main") { inclusive = true }
+//                }
             WelcomeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -134,14 +135,24 @@ fun Welcome(navController: NavController, navigator: DestinationsNavigator) {
     WelcomeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
+        onSettingsClick = dropUnlessResumed {
+//            navigator.navigate(SettingsDestination)
+                                            },
+        onAccountClick = dropUnlessResumed {
+//            navigator.navigate(AccountDestination)
+                                           },
         navigateToDeviceInfoDialog =
-            dropUnlessResumed { navigator.navigate(DeviceNameInfoDestination) },
+            dropUnlessResumed {
+//                navigator.navigate(DeviceNameInfoDestination)
+                              },
         onDisconnectClick = vm::onDisconnectClick,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onRedeemVoucherClick = dropUnlessResumed {
+//            navigator.navigate(RedeemVoucherDestination)
+                                                 },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+            dropUnlessResumed {
+//                navigator.navigate(VerificationPendingDestination)
+                              },
     )
 }
 

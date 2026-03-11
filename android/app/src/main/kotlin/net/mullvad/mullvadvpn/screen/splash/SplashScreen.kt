@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.app.MainGraph
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.core.nav3.PrivacyDisclaimerNavKey
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
@@ -47,12 +48,16 @@ fun Splash(navigator: Navigator) {
     // navigates away from the app to the resume before we leave the splash screen
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            SplashUiSideEffect.NavigateToConnect -> navigator.navigate(LoginNavKey)
-            SplashUiSideEffect.NavigateToLogin -> navigator.navigate(LoginNavKey)
+            SplashUiSideEffect.NavigateToConnect ->
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
+            SplashUiSideEffect.NavigateToLogin ->
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             SplashUiSideEffect.NavigateToPrivacyDisclaimer ->
-                navigator.navigate(PrivacyDisclaimerNavKey)
-            SplashUiSideEffect.NavigateToRevoked -> navigator.navigate(DeviceRevokedNavKey)
-            SplashUiSideEffect.NavigateToOutOfTime -> navigator.navigate(OutOfTimeNavKey)
+                navigator.navigate(PrivacyDisclaimerNavKey, clearBackStack = true)
+            SplashUiSideEffect.NavigateToRevoked ->
+                navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
+            SplashUiSideEffect.NavigateToOutOfTime ->
+                navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
         }
     }
 

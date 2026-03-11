@@ -17,6 +17,7 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
+    implementation(projects.lib.feature.appinfo.api)
 
     // Destinations
     implementation(libs.compose.destinations)

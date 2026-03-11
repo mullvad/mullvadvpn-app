@@ -7,5 +7,7 @@ import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.feature.login.impl.Login
 
 fun EntryProviderScope<NavKey>.loginEntry(navigator: Navigator) {
-    entry<LoginNavKey> { Login(navigator = navigator) }
+    entry<LoginNavKey> { navKey ->
+        Login(navigator = navigator, accountNumber = navKey.accountNumber)
+    }
 }

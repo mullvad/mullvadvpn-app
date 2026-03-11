@@ -21,6 +21,7 @@ dependencies {
     implementation(projects.lib.feature.settings.impl)
     implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.home.api)
+    implementation(projects.lib.feature.settings.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

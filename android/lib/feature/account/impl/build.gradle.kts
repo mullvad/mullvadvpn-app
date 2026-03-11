@@ -18,6 +18,8 @@ dependencies {
     implementation(projects.lib.feature.addtime.impl)
     implementation(projects.lib.feature.deleteaccount.impl)
     implementation(projects.lib.feature.login.impl)
+    implementation(projects.lib.feature.login.api)
+    implementation(projects.lib.feature.account.api)
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
 

@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.login.impl.devicelist
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -26,12 +25,11 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 
 class DeviceListViewModel(
+    private val accountNumber: AccountNumber,
     private val deviceRepository: DeviceRepository,
     savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val accountNumber: AccountNumber =
-        DeviceListDestination.argsFrom(savedStateHandle).accountNumber
 
     private val loadingDevices = MutableStateFlow<Set<DeviceId>>(emptySet())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())

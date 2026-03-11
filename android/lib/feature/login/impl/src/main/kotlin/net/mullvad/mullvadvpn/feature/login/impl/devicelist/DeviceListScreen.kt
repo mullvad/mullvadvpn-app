@@ -30,20 +30,19 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.login.destinations.RemoveDeviceConfirmationDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.NavResult
-import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
+import net.mullvad.mullvadvpn.feature.login.api.RemoveDeviceConfirmationDialogResult
+import net.mullvad.mullvadvpn.feature.login.api.RemoveDeviceNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
-import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
@@ -56,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview("Normal|TooMany|Empty|Loading|Error")
@@ -77,27 +77,18 @@ private fun PreviewDeviceListScreenContent(
 
 data class DeviceListNavArgs(val accountNumber: AccountNumber)
 
-@Destination<ExternalModuleGraph>(
-    style = DefaultTransition::class,
-    navArgs = DeviceListNavArgs::class,
-)
 @Composable
 fun DeviceList(
-    navigator: DestinationsNavigator,
-    confirmRemoveResultRecipient: ResultRecipient<RemoveDeviceConfirmationDestination, DeviceId>,
+    navigator: Navigator,
+    accountNumber: AccountNumber,
 ) {
-    val viewModel = koinViewModel<DeviceListViewModel>()
+    val viewModel = koinViewModel<DeviceListViewModel> {
+        parametersOf(accountNumber)
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    confirmRemoveResultRecipient.onNavResult {
-        when (it) {
-            NavResult.Canceled -> {
-                /* Do nothing */
-            }
-            is NavResult.Value -> {
-                viewModel.removeDevice(deviceIdToRemove = it.value)
-            }
-        }
+    LocalResultStore.current.consumeResult<RemoveDeviceConfirmationDialogResult>()?.device?.let {
+        viewModel.removeDevice(deviceIdToRemove = it)
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -115,24 +106,19 @@ fun DeviceList(
                 }
             }
             is DeviceListSideEffect.NavigateToLogin ->
-                navigator.navigate(LoginDestination(sideEffect.accountNumber.value)) {
-                    launchSingleTop = true
-                    popUpTo(LoginDestination) { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(sideEffect.accountNumber.value), clearBackStack = true)
         }
     }
 
     DeviceListScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onContinueWithLogin = viewModel::continueToLogin,
-        onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsDestination) },
+        onSettingsClicked = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
-            dropUnlessResumed<Device> {
-                navigator.navigate(RemoveDeviceConfirmationDestination(it))
-            },
+            dropUnlessResumed<Device> { navigator.navigate(RemoveDeviceNavKey(it)) },
     )
 }
 

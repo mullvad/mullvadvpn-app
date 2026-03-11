@@ -19,6 +19,7 @@ dependencies {
     implementation(projects.lib.feature.customlist.impl)
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.feature.filter.impl)
+    implementation(projects.lib.feature.location.api)
 
     implementation(libs.compose.constrainlayout)
     implementation(libs.koin.compose)

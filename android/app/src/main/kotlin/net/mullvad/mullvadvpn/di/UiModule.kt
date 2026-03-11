@@ -287,7 +287,7 @@ val uiModule = module {
             packageName = get(named(SELF_PACKAGE_NAME)),
         )
     }
-    viewModel { DeviceListViewModel(get(), get()) }
+    viewModel { params -> DeviceListViewModel(params.get(), get(), get()) }
     viewModel { ManageDevicesViewModel(get(), Dispatchers.IO, get()) }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }

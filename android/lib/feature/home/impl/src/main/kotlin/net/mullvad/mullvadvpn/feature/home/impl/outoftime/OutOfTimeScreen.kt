@@ -49,7 +49,9 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -84,7 +86,7 @@ private fun PreviewOutOfTimeScreen(
 
 @Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
-fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
+fun OutOfTime(navigator: Navigator) {
     val vm = koinViewModel<OutOfTimeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -96,10 +98,7 @@ fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
             is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
                 openAccountPage(uiSideEffect.token)
             OutOfTimeViewModel.UiSideEffect.OpenConnectScreen ->
-                navController.navigate(ConnectDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
             OutOfTimeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -110,11 +109,19 @@ fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
     OutOfTimeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onSettingsClick = dropUnlessResumed {
+//            navigator.navigate(SettingsDestination)
+                                            },
+        onAccountClick = dropUnlessResumed {
+//            navigator.navigate(AccountDestination)
+                                           },
+        onRedeemVoucherClick = dropUnlessResumed {
+//            navigator.navigate(RedeemVoucherDestination)
+                                                 },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+            dropUnlessResumed {
+//                navigator.navigate(VerificationPendingDestination)
+                              },
         onDisconnectClick = vm::onDisconnectClick,
     )
 }

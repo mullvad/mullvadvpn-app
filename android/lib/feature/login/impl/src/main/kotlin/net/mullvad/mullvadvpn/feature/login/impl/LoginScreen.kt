@@ -176,10 +176,10 @@ fun Login(
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            LoginUiSideEffect.NavigateToWelcome -> navigator.navigate(WelcomeNavKey)
-            is LoginUiSideEffect.NavigateToConnect -> navigator.navigate(ConnectNavKey)
-            is LoginUiSideEffect.TooManyDevices -> navigator.navigate(DeviceListNavKey)
-            LoginUiSideEffect.NavigateToOutOfTime -> navigator.navigate(OutOfTimeNavKey)
+            LoginUiSideEffect.NavigateToWelcome -> navigator.navigate(WelcomeNavKey, clearBackStack = true)
+            is LoginUiSideEffect.NavigateToConnect -> navigator.navigate(ConnectNavKey, clearBackStack = true)
+            is LoginUiSideEffect.TooManyDevices -> navigator.navigate(DeviceListNavKey(it.accountNumber))
+            LoginUiSideEffect.NavigateToOutOfTime -> navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationNavKey)
             LoginUiSideEffect.GenericError ->

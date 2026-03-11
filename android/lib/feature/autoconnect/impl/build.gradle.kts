@@ -16,6 +16,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.compose.constrainlayout)
+    implementation(projects.lib.feature.autoconnect.api)
 
     // Destinations
     implementation(libs.compose.destinations)

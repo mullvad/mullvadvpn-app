@@ -58,7 +58,9 @@ import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.AccountTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -95,7 +97,7 @@ private fun PreviewAccountScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<ExternalModuleGraph>(style = AccountTransition::class)
 @Composable
-fun Account(navController: NavController, navigator: DestinationsNavigator) {
+fun Account(navigator: Navigator) {
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -109,10 +111,7 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
-                navController.navigate(LoginDestination.baseRoute) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             }
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
@@ -129,17 +128,23 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
         onManageDevicesClick =
             dropUnlessResumed {
                 state.contentOrNull()?.accountNumber?.let {
-                    navigator.navigate(ManageDevicesDestination(it))
+//                    navigator.navigate(ManageDevicesDestination(it))
                 }
             },
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onRedeemVoucherClick = dropUnlessResumed {
+//            navigator.navigate(RedeemVoucherDestination)
+                                                 },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+            dropUnlessResumed {
+//                navigator.navigate(VerificationPendingDestination)
+            },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         navigateToDeleteAccount =
-            dropUnlessResumed { navigator.navigate(DeleteAccountDestination) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed {
+//                navigator.navigate(DeleteAccountDestination)
+                              },
     )
 }
 

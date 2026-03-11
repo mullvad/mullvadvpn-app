@@ -67,10 +67,6 @@ import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDes
 import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
-import com.ramcosta.composedestinations.generated.login.destinations.CreateAccountConfirmationDestination
-import com.ramcosta.composedestinations.generated.login.destinations.DeviceListDestination
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.login.destinations.RemoveDeviceConfirmationDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
@@ -108,10 +104,34 @@ import net.mullvad.mullvadvpn.core.nav3.SplashNavKey
 import net.mullvad.mullvadvpn.core.nav3.rememberNavigationState
 import net.mullvad.mullvadvpn.core.nav3.rememberResultStore
 import net.mullvad.mullvadvpn.core.nav3.toEntries
+import net.mullvad.mullvadvpn.feature.account.impl.navigation.accountEntry
+import net.mullvad.mullvadvpn.feature.addtime.impl.navigation.addTimeEntry
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.navigation.anticensorshipEntry
+import net.mullvad.mullvadvpn.feature.apiaccess.impl.navigation.apiAccessEntry
+import net.mullvad.mullvadvpn.feature.appearance.impl.navigation.appearanceEntry
+import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.appInfoEntry
+import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customlistEntry
+import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
+import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.connectEntry
+import net.mullvad.mullvadvpn.feature.home.impl.navigation.deviceRevokedEntry
+import net.mullvad.mullvadvpn.feature.home.impl.navigation.outOfTimeEntry
+import net.mullvad.mullvadvpn.feature.home.impl.navigation.welcomeEntry
+import net.mullvad.mullvadvpn.feature.location.impl.navigation.locationEntry
+import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
+import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.apiUnreachableEntry
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.createAccountConfirmationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.loginEntry
+import net.mullvad.mullvadvpn.feature.managedevices.impl.navigation.manageDevicesEntry
+import net.mullvad.mullvadvpn.feature.multihop.impl.navigation.multihopEntry
+import net.mullvad.mullvadvpn.feature.notification.impl.navigation.notificationEntry
+import net.mullvad.mullvadvpn.feature.problemreport.impl.navigation.problemReportEntry
+import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.navigation.redeemVoucherEntry
+import net.mullvad.mullvadvpn.feature.serveripoverride.impl.navigation.serverIpOverrideEntry
+import net.mullvad.mullvadvpn.feature.settings.impl.navigation.settingsEntry
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnelingEntry
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.screen.privacy.navigation.privacyDisclaimerEntry
 import net.mullvad.mullvadvpn.screen.splash.navigation.splashEntry
@@ -135,7 +155,6 @@ annotation class MainGraph {
     @ExternalDestination<ConnectDestination>
     @ExternalDestination<ConnectOnStartupInfoDestination>
     @ExternalDestination<ContentBlockersInfoDestination>
-    @ExternalDestination<CreateAccountConfirmationDestination>
     @ExternalDestination<CreateCustomListDestination>
     @ExternalDestination<CustomDnsInfoDestination>
     @ExternalDestination<CustomListLocationsDestination>
@@ -150,7 +169,6 @@ annotation class MainGraph {
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
     @ExternalDestination<DeviceIpInfoDestination>
-    @ExternalDestination<DeviceListDestination>
     @ExternalDestination<DeviceNameInfoDestination>
     @ExternalDestination<DeviceRevokedDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
@@ -164,7 +182,6 @@ annotation class MainGraph {
     @ExternalDestination<ImportOverridesByTextDestination>
     @ExternalDestination<Ipv6InfoDestination>
     @ExternalDestination<LocalNetworkSharingInfoDestination>
-    @ExternalDestination<LoginDestination>
     @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
@@ -174,7 +191,6 @@ annotation class MainGraph {
     @ExternalDestination<OutOfTimeDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
-    @ExternalDestination<RemoveDeviceConfirmationDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
     @ExternalDestination<ResetServerIpOverridesConfirmationDestination>
@@ -222,13 +238,37 @@ fun MullvadApp(
     }
 
     val entryProvider = entryProvider {
-        splashEntry(navigator3)
-        loginEntry(navigator3)
+        accountEntry(navigator3)
+        addTimeEntry(navigator3)
+        anticensorshipEntry(navigator3)
+        apiAccessEntry(navigator3)
+        apiUnreachableEntry(navigator3)
+        appearanceEntry(navigator3)
+        appInfoEntry(navigator3)
+        autoConnectEntry(navigator3)
+        deviceListEntry(navigator3)
         connectEntry(navigator3)
         createAccountConfirmationEntry(navigator3)
-        apiUnreachableEntry(navigator3)
-        vpnSettingsEntry(navigator3)
+        customlistEntry(navigator3)
+        daitaEntry(navigator3)
+        deviceRevokedEntry(navigator3)
+        filterEntry(navigator3)
+        locationEntry(navigator3)
+        loginEntry(navigator3)
+        outOfTimeEntry(navigator3)
+        manageDevicesEntry(navigator3)
+        multihopEntry(navigator3)
+        notificationEntry(navigator3)
         privacyDisclaimerEntry(navigator3)
+        problemReportEntry(navigator3)
+        redeemVoucherEntry(navigator3)
+        removeDeviceConfirmationDialogEntry(navigator3)
+        serverIpOverrideEntry(navigator3)
+        settingsEntry(navigator3)
+        splashEntry(navigator3)
+        splitTunnelingEntry(navigator3)
+        vpnSettingsEntry(navigator3)
+        welcomeEntry(navigator3)
     }
 
     SharedTransitionLayout {

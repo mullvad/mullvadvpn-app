@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.navigation)
     implementation(projects.lib.ui.util)
+    implementation(projects.lib.feature.anticensorship.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

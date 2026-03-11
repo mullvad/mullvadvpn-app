@@ -16,6 +16,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
     implementation(projects.lib.navigation)
+    implementation(projects.lib.feature.customlist.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

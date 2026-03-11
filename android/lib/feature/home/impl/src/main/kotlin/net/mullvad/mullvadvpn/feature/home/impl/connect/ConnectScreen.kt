@@ -84,6 +84,7 @@ import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
@@ -298,6 +299,7 @@ fun Connect(
                 },
             onAccountClick =
                 dropUnlessResumed {
+                    navigator.navigate(AccountNavKey)
                     //                navigator.navigate(AccountDestination)
                 },
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,

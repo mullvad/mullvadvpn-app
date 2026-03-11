@@ -17,11 +17,14 @@ class Navigator(val state: NavigationState) {
      *
      * @param key - the navigation key to navigate to.
      */
-    fun navigate(key: NavKey) {
+    fun navigate(key: NavKey, clearBackStack: Boolean = false) {
         state.backStack.apply {
-            // Remove it if it's already in the stack so it's added at the end.
-            remove(key)
-            add(key)
+            if (clearBackStack) {
+                clear()
+            }
+            if (key != state.backStack.lastOrNull()) {
+                add(key)
+            }
         }
         //        Log.d("Navigator", "after push: " + state.backStack.toList().map {
         // it.javaClass.simpleName })

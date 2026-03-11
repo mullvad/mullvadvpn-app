@@ -78,7 +78,7 @@ fun PrivacyDisclaimer(navigator: Navigator) {
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
-                navigator.navigate(LoginNavKey)
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             PrivacyDisclaimerUiSideEffect.StartService ->
                 launch {
                     try {
