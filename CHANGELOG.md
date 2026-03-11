@@ -37,7 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Security
 #### macOS
-- Fix LPE in `preinstall` script that allowed administrator users to elevate themselves to `root`.
+- Mitigate multiple local privilege escalation attacks from admin user to root in the `preinstall`
+  and `postinstall` scripts.
 
 
 ## [2026.1-beta2] - 2026-03-11
