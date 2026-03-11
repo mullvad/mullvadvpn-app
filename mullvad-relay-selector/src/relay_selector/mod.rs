@@ -921,10 +921,9 @@ impl RelaySelector {
                     constraints.general.location = Constraint::Any;
                     self.entry_criteria(constraints)
                 };
-                let mut criteria = vec![];
-                criteria.extend(apply_entry_guards);
-                criteria.extend([occupied]);
-                criteria
+                let criteria =
+                    Criteria::otherwise2(Criteria::flatten(apply_entry_guards), occupied);
+                vec![criteria]
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
                 // If an exit is already selected, it should be rejected as a possible entry relay.
@@ -1201,27 +1200,50 @@ impl<'a, T> Criteria<'a, T> {
 }
 
 impl<'a> Criteria<'a, WireguardRelay> {
-    /// If the given criteria `f` evaulates to `false`, the second provided function `reason` is
-    /// run to provide a single reason for rejection. `reason` gets access to the rejected relay, which
-    /// means that `reason` may derivce additional information for why this particular relay was
+    /// If the given criteria `f` evaulates to `Reject`, the second provided function `reason` is run to
+    /// potentially accept the relay on a different premise. `reason` gets access to the rejected relay,
+    /// which means that `reason` may derivce additional information for why this particular relay was
     /// rejected.
     ///
-    /// This is a short-hand for how most common [`Criteria`]s will be formulated, and it allows the
-    /// caller to nicely separate the scrutinizing rejection logic from the logic extracting data to
-    /// provide together with the final rejection. In the happy case this carries minimal additional
-    /// runtime overhead compared to [`Criteria::new`], but upon a rejection two functions will run
-    /// instead of one. For more fine-grained control over this behavior, prefer [`Criteria::new`].
-    #[expect(unused)] // TODO: Use or remove.
+    /// In the happy case this carries minimal additional runtime overhead compared to [`Criteria::new`],
+    /// but upon a rejection two functions will run instead of one. For more fine-grained control over this
+    /// behavior, prefer [`Criteria::new`].
     fn otherwise(
-        f: impl Fn(&WireguardRelay) -> bool + 'a,
-        reason: impl Fn(&WireguardRelay) -> Reason + 'a,
+        f: impl Fn(&WireguardRelay) -> Verdict + 'a,
+        g: impl Fn(&WireguardRelay) -> Verdict + 'a,
     ) -> Self {
-        Criteria::new(move |relay| f(relay).if_false(reason(relay)))
+        Criteria::new(move |relay| match f(relay) {
+            Verdict::Accept => Verdict::accept(),
+            Verdict::Reject(reasons) => reasons
+                .into_iter()
+                .map(Verdict::reject)
+                .fold(g(relay), Verdict::compose),
+        })
+    }
+
+    fn otherwise2(f: Self, g: Self) -> Self {
+        Criteria::new(move |relay| match f.eval(relay) {
+            Verdict::Accept => Verdict::accept(),
+            Verdict::Reject(reasons) => reasons
+                .into_iter()
+                .map(Verdict::reject)
+                .fold(g.eval(relay), Verdict::compose),
+        })
     }
 
     /// Evaluate a single [`Criteria`] for a single [`Relay`].
     fn eval(&self, relay: &WireguardRelay) -> Verdict {
         (self.f)(relay)
+    }
+
+    /// Flatten a nested structure of different criteria into one.
+    fn flatten(criterias: Vec<Self>) -> Self {
+        Criteria::new(move |relay| {
+            criterias
+                .iter()
+                .map(|criteria| criteria.eval(relay))
+                .fold(Verdict::Accept, Verdict::compose)
+        })
     }
 
     /// Evaluate all criterias for a given relay, resulting in a single final verdict.
