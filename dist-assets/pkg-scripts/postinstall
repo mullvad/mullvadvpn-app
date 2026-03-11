@@ -19,6 +19,15 @@ exec > $LOG_DIR/postinstall.log 2>&1
 
 echo "Running postinstall at $(date)"
 
+# Abort if the "localized" directory exists. This can happen if some other app bundle
+# is already occupying the intended target directory, causing macOS to install us in
+# /Applications/Mullvad VPN.localized instead. We abort in this case to avoid a potential
+# LPE from admin user to root.
+if [[ -d "$INSTALL_DIR/Mullvad VPN.localized" ]]; then
+    echo "Found '$INSTALL_DIR/Mullvad VPN.localized' unexpectedly. Aborting."
+    exit 1
+fi
+
 # NOTE: This path must be kept in sync with the path defined
 # in mullvad-daemon/src/macos_launch_daemon.rs and preinstall
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
