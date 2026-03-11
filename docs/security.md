@@ -291,6 +291,24 @@ state the app does nothing with DNS, meaning the default one is used, probably f
 In the other states DNS is simply blocked.
 
 
+## Anti-censorship, obfuscation and API access methods
+
+The app supports wrapping both VPN tunnel traffic and Mullvad API traffic in various
+obfuscation protocols. The sole purpose of these protocols is to make the traffic harder to
+fingerprint and block. Some obfuscation protocols include their own encryption, but that
+encryption should not be considered a security boundary. They are anti-censorship tools,
+not security tools.
+
+The security properties of the obfuscation layer are irrelevant, because the traffic it
+carries is already independently secured (VPN and TLS traffic). Even if an attacker could
+fully strip or reverse the obfuscation, they would only recover ciphertext that they still
+cannot read or tamper with.
+
+As an illustrative example, a perfectly valid obfuscation protocol could simply flip every bit
+in each packet. Any observer who chose to look could trivially reverse it, but it may be
+sufficient to prevent automated packet inspection from recognizing and blocking the
+traffic.
+
 ## Desktop system service
 
 On all desktop platforms the VPN tunnel and the device security is handled by a system

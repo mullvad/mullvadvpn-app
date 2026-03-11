@@ -7,9 +7,6 @@
 - Transport protocol - TCP or UDP
 - Obfuscation - Putting WireGuard or API traffic inside a protocol designed to make it
   harder to fingerprint or block the contained traffic. This is used to circumvent censorship.
-  Mullvad hosts many different obfuscation protocols. Even if most obfuscation protocols used include
-  encryption, that encryption is not to be treated as secure. We only use the obfuscation protocol
-  for its obfuscating properties, not for any security properties it might have.
 - Anti-censorhip - Umbrella term for methods and protocols used to circumvent network censorship.
   Obfuscation is a type of Anti-censorhip measurement that Mullvad use for this effort.
 - DAITA - Short for "Defense against AI-guided Traffic Analysis". A technique supported on some
