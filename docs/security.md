@@ -319,7 +319,8 @@ quits the GUI and when no tunnels are running.
 This system service can be controlled via a management interface, exposed locally
 via Unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
-Locally running malicious programs are outside of the app's threat model.
+Any local process can therefore control the VPN state, and protecting against this
+is outside of the app's threat model.
 
 The `mullvad-daemon` transition to the [disconnected] state before exiting. To
 limit leaks during computer shutdown, it will maintain the blocking firewall
@@ -363,6 +364,13 @@ network connections. Except when the user sends a problem report, then it spawn 
 ## Mullvad VPN loader
 
 See the threat model [document](../mullvad-update/threat-model.md) for the Mullvad VPN loader.
+
+## Local privilege escalation (LPE)
+
+The `mullvad-daemon` runs as administrator/root, and the installers execute with elevated
+privileges on all platforms. It is important that neither the app nor the installers ever
+serve as a local privilege escalation vector. No unprivileged process should be able to use
+them to elevate its own permissions or execute code with higher privileges.
 
 [disconnected]: #disconnected
 [connecting]: #connecting
