@@ -24,6 +24,14 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2026.1-beta2] - 2026-03-11
+### Fixed
+
+#### macOS
+- Revert "Allow incoming connections to the `mullvad-daemon` service when Application Firewall is
+  enabled." due to routing issues.
+
+
 ## [2026.1-beta1] - 2026-02-23
 ### Changed
 - Change `WireGuard port` to no longer affect the port used for LWO.
@@ -55,6 +63,8 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Ignore utun interfaces when figuring out default routes. This prevents split tunneling from
   failing when running some other software.
+- Allow incoming connections to the `mullvad-daemon` service when Application Firewall is
+  enabled. This may unblock DNS requests to the local DNS resolver running in the daemon process.
 
 ### Security
 #### Windows
