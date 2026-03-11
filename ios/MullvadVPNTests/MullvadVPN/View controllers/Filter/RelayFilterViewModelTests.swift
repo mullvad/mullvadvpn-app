@@ -20,11 +20,11 @@ struct RelayFilterViewModelTests {
             LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .on)),
             LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
             LatestTunnelSettings(
-                tunnelMultihopState: .on,
+                tunnelMultihopState: .always,
                 daita: DAITASettings(daitaState: .on, directOnlyState: .on)
             ),
             LatestTunnelSettings(
-                tunnelMultihopState: .on,
+                tunnelMultihopState: .always,
                 daita: DAITASettings(daitaState: .on, directOnlyState: .off)
             ),
         ]

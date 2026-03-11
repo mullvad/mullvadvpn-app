@@ -18,13 +18,13 @@ struct FilterDescriptorTests {
         "Returns correct filter descriptor based on settings and relays",
         arguments: [
             (
-                LatestTunnelSettings(tunnelMultihopState: .on),
+                LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: [], exitRelays: createRelayWithLocation()),
                 false,
                 false
             ),
             (
-                LatestTunnelSettings(tunnelMultihopState: .on),
+                LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
                 false
@@ -55,7 +55,7 @@ struct FilterDescriptorTests {
             ),
             (
                 LatestTunnelSettings(
-                    tunnelMultihopState: .on,
+                    tunnelMultihopState: .always,
                     daita: DAITASettings(daitaState: .off, directOnlyState: .on)
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
@@ -64,7 +64,7 @@ struct FilterDescriptorTests {
             ),
             (
                 LatestTunnelSettings(
-                    tunnelMultihopState: .on,
+                    tunnelMultihopState: .always,
                     daita: DAITASettings(daitaState: .off, directOnlyState: .off)
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
@@ -73,7 +73,7 @@ struct FilterDescriptorTests {
             ),
             (
                 LatestTunnelSettings(
-                    tunnelMultihopState: .on,
+                    tunnelMultihopState: .always,
                     daita: DAITASettings(daitaState: .on, directOnlyState: .on)
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
@@ -82,7 +82,7 @@ struct FilterDescriptorTests {
             ),
             (
                 LatestTunnelSettings(
-                    tunnelMultihopState: .on,
+                    tunnelMultihopState: .always,
                     daita: DAITASettings(daitaState: .on, directOnlyState: .off)
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),

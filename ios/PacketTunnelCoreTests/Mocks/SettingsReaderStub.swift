@@ -33,7 +33,7 @@ extension SettingsReaderStub {
                 dnsSettings: DNSSettings(),
                 wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
                 tunnelQuantumResistance: .automatic,
-                tunnelMultihopState: .off,
+                tunnelMultihopState: .never,
                 daita: DAITASettings()
             )
         )
@@ -52,7 +52,7 @@ extension SettingsReaderStub {
                 dnsSettings: DNSSettings(),
                 wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
                 tunnelQuantumResistance: .off,
-                tunnelMultihopState: .off,
+                tunnelMultihopState: .never,
                 daita: DAITASettings()
             )
         )

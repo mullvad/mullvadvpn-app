@@ -50,7 +50,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithoutDaitaConstraints,
-            tunnelMultihopState: .off,
+            tunnelMultihopState: .never,
             daita: DAITASettings(daitaState: .off)
         )
 
@@ -63,7 +63,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithDaitaConstraints,
-            tunnelMultihopState: .on,
+            tunnelMultihopState: .always,
             daita: DAITASettings(daitaState: .off)
         )
 
@@ -76,7 +76,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithDaitaConstraints,
-            tunnelMultihopState: .on,
+            tunnelMultihopState: .always,
             daita: DAITASettings(daitaState: .on)
         )
 
@@ -88,7 +88,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithoutDaitaConstraints,
-            tunnelMultihopState: .on,
+            tunnelMultihopState: .always,
             daita: DAITASettings(daitaState: .on, directOnlyState: .on)
         )
 
@@ -100,7 +100,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithDaitaConstraints,
-            tunnelMultihopState: .off,
+            tunnelMultihopState: .never,
             daita: DAITASettings(daitaState: .on)
         )
 
@@ -115,7 +115,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithoutDaitaConstraints,
-            tunnelMultihopState: .off,
+            tunnelMultihopState: .never,
             daita: DAITASettings(daitaState: .on)
         )
 
