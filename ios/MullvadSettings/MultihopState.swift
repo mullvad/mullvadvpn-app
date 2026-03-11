@@ -1,5 +1,5 @@
 //
-//  MultihopSettings.swift
+//  MultihopState.swift
 //  MullvadSettings
 //
 //  Created by Mojgan on 2024-04-26.
@@ -9,8 +9,12 @@
 import Foundation
 import MullvadTypes
 
-/// Whether Multi-hop is enabled
+/// Whether Multihop is enabled
 public enum MultihopState: Codable, Sendable {
+    // deprecated settings from settings V7 and earlier. These are no longer in use
+    case on
+    case off
+
     case always
     case never
     case whenNeeded
