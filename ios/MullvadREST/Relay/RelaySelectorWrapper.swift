@@ -32,13 +32,13 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         ).obfuscate()
 
         return switch tunnelSettings.tunnelMultihopState {
-        case .off, .never, .whenNeeded:
+        case .never, .whenNeeded:
             try SinglehopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
-        case .on, .always:
+        case .always:
             try MultihopPicker(
                 obfuscation: obfuscation,
                 tunnelSettings: tunnelSettings,

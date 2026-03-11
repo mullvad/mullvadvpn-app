@@ -40,7 +40,7 @@ class MultihopTunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject 
 class MockMultihopTunnelSettingsViewModel: TunnelSettingsObservable {
     @Published var value: MultihopState
 
-    init(multihopState: MultihopState = .off) {
+    init(multihopState: MultihopState = .never) {
         value = multihopState
     }
 

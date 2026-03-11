@@ -11,23 +11,18 @@ import MullvadTypes
 
 /// Whether Multi-hop is enabled
 public enum MultihopState: Codable, Sendable {
-    // the legacy settings: these will be migrated away from and removed
-    case on
-    case off
-    // the new settings
     case always
     case never
     case whenNeeded
 
     // is multihop explicitly selected by the user?
+    // as this is now a tristate value, this will presumably largely go away
     public var isUserSelected: Bool {
         get {
-            self == .on || self == .always
+            self == .always
         }
         set {
-            // once .whenNeeded is used, the .off value below should
-            // perhaps be replaced with .whenNeeded
-            self = newValue ? .on : .off
+            self = newValue ? .always : .never
         }
     }
 }

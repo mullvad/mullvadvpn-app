@@ -40,7 +40,7 @@ public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
             dnsSettings: dnsSettings,
             wireGuardObfuscation: wireGuardObfuscation,
             tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: .off
+            tunnelMultihopState: .never
         )
     }
 }

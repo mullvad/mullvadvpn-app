@@ -198,7 +198,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func toggleMultihop() {
-        tunnelManager.updateSettings([.multihop(isMultihopEnabled ? .off : .on)])
+        tunnelManager.updateSettings([.multihop(isMultihopEnabled ? .never : .always)])
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
