@@ -16,7 +16,7 @@ struct SinglehopPicker: RelayPicking {
     let tunnelSettings: LatestTunnelSettings
     let connectionAttemptCount: UInt
 
-    func shouldTriggerMultihop(reason: NoRelaysSatisfyingConstraintsReason) -> Bool {
+    private func shouldTriggerMultihop(reason: NoRelaysSatisfyingConstraintsReason) -> Bool {
         let whenNeeded = tunnelSettings.tunnelMultihopState == .whenNeeded
         let automaticSelection = tunnelSettings.relayConstraints.entryLocations == .any
 
@@ -31,9 +31,33 @@ struct SinglehopPicker: RelayPicking {
         }
     }
 
+    private func obfuscationAwarePicker() throws -> SinglehopPicker {
+        // Guarantee that the chosen relay supports selected obfuscation
+        let obfuscationBypass = UnsupportedObfuscationProvider(
+            relayConstraint: tunnelSettings.relayConstraints.exitLocations,
+            relays: obfuscation.obfuscatedRelays,
+            filterConstraint: tunnelSettings.relayConstraints.filter,
+            daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
+        )
+
+        let supportedObfuscation = try RelayObfuscator(
+            relays: obfuscation.allRelays,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: connectionAttemptCount,
+            obfuscationBypass: obfuscationBypass
+        ).obfuscate()
+
+        // Create a new picker so that it can use the new obfuscation object.
+        return SinglehopPicker(
+            obfuscation: supportedObfuscation,
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: connectionAttemptCount
+        )
+    }
+
     func pick() throws -> SelectedRelays {
         do {
-            return try pick(from: obfuscation.allRelays)
+            return try obfuscationAwarePicker().pick(from: obfuscation.allRelays)
         } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
             return try MultihopPicker(
                 obfuscation: obfuscation,
