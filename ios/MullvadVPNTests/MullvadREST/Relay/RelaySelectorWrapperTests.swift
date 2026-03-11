@@ -115,7 +115,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
         let settings = LatestTunnelSettings(
             relayConstraints: singlehopWithoutDaitaConstraints,
-            tunnelMultihopState: .never,
+            tunnelMultihopState: .whenNeeded,
             daita: DAITASettings(daitaState: .on)
         )
 
