@@ -41,9 +41,11 @@ function pidTree(tree: PidTree) {
 }
 
 function killTree(tree: PidTree) {
-  if (tree.children) {
-    for (const child of tree.children) {
-      killTree(child);
+  if (process.platform === 'darwin') {
+    if (tree.children) {
+      for (const child of tree.children) {
+        killTree(child);
+      }
     }
   }
 
