@@ -21,6 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.3-beta2] - 2025-03-10
+### Changed
+- Disabled autofill for delete account textfield
+
+### Fixed
+- Fix eager connection timeout in GotaTun
+
+
 ## [android/2026.3-beta1] - 2025-03-10
 ### Added
 - Add link to notifications system settings from notifications screen

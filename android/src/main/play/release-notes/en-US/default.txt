@@ -1,3 +1,4 @@
 - Added the ability to delete account
 - Added a link to system notification settings in notifications screen
 - Hide the account number input by default
+- Fixed a issue where connection timeout happened to eagerly
