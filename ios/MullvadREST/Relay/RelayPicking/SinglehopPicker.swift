@@ -47,7 +47,10 @@ struct SinglehopPicker: RelayPicking {
                 obfuscationBypass: obfuscationBypass
             ).obfuscate()
 
-            return try pick(from: supportedObfuscation.obfuscatedRelays)
+            return try SinglehopPicker(
+                obfuscation: supportedObfuscation, tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick(from: supportedObfuscation.obfuscatedRelays)
         } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
             return try MultihopPicker(
                 obfuscation: obfuscation,
