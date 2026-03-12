@@ -31,33 +31,29 @@ struct SinglehopPicker: RelayPicking {
         }
     }
 
-    private func obfuscationAwarePicker() throws -> SinglehopPicker {
-        // Guarantee that the chosen relay supports selected obfuscation
-        let obfuscationBypass = UnsupportedObfuscationProvider(
-            relayConstraint: tunnelSettings.relayConstraints.exitLocations,
-            relays: obfuscation.obfuscatedRelays,
-            filterConstraint: tunnelSettings.relayConstraints.filter,
-            daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
-        )
-
-        let supportedObfuscation = try RelayObfuscator(
-            relays: obfuscation.allRelays,
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount,
-            obfuscationBypass: obfuscationBypass
-        ).obfuscate()
-
-        // Create a new picker so that it can use the new obfuscation object.
-        return SinglehopPicker(
-            obfuscation: supportedObfuscation,
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount
-        )
-    }
-
     func pick() throws -> SelectedRelays {
         do {
-            return try obfuscationAwarePicker().pick(from: obfuscation.allRelays)
+            let obfuscationBypass = UnsupportedObfuscationProvider(
+                relayConstraint: tunnelSettings.relayConstraints.exitLocations,
+                relays: obfuscation.obfuscatedRelays,
+                filterConstraint: tunnelSettings.relayConstraints.filter,
+                daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
+            )
+
+            let supportedObfuscation = try RelayObfuscator(
+                relays: obfuscation.allRelays,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount,
+                obfuscationBypass: obfuscationBypass
+            ).obfuscate()
+
+            // Create a new picker so that it can use the new obfuscation object.
+            let obfuscatingPicker = SinglehopPicker(
+                obfuscation: supportedObfuscation,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            )
+            return try obfuscatingPicker.pick(from: supportedObfuscation.obfuscatedRelays)
         } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
             return try MultihopPicker(
                 obfuscation: obfuscation,
