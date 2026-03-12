@@ -1,8 +1,11 @@
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../shared/gettext';
+import { InternalLink } from '../../renderer/components/InternalLink';
+import { formatHtml } from '../../renderer/lib/html-formatter';
 import { strings } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
+import { messages } from '../gettext';
+import { RoutePath } from '../routes';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -43,9 +46,13 @@ export class LockdownModeNotificationProvider
   public getInAppNotification(): InAppNotification {
     const lockdownModeSettingName = messages.pgettext('vpn-settings-view', 'Lockdown mode');
     let subtitle = sprintf(
-      messages.pgettext('in-app-notifications', '"%(lockdownModeSettingName)s" is enabled.'),
+      messages.pgettext(
+        'in-app-notifications',
+        '<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet.',
+      ),
       { lockdownModeSettingName },
     );
+
     if (this.context.hasExcludedApps) {
       subtitle = `${subtitle} ${sprintf(
         messages.pgettext(
@@ -56,10 +63,28 @@ export class LockdownModeNotificationProvider
       )}`;
     }
 
+    const formattedSubtitle = formatHtml(subtitle, {
+      a: (value) => (
+        <InternalLink
+          to={RoutePath.vpnSettings}
+          variant="labelTinySemiBold"
+          locationState={{
+            options: [
+              {
+                type: 'scroll-to-anchor',
+                id: 'lockdown-mode-setting',
+              },
+            ],
+          }}>
+          <InternalLink.Text>{value}</InternalLink.Text>
+        </InternalLink>
+      ),
+    });
+
     return {
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
-      subtitle,
+      subtitle: formattedSubtitle,
     };
   }
 }
