@@ -39,7 +39,7 @@ class Navigator(val state: NavigationState) {
         // it.javaClass.simpleName} )
     }
 
-    inline fun <reified T : NavigationResult> goBack(resultStore: ResultStore, result: T) {
+    inline fun <reified T : NavResult> goBack(resultStore: ResultStore, result: T) {
         resultStore.setResult(result)
         goBack()
     }
@@ -47,7 +47,7 @@ class Navigator(val state: NavigationState) {
     /** Go back to the previous navigation key. */
     @SuppressLint("ComposableNaming")
     @Composable
-    inline fun <reified T : NavigationResult> goBack(result: T) {
+    inline fun <reified T : NavResult> goBack(result: T) {
         LocalResultStore.current.setResult(result)
         goBack()
     }

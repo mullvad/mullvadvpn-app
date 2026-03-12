@@ -14,7 +14,7 @@ import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
-import net.mullvad.mullvadvpn.core.nav3.NavigationResult
+import net.mullvad.mullvadvpn.core.nav3.NavResult
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
@@ -27,7 +27,7 @@ private fun PreviewCreateAccountConfirmationDialog() {
 }
 
 @Serializable
-data class CreateAccountConfirmationDialogResult(val confirmed: Boolean) : NavigationResult
+data class CreateAccountConfirmationDialogResult(val confirmed: Boolean) : NavResult
 
 @Composable
 @Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)

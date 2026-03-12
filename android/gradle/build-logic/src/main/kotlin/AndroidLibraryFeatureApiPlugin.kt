@@ -18,6 +18,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.dependencies
+import utilities.libs
 
 class AndroidLibraryFeatureApiPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -25,7 +26,10 @@ class AndroidLibraryFeatureApiPlugin : Plugin<Project> {
             apply(plugin = "mullvad.android-library")
             apply(plugin = "org.jetbrains.kotlin.plugin.parcelize")
 
-            dependencies { "api"(project(":lib:navigation")) }
+            dependencies {
+                "api"(project(":lib:navigation"))
+                "api"(libs.findLibrary("androidx.navigation3.ui").get())
+            }
         }
     }
 }

@@ -13,13 +13,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.scene.DialogSceneStrategy
+import androidx.navigation3.scene.SinglePaneSceneStrategy
 import androidx.navigation3.ui.NavDisplay
 import co.touchlab.kermit.Logger
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -99,7 +100,6 @@ import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
 import net.mullvad.mullvadvpn.core.nav3.Navigator
-import net.mullvad.mullvadvpn.core.nav3.ResultStore
 import net.mullvad.mullvadvpn.core.nav3.SplashNavKey
 import net.mullvad.mullvadvpn.core.nav3.rememberNavigationState
 import net.mullvad.mullvadvpn.core.nav3.rememberResultStore
@@ -111,14 +111,20 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.navigation.apiAccessEntry
 import net.mullvad.mullvadvpn.feature.appearance.impl.navigation.appearanceEntry
 import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.appInfoEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customlistEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.createCustomListEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListsEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.deleteCustomListEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.deleteCustomListNameEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.discardCustomListEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.editCustomListEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.editCustomListNameEntry
 import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.connectEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.deviceRevokedEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.outOfTimeEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.welcomeEntry
-import net.mullvad.mullvadvpn.feature.location.impl.navigation.locationEntry
+import net.mullvad.mullvadvpn.feature.location.impl.navigation.selectLocationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.apiUnreachableEntry
@@ -223,7 +229,7 @@ fun MullvadApp(
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
     val navigationState = rememberNavigationState(SplashNavKey)
-    val navigator3 = remember { Navigator(navigationState) }
+    val nav3 = remember { Navigator(navigationState) }
     val resultStore = rememberResultStore()
 
     val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
@@ -238,37 +244,44 @@ fun MullvadApp(
     }
 
     val entryProvider = entryProvider {
-        accountEntry(navigator3)
-        addTimeEntry(navigator3)
-        anticensorshipEntry(navigator3)
-        apiAccessEntry(navigator3)
-        apiUnreachableEntry(navigator3)
-        appearanceEntry(navigator3)
-        appInfoEntry(navigator3)
-        autoConnectEntry(navigator3)
-        deviceListEntry(navigator3)
-        connectEntry(navigator3)
-        createAccountConfirmationEntry(navigator3)
-        customlistEntry(navigator3)
-        daitaEntry(navigator3)
-        deviceRevokedEntry(navigator3)
-        filterEntry(navigator3)
-        locationEntry(navigator3)
-        loginEntry(navigator3)
-        outOfTimeEntry(navigator3)
-        manageDevicesEntry(navigator3)
-        multihopEntry(navigator3)
-        notificationEntry(navigator3)
-        privacyDisclaimerEntry(navigator3)
-        problemReportEntry(navigator3)
-        redeemVoucherEntry(navigator3)
-        removeDeviceConfirmationDialogEntry(navigator3)
-        serverIpOverrideEntry(navigator3)
-        settingsEntry(navigator3)
-        splashEntry(navigator3)
-        splitTunnelingEntry(navigator3)
-        vpnSettingsEntry(navigator3)
-        welcomeEntry(navigator3)
+        accountEntry(nav3)
+        addTimeEntry(nav3)
+        anticensorshipEntry(nav3)
+        apiAccessEntry(nav3)
+        apiUnreachableEntry(nav3)
+        appearanceEntry(nav3)
+        appInfoEntry(nav3)
+        autoConnectEntry(nav3)
+        deviceListEntry(nav3)
+        connectEntry(nav3)
+        createAccountConfirmationEntry(nav3)
+        daitaEntry(nav3)
+        deviceRevokedEntry(nav3)
+        filterEntry(nav3)
+        loginEntry(nav3)
+        outOfTimeEntry(nav3)
+        manageDevicesEntry(nav3)
+        multihopEntry(nav3)
+        notificationEntry(nav3)
+        privacyDisclaimerEntry(nav3)
+        problemReportEntry(nav3)
+        redeemVoucherEntry(nav3)
+        removeDeviceConfirmationDialogEntry(nav3)
+        selectLocationEntry(nav3)
+        serverIpOverrideEntry(nav3)
+        settingsEntry(nav3)
+        splashEntry(nav3)
+        splitTunnelingEntry(nav3)
+        vpnSettingsEntry(nav3)
+        welcomeEntry(nav3)
+
+        customListsEntry(nav3)
+        editCustomListEntry(nav3)
+        deleteCustomListEntry(nav3)
+        discardCustomListEntry(nav3)
+        createCustomListEntry(nav3)
+        deleteCustomListNameEntry(nav3)
+        editCustomListNameEntry(nav3)
     }
 
     SharedTransitionLayout {
@@ -279,8 +292,9 @@ fun MullvadApp(
                         Modifier.semantics { testTagsAsResourceId = true }
                             .fillMaxSize()
                             .accessibilityDataSensitive(),
+                    sceneStrategies = listOf(DialogSceneStrategy(), SinglePaneSceneStrategy()),
                     entries = navigationState.toEntries(entryProvider),
-                    onBack = { navigator3.goBack() },
+                    onBack = { nav3.goBack() },
                     sharedTransitionScope = this@SharedTransitionLayout,
                 )
             }

@@ -85,6 +85,8 @@ import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
+import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
+import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
@@ -92,6 +94,8 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.Connectio
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
+import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
@@ -169,7 +173,6 @@ private fun PreviewAccountScreen(
 fun Connect(
     navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    onNavigateToSelectLocation: () -> Unit,
 ) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
@@ -195,17 +198,9 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
 
-            is ConnectViewModel.UiSideEffect.OutOfTime -> {}
-            //                    navController.navigate(OutOfTimeDestination.route) {
-            //                        launchSingleTop = true
-            //                        popUpTo("main") { inclusive = true }
-            //                    }
+            is ConnectViewModel.UiSideEffect.OutOfTime -> navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
 
-            ConnectViewModel.UiSideEffect.RevokedDevice -> {}
-            //                    navController.navigate(DeviceRevokedDestination.route) {
-            //                        launchSingleTop = true
-            //                        popUpTo("main") { inclusive = true }
-            //                    }
+            ConnectViewModel.UiSideEffect.RevokedDevice -> navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
 
             is ConnectViewModel.UiSideEffect.NotPrepared ->
                 when (sideEffect.prepareError) {
@@ -284,7 +279,7 @@ fun Connect(
             onReconnectClick = connectViewModel::onReconnectClick,
             onConnectClick = connectViewModel::onConnectClick,
             onCancelClick = connectViewModel::onCancelClick,
-            onSwitchLocationClick = dropUnlessResumed { onNavigateToSelectLocation() },
+            onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationNavKey) },
             onOpenAppListing = connectViewModel::openAppListing,
             onManageAccountClick = connectViewModel::onManageAccountClick,
             onChangelogClick =
@@ -295,23 +290,20 @@ fun Connect(
             onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
             onSettingsClick =
                 dropUnlessResumed {
-                    //                navigator.navigate(SettingsDestination)
+                    navigator.navigate(SettingsNavKey)
                 },
             onAccountClick =
                 dropUnlessResumed {
                     navigator.navigate(AccountNavKey)
-                    //                navigator.navigate(AccountDestination)
                 },
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
             onNavigateToFeature =
                 dropUnlessResumed { feature: FeatureIndicator ->
                     navigator.navigate(VpnSettingsNavKey(scrollToFeature = feature, isModal = true))
-                    //
-                    // navigator.navigate(feature.destination())
                 },
             onClickShowWireguardPortSettings =
                 dropUnlessResumed {
-                    //                    navigator.navigate(VpnSettingsDestination())
+                    navigator.navigate(VpnSettingsNavKey())
                 },
             onClickDismissAndroid16UpgradeWarning =
                 connectViewModel::dismissAndroid16UpgradeWarning,

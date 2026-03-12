@@ -17,8 +17,11 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
     implementation(projects.lib.feature.customlist.impl)
+    implementation(projects.lib.feature.customlist.api)
     implementation(projects.lib.feature.daita.impl)
+    implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.filter.impl)
+    implementation(projects.lib.feature.filter.api)
     implementation(projects.lib.feature.location.api)
 
     implementation(libs.compose.constrainlayout)

@@ -4,4 +4,6 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 
-@Serializable data class VpnSettingsNavKey(val scrollToFeature: FeatureIndicator?, val isModal: Boolean) : NavKey
+@Serializable
+data class VpnSettingsNavKey(val scrollToFeature: FeatureIndicator? = null, val isModal: Boolean = false) :
+    NavKey

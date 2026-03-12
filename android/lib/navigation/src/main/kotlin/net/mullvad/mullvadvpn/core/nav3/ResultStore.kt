@@ -7,7 +7,6 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
-import kotlinx.serialization.Serializable
 
 /** Local for storing results in a [ResultStore] */
 object LocalResultStore {
@@ -37,7 +36,7 @@ class ResultStore {
     val resultStateMap = mutableStateMapOf<String, ResultStoreStateHolder>()
 
     /** Retrieves and consumes the current result of the given resultKey. */
-    inline fun <reified T : NavigationResult> consumeResult(): T? {
+    inline fun <reified T : NavResult> consumeResult(): T? {
         val key = T::class.toString()
         val result = resultStateMap[key]?.value as? T
         if (result != null) resultStateMap[key]?.value = null
@@ -45,7 +44,7 @@ class ResultStore {
     }
 
     /** Sets the result for the given resultKey. */
-    inline fun <reified T : NavigationResult> setResult(result: T) {
+    inline fun <reified T : NavResult> setResult(result: T) {
         val key = T::class.toString()
         resultStateMap[key] = ResultStoreStateHolder(result)
     }
@@ -55,7 +54,7 @@ class ResultStore {
 // consumed. This is done by not removing the key from `resultStateMap` after the
 // value is consumed (which would trigger a recomposition), but instead setting
 // the `ResultStoreStateHolder` value to null.
-class ResultStoreStateHolder(var value: NavigationResult?)
+class ResultStoreStateHolder(var value: NavResult?)
 
 /** Saver to save and restore the ResultStore across config change and process death. */
 private fun resultStoreSaver(): Saver<ResultStore, *> =
@@ -65,7 +64,7 @@ private fun resultStoreSaver(): Saver<ResultStore, *> =
             ResultStore().apply {
                 resultStateMap.putAll(
                     it.mapValues { entry ->
-                        ResultStoreStateHolder(entry.value as? NavigationResult)
+                        ResultStoreStateHolder(entry.value as? NavResult)
                     }
                 )
             }

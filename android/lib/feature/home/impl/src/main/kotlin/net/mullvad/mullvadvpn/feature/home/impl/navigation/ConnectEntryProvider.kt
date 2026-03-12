@@ -12,7 +12,6 @@ fun EntryProviderScope<NavKey>.connectEntry(navigator: Navigator) {
         Connect(
             navigator = navigator,
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-            onNavigateToSelectLocation = {},
         )
     }
 }

@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -69,7 +70,7 @@ private fun PreviewAccountScreen(
 @Composable
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 fun CustomLists(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     editCustomListResultRecipient:
         ResultRecipient<EditCustomListDestination, CustomListActionResultData.Success.Deleted>,
 ) {
@@ -103,12 +104,14 @@ fun CustomLists(
     CustomListsScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        addCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListDestination(null)) },
+        addCustomList = dropUnlessResumed {
+//            navigator.navigate(CreateCustomListDestination(null))
+                                          },
         openCustomList =
             dropUnlessResumed { customList ->
-                navigator.navigate(EditCustomListDestination(customListId = customList.id))
+//                navigator.navigate(EditCustomListDestination(customListId = customList.id))
             },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 
