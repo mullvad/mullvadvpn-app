@@ -25,6 +25,15 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Drop support for Android 8/8.1 (Android 9/API level 28 or later is now required).
 
+
+## [android/2026.3-beta2] - 2025-03-12
+### Changed
+- Disabled autofill for delete account textfield
+
+### Fixed
+- Fix eager connection timeout in GotaTun
+
+
 ## [android/2026.3-beta1] - 2025-03-10
 ### Added
 - Add link to notifications system settings from notifications screen
