@@ -14,6 +14,8 @@ BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
+APKSIGNER_CMD="${APKSIGNER_CMD:"apksigner"}"
+
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
@@ -38,7 +40,7 @@ function build {
     ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
         CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
         CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        ./building/containerized-build.sh android --app-bundle --enable-play-publishing || return 1
+        ./building/containerized-build.sh android --app-bundle || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }
@@ -110,6 +112,20 @@ function build_ref {
         version="$version$version_suffix"
     fi
 
+    sign_artifacts "$artifact_dir"
+
+    # Upload files to google play, this needs to be done after the artifacts have been signed
+    # Due to to the ask only being able to upload all files in a folder we need to copy them to a specific folder every time.
+    local play_upload_dir="$artifact_dir/play_upload"
+    mkdir -p "$play_upload_dir"
+    if [[ "$version" != *"-dev-"* ]]; then
+            upload_google_play "publishPlayProdReleaseBundle" "MullvadVPN-$version.play.aab" "$play_upload_dir"
+        if [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
+            upload_google_play "publishPlayDevmoleReleaseBundle" "MullvadVPN-$version.play.devmole.aab" "$play_upload_dir"
+            upload_google_play "publishPlayStagemoleReleaseBundle" "MullvadVPN-$version.play.stagemole.aab" "$play_upload_dir"
+        fi
+    fi
+
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
@@ -119,6 +135,38 @@ function build_ref {
     echo ""
     echo "Successfully finished building $version at $(date)"
     echo ""
+}
+
+function sign_artifacts {
+    dir=$1
+
+    pushd "$dir"
+    # Sign all apk files with the old and new key
+    for apk in MullvadVPN-*.apk; do
+        APKSIGNER_CMD --J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
+        --next-signer --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+        --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$apk"
+    done
+
+    # Sign all aab files with the upload key (new key)
+    for aab in MullvadVPN-*.aab
+    do
+        APKSIGNER_CMD --J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+        --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+        --in "$aab"
+    done
+    popd
+}
+
+function upload_google_play {
+    task=$1
+    file=$3
+    upload_dir=$2
+
+    rm "$upload_dir/"
+    cp "$file" "$upload_dir/"
+
+    ./building/container-run.sh ./android/gradlew -p android "$task" --artifact-dir "$upload_dir"
 }
 
 cd "$BUILD_DIR"
