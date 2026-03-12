@@ -106,9 +106,9 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
 
     func selectBridge(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         switch settings.tunnelMultihopState {
-        case .on, .always:
+        case .always:
             try entryBridgeResult.get()
-        case .off, .never, .whenNeeded:
+        case .never, .whenNeeded:
             try exitBridgeResult.get()
         }
     }

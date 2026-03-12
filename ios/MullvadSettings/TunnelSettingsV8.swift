@@ -1,15 +1,15 @@
 //
-//  TunnelSettingsV6 2.swift
+//  TunnelSettingsV8.swift
 //  MullvadVPN
 //
-//  Created by Steffen Ernst on 2025-02-04.
+//  Created by Andrew Bulhak on 2026-03-12.
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
+public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -23,7 +23,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     public var tunnelQuantumResistance: TunnelQuantumResistance
 
     /// Whether Multihop is enabled.
-    public var tunnelMultihopState: MultihopStateV1
+    public var tunnelMultihopState: MultihopStateV2
 
     /// DAITA settings.
     public var daita: DAITASettings
@@ -36,7 +36,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
-        tunnelMultihopState: MultihopStateV1 = .off,
+        tunnelMultihopState: MultihopStateV2 = .never,
         daita: DAITASettings = DAITASettings(),
         includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings()
     ) {
@@ -61,7 +61,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelQuantumResistance =
             try container.decode(TunnelQuantumResistance.self, forKey: .tunnelQuantumResistance)
         self.tunnelMultihopState =
-            try container.decode(MultihopStateV1.self, forKey: .tunnelMultihopState)
+            try container.decode(MultihopStateV2.self, forKey: .tunnelMultihopState)
         self.daita =
             try container.decode(DAITASettings.self, forKey: .daita)
         self.includeAllNetworks =
@@ -70,15 +70,6 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV8(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: tunnelMultihopState.upgradeToNextVersion() as! MultihopStateV2,
-            daita: daita,
-            includeAllNetworks: IncludeAllNetworksSettings()
-        )
-
+        self
     }
 }
