@@ -111,7 +111,10 @@ android {
 
     buildTypes {
         getByName(BuildTypes.RELEASE) {
-            signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
+            signingConfig =
+                if (getBooleanProperty("mullvad.app.config.signingConfig.release.enable"))
+                    signingConfigs.findByName(SigningConfigs.RELEASE)
+                else null
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
