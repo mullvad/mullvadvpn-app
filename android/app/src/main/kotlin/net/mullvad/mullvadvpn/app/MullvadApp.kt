@@ -52,7 +52,6 @@ import com.ramcosta.composedestinations.generated.customlist.destinations.Delete
 import com.ramcosta.composedestinations.generated.customlist.destinations.DiscardChangesDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListDestination
 import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
-import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
 import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountCompleteDestination
@@ -166,7 +165,6 @@ annotation class MainGraph {
     @ExternalDestination<CustomListLocationsDestination>
     @ExternalDestination<CustomListsDestination>
     @ExternalDestination<CustomPortDestination>
-    @ExternalDestination<DaitaDestination>
     @ExternalDestination<DaitaDirectOnlyConfirmationDestination>
     @ExternalDestination<DaitaDirectOnlyInfoDestination>
     @ExternalDestination<DeleteAccountDestination>

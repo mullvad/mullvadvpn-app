@@ -67,7 +67,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
-import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
@@ -801,7 +800,7 @@ private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
 private fun FeatureIndicator.destination() =
     when (this) {
         FeatureIndicator.DAITA,
-        FeatureIndicator.DAITA_MULTIHOP -> DaitaDestination(isModal = true)
+        FeatureIndicator.DAITA_MULTIHOP, //DaitaDestination(isModal = true)
         FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
 

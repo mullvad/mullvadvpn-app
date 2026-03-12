@@ -379,7 +379,7 @@ val uiModule = module {
             get(),
         )
     }
-    viewModel { DaitaViewModel(get(), get()) }
+    viewModel { params -> DaitaViewModel(navArgs = params.get(), get()) }
     viewModel {
         AddTimeViewModel(
             paymentUseCase = get(),

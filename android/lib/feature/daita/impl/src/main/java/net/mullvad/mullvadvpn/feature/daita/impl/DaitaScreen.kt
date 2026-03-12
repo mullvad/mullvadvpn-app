@@ -37,12 +37,15 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyConfirmationDestination
-import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDirectOnlyInfoDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmationNavKey
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmationNavResult
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyInfoNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -57,6 +60,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Disabled|Enabled")
 @Composable
@@ -74,24 +78,22 @@ private fun PreviewDaitaScreen(
     }
 }
 
-@Parcelize data class DaitaNavArgs(val isModal: Boolean = false) : Parcelable
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = DaitaNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.Daita(
-    navigator: DestinationsNavigator,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    daitaConfirmationDialogResult:
-        ResultRecipient<DaitaDirectOnlyConfirmationDestination, Confirmed>,
 ) {
-    val viewModel = koinViewModel<DaitaViewModel>()
+    val viewModel = koinViewModel<DaitaViewModel> {
+        parametersOf()
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    daitaConfirmationDialogResult.OnNavResultValue { viewModel.setDirectOnly(true) }
+    if (
+        LocalResultStore.current.consumeResult<DaitaDirectOnlyConfirmationNavResult>()?.confirmed ==
+            true
+    ) {
+        viewModel.setDirectOnly(true)
+    }
 
     DaitaScreen(
         state = state,
@@ -104,14 +106,13 @@ fun SharedTransitionScope.Daita(
         onDaitaEnabled = viewModel::setDaita,
         onDirectOnlyClick = { enable ->
             if (enable) {
-                navigator.navigate(DaitaDirectOnlyConfirmationDestination)
+                navigator.navigate(DaitaDirectOnlyConfirmationNavKey)
             } else {
                 viewModel.setDirectOnly(false)
             }
         },
-        onDirectOnlyInfoClick =
-            dropUnlessResumed { navigator.navigate(DaitaDirectOnlyInfoDestination) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onDirectOnlyInfoClick = dropUnlessResumed { navigator.navigate(DaitaDirectOnlyInfoNavKey) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

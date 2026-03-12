@@ -402,6 +402,7 @@ dependencies {
     implementation(projects.lib.feature.customlist.impl)
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.feature.deleteaccount.impl)
+    implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.filter.impl)
     implementation(projects.lib.feature.home.impl)
     implementation(projects.lib.feature.home.api)
