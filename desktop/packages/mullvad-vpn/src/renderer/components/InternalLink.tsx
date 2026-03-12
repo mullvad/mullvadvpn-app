@@ -1,14 +1,16 @@
 import { useCallback } from 'react';
 
+import { LocationState } from '../../shared/ipc-types';
 import { RoutePath } from '../../shared/routes';
 import { Link, LinkProps } from '../lib/components/link';
 import { useHistory } from '../lib/history';
 
 export type InternalLinkProps = Omit<LinkProps, 'href' | 'as'> & {
   to: RoutePath;
+  locationState?: Partial<LocationState>;
 };
 
-function InternalLink({ to, onClick, ...props }: InternalLinkProps) {
+function InternalLink({ to, locationState, onClick, ...props }: InternalLinkProps) {
   const history = useHistory();
   const navigate = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -16,9 +18,9 @@ function InternalLink({ to, onClick, ...props }: InternalLinkProps) {
       if (onClick) {
         onClick(e);
       }
-      return history.push(to);
+      return history.push(to, locationState);
     },
-    [history, to, onClick],
+    [history, locationState, to, onClick],
   );
   return <Link href="" onClick={navigate} {...props} />;
 }
