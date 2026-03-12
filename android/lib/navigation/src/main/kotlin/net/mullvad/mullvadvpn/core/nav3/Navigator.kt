@@ -17,7 +17,7 @@ class Navigator(val state: NavigationState) {
      *
      * @param key - the navigation key to navigate to.
      */
-    fun navigate(key: NavKey, clearBackStack: Boolean = false) {
+    fun navigate(key: NavKey2, clearBackStack: Boolean = false) {
         state.backStack.apply {
             if (clearBackStack) {
                 clear()

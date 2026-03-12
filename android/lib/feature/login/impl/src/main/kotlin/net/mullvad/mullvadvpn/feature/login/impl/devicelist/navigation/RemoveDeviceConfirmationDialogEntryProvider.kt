@@ -8,9 +8,10 @@ import net.mullvad.mullvadvpn.feature.login.impl.devicelist.RemoveDeviceConfirma
 import androidx.navigation3.scene.DialogSceneStrategy.Companion.DialogKey
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation3.scene.DialogSceneStrategy
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
 
-fun EntryProviderScope<NavKey>.removeDeviceConfirmationDialogEntry(navigator: Navigator) {
+fun EntryProviderScope<NavKey2>.removeDeviceConfirmationDialogEntry(navigator: Navigator) {
 
     entry<RemoveDeviceNavKey>(
         metadata = DialogSceneStrategy.dialog()

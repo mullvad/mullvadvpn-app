@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.feature.daita.api
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
-@Serializable object DaitaNavKey : NavKey
+@Parcelize
+object DaitaNavKey : NavKey2

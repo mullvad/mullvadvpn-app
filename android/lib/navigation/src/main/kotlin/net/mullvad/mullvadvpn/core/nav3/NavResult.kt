@@ -1,3 +1,7 @@
 package net.mullvad.mullvadvpn.core.nav3
 
-interface NavResult
+import android.os.Parcelable
+
+interface NavResult: Parcelable
+
+interface NavKey2: Parcelable

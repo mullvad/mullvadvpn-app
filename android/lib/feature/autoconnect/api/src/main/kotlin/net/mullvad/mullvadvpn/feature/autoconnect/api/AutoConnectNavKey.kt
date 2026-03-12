@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.feature.autoconnect.api
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
-@Serializable object AutoConnectNavKey : NavKey
+@Parcelize
+object AutoConnectNavKey : NavKey2

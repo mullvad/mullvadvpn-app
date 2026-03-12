@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.mullvad.android.library.compose)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.ksp)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
 android { namespace = "net.mullvad.mullvadvpn.navigation" }

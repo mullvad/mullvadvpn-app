@@ -270,7 +270,6 @@ fun MullvadApp(
         selectLocationEntry(nav3)
         serverIpOverrideEntry(nav3)
         settingsEntry(nav3)
-        splashEntry(nav3)
         splitTunnelingEntry(nav3)
         vpnSettingsEntry(nav3)
         welcomeEntry(nav3)
@@ -282,6 +281,8 @@ fun MullvadApp(
         createCustomListEntry(nav3)
         deleteCustomListNameEntry(nav3)
         editCustomListNameEntry(nav3)
+
+        splashEntry(nav3)
     }
 
     SharedTransitionLayout {

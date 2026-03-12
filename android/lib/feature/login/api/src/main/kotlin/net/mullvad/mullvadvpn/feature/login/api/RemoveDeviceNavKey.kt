@@ -1,14 +1,17 @@
 package net.mullvad.mullvadvpn.feature.login.api
 
 import androidx.navigation3.runtime.NavKey
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.NavResult
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 
-@Serializable data class RemoveDeviceNavKey(val device: Device) : NavKey
+@Parcelize
+data class RemoveDeviceNavKey(val device: Device) : NavKey2
 
-@Serializable
+@Parcelize
 data class RemoveDeviceConfirmationDialogResult(val device: DeviceId) : NavResult
 
 

@@ -1,20 +1,24 @@
 package net.mullvad.mullvadvpn.feature.login.api
 
+import android.os.Parcelable
 import androidx.navigation3.runtime.NavKey
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.NavResult
 
-@Serializable data class ApiUnreachableNavKey(val args: ApiUnreachableInfoDialogNavArgs) : NavKey
+@Parcelize
+data class ApiUnreachableNavKey(val args: ApiUnreachableInfoDialogNavArgs) : NavKey2
 
-@Serializable data class ApiUnreachableInfoDialogNavArgs(val action: LoginAction)
+@Parcelize data class ApiUnreachableInfoDialogNavArgs(val action: LoginAction) : Parcelable
 
-@Serializable
-enum class LoginAction {
+@Parcelize
+enum class LoginAction : Parcelable {
     LOGIN,
     CREATE_ACCOUNT,
 }
 
-@Serializable
+@Parcelize
 sealed interface ApiUnreachableInfoDialogResult : NavResult {
     data class Success(val arg: ApiUnreachableInfoDialogNavArgs) : ApiUnreachableInfoDialogResult
 

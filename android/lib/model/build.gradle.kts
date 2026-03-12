@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.mullvad.unit.test)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.ksp)
 }
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
 import net.mullvad.mullvadvpn.core.nav3.NavResult
@@ -26,7 +27,7 @@ private fun PreviewCreateAccountConfirmationDialog() {
     //        AppTheme { CreateAccountConfirmation(EmptyResultBackNavigator()) }
 }
 
-@Serializable
+@Parcelize
 data class CreateAccountConfirmationDialogResult(val confirmed: Boolean) : NavResult
 
 @Composable
