@@ -9,7 +9,7 @@
 import Foundation
 
 /// Alias to the latest version of the `TunnelSettings`.
-public typealias LatestTunnelSettings = TunnelSettingsV7
+public typealias LatestTunnelSettings = TunnelSettingsV8
 
 /// Protocol all TunnelSettings must adhere to, for upgrade purposes.
 public protocol TunnelSettings: Codable, Sendable {
@@ -38,6 +38,9 @@ public enum SchemaVersion: Int, Equatable, Sendable {
 
     /// V6 format with Local network sharing, stored as `TunnelSettingsV7`.
     case v7 = 7
+    
+    /// V8 format, with tristate multihop settings, stored as `TunnelSettingsV8`
+    case v8 = 8
 
     var settingsType: any TunnelSettings.Type {
         switch self {
@@ -48,6 +51,7 @@ public enum SchemaVersion: Int, Equatable, Sendable {
         case .v5: return TunnelSettingsV5.self
         case .v6: return TunnelSettingsV6.self
         case .v7: return TunnelSettingsV7.self
+        case .v8: return TunnelSettingsV8.self
         }
     }
 
@@ -60,9 +64,10 @@ public enum SchemaVersion: Int, Equatable, Sendable {
         case .v5: return .v6
         case .v6: return .v7
         case .v7: return .v7
+        case .v8: return .v8
         }
     }
 
     /// Current schema version.
-    public static let current = SchemaVersion.v7
+    public static let current = SchemaVersion.v8
 }

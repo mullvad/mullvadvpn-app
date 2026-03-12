@@ -23,7 +23,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
     public var tunnelQuantumResistance: TunnelQuantumResistance
 
     /// Whether Multihop is enabled.
-    public var tunnelMultihopState: MultihopState
+    public var tunnelMultihopState: MultihopStateV1
 
     /// DAITA settings.
     public var daita: DAITASettings
@@ -33,7 +33,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
-        tunnelMultihopState: MultihopState = .never,
+        tunnelMultihopState: MultihopStateV1 = .off,
         daita: DAITASettings = DAITASettings()
     ) {
         self.relayConstraints = relayConstraints

@@ -9,12 +9,14 @@
 import Foundation
 import MullvadTypes
 
-/// Whether Multihop is enabled
-public enum MultihopState: Codable, Sendable {
-    // deprecated settings from settings V7 and earlier. These are no longer in use
-    case on
-    case off
+public typealias MultihopState = MultihopStateV2
 
+public protocol MultihopStateMigrating {
+    func upgradeToNextVersion() -> any MultihopStateMigrating
+}
+
+/// In which circumstances Multihop is enabled
+public enum MultihopStateV2: Codable, Sendable {
     case always
     case never
     case whenNeeded
@@ -26,7 +28,31 @@ public enum MultihopState: Codable, Sendable {
             self == .always
         }
         set {
+            // once .whenNeeded is used, the .never value below should
+            // perhaps be replaced with .whenNeeded
             self = newValue ? .always : .never
+        }
+    }
+}
+
+extension MultihopStateV2: MultihopStateMigrating {
+    public func upgradeToNextVersion() -> any MultihopStateMigrating {
+        self
+    }
+}
+
+/// #MARK: versions of MultihopState used in previous versions of the settings
+
+public enum MultihopStateV1: Codable, Sendable {
+    case on
+    case off
+}
+
+extension MultihopStateV1: MultihopStateMigrating {
+    public func upgradeToNextVersion() -> any MultihopStateMigrating {
+        switch self {
+        case .on: MultihopStateV2.always
+        case .off: MultihopStateV2.never
         }
     }
 }
