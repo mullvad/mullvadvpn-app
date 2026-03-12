@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.NavKey2
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
 
 @Parcelize
-object ManageDevicesNavKey : NavKey2
+data class ManageDevicesNavKey(val accountNumber: AccountNumber) : NavKey2

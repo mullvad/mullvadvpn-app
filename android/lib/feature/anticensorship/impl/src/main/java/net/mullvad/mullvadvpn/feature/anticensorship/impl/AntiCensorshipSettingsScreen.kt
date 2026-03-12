@@ -30,6 +30,8 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AnticensorshipNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -57,6 +59,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Udp2Tcp|Loading")
 @Composable
@@ -82,18 +85,15 @@ data class AntiCensorshipSettingsNavArgs(
     val isModal: Boolean = false,
 ) : Parcelable
 
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = AntiCensorshipSettingsNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.AntiCensorshipSettings(
-    navigator: DestinationsNavigator,
-    navArgs: AntiCensorshipSettingsNavArgs,
+    navigator: Navigator,
+    navArgs: AnticensorshipNavKey,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val viewModel = koinViewModel<AntiCensorshipSettingsViewModel>()
+    val viewModel = koinViewModel<AntiCensorshipSettingsViewModel> {
+        parametersOf(navArgs.isModal)
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     AntiCensorshipSettingsScreen(
@@ -106,12 +106,18 @@ fun SharedTransitionScope.AntiCensorshipSettings(
             },
         state = state,
         navigateToShadowSocksSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Shadowsocks)) },
+            dropUnlessResumed {
+//                navigator.navigate(SelectPortDestination(PortType.Shadowsocks))
+                              },
         navigateToUdp2TcpSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Udp2Tcp)) },
+            dropUnlessResumed {
+//                navigator.navigate(SelectPortDestination(PortType.Udp2Tcp))
+                              },
         navigateToWireguardPortSettings =
-            dropUnlessResumed { navigator.navigate(SelectPortDestination(PortType.Wireguard)) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed {
+//                navigator.navigate(SelectPortDestination(PortType.Wireguard))
+                              },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectObfuscationMode = viewModel::onSelectObfuscationMode,
     )
 }

@@ -66,10 +66,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
-import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
-import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
@@ -82,8 +78,11 @@ import net.mullvad.mullvadvpn.common.compose.fallbackLatLong
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AnticensorshipNavKey
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
@@ -94,7 +93,10 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIn
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
+import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
+import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
@@ -169,10 +171,7 @@ private fun PreviewAccountScreen(
 @Suppress("LongMethod")
 @Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
-fun Connect(
-    navigator: Navigator,
-    animatedVisibilityScope: AnimatedVisibilityScope,
-) {
+fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilityScope) {
     val connectViewModel: ConnectViewModel = koinViewModel()
 
     val state by connectViewModel.uiState.collectAsStateWithLifecycle()
@@ -197,9 +196,11 @@ fun Connect(
             is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
 
-            is ConnectViewModel.UiSideEffect.OutOfTime -> navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
+            is ConnectViewModel.UiSideEffect.OutOfTime ->
+                navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
 
-            ConnectViewModel.UiSideEffect.RevokedDevice -> navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
+            ConnectViewModel.UiSideEffect.RevokedDevice ->
+                navigator.navigate(DeviceRevokedNavKey, clearBackStack = true)
 
             is ConnectViewModel.UiSideEffect.NotPrepared ->
                 when (sideEffect.prepareError) {
@@ -287,23 +288,18 @@ fun Connect(
                     // navigator.navigate(ChangelogDestination(ChangelogNavArgs(true)))
                 },
             onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-            onSettingsClick =
-                dropUnlessResumed {
-                    navigator.navigate(SettingsNavKey)
-                },
-            onAccountClick =
-                dropUnlessResumed {
-                    navigator.navigate(AccountNavKey)
-                },
+            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
+            onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
             onNavigateToFeature =
                 dropUnlessResumed { feature: FeatureIndicator ->
-                    navigator.navigate(VpnSettingsNavKey(scrollToFeature = feature, isModal = true))
+                    navigator.navigate(feature.navKey())
+
+                    //                    navigator.navigate(VpnSettingsNavKey(scrollToFeature =
+                    // feature, isModal = true))
                 },
             onClickShowWireguardPortSettings =
-                dropUnlessResumed {
-                    navigator.navigate(VpnSettingsNavKey())
-                },
+                dropUnlessResumed { navigator.navigate(VpnSettingsNavKey()) },
             onClickDismissAndroid16UpgradeWarning =
                 connectViewModel::dismissAndroid16UpgradeWarning,
             onClickShowAndroid16UpgradeInfo =
@@ -797,27 +793,24 @@ private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(resources: Resources) 
 private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
     resources.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()
 
-private fun FeatureIndicator.destination() =
+private fun FeatureIndicator.navKey(): NavKey2 =
     when (this) {
         FeatureIndicator.DAITA,
-        FeatureIndicator.DAITA_MULTIHOP, //DaitaDestination(isModal = true)
-        FeatureIndicator.MULTIHOP -> MultihopDestination(isModal = true)
-        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingDestination(isModal = true)
+        FeatureIndicator.DAITA_MULTIHOP -> DaitaNavKey(isModal = true)
+        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
+        FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingNavKey(isModal = true)
 
-        FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverridesDestination(isModal = true)
+        FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverrideNavKey(isModal = true)
 
         FeatureIndicator.UDP_2_TCP,
         FeatureIndicator.QUIC,
         FeatureIndicator.WIREGUARD_PORT,
         FeatureIndicator.SHADOWSOCKS,
-        FeatureIndicator.LWO ->
-            AntiCensorshipSettingsDestination(selectedFeature = this, isModal = true)
+        FeatureIndicator.LWO -> AnticensorshipNavKey(selectedFeature = this, isModal = true)
 
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.LAN_SHARING,
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS,
-        FeatureIndicator.CUSTOM_MTU ->
-            AntiCensorshipSettingsDestination(selectedFeature = this, isModal = true)
-    //            VpnSettingsDestination(scrollToFeature = this, isModal = true)
+        FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }

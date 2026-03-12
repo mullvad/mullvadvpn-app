@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.managedevices.impl
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import kotlin.collections.filter
 import kotlin.collections.map
 import kotlin.collections.plus
@@ -31,18 +30,15 @@ import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 
 class ManageDevicesViewModel(
+    private val accountNumber: AccountNumber,
     private val deviceRepository: DeviceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val loadingDevices = MutableStateFlow<Set<DeviceId>>(emptySet())
     private val deviceList = MutableStateFlow<List<Device>>(emptyList())
     private val loading = MutableStateFlow(true)
     private val error = MutableStateFlow<GetDeviceListError?>(null)
-
-    private val accountNumber: AccountNumber =
-        ManageDevicesDestination.argsFrom(savedStateHandle).accountNumber
 
     private val deviceComparator = ManageDeviceComparator()
     private val _uiSideEffect = Channel<ManageDevicesSideEffect>()

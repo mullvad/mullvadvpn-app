@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.common.compose.itemsWithDivider
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -72,18 +73,18 @@ private fun PreviewFilterScreen(
 
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun Filter(navigator: DestinationsNavigator) {
+fun Filter(navigator: Navigator) {
     val viewModel = koinViewModel<FilterViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            FilterScreenSideEffect.CloseScreen -> navigator.navigateUp()
+            FilterScreenSideEffect.CloseScreen -> navigator.goBack()
         }
     }
     FilterScreen(
         state = state,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onApplyClick = viewModel::onApplyButtonClicked,
         onSelectedOwnership = viewModel::setSelectedOwnership,
         onAllProviderCheckChange = viewModel::setAllProviders,

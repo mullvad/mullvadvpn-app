@@ -287,8 +287,10 @@ val uiModule = module {
             packageName = get(named(SELF_PACKAGE_NAME)),
         )
     }
-    viewModel { params -> DeviceListViewModel(params.get(), get(), get()) }
-    viewModel { ManageDevicesViewModel(get(), Dispatchers.IO, get()) }
+    viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
+    viewModel { params ->
+        ManageDevicesViewModel(accountNumber = params.get(), get(), Dispatchers.IO)
+    }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
     viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
@@ -317,7 +319,7 @@ val uiModule = module {
     viewModel { params ->
         VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get(), get())
     }
-    viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
+    viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
         ReportProblemViewModel(
@@ -379,7 +381,7 @@ val uiModule = module {
             get(),
         )
     }
-    viewModel { params -> DaitaViewModel(navArgs = params.get(), get()) }
+    viewModel { params -> DaitaViewModel(isModal = params.get(), get()) }
     viewModel {
         AddTimeViewModel(
             paymentUseCase = get(),

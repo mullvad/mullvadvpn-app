@@ -8,33 +8,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfirmationNavResult
 import net.mullvad.mullvadvpn.feature.managedevices.impl.R
 import net.mullvad.mullvadvpn.lib.model.Device
-import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
-import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewManageDevicesRemoveConfirmationDialog(
     @PreviewParameter(ManageDeviceRemoveConfirmationPreviewParameterProvider::class) device: Device
 ) {
-    AppTheme { ManageDevicesRemoveConfirmation(EmptyResultBackNavigator(), device = device) }
+    //    AppTheme { ManageDevicesRemoveConfirmation(EmptyResultBackNavigator(), device = device) }
 }
 
 @Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ManageDevicesRemoveConfirmation(navigator: ResultBackNavigator<DeviceId>, device: Device) {
+fun ManageDevicesRemoveConfirmation(navigator: Navigator, device: Device) {
+    val resultStore = LocalResultStore.current
+
     InfoConfirmationDialog(
         onResult = {
             if (it != null) {
-                navigator.navigateBack(it)
+                navigator.goBack(
+                    resultStore = resultStore,
+                    result = ManageDevicesRemoveConfirmationNavResult(it),
+                )
             } else {
-                navigator.navigateBack()
+                navigator.goBack()
             }
         },
         confirmValue = device.id,

@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessNavKey
 import net.mullvad.mullvadvpn.feature.appearance.api.AppearanceNavKey
-import net.mullvad.mullvadvpn.feature.appinfo.api.AppinfoNavKey
+import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.notification.api.NotificationSettingsNavKey
@@ -84,12 +84,12 @@ fun Settings(navigator: Navigator) {
     SettingsScreen(
         state = state,
         onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsNavKey()) },
-        onSplitTunnelingCellClick = dropUnlessResumed { navigator.navigate(SplitTunnelingNavKey) },
-        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppinfoNavKey) },
+        onSplitTunnelingCellClick = dropUnlessResumed { navigator.navigate(SplitTunnelingNavKey()) },
+        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoNavKey) },
         onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessNavKey) },
         onReportProblemCellClick = dropUnlessResumed { navigator.navigate(ProblemReportNavKey) },
-        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopNavKey) },
-        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaNavKey) },
+        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopNavKey()) },
+        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaNavKey()) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsNavKey) },

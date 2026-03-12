@@ -61,6 +61,7 @@ import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
@@ -86,13 +87,13 @@ private fun PreviewAutoConnectAndLockdownModeScreen(
 
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
+fun AutoConnectAndLockdownMode(navigator: Navigator) {
     val vm = koinViewModel<AutoConnectAndLockdownModeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     AutoConnectAndLockdownModeScreen(
         state = state,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

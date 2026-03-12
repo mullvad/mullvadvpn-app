@@ -81,10 +81,11 @@ private fun PreviewDaitaScreen(
 @Composable
 fun SharedTransitionScope.Daita(
     navigator: Navigator,
+    isModal: Boolean,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val viewModel = koinViewModel<DaitaViewModel> {
-        parametersOf()
+        parametersOf(isModal)
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

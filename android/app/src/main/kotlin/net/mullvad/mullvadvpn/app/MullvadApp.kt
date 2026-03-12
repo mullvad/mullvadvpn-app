@@ -30,7 +30,6 @@ import com.ramcosta.composedestinations.annotation.ExternalDestination
 import com.ramcosta.composedestinations.annotation.NavHostGraph
 import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.AntiCensorshipSettingsDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
 import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessListDestination
@@ -67,7 +66,6 @@ import com.ramcosta.composedestinations.generated.home.destinations.OutOfTimeDes
 import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
-import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
 import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
@@ -97,6 +95,7 @@ import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
 import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
+import net.mullvad.mullvadvpn.core.nav3.BottomSheetSceneStrategy
 import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.core.nav3.SplashNavKey
@@ -149,7 +148,6 @@ import org.koin.androidx.compose.koinViewModel
 annotation class MainGraph {
     @ExternalDestination<AccountDestination>
     @ExternalDestination<Android16UpgradeWarningInfoDestination>
-    @ExternalDestination<AntiCensorshipSettingsDestination>
     @ExternalDestination<ApiAccessListDestination>
     @ExternalDestination<ApiAccessMethodDetailsDestination>
     @ExternalDestination<ApiAccessMethodInfoDestination>
@@ -187,7 +185,6 @@ annotation class MainGraph {
     @ExternalDestination<Ipv6InfoDestination>
     @ExternalDestination<LocalNetworkSharingInfoDestination>
     @ExternalDestination<MalwareInfoDestination>
-    @ExternalDestination<ManageDevicesDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
     @ExternalDestination<MtuDestination>
     @ExternalDestination<MultihopDestination>
@@ -272,6 +269,7 @@ fun MullvadApp(
         vpnSettingsEntry(nav3)
         welcomeEntry(nav3)
 
+
         customListsEntry(nav3)
         editCustomListEntry(nav3)
         deleteCustomListEntry(nav3)
@@ -291,7 +289,12 @@ fun MullvadApp(
                         Modifier.semantics { testTagsAsResourceId = true }
                             .fillMaxSize()
                             .accessibilityDataSensitive(),
-                    sceneStrategies = listOf(DialogSceneStrategy(), SinglePaneSceneStrategy()),
+                    sceneStrategies =
+                        listOf(
+                            BottomSheetSceneStrategy(),
+                            DialogSceneStrategy(),
+                            SinglePaneSceneStrategy(),
+                        ),
                     entries = navigationState.toEntries(entryProvider),
                     onBack = { nav3.goBack() },
                     sharedTransitionScope = this@SharedTransitionLayout,

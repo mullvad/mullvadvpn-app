@@ -47,7 +47,6 @@ import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
 import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountDestination
 import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.ZonedDateTime

@@ -23,13 +23,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.appinfo.destinations.ChangelogDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogNavArgs
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -62,7 +61,7 @@ private fun PreviewAppInfoScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun AppInfo(navigator: DestinationsNavigator) {
+fun AppInfo(navigator: Navigator) {
     val vm = koinViewModel<AppInfoViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -82,9 +81,8 @@ fun AppInfo(navigator: DestinationsNavigator) {
     AppInfo(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToChangelog =
-            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs())) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
+        navigateToChangelog = dropUnlessResumed { navigator.navigate(ChangelogNavKey) },
         openAppListing = dropUnlessResumed { vm.openAppListing() },
     )
 }

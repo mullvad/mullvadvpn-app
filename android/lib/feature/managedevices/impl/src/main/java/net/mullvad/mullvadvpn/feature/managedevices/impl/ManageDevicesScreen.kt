@@ -33,6 +33,10 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfirmationNavKey
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesRemoveConfirmationNavResult
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -47,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 @Preview("Normal|TooMany|Empty|Loading|Error")
@@ -69,21 +74,18 @@ private typealias StateLce = Lce<Unit, ManageDevicesUiState, GetDeviceListError>
 
 data class ManageDevicesNavArgs(val accountNumber: AccountNumber)
 
-@Destination<ExternalModuleGraph>(
-    style = DefaultTransition::class,
-    navArgs = ManageDevicesNavArgs::class,
-)
 @Composable
 fun ManageDevices(
-    navigator: DestinationsNavigator,
-    confirmRemoveResultRecipient:
-        ResultRecipient<ManageDevicesRemoveConfirmationDestination, DeviceId>,
+    accountNumber: AccountNumber,
+    navigator: Navigator,
 ) {
-    val viewModel = koinViewModel<ManageDevicesViewModel>()
+    val viewModel = koinViewModel<ManageDevicesViewModel> {
+        parametersOf(accountNumber)
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    confirmRemoveResultRecipient.OnNavResultValue { deviceId ->
-        viewModel.removeDevice(deviceIdToRemove = deviceId)
+    LocalResultStore.current.consumeResult<ManageDevicesRemoveConfirmationNavResult>()?.let {
+        viewModel.removeDevice(deviceIdToRemove = it.deviceId)
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,11 +108,11 @@ fun ManageDevices(
     ManageDevicesScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onTryAgainClicked = viewModel::fetchDevices,
         navigateToRemoveDeviceConfirmationDialog =
             dropUnlessResumed<Device> {
-                navigator.navigate(ManageDevicesRemoveConfirmationDestination(it))
+                navigator.navigate(ManageDevicesRemoveConfirmationNavKey(it))
             },
     )
 }

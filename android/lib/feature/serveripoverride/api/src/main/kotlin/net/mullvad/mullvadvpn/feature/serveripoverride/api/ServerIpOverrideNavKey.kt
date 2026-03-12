@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
 @Parcelize
-object ServerIpOverrideNavKey : NavKey2
+data class ServerIpOverrideNavKey(val isModal: Boolean = false) : NavKey2

@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.feature.login.impl.devicelist
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
@@ -27,7 +26,6 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 class DeviceListViewModel(
     private val accountNumber: AccountNumber,
     private val deviceRepository: DeviceRepository,
-    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
 

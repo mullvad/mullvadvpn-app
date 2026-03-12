@@ -22,10 +22,11 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -41,14 +42,14 @@ import org.koin.androidx.compose.koinViewModel
     navArgs = ChangelogNavArgs::class,
 )
 @Composable
-fun Changelog(navController: NavController) {
+fun Changelog(navigator: Navigator) {
     val viewModel = koinViewModel<ChangelogViewModel>()
 
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) { viewModel.dismissChangelogNotification() }
 
-    ChangelogScreen(state = uiState.value, onBackClick = navController::navigateUp)
+    ChangelogScreen(state = uiState.value, onBackClick = dropUnlessResumed { navigator.goBack() })
 }
 
 data class ChangelogNavArgs(val isModal: Boolean = false)

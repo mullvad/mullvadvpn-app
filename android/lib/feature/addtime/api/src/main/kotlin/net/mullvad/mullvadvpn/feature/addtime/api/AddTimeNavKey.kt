@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
 @Parcelize
-object AddTimeNavKey : NavKey2
+data class AddTimeNavKey(val visible: Boolean) : NavKey2

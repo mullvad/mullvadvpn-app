@@ -11,9 +11,10 @@ import net.mullvad.mullvadvpn.feature.daita.impl.Daita
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaScreen
 
 fun EntryProviderScope<NavKey2>.daitaEntry(navigator: Navigator) {
-    entry<DaitaNavKey> {
+    entry<DaitaNavKey> { navKey ->
         LocalSharedTransitionScope.current?.Daita(
             navigator = navigator,
+            isModal = navKey.isModal,
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )
     }

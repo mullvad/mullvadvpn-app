@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.feature.daita.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
@@ -9,7 +8,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavArgs
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -18,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class DaitaViewModel(
-    private val navArgs: DaitaNavArgs,
+    private val isModal: Boolean,
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
@@ -29,14 +27,14 @@ class DaitaViewModel(
                 DaitaUiState(
                         daitaEnabled = settings.isDaitaEnabled(),
                         directOnly = settings.isDaitaDirectOnly(),
-                        navArgs.isModal,
+                        isModal,
                     )
                     .toLc<Boolean, DaitaUiState>()
             }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                initialValue = Lc.Loading(navArgs.isModal),
+                initialValue = Lc.Loading(isModal),
             )
 
     fun setDaita(enable: Boolean) {

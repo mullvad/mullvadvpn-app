@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
 @Parcelize
-object MultihopNavKey : NavKey2
+data class MultihopNavKey(val isModal: Boolean = false) : NavKey2
