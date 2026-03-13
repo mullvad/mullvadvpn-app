@@ -19,6 +19,7 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(projects.lib.feature.anticensorship.api)
+    implementation(projects.lib.feature.redeemvoucher.api)
 
     // Destinations
     implementation(libs.compose.destinations)

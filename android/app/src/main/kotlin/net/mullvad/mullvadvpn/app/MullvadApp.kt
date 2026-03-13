@@ -67,7 +67,6 @@ import com.ramcosta.composedestinations.generated.home.destinations.WelcomeDesti
 import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
 import com.ramcosta.composedestinations.generated.location.destinations.SelectLocationDestination
 import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesRemoveConfirmationDestination
-import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemNoEmailDestination
@@ -187,7 +186,6 @@ annotation class MainGraph {
     @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
     @ExternalDestination<MtuDestination>
-    @ExternalDestination<MultihopDestination>
     @ExternalDestination<NotificationSettingsDestination>
     @ExternalDestination<OutOfTimeDestination>
     @ExternalDestination<QuantumResistanceInfoDestination>

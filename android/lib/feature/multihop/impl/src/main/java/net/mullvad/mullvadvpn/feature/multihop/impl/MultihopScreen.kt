@@ -29,6 +29,7 @@ import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -42,6 +43,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.MULTIHOP_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Enabled|Disabled")
 @Composable
@@ -52,19 +54,15 @@ private fun PreviewMultihopScreen(
     AppTheme { MultihopScreen(state = state, onMultihopClick = {}, onBackClick = {}) }
 }
 
-@Parcelize data class MultihopNavArgs(val isModal: Boolean = false) : Parcelable
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = MultihopNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.Multihop(
+    isModal: Boolean,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    navigator: DestinationsNavigator,
 ) {
-    val viewModel = koinViewModel<MultihopViewModel>()
+    val viewModel = koinViewModel<MultihopViewModel>() {
+        parametersOf(isModal)
+    }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     MultihopScreen(
@@ -76,7 +74,7 @@ fun SharedTransitionScope.Multihop(
                     animatedVisibilityScope = animatedVisibilityScope,
                 ),
         onMultihopClick = viewModel::setMultihop,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

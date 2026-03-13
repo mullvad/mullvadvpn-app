@@ -347,7 +347,7 @@ val uiModule = module {
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
     viewModel { SelectPortViewModel(get(), get(), get(), get()) }
     viewModel { CustomPortDialogViewModel(get()) }
-    viewModel { MultihopViewModel(get(), get()) }
+    viewModel { params -> MultihopViewModel(isModal = params.get(), get()) }
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel {
         SearchLocationViewModel(

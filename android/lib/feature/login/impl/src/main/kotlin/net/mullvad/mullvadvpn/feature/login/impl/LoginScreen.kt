@@ -90,6 +90,7 @@ import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
 import net.mullvad.mullvadvpn.feature.login.api.CreateAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.login.api.DeviceListNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginAction
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -176,10 +177,14 @@ fun Login(
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            LoginUiSideEffect.NavigateToWelcome -> navigator.navigate(WelcomeNavKey, clearBackStack = true)
-            is LoginUiSideEffect.NavigateToConnect -> navigator.navigate(ConnectNavKey, clearBackStack = true)
-            is LoginUiSideEffect.TooManyDevices -> navigator.navigate(DeviceListNavKey(it.accountNumber))
-            LoginUiSideEffect.NavigateToOutOfTime -> navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
+            LoginUiSideEffect.NavigateToWelcome ->
+                navigator.navigate(WelcomeNavKey, clearBackStack = true)
+            is LoginUiSideEffect.NavigateToConnect ->
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
+            is LoginUiSideEffect.TooManyDevices ->
+                navigator.navigate(DeviceListNavKey(it.accountNumber))
+            LoginUiSideEffect.NavigateToOutOfTime ->
+                navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationNavKey)
             LoginUiSideEffect.GenericError ->
@@ -195,10 +200,7 @@ fun Login(
         onCreateAccountClick = vm::onCreateAccountClick,
         onDeleteHistoryClick = vm::clearAccountHistory,
         onAccountNumberChange = vm::onAccountNumberChange,
-        onSettingsClick =
-            dropUnlessResumed {
-                //                navigator.navigate(SettingsNavKey)
-            },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
         onShowApiUnreachableDialog =
             dropUnlessResumed { error: LoginUiStateError ->
                 navigator.navigate(ApiUnreachableNavKey(args = error.toApiUnreachableNavArg()))

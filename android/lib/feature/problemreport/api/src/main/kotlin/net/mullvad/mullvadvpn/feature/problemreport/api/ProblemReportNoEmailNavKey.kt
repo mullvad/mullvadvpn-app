@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.redeemvoucher.api
+package net.mullvad.mullvadvpn.feature.problemreport.api
 
 import androidx.navigation3.runtime.NavKey
 import kotlinx.parcelize.Parcelize
@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.NavResult
 
 @Parcelize
-object RedeemVoucherNavKey : NavKey2
+object ProblemReportNoEmailNavKey : NavKey2
 
 @Parcelize
-object RedeemVoucherConfirmedNavResult : NavResult
+object ProblemReportNoEmailConfirmedNavResult : NavResult
