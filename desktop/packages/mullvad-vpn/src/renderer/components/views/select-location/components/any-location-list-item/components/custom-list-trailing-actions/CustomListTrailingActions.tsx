@@ -3,13 +3,14 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import {
-  DeleteCustomListButton,
-  EditCustomListButton,
+  DeleteCustomListDialog,
+  EditCustomListDialog,
 } from '../../../../../../../features/custom-lists/components';
 import { type CustomListLocation } from '../../../../../../../features/locations/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
 import { LocationListItem } from '../../../location-list-item';
+import { DeleteCustomListButton, EditCustomListButton } from './components';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{
   customList: CustomListLocation;
@@ -19,18 +20,34 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
   const { expanded } = useAccordionContext();
   const { loading, setLoading } = useCustomListLocationListItemContext();
 
+  const [editCustomListDialogOpen, setEditCustomListDialogOpen] = React.useState(false);
+  const showEditCustomListDialog = React.useCallback(() => {
+    setEditCustomListDialogOpen(true);
+  }, []);
+
+  const [deleteCustomListDialogOpen, setDeleteCustomListDialogOpen] = React.useState(false);
+  const showDeleteCustomListDialog = React.useCallback(() => {
+    setDeleteCustomListDialogOpen(true);
+  }, []);
+
   return (
     <LocationListItem.HeaderTrailingActions>
       <LocationListItem.HeaderTrailingAction>
-        <EditCustomListButton
+        <EditCustomListButton customList={customList} onClick={showEditCustomListDialog} />
+        <EditCustomListDialog
           customList={customList}
+          open={editCustomListDialogOpen}
+          onOpenChange={setEditCustomListDialogOpen}
           loading={loading}
           onLoadingChange={setLoading}
         />
       </LocationListItem.HeaderTrailingAction>
       <LocationListItem.HeaderTrailingAction>
-        <DeleteCustomListButton
+        <DeleteCustomListButton customList={customList} onClick={showDeleteCustomListDialog} />
+        <DeleteCustomListDialog
           customList={customList}
+          open={deleteCustomListDialogOpen}
+          onOpenChange={setDeleteCustomListDialogOpen}
           loading={loading}
           onLoadingChange={setLoading}
         />
