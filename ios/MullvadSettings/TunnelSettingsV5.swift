@@ -50,4 +50,8 @@ public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
             daita: DAITASettings()
         )
     }
+
+    public var debugDescription: String {
+        "TunnelSettingsV5(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation), tunnelQuantumResistance: \(tunnelQuantumResistance), tunnelMultihopState: \(tunnelMultihopState))"
+    }
 }

@@ -149,7 +149,7 @@ private enum WireGuardObfuscationPort: UInt16, Codable, Sendable {
     case port5001 = 5001
 }
 
-public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
+public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable, CustomDebugStringConvertible {
     @available(*, deprecated, message: "Use `udpOverTcpPort` instead")
     private var port: WireGuardObfuscationPort = .automatic
 
@@ -157,6 +157,25 @@ public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
     public var udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
     public var shadowsocksPort: WireGuardObfuscationShadowsocksPort
     public var lwoPort: WireGuardObfuscationLwoPort
+
+    public var debugDescription: String {
+        switch state {
+        case .automatic:
+            return "automatic"
+        case .udpOverTcp:
+            return "udp-over-tcp:\(udpOverTcpPort)"
+        case .shadowsocks:
+            return "shadowsocks:\(shadowsocksPort)"
+        case .quic:
+            return "quic"
+        case .lwo:
+            return "lwo:\(lwoPort)"
+        case .off:
+            return "off"
+        case .on:
+            return "on (deprecated)"
+        }
+    }
 
     public init(
         state: WireGuardObfuscationState = .automatic,
