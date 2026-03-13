@@ -109,6 +109,11 @@ impl DisconnectingState {
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
             }
+            #[cfg(target_os = "windows")]
+            Some(TunnelCommand::SetExcludedSubnets(subnets, complete_tx)) => {
+                let _ = shared_values.set_excluded_subnets(subnets);
+                let _ = complete_tx.send(());
+            }
         };
 
         EventConsequence::SameState(self)

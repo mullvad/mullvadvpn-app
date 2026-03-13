@@ -36,6 +36,7 @@ import {
   SettingsTextImportView,
   SettingsView,
   ShadowsocksSettingsView,
+  SplitTunnelingIpView,
   SplitTunnelingView,
   SupportView,
   TooManyDevicesView,
@@ -82,6 +83,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />
+          <Route exact path={RoutePath.splitTunnelingIp} component={SplitTunnelingIpView} />
           <Route exact path={RoutePath.apiAccessMethods} component={ApiAccessView} />
           <Route exact path={RoutePath.settingsImport} component={SettingsImportView} />
           <Route exact path={RoutePath.settingsTextImport} component={SettingsTextImportView} />

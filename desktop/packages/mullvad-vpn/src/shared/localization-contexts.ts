@@ -27,6 +27,7 @@ export type LocalizationContexts =
   | 'wireguard-settings-view'
   | 'wireguard-settings-nav'
   | 'split-tunneling-view'
+  | 'split-tunneling-ip-view'
   | 'split-tunneling-nav'
   | 'api-access-methods-view'
   | 'settings-import'

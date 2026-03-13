@@ -13,6 +13,7 @@ import {
   DebugListItem,
   MultihopListItem,
   QuitButton,
+  SplitTunnelingIpListItem,
   SplitTunnelingListItem,
   SupportListItem,
   UserInterfaceSettingsListItem,
@@ -51,7 +52,12 @@ export function SettingsView() {
                         <VpnSettingsListItem />
                         <UserInterfaceSettingsListItem />
                       </FlexColumn>
-                      {showSplitTunneling && <SplitTunnelingListItem position="solo" />}
+                      {showSplitTunneling && (
+                        <FlexColumn>
+                          <SplitTunnelingListItem />
+                          {window.env.platform === 'win32' && <SplitTunnelingIpListItem />}
+                        </FlexColumn>
+                      )}
                     </>
                   ) : (
                     <UserInterfaceSettingsListItem position="solo" />

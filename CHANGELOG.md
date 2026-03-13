@@ -22,6 +22,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Windows
+- Add user-configurable IP/subnet exclusions that bypass the VPN firewall. Allows services
+  like Tailscale (100.64.0.0/10) to work alongside Mullvad VPN.
+
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
   has available relays, and falls back to Sweden otherwise.

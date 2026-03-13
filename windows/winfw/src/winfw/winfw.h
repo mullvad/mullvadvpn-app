@@ -26,6 +26,13 @@ typedef struct tag_WinFwSettings
 
 	// Permit all traffic to and from private address ranges.
 	bool permitLan;
+
+	// Number of IP/subnet exclusions for split tunneling.
+	size_t numExcludedSubnets;
+
+	// Array of wide-string subnet representations in CIDR notation (e.g., L"100.64.0.0/10").
+	// Traffic to these subnets bypasses the VPN firewall.
+	const wchar_t * const *excludedSubnets;
 }
 WinFwSettings;
 

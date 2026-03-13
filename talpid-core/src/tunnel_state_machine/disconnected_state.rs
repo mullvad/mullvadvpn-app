@@ -86,6 +86,8 @@ impl DisconnectedState {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
                 allowed_endpoint: Some(shared_values.allowed_endpoint.clone()),
+                #[cfg(target_os = "windows")]
+                excluded_subnets: shared_values.excluded_subnets.clone(),
             };
 
             shared_values.firewall.apply_policy(policy).map_err(|e| {
@@ -252,6 +254,14 @@ impl TunnelState for DisconnectedState {
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
+                SameState(self)
+            }
+            #[cfg(target_os = "windows")]
+            Some(TunnelCommand::SetExcludedSubnets(subnets, complete_tx)) => {
+                if shared_values.set_excluded_subnets(subnets) {
+                    Self::set_firewall_policy(shared_values, false);
+                }
+                let _ = complete_tx.send(());
                 SameState(self)
             }
             None => {

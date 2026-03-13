@@ -32,7 +32,7 @@ pub(super) fn initialize_blocked(
     allowed_endpoint: AllowedEndpoint,
     allow_lan: bool,
 ) -> Result<(), Error> {
-    let cfg = WinFwSettings::new(allow_lan);
+    let cfg = WinFwSettings::new(allow_lan, 0, std::ptr::null());
     let allowed_endpoint = WinFwAllowedEndpointContainer::from(allowed_endpoint);
     // SAFETY: This function is always safe to call.
     let init = unsafe {
