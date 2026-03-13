@@ -21,9 +21,13 @@ export type SystemNotificationAction =
       };
     };
 
+export type TroubleshootStep =
+  | string
+  | Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label' | 'withAuth'>;
+
 export interface InAppNotificationTroubleshootInfo {
   details: string;
-  steps: string[];
+  steps: TroubleshootStep[];
   buttons?: Array<InAppNotificationTroubleshootButton>;
 }
 

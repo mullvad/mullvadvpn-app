@@ -1,8 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
-import { InternalLink } from '../../renderer/components/InternalLink';
-import { formatHtml } from '../../renderer/lib/html-formatter';
-import { strings } from '../constants';
+import { strings, urls } from '../constants';
 import {
   AuthFailedError,
   ErrorStateCause,
@@ -11,7 +9,6 @@ import {
   TunnelState,
 } from '../daemon-rpc-types';
 import { messages } from '../gettext';
-import { RoutePath } from '../routes';
 import {
   InAppNotification,
   InAppNotificationAction,
@@ -87,26 +84,18 @@ export class ErrorNotificationProvider
             subtitle: [
               {
                 key: 'split-tunneling-failed-subtitle',
-                content: formatHtml(
-                  sprintf(
-                    // TRANSLATORS: Label for the in-app banner when the app encountered an error
-                    // TRANSLATORS: and will block network traffic until the error is resolved.
-                    messages.pgettext(
-                      'in-app-notifications',
-                      'Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling.',
-                    ),
-                    { splitTunneling: strings.splitTunneling.toLowerCase() },
+                content: sprintf(
+                  // TRANSLATORS: Label for the in-app banner when the app encountered an error
+                  // TRANSLATORS: and will block network traffic until the error is resolved.
+                  messages.pgettext(
+                    'in-app-notifications',
+                    'Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling.',
                   ),
-                  {
-                    a: (value) => (
-                      <InternalLink to={RoutePath.problemReport} variant="labelTinySemiBold">
-                        <InternalLink.Text>{value}</InternalLink.Text>
-                      </InternalLink>
-                    ),
-                  },
+                  { splitTunneling: strings.splitTunneling.toLowerCase() },
                 ),
               },
             ],
+            action: this.getActions(this.context.tunnelState.details) ?? undefined,
           };
         } else {
           subtitle = `${subtitle} ${sprintf(
@@ -367,8 +356,15 @@ export class ErrorNotificationProvider
             'Unable to communicate with Mullvad kernel driver.',
           ),
           steps: [
-            messages.pgettext('troubleshoot', 'Try reconnecting.'),
+            messages.pgettext(
+              'troubleshoot',
+              'If you have installed another VPN then try to uninstall that.',
+            ),
             messages.pgettext('troubleshoot', 'Try restarting your device.'),
+            {
+              'aria-label': messages.pgettext('troubleshoot', 'Read our troubleshooting guide'),
+              to: urls.splitTunnelGuide,
+            },
           ],
         },
       };

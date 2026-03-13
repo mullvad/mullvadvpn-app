@@ -12,6 +12,7 @@ import {
   InconsistentVersionNotificationProvider,
   LockdownModeNotificationProvider,
   ReconnectingNotificationProvider,
+  TroubleshootStep,
   UnsupportedVersionNotificationProvider,
 } from '../../shared/notifications';
 import { RoutePath } from '../../shared/routes';
@@ -39,6 +40,7 @@ import accountActions from '../redux/account/actions';
 import { convertEventTypeToStep } from '../redux/app-upgrade/helpers';
 import { useAppUpgradeError, useVersionSuggestedUpgrade } from '../redux/hooks';
 import { IReduxState, useSelector } from '../redux/store';
+import { ExternalLink } from './ExternalLink';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -347,7 +349,18 @@ function NotificationActionWrapper({
         <ModalMessage>{action.troubleshoot?.details}</ModalMessage>
         <ModalMessage>
           <ModalMessageList>
-            {action.troubleshoot?.steps.map((step) => <li key={step}>{step}</li>)}
+            {action.troubleshoot?.steps.map((step: TroubleshootStep) =>
+              typeof step === 'string' ? (
+                <li key={step}>{step}</li>
+              ) : (
+                <li key={step['aria-label']}>
+                  <ExternalLink variant="labelTinySemiBold" to={step.to}>
+                    <ExternalLink.Text>{step['aria-label']}</ExternalLink.Text>
+                    <ExternalLink.Icon icon="external" />
+                  </ExternalLink>
+                </li>
+              ),
+            )}
           </ModalMessageList>
         </ModalMessage>
         <ModalMessage>
