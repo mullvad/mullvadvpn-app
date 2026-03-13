@@ -631,6 +631,17 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .dismissKeyboard()
             .tapUseCustomDNSSwitch()
             .tapDoneButton()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapReconnectButton()
+            .waitForConnectedLabel()
 
         try Networking.verifyDNSServerProvider(dnsServerProviderName, isMullvad: false)
     }
