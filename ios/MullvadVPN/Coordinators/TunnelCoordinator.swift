@@ -28,15 +28,13 @@ class TunnelCoordinator: Coordinator, Presenting {
 
     init(
         tunnelManager: TunnelManager,
-        outgoingConnectionService: OutgoingConnectionServiceHandling,
-        ipOverrideRepository: IPOverrideRepositoryProtocol
+        outgoingConnectionService: OutgoingConnectionServiceHandling
     ) {
         self.tunnelManager = tunnelManager
 
         let interactor = TunnelViewControllerInteractor(
             tunnelManager: tunnelManager,
-            outgoingConnectionService: outgoingConnectionService,
-            ipOverrideRepository: ipOverrideRepository
+            outgoingConnectionService: outgoingConnectionService
         )
 
         controller = TunnelViewController(interactor: interactor)

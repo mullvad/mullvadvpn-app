@@ -58,6 +58,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             ),
             hostname: entryMatch.relay.hostname,
             location: entryMatch.location,
+            isIPOverridden: false,
             features: nil
         )
         exitRelay = SelectedRelay(
@@ -70,6 +71,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             ),
             hostname: exitMatch.relay.hostname,
             location: exitMatch.location,
+            isIPOverridden: false,
             features: nil
         )
     }

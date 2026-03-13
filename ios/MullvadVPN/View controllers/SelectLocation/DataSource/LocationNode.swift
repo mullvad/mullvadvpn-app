@@ -22,6 +22,7 @@ class LocationNode: @unchecked Sendable {
     var isConnected: Bool
     var isSelected: Bool
     var isExcluded: Bool
+    var isOverridden: Bool
     let id = UUID()
 
     init(
@@ -35,7 +36,8 @@ class LocationNode: @unchecked Sendable {
         isHiddenFromSearch: Bool = false,
         isConnected: Bool = false,
         isSelected: Bool = false,
-        isExcluded: Bool = false
+        isExcluded: Bool = false,
+        isIPOverriden: Bool = false
     ) {
         self.name = name
         self.code = code
@@ -48,6 +50,7 @@ class LocationNode: @unchecked Sendable {
         self.isConnected = isConnected
         self.isSelected = isSelected
         self.isExcluded = isExcluded
+        self.isOverridden = isIPOverriden
     }
 
     /// Recursively copies a node, its parent and its descendants from another
@@ -64,7 +67,8 @@ class LocationNode: @unchecked Sendable {
             isHiddenFromSearch: isHiddenFromSearch,
             isConnected: isConnected,
             isSelected: false,  // explicity set to false since it's a different node
-            isExcluded: isExcluded
+            isExcluded: isExcluded,
+            isIPOverriden: isOverridden
         )
 
         node.children = recursivelyCopyChildren(withParent: node)
@@ -221,7 +225,8 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: children,
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch
+            isHiddenFromSearch: isHiddenFromSearch,
+            isIPOverriden: false
         )
     }
 
@@ -237,7 +242,7 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
             children: [],
             showsChildren: showsChildren,
             isHiddenFromSearch: isHiddenFromSearch,
-            customList: customList
+            customList: customList,
         )
 
         node.children = recursivelyCopyChildren(withParent: node)
@@ -259,7 +264,8 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
         children: [LocationNode] = [],
         showsChildren: Bool = false,
         isHiddenFromSearch: Bool = false,
-        locationInfo: [String]?
+        locationInfo: [String]?,
+        isIPOverriden: Bool = false
     ) {
         self.locationInfo = locationInfo
 
@@ -271,7 +277,8 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: children,
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch
+            isHiddenFromSearch: isHiddenFromSearch,
+            isIPOverriden: isIPOverriden
         )
     }
 }
