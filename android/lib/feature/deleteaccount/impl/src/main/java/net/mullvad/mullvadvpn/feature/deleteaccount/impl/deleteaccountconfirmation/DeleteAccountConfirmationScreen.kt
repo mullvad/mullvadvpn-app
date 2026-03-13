@@ -36,13 +36,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.ContentType
+import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -235,9 +235,7 @@ private fun AccountNumberInput(
     val keyboardController = LocalSoftwareKeyboardController.current
     TextField(
         state = textFieldState,
-        modifier =
-            // Fix for DPad navigation
-            Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
+        modifier = Modifier.semantics { contentDataType = ContentDataType.None }.fillMaxWidth(),
         trailingIcon = {
             IconButton(onClick = { showPassword = !showPassword }) {
                 Icon(
