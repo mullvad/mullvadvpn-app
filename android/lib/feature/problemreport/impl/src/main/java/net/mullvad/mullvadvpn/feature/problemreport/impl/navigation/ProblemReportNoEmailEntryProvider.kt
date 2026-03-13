@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailNavK
 import net.mullvad.mullvadvpn.feature.problemreport.api.ViewLogsNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblem
 
-fun EntryProviderScope<NavKey2>.problemReportNoEmailEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.problemReportNoEmailEntry(navigator: Navigator) {
     entry<ProblemReportNoEmailNavKey> {
     }
 }

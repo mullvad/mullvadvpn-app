@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
 
-fun EntryProviderScope<NavKey2>.editCustomListEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.editCustomListEntry(navigator: Navigator) {
     entry<EditCustomListNavKey> {
 //        Customlist(navigator = navigator)
     }

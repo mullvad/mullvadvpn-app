@@ -11,4 +11,7 @@ fun EntryProviderScope<NavKey2>.problemReportEntry(navigator: Navigator) {
     entry<ProblemReportNavKey> {
         ReportProblem(navigator = navigator)
     }
+
+    problemReportNoEmailEntry(navigator)
+    viewLogsReportEntry(navigator)
 }

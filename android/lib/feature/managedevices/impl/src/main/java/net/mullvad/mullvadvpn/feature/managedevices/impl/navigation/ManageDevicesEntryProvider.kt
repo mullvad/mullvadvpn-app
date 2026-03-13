@@ -10,4 +10,6 @@ fun EntryProviderScope<NavKey2>.manageDevicesEntry(navigator: Navigator) {
     entry<ManageDevicesNavKey> { navKey ->
         ManageDevices(accountNumber = navKey.accountNumber, navigator = navigator)
     }
+
+    manageDevicesRemoveConfirmationEntry(navigator)
 }

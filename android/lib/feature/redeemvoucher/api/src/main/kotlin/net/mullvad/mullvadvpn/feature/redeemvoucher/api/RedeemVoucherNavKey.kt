@@ -10,4 +10,4 @@ import net.mullvad.mullvadvpn.core.nav3.NavResult
 object RedeemVoucherNavKey : NavKey2
 
 @Parcelize
-object RedeemVoucherConfirmedNavResult : NavResult
+data class RedeemVoucherNavResult(val isTimeAdded: Boolean) : NavResult

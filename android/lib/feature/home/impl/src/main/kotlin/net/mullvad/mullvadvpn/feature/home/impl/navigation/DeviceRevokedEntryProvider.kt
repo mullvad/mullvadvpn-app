@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.Connect
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevoked
 
-fun EntryProviderScope<NavKey2>.deviceRevokedEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.deviceRevokedEntry(navigator: Navigator) {
     entry<DeviceRevokedNavKey> {
         DeviceRevoked(navigator = navigator)
     }

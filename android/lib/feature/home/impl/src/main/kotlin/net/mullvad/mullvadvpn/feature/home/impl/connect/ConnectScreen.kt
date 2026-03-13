@@ -81,7 +81,7 @@ import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.nav3.NavKey2
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
-import net.mullvad.mullvadvpn.feature.anticensorship.api.AnticensorshipNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
@@ -806,7 +806,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.QUIC,
         FeatureIndicator.WIREGUARD_PORT,
         FeatureIndicator.SHADOWSOCKS,
-        FeatureIndicator.LWO -> AnticensorshipNavKey(selectedFeature = this, isModal = true)
+        FeatureIndicator.LWO -> AntiCensorshipNavKey(selectedFeature = this, isModal = true)
 
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.LAN_SHARING,

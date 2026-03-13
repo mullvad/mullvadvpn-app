@@ -15,14 +15,14 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
-import kotlin.text.format
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.feature.anticensorship.impl.customport.CustomPortDialogNavArgs
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavResult
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -64,13 +64,13 @@ private fun PreviewSelectPortScreen(
 )
 @Composable
 fun SelectPort(
-    navigator: DestinationsNavigator,
-    customPortResult: ResultRecipient<CustomPortDestination, Port?>,
+    navigator: Navigator,
 ) {
     val viewModel = koinViewModel<SelectPortViewModel>()
     val stateLc by viewModel.uiState.collectAsStateWithLifecycle()
 
-    customPortResult.OnNavResultValue { port ->
+    LocalResultStore.current.consumeResult<CustomPortNavResult>()?.let { result ->
+        val port = result.port
         if (port != null) {
             viewModel.onPortSelected(Constraint.Only(port))
         } else {
@@ -86,17 +86,15 @@ fun SelectPort(
                 val state = stateLc.contentOrNull() ?: return@dropUnlessResumed
 
                 navigator.navigate(
-                    CustomPortDestination(
-                        CustomPortDialogNavArgs(
-                            portType = state.portType,
-                            allowedPortRanges = state.allowedPortRanges,
-                            recommendedPortRanges = state.recommendedPortRanges,
-                            customPort = customPort,
-                        )
+                    CustomPortNavKey(
+                        portType = state.portType,
+                        allowedPortRanges = state.allowedPortRanges,
+                        recommendedPortRanges = state.recommendedPortRanges,
+                        customPort = customPort,
                     )
                 )
             },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

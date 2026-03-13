@@ -9,17 +9,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.model.communication.DnsDialogResult
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavResult
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -70,22 +70,21 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
     }
 }
 
-data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
 
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = DnsDialogNavArgs::class,
-)
 @Composable
-fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
-    val viewModel = koinViewModel<DnsDialogViewModel>()
+fun Dns(navArgs: DnsNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<DnsDialogViewModel> { parametersOf(navArgs) }
+    val resultStore = LocalResultStore.current
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is DnsDialogSideEffect.Complete ->
-                resultNavigator.navigateBack(result = DnsDialogResult.Success(it.isDnsListEmpty))
+                navigator.goBack(
+                    resultStore = resultStore,
+                    result = DnsNavResult.Success(it.isDnsListEmpty),
+                )
             DnsDialogSideEffect.Error ->
-                resultNavigator.navigateBack(result = DnsDialogResult.Error)
+                navigator.goBack(resultStore = resultStore, result = DnsNavResult.Error)
         }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -95,7 +94,7 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
         onDnsInputChange = viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
         onRemoveDnsClick = viewModel::onRemoveDnsClick,
-        onDismiss = dropUnlessResumed { resultNavigator.navigateBack() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }
 

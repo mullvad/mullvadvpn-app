@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.home.api.WelcomeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.Connect
 import net.mullvad.mullvadvpn.feature.home.impl.welcome.Welcome
 
-fun EntryProviderScope<NavKey2>.welcomeEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.welcomeEntry(navigator: Navigator) {
     entry<WelcomeNavKey> {
         Welcome(
             navigator = navigator,

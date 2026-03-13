@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
 import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableInfo
 
-fun EntryProviderScope<NavKey2>.apiUnreachableEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.apiUnreachableEntry(navigator: Navigator) {
     entry<ApiUnreachableNavKey> { navKey ->
         ApiUnreachableInfo(navigator = navigator, navArgs = navKey.args)
     }

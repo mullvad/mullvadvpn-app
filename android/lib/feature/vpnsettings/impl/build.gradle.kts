@@ -18,8 +18,11 @@ dependencies {
     implementation(projects.lib.navigation)
     // Used for destinations
     implementation(projects.lib.feature.autoconnect.impl)
+    implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.vpnsettings.api)
     implementation(libs.androidx.navigation3.ui)
 

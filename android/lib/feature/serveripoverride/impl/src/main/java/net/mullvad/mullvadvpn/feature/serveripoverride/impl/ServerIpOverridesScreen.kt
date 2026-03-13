@@ -51,18 +51,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.OnNavResultValue
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavResult
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverrideConfirmationNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverrideConfirmationNavResult
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideInfoNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
@@ -88,6 +92,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loaded.Active|Loaded.Inactive|Loading")
 @Composable
@@ -108,21 +113,15 @@ private fun PreviewServerIpOverridesScreen(
     }
 }
 
-@Parcelize data class ServerIpOverridesNavArgs(val isModal: Boolean = false) : Parcelable
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = ServerIpOverridesNavArgs::class,
-)
 @Composable
 fun SharedTransitionScope.ServerIpOverrides(
-    navigator: DestinationsNavigator,
+    navArgs: ServerIpOverrideNavKey,
+    navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    importByTextResult: ResultRecipient<ImportOverridesByTextDestination, String>,
-    clearOverridesResult: ResultRecipient<ResetServerIpOverridesConfirmationDestination, Boolean>,
 ) {
-    val vm = koinViewModel<ServerIpOverridesViewModel>()
+    val vm = koinViewModel<ServerIpOverridesViewModel> {
+        parametersOf(navArgs)
+    }
     val state by vm.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -139,15 +138,17 @@ fun SharedTransitionScope.ServerIpOverrides(
         }
     }
 
-    importByTextResult.OnNavResultValue(vm::importText)
+    val resultStore = LocalResultStore.current
+    val scope = rememberCoroutineScope()
+
+    resultStore.consumeResult<ImportOverrideByTextNavResult>()?.let { vm.importText(it.text) }
 
     // On successful clear of overrides, show snackbar
-    val scope = rememberCoroutineScope()
-    clearOverridesResult.OnNavResultValue { clearSuccessful ->
+    resultStore.consumeResult<ResetServerIpOverrideConfirmationNavResult>()?.let { result ->
         scope.launch {
             snackbarHostState.showSnackbarImmediately(
                 message =
-                    if (clearSuccessful) {
+                    if (result.clearSuccessful) {
                         resources.getString(R.string.overrides_cleared)
                     } else {
                         resources.getString(R.string.error_occurred)
@@ -166,12 +167,12 @@ fun SharedTransitionScope.ServerIpOverrides(
 
     ServerIpOverridesScreen(
         state = state,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverridesInfoDestination) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
+        onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverrideInfoNavKey) },
         onResetOverridesClick =
-            dropUnlessResumed { navigator.navigate(ResetServerIpOverridesConfirmationDestination) },
+            dropUnlessResumed { navigator.navigate(ResetServerIpOverrideConfirmationNavKey) },
         onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },
-        onImportByText = dropUnlessResumed { navigator.navigate(ImportOverridesByTextDestination) },
+        onImportByText = dropUnlessResumed { navigator.navigate(ImportOverrideByTextNavKey) },
         snackbarHostState = snackbarHostState,
         modifier =
             Modifier.sharedBounds(

@@ -26,8 +26,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavResult
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -43,10 +45,16 @@ private fun PreviewImportOverridesByText() {
 
 @Destination<ExternalModuleGraph>(style = DefaultTransition::class)
 @Composable
-fun ImportOverridesByText(resultNavigator: ResultBackNavigator<String>) {
+fun ImportOverridesByText(navigator: Navigator) {
+    val resultStore = LocalResultStore.current
     ImportOverridesByTextScreen(
-        onNavigateBack = dropUnlessResumed { resultNavigator.navigateBack() },
-        onImportClicked = { resultNavigator.navigateBack(result = it) },
+        onNavigateBack = dropUnlessResumed { navigator.goBack() },
+        onImportClicked = { text ->
+            navigator.goBack(
+                resultStore = resultStore,
+                result = ImportOverrideByTextNavResult(text),
+            )
+        },
     )
 }
 

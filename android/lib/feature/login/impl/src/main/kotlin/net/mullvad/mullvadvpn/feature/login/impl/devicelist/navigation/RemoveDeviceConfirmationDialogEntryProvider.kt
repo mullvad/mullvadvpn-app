@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.core.nav3.NavKey2
 
 
 fun EntryProviderScope<NavKey2>.removeDeviceConfirmationDialogEntry(navigator: Navigator) {
-
     entry<RemoveDeviceNavKey>(
         metadata = DialogSceneStrategy.dialog()
     ) { navKey ->

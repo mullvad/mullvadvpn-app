@@ -292,9 +292,9 @@ val uiModule = module {
         ManageDevicesViewModel(accountNumber = params.get(), get(), Dispatchers.IO)
     }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
-    viewModel { MtuDialogViewModel(get(), get()) }
-    viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
-    viewModel { CustomPortDialogViewModel(get()) }
+    viewModel { params -> MtuDialogViewModel(navArgs = params.get(), get()) }
+    viewModel { params -> DnsDialogViewModel(navArgs = params.get(), get(), get(), get(), get()) }
+    viewModel { params -> CustomPortDialogViewModel(navArgs = params.get(), get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
@@ -319,7 +319,7 @@ val uiModule = module {
     viewModel { params ->
         VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get(), get())
     }
-    viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get(), get()) }
+    viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
         ReportProblemViewModel(
@@ -338,7 +338,7 @@ val uiModule = module {
     viewModel { EditCustomListNameDialogViewModel(get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { DeleteCustomListConfirmationViewModel(get(), get()) }
-    viewModel { ServerIpOverridesViewModel(get(), get(), get()) }
+    viewModel { params -> ServerIpOverridesViewModel(navArgs = params.get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
@@ -346,7 +346,6 @@ val uiModule = module {
     viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
     viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
     viewModel { SelectPortViewModel(get(), get(), get(), get()) }
-    viewModel { CustomPortDialogViewModel(get()) }
     viewModel { params -> MultihopViewModel(isModal = params.get(), get()) }
     viewModel { NotificationSettingsViewModel(get()) }
     viewModel {

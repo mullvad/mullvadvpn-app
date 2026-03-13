@@ -9,9 +9,6 @@ import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.RedeemVoucher
 
 fun EntryProviderScope<NavKey2>.redeemVoucherEntry(navigator: Navigator) {
     entry<RedeemVoucherNavKey> {
-        RedeemVoucher()
-
-
-        hReede(navigator = navigator)
+        RedeemVoucher(navigator = navigator)
     }
 }

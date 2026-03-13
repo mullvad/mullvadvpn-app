@@ -11,4 +11,7 @@ fun EntryProviderScope<NavKey2>.loginEntry(navigator: Navigator) {
     entry<LoginNavKey> { navKey ->
         Login(navigator = navigator, accountNumber = navKey.accountNumber)
     }
+
+    apiUnreachableEntry(navigator)
+    createAccountConfirmationEntry(navigator)
 }

@@ -74,20 +74,9 @@ import com.ramcosta.composedestinations.generated.problemreport.destinations.Vie
 import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ImportOverridesByTextDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ResetServerIpOverridesConfirmationDestination
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesInfoDestination
 import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
 import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ConnectOnStartupInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.ContentBlockersInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.CustomDnsInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DeviceIpInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DnsDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.Ipv6InfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.LocalNetworkSharingInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MalwareInfoDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MtuDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.QuantumResistanceInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
@@ -106,26 +95,14 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.navigation.addTimeEntry
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.navigation.anticensorshipEntry
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.navigation.apiAccessEntry
 import net.mullvad.mullvadvpn.feature.appearance.impl.navigation.appearanceEntry
-import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.appInfoEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.createCustomListEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListsEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.deleteCustomListEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.deleteCustomListNameEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.discardCustomListEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.editCustomListEntry
-import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.editCustomListNameEntry
+import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
 import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
-import net.mullvad.mullvadvpn.feature.home.impl.navigation.connectEntry
-import net.mullvad.mullvadvpn.feature.home.impl.navigation.deviceRevokedEntry
-import net.mullvad.mullvadvpn.feature.home.impl.navigation.outOfTimeEntry
-import net.mullvad.mullvadvpn.feature.home.impl.navigation.welcomeEntry
+import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
 import net.mullvad.mullvadvpn.feature.location.impl.navigation.selectLocationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
-import net.mullvad.mullvadvpn.feature.login.impl.navigation.apiUnreachableEntry
-import net.mullvad.mullvadvpn.feature.login.impl.navigation.createAccountConfirmationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.navigation.loginEntry
 import net.mullvad.mullvadvpn.feature.managedevices.impl.navigation.manageDevicesEntry
 import net.mullvad.mullvadvpn.feature.multihop.impl.navigation.multihopEntry
@@ -155,10 +132,7 @@ annotation class MainGraph {
     @ExternalDestination<AutoConnectAndLockdownModeDestination>
     @ExternalDestination<ChangelogDestination>
     @ExternalDestination<ConnectDestination>
-    @ExternalDestination<ConnectOnStartupInfoDestination>
-    @ExternalDestination<ContentBlockersInfoDestination>
     @ExternalDestination<CreateCustomListDestination>
-    @ExternalDestination<CustomDnsInfoDestination>
     @ExternalDestination<CustomListLocationsDestination>
     @ExternalDestination<CustomListsDestination>
     @ExternalDestination<CustomPortDestination>
@@ -169,26 +143,19 @@ annotation class MainGraph {
     @ExternalDestination<DeleteAccountCompleteDestination>
     @ExternalDestination<DeleteApiAccessMethodConfirmationDestination>
     @ExternalDestination<DeleteCustomListDestination>
-    @ExternalDestination<DeviceIpInfoDestination>
     @ExternalDestination<DeviceNameInfoDestination>
     @ExternalDestination<DeviceRevokedDestination>
     @ExternalDestination<DiscardApiAccessChangesDestination>
     @ExternalDestination<DiscardChangesDestination>
-    @ExternalDestination<DnsDestination>
     @ExternalDestination<EditApiAccessMethodDestination>
     @ExternalDestination<EditCustomListDestination>
     @ExternalDestination<EditCustomListNameDestination>
     @ExternalDestination<EncryptedDnsProxyInfoDestination>
     @ExternalDestination<FilterDestination>
     @ExternalDestination<ImportOverridesByTextDestination>
-    @ExternalDestination<Ipv6InfoDestination>
-    @ExternalDestination<LocalNetworkSharingInfoDestination>
-    @ExternalDestination<MalwareInfoDestination>
     @ExternalDestination<ManageDevicesRemoveConfirmationDestination>
-    @ExternalDestination<MtuDestination>
     @ExternalDestination<NotificationSettingsDestination>
     @ExternalDestination<OutOfTimeDestination>
-    @ExternalDestination<QuantumResistanceInfoDestination>
     @ExternalDestination<RedeemVoucherDestination>
     @ExternalDestination<ReportProblemDestination>
     @ExternalDestination<ReportProblemNoEmailDestination>
@@ -197,7 +164,6 @@ annotation class MainGraph {
     @ExternalDestination<SearchLocationDestination>
     @ExternalDestination<SelectLocationDestination>
     @ExternalDestination<SelectPortDestination>
-    @ExternalDestination<ServerIpOverridesDestination>
     @ExternalDestination<ServerIpOverridesInfoDestination>
     @ExternalDestination<SettingsDestination>
     @ExternalDestination<SplitTunnelingDestination>
@@ -241,18 +207,13 @@ fun MullvadApp(
         addTimeEntry(nav3)
         anticensorshipEntry(nav3)
         apiAccessEntry(nav3)
-        apiUnreachableEntry(nav3)
         appearanceEntry(nav3)
-        appInfoEntry(nav3)
         autoConnectEntry(nav3)
         deviceListEntry(nav3)
-        connectEntry(nav3)
-        createAccountConfirmationEntry(nav3)
+        homeEntry(nav3)
         daitaEntry(nav3)
-        deviceRevokedEntry(nav3)
         filterEntry(nav3)
         loginEntry(nav3)
-        outOfTimeEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)
         notificationEntry(nav3)
@@ -265,17 +226,7 @@ fun MullvadApp(
         settingsEntry(nav3)
         splitTunnelingEntry(nav3)
         vpnSettingsEntry(nav3)
-        welcomeEntry(nav3)
-
-
-        customListsEntry(nav3)
-        editCustomListEntry(nav3)
-        deleteCustomListEntry(nav3)
-        discardCustomListEntry(nav3)
-        createCustomListEntry(nav3)
-        deleteCustomListNameEntry(nav3)
-        editCustomListNameEntry(nav3)
-
+        customListEntry(nav3)
         splashEntry(nav3)
     }
 

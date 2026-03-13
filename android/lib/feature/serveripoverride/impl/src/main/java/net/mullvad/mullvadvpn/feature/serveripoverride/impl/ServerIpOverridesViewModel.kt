@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.serveripoverride.destinations.ServerIpOverridesDestination
 import java.io.InputStreamReader
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -24,11 +24,10 @@ import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
 import net.mullvad.mullvadvpn.lib.repository.RelayOverridesRepository
 
 class ServerIpOverridesViewModel(
+    private val navArgs: ServerIpOverrideNavKey,
     private val relayOverridesRepository: RelayOverridesRepository,
     private val contentResolver: ContentResolver,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val navArgs = ServerIpOverridesDestination.argsFrom(savedStateHandle)
 
     private val _uiSideEffect = Channel<ServerIpOverridesUiSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow())

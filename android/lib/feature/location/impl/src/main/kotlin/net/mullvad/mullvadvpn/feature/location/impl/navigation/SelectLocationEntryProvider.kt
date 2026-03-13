@@ -9,4 +9,6 @@ import net.mullvad.mullvadvpn.feature.location.impl.SelectLocation
 
 fun EntryProviderScope<NavKey2>.selectLocationEntry(navigator: Navigator) {
     entry<SelectLocationNavKey> { SelectLocation(navigator = navigator) }
+
+    searchLocationEntry(navigator)
 }

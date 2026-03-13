@@ -10,4 +10,6 @@ import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.Changelog
 
 fun EntryProviderScope<NavKey2>.changelogEntry(navigator: Navigator) {
     entry<ChangelogNavKey> { Changelog(navigator = navigator) }
+
+    appInfoEntry(navigator)
 }

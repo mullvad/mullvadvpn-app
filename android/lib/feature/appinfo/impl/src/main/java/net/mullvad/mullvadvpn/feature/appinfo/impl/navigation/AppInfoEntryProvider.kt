@@ -6,6 +6,6 @@ import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfo
 
-fun EntryProviderScope<NavKey2>.appInfoEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.appInfoEntry(navigator: Navigator) {
     entry<AppInfoNavKey> { AppInfo(navigator = navigator) }
 }

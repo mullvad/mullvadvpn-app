@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.anticensorship.impl
 
 import android.os.Parcelable
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,19 +22,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.core.nav3.Navigator
-import net.mullvad.mullvadvpn.feature.anticensorship.api.AnticensorshipNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
-import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -88,7 +81,7 @@ data class AntiCensorshipSettingsNavArgs(
 @Composable
 fun SharedTransitionScope.AntiCensorshipSettings(
     navigator: Navigator,
-    navArgs: AnticensorshipNavKey,
+    navArgs: AntiCensorshipNavKey,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val viewModel = koinViewModel<AntiCensorshipSettingsViewModel> {

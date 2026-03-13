@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
 
-fun EntryProviderScope<NavKey2>.deleteCustomListNameEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.deleteCustomListEntry(navigator: Navigator) {
     entry<DeleteCustomListNavKey> {
 //        Customlist(navigator = navigator)
     }

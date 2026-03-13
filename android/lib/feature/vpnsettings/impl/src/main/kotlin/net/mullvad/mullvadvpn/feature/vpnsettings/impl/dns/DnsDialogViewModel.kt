@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.DnsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
@@ -22,6 +21,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.customDnsAddresses
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -63,13 +63,12 @@ sealed class ValidationError {
 }
 
 class DnsDialogViewModel(
+    navArgs: DnsNavKey,
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
-    savedStateHandle: SavedStateHandle,
     private val deleteCustomDnsUseCase: DeleteCustomDnsUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = DnsDestination.argsFrom(savedStateHandle)
 
     private val settings = MutableStateFlow<Settings?>(null)
     private val currentIndex = MutableStateFlow(navArgs.index)

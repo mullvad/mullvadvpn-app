@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.api.ViewLogsNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblem
 
-fun EntryProviderScope<NavKey2>.viewLogsReportEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.viewLogsReportEntry(navigator: Navigator) {
     entry<ViewLogsNavKey> {
     }
 }

@@ -12,9 +12,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
+import net.mullvad.mullvadvpn.core.nav3.Navigator
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverrideConfirmationNavResult
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -33,19 +35,23 @@ private fun PreviewResetServerIpOverridesConfirmationDialog() {
 
 @Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun ResetServerIpOverridesConfirmation(resultBackNavigator: ResultBackNavigator<Boolean>) {
+fun ResetServerIpOverridesConfirmation(navigator: Navigator) {
     val vm: ResetServerIpOverridesConfirmationViewModel = koinViewModel()
+    val resultStore = LocalResultStore.current
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
-        when (it) {
-            ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared ->
-                resultBackNavigator.navigateBack(result = true)
-            is ResetServerIpOverridesConfirmationUiSideEffect.OverridesError ->
-                resultBackNavigator.navigateBack(result = false)
+        val clearSuccessful = when (it) {
+            ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared -> true
+            is ResetServerIpOverridesConfirmationUiSideEffect.OverridesError -> false
         }
+        navigator.goBack(
+            resultStore = resultStore,
+            result = ResetServerIpOverrideConfirmationNavResult(clearSuccessful),
+        )
     }
     ResetServerIpOverridesConfirmationDialog(
         onClearAllOverrides = vm::clearAllOverrides,
-        onNavigateBack = dropUnlessResumed { resultBackNavigator.navigateBack() },
+        onNavigateBack = dropUnlessResumed { navigator.goBack() },
     )
 }
 

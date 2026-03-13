@@ -80,7 +80,7 @@ import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
 import net.mullvad.mullvadvpn.core.nav3.LocalResultStore
 import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
-import net.mullvad.mullvadvpn.feature.customlist.api.CustomListsNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.CustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
@@ -313,7 +313,7 @@ fun SelectLocation(
             dropUnlessResumed { relayItem ->
                 navigator.navigate(CreateCustomListNavKey(locationCode = relayItem?.id))
             },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsNavKey) },
+        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onAddLocationToList = vm::addLocationToList,
@@ -330,7 +330,7 @@ fun SelectLocation(
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(CustomListsNavKey)
+                navigator.navigate(CustomListNavKey)
                 //                navigator.navigate(
                 //                    CustomListLocationsDestination(customListId = customList.id,
                 // newList = false)

@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.core.nav3.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.CreateAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.login.impl.CreateAccountConfirmation
 
-fun EntryProviderScope<NavKey2>.createAccountConfirmationEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.createAccountConfirmationEntry(navigator: Navigator) {
     entry<CreateAccountConfirmationNavKey>(metadata = DialogSceneStrategy.dialog()) {
         CreateAccountConfirmation(navigator = navigator)
     }

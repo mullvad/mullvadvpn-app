@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.impl.SelectLocation
 import net.mullvad.mullvadvpn.feature.location.impl.search.SearchLocation
 
-fun EntryProviderScope<NavKey2>.searchLocationEntry(navigator: Navigator) {
+internal fun EntryProviderScope<NavKey2>.searchLocationEntry(navigator: Navigator) {
     entry<SearchLocationNavKey> {
 //        SearchLocation( Location(navigator = navigator)
     }
