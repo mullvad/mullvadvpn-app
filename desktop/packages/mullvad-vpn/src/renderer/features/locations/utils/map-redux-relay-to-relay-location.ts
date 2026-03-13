@@ -31,7 +31,6 @@ export function mapReduxRelayToRelayLocation(
   return {
     type: 'relay',
     label,
-    searchText: label.toLowerCase(),
     details: {
       country: country.code,
       city: city.code,

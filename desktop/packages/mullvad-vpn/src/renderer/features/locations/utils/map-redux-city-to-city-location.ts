@@ -41,7 +41,6 @@ export function mapReduxCityToCityLocation(
   return {
     type: 'city',
     label,
-    searchText: label.toLowerCase(),
     details: {
       city: city.code,
       country: country.code,
