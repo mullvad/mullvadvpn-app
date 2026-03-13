@@ -1,4 +1,4 @@
-import { types as grpcTypes } from 'management-interface';
+import * as grpcTypes from 'management-interface/management-interface/grpc-types';
 
 import {
   AccessMethod,

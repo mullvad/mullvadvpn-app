@@ -7,7 +7,7 @@ import {
   StringValue,
   UInt32Value,
 } from 'google-protobuf/google/protobuf/wrappers_pb.js';
-import { ManagementServiceClient } from 'management-interface';
+import { ManagementServiceClient } from 'management-interface/management-interface';
 import { promisify } from 'util';
 
 import log from '../shared/logging';
