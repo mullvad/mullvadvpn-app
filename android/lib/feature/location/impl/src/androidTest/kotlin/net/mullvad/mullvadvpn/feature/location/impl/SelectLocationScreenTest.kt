@@ -156,7 +156,6 @@ class SelectLocationScreenTest {
                                         hierarchy = Hierarchy.Parent,
                                     )
                                 },
-                            customLists = emptyList(),
                         )
                     )
                 )
@@ -171,7 +170,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -194,7 +192,6 @@ class SelectLocationScreenTest {
                     Lce.Content(
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.CustomListFooter(false)),
-                            customLists = emptyList(),
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -210,7 +207,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -229,7 +225,6 @@ class SelectLocationScreenTest {
                     Lce.Content(
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -246,7 +241,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -269,7 +263,6 @@ class SelectLocationScreenTest {
                     Lce.Content(
                         SelectLocationListUiState(
                             relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -286,7 +279,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -310,7 +302,6 @@ class SelectLocationScreenTest {
                         SelectLocationListUiState(
                             relayListItems =
                                 listOf(RelayListItem.CustomListItem(item = customList)),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -338,7 +329,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -368,7 +358,6 @@ class SelectLocationScreenTest {
                                         hierarchy = Hierarchy.Parent,
                                     )
                                 ),
-                            customLists = emptyList(),
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -397,7 +386,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     ),
                 onSelectHop = mockedOnSelectHop,
@@ -426,7 +414,6 @@ class SelectLocationScreenTest {
                                     locationItems = DUMMY_RELAY_COUNTRIES,
                                     selectedItem = selectableItem.id,
                                 ),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -442,7 +429,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -472,7 +458,6 @@ class SelectLocationScreenTest {
                                     locationItems = DUMMY_RELAY_COUNTRIES,
                                     selectedItem = selectableItem.id,
                                 ),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                             relayListType = RelayListType.Single,
                         )
                     )
@@ -488,7 +473,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = false,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )
@@ -519,7 +503,6 @@ class SelectLocationScreenTest {
                                     locationItems = emptyList(),
                                     selectedItem = null,
                                 ),
-                            customLists = emptyList(),
                         )
                     )
                 )
@@ -534,7 +517,6 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
-                            entrySelectionAllowed = true,
                         )
                     )
             )

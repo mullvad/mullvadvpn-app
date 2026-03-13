@@ -12,6 +12,7 @@ import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
+import mullvad_daemon.relay_selector.RelaySelector
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -36,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
@@ -44,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
@@ -67,6 +70,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
+import net.mullvad.mullvadvpn.lib.model.RelayPartitions
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
@@ -604,20 +608,17 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .map {
-                    it.toDomain(cityCode = cityCode, cityName = name, countryName = countryName)
-                }
+                .map { it.toDomain(cityName = name, countryName = countryName) }
                 .sortedWith(RelayNameComparator),
     )
 }
 
 internal fun ManagementInterface.Relay.toDomain(
-    cityCode: GeoLocationId.City,
     cityName: String,
     countryName: String,
 ): RelayItem.Location.Relay =
     RelayItem.Location.Relay(
-        id = GeoLocationId.Hostname(cityCode, hostname),
+        id = GeoLocationId.Hostname.from(hostname),
         cityName = cityName,
         countryName = countryName,
         active = active,
@@ -786,3 +787,25 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
         ManagementInterface.Recent.TypeCase.TYPE_NOT_SET -> error("Recent type must be set")
     }
+
+internal fun RelaySelector.RelayPartitions.toDomain() =
+    RelayPartitions(
+        matches = matchesList.map { GeoLocationId.Hostname.from(it.hostname) },
+        discards = discardsList.map { it.toDomain() },
+    )
+
+internal fun RelaySelector.DiscardedRelay.toDomain() =
+    DiscardedRelay(GeoLocationId.Hostname.from(relay.hostname), why = why.toDomain())
+
+internal fun RelaySelector.IncompatibleConstraints.toDomain() =
+    IncompatibleConstraints(
+        inactive = inactive,
+        location = location,
+        providers = providers,
+        ownership = ownership,
+        ipVersion = ipVersion,
+        daita = daita,
+        obfuscation = obfuscation,
+        port = port,
+        conflictWithOtherHop = conflictWithOtherHop,
+    )
