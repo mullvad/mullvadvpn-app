@@ -20,7 +20,7 @@ export function formatCountriesResult(countries: CountryLocation[], searchTerm: 
       if (citiesResult.length > 0) {
         return { ...country, expanded: true, cities: citiesResult };
       }
-      if (searchMatchesLocation(country.searchText, searchTerm)) {
+      if (searchMatchesLocation(country.label, searchTerm)) {
         return country;
       }
       return undefined;
@@ -35,7 +35,7 @@ export function formatCitiesResult(country: CountryLocation, searchTerm: string)
       if (relaysResult.length > 0) {
         return { ...city, expanded: true, relays: relaysResult };
       }
-      if (searchMatchesLocation(city.searchText, searchTerm)) {
+      if (searchMatchesLocation(city.label, searchTerm)) {
         return city;
       }
 
@@ -45,5 +45,5 @@ export function formatCitiesResult(country: CountryLocation, searchTerm: string)
 }
 
 export function formatRelaysResult(city: CityLocation, searchTerm: string): RelayLocation[] {
-  return city.relays.filter((relay) => searchMatchesLocation(relay.searchText, searchTerm));
+  return city.relays.filter((relay) => searchMatchesLocation(relay.label, searchTerm));
 }

@@ -39,7 +39,6 @@ export function mapReduxCountryToCountryLocation(
     return {
       type: 'country',
       label,
-      searchText: label.toLowerCase(),
       details: {
         country: country.code,
       },
