@@ -18,17 +18,35 @@ public extension Taggable {
     }
 }
 
-public enum MullvadExecutableTarget: Codable {
+public enum MullvadExecutableTarget: Codable, Sendable {
     case uiTests, screenshots, main
-}
 
+    var isUITest: Bool {
+        self == .uiTests || self == .screenshots
+    }
+}
 // This arguments are picked up in AppDelegate.
-public struct LaunchArguments: Codable, Taggable {
+public struct LaunchArguments: Codable, Taggable, Sendable {
+    public enum AuthenticationState: String, Codable, Sendable {
+        case keepLoggedIn
+        case forceLoggedOut
+        case none
+    }
+
     // Defines which target is running
     public var target: MullvadExecutableTarget = .main
 
     // Disable animations to speed up tests.
     public var areAnimationsDisabled = false
+
+    // Controls login state at launch.
+    public var authenticationState: AuthenticationState = .keepLoggedIn
+
+    /// Controls which Keychain or secure settings are reset at app launch during UI tests.
+    public var settingsResetPolicy: UITestSettingsResetPolicy = .none
+
+    /// Controls which UserDefaults-backed app preferences are reset at app launch during UI tests.
+    public var appPreferencesResetPolicy: UITestAppPreferencesPolicy = .none
 }
 
 public extension ProcessInfo {
