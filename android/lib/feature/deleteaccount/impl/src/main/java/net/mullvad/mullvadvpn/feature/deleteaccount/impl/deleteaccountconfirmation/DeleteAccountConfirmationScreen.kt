@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -52,6 +54,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -263,6 +266,11 @@ private fun AccountNumberInput(
                     keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
                 ),
             onKeyboardAction = { keyboardController?.hide() },
+            inputTransformation =
+                InputTransformation.byValue { current, proposed ->
+                    if (proposed.isDigitsOnly() && levenshtein(current, proposed) <= 1) proposed
+                    else current
+                },
             outputTransformation = transformation,
             lineLimits = TextFieldLineLimits.SingleLine,
             enabled = !state.isLoading,
