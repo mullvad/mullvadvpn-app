@@ -160,10 +160,10 @@ function sign_artifacts {
 
 function upload_google_play {
     task=$1
-    file=$3
-    upload_dir=$2
+    file=$2
+    upload_dir=$3
 
-    rm -r "$upload_dir/*"
+    rm -r "${upload_dir:?}/*"
     cp "$file" "$upload_dir/"
 
     ./building/container-run.sh ./android/gradlew -p android "$task" --artifact-dir "$upload_dir"
