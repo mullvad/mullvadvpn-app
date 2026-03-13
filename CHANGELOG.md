@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2026.1] - 2026-03-13
+This release is identical to 2026.1-beta2.
+
+
 ## [2026.1-beta2] - 2026-03-11
 ### Fixed
 
