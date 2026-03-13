@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmat
 import android.content.res.Resources
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +13,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
@@ -209,6 +212,7 @@ private fun DeleteAccountConfirmationContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun AccountNumberInput(
     onAccountInputChanged: (String) -> Unit,
@@ -231,10 +235,20 @@ private fun AccountNumberInput(
     val localClipboard = LocalClipboard.current
     val clipboard = remember(localClipboard) { NoOpClipboardManager(localClipboard) }
 
-    val transformation =
+    val accountNumberTransformation =
         remember(showPassword, showLastChar) {
             accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
         }
+    val numbersOnlyTransformation = remember {
+        InputTransformation {
+            // Remove any non-digit characters
+            for (i in length - 1 downTo 0) {
+                if (!charAt(i).isDigit()) {
+                    delete(i, i + 1)
+                }
+            }
+        }
+    }
 
     val keyboardController = LocalSoftwareKeyboardController.current
     CompositionLocalProvider(LocalClipboard provides clipboard) {
@@ -263,7 +277,8 @@ private fun AccountNumberInput(
                     keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
                 ),
             onKeyboardAction = { keyboardController?.hide() },
-            outputTransformation = transformation,
+            outputTransformation = accountNumberTransformation,
+            inputTransformation = numbersOnlyTransformation,
             lineLimits = TextFieldLineLimits.SingleLine,
             enabled = !state.isLoading,
             colors = mullvadDarkTextFieldColors(),
