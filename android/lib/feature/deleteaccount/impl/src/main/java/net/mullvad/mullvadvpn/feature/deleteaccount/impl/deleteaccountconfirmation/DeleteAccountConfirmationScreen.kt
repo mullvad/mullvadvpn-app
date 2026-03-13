@@ -28,7 +28,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,13 +37,9 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentType
@@ -231,8 +226,6 @@ private fun AccountNumberInput(
     }
 
     var showPassword by remember { mutableStateOf(false) }
-    val localClipboard = LocalClipboard.current
-    val clipboard = remember(localClipboard) { NoOpClipboardManager(localClipboard) }
 
     val transformation =
         remember(showPassword, showLastChar) {
@@ -240,46 +233,44 @@ private fun AccountNumberInput(
         }
 
     val keyboardController = LocalSoftwareKeyboardController.current
-    CompositionLocalProvider(LocalClipboard provides clipboard) {
-        TextField(
-            state = textFieldState,
-            modifier =
-                // Fix for DPad navigation
-                Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
-            trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(
-                        imageVector =
-                            if (showPassword) Icons.Outlined.VisibilityOff
-                            else Icons.Outlined.Visibility,
-                        contentDescription =
-                            if (showPassword) stringResource(id = R.string.hide_account_number)
-                            else stringResource(id = R.string.show_account_number),
-                    )
-                }
+    TextField(
+        state = textFieldState,
+        modifier =
+            // Fix for DPad navigation
+            Modifier.semantics { contentType = ContentType.Password }.fillMaxWidth(),
+        trailingIcon = {
+            IconButton(onClick = { showPassword = !showPassword }) {
+                Icon(
+                    imageVector =
+                        if (showPassword) Icons.Outlined.VisibilityOff
+                        else Icons.Outlined.Visibility,
+                    contentDescription =
+                        if (showPassword) stringResource(id = R.string.hide_account_number)
+                        else stringResource(id = R.string.show_account_number),
+                )
+            }
+        },
+        placeholder = { Text(stringResource(R.string.account_delete_placeholder)) },
+        keyboardOptions =
+            KeyboardOptions(
+                imeAction = ImeAction.Done,
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
+            ),
+        onKeyboardAction = { keyboardController?.hide() },
+        inputTransformation =
+            InputTransformation.byValue { current, proposed ->
+                if (proposed.isDigitsOnly() && levenshtein(current, proposed) <= 1) proposed
+                else current
             },
-            placeholder = { Text(stringResource(R.string.account_delete_placeholder)) },
-            keyboardOptions =
-                KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    autoCorrectEnabled = false,
-                    keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
-                ),
-            onKeyboardAction = { keyboardController?.hide() },
-            inputTransformation =
-                InputTransformation.byValue { current, proposed ->
-                    if (proposed.isDigitsOnly() && levenshtein(current, proposed) <= 1) proposed
-                    else current
-                },
-            outputTransformation = transformation,
-            lineLimits = TextFieldLineLimits.SingleLine,
-            enabled = !state.isLoading,
-            colors = mullvadDarkTextFieldColors(),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
-            isError = state.verificationError != null,
-            supportingText = state.verificationError?.let { { Text(it.toErrorMessage()) } },
-        )
-    }
+        outputTransformation = transformation,
+        lineLimits = TextFieldLineLimits.SingleLine,
+        enabled = !state.isLoading,
+        colors = mullvadDarkTextFieldColors(),
+        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+        isError = state.verificationError != null,
+        supportingText = state.verificationError?.let { { Text(it.toErrorMessage()) } },
+    )
 }
 
 @Composable
@@ -349,19 +340,4 @@ private fun DeleteAccountConfirmationBottomBar(
             isEnabled = !isLoading,
         )
     }
-}
-
-// Hack to disable pasting
-class NoOpClipboardManager(private val clipboard: Clipboard) : Clipboard {
-
-    override suspend fun getClipEntry(): ClipEntry? {
-        return null
-    }
-
-    override suspend fun setClipEntry(clipEntry: ClipEntry?) {
-        // Do nothing
-    }
-
-    override val nativeClipboard: NativeClipboard
-        get() = clipboard.nativeClipboard
 }
