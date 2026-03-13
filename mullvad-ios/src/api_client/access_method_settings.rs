@@ -161,6 +161,11 @@ unsafe fn access_methods_from_raw_array(
     raw_array: *const *mut AccessMethodSetting,
     number_of_elements: usize,
 ) -> Vec<AccessMethodSetting> {
+    // `slice::from_raw_parts` will dereference the null pointer even if the slice is empty.
+    // In that case, just return an empty vec.
+    if number_of_elements == 0 || raw_array.is_null() {
+        return vec![]
+    }
     // SAFETY: See notice above
     let slice = unsafe { slice::from_raw_parts(raw_array, number_of_elements) };
     slice
