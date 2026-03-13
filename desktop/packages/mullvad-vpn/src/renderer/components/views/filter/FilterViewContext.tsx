@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { Ownership } from '../../../../shared/daemon-rpc-types';
-import { useOwnership, useProviders } from '../../../features/location/hooks';
+import { useOwnership, useProviders } from '../../../features/locations/hooks';
 import { useFilteredProviders } from './hooks';
 
 type FilterViewContextProviderProps = React.PropsWithChildren;
