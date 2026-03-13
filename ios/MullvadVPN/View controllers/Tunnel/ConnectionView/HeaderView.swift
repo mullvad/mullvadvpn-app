@@ -21,26 +21,31 @@ extension ConnectionView {
                     .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
                     .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
                     .accessibilityRemoveTraits(.isButton)
-                Group {
-                    Spacer()
-                    Button {
-                        withAnimation {
-                            isExpanded.toggle()
-                        }
-                    } label: {
-                        Image(.iconChevronUp)
-                            .renderingMode(.template)
-                            .rotationEffect(isExpanded ? .degrees(-180) : .degrees(0))
-                            .foregroundStyle(.white)
-                    }
-                    .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
+
+                Spacer()
+
+                Image(.iconChevronUp)
+                    .renderingMode(.template)
+                    .rotationEffect(isExpanded ? .degrees(-180) : .degrees(0))
+                    .foregroundStyle(.white)
+                    .accessibilityRemoveTraits(.isImage)
                     .accessibilityLabel(
                         isExpanded
                             ? LocalizedStringKey("Collapse connection details")
                             : LocalizedStringKey("Expand connection details")
                     )
-                }
-                .showIf(viewModel.showsConnectionDetails)
+            }
+            .showIf(viewModel.showsConnectionDetails)
+            .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
+            .overlay {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            isExpanded.toggle()
+                        }
+                    }
+                    .accessibilityHidden(true)  // does not interfere with VoiceOver
             }
         }
     }
