@@ -19,9 +19,24 @@ exec > $LOG_DIR/postinstall.log 2>&1
 
 echo "Running postinstall at $(date)"
 
+# Abort if the "localized" directory exists. This can happen if some other app bundle
+# is already occupying the intended target directory, causing macOS to install us in
+# /Applications/Mullvad VPN.localized instead. We abort in this case to avoid a potential
+# LPE from admin user to root.
+if [[ -d "$INSTALL_DIR/Mullvad VPN.localized" ]]; then
+    echo "Found '$INSTALL_DIR/Mullvad VPN.localized' unexpectedly. Aborting."
+    exit 1
+fi
+
 # NOTE: This path must be kept in sync with the path defined
 # in mullvad-daemon/src/macos_launch_daemon.rs and preinstall
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
+
+# Install the daemon binary to /Library/PrivilegedHelperTools (root:wheel),
+# which only root can write to. This prevents admin users from replacing the binary that
+# runs as root via the launch daemon.
+PRIVILEGED_HELPER_TOOLS_DIR="/Library/PrivilegedHelperTools"
+DAEMON_BINARY="$PRIVILEGED_HELPER_TOOLS_DIR/net.mullvad.daemon"
 
 DAEMON_PLIST=$(cat <<-EOM
 <?xml version="1.0" encoding="UTF-8"?>
@@ -33,9 +48,15 @@ DAEMON_PLIST=$(cat <<-EOM
 
                 <key>ProgramArguments</key>
                 <array>
-                        <string>$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-daemon</string>
+                        <string>$DAEMON_BINARY</string>
                         <string>-v</string>
                 </array>
+
+                <key>EnvironmentVariables</key>
+                <dict>
+                        <key>MULLVAD_RESOURCE_DIR</key>
+                        <string>$INSTALL_DIR/Mullvad VPN.app/Contents/Resources</string>
+                </dict>
 
                 <key>UserName</key>
                 <string>root</string>
@@ -61,6 +82,14 @@ DAEMON_PLIST=$(cat <<-EOM
 </plist>
 EOM
 )
+
+# NOTE: We copy `mullvad-daemon` from the app to a directory fully owned by root.
+# This may still be exploitable if the app bundle is replaced while postinstall is running.
+# But it makes the window a lot smaller.
+mkdir -p "$PRIVILEGED_HELPER_TOOLS_DIR"
+cp "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-daemon" "$DAEMON_BINARY"
+chown root:wheel "$DAEMON_BINARY"
+chmod 755 "$DAEMON_BINARY"
 
 ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
 

@@ -31,6 +31,12 @@ sudo -u nobody "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" p
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 launchctl unload -w $DAEMON_PLIST_PATH || echo "Failed to unload old mullvad-daemon"
 
+# For good measure, delete old application directories that may prevent install/upgrade.
+# Make sure this happens after the daemon is unloaded, or it will trip the daemon's uninstall
+# detection.
+rm -rf "$INSTALL_DIR/Mullvad VPN.app"
+rm -rf "$INSTALL_DIR/Mullvad VPN.localized"
+
 # Migrate cache files from <=2020.8-beta2 paths
 OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
 NEW_CACHE_DIR="/Library/Caches/mullvad-vpn"
