@@ -163,7 +163,7 @@ function upload_google_play {
     file=$3
     upload_dir=$2
 
-    rm "$upload_dir/"
+    rm -r "$upload_dir/*"
     cp "$file" "$upload_dir/"
 
     ./building/container-run.sh ./android/gradlew -p android "$task" --artifact-dir "$upload_dir"
