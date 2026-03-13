@@ -47,6 +47,9 @@ unsafe impl Send for SwiftShadowsocksLoaderWrapperContext {}
 
 impl SwiftShadowsocksLoaderWrapperContext {
     pub fn get_bridges(&self) -> Option<Shadowsocks> {
+        if self.shadowsocks_loader.is_null() {
+            return None;
+        }
         // SAFETY: See notice for `swift_get_shadowsocks_bridges`
         let raw_configuration = unsafe { swift_get_shadowsocks_bridges(self.shadowsocks_loader) };
         if raw_configuration.is_null() {
