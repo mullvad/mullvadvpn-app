@@ -107,6 +107,7 @@ class RelayPickingTests: XCTestCase {
         var settings = LatestTunnelSettings()
         settings.relayConstraints = constraints
         settings.daita = DAITASettings(daitaState: .on)
+        settings.tunnelMultihopState = .whenNeeded
 
         let picker = SinglehopPicker(
             obfuscation: obfuscation,

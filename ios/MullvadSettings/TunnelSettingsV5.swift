@@ -23,14 +23,14 @@ public struct TunnelSettingsV5: Codable, Equatable, TunnelSettings {
     public var tunnelQuantumResistance: TunnelQuantumResistance
 
     /// Whether Multi-hop is enabled.
-    public var tunnelMultihopState: MultihopState
+    public var tunnelMultihopState: MultihopStateV1
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
-        tunnelMultihopState: MultihopState = .off
+        tunnelMultihopState: MultihopStateV1 = .off
 
     ) {
         self.relayConstraints = relayConstraints

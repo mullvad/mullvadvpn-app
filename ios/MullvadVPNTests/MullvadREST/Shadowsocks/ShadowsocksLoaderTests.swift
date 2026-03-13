@@ -53,14 +53,14 @@ class ShadowsocksLoaderTests: XCTestCase {
     }
 
     func testLoadConfigWithMultihopDisabled() throws {
-        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .never))
         relaySelector.entryBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
         let configuration = try XCTUnwrap(shadowsocksLoader.load())
         XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
     }
 
     func testLoadConfigWithMultihopEnabled() throws {
-        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .on))
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .always))
         relaySelector.exitBridgeResult = .failure(ShadowsocksRelaySelectorStubError())
         let configuration = try XCTUnwrap(shadowsocksLoader.load())
         XCTAssertEqual(configuration, try XCTUnwrap(shadowsocksConfigurationCache.read()))
@@ -78,7 +78,7 @@ class ShadowsocksLoaderTests: XCTestCase {
     }
 
     func testMultihopUpdateClearsCache() throws {
-        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .off))
+        settingsListener.onNewSettings?(LatestTunnelSettings(tunnelMultihopState: .never))
         XCTAssertNil(shadowsocksConfigurationCache.cachedConfiguration)
     }
 
@@ -106,9 +106,9 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked
 
     func selectBridge(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay? {
         switch settings.tunnelMultihopState {
-        case .on, .always:
+        case .always:
             try entryBridgeResult.get()
-        case .off, .never, .whenNeeded:
+        case .never, .whenNeeded:
             try exitBridgeResult.get()
         }
     }

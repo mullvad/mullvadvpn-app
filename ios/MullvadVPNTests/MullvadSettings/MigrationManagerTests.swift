@@ -129,6 +129,33 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         wait(for: [failedMigrationExpectation], timeout: .UnitTest.timeout)
     }
 
+    func testSuccessfulMigrationFromV7ToLatest() throws {
+        var settingsV7 = TunnelSettingsV7()
+        let relayConstraints = RelayConstraints(
+            exitLocations: .only(UserSelectedRelays(locations: [.city("jp", "osa")]))
+        )
+
+        settingsV7.relayConstraints = relayConstraints
+        settingsV7.tunnelQuantumResistance = .off
+        settingsV7.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .off,
+            udpOverTcpPort: .automatic
+        )
+        settingsV7.tunnelMultihopState = .off
+        settingsV7.daita = .init(daitaState: .on)
+
+        try migrateToLatest(settingsV7, version: .v6)
+
+        // Once the migration is done, settings should have been updated to the latest available version
+        // Verify that the old settings are still valid
+        let latestSettings = try SettingsManager.readSettings()
+        XCTAssertEqual(settingsV7.relayConstraints, latestSettings.relayConstraints)
+        XCTAssertEqual(settingsV7.tunnelQuantumResistance, latestSettings.tunnelQuantumResistance)
+        XCTAssertEqual(settingsV7.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
+        XCTAssertEqual(latestSettings.tunnelMultihopState, .never)
+        XCTAssertEqual(settingsV7.daita, latestSettings.daita)
+    }
+
     func testSuccessfulMigrationFromV6ToLatest() throws {
         var settingsV6 = TunnelSettingsV6()
         let relayConstraints = RelayConstraints(
@@ -152,7 +179,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV6.relayConstraints, latestSettings.relayConstraints)
         XCTAssertEqual(settingsV6.tunnelQuantumResistance, latestSettings.tunnelQuantumResistance)
         XCTAssertEqual(settingsV6.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
-        XCTAssertEqual(settingsV6.tunnelMultihopState, latestSettings.tunnelMultihopState)
+        XCTAssertEqual(latestSettings.tunnelMultihopState, .never)
         XCTAssertEqual(settingsV6.daita, latestSettings.daita)
     }
 
@@ -178,7 +205,7 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertEqual(settingsV5.relayConstraints, latestSettings.relayConstraints)
         XCTAssertEqual(settingsV5.tunnelQuantumResistance, latestSettings.tunnelQuantumResistance)
         XCTAssertEqual(settingsV5.wireGuardObfuscation, latestSettings.wireGuardObfuscation)
-        XCTAssertEqual(settingsV5.tunnelMultihopState, latestSettings.tunnelMultihopState)
+        XCTAssertEqual(latestSettings.tunnelMultihopState, .never)
     }
 
     func testSuccessfulMigrationFromV4ToLatest() throws {

@@ -39,7 +39,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
         LatestTunnelSettings(
             wireGuardObfuscation: WireGuardObfuscationSettings(state: showIndicators ? .udpOverTcp : .off),
             tunnelQuantumResistance: showIndicators ? .on : .off,
-            tunnelMultihopState: showIndicators ? .on : .off,
+            tunnelMultihopState: showIndicators ? .always : .never,
             daita: DAITASettings(daitaState: showIndicators ? .on : .off)
         )
     }
