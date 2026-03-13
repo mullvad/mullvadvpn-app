@@ -1223,7 +1223,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     }
 
     /// Flatten a nested structure of different criteria into one.
-    fn flatten(criterias: impl IntoIterator<Item = &'a Self>) -> Self {
+    fn flatten(criterias: Vec<Self>) -> Self {
         Criteria::new(move |relay| {
             criterias
                 .iter()
