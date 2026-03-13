@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import {
-  AddLocationToCustomListButton,
+  AddLocationToCustomListDialog,
   RemoveLocationFromCustomListButton,
 } from '../../../../../../../features/custom-lists/components';
 import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
@@ -14,6 +14,7 @@ import { useListItemContext } from '../../../../../../../lib/components/list-ite
 import { useGeographicalLocationListItemContext } from '../../../geographical-location-list-item/GeographicalLocationListItemContext';
 import { LocationListItem } from '../../../location-list-item';
 import { useAnyLocationListItemContext } from '../../AnyLocationListItemContext';
+import { AddLocationToCustomListButton } from './components';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
   location: GeographicalLocation;
@@ -27,6 +28,10 @@ export function GeographicalLocationTrailingActions({
   const { level } = useListItemContext();
   const { expanded } = useAccordionContext();
   const { loading, setLoading } = useGeographicalLocationListItemContext();
+
+  const [addLocationToCustomListDialogOpen, setAddLocationToCustomListDialogOpen] =
+    React.useState(false);
+  const handleOpenDialog = React.useCallback(() => setAddLocationToCustomListDialogOpen(true), []);
 
   const childLocations = getLocationChildren(location);
 
@@ -45,7 +50,12 @@ export function GeographicalLocationTrailingActions({
     <LocationListItem.HeaderTrailingActions>
       {showAddToCustomListButton && (
         <LocationListItem.HeaderTrailingAction>
-          <AddLocationToCustomListButton location={location} />
+          <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
+          <AddLocationToCustomListDialog
+            open={addLocationToCustomListDialogOpen}
+            onOpenChange={setAddLocationToCustomListDialogOpen}
+            location={location}
+          />
         </LocationListItem.HeaderTrailingAction>
       )}
       {/* Show remove from custom list button if location is top level item in a custom list. */}
