@@ -136,7 +136,7 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
-        let button = app.buttons[AccessibilityIdentifier.relayStatusCollapseButton]
+        let button = app.otherElements[AccessibilityIdentifier.relayStatusCollapseButton]
         button.tapWhenHittable(failOnUnmetCondition: false)
 
         return self
