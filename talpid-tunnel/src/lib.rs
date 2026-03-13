@@ -1,6 +1,5 @@
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
-    path::Path,
     sync::{Arc, Mutex},
 };
 
@@ -34,11 +33,9 @@ pub const MIN_IPV4_MTU: u16 = 576;
 pub const MIN_IPV6_MTU: u16 = 1280;
 
 /// Arguments for creating a tunnel.
-pub struct TunnelArgs<'a> {
+pub struct TunnelArgs {
     /// Tokio runtime handle.
     pub runtime: tokio::runtime::Handle,
-    /// Resource directory path.
-    pub resource_dir: &'a Path,
     /// Callback function called when an event happens.
     pub event_hook: EventHook,
     /// Receiver oneshot channel for closing the tunnel.

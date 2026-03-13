@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{Duration, Instant};
@@ -144,7 +144,6 @@ impl ConnectingState {
                         shared_values.runtime.clone(),
                         tunnel_parameters,
                         &shared_values.log_dir,
-                        &shared_values.resource_dir,
                         shared_values.tun_provider.clone(),
                         &shared_values.route_manager,
                         retry_attempt,
@@ -226,7 +225,6 @@ impl ConnectingState {
         runtime: tokio::runtime::Handle,
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
-        resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
@@ -236,7 +234,6 @@ impl ConnectingState {
 
         let route_manager = route_manager.clone();
         let log_dir = log_dir.clone();
-        let resource_dir = resource_dir.to_path_buf();
 
         let (tunnel_close_tx, tunnel_close_rx) = oneshot::channel();
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
@@ -251,7 +248,6 @@ impl ConnectingState {
 
             let args = TunnelArgs {
                 runtime,
-                resource_dir: &resource_dir,
                 event_hook,
                 tunnel_close_rx,
                 tun_provider,

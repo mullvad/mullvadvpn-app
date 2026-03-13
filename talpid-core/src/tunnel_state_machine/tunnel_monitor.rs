@@ -121,7 +121,7 @@ impl TunnelMonitor {
     pub fn start(
         tunnel_parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
-        args: TunnelArgs<'_>,
+        args: TunnelArgs,
     ) -> Result<Self> {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
         let log_file = Self::prepare_tunnel_log_file(log_dir.as_ref())?;
@@ -132,7 +132,7 @@ impl TunnelMonitor {
     fn start_wireguard_tunnel(
         params: &wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,
-        args: TunnelArgs<'_>,
+        args: TunnelArgs,
     ) -> Result<Self> {
         let monitor = talpid_wireguard::WireguardMonitor::start(params, args, log.as_deref())?;
         Ok(TunnelMonitor { monitor })

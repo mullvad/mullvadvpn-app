@@ -155,7 +155,7 @@ impl WireguardMonitor {
     #[cfg(not(target_os = "android"))]
     pub fn start(
         params: &TunnelParameters,
-        args: TunnelArgs<'_>,
+        args: TunnelArgs,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.options.daita;
