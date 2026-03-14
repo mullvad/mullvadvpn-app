@@ -115,7 +115,8 @@ function build_ref {
     sign_artifacts "$artifact_dir"
 
     # Upload files to google play, this needs to be done after the artifacts have been signed
-    # Due to to the ask only being able to upload all files in a folder we need to copy them to a specific folder every time.
+    # Due to to the upload task only being able to upload all files in a folder we need to copy
+    # the file to a specific folder every time
     local play_upload_dir="$artifact_dir/play_upload"
     mkdir -p "$play_upload_dir"
     if [[ "$version" != *"-dev-"* ]]; then
