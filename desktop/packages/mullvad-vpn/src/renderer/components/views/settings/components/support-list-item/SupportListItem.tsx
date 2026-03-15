@@ -8,15 +8,17 @@ export type SupportListItemProps = Omit<ListItemProps, 'children'>;
 export function SupportListItem(props: SupportListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.support} {...props}>
-      <SettingsNavigationListItem.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'Support' view
-          messages.pgettext('settings-view', 'Support')
-        }
-      </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          {
+            // TRANSLATORS: Navigation button to the 'Support' view
+            messages.pgettext('settings-view', 'Support')
+          }
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }

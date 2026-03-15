@@ -8,12 +8,14 @@ export type IpOverrideSettingsProps = Omit<ListItemProps, 'children'>;
 export function IpOverrideSettings(props: IpOverrideSettingsProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.settingsImport} {...props}>
-      <SettingsNavigationListItem.Label>
-        {messages.pgettext('vpn-settings-view', 'Server IP override')}
-      </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          {messages.pgettext('vpn-settings-view', 'Server IP override')}
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }

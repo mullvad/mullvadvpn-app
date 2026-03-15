@@ -8,10 +8,14 @@ export type SplitTunnelingListItemProps = Omit<ListItemProps, 'children'>;
 export function SplitTunnelingListItem(props: SplitTunnelingListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.splitTunneling} {...props}>
-      <SettingsNavigationListItem.Label>{strings.splitTunneling}</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          {strings.splitTunneling}
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }

@@ -13,17 +13,21 @@ export function AntiCensorshipListItem(props: AntiCensorshipListItemProps) {
 
   return (
     <SettingsNavigationListItem to={RoutePath.antiCensorship} {...props}>
-      <SettingsNavigationListItem.Label>
-        {
-          // TRANSLATORS: Label for list item that navigates to anti-censorship
-          // TRANSLATORS: settings view.
-          messages.pgettext('vpn-settings-view', 'Anti-censorship')
-        }
-      </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Text>{obfuscationLabel}</SettingsNavigationListItem.Text>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          {
+            // TRANSLATORS: Label for list item that navigates to anti-censorship
+            // TRANSLATORS: settings view.
+            messages.pgettext('vpn-settings-view', 'Anti-censorship')
+          }
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Text>
+            {obfuscationLabel}
+          </SettingsNavigationListItem.Item.Text>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }
