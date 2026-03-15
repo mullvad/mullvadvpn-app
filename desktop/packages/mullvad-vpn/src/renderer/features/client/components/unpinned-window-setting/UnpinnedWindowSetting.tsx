@@ -16,18 +16,18 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
           <UnpinnedWindowSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
           </UnpinnedWindowSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <UnpinnedWindowSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </UnpinnedWindowSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Enable to move the app around as a free-standing window.',
           )}
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
