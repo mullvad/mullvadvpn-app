@@ -3,7 +3,6 @@ import styled, { css, RuleSet } from 'styled-components';
 
 import {
   ListItemFooter,
-  ListItemFooterText,
   ListItemItem,
   ListItemTrailingActions,
   ListItemTrigger,
@@ -163,7 +162,6 @@ const ListItemNamespace = Object.assign(ListItem, {
   Trigger: ListItemTrigger,
   Item: ListItemItem,
   Footer: ListItemFooter,
-  FooterText: ListItemFooterText,
   TrailingActions: ListItemTrailingActions,
 });
 

@@ -1,4 +1,4 @@
-import { Text, TextProps } from '../../../text';
+import { Text, TextProps } from '../../../../../text';
 
 export type ListItemFooterTextProps<E extends React.ElementType = 'span'> = TextProps<E>;
 
