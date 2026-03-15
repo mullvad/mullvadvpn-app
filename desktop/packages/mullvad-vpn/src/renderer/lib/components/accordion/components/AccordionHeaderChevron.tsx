@@ -9,5 +9,5 @@ export type AccordionHeaderChevronProps = Omit<IconProps, 'icon'> & {
 export function AccordionHeaderChevron({ icon, ...props }: AccordionHeaderChevronProps) {
   const { expanded } = useAccordionContext();
   const iconName = icon || (expanded ? 'chevron-up' : 'chevron-down');
-  return <ListItem.Icon icon={iconName} {...props} />;
+  return <ListItem.Item.Icon icon={iconName} {...props} />;
 }

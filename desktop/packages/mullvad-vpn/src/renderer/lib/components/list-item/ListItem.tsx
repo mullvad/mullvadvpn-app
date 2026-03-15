@@ -1,17 +1,10 @@
 import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
-import { Checkbox } from '../checkbox';
 import {
-  ListItemActionGroup,
   ListItemFooter,
   ListItemFooterText,
-  ListItemGroup,
-  ListItemIcon,
   ListItemItem,
-  ListItemLabel,
-  ListItemText,
-  ListItemTextField,
   ListItemTrailingAction,
   ListItemTrailingActions,
   ListItemTrigger,
@@ -168,17 +161,10 @@ const ListItem = ({
 };
 
 const ListItemNamespace = Object.assign(ListItem, {
-  Label: ListItemLabel,
-  Group: ListItemGroup,
-  ActionGroup: ListItemActionGroup,
-  Text: ListItemText,
   Trigger: ListItemTrigger,
   Item: ListItemItem,
   Footer: ListItemFooter,
   FooterText: ListItemFooterText,
-  Icon: ListItemIcon,
-  TextField: ListItemTextField,
-  Checkbox: Checkbox,
   TrailingActions: ListItemTrailingActions,
   TrailingAction: ListItemTrailingAction,
 });

@@ -15,9 +15,9 @@ export function BlockGamblingSetting(props: BlockGamblingSettingProps) {
               messages.pgettext('vpn-settings-view', 'Gambling')
             }
           </BlockGamblingSwitch.Label>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <BlockGamblingSwitch.Input />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </BlockGamblingSwitch>
       </ListItem.Item>
     </ListItem>

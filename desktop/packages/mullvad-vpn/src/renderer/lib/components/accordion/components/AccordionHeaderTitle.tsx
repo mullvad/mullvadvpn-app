@@ -6,5 +6,5 @@ export type AccordionHeaderTitleProps = TextProps;
 
 export function AccordionHeaderTitle({ children }: AccordionHeaderTitleProps) {
   const { titleId } = useAccordionContext();
-  return <ListItem.Label id={titleId}>{children}</ListItem.Label>;
+  return <ListItem.Item.Label id={titleId}>{children}</ListItem.Item.Label>;
 }

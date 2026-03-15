@@ -15,9 +15,9 @@ export function BlockAdultContentSetting(props: BlockAdultContentSettingProps) {
               messages.pgettext('vpn-settings-view', 'Adult content')
             }
           </BlockAdultContentSwitch.Label>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <BlockAdultContentSwitch.Input />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </BlockAdultContentSwitch>
       </ListItem.Item>
     </ListItem>
