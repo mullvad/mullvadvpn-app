@@ -7,10 +7,14 @@ export type DebugListItemProps = Omit<ListItemProps, 'children'>;
 export function DebugListItem(props: DebugListItemProps) {
   return (
     <SettingsNavigationListItem to={RoutePath.debug} {...props}>
-      <SettingsNavigationListItem.Label>Developer tools</SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          Developer tools
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }
