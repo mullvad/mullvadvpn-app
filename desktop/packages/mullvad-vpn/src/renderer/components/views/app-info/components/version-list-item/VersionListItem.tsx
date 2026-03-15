@@ -29,12 +29,12 @@ export function VersionListItem(props: VersionListItemProps) {
       </ListItem.Item>
       {showFooter && (
         <ListItem.Footer>
-          <ListItem.FooterText>
+          <ListItem.Footer.Text>
             {
               // TRANSLATORS: Description for version list item when app is out of sync.
               messages.pgettext('app-info-view', 'App is out of sync. Please quit and restart.')
             }
-          </ListItem.FooterText>
+          </ListItem.Footer.Text>
         </ListItem.Footer>
       )}
     </ListItem>
