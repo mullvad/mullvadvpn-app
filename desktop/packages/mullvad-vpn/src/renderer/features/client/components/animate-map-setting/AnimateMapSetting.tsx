@@ -22,9 +22,9 @@ export function AnimateMapSetting(props: AnimateMapSettingProps) {
         </AnimateMapSwitch>
       </ListItem.Item>
       <ListItem.Footer>
-        <ListItem.FooterText id={descriptionId}>
+        <ListItem.Footer.Text id={descriptionId}>
           {messages.pgettext('user-interface-settings-view', 'Animate map movements.')}
-        </ListItem.FooterText>
+        </ListItem.Footer.Text>
       </ListItem.Footer>
     </ListItem>
   );
