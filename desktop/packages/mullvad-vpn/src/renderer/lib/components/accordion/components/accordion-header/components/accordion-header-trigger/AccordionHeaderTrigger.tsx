@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { ListItem } from '../../list-item';
-import { useAccordionContext } from '../AccordionContext';
+import { ListItem } from '../../../../../list-item';
+import { useAccordionContext } from '../../../../AccordionContext';
 
-export type AccordionTriggerProps = {
+export type AccordionHeaderTriggerProps = {
   children?: React.ReactNode;
 } & React.ComponentProps<'button'>;
 
-export function AccordionHeaderTrigger({ children, ...props }: AccordionTriggerProps) {
+export function AccordionHeaderTrigger({ children, ...props }: AccordionHeaderTriggerProps) {
   const { contentId, triggerId, titleId, expanded, onExpandedChange } = useAccordionContext();
 
   const onClick = React.useCallback(

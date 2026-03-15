@@ -49,11 +49,11 @@ function SettingsAccordion({ accordionId, anchorId, ...props }: SettingsAccordio
 const SettingsAccordionNamespace = Object.assign(SettingsAccordion, {
   Container: Accordion.Container,
   Header: SettingsAccordionHeader,
-  HeaderTrigger: Accordion.HeaderTrigger,
-  HeaderItem: Accordion.HeaderItem,
-  HeaderActionGroup: Accordion.HeaderActionGroup,
-  HeaderTitle: Accordion.HeaderTitle,
-  HeaderChevron: Accordion.HeaderChevron,
+  HeaderTrigger: Accordion.Header.Trigger,
+  HeaderItem: Accordion.Header.Item,
+  HeaderActionGroup: Accordion.Header.Item.ActionGroup,
+  HeaderTitle: Accordion.Header.Item.Title,
+  HeaderChevron: Accordion.Header.Item.Chevron,
   Content: Accordion.Content,
 });
 

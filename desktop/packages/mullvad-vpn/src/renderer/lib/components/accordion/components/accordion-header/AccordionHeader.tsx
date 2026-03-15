@@ -4,7 +4,11 @@ import { ListItem, ListItemProps } from '../../../list-item';
 import { StyledListItemTrailingAction } from '../../../list-item/components/list-item-trailing-actions/components';
 import { useAccordionContext } from '../../AccordionContext';
 import { StyledAccordionContent } from '../AccordionContent';
-import { StyledAccordionHeaderItem } from '../AccordionHeaderItem';
+import {
+  AccordionHeaderItem,
+  StyledAccordionHeaderItem,
+} from './components/accordion-header-item/AccordionHeaderItem';
+import { AccordionHeaderTrigger } from './components/accordion-header-trigger';
 
 export type AccordionHeaderProps = ListItemProps;
 
@@ -26,7 +30,7 @@ export const StyledAccordionHeader = styled(StyledAccordionHeaderRoot)`
   }
 `;
 
-export function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
+function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
   const { headerRef, disabled } = useAccordionContext();
   return (
     <StyledAccordionHeader ref={headerRef} disabled={disabled} {...props}>
@@ -34,3 +38,11 @@ export function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
     </StyledAccordionHeader>
   );
 }
+
+const AccordionHeaderNamespace = Object.assign(AccordionHeader, {
+  Trigger: AccordionHeaderTrigger,
+  Item: AccordionHeaderItem,
+  TrailingActions: ListItem.TrailingActions,
+});
+
+export { AccordionHeaderNamespace as AccordionHeader };
