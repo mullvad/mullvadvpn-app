@@ -18,14 +18,14 @@ export function FilterAccordion({ title, children, defaultOpen }: FilterAccordio
     <Accordion expanded={open} onExpandedChange={setOpen}>
       <Accordion.Container>
         <StyledAccordionHeader>
-          <Accordion.HeaderTrigger>
-            <Accordion.HeaderItem>
-              <Accordion.HeaderTitle>{title}</Accordion.HeaderTitle>
-              <Accordion.HeaderActionGroup>
-                <Accordion.HeaderChevron />
-              </Accordion.HeaderActionGroup>
-            </Accordion.HeaderItem>
-          </Accordion.HeaderTrigger>
+          <Accordion.Header.Trigger>
+            <Accordion.Header.Item>
+              <Accordion.Header.Item.Title>{title}</Accordion.Header.Item.Title>
+              <Accordion.Header.Item.ActionGroup>
+                <Accordion.Header.Item.Chevron />
+              </Accordion.Header.Item.ActionGroup>
+            </Accordion.Header.Item>
+          </Accordion.Header.Trigger>
         </StyledAccordionHeader>
         <Accordion.Content>{children}</Accordion.Content>
       </Accordion.Container>

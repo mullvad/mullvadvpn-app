@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useScrollToListItem } from '../../../../hooks';
 import {
   AccordionHeader,
-  AccordionHeaderProps,
+  type AccordionHeaderProps,
 } from '../../../../lib/components/accordion/components';
 import { useSettingsAccordionContext } from '../../SettingsAccordionContext';
 

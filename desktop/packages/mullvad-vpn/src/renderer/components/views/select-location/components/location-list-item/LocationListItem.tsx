@@ -28,14 +28,13 @@ const LocationListItemNamespace = Object.assign(LocationListItem, {
   AccordionTrigger: LocationListItemAccordionTrigger,
   AccordionContainer: Accordion.Container,
   AccordionContent: LocationListItemAccordionContent,
-  HeaderChevron: Accordion.HeaderChevron,
+  HeaderChevron: Accordion.Header.Item.Chevron,
   IconButton: LocationListItemIconButton,
   Header: LocationListItemHeader,
-  HeaderActionGroup: Accordion.HeaderActionGroup,
-  HeaderItem: Accordion.HeaderItem,
+  HeaderActionGroup: Accordion.Header.Item.ActionGroup,
+  HeaderItem: Accordion.Header.Item,
   HeaderTrigger: ListItem.Trigger,
-  HeaderTrailingActions: Accordion.HeaderTrailingActions,
-  HeaderTrailingAction: Accordion.HeaderTrailingAction,
+  HeaderTrailingActions: Accordion.Header.TrailingActions,
   HeaderTitle: LocationListItemAccordionHeaderTitle,
 });
 

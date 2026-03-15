@@ -32,7 +32,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
 
   return (
     <LocationListItem.HeaderTrailingActions>
-      <LocationListItem.HeaderTrailingAction>
+      <LocationListItem.HeaderTrailingActions.Action>
         <EditCustomListButton customList={customList} onClick={showEditCustomListDialog} />
         <EditCustomListDialog
           customList={customList}
@@ -41,8 +41,8 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
           loading={loading}
           onLoadingChange={setLoading}
         />
-      </LocationListItem.HeaderTrailingAction>
-      <LocationListItem.HeaderTrailingAction>
+      </LocationListItem.HeaderTrailingActions.Action>
+      <LocationListItem.HeaderTrailingActions.Action>
         <DeleteCustomListButton customList={customList} onClick={showDeleteCustomListDialog} />
         <DeleteCustomListDialog
           customList={customList}
@@ -51,7 +51,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
           loading={loading}
           onLoadingChange={setLoading}
         />
-      </LocationListItem.HeaderTrailingAction>
+      </LocationListItem.HeaderTrailingActions.Action>
       <LocationListItem.AccordionTrigger
         aria-label={sprintf(
           expanded === true
@@ -59,9 +59,9 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
             : messages.pgettext('accessibility', 'Expand %(location)s'),
           { location: customList.label },
         )}>
-        <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.HeaderTrailingActions.Action>
           <LocationListItem.HeaderChevron />
-        </LocationListItem.HeaderTrailingAction>
+        </LocationListItem.HeaderTrailingActions.Action>
       </LocationListItem.AccordionTrigger>
     </LocationListItem.HeaderTrailingActions>
   );

@@ -49,24 +49,24 @@ export function GeographicalLocationTrailingActions({
   return (
     <LocationListItem.HeaderTrailingActions>
       {showAddToCustomListButton && (
-        <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.HeaderTrailingActions.Action>
           <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
           <AddLocationToCustomListDialog
             open={addLocationToCustomListDialogOpen}
             onOpenChange={setAddLocationToCustomListDialogOpen}
             location={location}
           />
-        </LocationListItem.HeaderTrailingAction>
+        </LocationListItem.HeaderTrailingActions.Action>
       )}
       {/* Show remove from custom list button if location is top level item in a custom list. */}
       {showRemoveFromCustomListButton && (
-        <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.HeaderTrailingActions.Action>
           <RemoveLocationFromCustomListButton
             location={location}
             loading={loading}
             onLoadingChange={setLoading}
           />
-        </LocationListItem.HeaderTrailingAction>
+        </LocationListItem.HeaderTrailingActions.Action>
       )}
       {showAccordionTrigger && (
         <LocationListItem.AccordionTrigger
@@ -76,9 +76,9 @@ export function GeographicalLocationTrailingActions({
               : messages.pgettext('accessibility', 'Expand %(location)s'),
             { location: location.label },
           )}>
-          <LocationListItem.HeaderTrailingAction>
+          <LocationListItem.HeaderTrailingActions.Action>
             <LocationListItem.HeaderChevron />
-          </LocationListItem.HeaderTrailingAction>
+          </LocationListItem.HeaderTrailingActions.Action>
         </LocationListItem.AccordionTrigger>
       )}
     </LocationListItem.HeaderTrailingActions>
