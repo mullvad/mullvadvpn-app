@@ -5,14 +5,13 @@ import {
   ListItemFooter,
   ListItemFooterText,
   ListItemItem,
-  ListItemTrailingAction,
   ListItemTrailingActions,
   ListItemTrigger,
   StyledListItemItem,
-  StyledListItemTrailingAction,
   StyledListItemTrailingActions,
   StyledListItemTrigger,
 } from './components';
+import { StyledListItemTrailingAction } from './components/list-item-trailing-actions/components';
 import { useListItemAnimation, useMaxLevel } from './hooks';
 import { ListItemProvider } from './ListItemContext';
 
@@ -166,7 +165,6 @@ const ListItemNamespace = Object.assign(ListItem, {
   Footer: ListItemFooter,
   FooterText: ListItemFooterText,
   TrailingActions: ListItemTrailingActions,
-  TrailingAction: ListItemTrailingAction,
 });
 
 export { ListItemNamespace as ListItem };

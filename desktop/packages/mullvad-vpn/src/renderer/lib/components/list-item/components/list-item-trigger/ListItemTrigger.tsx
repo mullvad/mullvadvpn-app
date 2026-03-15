@@ -4,8 +4,8 @@ import styled, { css } from 'styled-components';
 import { colors } from '../../../../foundations';
 import { useListItemContext } from '../../ListItemContext';
 import { StyledListItemItem } from '../list-item-item';
-import { StyledListItemTrailingAction } from '../list-item-trailing-action';
 import { StyledListItemTrailingActions } from '../list-item-trailing-actions';
+import { StyledListItemTrailingAction } from '../list-item-trailing-actions/components';
 import { ListItemTriggerProvider } from './ListItemTriggerContext';
 
 export const StyledListItemTrigger = styled.button<{ disabled?: boolean }>`

@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 
-import { useListItemBackgroundColor } from '../../hooks';
+import { useListItemBackgroundColor } from '../../../../hooks';
 import { ListItemTrailingActionIcon } from './components';
 
 export type ListItemTrailingActionProps = React.ComponentPropsWithRef<'div'>;

@@ -7,7 +7,7 @@ import {
   StyledAccordionHeader,
   StyledAccordionHeaderItem,
 } from '../../../../../../../lib/components/accordion/components';
-import { StyledListItemTrailingAction } from '../../../../../../../lib/components/list-item/components';
+import { StyledListItemTrailingAction } from '../../../../../../../lib/components/list-item/components/list-item-trailing-actions/components';
 
 export type LocationListItemHeaderProps = AccordionHeaderProps;
 
