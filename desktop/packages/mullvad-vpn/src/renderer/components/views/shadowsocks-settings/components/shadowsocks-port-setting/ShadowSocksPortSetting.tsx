@@ -70,14 +70,14 @@ export function ShadowsocksPortSetting() {
           <SettingsListbox.InputOption.Label>
             {messages.gettext('Custom')}
           </SettingsListbox.InputOption.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <SettingsListbox.InputOption.Input
               aria-describedby={descriptionId}
               type="text"
               placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
               maxLength={`${ALLOWED_RANGE[1]}`.length}
             />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </SettingsListbox.InputOption>
       </SettingsListbox.Options>
       <SettingsListbox.Footer>

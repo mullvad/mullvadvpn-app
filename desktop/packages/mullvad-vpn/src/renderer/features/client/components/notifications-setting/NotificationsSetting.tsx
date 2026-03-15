@@ -16,18 +16,18 @@ export function NotificationsSetting(props: NotificationsSettingProps) {
           <NotificationsSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Notifications')}
           </NotificationsSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <NotificationsSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </NotificationsSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Enable or disable system notifications. The critical notifications will always be displayed.',
           )}
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

@@ -22,12 +22,12 @@ function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigati
 }
 
 const SettingsNavigationListItemNamespace = Object.assign(SettingsNavigationListItem, {
-  Label: SettingsListItem.Label,
-  Group: SettingsListItem.Group,
-  ActionGroup: SettingsListItem.ActionGroup,
-  Text: SettingsListItem.Text,
+  Label: SettingsListItem.Item.Label,
+  Group: SettingsListItem.Item.Group,
+  ActionGroup: SettingsListItem.Item.ActionGroup,
+  Text: SettingsListItem.Item.Text,
   Footer: SettingsListItem.Footer,
-  Icon: SettingsListItem.Icon,
+  Icon: SettingsListItem.Item.Icon,
 });
 
 export { SettingsNavigationListItemNamespace as SettingsNavigationListItem };

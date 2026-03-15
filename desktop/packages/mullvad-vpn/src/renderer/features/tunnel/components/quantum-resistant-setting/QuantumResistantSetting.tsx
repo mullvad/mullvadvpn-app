@@ -20,7 +20,7 @@ export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
               messages.pgettext('wireguard-settings-view', 'Quantum-resistant tunnel')
             }
           </QuantumResistantSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <InfoButton>
               <>
                 <ModalMessage>
@@ -39,7 +39,7 @@ export function QuantumResistantSetting(props: QuantumResistantSettingProps) {
             </InfoButton>
 
             <QuantumResistantSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </QuantumResistantSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>
