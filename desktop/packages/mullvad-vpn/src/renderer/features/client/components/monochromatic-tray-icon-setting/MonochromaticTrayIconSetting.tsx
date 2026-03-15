@@ -16,18 +16,18 @@ export function MonochromaticTrayIconSetting(props: MonochromaticTrayIconSetting
           <MonochromaticTrayIconSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Monochromatic tray icon')}
           </MonochromaticTrayIconSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <MonochromaticTrayIconSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </MonochromaticTrayIconSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {messages.pgettext(
             'user-interface-settings-view',
             'Use a monochromatic tray icon instead of a colored one.',
           )}
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

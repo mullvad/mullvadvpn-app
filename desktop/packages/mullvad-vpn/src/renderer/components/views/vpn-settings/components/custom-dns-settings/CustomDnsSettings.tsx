@@ -263,7 +263,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
         </SettingsAccordion.Content>
 
         <SettingsListItem.Footer>
-          <SettingsListItem.FooterText id={descriptionId}>
+          <SettingsListItem.Footer.Text id={descriptionId}>
             {featureAvailable
               ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
               : formatHtml(
@@ -276,7 +276,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
                     'Disable all <b>DNS content blockers</b> above to activate this setting.',
                   ),
                 )}
-          </SettingsListItem.FooterText>
+          </SettingsListItem.Footer.Text>
         </SettingsListItem.Footer>
 
         <ConfirmationDialog

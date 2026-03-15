@@ -84,21 +84,21 @@ export function MtuSetting(props: MtuSettingProps) {
   return (
     <SettingsListItem anchorId="mtu-setting" aria-labelledby={labelId} position="solo" {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Label id={labelId}>
+        <SettingsListItem.Item.Label id={labelId}>
           {
             // TRANSLATORS: The title for the WireGuard MTU setting. MTU stands for Maximum
             // TRANSLATORS: Transmission Unit and controls the maximum size of packets sent over
             // TRANSLATORS: the VPN tunnel.
             messages.pgettext('wireguard-settings-view', 'MTU')
           }
-        </SettingsListItem.Label>
-        <SettingsListItem.ActionGroup>
-          <SettingsListItem.TextField
+        </SettingsListItem.Item.Label>
+        <SettingsListItem.Item.ActionGroup>
+          <SettingsListItem.Item.TextField
             value={value}
             onValueChange={handleOnValueChange}
             onSubmit={handleSubmit}
             invalid={invalid}>
-            <SettingsListItem.TextField.Input
+            <SettingsListItem.Item.TextField.Input
               ref={inputRef}
               placeholder={messages.gettext('Default')}
               width="small"
@@ -108,11 +108,11 @@ export function MtuSetting(props: MtuSettingProps) {
               aria-describedby={descriptionId}
               onBlur={handleBlur}
             />
-          </SettingsListItem.TextField>
-        </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.TextField>
+        </SettingsListItem.Item.ActionGroup>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Text id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {sprintf(
             // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
             // TRANSLATORS: Available placeholders:
@@ -129,7 +129,7 @@ export function MtuSetting(props: MtuSettingProps) {
               max: MAX_WIREGUARD_MTU_VALUE,
             },
           )}
-        </SettingsListItem.Text>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
