@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { ListItem, ListItemProps } from '../../../list-item';
-import { StyledListItemTrailingAction } from '../../../list-item/components';
+import { StyledListItemTrailingAction } from '../../../list-item/components/list-item-trailing-actions/components';
 import { useAccordionContext } from '../../AccordionContext';
 import { StyledAccordionContent } from '../AccordionContent';
 import { StyledAccordionHeaderItem } from '../AccordionHeaderItem';

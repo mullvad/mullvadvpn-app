@@ -21,9 +21,9 @@ export function SplitOptionNavigateButton({
   return (
     <ListItem.TrailingActions>
       <ListItem.Trigger data-split-button onClick={navigate} tabIndex={-1} {...props}>
-        <ListItem.TrailingAction>
-          <ListItem.TrailingAction.Icon icon={'chevron-right'} aria-hidden="true" />
-        </ListItem.TrailingAction>
+        <ListItem.TrailingActions.Action>
+          <ListItem.TrailingActions.Action.Icon icon={'chevron-right'} aria-hidden="true" />
+        </ListItem.TrailingActions.Action>
       </ListItem.Trigger>
     </ListItem.TrailingActions>
   );
