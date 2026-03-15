@@ -14,7 +14,7 @@ export const StyledFlex = styled(Flex)`
   position: relative;
 `;
 
-export const StyledSelectableLabelIcon = styled(ListItem.Icon)<{ $selected: boolean }>`
+export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected: boolean }>`
   ${({ $selected }) => {
     return css`
       --transition-duration: 0.15s;

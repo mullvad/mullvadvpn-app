@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
-import { spacings } from '../../../../foundations';
-import { FlexProps } from '../../../flex';
-import { StyledIconButtonIcon } from '../../../icon-button/components';
-import { StyledText } from '../../../text';
-import { StyledTextField } from '../../../text-field';
+import { spacings } from '../../../../../../foundations';
+import type { FlexProps } from '../../../../../flex';
+import { StyledIconButtonIcon } from '../../../../../icon-button/components';
+import { StyledText } from '../../../../../text';
+import { StyledTextField } from '../../../../../text-field';
 
-export type ListItemActionProps = FlexProps;
+export type ListItemItemActionGroupProps = FlexProps;
 
-export const StyledListItemActionGroup = styled.div`
+export const StyledListItemItemActionGroup = styled.div`
   display: grid;
   grid-template-columns: 48px;
 
@@ -40,6 +40,6 @@ export const StyledListItemActionGroup = styled.div`
   }
 `;
 
-export const ListItemActionGroup = (props: ListItemActionProps) => {
-  return <StyledListItemActionGroup {...props} />;
+export const ListItemItemActionGroup = (props: ListItemItemActionGroupProps) => {
+  return <StyledListItemItemActionGroup {...props} />;
 };
