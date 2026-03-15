@@ -17,16 +17,16 @@ function SettingsListItem({ labelId, anchorId, ...props }: SettingsListItemProps
 }
 
 const SettingsListItemNamespace = Object.assign(SettingsListItem, {
-  Label: ListItem.Label,
+  Label: ListItem.Item.Label,
   Group: SettingsListItemGroup,
-  ActionGroup: ListItem.ActionGroup,
-  Text: ListItem.Text,
+  ActionGroup: ListItem.Item.ActionGroup,
+  Text: ListItem.Item.Text,
   Trigger: ListItem.Trigger,
   Item: ListItem.Item,
   Footer: ListItem.Footer,
   FooterText: ListItem.FooterText,
-  Icon: ListItem.Icon,
-  TextField: ListItem.TextField,
+  Icon: ListItem.Item.Icon,
+  TextField: ListItem.Item.TextField,
 });
 
 export { SettingsListItemNamespace as SettingsListItem };

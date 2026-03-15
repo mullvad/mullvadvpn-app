@@ -1,9 +1,10 @@
-import { ListItemLabel, ListItemLabelProps } from '../../../list-item/components';
-import { useListboxContext } from '../../';
+import { ListItem } from '../../../list-item';
+import type { ListItemItemLabelProps } from '../../../list-item/components/list-item-item/components';
+import { useListboxContext } from '../../ListboxContext';
 
-export type ListboxLabelProps = ListItemLabelProps;
+export type ListboxLabelProps = ListItemItemLabelProps;
 
 export const ListboxLabel = (props: ListboxLabelProps) => {
   const { labelId } = useListboxContext();
-  return <ListItemLabel id={labelId} {...props} />;
+  return <ListItem.Item.Label id={labelId} {...props} />;
 };

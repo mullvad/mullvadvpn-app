@@ -14,18 +14,18 @@ export function VersionListItem(props: VersionListItemProps) {
   return (
     <ListItem {...props}>
       <ListItem.Item>
-        <ListItem.Group gap="small">
+        <ListItem.Item.Group gap="small">
           {showAlert && <Icon icon="alert-circle" color="red" />}
-          <ListItem.Label>
+          <ListItem.Item.Label>
             {
               // TRANSLATORS: Label for version list item.
               messages.pgettext('app-info-view', 'Version')
             }
-          </ListItem.Label>
-        </ListItem.Group>
-        <ListItem.ActionGroup>
-          <ListItem.Text>{current}</ListItem.Text>
-        </ListItem.ActionGroup>
+          </ListItem.Item.Label>
+        </ListItem.Item.Group>
+        <ListItem.Item.ActionGroup>
+          <ListItem.Item.Text>{current}</ListItem.Item.Text>
+        </ListItem.Item.ActionGroup>
       </ListItem.Item>
       {showFooter && (
         <ListItem.Footer>

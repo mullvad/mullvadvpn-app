@@ -36,7 +36,7 @@ export function AddLocationToCustomListListItem({ list, location }: SelectListPr
     <ListItem position="solo">
       <ListItem.Item>
         <SelectableLabel selected={addedToList}>{list.name}</SelectableLabel>
-        <ListItem.ActionGroup>
+        <ListItem.Item.ActionGroup>
           <IconButton
             variant="secondary"
             disabled={loading || addedToList}
@@ -54,7 +54,7 @@ export function AddLocationToCustomListListItem({ list, location }: SelectListPr
             )}>
             <IconButton.Icon icon="add-circle" />
           </IconButton>
-        </ListItem.ActionGroup>
+        </ListItem.Item.ActionGroup>
       </ListItem.Item>
     </ListItem>
   );

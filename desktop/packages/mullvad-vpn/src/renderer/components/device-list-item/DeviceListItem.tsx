@@ -23,8 +23,8 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
       <ListItem disabled={deleting} {...props}>
         <ListItem.Item>
           <FlexColumn>
-            <ListItem.Label>{formatDeviceName(device.name)}</ListItem.Label>
-            <ListItem.Text variant="footnoteMini">
+            <ListItem.Item.Label>{formatDeviceName(device.name)}</ListItem.Item.Label>
+            <ListItem.Item.Text variant="footnoteMini">
               {sprintf(
                 // TRANSLATORS: Label informing the user when a device was created.
                 // TRANSLATORS: Available placeholders:
@@ -34,20 +34,20 @@ function DeviceListItemInner({ ...props }: Omit<SettingsToggleListItemProps, 'de
                   createdDate,
                 },
               )}
-            </ListItem.Text>
+            </ListItem.Item.Text>
           </FlexColumn>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             {isCurrentDevice ? (
-              <ListItem.Text variant="labelTiny" color="whiteAlpha60">
+              <ListItem.Item.Text variant="labelTiny" color="whiteAlpha60">
                 {
                   // TRANSLATORS: Label indicating that this device is the current device.
                   messages.pgettext('device-management', 'Current device')
                 }
-              </ListItem.Text>
+              </ListItem.Item.Text>
             ) : (
               <RemoveButton />
             )}
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </ListItem.Item>
       </ListItem>
       <ConfirmDialog isOpen={confirmDialogVisible} />

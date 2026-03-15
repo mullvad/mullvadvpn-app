@@ -15,9 +15,9 @@ export function BlockSocialMediaSetting(props: BlockSocialMediaSettingProps) {
               messages.pgettext('vpn-settings-view', 'Social media')
             }
           </BlockSocialMediaSwitch.Label>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <BlockSocialMediaSwitch.Input />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </BlockSocialMediaSwitch>
       </ListItem.Item>
     </ListItem>

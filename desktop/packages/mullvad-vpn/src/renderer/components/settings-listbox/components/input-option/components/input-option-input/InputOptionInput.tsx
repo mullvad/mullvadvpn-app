@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { ListItem } from '../../../../../../lib/components/list-item';
-import { ListItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components/list-item-text-field/components';
+import type { ListItemItemTextFieldInputProps } from '../../../../../../lib/components/list-item/components/list-item-item/components/list-item-item-text-field/components';
 import { useListboxContext } from '../../../../../../lib/components/listbox';
 import { useInputOptionContext } from '../../InputOptionContext';
 
-type InputOptionInputProps = Omit<ListItemTextFieldInputProps, 'width'>;
+type InputOptionInputProps = Omit<ListItemItemTextFieldInputProps, 'width'>;
 
 export function InputOptionInput(props: InputOptionInputProps) {
   const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
@@ -51,12 +51,12 @@ export function InputOptionInput(props: InputOptionInputProps) {
   );
 
   return (
-    <ListItem.TextField
+    <ListItem.Item.TextField
       value={value}
       onValueChange={handleOnValueChange}
       invalid={invalid && dirty}
       onSubmit={handleSubmit}>
-      <ListItem.TextField.Input
+      <ListItem.Item.TextField.Input
         ref={inputRef}
         value={value}
         width="small"
@@ -67,6 +67,6 @@ export function InputOptionInput(props: InputOptionInputProps) {
         onBlur={handleBlur}
         {...props}
       />
-    </ListItem.TextField>
+    </ListItem.Item.TextField>
   );
 }
