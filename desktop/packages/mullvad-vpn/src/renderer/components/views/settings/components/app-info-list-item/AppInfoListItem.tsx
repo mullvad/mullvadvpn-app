@@ -14,29 +14,31 @@ export function AppInfoListItem(props: AppInfoListItemProps) {
 
   return (
     <SettingsNavigationListItem to={RoutePath.appInfo} {...props}>
-      <FlexColumn>
-        <SettingsNavigationListItem.Label>
-          {
-            // TRANSLATORS: Navigation button to the 'App info' view
-            messages.pgettext('settings-view', 'App info')
-          }
-        </SettingsNavigationListItem.Label>
-        {suggestedUpgrade && (
-          <SettingsNavigationListItem.Text variant="footnoteMini">
+      <SettingsNavigationListItem.Item>
+        <FlexColumn>
+          <SettingsNavigationListItem.Item.Label>
             {
-              // TRANSLATORS: Label for the app info list item indicating that an update is available and can be downloaded
-              messages.pgettext('settings-view', 'Update available')
+              // TRANSLATORS: Navigation button to the 'App info' view
+              messages.pgettext('settings-view', 'App info')
             }
-          </SettingsNavigationListItem.Text>
-        )}
-      </FlexColumn>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Group gap="small">
-          <SettingsNavigationListItem.Text>{current}</SettingsNavigationListItem.Text>
-          {suggestedUpgrade && <Dot variant="warning" size="small" />}
-        </SettingsNavigationListItem.Group>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+          </SettingsNavigationListItem.Item.Label>
+          {suggestedUpgrade && (
+            <SettingsNavigationListItem.Item.Text variant="footnoteMini">
+              {
+                // TRANSLATORS: Label for the app info list item indicating that an update is available and can be downloaded
+                messages.pgettext('settings-view', 'Update available')
+              }
+            </SettingsNavigationListItem.Item.Text>
+          )}
+        </FlexColumn>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Group gap="small">
+            <SettingsNavigationListItem.Item.Text>{current}</SettingsNavigationListItem.Item.Text>
+            {suggestedUpgrade && <Dot variant="warning" size="small" />}
+          </SettingsNavigationListItem.Item.Group>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }
