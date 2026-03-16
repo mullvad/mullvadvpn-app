@@ -88,14 +88,14 @@ export function PortSetting() {
       value={selectedOption.value}
       onValueChange={setWireguardPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.HeaderItem>
-          <SettingsListbox.Label>
+        <SettingsListbox.Header.Item>
+          <SettingsListbox.Header.Item.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </SettingsListbox.Label>
-          <SettingsListbox.ActionGroup>
+          </SettingsListbox.Header.Item.Label>
+          <SettingsListbox.Header.Item.ActionGroup>
             <InfoButton>
               <>
                 <ModalMessage>
@@ -115,8 +115,8 @@ export function PortSetting() {
                 </ModalMessage>
               </>
             </InfoButton>
-          </SettingsListbox.ActionGroup>
-        </SettingsListbox.HeaderItem>
+          </SettingsListbox.Header.Item.ActionGroup>
+        </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <SettingsListbox.BaseOption value={null}>
@@ -137,14 +137,14 @@ export function PortSetting() {
           <SettingsListbox.InputOption.Label>
             {messages.gettext('Custom')}
           </SettingsListbox.InputOption.Label>
-          <SettingsListbox.ActionGroup>
+          <SettingsListbox.Header.Item.ActionGroup>
             <SettingsListbox.InputOption.Input
               placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
               maxLength={5}
               type="text"
               inputMode="numeric"
             />
-          </SettingsListbox.ActionGroup>
+          </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.InputOption>
       </SettingsListbox.Options>
     </SettingsListbox>
