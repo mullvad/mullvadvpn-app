@@ -14,6 +14,11 @@ fn main() -> anyhow::Result<()> {
     // Mark "daita" as a conditional configuration flag
     println!("cargo::rustc-check-cfg=cfg(daita)");
 
+    // Skip running this build script if wireguard-go is not to be used.
+    if !cfg!(feature = "wireguard-go") {
+        return Ok(());
+    }
+
     // Enable the DAITA (rust) feature flag
     println!(r#"cargo::rustc-cfg=daita"#);
 
