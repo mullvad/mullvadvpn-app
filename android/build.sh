@@ -37,10 +37,25 @@ function assert_clean_working_directory {
     fi
 }
 
+# Fallback to the system-wide gradle command if the gradlew script is removed.
+# It is removed by the F-Droid build process before the build starts.
+if [ -f "gradlew" ]; then
+    GRADLE_CMD="./gradlew"
+elif which gradle > /dev/null; then
+    GRADLE_CMD="gradle"
+else
+    echo "ERROR: No gradle command found" >&2
+    echo "       Please either install gradle or restore the gradlew file" >&2
+    exit 2
+fi
+
+# Check if gradle will sign the build or if the artifact will be unsigned and signed externally
+should_sign_build=$($GRADLE_CMD -q printWillSign)
+
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     assert_clean_working_directory
 
-    if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ]; then
+    if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ] && [ "$should_sign_build" == "true" ]; then
         echo "ERROR: No keystore.properties file found" >&2
         echo "       Please configure the signing keys as described in the README" >&2
         exit 1
@@ -76,18 +91,6 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
             )
         fi
     fi
-fi
-
-# Fallback to the system-wide gradle command if the gradlew script is removed.
-# It is removed by the F-Droid build process before the build starts.
-if [ -f "gradlew" ]; then
-    GRADLE_CMD="./gradlew"
-elif which gradle > /dev/null; then
-    GRADLE_CMD="gradle"
-else
-    echo "ERROR: No gradle command found" >&2
-    echo "       Please either install gradle or restore the gradlew file" >&2
-    exit 2
 fi
 
 $GRADLE_CMD --console plain clean

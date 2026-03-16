@@ -375,6 +375,13 @@ tasks.register("printVersion") {
     }
 }
 
+tasks.register("printWillSign") {
+    val willSign = providers.gradleProperty("mullvad.app.config.signingConfig.release.enable")
+    doLast {
+        println(willSign.orNull)
+    }
+}
+
 play {
     serviceAccountCredentials.set(file("$credentialsPath/play-api-key.json"))
     // Disable for all flavors by default. Only specific flavors should be enabled using
