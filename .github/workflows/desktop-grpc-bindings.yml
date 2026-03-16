@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/desktop-grpc-bindings.yml
       - desktop/packages/management-interface/dist/**
+      - desktop/packages/management-interface/scripts/container-run-generate-bindings.sh
       - mullvad-management-interface/proto/**
   workflow_dispatch:
 
