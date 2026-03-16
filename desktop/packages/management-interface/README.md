@@ -19,6 +19,7 @@ The bindings are generated within a Linux container which builds the `grpc-tools
 > [building/README.md](../../../building/README.md)
 
 ```bash
+cd desktop/packages/management-interface
 bash building/build-and-publish-container.sh
 ```
 
