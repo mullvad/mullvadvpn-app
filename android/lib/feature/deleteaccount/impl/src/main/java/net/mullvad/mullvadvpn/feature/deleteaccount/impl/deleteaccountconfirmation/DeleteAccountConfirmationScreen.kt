@@ -330,7 +330,15 @@ private fun DeleteAccountConfirmationBottomBar(
     onClickDeleteAccount: () -> Unit,
     onClickCancel: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(bottom = Dimens.screenBottomMargin)) {
+    Column(
+        modifier =
+            Modifier.padding(
+                start = Dimens.smallPadding,
+                end = Dimens.smallPadding,
+                bottom = Dimens.screenBottomMargin,
+            ),
+        verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+    ) {
         NegativeButton(
             text = stringResource(R.string.delete_account),
             onClick = onClickDeleteAccount,

@@ -105,7 +105,11 @@ private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContin
         PrimaryButton(
             modifier =
                 Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-                    .padding(bottom = Dimens.screenBottomMargin),
+                    .padding(
+                        start = Dimens.smallPadding,
+                        end = Dimens.smallPadding,
+                        bottom = Dimens.screenBottomMargin,
+                    ),
             onClick = onContinue,
             text = stringResource(R.string.go_to_login),
         )
