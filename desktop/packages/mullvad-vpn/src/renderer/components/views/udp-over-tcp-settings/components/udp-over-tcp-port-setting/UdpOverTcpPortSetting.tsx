@@ -65,14 +65,14 @@ export function UdpOverTcpPortSetting() {
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={'any'}>
+        <SettingsListbox.Options.BaseOption value={'any'}>
           {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
+        </SettingsListbox.Options.BaseOption>
         {portItems.map((item) => {
           return (
-            <SettingsListbox.BaseOption key={item.value} value={item.value}>
+            <SettingsListbox.Options.BaseOption key={item.value} value={item.value}>
               {item.label}
-            </SettingsListbox.BaseOption>
+            </SettingsListbox.Options.BaseOption>
           );
         })}
       </SettingsListbox.Options>

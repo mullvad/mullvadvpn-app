@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 
-import { RoutePath } from '../../../../../../../shared/routes';
-import { ListItem } from '../../../../../../lib/components/list-item';
-import { useHistory } from '../../../../../../lib/history';
+import { RoutePath } from '../../../../../../../../../shared/routes';
+import { ListItem } from '../../../../../../../../lib/components/list-item';
+import { useHistory } from '../../../../../../../../lib/history';
 
 export type NavigationOptionNavigateProps = {
   to: RoutePath;

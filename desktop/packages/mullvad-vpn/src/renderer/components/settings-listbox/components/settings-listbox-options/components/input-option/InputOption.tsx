@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Listbox } from '../../../../lib/components/listbox';
-import type { ListboxOptionProps } from '../../../../lib/components/listbox/components/listbox-options/components';
-import { useTextField } from '../../../../lib/components/text-field';
+import { Listbox } from '../../../../../../lib/components/listbox';
+import type { ListboxOptionProps } from '../../../../../../lib/components/listbox/components/listbox-options/components';
+import { useTextField } from '../../../../../../lib/components/text-field';
 import { InputOptionInput, InputOptionLabel, InputOptionTrigger } from './components';
 import { InputOptionProvider } from './InputOptionContext';
 

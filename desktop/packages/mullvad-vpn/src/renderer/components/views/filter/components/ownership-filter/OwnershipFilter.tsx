@@ -23,13 +23,13 @@ export function OwnershipFilter(props: OwnershipFilterProps) {
     <FilterAccordion title={messages.pgettext('filter-view', 'Ownership')} {...props}>
       <SettingsListbox value={selectedOwnership} onValueChange={setOwnership}>
         <SettingsListbox.Options>
-          <SettingsListbox.BaseOption value={Ownership.any}>
+          <SettingsListbox.Options.BaseOption value={Ownership.any}>
             {messages.gettext('Any')}
-          </SettingsListbox.BaseOption>
+          </SettingsListbox.Options.BaseOption>
           {values.map((option) => (
-            <SettingsListbox.BaseOption key={option.value} value={option.value}>
+            <SettingsListbox.Options.BaseOption key={option.value} value={option.value}>
               {option.label}
-            </SettingsListbox.BaseOption>
+            </SettingsListbox.Options.BaseOption>
           ))}
         </SettingsListbox.Options>
       </SettingsListbox>

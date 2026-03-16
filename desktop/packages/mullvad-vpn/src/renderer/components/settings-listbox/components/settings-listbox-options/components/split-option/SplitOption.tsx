@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Flex } from '../../../../lib/components';
-import { Listbox } from '../../../../lib/components/listbox';
-import type { ListboxOptionProps } from '../../../../lib/components/listbox/components/listbox-options/components';
-import { useRovingFocus } from '../../../../lib/hooks';
+import { Flex } from '../../../../../../lib/components';
+import { Listbox } from '../../../../../../lib/components/listbox';
+import type { ListboxOptionProps } from '../../../../../../lib/components/listbox/components/listbox-options/components';
+import { useRovingFocus } from '../../../../../../lib/hooks';
 import { SplitOptionItem, SplitOptionNavigateButton } from './components';
 
 export type SplitOptionProps<T> = ListboxOptionProps<T>;
