@@ -162,17 +162,12 @@ pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 
-pub fn spawn_rpc_server<M, R, F>(
-    management_service: M,
-    relay_selector_service: R,
-    abort_rx: F,
+pub fn spawn_rpc_server(
+    management_service: impl ManagementService,
+    relay_selector_service: impl RelaySelectorService,
+    abort_rx: impl Future<Output = ()> + Send + 'static,
     rpc_socket_path: PathBuf,
-) -> std::result::Result<ServerJoinHandle, Error>
-where
-    M: ManagementService,
-    R: RelaySelectorService,
-    F: Future<Output = ()> + Send + 'static,
-{
+) -> std::result::Result<ServerJoinHandle, Error> {
     use futures::TryStreamExt;
 
     let endpoint = create_endpoint(rpc_socket_path)?;
