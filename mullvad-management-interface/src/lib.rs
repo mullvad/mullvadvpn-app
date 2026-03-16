@@ -204,12 +204,11 @@ pub fn spawn_rpc_server(
     Ok(server_task)
 }
 
-fn create_endpoint(rpc_socket_path: PathBuf) -> std::result::Result<tipsy::Endpoint, Error> {
-    use tipsy::SecurityAttributes;
+fn create_endpoint(rpc_socket_path: PathBuf) -> Result<IpcEndpoint, Error> {
     let endpoint = IpcEndpoint::new(rpc_socket_path, tipsy::OnConflict::Error)
         .map_err(Error::StartServerError)?;
     let endpoint = endpoint.security_attributes(
-        SecurityAttributes::allow_everyone_create()
+        tipsy::SecurityAttributes::allow_everyone_create()
             .map_err(Error::SecurityAttributes)?
             .mode(0o766)
             .map_err(Error::SecurityAttributes)?,
