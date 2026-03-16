@@ -7,7 +7,9 @@ use talpid_types::net::IpVersion;
 
 use crate::{
     constraints::Constraint,
-    relay_constraints::{LocationConstraint, ObfuscationSettings, Ownership, Providers},
+    relay_constraints::{
+        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, Ownership, Providers,
+    },
     relay_list::WireguardRelay,
     wireguard::DaitaSettings,
 };
@@ -30,8 +32,6 @@ pub struct EntryConstraints {
     pub obfuscation_settings: Constraint<ObfuscationSettings>,
     pub daita: Constraint<DaitaSettings>,
     pub ip_version: Constraint<IpVersion>,
-    pub providers: Constraint<Providers>,
-    pub ownership: Constraint<Ownership>,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -74,4 +74,84 @@ pub enum Reason {
     Port,
     /// The relay is not hosted by the given provider.
     Providers,
+}
+
+// TODO: Should these be builders insteads?
+
+impl EntryConstraints {
+    pub fn daita(mut self, enabled: bool) -> Self {
+        self.daita = Constraint::Only(DaitaSettings {
+            enabled,
+            // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
+            // Unused for partition relays, overridden by "Autohop" predicate.
+            use_multihop_if_necessary: false,
+        });
+        self
+    }
+
+    pub fn general(mut self, general: ExitConstraints) -> Self {
+        self.general = general;
+        self
+    }
+
+    pub fn providers(mut self, providers: Providers) -> Self {
+        self.general.providers = Constraint::Only(providers);
+        self
+    }
+
+    pub fn ownership(mut self, ownership: Ownership) -> Self {
+        self.general.ownership = Constraint::Only(ownership);
+        self
+    }
+
+    pub fn obfuscation(mut self, obfuscation_settings: ObfuscationSettings) -> Self {
+        self.obfuscation_settings = Constraint::Only(obfuscation_settings);
+        self
+    }
+
+    pub fn ip_version(mut self, ip_version: IpVersion) -> Self {
+        self.ip_version = Constraint::Only(ip_version);
+        self
+    }
+}
+
+impl ExitConstraints {
+    pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
+        self.location = Constraint::Only(location.into());
+        self
+    }
+
+    pub fn city(mut self, country: impl Into<String>, city: impl Into<String>) -> Self {
+        self.location = Constraint::Only(GeographicLocationConstraint::city(country, city).into());
+        self
+    }
+
+    pub fn country(mut self, country: impl Into<String>) -> Self {
+        self.location = Constraint::Only(GeographicLocationConstraint::country(country).into());
+        self
+    }
+}
+
+impl MultihopConstraints {
+    pub fn entry(mut self, entry: EntryConstraints) -> Self {
+        self.entry = entry;
+        self
+    }
+
+    pub fn exit(mut self, exit: ExitConstraints) -> Self {
+        self.exit = exit;
+        self
+    }
+
+    /// TODO
+    pub fn exit_providers(mut self, providers: Providers) -> Self {
+        self.exit.providers = Constraint::Only(providers);
+        self
+    }
+
+    /// TODO
+    pub fn exit_ownership(mut self, ownership: Ownership) -> Self {
+        self.exit.ownership = Constraint::Only(ownership);
+        self
+    }
 }

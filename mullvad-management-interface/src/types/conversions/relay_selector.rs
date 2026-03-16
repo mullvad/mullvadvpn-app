@@ -67,13 +67,6 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .transpose()?
             .unwrap_or_default();
 
-        // NOTE: Provider and Ownership filters are mirrored from the provided exit constraints.
-        // This is somewhat of hack to make the relay selector logic easier to implement.
-        // TODO: When split filters have been implemented, grab these filters from the provided
-        // entry constraints.
-        let providers = general.providers.clone();
-        let ownership = general.ownership;
-
         let ip_version: Constraint<_> = IpVersion::try_from(ip_version)
             .map_err(|_| invalid_argument("invalid IP protocol version"))
             .map(talpid_types::net::IpVersion::from)?
@@ -93,8 +86,6 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             obfuscation_settings,
             daita,
             ip_version,
-            providers,
-            ownership,
         })
     }
 }
