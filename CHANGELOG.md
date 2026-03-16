@@ -22,6 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+
+#### Linux
+- Add support for RISC-V builds.
+- Add `--daemon-only` build option for deb and rpm packages for CLI usage.
+
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
   has available relays, and falls back to Sweden otherwise.
