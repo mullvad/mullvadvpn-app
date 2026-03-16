@@ -480,9 +480,8 @@
 		7A27E3D12CC299F90088BCFF /* VPNSettingsDetailsButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A27E3D02CC299E60088BCFF /* VPNSettingsDetailsButtonItem.swift */; };
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
 		7A2917F62F606D7C001E5DB6 /* BreadcrumbsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F52F606D76001E5DB6 /* BreadcrumbsProvider.swift */; };
-		7A2917F72F606D7C001E5DB6 /* BreadcrumbsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F52F606D76001E5DB6 /* BreadcrumbsProvider.swift */; };
-		7A2917FA2F606F50001E5DB6 /* SettingsNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */; };
 		7A2917FB2F606F58001E5DB6 /* SettingsNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */; };
+		7A2917FD2F62CC29001E5DB6 /* SegmentedListItemOLD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917FC2F62CC17001E5DB6 /* SegmentedListItemOLD.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
 		7A2C0E8C2D8B13F0003D8048 /* MullvadAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C0E8B2D8B13E8003D8048 /* MullvadAPIProxy.swift */; };
@@ -522,6 +521,7 @@
 		7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */; };
 		7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */; };
 		7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */; };
+		7A52C4502F6D8A6A005CD885 /* RecentItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52C44F2F6D8A60005CD885 /* RecentItemView.swift */; };
 		7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */; };
 		7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */; };
 		7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
@@ -546,6 +546,7 @@
 		7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */; };
 		7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */; };
 		7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */; };
+		7A5D46A12F630D4E0014314C /* AutomaticRelayItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5D46A02F630D3A0014314C /* AutomaticRelayItemView.swift */; };
 		7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */; };
 		7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586C0D7B2B03BDD100E7CDD7 /* AccessMethodViewModel.swift */; };
 		7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */; };
@@ -577,6 +578,9 @@
 		7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */; };
 		7A7B3AB62C6DE4DA00D4BCCE /* RestorePurchasesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A7B3AB52C6DE4DA00D4BCCE /* RestorePurchasesView.swift */; };
 		7A818F1F29F0305800C7F0F4 /* RootConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */; };
+		7A81C3F22F6BE4EB008D7ADC /* ListItemFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A81C3F12F6BE4E3008D7ADC /* ListItemFactory.swift */; };
+		7A81C3F42F6C1F0B008D7ADC /* SettingsNavigationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */; };
+		7A81C3F62F6C26F3008D7ADC /* ListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A81C3F52F6C26EF008D7ADC /* ListItem.swift */; };
 		7A83A0C62B29A750008B5CE7 /* APIAccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */; };
 		7A83C3FF2A55B72E00DFB83A /* MullvadVPNApp.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */; };
 		7A83C4022A57FAA800DFB83A /* SettingsDNSInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A83C4012A57FAA800DFB83A /* SettingsDNSInfoCell.swift */; };
@@ -1161,7 +1165,7 @@
 		F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */; };
 		F9C579C22E8FB55600C90C50 /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C12E8FB55600C90C50 /* LocationSection.swift */; };
 		F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C32E8FE08600C90C50 /* LocationListItem.swift */; };
-		F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */; };
+		F9C579C62E8FE0D000C90C50 /* SegmentedListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C52E8FE0D000C90C50 /* SegmentedListItem.swift */; };
 		F9C579C82E8FE10400C90C50 /* RelayItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C72E8FE10400C90C50 /* RelayItemView.swift */; };
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 		F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */; };
@@ -2160,6 +2164,7 @@
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A2917F52F606D76001E5DB6 /* BreadcrumbsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreadcrumbsProvider.swift; sourceTree = "<group>"; };
 		7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigationRoute.swift; sourceTree = "<group>"; };
+		7A2917FC2F62CC17001E5DB6 /* SegmentedListItemOLD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedListItemOLD.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
 		7A2C0E8B2D8B13E8003D8048 /* MullvadAPIProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAPIProxy.swift; sourceTree = "<group>"; };
@@ -2186,6 +2191,7 @@
 		7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Scoping.swift"; sourceTree = "<group>"; };
 		7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapper.swift; sourceTree = "<group>"; };
 		7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideWrapperTests.swift; sourceTree = "<group>"; };
+		7A52C44F2F6D8A60005CD885 /* RecentItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentItemView.swift; sourceTree = "<group>"; };
 		7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapperTests.swift; sourceTree = "<group>"; };
 		7A5468AB2C6A55B100590086 /* LocationRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationRelays.swift; sourceTree = "<group>"; };
 		7A56B33F2F11443400CBF960 /* AppVersionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppVersionService.swift; sourceTree = "<group>"; };
@@ -2206,6 +2212,7 @@
 		7A5869C22B5820CE00640D27 /* IPOverrideRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryTests.swift; sourceTree = "<group>"; };
 		7A5869C42B5A899C00640D27 /* MethodSettingsCellConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsCellConfiguration.swift; sourceTree = "<group>"; };
 		7A5869C62B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MethodSettingsDataSourceConfiguration.swift; sourceTree = "<group>"; };
+		7A5D46A02F630D3A0014314C /* AutomaticRelayItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticRelayItemView.swift; sourceTree = "<group>"; };
 		7A6000F52B60092F001CF0D9 /* AccessMethodViewModelEditing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodViewModelEditing.swift; sourceTree = "<group>"; };
 		7A6000FB2B628DF6001CF0D9 /* ListCellContentConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentConfiguration.swift; sourceTree = "<group>"; };
 		7A6000FD2B628E9F001CF0D9 /* ListCellContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCellContentView.swift; sourceTree = "<group>"; };
@@ -2234,6 +2241,8 @@
 		7A7AD14D2BF21DCE00B30B3C /* NameInputFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NameInputFormatter.swift; sourceTree = "<group>"; };
 		7A7B3AB52C6DE4DA00D4BCCE /* RestorePurchasesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestorePurchasesView.swift; sourceTree = "<group>"; };
 		7A818F1E29F0305800C7F0F4 /* RootConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootConfiguration.swift; sourceTree = "<group>"; };
+		7A81C3F12F6BE4E3008D7ADC /* ListItemFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItemFactory.swift; sourceTree = "<group>"; };
+		7A81C3F52F6C26EF008D7ADC /* ListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListItem.swift; sourceTree = "<group>"; };
 		7A83A0C52B29A750008B5CE7 /* APIAccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAccessMethodsTests.swift; sourceTree = "<group>"; };
 		7A83C3FE2A55B72E00DFB83A /* MullvadVPNApp.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNApp.xctestplan; sourceTree = "<group>"; };
 		7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNCI.xctestplan; sourceTree = "<group>"; };
@@ -2706,7 +2715,7 @@
 		F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaWarningView.swift; sourceTree = "<group>"; };
 		F9C579C12E8FB55600C90C50 /* LocationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationSection.swift; sourceTree = "<group>"; };
 		F9C579C32E8FE08600C90C50 /* LocationListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationListItem.swift; sourceTree = "<group>"; };
-		F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDisclosureGroup.swift; sourceTree = "<group>"; };
+		F9C579C52E8FE0D000C90C50 /* SegmentedListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedListItem.swift; sourceTree = "<group>"; };
 		F9C579C72E8FE10400C90C50 /* RelayItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayItemView.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 		F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListInteractorTests.swift; sourceTree = "<group>"; };
@@ -3513,6 +3522,7 @@
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
 				F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
+				7A2917FC2F62CC17001E5DB6 /* SegmentedListItemOLD.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
 				E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */,
@@ -5047,16 +5057,20 @@
 			children = (
 				F95CDD9C2EE02A65000E9D97 /* MultihopSelection */,
 				F92C65892E7A922F00B8E107 /* ActiveFilterView.swift */,
+				7A5D46A02F630D3A0014314C /* AutomaticRelayItemView.swift */,
 				F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */,
 				F96D04EC2EC318D8004A4D48 /* EntryLocationView.swift */,
 				F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */,
+				7A81C3F52F6C26EF008D7ADC /* ListItem.swift */,
+				7A81C3F12F6BE4E3008D7ADC /* ListItemFactory.swift */,
 				F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */,
-				F9C579C52E8FE0D000C90C50 /* LocationDisclosureGroup.swift */,
 				F9C579C32E8FE08600C90C50 /* LocationListItem.swift */,
 				F95AC9E92E5DFAFF00A55B52 /* LocationsListView.swift */,
+				7A52C44F2F6D8A60005CD885 /* RecentItemView.swift */,
 				F02BFFCC2ED89872007CEA69 /* RecentLocationListItem.swift */,
 				F02BFFCE2ED8997D007CEA69 /* RecentLocationsListView.swift */,
 				F9C579C72E8FE10400C90C50 /* RelayItemView.swift */,
+				F9C579C52E8FE0D000C90C50 /* SegmentedListItem.swift */,
 				F90052512E6B06AA0085C80E /* SelectLocationView.swift */,
 			);
 			path = Views;
@@ -6152,7 +6166,6 @@
 				44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */,
 				F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */,
 				A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */,
-				7A2917F72F606D7C001E5DB6 /* BreadcrumbsProvider.swift in Sources */,
 				A9A5F9ED2ACB05160083449F /* NSRegularExpression+IPAddress.swift in Sources */,
 				A9A5F9EE2ACB05160083449F /* StorePaymentOutcome.swift in Sources */,
 				F0AC644E2F3B53150024427C /* UNUserNotificationCenter+Permission.swift in Sources */,
@@ -6465,6 +6478,7 @@
 				7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */,
 				7A5869AB2B55527C00640D27 /* IPOverrideCoordinator.swift in Sources */,
 				5867771429097BCD006F721F /* PaymentState.swift in Sources */,
+				7A5D46A12F630D4E0014314C /* AutomaticRelayItemView.swift in Sources */,
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
 				7A8A191A2CEF41AF000BCB5B /* GroupedRowView.swift in Sources */,
 				58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */,
@@ -6572,6 +6586,7 @@
 				F02BFFCF2ED89996007CEA69 /* RecentLocationsListView.swift in Sources */,
 				0697D6E728F01513007A9E99 /* APITransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
+				7A52C4502F6D8A6A005CD885 /* RecentItemView.swift in Sources */,
 				7A1A26472A29CF0800B978AA /* RelayFilterDataSource.swift in Sources */,
 				5864AF0929C78850005B0CD9 /* VPNSettingsCellFactory.swift in Sources */,
 				F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */,
@@ -6599,11 +6614,13 @@
 				5846227326E22A160035F7C2 /* StorePaymentObserver.swift in Sources */,
 				F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */,
 				58F2E146276A2C9900A79513 /* StopTunnelOperation.swift in Sources */,
-				F9C579C62E8FE0D000C90C50 /* LocationDisclosureGroup.swift in Sources */,
+				F9C579C62E8FE0D000C90C50 /* SegmentedListItem.swift in Sources */,
 				E1187ABC289BBB850024E748 /* OutOfTimeViewController.swift in Sources */,
 				586C0D872B03D39600E7CDD7 /* AccessMethodCellReuseIdentifier.swift in Sources */,
 				F95CDDA22EE03052000E9D97 /* MultihopLabel.swift in Sources */,
 				7AFF5B9E2F6007A70088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift in Sources */,
+				7A2917FD2F62CC29001E5DB6 /* SegmentedListItemOLD.swift in Sources */,
+				7A2917FD2F62CC29001E5DB6 /* SegmentedListItemOLD.swift in Sources */,
 				7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */,
 				7A7B3AB62C6DE4DA00D4BCCE /* RestorePurchasesView.swift in Sources */,
 				7A0EAE9E2D01BCBF00D3EB8B /* View+Size.swift in Sources */,
@@ -6703,6 +6720,7 @@
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
 				F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */,
+				7A81C3F42F6C1F0B008D7ADC /* SettingsNavigationRoute.swift in Sources */,
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
 				F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */,
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
@@ -6733,12 +6751,12 @@
 				F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */,
 				F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */,
 				58CEB2F92AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift in Sources */,
-				7A2917FA2F606F50001E5DB6 /* SettingsNavigationRoute.swift in Sources */,
 				5878F50029CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift in Sources */,
 				A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */,
 				F95A28312E8A8FC300C3F75D /* LocationContext.swift in Sources */,
 				F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */,
 				7A6F2FA92AFD0842006D0856 /* CustomDNSDataSource.swift in Sources */,
+				7A81C3F62F6C26F3008D7ADC /* ListItem.swift in Sources */,
 				58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */,
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				7A0EAEA42D06DF8C00D3EB8B /* ConnectionViewViewModel.swift in Sources */,
@@ -6814,6 +6832,7 @@
 				586C0D952B03D92100E7CDD7 /* SocksItemIdentifier.swift in Sources */,
 				F95CDDA62EE030BA000E9D97 /* HopView.swift in Sources */,
 				F0C6A8432AB08E54000777A8 /* RedeemVoucherViewConfiguration.swift in Sources */,
+				7A81C3F22F6BE4EB008D7ADC /* ListItemFactory.swift in Sources */,
 				7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */,
 				F09D04B32AE919AC003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7ABBE0142F1A2CFF00AD8176 /* IncludeAllNetworksSettingsCoordinator.swift in Sources */,

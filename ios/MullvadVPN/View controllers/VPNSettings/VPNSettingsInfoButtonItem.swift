@@ -27,9 +27,12 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                     "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.",
                     comment: ""
                 ),
-                NSLocalizedString(
-                    "Attention: toggling “Local network sharing” requires restarting the VPN connection.",
-                    comment: ""
+                String(
+                    format: NSLocalizedString(
+                        "Attention: toggling “%@” requires restarting the VPN connection.",
+                        comment: ""
+                    ),
+                    NSLocalizedString("Local network sharing", comment: "")
                 ),
             ].joinedParagraphs(lineBreaks: 1)
         case .contentBlockers:

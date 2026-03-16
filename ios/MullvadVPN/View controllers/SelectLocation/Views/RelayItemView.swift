@@ -2,105 +2,79 @@ import MullvadTypes
 import SwiftUI
 
 struct RelayItemView: View {
-    let location: LocationNode
+    let node: LocationNode
     let multihopContext: MultihopContext
     let level: Int
-    let subtitle: LocalizedStringKey?
-    var isLastInList = true
-    let onSelect: () -> Void
 
-    var disabled: Bool {
-        !location.isActive || location.isExcluded
+    var isDisabled: Bool {
+        !node.isActive || node.isExcluded
+    }
+
+    var subtitle: String? {
+        if node.isConnected {
+            if let node = node.asAutomaticLocationNode {
+                node.locationInfo?.joined(separator: ", ")
+            } else if !node.isSelected {
+                String(localized: "Connected server")
+            } else {
+                nil
+            }
+        } else {
+            nil
+        }
+    }
+
+    @ViewBuilder var statusIndicator: some View {
+        let itemFactory = ListItemFactory()
+
+        if !node.isActive {
+            itemFactory.statusIndicator(for: .dot(.offline))
+        } else if node.isSelected {
+            itemFactory.statusIndicator(for: .tick)
+        } else {
+            EmptyView()
+        }
     }
 
     var title: String {
-        if location.isExcluded {
+        if node.isExcluded {
             switch multihopContext {
             case .entry:
                 return """
-                    \(location.name) (\(String(localized:
+                    \(node.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.exit.description))))
                     """
             case .exit:
                 return """
-                    \(location.name) (\(String(localized:
+                    \(node.name) (\(String(localized:
                     String
                     .LocalizationValue(MultihopContext.entry.description))))
                     """
             }
         }
-        return "\(location.name)"
+        return "\(node.name)"
     }
 
     var body: some View {
-        Button {
-            onSelect()
-        } label: {
-            HStack {
-                locationStatusIndicator()
-                VStack(alignment: .leading) {
-                    Text(title)
-                        .font(.mullvadSmallSemiBold)
-                        .foregroundStyle(
-                            disabled
-                                ? Color.mullvadTextPrimaryDisabled
-                                : location.isSelected
-                                    ? Color.mullvadSuccessColor
-                                    : Color.mullvadTextPrimary
-                        )
-                    if let subtitle {
-                        Text(subtitle)
-                            .font(.mullvadMiniSemiBold)
-                            .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
-                    }
-                }
-                Spacer()
-            }
-            .padding(.vertical, subtitle != nil ? 8 : 16)
-            .padding(.leading, CGFloat(16 * (level + 1)))
-            .padding(.trailing, 16)
-            .background {
-                Color.colorForLevel(level)
-            }
-        }
-        .disabled(disabled)
-        .clipShape(
-            UnevenRoundedRectangle(
-                cornerRadii: .init(
-                    topLeading: level == 0 ? 16 : 0,
-                    bottomLeading: isLastInList ? 16 : 0,
-                    bottomTrailing: isLastInList ? 16 : 0,
-                    topTrailing: level == 0 ? 16 : 0
-                )
-            )
+        ListItem(
+            title: title,
+            subtitle: subtitle,
+            level: level,
+            statusIndicator: { statusIndicator }
         )
-
-    }
-
-    @ViewBuilder
-    func locationStatusIndicator() -> some View {
-        Group {
-            if !location.isActive {
-                Image.mullvadIconStateOffline
-            } else if location.isSelected {
-                Image.mullvadIconTick
-                    .foregroundStyle(Color.mullvadSuccessColor)
-            }
-        }
-        .frame(width: 24, height: 24)
+        .disabled(isDisabled)
     }
 }
 
 #Preview {
     RelayItemView(
-        location: LocationNode(
+        node: LocationNode(
             name: "A great location",
-            code: "a-great-location"
+            code: "a-great-location",
+            isSelected: true
         ),
         multihopContext: .exit,
-        level: 0,
-        subtitle: nil,
-        onSelect: {}
+        level: 0
     )
 }

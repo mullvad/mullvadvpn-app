@@ -114,11 +114,20 @@ class AllLocationDataSource: SearchableLocationDataSource {
         nodes = rootNode.children
     }
 
-    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
-        let rootNode = RootLocationNode(children: nodes)
-        guard let location = selectedRelays.locations.first else {
-            return nil
+    func node(by selectedConstraint: RelayConstraint<UserSelectedRelays>) -> LocationNode? {
+        switch selectedConstraint {
+        case .any:
+            return nodes.first { $0 is AutomaticLocationNode }
+        case .only(let relays):
+            let rootNode = RootLocationNode(children: nodes)
+            guard let location = relays.locations.first else {
+                return nil
+            }
+            return descendantNode(in: rootNode, for: location, baseCodes: [])
         }
-        return descendantNode(in: rootNode, for: location, baseCodes: [])
+    }
+
+    func addAutomaticLocationNode() {
+        nodes.insert(AutomaticLocationNode(), at: 0)
     }
 }
