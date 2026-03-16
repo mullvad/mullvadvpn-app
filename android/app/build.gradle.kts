@@ -40,12 +40,6 @@ val changelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-note
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
-val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
-val keystoreProperties = Properties()
-
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-}
 
 val appVersion = appVersionProvider.get()
 
@@ -98,23 +92,9 @@ android {
         generateLocaleConfig = false
     }
 
-    if (keystorePropertiesFile.exists()) {
-        signingConfigs {
-            create(SigningConfigs.RELEASE) {
-                storeFile = file("$credentialsPath/app-keys.jks")
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-            }
-        }
-    }
-
     buildTypes {
         getByName(BuildTypes.RELEASE) {
-            signingConfig =
-                if (getBooleanProperty("mullvad.app.config.signingConfig.release.enable"))
-                    signingConfigs.findByName(SigningConfigs.RELEASE)
-                else null
+            signingConfig = null
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
