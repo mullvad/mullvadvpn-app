@@ -37,14 +37,14 @@ export function MethodSetting() {
       onValueChange={handleSelectObfuscation}
       value={selectedObfuscation}>
       <SettingsListbox.Header>
-        <SettingsListbox.HeaderItem>
-          <SettingsListbox.Label>
+        <SettingsListbox.Header.Item>
+          <SettingsListbox.Header.Item.Label>
             {
               // TRANSLATORS: The title for the obfuscation method selector.
               messages.pgettext('anti-censorship-view', 'Method')
             }
-          </SettingsListbox.Label>
-        </SettingsListbox.HeaderItem>
+          </SettingsListbox.Header.Item.Label>
+        </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
         <AutomaticOption />
