@@ -51,10 +51,13 @@ Run the following command to trigger a full debug build:
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` environment variable to the
-directory configured in step 1:
+2. Run the following command to build:
 ```bash
 ../building/containerized-build.sh android --app-bundle
+```
+3. Sign the release artifacts using apksigner with the following command:
+```bash
+apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
 ```
 
 ## Build without the provided container
@@ -153,10 +156,13 @@ Run the following command to build a debug build:
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Move, copy or symlink the directory from step 1 to [./credentials/](./credentials/) (`<repository>/android/credentials/`).
-3. Run the following command to build:
+2. Run the following command to build:
    ```bash
    ../android/build.sh --app-bundle
+   ```
+3. Sign the release artifacts using apksigner with the following command:
+   ```bash
+   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
    ```
 
 ## Build using nix devshell
@@ -182,24 +188,10 @@ This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
    ```
 
 ## Configure signing key
-1. Create a directory to store the signing key, keystore and its configuration:
-   ```
-   export ANDROID_CREDENTIALS_DIR=/tmp/credentials
-   mkdir -p $ANDROID_CREDENTIALS_DIR
-   ```
-
-2. Generate a key/keystore named `app-keys.jks` in `ANDROID_CREDENTIALS_DIR` and make sure to write
+Generate a key/keystore named `app-keys.jks` and make sure to write
 down the used passwords:
-   ```
-   keytool -genkey -v -keystore $ANDROID_CREDENTIALS_DIR/app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
-   ```
-
-3. Create a file named `keystore.properties` in `ANDROID_CREDENTIALS_DIR`. Enter the following, but
-replace `key-password` and `keystore-password` with the values from step 2:
    ```bash
-   keyAlias = release
-   keyPassword = key-password
-   storePassword = keystore-password
+   keytool -genkey -v -keystore app-keys.jks -alias release -keyalg RSA -keysize 4096 -validity 10000
    ```
 
 ## Creating an alpha release

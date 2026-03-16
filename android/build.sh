@@ -37,16 +37,6 @@ function assert_clean_working_directory {
     fi
 }
 
-if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
-    assert_clean_working_directory
-
-    if [ ! -f "$SCRIPT_DIR/credentials/keystore.properties" ]; then
-        echo "ERROR: No keystore.properties file found" >&2
-        echo "       Please configure the signing keys as described in the README" >&2
-        exit 1
-    fi
-fi
-
 echo "Computing build version..."
 echo ""
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
