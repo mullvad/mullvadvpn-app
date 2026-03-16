@@ -44,6 +44,8 @@ Builds:
       - sed -i -e '/billing/d' ../settings.gradle.kts
       - sed -i -e '/projects.lib.billing/d' build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
+      # This is to increase stability of verification builds, not required for official fdroid builds
+      - sed -i 's/8192M/4096M/g' ../gradle.properties
     scanignore:
       - android/rust-android-gradle-plugin/plugin/build.gradle.kts
     build:
