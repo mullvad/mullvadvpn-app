@@ -11,7 +11,7 @@ export const StyledSettingsListboxHeader = styled(Listbox.Header)`
   margin-bottom: 1px;
 `;
 
-export function SettingsListboxHeader({ children, ...props }: SettingsListboxHeaderProps) {
+function SettingsListboxHeader({ children, ...props }: SettingsListboxHeaderProps) {
   const { anchorId } = useSettingsListboxContext();
   const { ref, animation } = useScrollToListItem(anchorId);
   return (
@@ -20,3 +20,9 @@ export function SettingsListboxHeader({ children, ...props }: SettingsListboxHea
     </StyledSettingsListboxHeader>
   );
 }
+
+const SettingsListboxHeaderNamespace = Object.assign(SettingsListboxHeader, {
+  Item: Listbox.Header.Item,
+});
+
+export { SettingsListboxHeaderNamespace as SettingsListboxHeader };
