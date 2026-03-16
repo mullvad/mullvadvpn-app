@@ -26,7 +26,7 @@ struct SinglehopPicker: RelayPicking {
         case .noDaitaRelaysFound, .noObfuscatedRelaysFound, .noIPv6RelayFound:
             true
         case .filterConstraintNotMatching, .invalidPort, .entryEqualsExit,
-                .multihopInvalidFlow, .noActiveRelaysFound, .relayConstraintNotMatching, .invalidObfuscationPort:
+            .multihopInvalidFlow, .noActiveRelaysFound, .relayConstraintNotMatching, .invalidObfuscationPort:
             false
         }
     }
