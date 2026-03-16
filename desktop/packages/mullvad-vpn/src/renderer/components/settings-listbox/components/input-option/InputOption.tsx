@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Listbox } from '../../../../lib/components/listbox';
-import { ListboxOptionProps } from '../../../../lib/components/listbox/components';
+import type { ListboxOptionProps } from '../../../../lib/components/listbox/components/listbox-options/components';
 import { useTextField } from '../../../../lib/components/text-field';
 import { InputOptionInput, InputOptionLabel, InputOptionTrigger } from './components';
 import { InputOptionProvider } from './InputOptionContext';
@@ -35,11 +35,11 @@ function InputOption<T>({
       triggerRef={triggerRef}
       labelId={labelId}
       inputState={inputState}>
-      <Listbox.Option {...props}>
+      <Listbox.Options.Option {...props}>
         <InputOptionTrigger>
-          <Listbox.Option.Item>{children}</Listbox.Option.Item>
+          <Listbox.Options.Option.Item>{children}</Listbox.Options.Option.Item>
         </InputOptionTrigger>
-      </Listbox.Option>
+      </Listbox.Options.Option>
     </InputOptionProvider>
   );
 }

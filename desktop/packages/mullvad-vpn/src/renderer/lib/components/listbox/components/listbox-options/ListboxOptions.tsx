@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useRovingFocus } from '../../../../hooks';
 import { useListboxContext } from '../../';
+import { ListboxOption } from './components';
 
 export type ListboxOptionsProps = {
   children: React.ReactNode[];
@@ -13,7 +14,7 @@ export const StyledListboxOptions = styled.ul`
   flex-direction: column;
 `;
 
-export function ListboxOptions({ children }: ListboxOptionsProps) {
+function ListboxOptions({ children }: ListboxOptionsProps) {
   const { labelId, optionsRef, focusedIndex, setFocusedIndex } = useListboxContext();
   const { handleFocus, handleKeyboardNavigation, handleBlur, tabIndex } = useRovingFocus({
     focusedIndex,
@@ -42,3 +43,9 @@ export function ListboxOptions({ children }: ListboxOptionsProps) {
     </StyledListboxOptions>
   );
 }
+
+const ListboxOptionsNamespace = Object.assign(ListboxOptions, {
+  Option: ListboxOption,
+});
+
+export { ListboxOptionsNamespace as ListboxOptions };

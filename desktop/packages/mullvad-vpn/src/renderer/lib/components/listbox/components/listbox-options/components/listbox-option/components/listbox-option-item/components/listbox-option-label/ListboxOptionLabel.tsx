@@ -1,6 +1,6 @@
-import { TextProps } from '../../../../..';
-import { SelectableLabel } from '../../../../../selectable-label';
-import { useListboxOptionContext } from '../../ListboxOptionContext';
+import type { TextProps } from '../../../../../../../../..';
+import { SelectableLabel } from '../../../../../../../../../selectable-label';
+import { useListboxOptionContext } from '../../../../ListboxOptionContext';
 import { useListboxOptionLabelColor } from './hooks';
 
 export type SelectListItemOptionLabelProps<E extends React.ElementType = 'span'> = TextProps<E>;

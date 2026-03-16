@@ -1,11 +1,11 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 
-import { colors } from '../../../../../../foundations';
-import { useListItemContext } from '../../../../../list-item/ListItemContext';
-import { useListboxContext } from '../../../../';
-import { useListboxOptionContext } from '../../';
-import { StyledListboxOptionItem } from '../';
+import { colors } from '../../../../../../../../foundations';
+import { useListItemContext } from '../../../../../../../list-item/ListItemContext';
+import { useListboxContext } from '../../../../../..';
+import { useListboxOptionContext } from '../..';
+import { StyledListboxOptionItem } from '..';
 
 export type ListboxOptionTriggerProps = React.ComponentPropsWithRef<'li'>;
 

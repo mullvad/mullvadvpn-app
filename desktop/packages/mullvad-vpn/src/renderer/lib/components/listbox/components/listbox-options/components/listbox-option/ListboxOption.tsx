@@ -1,12 +1,12 @@
 import styled, { css } from 'styled-components';
 
-import { ListItem, ListItemPositions, ListItemProps, StyledListItemRoot } from '../../../list-item';
 import {
-  ListboxOptionItem,
-  ListboxOptionLabel,
-  ListboxOptionTrigger,
-  StyledListboxOptionItem,
-} from './components';
+  ListItem,
+  ListItemPositions,
+  type ListItemProps,
+  StyledListItemRoot,
+} from '../../../../../list-item';
+import { ListboxOptionItem, ListboxOptionTrigger, StyledListboxOptionItem } from './components';
 import { ListboxOptionProvider } from './ListboxOptionContext';
 
 export type ListboxOptionProps<T> = ListItemProps & {
@@ -48,12 +48,8 @@ function ListboxOption<T>({ value, position = 'auto', children, ...props }: List
 }
 
 const ListboxOptionNamespace = Object.assign(ListboxOption, {
-  Group: ListItem.Item.Group,
   Trigger: ListboxOptionTrigger,
   Item: ListboxOptionItem,
-  Footer: ListItem.Footer,
-  Label: ListboxOptionLabel,
-  Checkbox: ListItem.Item.Checkbox,
 });
 
 export { ListboxOptionNamespace as ListboxOption };
