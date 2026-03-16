@@ -12,7 +12,7 @@ import Foundation
 public typealias LatestTunnelSettings = TunnelSettingsV8
 
 /// Protocol all TunnelSettings must adhere to, for upgrade purposes.
-public protocol TunnelSettings: Codable, Sendable {
+public protocol TunnelSettings: Codable, Sendable, CustomDebugStringConvertible {
     func upgradeToNextVersion() -> any TunnelSettings
 }
 

@@ -101,11 +101,20 @@ public struct MigrationManager {
                     )))
             return
         }
+        logger.info(
+            "\(#function): upgrade start",
+            metadata: [
+                "from": "\(savedSchema.rawValue)",
+                "to": "\(SchemaVersion.current.rawValue)",
+            ])
 
         var savedSettings = try parser.parsePayload(as: savedSchema.settingsType, from: settingsData)
 
         repeat {
+            logger.info("Upgrading settings \(savedSchema.rawValue) -> \(savedSchema.nextVersion.rawValue)")
             let upgradedVersion = savedSettings.upgradeToNextVersion()
+            logger.debug("Settings after upgrade: \(upgradedVersion)")
+
             savedSchema = savedSchema.nextVersion
             savedSettings = upgradedVersion
         } while savedSchema.rawValue < SchemaVersion.current.rawValue

@@ -31,4 +31,8 @@ public struct TunnelSettingsV2: Codable, Equatable, TunnelSettings {
             wireGuardObfuscation: WireGuardObfuscationSettings()
         )
     }
+
+    public var debugDescription: String {
+        "TunnelSettingsV2(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings))"
+    }
 }
