@@ -17,7 +17,7 @@ FROM debian@sha256:77f46c1cf862290e750e913defffb2828c889d291a93bdd10a7a059772094
 
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app
 LABEL org.opencontainers.image.description="Mullvad VPN app management interface Linux build container"
-LABEL org.opencontainers.image.licenses=GPL-3.0
+LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 # Pinned to grpc-node repository's commit hash for tag 1.14.3
 ARG GRPC_NODE_REF=ccd29b27d28ce8937f8250f72e5e6027ed5af09a
