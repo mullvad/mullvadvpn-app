@@ -80,7 +80,7 @@ extension RelayPicking {
             }
 
             let ipv6Address: IPv6Address
-            if applyObfuscatedIps {
+            if applyObfuscation {
                 guard let obfuscatedIpv6 = applyObfuscatedIpV6Addresses(match: match) else {
                     throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
                 }
@@ -151,7 +151,7 @@ extension RelayPicking {
             applyShadowsocksIpv6Address(in: match)
         case .quic:
             applyQuicIpv6Address(in: match)
-        case .off, .automatic, .on, .udpOverTcp:
+        case .off, .automatic, .on, .udpOverTcp, .lwo:
             match.endpoint.ipv6Relay?.ip
         }
     }
