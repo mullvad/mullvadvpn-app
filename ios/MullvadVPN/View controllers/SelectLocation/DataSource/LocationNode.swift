@@ -88,6 +88,9 @@ extension LocationNode {
     var asCustomListNode: CustomListLocationNode? {
         self as? CustomListLocationNode
     }
+    var asAutomaticLocationNode: AutomaticLocationNode? {
+        self as? AutomaticLocationNode
+    }
 
     var userSelectedRelays: UserSelectedRelays {
         var customListSelection: UserSelectedRelays.CustomListSelection?
@@ -249,7 +252,6 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
 
         return node
     }
-
 }
 
 class RecentLocationNode: LocationNode, @unchecked Sendable {
@@ -279,6 +281,40 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
             showsChildren: showsChildren,
             isHiddenFromSearch: isHiddenFromSearch,
             isOverridden: isIPOverriden
+        )
+    }
+}
+
+class AutomaticLocationNode: LocationNode, @unchecked Sendable {
+    var locationInfo: [String]?
+
+    init(
+        name: String = NSLocalizedString("Automatic", comment: ""),
+        code: String = "automatic",
+        isHiddenFromSearch: Bool = true,
+        isConnected: Bool = false,
+        isSelected: Bool = false,
+        locationInfo: [String]? = nil
+    ) {
+        self.locationInfo = locationInfo
+
+        super.init(
+            name: name,
+            code: code,
+            isHiddenFromSearch: isHiddenFromSearch,
+            isConnected: isConnected,
+            isSelected: isSelected
+        )
+    }
+
+    override func copy(withParent parent: LocationNode? = nil) -> LocationNode {
+        AutomaticLocationNode(
+            name: name,
+            code: code,
+            isHiddenFromSearch: isHiddenFromSearch,
+            isConnected: isConnected,
+            isSelected: isSelected,
+            locationInfo: locationInfo
         )
     }
 }

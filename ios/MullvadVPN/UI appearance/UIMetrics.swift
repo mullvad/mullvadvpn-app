@@ -105,6 +105,12 @@ enum UIMetrics {
         static let infoButtonLeadingMargin: CGFloat = 8
     }
 
+    enum LocationList {
+        static let cellCornerRadius: CGFloat = 16
+        static let cellMinHeight: CGFloat = 56
+
+    }
+
     enum SettingsInfoView {
         static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
     }
