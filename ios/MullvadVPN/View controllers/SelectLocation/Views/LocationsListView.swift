@@ -9,7 +9,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     var filteredLocationIndices: [Int] {
         locations
             .enumerated()
-            .filter { !$0.element.isHiddenFromSearch }
+            .filter { !$0.element.isHiddenFromSearch || $0.element is AutomaticLocationNode }
             .map { $0.offset }
     }
 
@@ -47,4 +47,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
         }
     }
     .background(Color.mullvadBackground)
+    .onAppear {
+        viewModel.exitContext.recents.insert(AutomaticLocationNode(), at: 0)
+    }
 }

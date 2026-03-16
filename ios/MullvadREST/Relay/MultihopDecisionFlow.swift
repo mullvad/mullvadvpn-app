@@ -15,7 +15,7 @@ protocol MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
-        daitaAutomaticRouting: Bool
+        selectCloseRelay: Bool
     ) throws -> SelectedRelays
 }
 
@@ -31,7 +31,7 @@ struct OneToOne: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
-        daitaAutomaticRouting: Bool
+        selectCloseRelay: Bool
     ) throws -> SelectedRelays {
         guard canHandle(entryCandidates: entryCandidates, exitCandidates: exitCandidates) else {
             guard let next else {
@@ -40,7 +40,7 @@ struct OneToOne: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
-                daitaAutomaticRouting: daitaAutomaticRouting
+                selectCloseRelay: selectCloseRelay
             )
         }
 
@@ -51,7 +51,7 @@ struct OneToOne: MultihopDecisionFlow {
         let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, applyObfuscation: false)
         let entryMatch = try relayPicker.findBestMatch(
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            closeTo: selectCloseRelay ? exitMatch.location : nil,
             applyObfuscation: true,
         )
 
@@ -79,7 +79,7 @@ struct OneToMany: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
-        daitaAutomaticRouting: Bool
+        selectCloseRelay: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
             fatalError("Could not cast picker to MultihopPicker")
@@ -92,7 +92,7 @@ struct OneToMany: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
-                daitaAutomaticRouting: daitaAutomaticRouting
+                selectCloseRelay: selectCloseRelay
             )
         }
 
@@ -127,7 +127,7 @@ struct ManyToOne: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
-        daitaAutomaticRouting: Bool
+        selectCloseRelay: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
             fatalError("Could not cast picker to MultihopPicker")
@@ -140,7 +140,7 @@ struct ManyToOne: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
-                daitaAutomaticRouting: daitaAutomaticRouting
+                selectCloseRelay: selectCloseRelay
             )
         }
 
@@ -151,7 +151,7 @@ struct ManyToOne: MultihopDecisionFlow {
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            closeTo: selectCloseRelay ? exitMatch.location : nil,
             applyObfuscation: true
         )
 
@@ -179,7 +179,7 @@ struct ManyToMany: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
-        daitaAutomaticRouting: Bool
+        selectCloseRelay: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
             fatalError("Could not cast picker to MultihopPicker")
@@ -192,7 +192,7 @@ struct ManyToMany: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
-                daitaAutomaticRouting: daitaAutomaticRouting
+                selectCloseRelay: selectCloseRelay
             )
         }
 
@@ -200,7 +200,7 @@ struct ManyToMany: MultihopDecisionFlow {
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            closeTo: selectCloseRelay ? exitMatch.location : nil,
             applyObfuscation: true
         )
 

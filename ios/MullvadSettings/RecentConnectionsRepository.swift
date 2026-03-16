@@ -49,12 +49,15 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
         }
     }
 
-    public func enable(_ selectedEntryRelays: UserSelectedRelays?, selectedExitRelays: UserSelectedRelays) {
+    public func enable(
+        _ selectedEntryConstraint: RelayConstraint<UserSelectedRelays>?,
+        selectedExitConstraint: RelayConstraint<UserSelectedRelays>
+    ) {
         do {
             // Enable recents with the last selected locations for entry and exit.
             let value = RecentConnections(
-                entryLocations: (selectedEntryRelays != nil) ? [selectedEntryRelays!] : [],
-                exitLocations: [selectedExitRelays])
+                entryLocations: (selectedEntryConstraint != nil) ? [selectedEntryConstraint!] : [],
+                exitLocations: [selectedExitConstraint])
             try write(value)
             recentConnectionsSubject.send(.success(value))
         } catch {
@@ -62,24 +65,30 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
         }
     }
 
-    public func add(_ selectedEntryRelays: UserSelectedRelays, selectedExitRelays: UserSelectedRelays) {
+    public func add(
+        _ selectedEntryConstraint: RelayConstraint<UserSelectedRelays>,
+        selectedExitConstraint: RelayConstraint<UserSelectedRelays>
+    ) {
         do {
             let current = try read()
             guard current.isEnabled else { throw RecentConnectionsRepositoryError.recentsDisabled }
 
-            let insertAtZero: ([UserSelectedRelays], UserSelectedRelays) -> [UserSelectedRelays] = { recents, recent in
-                var result: [UserSelectedRelays] = []
+            let insertAtZero:
+                ([RelayConstraint<UserSelectedRelays>], RelayConstraint<UserSelectedRelays>) -> [RelayConstraint<
+                    UserSelectedRelays
+                >] = { recents, recent in
+                    var result: [RelayConstraint<UserSelectedRelays>] = []
 
-                // Insert the new item first
-                result.append(recent)
-                for item in recents where !self.isDuplicate(result, recent: item) {
-                    result.append(item)
+                    // Insert the new item first
+                    result.append(recent)
+                    for item in recents where !self.isDuplicate(result, recent: item) {
+                        result.append(item)
+                    }
+                    return Array(result.prefix(Int(self.maxLimit)))
                 }
-                return Array(result.prefix(Int(self.maxLimit)))
-            }
             let new = RecentConnections(
-                entryLocations: insertAtZero(current.entryLocations, selectedEntryRelays),
-                exitLocations: insertAtZero(current.exitLocations, selectedExitRelays))
+                entryLocations: insertAtZero(current.entryLocations, selectedEntryConstraint),
+                exitLocations: insertAtZero(current.exitLocations, selectedExitConstraint))
             try write(new)
             recentConnectionsSubject.send(.success(new))
 
@@ -102,33 +111,41 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
             let current = try read()
 
             // Clear custom-list selection for items that referenced the deleted ID
-            let clearCustomList: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
-                let new = recents.compactMap { item in
-                    guard item.customListSelection?.listId == id else {
-                        return item
-                    }
+            let clearCustomList:
+                ([RelayConstraint<UserSelectedRelays>], UUID) -> [RelayConstraint<UserSelectedRelays>] = {
+                    recents, id in
+                    let new = recents.compactMap { constraint -> RelayConstraint<UserSelectedRelays>? in
+                        guard let item = constraint.value else {
+                            return nil
+                        }
 
-                    let isList = item.customListSelection?.isList ?? false
-                    if isList {
-                        return nil  // Remove the list
-                    }
+                        guard item.customListSelection?.listId == id else {
+                            return .only(item)
+                        }
 
-                    // Keep item but clear the custom list
-                    return UserSelectedRelays(locations: item.locations)
+                        let isList = item.customListSelection?.isList ?? false
+                        if isList {
+                            return nil  // Remove the list
+                        }
+
+                        // Keep item but clear the custom list
+                        return .only(UserSelectedRelays(locations: item.locations))
+                    }
+                    return Array(new.prefix(Int(self.maxLimit)))
                 }
-                return Array(new.prefix(Int(self.maxLimit)))
-            }
 
             // Remove duplicates using the existing isDuplicate logic
-            let removeDuplicates: ([UserSelectedRelays]) -> [UserSelectedRelays] = { recents in
-                var result: [UserSelectedRelays] = []
+            let removeDuplicates: ([RelayConstraint<UserSelectedRelays>]) -> [RelayConstraint<UserSelectedRelays>] = {
+                recents in
+                var result: [RelayConstraint<UserSelectedRelays>] = []
                 for item in recents where !self.isDuplicate(result, recent: item) {
                     result.append(item)
                 }
                 return result
             }
 
-            let updatedList: ([UserSelectedRelays], UUID) -> [UserSelectedRelays] = { recents, id in
+            let updatedList: ([RelayConstraint<UserSelectedRelays>], UUID) -> [RelayConstraint<UserSelectedRelays>] = {
+                recents, id in
                 let cleared = clearCustomList(recents, id)  // same call
                 let deduped = removeDuplicates(cleared)  // same logic
                 return Array(deduped.prefix(Int(self.maxLimit)))  // same limit rule
@@ -144,17 +161,21 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
         }
     }
 
-    private func isDuplicate(_ currentRecents: [UserSelectedRelays], recent: UserSelectedRelays) -> Bool {
-        currentRecents.contains(where: { item in
+    private func isDuplicate(
+        _ currentRecents: [RelayConstraint<UserSelectedRelays>], recent: RelayConstraint<UserSelectedRelays>
+    ) -> Bool {
+        currentRecents.contains { item in
+            let isItemList: Bool = item.value?.customListSelection?.isList ?? false
+            let isRecentList: Bool = recent.value?.customListSelection?.isList ?? false
 
-            let isItemList: Bool = item.customListSelection?.isList ?? false
-            let isRecentList: Bool = recent.customListSelection?.isList ?? false
+            let recent = recent.value
+            let item = item.value
 
             // Both items reference the same custom list (same listId).
             // If both are lists, always treat them as equal (override).
             // Otherwise, remove only when the two items are exactly equal.
-            if let recentCustomList = recent.customListSelection,
-                let itemCustomList = item.customListSelection,
+            if let recentCustomList = recent?.customListSelection,
+                let itemCustomList = item?.customListSelection,
                 recentCustomList.listId == itemCustomList.listId
             {
                 if isItemList, isRecentList {
@@ -164,13 +185,13 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
             }
 
             // Neither is a list, locations equal
-            if recent.locations == item.locations {
+            if recent?.locations == item?.locations {
                 return !(isItemList == true || isRecentList == true)
             }
 
             // No match
             return false
-        })
+        }
     }
 }
 

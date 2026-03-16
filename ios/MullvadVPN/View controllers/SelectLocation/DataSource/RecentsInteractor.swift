@@ -14,15 +14,15 @@ import MullvadTypes
 protocol RecentsInteractorProtocol {
     var isEnabledPublisher: AnyPublisher<Bool, Never> { get }
     func toggle()
-    func fetch(context: MultihopContext) -> [UserSelectedRelays]
-    func updateSelectedLocations(_ selectedLocations: UserSelectedRelays, for context: MultihopContext)
+    func fetch(context: MultihopContext) -> [RelayConstraint<UserSelectedRelays>]
+    func updateSelectedLocations(_ constraint: RelayConstraint<UserSelectedRelays>, for context: MultihopContext)
     func cleanup(_ customList: UUID)
 }
 
 class RecentsInteractor: RecentsInteractorProtocol {
     private let repository: RecentConnectionsRepositoryProtocol
-    private var selectedEntryRelays: UserSelectedRelays
-    private var selectedExitRelays: UserSelectedRelays
+    private var selectedEntryConstraint: RelayConstraint<UserSelectedRelays>
+    private var selectedExitConstraint: RelayConstraint<UserSelectedRelays>
     private let logger = Logger(label: "RecentsInteractor")
     private var recentConnections: RecentConnections?
     private var cancellables = Set<Combine.AnyCancellable>()
@@ -32,13 +32,13 @@ class RecentsInteractor: RecentsInteractorProtocol {
     }
 
     init(
-        selectedEntryRelays: UserSelectedRelays,
-        selectedExitRelays: UserSelectedRelays,
+        selectedEntryConstraint: RelayConstraint<UserSelectedRelays>,
+        selectedExitConstraint: RelayConstraint<UserSelectedRelays>,
         repository: RecentConnectionsRepositoryProtocol
     ) {
         self.repository = repository
-        self.selectedEntryRelays = selectedEntryRelays
-        self.selectedExitRelays = selectedExitRelays
+        self.selectedEntryConstraint = selectedEntryConstraint
+        self.selectedExitConstraint = selectedExitConstraint
         self.subscribeToRecentConnections()
         self.repository.load()
     }
@@ -55,7 +55,7 @@ class RecentsInteractor: RecentsInteractorProtocol {
                 case .failure(let error) where (error as? KeychainError) == .itemNotFound:
                     // Key not found: this occurs only on first use.
                     // Initialize Recents using the user's most recent entry/exit selections by default.
-                    repository.enable(selectedEntryRelays, selectedExitRelays: selectedExitRelays)
+                    repository.enable(selectedEntryConstraint, selectedExitConstraint: selectedExitConstraint)
                 case .failure(let error):
                     logger.error("Failed to subscribe to recent connections: \(error)")
                 }
@@ -63,8 +63,10 @@ class RecentsInteractor: RecentsInteractorProtocol {
             .store(in: &cancellables)
     }
 
-    func updateSelectedLocations(_ selectedLocations: UserSelectedRelays, for context: MultihopContext) {
-        updateRelays(selectedLocations, for: context)
+    func updateSelectedLocations(
+        _ selectedConstraint: RelayConstraint<UserSelectedRelays>, for context: MultihopContext
+    ) {
+        updateRelays(selectedConstraint, for: context)
         guard isEnabled else { return }
         persistRelaySelection()
     }
@@ -73,7 +75,7 @@ class RecentsInteractor: RecentsInteractorProtocol {
         recentConnections?.isEnabled ?? false
     }
 
-    func fetch(context: MultihopContext) -> [UserSelectedRelays] {
+    func fetch(context: MultihopContext) -> [RelayConstraint<UserSelectedRelays>] {
         switch context {
         case .entry:
             recentConnections?.entryLocations ?? []
@@ -86,26 +88,26 @@ class RecentsInteractor: RecentsInteractorProtocol {
         if isEnabled {
             repository.disable()
         } else {
-            repository.enable(selectedEntryRelays, selectedExitRelays: selectedExitRelays)
+            repository.enable(selectedEntryConstraint, selectedExitConstraint: selectedExitConstraint)
         }
     }
 
     private func updateRelays(
-        _ relays: UserSelectedRelays,
+        _ constraint: RelayConstraint<UserSelectedRelays>,
         for context: MultihopContext
     ) {
         switch context {
         case .entry:
-            selectedEntryRelays = relays
+            selectedEntryConstraint = constraint
         case .exit:
-            selectedExitRelays = relays
+            selectedExitConstraint = constraint
         }
     }
 
     private func persistRelaySelection() {
         repository.add(
-            selectedEntryRelays,
-            selectedExitRelays: selectedExitRelays
+            selectedEntryConstraint,
+            selectedExitConstraint: selectedExitConstraint
         )
     }
 

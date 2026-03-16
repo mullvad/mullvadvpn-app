@@ -125,6 +125,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         recentLocationContextMenu(location)
                     }
                 )
+
+                // RecentLocationsListView cannot be put in a container since the context menu
+                // will group the individual locations as well. Therefore adding padding in this
+                // convoluted way.
+                Spacer(minLength: 24)
             } else {
                 MullvadListSectionFooter(title: "No recent selection history")
                     .padding(.horizontal, context.recents.isEmpty ? 0 : 16)
