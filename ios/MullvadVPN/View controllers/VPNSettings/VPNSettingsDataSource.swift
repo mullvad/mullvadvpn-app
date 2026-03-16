@@ -223,7 +223,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             case .ipv6: .ipVersionIPv6
             }
 
-
         return [
             wireGuardPortItem,
             obfuscationStateItem,
