@@ -287,16 +287,17 @@ pub struct Providers {
 pub struct NoProviders(());
 
 impl Providers {
+    /// Create a new `Providers` from an iterator.
+    /// Returns an error if the iterator is empty.
     pub fn new(
         providers: impl IntoIterator<Item = impl Into<Provider>>,
     ) -> Result<Providers, NoProviders> {
-        let providers = Providers {
-            providers: providers.into_iter().map(Into::into).collect(),
-        };
-        if providers.providers.is_empty() {
-            return Err(NoProviders(()));
+        let providers: HashSet<_> = providers.into_iter().map(Into::into).collect();
+        if !providers.is_empty() {
+            Ok(Providers { providers })
+        } else {
+            Err(NoProviders(()))
         }
-        Ok(providers)
     }
 
     pub fn into_vec(self) -> Vec<Provider> {

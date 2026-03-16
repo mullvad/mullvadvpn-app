@@ -402,6 +402,7 @@ enum Ownership {
 }
 
 message LocationConstraint {
+  // When a LocationConstraint is constructed, the inner `type` value MUST NOT be null.
   oneof type {
     string custom_list = 1;
     GeographicLocationConstraint location = 2;

@@ -1,4 +1,4 @@
-use crate::types::{FromProtobufTypeError, proto};
+use crate::types::{FromProtobufTypeError, invalid_argument, proto};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::Id,
@@ -21,18 +21,17 @@ impl TryFrom<&proto::WireguardConstraints>
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net;
 
-        let ip_version = match constraints.ip_version {
-            Some(version) => Some(net::IpVersion::from(
-                proto::IpVersion::try_from(version).map_err(|_| {
-                    FromProtobufTypeError::InvalidArgument("invalid IP protocol version")
-                })?,
-            )),
-            None => None,
-        };
+        let ip_version = constraints
+            .ip_version
+            .map(proto::IpVersion::try_from)
+            .transpose()
+            .map_err(|_| invalid_argument("invalid IP protocol version"))?
+            .map(net::IpVersion::from);
+
         let allowed_ips = AllowedIps::parse(&constraints.allowed_ips)
             .map_err(|e| {
                 log::error!("Failed to parse allowed IPs: {}", e);
-                FromProtobufTypeError::InvalidArgument("invalid allowed IPs")
+                invalid_argument("invalid allowed IPs")
             })?
             .to_constraint();
 
@@ -44,13 +43,10 @@ impl TryFrom<&proto::WireguardConstraints>
                 .entry_location
                 .clone()
                 .and_then(|loc| {
-                    Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(
-                        loc,
-                    )
-                    .ok()
+                    mullvad_types::relay_constraints::LocationConstraint::try_from(loc).ok()
                 })
-                .unwrap_or(Constraint::Any),
-            entry_providers: try_providers_constraint_from_proto(&constraints.entry_providers)?,
+                .into(),
+            entry_providers: providers_constraint_from_proto(&constraints.entry_providers),
             entry_ownership: try_ownership_constraint_from_i32(constraints.entry_ownership)?,
         })
     }
@@ -89,9 +85,11 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
             proto::relay_settings::Endpoint::Normal(settings) => {
                 let location = settings
                     .location
-                    .and_then(|loc| Constraint::<mullvad_types::relay_constraints::LocationConstraint>::try_from(loc).ok())
-                    .unwrap_or(Constraint::Any);
-                let providers = try_providers_constraint_from_proto(&settings.providers)?;
+                    .and_then(|loc| {
+                        mullvad_types::relay_constraints::LocationConstraint::try_from(loc).ok()
+                    })
+                    .into();
+                let providers = providers_constraint_from_proto(&settings.providers);
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
 
                 let mut wireguard_constraints =
@@ -277,26 +275,28 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for proto::Locat
     }
 }
 
-impl TryFrom<proto::LocationConstraint>
-    for Constraint<mullvad_types::relay_constraints::LocationConstraint>
-{
+impl TryFrom<proto::LocationConstraint> for mullvad_types::relay_constraints::LocationConstraint {
     type Error = FromProtobufTypeError;
 
     fn try_from(location: proto::LocationConstraint) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::LocationConstraint;
-        match location.r#type {
-            Some(proto::location_constraint::Type::Location(location)) => Ok(Constraint::Only(
+        let Some(typ) = location.r#type else {
+            return Err(invalid_argument(
+                "Type of location constraint was not provided",
+            ));
+        };
+        match typ {
+            proto::location_constraint::Type::Location(location) => Ok(
                 LocationConstraint::Location(GeographicLocationConstraint::try_from(location)?),
-            )),
-            Some(proto::location_constraint::Type::CustomList(list_id)) => {
+            ),
+            proto::location_constraint::Type::CustomList(list_id) => {
                 let location = LocationConstraint::CustomList {
                     list_id: Id::from_str(&list_id).map_err(|_| {
                         FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
                     })?,
                 };
-                Ok(Constraint::Only(location))
+                Ok(location)
             }
-            None => Ok(Constraint::Any),
         }
     }
 }
@@ -492,17 +492,22 @@ impl TryFrom<proto::RelayOverride> for mullvad_types::relay_constraints::RelayOv
     }
 }
 
-pub fn try_providers_constraint_from_proto(
-    providers: &[String],
-) -> Result<Constraint<mullvad_types::relay_constraints::Providers>, FromProtobufTypeError> {
+impl From<proto::relay_selector::Provider> for mullvad_types::relay_constraints::Provider {
+    fn from(provider: proto::relay_selector::Provider) -> Self {
+        provider.name
+    }
+}
+
+pub fn providers_constraint_from_proto(
+    providers: &[impl Into<String> + Clone],
+) -> Constraint<mullvad_types::relay_constraints::Providers> {
     if !providers.is_empty() {
-        Ok(Constraint::Only(
-            mullvad_types::relay_constraints::Providers::new(providers.iter().cloned()).map_err(
-                |_| FromProtobufTypeError::InvalidArgument("must specify at least one provider"),
-            )?,
-        ))
+        Constraint::Only(
+            mullvad_types::relay_constraints::Providers::new(providers.iter().cloned())
+                .expect("Providers has been checked to not be empty"),
+        )
     } else {
-        Ok(Constraint::Any)
+        Constraint::Any
     }
 }
 
