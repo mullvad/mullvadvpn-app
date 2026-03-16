@@ -1,4 +1,7 @@
 //! Types of `mullvad-relay-selector`.
+//!
+//! Most types in this module are equivalent to the ones in `mullvad-management-interface\proto\management_interface.proto`.
+//! See the proto file for more documentation.
 
 use talpid_types::net::IpVersion;
 

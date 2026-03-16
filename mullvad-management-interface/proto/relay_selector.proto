@@ -1,13 +1,12 @@
-// Relay Selector service.
-//
-// This API is used to query which relays are selectable for a set of filters,
-// and to provide information about about how to unblock discarded relays.
-
 syntax = "proto3";
 package mullvad_daemon.relay_selector;
 
 import "management_interface.proto";
 
+// Relay Selector service.
+//
+// This API is used to query which relays are selectable for a set of filters,
+// and to provide information about about how to unblock discarded relays.
 service RelaySelectorService {
   // Partition the available relays by a predicate. The predicate can be
   // derived from the current settings or a set of future settings changes
