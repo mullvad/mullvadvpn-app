@@ -16,11 +16,11 @@ brew install --cask android-studio
 
 Install the following packages:
 ```bash
-brew install protobuf gcc openjdk@17 rustup-init python3
+brew install protobuf gcc openjdk@21 rustup-init python3
 ```
 
-> __*NOTE:*__ Ensure that you setup `openjdk@17` to be the active JDK, follow instructions in
-> installation of openjdk@17 or use a tool like [jEnv](https://www.jenv.be/).
+> __*NOTE:*__ Ensure that you setup `openjdk@21` to be the active JDK, follow instructions in
+> installation of openjdk@21 or use a tool like [jEnv](https://www.jenv.be/).
 
 Finish the install of `rustup`:
 ```bash
