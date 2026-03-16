@@ -28,23 +28,9 @@ struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
             let location = $locations[indexInLocationList]
             RecentLocationListItem(
                 location: location,
-                multihopContext: multihopContext,
-                subtitle: getSubtitle(location.wrappedValue),
                 onSelect: onSelectLocation,
                 contextMenu: { location in contextMenu(location) },
             )
-            .padding(.bottom, index == filteredLocationIndices.count - 1 ? 24 : 0)
         }
-    }
-
-    func getSubtitle(_ location: LocationNode) -> LocalizedStringKey? {
-        guard let recentLocationNode = location.asRecentLocationNode,
-            (location.userSelectedRelays.customListSelection?.isList ?? false) == false,
-            let ancestors = recentLocationNode.locationInfo?.dropLast(),
-            ancestors.isEmpty == false
-        else {
-            return nil
-        }
-        return "\(ancestors.joined(separator: ", "))"
     }
 }

@@ -16,8 +16,12 @@ public enum RecentConnectionsResult {
 public protocol RecentConnectionsRepositoryProtocol {
     var recentConnectionsPublisher: AnyPublisher<RecentConnectionsResult, Never> { get }
     func disable()
-    func enable(_ selectedEntryRelays: UserSelectedRelays?, selectedExitRelays: UserSelectedRelays)
-    func add(_ selectedEntryRelays: UserSelectedRelays, selectedExitRelays: UserSelectedRelays)
+    func enable(
+        _ selectedEntryConstraint: RelayConstraint<UserSelectedRelays>?,
+        selectedExitConstraint: RelayConstraint<UserSelectedRelays>)
+    func add(
+        _ selectedEntryConstraint: RelayConstraint<UserSelectedRelays>,
+        selectedExitConstraint: RelayConstraint<UserSelectedRelays>)
     func deleteCustomList(_ id: UUID)
     func load()
 }
