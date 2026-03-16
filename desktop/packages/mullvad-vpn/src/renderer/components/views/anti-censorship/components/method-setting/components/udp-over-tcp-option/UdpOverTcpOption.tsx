@@ -18,16 +18,16 @@ export function UdpOverTcpOption() {
   const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
 
   return (
-    <SettingsListbox.SplitOption value={ObfuscationType.udp2tcp}>
-      <SettingsListbox.SplitOption.Item
+    <SettingsListbox.Options.SplitOption value={ObfuscationType.udp2tcp}>
+      <SettingsListbox.Options.SplitOption.Item
         aria-description={messages.pgettext(
           'accessibility',
           'Use the right arrow key to focus the settings button.',
         )}>
         <FlexColumn>
-          <SettingsListbox.SplitOption.Label>
+          <SettingsListbox.Options.SplitOption.Label>
             {messages.pgettext('wireguard-settings-view', 'UDP-over-TCP')}
-          </SettingsListbox.SplitOption.Label>
+          </SettingsListbox.Options.SplitOption.Label>
 
           <Text variant="labelTinySemiBold" color="whiteAlpha60">
             {sprintf(subLabelTemplate, {
@@ -35,11 +35,11 @@ export function UdpOverTcpOption() {
             })}
           </Text>
         </FlexColumn>
-      </SettingsListbox.SplitOption.Item>
-      <SettingsListbox.SplitOption.NavigateButton
+      </SettingsListbox.Options.SplitOption.Item>
+      <SettingsListbox.Options.SplitOption.NavigateButton
         to={RoutePath.udpOverTcp}
         aria-label={messages.pgettext('accessibility', 'UDP-over-TCP settings')}
       />
-    </SettingsListbox.SplitOption>
+    </SettingsListbox.Options.SplitOption>
   );
 }

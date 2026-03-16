@@ -1,4 +1,4 @@
-import { Listbox } from '../../../../../../lib/components/listbox';
+import { Listbox } from '../../../../../../../../lib/components/listbox';
 
 export type ListBoxOptionWithNavigationProps = React.ComponentPropsWithRef<'li'>;
 

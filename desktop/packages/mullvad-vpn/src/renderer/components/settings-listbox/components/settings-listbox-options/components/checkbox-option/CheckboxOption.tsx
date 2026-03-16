@@ -1,7 +1,7 @@
-import { Text } from '../../../../lib/components';
-import type { CheckboxProps } from '../../../../lib/components/checkbox';
-import { Listbox } from '../../../../lib/components/listbox';
-import type { ListboxOptionProps } from '../../../../lib/components/listbox/components/listbox-options/components';
+import { Text } from '../../../../../../lib/components';
+import type { CheckboxProps } from '../../../../../../lib/components/checkbox';
+import { Listbox } from '../../../../../../lib/components/listbox';
+import type { ListboxOptionProps } from '../../../../../../lib/components/listbox/components/listbox-options/components';
 
 export type CheckboxOptionProps<T> = ListboxOptionProps<T> & Pick<CheckboxProps, 'checked'>;
 

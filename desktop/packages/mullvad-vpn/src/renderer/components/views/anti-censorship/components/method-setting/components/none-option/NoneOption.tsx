@@ -4,8 +4,8 @@ import { SettingsListbox } from '../../../../../../settings-listbox';
 
 export function NoneOption() {
   return (
-    <SettingsListbox.BaseOption value={ObfuscationType.off}>
+    <SettingsListbox.Options.BaseOption value={ObfuscationType.off}>
       {messages.gettext('None')}
-    </SettingsListbox.BaseOption>
+    </SettingsListbox.Options.BaseOption>
   );
 }
