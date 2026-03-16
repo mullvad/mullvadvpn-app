@@ -194,7 +194,7 @@ impl WireguardRelay {
         }
     }
 
-    /// If self is a Wireguard relay, we sometimes want to peek on its extra data.
+    /// Peek this WireGuard relay's extra data.
     pub fn endpoint(&self) -> &WireguardRelayEndpointData {
         &self.endpoint_data
     }
@@ -207,6 +207,11 @@ impl WireguardRelay {
     pub fn override_ipv6(&mut self, new_ipv6: Ipv6Addr) {
         self.inner.ipv6_addr_in = Some(new_ipv6);
         self.overridden_ipv6 = true;
+    }
+
+    /// Return if this relay has DAITA.
+    pub fn daita(&self) -> bool {
+        self.endpoint().daita
     }
 }
 
