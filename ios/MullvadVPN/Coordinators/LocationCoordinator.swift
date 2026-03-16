@@ -76,13 +76,13 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
                 showAddCustomListView: { [weak self] locations in
                     self?.showAddCustomList(nodes: locations)
                 },
-                didSelectExitRelayLocations: { [weak self] relays in
+                didSelectExitRelayLocations: { [weak self] constraint in
                     guard let self else { return }
-                    self.didSelectExitRelays(relays)
+                    self.didSelectExitRelays(constraint)
                     self.didFinish?(self)
                 },
-                didSelectEntryRelayLocations: { [weak self] relays in
-                    self?.didSelectEntryRelays(relays)
+                didSelectEntryRelayLocations: { [weak self] constraint in
+                    self?.didSelectEntryRelays(constraint)
                 },
                 didFinish: { [weak self] in
                     guard let self else { return }
@@ -189,9 +189,9 @@ extension LocationCoordinator {
         presentChild(relayFilterCoordinator, animated: true)
     }
 
-    func didSelectEntryRelays(_ relays: UserSelectedRelays) {
+    func didSelectEntryRelays(_ constraint: RelayConstraint<UserSelectedRelays>) {
         var relayConstraints = tunnelManager.settings.relayConstraints
-        relayConstraints.entryLocations = .only(relays)
+        relayConstraints.entryLocations = constraint
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
             self.tunnelManager.startTunnel()
@@ -206,9 +206,9 @@ extension LocationCoordinator {
         applicationRouter?.present(.vpnSettings(.obfuscation))
     }
 
-    func didSelectExitRelays(_ relays: UserSelectedRelays) {
+    func didSelectExitRelays(_ constraint: RelayConstraint<UserSelectedRelays>) {
         var relayConstraints = tunnelManager.settings.relayConstraints
-        relayConstraints.exitLocations = .only(relays)
+        relayConstraints.exitLocations = constraint
 
         tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) {
             self.tunnelManager.startTunnel()

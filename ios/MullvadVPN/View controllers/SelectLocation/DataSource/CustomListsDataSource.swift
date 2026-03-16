@@ -41,10 +41,12 @@ class CustomListsDataSource: SearchableLocationDataSource {
         }
     }
 
-    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
+    func node(by selectedConstraint: RelayConstraint<UserSelectedRelays>) -> LocationNode? {
+        let selectedRelays = selectedConstraint.value
         let rootNode = RootLocationNode(children: nodes)
+
         guard
-            let selection = selectedRelays.customListSelection,
+            let selection = selectedRelays?.customListSelection,
             let selectedNode = rootNode.children.first(where: {
                 $0.asCustomListNode?.customList.id == selection.listId
             })
@@ -54,7 +56,7 @@ class CustomListsDataSource: SearchableLocationDataSource {
             return selectedNode
         }
 
-        if let location = selectedRelays.locations.first {
+        if let location = selectedRelays?.locations.first {
             return descendantNode(
                 in: rootNode,
                 for: location,

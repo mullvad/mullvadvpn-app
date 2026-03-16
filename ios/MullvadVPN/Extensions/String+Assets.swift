@@ -15,7 +15,7 @@ extension String {
                 String(
                     format:
                         NSLocalizedString(
-                            "%@ %@ requires restarting the VPN connection, which will disconnect "
+                            "%@ “%@” requires restarting the VPN connection, which will disconnect "
                                 + "you and briefly expose your traffic. To prevent this, manually enable "
                                 + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
                     action.capitalized,
