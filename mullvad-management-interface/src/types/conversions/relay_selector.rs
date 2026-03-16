@@ -6,11 +6,11 @@ use mullvad_types::{
     },
 };
 
-use crate::types::relay_selector as proto;
 use crate::types::{
     FromProtobufTypeError, IpVersion, invalid_argument,
-    relay_constraints::{providers_from_proto, try_ownership_constraint_from_i32},
+    relay_constraints::try_ownership_constraint_from_i32,
 };
+use crate::types::{relay_constraints::providers_constraint_from_proto, relay_selector as proto};
 
 impl TryFrom<proto::Predicate> for Predicate {
     type Error = FromProtobufTypeError;
@@ -113,7 +113,7 @@ impl TryFrom<proto::ExitConstraints> for ExitConstraints {
             .map(mullvad_types::relay_constraints::LocationConstraint::try_from)
             .transpose()?
             .into();
-        let providers = providers_from_proto(providers);
+        let providers = providers_constraint_from_proto(&providers);
         let ownership = try_ownership_constraint_from_i32(ownership)?;
 
         Ok(ExitConstraints {

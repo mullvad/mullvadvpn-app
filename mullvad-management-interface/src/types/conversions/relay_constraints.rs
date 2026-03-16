@@ -492,22 +492,18 @@ impl TryFrom<proto::RelayOverride> for mullvad_types::relay_constraints::RelayOv
     }
 }
 
-pub fn providers_from_proto(
-    providers: Vec<proto::relay_selector::Provider>,
-) -> Constraint<mullvad_types::relay_constraints::Providers> {
-    let providers: Vec<_> = providers
-        .into_iter()
-        .map(|provider| provider.name)
-        .collect();
-    providers_constraint_from_proto(&providers)
+impl From<proto::relay_selector::Provider> for mullvad_types::relay_constraints::Provider {
+    fn from(provider: proto::relay_selector::Provider) -> Self {
+        provider.name
+    }
 }
 
 pub fn providers_constraint_from_proto(
-    providers: &[String],
+    providers: &[impl Into<String> + Clone],
 ) -> Constraint<mullvad_types::relay_constraints::Providers> {
     if !providers.is_empty() {
         Constraint::Only(
-            mullvad_types::relay_constraints::Providers::new(providers)
+            mullvad_types::relay_constraints::Providers::new(providers.iter().cloned())
                 .expect("Providers has been checked to not be empty"),
         )
     } else {
