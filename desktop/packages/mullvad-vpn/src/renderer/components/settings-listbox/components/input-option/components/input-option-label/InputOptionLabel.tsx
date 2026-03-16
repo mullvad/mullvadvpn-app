@@ -7,5 +7,7 @@ export type InputOptionLabelProps = {
 
 export function InputOptionLabel({ children }: InputOptionLabelProps) {
   const { labelId } = useInputOptionContext();
-  return <Listbox.Option.Label id={labelId}>{children}</Listbox.Option.Label>;
+  return (
+    <Listbox.Options.Option.Item.Label id={labelId}>{children}</Listbox.Options.Option.Item.Label>
+  );
 }

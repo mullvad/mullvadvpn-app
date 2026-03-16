@@ -1,12 +1,6 @@
 import React from 'react';
 
-import {
-  ListboxFooter,
-  ListboxFooterText,
-  ListboxHeader,
-  ListboxOption,
-  ListboxOptions,
-} from './components';
+import { ListboxFooter, ListboxFooterText, ListboxHeader, ListboxOptions } from './components';
 import { ListboxProvider } from './ListboxContext';
 
 export type ListboxProps<T> = React.PropsWithChildren<{
@@ -31,7 +25,6 @@ const ListboxNamespace = Object.assign(Listbox, {
   Header: ListboxHeader,
   Footer: ListboxFooter,
   FooterText: ListboxFooterText,
-  Option: ListboxOption,
   Options: ListboxOptions,
 });
 
