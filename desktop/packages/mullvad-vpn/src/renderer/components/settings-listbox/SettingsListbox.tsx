@@ -2,13 +2,7 @@ import React from 'react';
 
 import { ScrollToAnchorId } from '../../../shared/ipc-types';
 import { Listbox, ListboxProps } from '../../lib/components/listbox';
-import {
-  BaseOption,
-  CheckboxOption,
-  InputOption,
-  SettingsListboxHeader,
-  SplitOption,
-} from './components';
+import { SettingsListboxHeader, SettingsListboxOptions } from './components';
 import { SettingsListboxProvider } from './SettingsListboxContext';
 
 export type SettingsListboxProps<T> = Omit<ListboxProps<T>, 'animation'> & {
@@ -30,11 +24,7 @@ function SettingsListbox<T>({ anchorId, children, ...props }: SettingsListboxPro
 const SettingsListboxNamespace = Object.assign(SettingsListbox, {
   Header: SettingsListboxHeader,
   Footer: Listbox.Footer,
-  Options: Listbox.Options,
-  BaseOption: BaseOption,
-  InputOption: InputOption,
-  SplitOption: SplitOption,
-  CheckboxOption: CheckboxOption,
+  Options: SettingsListboxOptions,
 });
 
 export { SettingsListboxNamespace as SettingsListbox };

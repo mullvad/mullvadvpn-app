@@ -119,33 +119,33 @@ export function PortSetting() {
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={null}>
+        <SettingsListbox.Options.BaseOption value={null}>
           {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
+        </SettingsListbox.Options.BaseOption>
         {wireguardPortItems.map((item) => (
-          <SettingsListbox.BaseOption key={item.value} value={item.value}>
+          <SettingsListbox.Options.BaseOption key={item.value} value={item.value}>
             {item.label}
-          </SettingsListbox.BaseOption>
+          </SettingsListbox.Options.BaseOption>
         ))}
-        <SettingsListbox.InputOption
+        <SettingsListbox.Options.InputOption
           defaultValue={
             selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
           }
           value="custom"
           validate={validateStringValue}
           format={removeNonNumericCharacters}>
-          <SettingsListbox.InputOption.Label>
+          <SettingsListbox.Options.InputOption.Label>
             {messages.gettext('Custom')}
-          </SettingsListbox.InputOption.Label>
+          </SettingsListbox.Options.InputOption.Label>
           <SettingsListbox.Header.Item.ActionGroup>
-            <SettingsListbox.InputOption.Input
+            <SettingsListbox.Options.InputOption.Input
               placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
               maxLength={5}
               type="text"
               inputMode="numeric"
             />
           </SettingsListbox.Header.Item.ActionGroup>
-        </SettingsListbox.InputOption>
+        </SettingsListbox.Options.InputOption>
       </SettingsListbox.Options>
     </SettingsListbox>
   );

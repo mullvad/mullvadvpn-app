@@ -4,8 +4,8 @@ import { SettingsListbox } from '../../../../../../settings-listbox';
 
 export function AutomaticOption() {
   return (
-    <SettingsListbox.BaseOption value={ObfuscationType.auto}>
+    <SettingsListbox.Options.BaseOption value={ObfuscationType.auto}>
       {messages.gettext('Automatic')}
-    </SettingsListbox.BaseOption>
+    </SettingsListbox.Options.BaseOption>
   );
 }
