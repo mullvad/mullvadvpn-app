@@ -11,7 +11,7 @@ export type SettingsAccordionHeaderProps = AccordionHeaderProps;
 
 export const StyledSettingsAccordionHeader = styled(AccordionHeader)``;
 
-export function SettingsAccordionHeader({ children, ...props }: SettingsAccordionHeaderProps) {
+function SettingsAccordionHeader({ children, ...props }: SettingsAccordionHeaderProps) {
   const { anchorId } = useSettingsAccordionContext();
   const { ref, animation } = useScrollToListItem(anchorId);
   return (
@@ -20,3 +20,10 @@ export function SettingsAccordionHeader({ children, ...props }: SettingsAccordio
     </StyledSettingsAccordionHeader>
   );
 }
+
+const SettingsAccordionHeaderNamespace = Object.assign(SettingsAccordionHeader, {
+  Item: AccordionHeader.Item,
+  Trigger: AccordionHeader.Trigger,
+});
+
+export { SettingsAccordionHeaderNamespace as SettingsAccordionHeader };

@@ -198,7 +198,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
       {...props}>
       <SettingsAccordion.Container>
         <SettingsAccordion.Header position={position}>
-          <SettingsAccordion.HeaderItem>
+          <SettingsAccordion.Header.Item>
             <Switch
               checked={dns.state === 'custom' || inputVisible}
               onCheckedChange={setCustomDnsEnabled}
@@ -207,11 +207,11 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
               <Switch.Label>
                 {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
               </Switch.Label>
-              <SettingsAccordion.HeaderActionGroup>
+              <SettingsAccordion.Header.Item.ActionGroup>
                 <Switch.Input ref={switchRef} />
-              </SettingsAccordion.HeaderActionGroup>
+              </SettingsAccordion.Header.Item.ActionGroup>
             </Switch>
-          </SettingsAccordion.HeaderItem>
+          </SettingsAccordion.Header.Item>
         </SettingsAccordion.Header>
 
         <SettingsAccordion.Content>
