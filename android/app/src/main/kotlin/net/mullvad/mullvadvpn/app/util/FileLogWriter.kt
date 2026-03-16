@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.app.util
 
 import co.touchlab.kermit.LogWriter
-import co.touchlab.kermit.Logger
 import co.touchlab.kermit.Severity
 import java.io.BufferedWriter
 import java.io.IOException
@@ -67,7 +66,7 @@ class FileLogWriter(
                 throwable?.let { log.writer.appendLine(it.stackTraceToString()) }
                 log.writer.flush()
             } catch (e: IOException) {
-                Logger.e("Error writing to log file", e)
+                android.util.Log.e("mullvad", "Error writing to log file", e)
             }
         }
     }
