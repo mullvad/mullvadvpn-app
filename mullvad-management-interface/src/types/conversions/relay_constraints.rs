@@ -46,7 +46,7 @@ impl TryFrom<&proto::WireguardConstraints>
                     mullvad_types::relay_constraints::LocationConstraint::try_from(loc).ok()
                 })
                 .into(),
-            entry_providers: try_providers_constraint_from_proto(&constraints.entry_providers)?,
+            entry_providers: providers_constraint_from_proto(&constraints.entry_providers),
             entry_ownership: try_ownership_constraint_from_i32(constraints.entry_ownership)?,
         })
     }
@@ -89,7 +89,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                         mullvad_types::relay_constraints::LocationConstraint::try_from(loc).ok()
                     })
                     .into();
-                let providers = try_providers_constraint_from_proto(&settings.providers)?;
+                let providers = providers_constraint_from_proto(&settings.providers);
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
 
                 let mut wireguard_constraints =
@@ -492,28 +492,26 @@ impl TryFrom<proto::RelayOverride> for mullvad_types::relay_constraints::RelayOv
     }
 }
 
-// TODO: Rename
-pub fn try_providers_from_proto(
+pub fn providers_from_proto(
     providers: Vec<proto::relay_selector::Provider>,
-) -> Result<Constraint<mullvad_types::relay_constraints::Providers>, FromProtobufTypeError> {
+) -> Constraint<mullvad_types::relay_constraints::Providers> {
     let providers: Vec<_> = providers
         .into_iter()
         .map(|provider| provider.name)
         .collect();
-    try_providers_constraint_from_proto(&providers)
+    providers_constraint_from_proto(&providers)
 }
 
-pub fn try_providers_constraint_from_proto(
+pub fn providers_constraint_from_proto(
     providers: &[String],
-) -> Result<Constraint<mullvad_types::relay_constraints::Providers>, FromProtobufTypeError> {
+) -> Constraint<mullvad_types::relay_constraints::Providers> {
     if !providers.is_empty() {
-        Ok(Constraint::Only(
-            mullvad_types::relay_constraints::Providers::new(providers.iter().cloned()).map_err(
-                |_| FromProtobufTypeError::InvalidArgument("must specify at least one provider"),
-            )?,
-        ))
+        Constraint::Only(
+            mullvad_types::relay_constraints::Providers::new(providers)
+                .expect("Providers has been checked to not be empty"),
+        )
     } else {
-        Ok(Constraint::Any)
+        Constraint::Any
     }
 }
 
