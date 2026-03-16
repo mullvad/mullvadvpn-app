@@ -37,7 +37,7 @@ const SettingsListboxNamespace = Object.assign(SettingsListbox, {
   Footer: Listbox.Footer,
   FooterText: Listbox.FooterText,
   Icon: Listbox.Header.Item.Icon,
-  Option: Listbox.Option,
+  Option: Listbox.Options.Option,
   Options: Listbox.Options,
   BaseOption: BaseOption,
   InputOption: InputOption,

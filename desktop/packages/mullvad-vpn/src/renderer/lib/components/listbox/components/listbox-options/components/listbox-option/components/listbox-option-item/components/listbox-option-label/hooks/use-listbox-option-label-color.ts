@@ -1,6 +1,6 @@
-import { Colors } from '../../../../../../../foundations';
-import { useListItemContext } from '../../../../../../list-item/ListItemContext';
-import { useListboxOptionContext } from '../../../ListboxOptionContext';
+import { Colors } from '../../../../../../../../../../../foundations';
+import { useListItemContext } from '../../../../../../../../../../list-item/ListItemContext';
+import { useListboxOptionContext } from '../../../../../ListboxOptionContext';
 
 const colors: Record<string, Colors> = {
   default: 'white',

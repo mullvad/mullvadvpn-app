@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { useListboxContext } from '../../ListboxContext';
-import { ListboxOptionProps } from './ListboxOption';
+import { useListboxContext } from '../../../../ListboxContext';
+import type { ListboxOptionProps } from './ListboxOption';
 
 type ListboxOptionContext<T> = ListboxOptionProviderProps<T> & {
   selected: boolean;
