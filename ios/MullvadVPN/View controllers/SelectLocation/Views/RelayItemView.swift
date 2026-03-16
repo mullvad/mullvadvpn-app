@@ -56,9 +56,10 @@ struct RelayItemView: View {
                 }
                 Spacer()
             }
-            .padding(.vertical, subtitle != nil ? 8 : 16)
+            .padding(.vertical, 8)
             .padding(.leading, CGFloat(16 * (level + 1)))
             .padding(.trailing, 16)
+            .frame(minHeight: UIMetrics.LocationList.cellMinHeight)
             .background {
                 Color.colorForLevel(level)
             }
@@ -67,14 +68,13 @@ struct RelayItemView: View {
         .clipShape(
             UnevenRoundedRectangle(
                 cornerRadii: .init(
-                    topLeading: level == 0 ? 16 : 0,
-                    bottomLeading: isLastInList ? 16 : 0,
-                    bottomTrailing: isLastInList ? 16 : 0,
-                    topTrailing: level == 0 ? 16 : 0
+                    topLeading: level == 0 ? UIMetrics.LocationList.cellCornerRadius : 0,
+                    bottomLeading: isLastInList ? UIMetrics.LocationList.cellCornerRadius : 0,
+                    bottomTrailing: isLastInList ? UIMetrics.LocationList.cellCornerRadius : 0,
+                    topTrailing: level == 0 ? UIMetrics.LocationList.cellCornerRadius : 0
                 )
             )
         )
-
     }
 
     @ViewBuilder

@@ -47,4 +47,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
         }
     }
     .background(Color.mullvadBackground)
+    .onAppear {
+        viewModel.exitContext.customLists.insert(AutomaticLocationNode(), at: 0)
+    }
 }

@@ -275,3 +275,9 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
         )
     }
 }
+
+class AutomaticLocationNode: LocationNode, @unchecked Sendable {
+    init(name: String = NSLocalizedString("Automatic", comment: ""), code: String = "automatic") {
+        super.init(name: name, code: code)
+    }
+}

@@ -330,10 +330,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             exitContext.availableRelayCount = relaysCandidates.exitRelays.count
 
             if let entryRelays = relaysCandidates.entryRelays {
-                entryLocationsDataSource
-                    .reload(entryRelays.toLocationRelays())
-                entryContext.locations =
-                    entryLocationsDataSource.nodes
+                entryLocationsDataSource.reload(entryRelays.toLocationRelays())
+
+                var nodes = entryLocationsDataSource.nodes
+                if tunnelManager.settings.tunnelMultihopState.isUserSelected {
+                    nodes.insert(AutomaticLocationNode(), at: 0)
+                }
+
+                entryContext.locations = nodes
                 entryContext.availableRelayCount = entryRelays.count
             }
         } else {
@@ -343,8 +347,16 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateConnectedLocations(_ status: TunnelStatus) {
-        entryCustomListsDataSource.setConnectedRelay(hostname: status.state.relays?.entry?.hostname)
-        entryLocationsDataSource.setConnectedRelay(hostname: status.state.relays?.entry?.hostname)
+        let relayConstraints = tunnelManager.settings.relayConstraints
+        let entryHostName =
+            if relayConstraints.entryLocations == .any {
+                "Automatic"
+            } else {
+                status.state.relays?.entry?.hostname
+            }
+
+        entryCustomListsDataSource.setConnectedRelay(hostname: entryHostName)
+        entryLocationsDataSource.setConnectedRelay(hostname: entryHostName)
 
         exitCustomListsDataSource.setConnectedRelay(hostname: status.state.relays?.exit.hostname)
         exitLocationsDataSource.setConnectedRelay(hostname: status.state.relays?.exit.hostname)

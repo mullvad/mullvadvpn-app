@@ -25,18 +25,28 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     var body: some View {
         Group {
             if location.children.isEmpty {
-                RelayItemView(
-                    location: location,
-                    multihopContext: multihopContext,
-                    level: level,
-                    subtitle: subtitle,
-                    isLastInList: isLastInList,
-                    onSelect: { onSelect(location) }
-                )
-                .accessibilityIdentifier(.locationListItem(location.name))
-                .contextMenu {
-                    contextMenu(location)
+                Group {
+                    if location is AutomaticLocationNode {
+                        AutomaticRelayItemView(
+                            location: location,
+                            onSelectLocation: onSelect,
+                            onSelectInfo: {}
+                        )
+                    } else {
+                        RelayItemView(
+                            location: location,
+                            multihopContext: multihopContext,
+                            level: level,
+                            subtitle: subtitle,
+                            isLastInList: isLastInList,
+                            onSelect: { onSelect(location) }
+                        )
+                        .contextMenu {
+                            contextMenu(location)
+                        }
+                    }
                 }
+                .accessibilityIdentifier(.locationListItem(location.name))
                 .padding(.top, level == 0 ? 4 : 1)
             } else {
                 LocationDisclosureGroup(
@@ -65,33 +75,43 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                         }
                     }
                 } label: {
-                    HStack {
-                        Group {
-                            if !location.isActive {
-                                Image.mullvadRedDot
-                            } else if location.isSelected {
-                                Image.mullvadIconTick
-                                    .foregroundStyle(Color.mullvadSuccessColor)
-                            }
+//                    HStack {
+//                        Group {
+//                            if !location.isActive {
+//                                Image.mullvadRedDot
+//                            } else if location.isSelected {
+//                                Image.mullvadIconTick
+//                                    .foregroundStyle(Color.mullvadSuccessColor)
+//                            }
+//                        }
+//                        .frame(width: 24, height: 24)
+//                        Text(location.name)
+//                            .foregroundStyle(
+//                                location.isActive && !location.isExcluded
+//                                    ? location.isSelected
+//                                        ? Color.mullvadSuccessColor
+//                                        : Color.mullvadTextPrimary
+//                                    : Color.mullvadTextPrimaryDisabled
+//                            )
+//                            .font(.mullvadSmallSemiBold)
+//                            .multilineTextAlignment(.leading)
+//                    }
+                    RelayItemView(
+                        location: location,
+                        multihopContext: multihopContext,
+                        level: level,
+                        subtitle: nil,
+                        onSelect: {
+                            print("press")
+                            onSelect(location)
                         }
-                        .frame(width: 24, height: 24)
-                        Text(location.name)
-                            .foregroundStyle(
-                                location.isActive && !location.isExcluded
-                                    ? location.isSelected
-                                        ? Color.mullvadSuccessColor
-                                        : Color.mullvadTextPrimary
-                                    : Color.mullvadTextPrimaryDisabled
-                            )
-                            .font(.mullvadSmallSemiBold)
-                            .multilineTextAlignment(.leading)
-                    }
-                    .padding(.leading, CGFloat(16 * (level + 1)))
-                    .padding(.trailing, 8)
-                    .padding(.vertical, 16)
-                } onSelect: {
-                    onSelect(location)
+                    )
+//                    .padding(.leading, CGFloat(16 * (level + 1)))
+//                    .padding(.trailing, 8)
                 }
+//                onSelect: {
+//                    onSelect(location)
+//                }
             }
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations

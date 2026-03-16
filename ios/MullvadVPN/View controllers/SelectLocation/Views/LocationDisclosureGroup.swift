@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: View {
     @Binding private var isExpanded: Bool
+    @State var disclosureButtonHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
 
     let level: Int
     let isLastInList: Bool
@@ -14,10 +15,10 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
     let accessibilityName: String
 
     private var topRadius: CGFloat {
-        level == 0 ? 16 : 0
+        level == 0 ? UIMetrics.LocationList.cellCornerRadius : 0
     }
     private var bottomRadius: CGFloat {
-        isLastInList && !isExpanded ? 16 : 0
+        isLastInList && !isExpanded ? UIMetrics.LocationList.cellCornerRadius : 0
     }
 
     private let expandAnimation: Animation = .default.speed(3)
@@ -49,19 +50,25 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
 
     var body: some View {
         HStack(spacing: 2) {
-            Button {
-                onSelect?()
-            } label: {
-                HStack {
-                    label()
-                    Spacer()
-                }
-                .frame(maxHeight: .infinity)
-                .background {
-                    Color.colorForLevel(level)
-                }
-            }
-            .disabled(!isActive)
+//            Button {
+//                onSelect?()
+//            } label: {
+//                HStack {
+//                    label()
+//                    Spacer()
+//                }
+//                .frame(minHeight: UIMetrics.LocationList.cellMinHeight)
+//                .background {
+//                    Color.colorForLevel(level)
+//                }
+//            }
+//            .sizeOfView {
+//                disclosureButtonHeight = $0.height
+//            }
+//            .disabled(!isActive)
+
+            label()
+
             Button {
                 withAnimation(.default.speed(3)) {
                     isExpanded.toggle()
@@ -69,8 +76,7 @@ struct LocationDisclosureGroup<Label: View, Content: View, ContextMenu: View>: V
             } label: {
                 Image.mullvadIconChevron
                     .rotationEffect(.degrees(isExpanded ? -90 : 90))
-                    .padding(16)
-                    .frame(maxHeight: .infinity)
+                    .frame(width: disclosureButtonHeight, height: disclosureButtonHeight)
                     .background {
                         Color.colorForLevel(level)
                     }
