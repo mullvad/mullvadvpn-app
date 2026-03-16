@@ -211,7 +211,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             viewModel.manuallyFetchRelayList()
                         } label: {
                             HStack {
-                                Text("Update relay list")
+                                Text("Update server list")
                                 Image(systemName: "arrow.clockwise")
                             }
                         }

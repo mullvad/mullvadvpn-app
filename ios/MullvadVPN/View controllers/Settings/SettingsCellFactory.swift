@@ -130,6 +130,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString("Notifications", comment: "")
             cell.detailTitleLabel.text = nil
+            cell.disclosureType = .chevron
 
         case .includeAllNetworks:
             guard let cell = cell as? SettingsCell else { return }
