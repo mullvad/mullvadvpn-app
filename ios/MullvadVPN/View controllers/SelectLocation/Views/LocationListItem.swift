@@ -2,6 +2,9 @@ import MullvadTypes
 import SwiftUI
 
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
+    @State private var alert: MullvadAlert?
+    private let itemFactory = ListItemFactory()
+
     @Binding var location: LocationNode
     var isLastInList: Bool = true
     let multihopContext: MultihopContext
@@ -15,87 +18,106 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             .map { $0.offset }
     }
 
-    var subtitle: LocalizedStringKey? {
-        if location.isConnected && !location.isSelected {
-            return "Connected server"
-        }
-        return nil
-    }
-
     var body: some View {
-        Group {
-            if location.children.isEmpty {
-                RelayItemView(
-                    location: location,
-                    multihopContext: multihopContext,
-                    level: level,
-                    subtitle: subtitle,
-                    isLastInList: isLastInList,
-                    onSelect: { onSelect(location) }
-                )
-                .accessibilityIdentifier(.locationListItem(location.name))
-                .contextMenu {
-                    contextMenu(location)
-                }
-                .padding(.top, level == 0 ? 4 : 1)
-            } else {
-                LocationDisclosureGroup(
-                    level: level,
-                    isLastInList: isLastInList,
-                    isActive: location.isActive && !location.isExcluded,
-                    isExpanded: $location.showsChildren,
-                    contextMenu: { contextMenu(location) },
-                    accessibilityIdentifier: .locationListItem(location.name),
-                    accessibilityName: location.name
-                ) {
-                    if location.showsChildren {
-                        ForEach(
-                            Array(filteredChildrenIndices.enumerated()),
-                            id: \.element
-                        ) { index, indexInChildrenList in
-                            let location = $location.children[indexInChildrenList]
-                            LocationListItem(
-                                location: location,
-                                isLastInList: isLastInList && index == (filteredChildrenIndices.count - 1),
-                                multihopContext: multihopContext,
-                                onSelect: onSelect,
-                                contextMenu: { location in contextMenu(location) },
-                                level: level + 1,
-                            )
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Group {
-                            if !location.isActive {
-                                Image.mullvadIconStateOffline
-                            } else if location.isSelected {
-                                Image.mullvadIconTick
-                                    .foregroundStyle(Color.mullvadSuccessColor)
+        let isAutomaticLocation = location is AutomaticLocationNode
+        let childrenIndices = filteredChildrenIndices
+        let hasChildren = !childrenIndices.isEmpty
+        let isExpanded = location.showsChildren
+        let isDisabled = !location.isActive || location.isExcluded
+
+        SegmentedListItem(
+            level: level,
+            isLastInList: isLastInList,
+            isDisabled: isDisabled,
+            accessibilityIdentifier: .locationListItem(location.name),
+            accessibilityLabel: location.name,
+            label: {
+                itemFactory.label(for: .location(node: location, context: multihopContext, level: level))
+            },
+            segment: {
+                if isAutomaticLocation {
+                    itemFactory.segment(
+                        for: .info(
+                            onSelect: {
+                                alert = getAutomaticLocationInfoAlert { alert = nil }
                             }
-                        }
-                        .frame(width: 24, height: 24)
-                        Text(location.name)
-                            .foregroundStyle(
-                                location.isActive && !location.isExcluded
-                                    ? location.isSelected
-                                        ? Color.mullvadSuccessColor
-                                        : Color.mullvadTextPrimary
-                                    : Color.mullvadTextPrimaryDisabled
-                            )
-                            .font(.mullvadSmallSemiBold)
-                            .multilineTextAlignment(.leading)
-                    }
-                    .padding(.leading, CGFloat(16 * (level + 1)))
-                    .padding(.trailing, 8)
-                    .padding(.vertical, 16)
-                } onSelect: {
-                    onSelect(location)
+                        )
+                    )
+                } else if hasChildren {
+                    itemFactory.segment(
+                        for: .expand(
+                            isExpanded: isExpanded,
+                            onSelect: {
+                                toggleChildren()
+                            }
+                        )
+                    )
                 }
-            }
+            },
+            groupedContent: {
+                if isExpanded {
+                    ForEach(
+                        Array(childrenIndices.enumerated()),
+                        id: \.element
+                    ) { index, indexInChildrenList in
+                        let location = $location.children[indexInChildrenList]
+                        LocationListItem(
+                            location: location,
+                            isLastInList: isLastInList && index == (childrenIndices.count - 1),
+                            multihopContext: multihopContext,
+                            onSelect: onSelect,
+                            contextMenu: { location in contextMenu(location) },
+                            level: level + 1,
+                        )
+                    }
+                }
+            },
+            onSelect: { onSelect(location) }
+        )
+        .if(hasChildren) { view in
+            view
+                .accessibilityValue(isExpanded ? Text("Expanded") : Text("Collapsed"))
+                .accessibilityAction(
+                    named: isExpanded ? Text("Collapse \(location.name)") : Text("Expand \(location.name)")
+                ) {
+                    toggleChildren()
+                }
+        }
+        .contextMenu {
+            isAutomaticLocation ? nil : contextMenu(location)
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.id)  // to be able to scroll to this item programmatically
+        .mullvadAlert(item: $alert)
+    }
+
+    func toggleChildren() {
+        withAnimation(.default.speed(3)) {
+            location.showsChildren.toggle()
+        }
+    }
+
+    func getAutomaticLocationInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
+        let message = [
+            (NSLocalizedString(
+                "Picks a suitable location based on your exit location, this is based on a number "
+                    + "of different factors such as distance, provider, and server load.", comment: "")),
+            (NSLocalizedString(
+                "Attention: This will ignore filter settings for the server that is being "
+                    + "used as an entry point", comment: "")),
+        ].joinedParagraphs()
+
+        return MullvadAlert(
+            type: .info,
+            messages: [LocalizedStringKey(message)],
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Got it!",
+                    handler: completion
+                )
+            ]
+        )
     }
 }
 

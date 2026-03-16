@@ -15,7 +15,7 @@ protocol SearchableLocationDataSource: LocationDataSourceProtocol {}
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
     var selectedNode: LocationNode? { get }
-    func node(by selectedRelays: UserSelectedRelays) -> LocationNode?
+    func node(by selectedConstraint: RelayConstraint<UserSelectedRelays>) -> LocationNode?
 }
 extension LocationDataSourceProtocol {
     var selectedNode: LocationNode? {
@@ -114,9 +114,31 @@ extension SearchableLocationDataSource {
 }
 
 extension LocationDataSourceProtocol {
-    func setConnectedRelay(hostname: String?) {
+    func setConnectedRelay(
+        relayConstraint: RelayConstraint<UserSelectedRelays>,
+        selectedRelay: SelectedRelay?
+    ) {
+        guard let selectedRelay else {
+            return
+        }
+
+        let hostname =
+            if relayConstraint == .any {
+                NSLocalizedString("Automatic", comment: "")
+            } else {
+                selectedRelay.hostname
+            }
+
         nodes.forEachNode { node in
-            node.isConnected = node.name == hostname
+            node.isConnected = false
+
+            if node.name == hostname {
+                node.isConnected = true
+
+                if let node = node.asAutomaticLocationNode {
+                    node.locationInfo = [selectedRelay.location.country, selectedRelay.location.city]
+                }
+            }
         }
     }
 
@@ -124,18 +146,21 @@ extension LocationDataSourceProtocol {
     /// This is used in multihop to make sure that the during relay selection entry and exit can different.
     /// It prevent the user from making a selection that would lead to the blocked state.
     /// - Parameters:
-    ///   - excludedSelection: The selection that should be checked for exclusion.
-    func setExcludedNode(excludedSelection: UserSelectedRelays?) {
-        nodes.forEachNode { node in
-            node.isExcluded = false
+    ///   - constraint: The selection that should be checked for exclusion.
+    func setExcludedNode(constraint: RelayConstraint<UserSelectedRelays>) {
+        guard let selectedRelayLocations = constraint.value?.locations else {
+            return
         }
-        guard let selectedRelayLocations = excludedSelection?.locations,
-            selectedRelayLocations.count == 1,
+
+        guard selectedRelayLocations.count == 1,
             let selectedRelayLocation = selectedRelayLocations.first
         else {
             return
         }
+
         nodes.forEachNode { node in
+            node.isExcluded = false
+
             let locations = Set((node.flattened + [node]).flatMap { $0.locations })
             if locations
                 .contains(selectedRelayLocation) && node.activeRelayNodes.count == 1
@@ -148,12 +173,12 @@ extension LocationDataSourceProtocol {
         }
     }
 
-    func setSelectedNode(selectedRelays: UserSelectedRelays?) {
+    func setSelectedNode(constraint: RelayConstraint<UserSelectedRelays>) {
         nodes.forEachNode { node in
             node.isSelected = false
         }
-        guard let selectedRelays else { return }
-        let selectedNode = node(by: selectedRelays)
+
+        let selectedNode = node(by: constraint)
         selectedNode?.isSelected = true
     }
 

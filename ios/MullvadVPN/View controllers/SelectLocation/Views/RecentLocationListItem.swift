@@ -10,26 +10,63 @@ import MullvadTypes
 import SwiftUI
 
 struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
+    @State private var alert: MullvadAlert?
+    private let itemFactory = ListItemFactory()
+
     @Binding var location: LocationNode
-    let multihopContext: MultihopContext
-    let subtitle: LocalizedStringKey?
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
     var body: some View {
-        RelayItemView(
-            location: location,
-            multihopContext: multihopContext,
-            level: 0,
-            subtitle: subtitle,
-            isLastInList: true,
-            onSelect: { onSelect(location) }
+        let isAutomaticLocation = location is AutomaticLocationNode
+
+        SegmentedListItem(
+            accessibilityIdentifier: .recentListItem(location.name),
+            accessibilityLabel: location.name,
+            label: {
+                itemFactory.label(for: .recent(node: location, level: 0))
+            },
+            segment: {
+                if isAutomaticLocation {
+                    itemFactory.segment(
+                        for: .info(onSelect: {
+                            alert = getAutomaticLocationInfoAlert { alert = nil }
+                        })
+                    )
+                }
+            },
+            groupedContent: {},
+            onSelect: {
+                onSelect(location)
+            }
         )
-        .accessibilityIdentifier(.recentListItem(location.name))
         .contextMenu {
-            contextMenu(location)
+            isAutomaticLocation ? nil : contextMenu(location)
         }
-        .padding(.top, 4)
         .id(location.id)  // to be able to scroll to this item programmatically
+        .mullvadAlert(item: $alert)
+    }
+
+    func getAutomaticLocationInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
+        let message = [
+            (NSLocalizedString(
+                "Picks a suitable location based on your exit location, this is based on a number "
+                    + "of different factors such as distance, provider, and server load.", comment: "")),
+            (NSLocalizedString(
+                "Attention: This will ignore filter settings for the server that is being "
+                    + "used as an entry point", comment: "")),
+        ].joinedParagraphs()
+
+        return MullvadAlert(
+            type: .info,
+            messages: [LocalizedStringKey(message)],
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Got it!",
+                    handler: completion
+                )
+            ]
+        )
     }
 }
