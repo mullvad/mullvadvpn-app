@@ -353,7 +353,8 @@ extension RelayObfuscatorTests {
             shadowsocksExtraAddrIn: ["192.168.1.2"],  // IPv4 only for shadowsocks
             features: .init(
                 daita: nil,
-                quic: .init(addrIn: ["192.168.1.2", "2001:db8::2"], domain: "quic.test", token: "token")  // Has IPv6
+                quic: .init(addrIn: ["192.168.1.2", "2001:db8::2"], domain: "quic.test", token: "token"),  // Has IPv6
+                lwo: nil
             )
         )
 
@@ -372,7 +373,8 @@ extension RelayObfuscatorTests {
             shadowsocksExtraAddrIn: ["192.168.1.3", "2001:db8::3"],  // Has IPv6
             features: .init(
                 daita: nil,
-                quic: .init(addrIn: ["192.168.1.3", "2001:db8::3"], domain: "quic.test", token: "token")  // Has IPv6
+                quic: .init(addrIn: ["192.168.1.3", "2001:db8::3"], domain: "quic.test", token: "token"),  // Has IPv6
+                lwo: nil
             )
         )
 
@@ -391,7 +393,8 @@ extension RelayObfuscatorTests {
             shadowsocksExtraAddrIn: ["192.168.1.4"],  // IPv4 only
             features: .init(
                 daita: nil,
-                quic: .init(addrIn: ["192.168.1.4"], domain: "quic.test", token: "token")  // IPv4 only
+                quic: .init(addrIn: ["192.168.1.4"], domain: "quic.test", token: "token"),  // IPv4 only
+                lwo: nil
             )
         )
 
@@ -454,7 +457,7 @@ extension RelayObfuscatorTests {
         )
         settings.ipVersion = .ipv6
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -481,7 +484,7 @@ extension RelayObfuscatorTests {
         )
         settings.ipVersion = .ipv6
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -512,7 +515,7 @@ extension RelayObfuscatorTests {
         )
         settings.ipVersion = .ipv4
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -539,7 +542,7 @@ extension RelayObfuscatorTests {
         settings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
         settings.ipVersion = .ipv6
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -559,7 +562,7 @@ extension RelayObfuscatorTests {
         settings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
         settings.ipVersion = .ipv4
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -582,7 +585,7 @@ extension RelayObfuscatorTests {
         settings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
         settings.ipVersion = .automatic
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -617,7 +620,8 @@ extension RelayObfuscatorTests {
             shadowsocksExtraAddrIn: nil,
             features: .init(
                 daita: nil,
-                quic: .init(addrIn: ["192.168.1.1"], domain: "quic.test", token: "token")  // IPv4 only
+                quic: .init(addrIn: ["192.168.1.1"], domain: "quic.test", token: "token"),  // IPv4 only
+                lwo: nil
             )
         )
 
@@ -644,7 +648,7 @@ extension RelayObfuscatorTests {
         settings.wireGuardObfuscation = WireGuardObfuscationSettings(state: .quic)
         settings.ipVersion = .ipv6
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
@@ -670,7 +674,7 @@ extension RelayObfuscatorTests {
         )
         settings.ipVersion = .ipv6
 
-        let obfuscationResult = RelayObfuscator(
+        let obfuscationResult = try RelayObfuscator(
             relays: testData.response,
             tunnelSettings: settings,
             connectionAttemptCount: 0,
