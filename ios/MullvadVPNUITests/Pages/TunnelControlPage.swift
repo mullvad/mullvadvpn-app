@@ -235,6 +235,11 @@ class TunnelControlPage: Page {
         return self
     }
 
+    @discardableResult func verifyFeatureIndicatorVisible(feature: String) -> Self {
+        XCTAssertTrue(app.buttons[feature].existsAfterWait())
+        return self
+    }
+
     func getInIPAddressAndPortFromConnectionStatus() -> (String, Int) {
         let inAddressRow = app.staticTexts[.connectionPanelInAddressRow]
         // The combined row label looks like "In, 85.203.53.145:43030 UDP"
