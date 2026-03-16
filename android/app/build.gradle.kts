@@ -364,9 +364,11 @@ androidComponents {
 }
 
 tasks.register("printVersion") {
+    val versionCode = project.android.defaultConfig.versionCode
+    val versionName = project.android.defaultConfig.versionName
     doLast {
-        println("versionCode=${project.android.defaultConfig.versionCode}")
-        println("versionName=${project.android.defaultConfig.versionName}")
+        println("versionCode=$versionCode")
+        println("versionName=$versionName")
     }
 }
 
