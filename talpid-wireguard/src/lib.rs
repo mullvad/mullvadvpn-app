@@ -34,7 +34,7 @@ use tokio::sync::Mutex as AsyncMutex;
 #[cfg(not(feature = "wireguard-go"))]
 mod gotatun;
 
-#[cfg(feature = "wireguard-go")]
+#[cfg(all(feature = "wireguard-go", not(target_os = "android")))]
 mod wireguard_go;
 
 /// WireGuard config data-types
