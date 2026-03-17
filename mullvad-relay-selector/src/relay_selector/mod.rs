@@ -920,11 +920,38 @@ impl RelaySelector {
 
                 // Ugly hack for filters applying to both entry and exit, even if we're autohoping.
                 let apply_entry_guards = {
-                    let mut constraints = constraints.clone();
-                    constraints.general.location = Constraint::Any;
-                    self.entry_criteria(constraints)
+                    let constraints = constraints.clone();
+                    Criteria::new(move |relay| {
+                        let ownership = matcher::filter_on_ownership(
+                            constraints.general.ownership.as_ref(),
+                            relay,
+                        )
+                        .if_false(Reason::Ownership);
+
+                        let providers = matcher::filter_on_providers(
+                            constraints.general.providers.as_ref(),
+                            relay,
+                        )
+                        .if_false(Reason::Providers);
+
+                        let custom_lists: CustomListsSettings = self.custom_lists();
+                        let location = matcher::filter_on_location(
+                            matcher::ResolvedLocationConstraint::from_constraint(
+                                constraints.general.location.as_ref(),
+                                &custom_lists,
+                            )
+                            .as_ref(),
+                            relay,
+                        )
+                        .if_false(Reason::Location);
+                        let active = relay.active.if_false(Reason::Inactive);
+                        ownership
+                            .compose(providers)
+                            .compose(location)
+                            .compose(active)
+                    })
                 };
-                let criteria = Criteria::otherwise(Criteria::flatten(apply_entry_guards), occupied);
+                let criteria = Criteria::and(apply_entry_guards, occupied);
                 vec![criteria]
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
@@ -1202,37 +1229,17 @@ impl<'a, T> Criteria<'a, T> {
 }
 
 impl<'a> Criteria<'a, WireguardRelay> {
-    /// If the given criteria `f` evaulates to `Reject`, the second provided function `reason` is run to
-    /// potentially accept the relay on a different premise. `reason` gets access to the rejected relay,
-    /// which means that `reason` may derivce additional information for why this particular relay was
-    /// rejected.
-    ///
-    /// In the happy case this carries minimal additional runtime overhead compared to [`Criteria::new`],
-    /// but upon a rejection two functions will run instead of one. For more fine-grained control over this
-    /// behavior, prefer [`Criteria::new`].
-    fn otherwise(f: Self, g: Self) -> Self {
+    /// If the given criteria `f` evaluates to `Accept`, the second provided function `reason` is run to
+    /// potentially reject the relay on a different premise.
+    fn and(f: Self, g: Self) -> Self {
         Criteria::new(move |relay| match f.eval(relay) {
-            Verdict::Accept => Verdict::accept(),
-            Verdict::Reject(reasons) => reasons
-                .into_iter()
-                .map(Verdict::reject)
-                .fold(g.eval(relay), Verdict::compose),
+            Verdict::Accept => g.eval(relay),
+            Verdict::Reject(reasons) => Verdict::Reject(reasons),
         })
     }
-
     /// Evaluate a single [`Criteria`] for a single [`Relay`].
     fn eval(&self, relay: &WireguardRelay) -> Verdict {
         (self.f)(relay)
-    }
-
-    /// Flatten a nested structure of different criteria into one.
-    fn flatten(criterias: Vec<Self>) -> Self {
-        Criteria::new(move |relay| {
-            criterias
-                .iter()
-                .map(|criteria| criteria.eval(relay))
-                .fold(Verdict::Accept, Verdict::compose)
-        })
     }
 
     /// Evaluate all criterias for a given relay, resulting in a single final verdict.

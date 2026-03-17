@@ -1837,7 +1837,6 @@ mod partition_relays {
 
     /// TODO
     #[test]
-    #[ignore = "Revisist later"]
     fn no_entry_constraints_on_autohop_exit() {
         // Curate a relay list with exactly two relays; one with DAITA & one without.
         let mut relay_list = RelayListBuilder::new();
