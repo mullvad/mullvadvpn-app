@@ -28460,7 +28460,7 @@
         }
       }
     },
-    "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the FIXME symbol" : {
+    "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" : {
 
     },
     "Import" : {

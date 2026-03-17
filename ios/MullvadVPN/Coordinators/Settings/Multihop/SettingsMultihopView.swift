@@ -26,7 +26,8 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
             label: "When needed",
             accessibilityIdentifier: .multihopWhenNeeded,
             helpText: [
-                "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the FIXME symbol",
+                "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the \(Image("IconSmartLocation")) symbol",
+                "",
                 "Attention: This will ignore filter settings for the entry server that is being automatically selected.",
             ]),
         .init(
