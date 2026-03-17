@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.R
@@ -22,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSwitch
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 
 @Preview
 @Composable
@@ -51,7 +53,11 @@ fun SwitchListItem(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     MullvadListItem(
-        modifier = modifier,
+        modifier = modifier.applyIfNotNull(
+            onInfoClicked
+        ) {
+            focusProperties{ canFocus = false }
+        },
         hierarchy = hierarchy,
         position = position,
         isEnabled = isEnabled,
