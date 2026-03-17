@@ -1542,6 +1542,8 @@ mod partition_relays {
                 .providers(Providers::new(["31173"]).unwrap())
                 .ownership(Ownership::MullvadOwned),
         ];
+
+        // Test all combinations of entry and exit constraints.
         for (entry_general, exit_constraints) in exit_constraints
             .iter()
             .cartesian_product(exit_constraints.iter())
@@ -1557,6 +1559,7 @@ mod partition_relays {
                 Predicate::Entry(multihop_constraints.clone()),
                 Predicate::Exit(multihop_constraints),
             ] {
+                // Select the constraints that corresponds to the returned relays of `partition_relays` for the given
                 let expected_exit_constraints = match &scenario {
                     Predicate::Exit(MultihopConstraints { exit, .. }) => exit,
                     Predicate::Singlehop(entry)
