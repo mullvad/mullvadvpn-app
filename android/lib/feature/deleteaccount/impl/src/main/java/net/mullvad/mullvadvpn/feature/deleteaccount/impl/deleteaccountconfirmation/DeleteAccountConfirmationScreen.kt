@@ -174,6 +174,7 @@ private fun DeleteAccountConfirmationContent(
             modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
     ) {
         Text(
+            modifier = Modifier.fillMaxWidth(),
             text =
                 buildAnnotatedString {
                     append(annotatedStringResource(R.string.delete_account_warning))
@@ -191,7 +192,8 @@ private fun DeleteAccountConfirmationContent(
         DaysLostWarning(state.daysLeft)
         Spacer(modifier = Modifier.height(Dimens.largeSpacer))
         Text(
-            stringResource(R.string.delete_account_confirmation_enter_account_number),
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.delete_account_confirmation_enter_account_number),
             style = MaterialTheme.typography.bodyLarge,
         )
         Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
