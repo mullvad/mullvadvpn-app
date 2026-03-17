@@ -578,28 +578,44 @@ impl ProblemReport {
 }
 
 fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> Cow<'_, str> {
-    match home_dir {
-        Some(home) => {
-            let out = input.replace(home.to_string_lossy().as_ref(), "~");
+    #[cfg(target_os = "windows")]
+    {
+        static RE: LazyLock<Regex> = LazyLock::new(|| {
+            Regex::new(r"(?i)(?:[A-Z]:\\Users\\[^\\]+|\\Device\\[^\\]+\\Users\\[^\\]+)").unwrap()
+        });
 
-            // On Windows, redact the prefix of any path that contains \Users\{user}.
-            #[cfg(target_os = "windows")]
-            {
-                let mut home = home;
-                let prefix = home.components().next();
-                if let Some(prefix @ std::path::Component::Prefix(_)) = prefix.as_ref() {
-                    home = home.strip_prefix(prefix).unwrap().to_path_buf();
-                }
-                let expr = format!(r"[\w\\]+{}", regex::escape(&home.display().to_string()));
-                let regex = Regex::new(&expr).unwrap();
+        let mut out = RE.replace_all(input, "~").into_owned();
 
-                Cow::Owned(regex.replace_all(&out, "~").to_string())
+        if let Some(home) = home_dir {
+            out = out.replace(home.to_string_lossy().as_ref(), "~");
+
+            // Also redact equivalent paths that use a device prefix instead of a drive letter.
+            let mut home = home;
+            let prefix = home.components().next();
+            if let Some(prefix @ std::path::Component::Prefix(_)) = prefix.as_ref() {
+                home = home.strip_prefix(prefix).unwrap().to_path_buf();
             }
+            let expr = format!(r"[\w\\]+{}", regex::escape(&home.display().to_string()));
+            let regex = Regex::new(&expr).unwrap();
 
-            #[cfg(not(target_os = "windows"))]
-            Cow::from(out)
+            out = regex.replace_all(&out, "~").to_string();
         }
-        None => Cow::from(input),
+
+        return Cow::Owned(out);
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"(?i)(?:/home/[^/]+|/Users/[^/]+)").unwrap());
+
+        let mut out = RE.replace_all(input, "~").into_owned();
+
+        if let Some(home) = home_dir {
+            out = out.replace(home.to_string_lossy().as_ref(), "~");
+        }
+
+        return Cow::Owned(out);
     }
 }
 
@@ -753,10 +769,36 @@ mod tests {
 
     #[test]
     #[cfg(windows)]
-    fn redacts_windows_user_dir_without_home_dir() {
+    fn redacts_windows_user_paths_without_home_dir() {
         let input = r"pre C:\users\other-user\remaining\path post";
         let actual = redact_home_dir_inner(input, None);
         assert_eq!(r"pre ~\remaining\path post", actual);
+
+        let input = r"pre \Device\HarddiskVolume1\Users\other-user\remaining\path post";
+        let actual = redact_home_dir_inner(input, None);
+        assert_eq!(r"pre ~\remaining\path post", actual);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn redacts_home_dir() {
+        let assert_redacts_home_dir = |home_dir, test_str| {
+            let input = format!(r"pre {test_str}/remaining/path post");
+            let actual = redact_home_dir_inner(&input, Some(PathBuf::from(home_dir)));
+            assert_eq!(r"pre ~/remaining/path post", actual);
+        };
+
+        let home_dir = r"/home/user";
+
+        assert_redacts_home_dir(home_dir, r"/home/user");
+        assert_redacts_home_dir(home_dir, r"/home/other-user");
+        assert_redacts_home_dir(home_dir, r"/Users/other-user");
+
+        let home_dir = r"/Users/user";
+
+        assert_redacts_home_dir(home_dir, r"/home/user");
+        assert_redacts_home_dir(home_dir, r"/home/other-user");
+        assert_redacts_home_dir(home_dir, r"/Users/other-user");
     }
 
     #[test]
