@@ -21,18 +21,28 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [android/2026.3-beta2] - 2025-03-10
+## [android/2026.3-beta3] - 2025-03-17
+
 ### Changed
-- Disabled autofill for delete account textfield
+- Disable autofill for password in api access method edit screen.
 
 ### Fixed
-- Fix eager connection timeout in GotaTun
+- Fix D-pad navigation in settings.
+- Fix input handling in delete account confirmation.
+
+
+## [android/2026.3-beta2] - 2025-03-12
+### Changed
+- Disable autofill for delete account textfield.
+
+### Fixed
+- Fix eager connection timeout in GotaTun.
 
 
 ## [android/2026.3-beta1] - 2025-03-10
 ### Added
-- Add link to notifications system settings from notifications screen
-- Add support for account deletion
+- Add link to notifications system settings from notifications screen.
+- Add support for account deletion.
 
 ### Changed
 - Hide password by default on login screen.
