@@ -1,13 +1,10 @@
 import React from 'react';
 
 import type { AnyLocation } from '../../../../../features/locations/types';
-import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 
 type AnyLocationListItemContextProps = Omit<AnyLocationListItemProviderProps, 'children'> & {
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  expanded: boolean;
-  setExpanded: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const AnyLocationListItemContext = React.createContext<AnyLocationListItemContextProps | undefined>(
@@ -36,12 +33,6 @@ export function AnyLocationListItemProvider({
   ...props
 }: AnyLocationListItemProviderProps) {
   const [loading, setLoading] = React.useState(false);
-  const { searchTerm } = useSelectLocationViewContext();
-  const [expanded, setExpanded] = React.useState(location.expanded);
-
-  React.useEffect(() => {
-    setExpanded(location.expanded);
-  }, [location.expanded, searchTerm]);
 
   const value = React.useMemo(
     () => ({
@@ -49,10 +40,8 @@ export function AnyLocationListItemProvider({
       rootLocation,
       loading,
       setLoading,
-      expanded,
-      setExpanded,
     }),
-    [location, rootLocation, loading, expanded],
+    [location, rootLocation, loading],
   );
 
   return (
