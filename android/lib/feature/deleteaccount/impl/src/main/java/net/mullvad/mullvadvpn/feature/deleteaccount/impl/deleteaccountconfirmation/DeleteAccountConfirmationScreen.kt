@@ -102,7 +102,7 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
     val snackbarHostState = remember { SnackbarHostState() }
     if (uiState.value.isLoading) {
         // Consume back
-        BackHandler() {}
+        BackHandler {}
     }
 
     val resources = LocalResources.current
@@ -231,7 +231,10 @@ private fun AccountNumberInput(
 
     val transformation =
         remember(showPassword, showLastChar) {
-            accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
+            accountNumberOutputTransformation(
+                showAccount = showPassword,
+                showLastX = if (showLastChar) 1 else 0,
+            )
         }
 
     val keyboardController = LocalSoftwareKeyboardController.current
