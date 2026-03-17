@@ -59,7 +59,6 @@ export function CountryLocationList() {
                 location={country}
                 level={0}
                 onSelect={handleSelect}
-                rootLocation="geographical"
               />
             </StyledLocationContainer>
           );
