@@ -190,7 +190,7 @@ private fun DeleteAccountConfirmationContent(
             style = MaterialTheme.typography.bodyLarge,
         )
         DaysLostWarning(state.daysLeft)
-        Spacer(modifier = Modifier.height(Dimens.largeSpacer))
+        Spacer(modifier = Modifier.height(Dimens.largePadding))
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.delete_account_confirmation_enter_account_number),
