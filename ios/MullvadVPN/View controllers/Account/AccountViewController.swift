@@ -271,7 +271,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 style: .default,
                 handler: { _ in
                     Task {
-                        await StorePaymentManager.finishOutstandingSandboxTransactions()
+                        await StorePaymentManager.finishOutstandingSandboxAndOldAPITransactions()
                     }
                 }
             )
