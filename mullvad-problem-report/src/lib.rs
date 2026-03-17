@@ -495,7 +495,7 @@ impl ProblemReport {
     }
 
     fn redact_home_dir(input: &str) -> Cow<'_, str> {
-        redact_home_dir_inner(input, dirs::home_dir())
+        redact_home_dir_inner(input, dirs::home_dir()).into()
     }
 
     fn redact_network_info(input: &str) -> Cow<'_, str> {
@@ -577,7 +577,7 @@ impl ProblemReport {
     }
 }
 
-fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> Cow<'_, str> {
+fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> String {
     #[cfg(target_os = "windows")]
     {
         static RE: LazyLock<Regex> = LazyLock::new(|| {
@@ -601,7 +601,7 @@ fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> Cow<'_, str>
             out = regex.replace_all(&out, "~").to_string();
         }
 
-        return Cow::Owned(out);
+        out
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -615,7 +615,7 @@ fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> Cow<'_, str>
             out = out.replace(home.to_string_lossy().as_ref(), "~");
         }
 
-        return Cow::Owned(out);
+        out
     }
 }
 
