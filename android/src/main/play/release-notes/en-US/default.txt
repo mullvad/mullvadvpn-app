@@ -2,3 +2,5 @@
 - Added a link to system notification settings in notifications screen
 - Hide the account number input by default
 - Fixed a issue where connection timeout happened to eagerly
+- Fixed input handling on delete account confirmation screen
+- Fixed D-pad navigation in settings screens
