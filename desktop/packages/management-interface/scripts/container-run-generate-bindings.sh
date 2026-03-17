@@ -15,6 +15,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROTO_DIR="$( cd "$SCRIPT_DIR/../../../../mullvad-management-interface/proto" && pwd )"
 OUT_DIR="$SCRIPT_DIR/../dist"
 
+set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$PROTO_DIR:/proto:Z" \
     -v "$OUT_DIR:/proto-bindings:Z" \
