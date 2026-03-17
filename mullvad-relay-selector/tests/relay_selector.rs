@@ -1453,7 +1453,6 @@ mod partition_relays {
     //! The long term goal is to completely remove all old tests, but they will have to remain until
     //! the relay selector internals have been refactored to use the new "partition relays"
     //! algorithm.
-    use std::collections::hash_set;
 
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
@@ -1461,6 +1460,7 @@ mod partition_relays {
     use mullvad_types::relay_constraints::{
         LocationConstraint, ObfuscationSettings, SelectedObfuscation,
     };
+    use std::collections::HashSet;
 
     use super::*;
 
@@ -1481,16 +1481,8 @@ mod partition_relays {
         )
     });
 
-    /// Collect all unique reasons why a relay was filtered out.
-    fn unique_reasons(RelayPartitions { discards, .. }: RelayPartitions) -> Vec<Vec<Reason>> {
-        discards
-            .into_iter()
-            .map(|(_relay, reasons)| reasons)
-            .unique()
-            .collect()
-    }
-
-    fn unique_reasons_set(RelayPartitions { discards, .. }: RelayPartitions) -> HashSet<Reason> {
+    /// Get a set of unique `[Reason]`s from the discards of a relay partition.
+    fn unique_reasons(RelayPartitions { discards, .. }: RelayPartitions) -> HashSet<Reason> {
         discards
             .into_iter()
             .flat_map(|(_relay, reasons)| reasons)
@@ -1600,7 +1592,7 @@ mod partition_relays {
                     expected_reasons.insert(Reason::Providers);
                 }
                 assert!(
-                    unique_reasons_set(query).is_subset(&expected_reasons),
+                    unique_reasons(query).is_subset(&expected_reasons),
                     "expected reasons to be a subset of expected_reasons"
                 );
             }
@@ -1671,14 +1663,10 @@ mod partition_relays {
             let constraints = EntryConstraints::default().obfuscation(obfuscation);
             let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
 
-            for reasons in unique_reasons(query) {
-                match reasons.as_slice() {
-                    &[Reason::Obfuscation]
-                    | &[Reason::Inactive]
-                    | &[Reason::Obfuscation, Reason::Inactive] => (),
-                    _ => panic!("{reasons:#?}"),
-                }
-            }
+            assert!(
+                unique_reasons(query)
+                    .is_subset(&HashSet::from([Reason::Obfuscation, Reason::Inactive]))
+            );
         }
     }
 
@@ -1812,12 +1800,9 @@ mod partition_relays {
         //
         // Note that some relays will be discarded simply because they lack DAITA OR are operated
         // by the wrong provider.
-        for reasons in unique_reasons(query) {
-            match reasons.as_slice() {
-                &[Reason::Providers, Reason::Daita] | &[Reason::Providers] | &[Reason::Daita] => (),
-                _ => panic!("{reasons:#?}"),
-            }
-        }
+        assert!(
+            unique_reasons(query).is_subset(&HashSet::from([Reason::Providers, Reason::Daita]))
+        );
     }
 
     /// Autohopping through an alternate entry relay should only be done iff the settings force us
