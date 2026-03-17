@@ -1,10 +1,8 @@
 import React from 'react';
 
 type CustomListLocationListContextProps = Omit<CustomListLocationListProviderProps, 'children'> & {
-  addingCustomList: boolean;
-  setAddingCustomList: React.Dispatch<React.SetStateAction<boolean>>;
-  addCustomListDialogOpen: boolean;
-  setAddCustomListDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  loading?: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const CustomListLocationListContext = React.createContext<
@@ -23,22 +21,22 @@ export const useCustomListLocationListContext = (): CustomListLocationListContex
 
 type CustomListLocationListProviderProps = React.PropsWithChildren;
 
-export function CustomListLocationListProvider({ children }: CustomListLocationListProviderProps) {
-  const [addingCustomList, setAddingCustomList] = React.useState(false);
-  const [addCustomListDialogOpen, setAddCustomListDialogOpen] = React.useState(false);
+export function CustomListLocationListProvider({
+  children,
+  ...props
+}: CustomListLocationListProviderProps) {
+  const [loading, setLoading] = React.useState(false);
 
   const value = React.useMemo(
     () => ({
-      addingCustomList,
-      setAddingCustomList,
-      addCustomListDialogOpen,
-      setAddCustomListDialogOpen,
+      loading,
+      setLoading,
     }),
-    [addCustomListDialogOpen, addingCustomList],
+    [loading],
   );
 
   return (
-    <CustomListLocationListContext.Provider value={value}>
+    <CustomListLocationListContext.Provider value={{ ...props, ...value }}>
       {children}
     </CustomListLocationListContext.Provider>
   );

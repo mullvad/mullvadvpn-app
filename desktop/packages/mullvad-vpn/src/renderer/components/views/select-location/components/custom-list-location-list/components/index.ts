@@ -1,1 +1,1 @@
-export * from './custom-lists-section-title';
+export * from './custom-list-trailing-actions';
