@@ -172,20 +172,23 @@ pub fn spawn_rpc_server(
 
     let endpoint = create_endpoint(rpc_socket_path)?;
 
+    // Extract the path first, since `incoming()` takes ownership.
+    // Note: `endpoint.clone()` is not safe to use due to a use-after-free in `tipsy`.
+    #[cfg(unix)]
+    let endpoint_path = endpoint.path().to_owned();
+
     let incoming = endpoint
-        .clone()
         .incoming()
         .map_err(Error::StartServerError)?
         .map_ok(StreamBox);
 
     #[cfg(unix)]
     if let Some(group_name) = MULLVAD_MANAGEMENT_SOCKET_GROUP.as_ref() {
-        let endpoint_path = endpoint.path();
         let group = nix::unistd::Group::from_name(group_name)
             .map_err(Error::ObtainGidError)?
             .ok_or(Error::NoGidError)?;
-        nix::unistd::chown(endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
-        fs::set_permissions(endpoint_path, PermissionsExt::from_mode(0o760))
+        nix::unistd::chown(&endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(&endpoint_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
 
