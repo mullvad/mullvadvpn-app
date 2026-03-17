@@ -409,6 +409,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testDAITASettings() throws {
+        let skipReason = """
+            This test is currently skipped due to multihop currently defaulting to off. Once we default multihop to "When needed". ,
+            https://linear.app/mullvad/issue/IOS-1550/migrate-users-to-new-multihop-behaviour
+            """
+        try XCTSkipIf(true, skipReason)
+
         HeaderBar(app)
             .tapSettingsButton()
 
