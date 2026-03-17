@@ -1535,8 +1535,7 @@ mod partition_relays {
         let multihop_constraints = MultihopConstraints::default()
             .entry(constraints.clone())
             // NOTE: Providers are (currently) mirrored both entry + exit, so we set this manually.
-            .exit(ExitConstraints::default())
-            .exit_providers(providers.clone());
+            .exit(ExitConstraints::default().providers(providers.clone()));
 
         for scenario in [
             Predicate::Singlehop(constraints.clone()),
@@ -1621,8 +1620,7 @@ mod partition_relays {
             let multihop_constraints = MultihopConstraints::default()
                 .entry(constraints.clone())
                 // NOTE: Ownership is (currently) mirrored both entry + exit, so we set this manually.
-                .exit(ExitConstraints::default())
-                .exit_ownership(ownership);
+                .exit(ExitConstraints::default().ownership(ownership));
 
             for scenario in [
                 Predicate::Singlehop(constraints.clone()),
@@ -1664,8 +1662,7 @@ mod partition_relays {
             let constraints = EntryConstraints::default().ownership(requested_entry);
             let multihop_constraints = MultihopConstraints::default()
                 .entry(constraints.clone())
-                .exit(ExitConstraints::default())
-                .exit_ownership(requested_exit);
+                .exit(ExitConstraints::default().ownership(requested_exit));
 
             for scenario in [
                 Predicate::Singlehop(constraints.clone()),

@@ -130,6 +130,16 @@ impl ExitConstraints {
         self.location = Constraint::Only(GeographicLocationConstraint::country(country).into());
         self
     }
+
+    pub fn providers(mut self, providers: Providers) -> Self {
+        self.providers = Constraint::Only(providers);
+        self
+    }
+
+    pub fn ownership(mut self, ownership: Ownership) -> Self {
+        self.ownership = Constraint::Only(ownership);
+        self
+    }
 }
 
 impl MultihopConstraints {
@@ -140,18 +150,6 @@ impl MultihopConstraints {
 
     pub fn exit(mut self, exit: ExitConstraints) -> Self {
         self.exit = exit;
-        self
-    }
-
-    /// TODO
-    pub fn exit_providers(mut self, providers: Providers) -> Self {
-        self.exit.providers = Constraint::Only(providers);
-        self
-    }
-
-    /// TODO
-    pub fn exit_ownership(mut self, ownership: Ownership) -> Self {
-        self.exit.ownership = Constraint::Only(ownership);
         self
     }
 }
