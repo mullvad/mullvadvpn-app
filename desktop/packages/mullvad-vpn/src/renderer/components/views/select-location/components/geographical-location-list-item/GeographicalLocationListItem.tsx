@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { getLocationListItemMapProps } from '../../utils';
 import { AnyLocationListItem, type AnyLocationListItemProps } from '../any-location-list-item';
@@ -6,39 +8,58 @@ import {
   useGeographicalLocationListItemContext,
 } from './GeographicalLocationListItemContext';
 
-export type GeographicalLocationListItemProps = AnyLocationListItemProps;
+export type GeographicalLocationListItemProps = Omit<
+  AnyLocationListItemProps,
+  'children' | 'expanded' | 'onExpandedChange'
+>;
 
 function GeographicalLocationListItemImpl({
   location,
   level,
-  disabled,
+  disabled: disabledProp,
   root,
+  rootLocation,
+  position,
+  onSelect,
   ...props
 }: GeographicalLocationListItemProps) {
   const { loading } = useGeographicalLocationListItemContext();
+  const [locationExpanded, setLocationExpanded] = useState(location.expanded);
+  const locationChildren = getLocationChildren(location);
+  const expanded = location.expanded || locationExpanded;
+  const disabled = disabledProp || loading;
+  const showChildren = locationChildren.length > 0 && expanded;
 
-  const children = getLocationChildren(location);
+  const renderChildren = () => {
+    return locationChildren.map((locationChild) => {
+      const { key, nextLevel } = getLocationListItemMapProps(locationChild, level);
+      return (
+        <GeographicalLocationListItem
+          key={key}
+          location={locationChild}
+          rootLocation={rootLocation}
+          level={nextLevel}
+          disabled={disabled}
+          onSelect={onSelect}
+          {...props}
+        />
+      );
+    });
+  };
+
   return (
     <AnyLocationListItem
       location={location}
       root={root}
-      rootLocation="geographical"
+      rootLocation={rootLocation}
       level={level}
-      disabled={disabled || loading}
+      disabled={disabled}
+      expanded={expanded}
+      onExpandedChange={setLocationExpanded}
+      position={position}
+      onSelect={onSelect}
       {...props}>
-      {children.map((child) => {
-        const { key, nextLevel } = getLocationListItemMapProps(child, level);
-        return (
-          <GeographicalLocationListItem
-            key={key}
-            location={child}
-            rootLocation="geographical"
-            level={nextLevel}
-            disabled={disabled || loading}
-            {...props}
-          />
-        );
-      })}
+      {showChildren ? renderChildren() : null}
     </AnyLocationListItem>
   );
 }
