@@ -1,11 +1,5 @@
 // GENERATED CODE -- DO NOT EDIT!
 
-// Original file comments:
-// Relay Selector service.
-//
-// This API is used to query which relays are selectable for a set of filters,
-// and to provide information about about how to unblock discarded relays.
-//
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var relay_selector_pb = require('./relay_selector_pb.js');
@@ -34,6 +28,10 @@ function deserialize_mullvad_daemon_relay_selector_RelayPartitions(buffer_arg) {
 }
 
 
+// Relay Selector service.
+//
+// This API is used to query which relays are selectable for a set of filters,
+// and to provide information about about how to unblock discarded relays.
 var RelaySelectorServiceService = exports.RelaySelectorServiceService = {
   // Partition the available relays by a predicate. The predicate can be
 // derived from the current settings or a set of future settings changes
