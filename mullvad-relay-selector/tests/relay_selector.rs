@@ -1526,7 +1526,7 @@ mod partition_relays {
     // # Multihop/Entry (TODO)
     // # Multihop/Exit (TODO)
 
-    /// Verify that the results of constraining [`Ownership`] and/or [`Provider`], separately
+    /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
     /// for the entry and exit int the case of multihop, is reflected in the chosen relay
     /// and reflected in the "reasons" of the discarded relays.
     ///
