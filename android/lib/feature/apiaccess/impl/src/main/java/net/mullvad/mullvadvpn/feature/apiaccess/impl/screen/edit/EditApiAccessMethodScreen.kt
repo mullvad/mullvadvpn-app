@@ -506,13 +506,15 @@ private fun PasswordInput(
         modifier = Modifier.fillMaxWidth(),
         keyboardOptions =
             KeyboardOptions(
+                autoCorrectEnabled = false,
+                keyboardType = KeyboardType.Password,
                 imeAction =
                     // So that we avoid going back to the name input when pressing done/next
                     if (optional) {
                         ImeAction.Next
                     } else {
                         ImeAction.Done
-                    }
+                    },
             ),
         labelPosition = TextFieldLabelPosition.Above(),
         textObfuscationMode =
