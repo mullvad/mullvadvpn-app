@@ -747,6 +747,16 @@ mod tests {
 
         assert_redacts_home_dir(home_dir, r"\Device\HarddiskVolume1\Users\user");
         assert_redacts_home_dir(home_dir, r"C:\Users\user");
+        assert_redacts_home_dir(home_dir, r"C:\Users\other-user");
+        assert_redacts_home_dir(home_dir, r"C:\users\other-user");
+    }
+
+    #[test]
+    #[cfg(windows)]
+    fn redacts_windows_user_dir_without_home_dir() {
+        let input = r"pre C:\users\other-user\remaining\path post";
+        let actual = redact_home_dir_inner(input, None);
+        assert_eq!(r"pre ~\remaining\path post", actual);
     }
 
     #[test]
