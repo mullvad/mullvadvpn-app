@@ -48,7 +48,7 @@ public struct DNSBlockingOptions: OptionSet, Codable, Sendable {
 }
 
 /// A struct that holds DNS settings.
-public struct DNSSettings: Codable, Equatable, Sendable {
+public struct DNSSettings: Codable, Equatable, Sendable, CustomDebugStringConvertible {
     /// Maximum number of allowed DNS domains.
     public static let maxAllowedCustomDNSDomains = 3
 
@@ -124,5 +124,9 @@ public struct DNSSettings: Codable, Equatable, Sendable {
         try container.encode(blockingOptions, forKey: .blockingOptions)
         try container.encode(enableCustomDNS, forKey: .enableCustomDNS)
         try container.encode(customDNSDomains, forKey: .customDNSDomains)
+    }
+
+    public var debugDescription: String {
+        "{isCustomDNSEnabled: \(enableCustomDNS), Custom DNS: \(customDNSDomains), Blocking: \(blockingOptions)}"
     }
 }

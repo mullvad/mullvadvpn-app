@@ -24,7 +24,7 @@ public protocol SettingsReaderProtocol {
 }
 
 /// Struct holding settings necessary to configure packet tunnel adapter.
-public struct Settings: Equatable, Sendable {
+public struct Settings: Equatable, Sendable, CustomDebugStringConvertible {
     /// Private key used by device.
     public var privateKey: PrivateKey
 
@@ -58,6 +58,10 @@ public struct Settings: Equatable, Sendable {
             dns: dnsServers
         )
 
+    }
+
+    public var debugDescription: String {
+        tunnelSettings.debugDescription
     }
 }
 

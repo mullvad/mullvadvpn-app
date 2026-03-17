@@ -59,6 +59,7 @@ extension RelayPicking {
             endpoint: selectedEndpoint,
             hostname: match.relay.hostname,
             location: match.location,
+            isIPOverridden: match.relay.isIPOverridden ?? false,
             features: match.relay.features
         )
     }

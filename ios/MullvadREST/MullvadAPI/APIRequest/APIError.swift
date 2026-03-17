@@ -6,7 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-public struct APIError: Error, Codable, Sendable {
+public struct APIError: Error, Codable, Sendable, CustomDebugStringConvertible {
     public let statusCode: Int
     public let errorDescription: String
     public let serverResponseCode: String?
@@ -15,5 +15,9 @@ public struct APIError: Error, Codable, Sendable {
         self.statusCode = statusCode
         self.errorDescription = errorDescription
         self.serverResponseCode = serverResponseCode
+    }
+
+    public var debugDescription: String {
+        "\(statusCode): \(errorDescription)"
     }
 }

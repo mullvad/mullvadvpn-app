@@ -17,12 +17,16 @@ public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {
     public var interface = InterfaceSettings()
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV2(relayConstraints: relayConstraints, dnsSettings: interface.dnsSettings)
+        return TunnelSettingsV2(relayConstraints: relayConstraints, dnsSettings: interface.dnsSettings)
+    }
+
+    public var debugDescription: String {
+        "TunnelSettingsV1(relayConstraints: \(relayConstraints), interface: \(interface))"
     }
 }
 
 /// A struct that holds a tun interface configuration.
-public struct InterfaceSettings: Codable, Equatable, @unchecked Sendable {
+public struct InterfaceSettings: Codable, Equatable, CustomDebugStringConvertible, @unchecked Sendable {
     public var privateKey: PrivateKeyWithMetadata
     public var nextPrivateKey: PrivateKeyWithMetadata?
 
@@ -70,6 +74,10 @@ public struct InterfaceSettings: Codable, Equatable, @unchecked Sendable {
         try container.encode(nextPrivateKey, forKey: .nextPrivateKey)
         try container.encode(addresses, forKey: .addresses)
         try container.encode(dnsSettings, forKey: .dnsSettings)
+    }
+
+    public var debugDescription: String {
+        "dnsSettings: \(dnsSettings), addresses: \(addresses)"
     }
 }
 

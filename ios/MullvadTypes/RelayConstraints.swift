@@ -26,7 +26,14 @@ public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible
     public var filter: RelayConstraint<RelayFilter>
 
     public var debugDescription: String {
-        "RelayConstraints { entry locations: \(entryLocations), exit locations: \(exitLocations) , port: \(port), filter: \(filter) }"
+        let entry = locationsString(from: entryLocations)
+        let exit = locationsString(from: exitLocations)
+        let path = entry == exit ? entry : "\(entry)->\(exit)"
+
+        let port = portString(from: port)
+        let filter = filterString(from: filter)
+
+        return "\(path) port=\(port) filter=\(filter)"
     }
 
     public init(
@@ -81,6 +88,35 @@ extension RelayConstraints {
             .any
         case let .only(relay):
             .only(UserSelectedRelays(locations: [relay]))
+        }
+    }
+}
+
+extension RelayConstraints {
+    private func locationsString(from constraint: RelayConstraint<UserSelectedRelays>) -> String {
+        switch constraint {
+        case .any:
+            return "any"
+        case .only(let relays):
+            return relays.locations.map(\.stringRepresentation).joined(separator: ",")
+        }
+    }
+
+    private func portString(from constraint: RelayConstraint<UInt16>) -> String {
+        switch constraint {
+        case .any:
+            return "any"
+        case .only(let port):
+            return "\(port)"
+        }
+    }
+
+    private func filterString(from constraint: RelayConstraint<RelayFilter>) -> String {
+        switch constraint {
+        case .any:
+            return "any"
+        case .only(let filter):
+            return "\(filter)"
         }
     }
 }

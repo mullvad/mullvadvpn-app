@@ -81,4 +81,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         )
 
     }
+
+    public var debugDescription: String {
+        "TunnelSettingsV7(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation), tunnelQuantumResistance: \(tunnelQuantumResistance), tunnelMultihopState: \(tunnelMultihopState), daita: \(daita), includeAllNetworks: \(includeAllNetworks.debugDescription))"
+    }
 }

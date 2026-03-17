@@ -355,6 +355,10 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
 
 private struct FutureVersionSettings: TunnelSettings {
     func upgradeToNextVersion() -> TunnelSettings { self }
+
+    var debugDescription: String {
+        "FutureVersionSettings"
+    }
 }
 
 struct SettingNotFound: Error, Instantiable {}

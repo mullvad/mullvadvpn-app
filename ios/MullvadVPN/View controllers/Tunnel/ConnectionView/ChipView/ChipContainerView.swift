@@ -120,6 +120,7 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                             latitude: 1234,
                             longitude: 1234
                         ),
+                        isIPOverridden: false,
                         features: nil
                     ),
                     retryAttempt: 0,
