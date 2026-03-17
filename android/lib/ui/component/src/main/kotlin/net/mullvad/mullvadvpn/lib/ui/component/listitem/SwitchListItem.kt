@@ -53,11 +53,7 @@ fun SwitchListItem(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     MullvadListItem(
-        modifier = modifier.applyIfNotNull(
-            onInfoClicked
-        ) {
-            focusProperties{ canFocus = false }
-        },
+        modifier = modifier.applyIfNotNull(onInfoClicked) { focusProperties { canFocus = false } },
         hierarchy = hierarchy,
         position = position,
         isEnabled = isEnabled,
