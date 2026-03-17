@@ -26,7 +26,7 @@ static ENV_DESC: LazyLock<String> = LazyLock::new(|| {
 #[derive(Debug, Parser)]
 #[command(author, version = mullvad_version::VERSION, about, long_about = None, after_help = &*ENV_DESC)]
 struct Cli {
-    /// Set the level of verbosity
+    /// Set the level of verbosity. Zero `-v` flag defaults to "Error" log level.
     #[arg(short='v', action = clap::ArgAction::Count)]
     verbosity: u8,
     /// Disable logging to file
@@ -127,8 +127,9 @@ fn create_config() -> Config {
     let app = Cli::parse();
 
     let log_level = match app.verbosity {
-        0 => log::LevelFilter::Info,
-        1 => log::LevelFilter::Debug,
+        0 => log::LevelFilter::Error,
+        1 => log::LevelFilter::Info,
+        2 => log::LevelFilter::Debug,
         _ => log::LevelFilter::Trace,
     };
 

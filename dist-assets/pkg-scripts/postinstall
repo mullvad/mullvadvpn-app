@@ -49,7 +49,7 @@ DAEMON_PLIST=$(cat <<-EOM
                 <key>ProgramArguments</key>
                 <array>
                         <string>$DAEMON_BINARY</string>
-                        <string>-v</string>
+                        <string>-vv</string>
                 </array>
 
                 <key>EnvironmentVariables</key>
