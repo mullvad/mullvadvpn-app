@@ -117,7 +117,7 @@ internal fun CantBeUndoneText() {
 private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
     Column(
         Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin),
+            .padding(horizontal = Dimens.sideMarginNew, vertical = Dimens.screenBottomMargin),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumSpacer),
     ) {
         var confirmed by rememberSaveable { mutableStateOf(false) }
@@ -127,6 +127,7 @@ private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
             onCheckedChange = { confirmed = it },
         )
         PrimaryButton(
+            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
             onClick = {
                 onClickContinue()
                 // Clear it so they have to check it again if navigating back

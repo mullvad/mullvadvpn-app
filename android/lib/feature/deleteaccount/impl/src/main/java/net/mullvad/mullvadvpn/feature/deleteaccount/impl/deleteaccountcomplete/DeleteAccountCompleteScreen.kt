@@ -31,7 +31,7 @@ import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
 import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
 import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -62,8 +62,8 @@ fun DeleteAccountComplete(navController: NavController) {
 @ExperimentalMaterial3Api
 @Composable
 fun DeleteAccountComplete(onContinue: () -> Unit) {
-    ScaffoldWithMediumTopBar(
-        appBarTitle = stringResource(id = R.string.delete_account),
+    ScaffoldWithSmallTopBar(
+        appBarTitle = "",
         navigationIcon = { NavigateCloseIconButton(onContinue) },
     ) { modifier ->
         DeleteAccountCompleteContent(modifier, onContinue)
@@ -105,7 +105,11 @@ private fun DeleteAccountCompleteContent(modifier: Modifier = Modifier, onContin
         PrimaryButton(
             modifier =
                 Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-                    .padding(bottom = Dimens.screenBottomMargin),
+                    .padding(
+                        start = Dimens.smallPadding,
+                        end = Dimens.smallPadding,
+                        bottom = Dimens.screenBottomMargin,
+                    ),
             onClick = onContinue,
             text = stringResource(R.string.go_to_login),
         )

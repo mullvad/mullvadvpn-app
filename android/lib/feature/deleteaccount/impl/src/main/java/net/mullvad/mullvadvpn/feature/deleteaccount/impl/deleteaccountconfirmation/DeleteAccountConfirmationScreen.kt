@@ -190,7 +190,7 @@ private fun DeleteAccountConfirmationContent(
             style = MaterialTheme.typography.bodyLarge,
         )
         DaysLostWarning(state.daysLeft)
-        Spacer(modifier = Modifier.height(Dimens.largeSpacer))
+        Spacer(modifier = Modifier.height(Dimens.largePadding))
         Text(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.delete_account_confirmation_enter_account_number),
@@ -330,7 +330,15 @@ private fun DeleteAccountConfirmationBottomBar(
     onClickDeleteAccount: () -> Unit,
     onClickCancel: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(bottom = Dimens.screenBottomMargin)) {
+    Column(
+        modifier =
+            Modifier.padding(
+                start = Dimens.smallPadding,
+                end = Dimens.smallPadding,
+                bottom = Dimens.screenBottomMargin,
+            ),
+        verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+    ) {
         NegativeButton(
             text = stringResource(R.string.delete_account),
             onClick = onClickDeleteAccount,
