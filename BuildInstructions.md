@@ -55,6 +55,7 @@ on your platform please submit an issue or a pull request.
   - Windows: Install [Git for Windows] which includes Git Bash and other required unix utilities.
 
 - Install `podman`: https://podman.io/
+  - Used to generate gRPC bindings for the Electron app.
 
 
 [Git for Windows]: https://git-scm.com/download/win
