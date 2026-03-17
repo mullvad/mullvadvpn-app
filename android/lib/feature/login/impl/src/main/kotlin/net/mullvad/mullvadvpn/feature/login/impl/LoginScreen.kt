@@ -374,6 +374,7 @@ private fun ColumnScope.LoginInput(
         keyboardActions = KeyboardActions(onDone = { onLoginClick(state.accountNumberInput) }),
         keyboardOptions =
             KeyboardOptions(
+                autoCorrectEnabled = false,
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
                 keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
             ),
