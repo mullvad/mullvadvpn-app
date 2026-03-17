@@ -1,4 +1,5 @@
 export * from './custom-list-location-list';
+export * from './custom-list-locations';
 export * from './daita-filter-chip';
 export * from './filter-chips';
 export * from './disabled-entry-selection';
