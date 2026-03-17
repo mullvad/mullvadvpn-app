@@ -41,19 +41,23 @@ fun accountNumberVisualTransformation(showAccount: Boolean = true, showLastX: In
 
 fun accountNumberOutputTransformation(showAccount: Boolean = true, showLastX: Int = 0) =
     OutputTransformation {
-        val originalLength = length
-        val replacementLength = max(0, originalLength - showLastX)
-
-        // Replace characters with password dots if not showing account
-        if (!showAccount && replacementLength > 0) {
-            replace(0, replacementLength, PASSWORD_UNICODE.toString().repeat(replacementLength))
-        }
-
         // Insert separators between chunks (from right to left to maintain correct positions)
         // Start from the last chunk boundary that is within the string (not at the end)
         var position = ((length - 1) / ACCOUNT_NUMBER_CHUNK_SIZE) * ACCOUNT_NUMBER_CHUNK_SIZE
         while (position > 0) {
             insert(position, ACCOUNT_NUMBER_SEPARATOR)
             position -= ACCOUNT_NUMBER_CHUNK_SIZE
+        }
+
+        if (showAccount) return@OutputTransformation
+
+        val length = length
+        val visibleStart = (length - showLastX).coerceAtLeast(0)
+
+        for (i in 0 until visibleStart) {
+            val c = charAt(i)
+            if (c.toString() != ACCOUNT_NUMBER_SEPARATOR) {
+                replace(i, i + 1, PASSWORD_UNICODE.toString())
+            }
         }
     }
