@@ -3,7 +3,6 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
 import { type AnyLocation } from '../../../../../features/locations/types';
-import { getLocationChildren } from '../../../../../features/locations/utils';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import type { ListItemProps } from '../../../../../lib/components/list-item';
@@ -23,6 +22,8 @@ export type AnyLocationListItemProps = React.PropsWithChildren<{
   position?: ListItemProps['position'];
   disabled?: boolean;
   onSelect: (location: AnyLocation) => void;
+  onExpandedChange: (value: boolean) => void;
+  expanded: boolean;
 }>;
 
 function AnyLocationListItemImpl({
@@ -32,13 +33,13 @@ function AnyLocationListItemImpl({
   onSelect,
   root,
   children,
+  expanded,
+  onExpandedChange,
 }: Omit<AnyLocationListItemProps, 'location' | 'rootLocation'>) {
-  const { location, expanded, setExpanded } = useAnyLocationListItemContext();
+  const { location } = useAnyLocationListItemContext();
   const { selectedLocationRef } = useScrollPositionContext();
 
-  const childLocations = getLocationChildren(location);
-  const hasChildren = childLocations.length > 0;
-  const showEmptySubtitle = location.type === 'customList' && !hasChildren;
+  const showEmptySubtitle = location.type === 'customList' && !children;
 
   const handleClick = React.useCallback(() => {
     onSelect(location);
@@ -48,8 +49,8 @@ function AnyLocationListItemImpl({
   return (
     <LocationListItem selected={location.selected} root={root}>
       <LocationListItem.Accordion
-        expanded={expanded && hasChildren}
-        onExpandedChange={setExpanded}
+        expanded={expanded}
+        onExpandedChange={onExpandedChange}
         disabled={location.disabled || disabled}>
         <LocationListItem.Accordion.Header ref={selectedRef} level={level} position={position}>
           <LocationListItem.Accordion.Header.Trigger
@@ -85,7 +86,6 @@ function AnyLocationListItemImpl({
             <GeographicalLocationTrailingActions location={location} />
           )}
         </LocationListItem.Accordion.Header>
-
         <LocationListItem.Accordion.Content>{children}</LocationListItem.Accordion.Content>
       </LocationListItem.Accordion>
     </LocationListItem>

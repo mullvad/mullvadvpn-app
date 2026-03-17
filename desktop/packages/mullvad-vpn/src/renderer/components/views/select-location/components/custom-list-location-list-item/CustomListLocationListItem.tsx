@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { type CustomListLocation } from '../../../../../features/locations/types';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { getLocationListItemMapProps } from '../../utils';
@@ -11,7 +13,7 @@ import { useHandleSelectCustomList } from './hooks';
 
 export type CustomListLocationListItemProps = Omit<
   AnyLocationListItemProps,
-  'location' | 'onSelect'
+  'location' | 'onSelect' | 'expanded' | 'onExpandedChange'
 > & {
   disabled?: boolean;
   customList: CustomListLocation;
@@ -25,6 +27,7 @@ function CustomListLocationListItemImpl({
 }: CustomListLocationListItemProps) {
   const { loading } = useCustomListLocationListItemContext();
   const handleSelectCustomList = useHandleSelectCustomList();
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <AnyLocationListItem
@@ -34,6 +37,8 @@ function CustomListLocationListItemImpl({
       level={level}
       disabled={disabled || loading}
       onSelect={handleSelectCustomList}
+      expanded={expanded}
+      onExpandedChange={setExpanded}
       {...props}>
       <AnimatedList>
         {customList.locations.map((child, idx) => {
