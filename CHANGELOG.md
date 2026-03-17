@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   decoy packets for DAITA.
 - Disable SNI for Mullvad API traffic. This prevents DPI based on domain name when obfuscation is
   disabled.
+- Redact other users' home paths in logs.
 
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
