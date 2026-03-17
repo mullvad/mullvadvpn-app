@@ -36,11 +36,13 @@ export function RemoveLocationFromCustomListButton({
 
   const customListId = location.details.customList;
   const customList = getCustomListById(customListId ?? '');
+  const disabled = loading || customList === undefined;
+
   return (
     <IconButton
       variant="secondary"
       onClick={handleOnClick}
-      disabled={loading || customList === undefined}
+      disabled={disabled}
       aria-label={sprintf(
         // TRANSLATORS: Accessibility label for button to remove a location from a custom list.
         // TRANSLATORS: The first placeholder is replaced with the name of the location.
