@@ -275,9 +275,9 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     log::debug!("Setting log level");
 
     let verbosity = match verbosity_level {
-        Verbosity::Info => "",
-        Verbosity::Debug => "-v",
-        Verbosity::Trace => "-vv",
+        Verbosity::Info => "-v",
+        Verbosity::Debug => "-vv",
+        Verbosity::Trace => "-vvv",
     };
 
     let manager = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)
