@@ -31,6 +31,9 @@ Line wrap the file at 100 chars.                                              Th
   decoy packets for DAITA.
 - Disable SNI for Mullvad API traffic. This prevents DPI based on domain name when obfuscation is
   disabled.
+- Mullvad-daemon now defaults to `ERROR` log level.
+  In system services the `-v` flag is maintained which will instruct it to use `INFO` log level.
+  This prevents the previous default which is spammy `DEBUG` log level.
 
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
