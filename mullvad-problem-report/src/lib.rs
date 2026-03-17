@@ -580,6 +580,9 @@ impl ProblemReport {
 fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> String {
     #[cfg(target_os = "windows")]
     {
+        // Redact all paths that match:
+        // - <drive letter>:\Users\<username>
+        // - \Device\HarddiskVolumeX\Users\<username>
         static RE: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(r"(?i)(?:[A-Z]:\\Users\\[^\\]+|\\Device\\[^\\]+\\Users\\[^\\]+)").unwrap()
         });
@@ -606,6 +609,9 @@ fn redact_home_dir_inner(input: &str, home_dir: Option<PathBuf>) -> String {
 
     #[cfg(not(target_os = "windows"))]
     {
+        // Redact all paths that match:
+        // - /home/<username>
+        // - /Users/<username>
         static RE: LazyLock<Regex> =
             LazyLock::new(|| Regex::new(r"(?i)(?:/home/[^/]+|/Users/[^/]+)").unwrap());
 
