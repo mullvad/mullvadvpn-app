@@ -1449,11 +1449,15 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
 mod partition_relays {
     //! Tests covering "PartitionRelays" algorithm.
     //!
-    //! This is partly a port of pre-existing tests to prevent regressions in the relay selection logic.
-    //! The long term goal is to completely remove all old, duplicated tests, but they will have to remain
-    //! until the relay selector internals have been refactored to use the new "partition relays" algorithm.
+    //! This is a port of pre-existing tests to prevent regressions in the relay selection logic.
+    //! The long term goal is to completely remove all old tests, but they will have to remain until
+    //! the relay selector internals have been refactored to use the new "partition relays"
+    //! algorithm.
+    use std::collections::hash_set;
+
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
+    use mullvad_types::constraints::Constraint;
     use mullvad_types::relay_constraints::{
         LocationConstraint, ObfuscationSettings, SelectedObfuscation,
     };
@@ -1483,6 +1487,13 @@ mod partition_relays {
             .into_iter()
             .map(|(_relay, reasons)| reasons)
             .unique()
+            .collect()
+    }
+
+    fn unique_reasons_set(RelayPartitions { discards, .. }: RelayPartitions) -> HashSet<Reason> {
+        discards
+            .into_iter()
+            .flat_map(|(_relay, reasons)| reasons)
             .collect()
     }
 
@@ -1523,182 +1534,75 @@ mod partition_relays {
     // # Multihop/Entry (TODO)
     // # Multihop/Exit (TODO)
 
-    /// Construct a query for a relay with specific providers and verify that every chosen relay has
-    /// the correct associated provider.
+    /// Verify that the results of constraining [`Ownership`] and/or [`Provider`], separately
+    /// for the entry and exit int the case of multihop, is reflected in the chosen relay
+    /// and reflected in the "reasons" of the discarded relays.
     ///
-    /// This is a port of test_providers
+    /// This is a port of multihop_ownership, test_ownership and test_provider.
     #[test]
-    fn providers() {
-        let providers = Providers::new(["31173", "100TB"]).unwrap();
-
-        let constraints = EntryConstraints::default().providers(providers.clone());
-        let multihop_constraints = MultihopConstraints::default()
-            .entry(constraints.clone())
-            // NOTE: Providers are (currently) mirrored both entry + exit, so we set this manually.
-            .exit(ExitConstraints::default().providers(providers.clone()));
-
-        for scenario in [
-            Predicate::Singlehop(constraints.clone()),
-            Predicate::Autohop(constraints),
-            Predicate::Entry(multihop_constraints.clone()),
-            Predicate::Exit(multihop_constraints),
-        ] {
-            let query = RELAY_SELECTOR.partition_relays(scenario);
-            assert!(!query.matches.is_empty());
-            for relay in &query.matches {
-                let provider = &relay.provider;
-                assert!(providers.providers().contains(provider), "{relay:#?}");
-            }
-
-            for reasons in unique_reasons(query) {
-                match reasons.as_slice() {
-                    &[Reason::Inactive, Reason::Providers]
-                    | &[Reason::Providers, Reason::Inactive]
-                    | &[Reason::Providers]
-                    | &[Reason::Inactive] => (),
-                    _ => panic!("{reasons:#?}"),
-                }
-            }
-        }
-    }
-
-    /// Construct a query for a relay with specific providers and verify that every chosen relay has
-    /// the correct associated provider and that it works to select a separate set of providers for
-    /// entry and exit relays when doing a multihop.
-    #[test]
-    fn multihop_providers() {
-        const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
-        const EXPECTED_ENTRY_PROVIDERS: [&str; 2] = ["provider1", "provider3"];
-        let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
-        let entry_providers = Providers::new(EXPECTED_ENTRY_PROVIDERS).unwrap();
-        let relay_selector = default_relay_selector();
-
-        let mut constraints = MultihopConstraints::default();
-        constraints.entry.general.providers = entry_providers.into();
-        constraints.exit.providers = providers.into();
-
-        // Entry case
-        let predicate = Predicate::Entry(constraints.clone());
-        let query = relay_selector.partition_relays(predicate);
-        for relay in query.matches {
-            assert!(
-                EXPECTED_ENTRY_PROVIDERS.contains(&relay.provider.as_str()),
-                "cannot find entry provider {provider} in {EXPECTED_ENTRY_PROVIDERS:?}",
-                provider = relay.provider
-            );
-        }
-
-        // Assert that the other relays were discarded for the right reason.
-        for (_relay, reason) in query.discards {
-            assert!(reason.contains(&Reason::Providers));
-        }
-
-        // Exit case
-        let predicate = Predicate::Exit(constraints.clone());
-        let query = relay_selector.partition_relays(predicate);
-        for relay in query.matches {
-            assert!(
-                EXPECTED_PROVIDERS.contains(&relay.provider.as_str()),
-                "cannot find exit provider {provider} in {EXPECTED_PROVIDERS:?}",
-                provider = relay.provider
-            );
-        }
-
-        // Assert that the other relays were discarded for the right reason.
-        for (relay, reasons) in query.discards {
-            assert!(reasons.contains(&Reason::Providers), "{relay:#?}");
-        }
-    }
-
-    /// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector.
-    ///
-    /// This is a port of test_ownership
-    #[test]
-    fn ownership() {
-        for ownership in [Ownership::MullvadOwned, Ownership::Rented] {
-            let constraints = EntryConstraints::default().ownership(ownership);
-            let multihop_constraints = MultihopConstraints::default()
-                .entry(constraints.clone())
-                // NOTE: Ownership is (currently) mirrored both entry + exit, so we set this manually.
-                .exit(ExitConstraints::default().ownership(ownership));
-
-            for scenario in [
-                Predicate::Singlehop(constraints.clone()),
-                Predicate::Autohop(constraints),
-                Predicate::Entry(multihop_constraints.clone()),
-                Predicate::Exit(multihop_constraints),
-            ] {
-                let query = RELAY_SELECTOR.partition_relays(scenario);
-                assert!(!query.matches.is_empty());
-                for relay in &query.matches {
-                    assert_eq!(relay.owned, ownership.mullvad(), "{relay:#?}");
-                }
-
-                for reasons in unique_reasons(query) {
-                    match reasons.as_slice() {
-                        &[Reason::Inactive, Reason::Ownership]
-                        | &[Reason::Ownership, Reason::Inactive]
-                        | &[Reason::Ownership]
-                        | &[Reason::Inactive] => (),
-                        _ => panic!("{reasons:#?}"),
-                    }
-                }
-            }
-        }
-    }
-
-    /// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector
-    /// and that it works to set separate entry and exit ownerships for a multihop.
-    ///
-    /// This is a port of multihop_ownership
-    #[test]
-    fn multihop_ownership() {
-        let ownership = [Ownership::MullvadOwned, Ownership::Rented];
-        for (requested_entry, requested_exit) in ownership
+    fn multihop_ownership_and_provider() {
+        let exit_constraints = [
+            ExitConstraints::default().ownership(Ownership::MullvadOwned),
+            ExitConstraints::default().ownership(Ownership::Rented),
+            ExitConstraints::default().providers(Providers::new(["100TB"]).unwrap()),
+            ExitConstraints::default().providers(Providers::new(["100TB", "31173"]).unwrap()),
+            ExitConstraints::default()
+                .providers(Providers::new(["31173"]).unwrap())
+                .ownership(Ownership::MullvadOwned),
+        ];
+        for (entry_general, exit_constraints) in exit_constraints
             .iter()
-            .copied()
-            .cartesian_product(ownership.iter().copied())
+            .cartesian_product(exit_constraints.iter())
         {
-            let constraints = EntryConstraints::default().ownership(requested_entry);
+            let entry_constraints = EntryConstraints::default().general(entry_general.clone());
             let multihop_constraints = MultihopConstraints::default()
-                .entry(constraints.clone())
-                .exit(ExitConstraints::default().ownership(requested_exit));
+                .entry(entry_constraints.clone())
+                .exit(exit_constraints.clone());
 
             for scenario in [
-                Predicate::Singlehop(constraints.clone()),
-                Predicate::Autohop(constraints),
-                // ^ assert *something* about exit. Entry filters do not apply.
-                // v assert *something* about both entry and exit
+                Predicate::Singlehop(entry_constraints.clone()),
+                Predicate::Autohop(entry_constraints),
                 Predicate::Entry(multihop_constraints.clone()),
                 Predicate::Exit(multihop_constraints),
             ] {
-                let expected_ownership = match &scenario {
-                    Predicate::Exit(_) => requested_exit,
-                    Predicate::Singlehop(_) | Predicate::Autohop(_) | Predicate::Entry(_) => {
-                        requested_entry
-                    }
+                let expected_exit_constraints = match &scenario {
+                    Predicate::Exit(MultihopConstraints { exit, .. }) => exit,
+                    Predicate::Singlehop(entry)
+                    | Predicate::Autohop(entry)
+                    | Predicate::Entry(MultihopConstraints { entry, .. }) => &entry.general,
                 };
 
                 let query = RELAY_SELECTOR.partition_relays(scenario.clone());
                 assert!(!query.matches.is_empty());
 
                 for relay in &query.matches {
-                    assert_eq!(
-                        relay.owned,
-                        expected_ownership.mullvad(),
-                        "{scenario:#?} => {relay:#?}"
-                    );
-                }
-
-                for reasons in unique_reasons(query) {
-                    match reasons.as_slice() {
-                        &[Reason::Inactive, Reason::Ownership]
-                        | &[Reason::Ownership, Reason::Inactive]
-                        | &[Reason::Ownership]
-                        | &[Reason::Inactive] => (),
-                        _ => panic!("{reasons:#?}"),
+                    if let Constraint::Only(ownership) = expected_exit_constraints.ownership {
+                        assert_eq!(
+                            relay.owned,
+                            ownership.mullvad(),
+                            "{scenario:#?} => {relay:#?}"
+                        );
+                    }
+                    if let Constraint::Only(ref providers) = expected_exit_constraints.providers {
+                        assert!(
+                            providers.providers().contains(&relay.provider),
+                            "cannot find exit provider {provider} in {providers:?}",
+                            provider = relay.provider
+                        );
                     }
                 }
+
+                let mut expected_reasons = HashSet::from([Reason::Inactive]);
+                if expected_exit_constraints.ownership.is_only() {
+                    expected_reasons.insert(Reason::Ownership);
+                }
+                if expected_exit_constraints.providers.is_only() {
+                    expected_reasons.insert(Reason::Providers);
+                }
+                assert!(
+                    unique_reasons_set(query).is_subset(&expected_reasons),
+                    "expected reasons to be a subset of expected_reasons"
+                );
             }
         }
     }
