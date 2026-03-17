@@ -155,8 +155,8 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
 /// This takes ownership of the `AccessMethodSetting`s pointed to by `raw_array`. So the memory is
 /// freed when the returned vector is dropped.
 ///
-/// SAFETY: `raw_array` must be aligned, non-null, initialized for `count` reads and not be used
-/// after this call.
+/// SAFETY: `raw_array` must be aligned, initialized for `count` reads and not be used after this
+/// call.
 unsafe fn access_methods_from_raw_array(
     raw_array: *const *mut AccessMethodSetting,
     number_of_elements: usize,
@@ -164,7 +164,7 @@ unsafe fn access_methods_from_raw_array(
     // `slice::from_raw_parts` will dereference the null pointer even if the slice is empty.
     // In that case, just return an empty vec.
     if number_of_elements == 0 || raw_array.is_null() {
-        return vec![]
+        return vec![];
     }
     // SAFETY: See notice above
     let slice = unsafe { slice::from_raw_parts(raw_array, number_of_elements) };

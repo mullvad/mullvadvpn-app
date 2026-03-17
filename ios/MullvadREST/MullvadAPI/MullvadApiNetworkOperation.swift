@@ -75,6 +75,10 @@ extension REST {
                     guard let self else { return }
 
                     if let apiError = response.error {
+                        logger
+                            .error(
+                                "Respnse contained error code \(apiError.statusCode), error: \(apiError.errorDescription)"
+                            )
                         finish(result: .failure(restError(apiError: apiError)))
                         return
                     }
