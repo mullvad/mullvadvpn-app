@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 
 @Preview
 @Composable
@@ -75,7 +77,7 @@ fun ExpandableListItem(
     onInfoClicked: (() -> Unit)? = null,
 ) {
     MullvadListItem(
-        modifier = modifier,
+        modifier = modifier.applyIfNotNull(onInfoClicked) { focusProperties { canFocus = false } },
         hierarchy = hierarchy,
         position = position,
         isEnabled = isEnabled,
@@ -100,12 +102,14 @@ fun ExpandableListItem(
                     modifier = Modifier.width(ChevronContainerWidth).fillMaxHeight(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    ExpandChevron(
-                        isExpanded = isExpanded,
+                    IconButton(
                         modifier =
                             Modifier.padding(end = ChevronIconPaddingEnd)
                                 .testTag(EXPAND_BUTTON_TEST_TAG),
-                    )
+                        onClick = { onCellClicked(!isExpanded) },
+                    ) {
+                        ExpandChevron(isExpanded = isExpanded)
+                    }
                 }
             }
         },
