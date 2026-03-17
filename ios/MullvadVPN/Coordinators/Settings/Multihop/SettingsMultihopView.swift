@@ -51,40 +51,73 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                 SettingsInfoView(viewModel: dataViewModel)
 
                 VStack(spacing: 1) {
+                    HStack {
+                        Text("Mode")
+                        Spacer()
+                    }
+                    .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
+                    .background(Color(UIColor.primaryColor))
                     ForEach(options) { option in
-                        HStack {
-                            Image(uiImage: UIImage.tick).opacity(tunnelViewModel.value == option.id ? 1.0 : 0.4)
-                            Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-                            Text(option.label)
-                            Spacer()
+                        HStack(spacing: 1) {
+                            HStack {
+                                Image(uiImage: UIImage.tick).opacity(tunnelViewModel.value == option.id ? 1.0 : 0.0)
+                                    .foregroundStyle(
+                                        (tunnelViewModel.value == option.id)
+                                            ? Color(UIColor.Cell.Background.selected)
+                                            : Color(UIColor.Cell.titleTextColor)
+                                    )
+                                Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
+                                Text(option.label)
+                                    .foregroundStyle(
+                                        (tunnelViewModel.value == option.id)
+                                            ? Color(UIColor.Cell.Background.selected)
+                                            : Color(UIColor.Cell.titleTextColor)
+                                    )
+                                Spacer()
+                            }
+                            .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
+                            .background(
+                                Color(UIColor.Cell.Background.indentationLevelZero)
+                            )
                             if let helpText = option.helpText {
-                                Button(action: {
-                                    self.alert = MullvadAlert(
-                                        type: .info, messages: helpText,
-                                        actions: [
-                                            .init(
-                                                type: .default,
-                                                title: "Got it!",
-                                                identifier: .includeAllNetworksNotificationsAlertDismissButton,
-                                                handler: {
-                                                    self.alert = nil
-                                                }
-                                            )
-                                        ])
-                                }) {
-                                    Image(.iconInfo)
+                                VStack {
+                                    Spacer()
+                                    Button(action: {
+                                        self.alert = MullvadAlert(
+                                            type: .info, messages: helpText,
+                                            actions: [
+                                                .init(
+                                                    type: .default,
+                                                    title: "Got it!",
+                                                    identifier: .includeAllNetworksNotificationsAlertDismissButton,
+                                                    handler: {
+                                                        self.alert = nil
+                                                    }
+                                                )
+                                            ])
+                                    }) {
+                                        Image(.iconInfo)
+                                    }
+                                    //                                    .adjustingTapAreaSize()
+                                    .tint(.white)
+                                    Spacer()
                                 }
-                                .adjustingTapAreaSize()
-                                .tint(.white)
+                                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                .background(
+                                    //                                (tunnelViewModel.value == option.id)
+                                    //                                    ? Color(UIColor.Cell.Background.selected)
+                                    //                                    :
+                                    Color(UIColor.Cell.Background.indentationLevelZero)
+                                )
+
                             }
 
                         }
-                        .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-                        .background(
-                            (tunnelViewModel.value == option.id)
-                                ? Color(UIColor.Cell.Background.selected)
-                                : Color(UIColor.Cell.Background.indentationLevelZero)
-                        )
+                        //                        .background(
+                        //                            (tunnelViewModel.value == option.id)
+                        //                                ? Color(UIColor.Cell.Background.selected)
+                        //                                : Color(UIColor.Cell.Background.indentationLevelZero)
+                        //                        )
                         .foregroundColor(Color(UIColor.Cell.titleTextColor))
                         .onTapGesture {
                             tunnelViewModel.value = option.id
@@ -92,6 +125,7 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                         .accessibilityIdentifier(option.accessibilityIdentifier.asString)
                     }
                 }
+                .cornerRadius(16)
                 .padding(.leading, UIMetrics.contentInsets.left)
                 .padding(.trailing, UIMetrics.contentInsets.right)
                 .listStyle(.plain)
