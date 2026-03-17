@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadRustRuntime
 
 struct MullvadApiError: Error {
@@ -29,7 +30,10 @@ private struct DeviceResponse: Decodable {
 class MullvadApi {
     private let context: SwiftApiContext
 
+    private static let logger = Logger(label: "MullvadApi")
+
     init(apiAddress: String, hostname: String) throws {
+        Self.logger.debug("Initializing MullvadApi with address: \(apiAddress), hostname: \(hostname)")
         let directRaw = convert_builtin_access_method_setting(
             UUID().uuidString, "Direct", true, UInt8(KindDirect.rawValue), nil
         )
