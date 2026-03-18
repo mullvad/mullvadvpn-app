@@ -94,14 +94,8 @@ function build_ref {
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
 
-    build_args=(--app-bundle)
-
-    if [[ "$version" != *"-alpha"* && "$version" != *"-dev-"* && "$version" != *"-beta"* ]]; then
-        build_args+=(--fdroid)
-    fi
-
     echo "Building Android app"
-    artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+    artifact_dir=$artifact_dir build "--app-bundle" || return 1
 
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
@@ -120,7 +114,7 @@ function build_ref {
         version="$version$version_suffix"
     fi
 
-    sign_artifacts "$artifact_dir"
+    sign_artifacts "$artifact_dir" --rotate
 
     # Upload files to google play, this needs to be done after the artifacts have been signed
     # Due to to the upload task only being able to upload all files in a folder we need to copy
@@ -140,6 +134,17 @@ function build_ref {
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
 
+    echo "Build Fdroid version"
+    if [[ "$version" != *"-alpha"* && "$version" != *"-dev-"* && "$version" != *"-beta"* ]]; then
+        local fdroid_artifact_dir="dist/fdroid/$version"
+        mkdir -p "$fdroid_artifact_dir"
+        artifact_dir=$fdroid_artifact_dir build "--fdroid" || return 1
+        sign_artifacts "$fdroid_artifact_dir"
+        (cd "$fdroid_artifact_dir" && upload "$version") || return 1
+        # shellcheck disable=SC2216
+        yes | rm -r "$fdroid_artifact_dir"
+    fi
+
     touch "$LAST_BUILT_DIR/$current_hash"
 
     echo ""
@@ -149,16 +154,24 @@ function build_ref {
 
 function sign_artifacts {
     dir=$1
+    rotate="no"
+    [[ " $* " == *" --rotate "* ]] && rotate="yes"
 
     pushd "$dir"
-    # Sign all apk files with the old and new key
+    # If rotate is set, sign all apk files with the old and new key
     key_pass=$(sed -n 's/^keyPassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
     key_store_pass=$(sed -n 's/^storePassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
     for apk in MullvadVPN-*.apk; do
-        $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
-        --key-pass "pass:$key_pass" --ks-pass "pass:$key_store_pass" \
-        --next-signer --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
-        --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$apk"
+        if [[ "$rotate" == "yes" ]]; then
+            $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
+            --key-pass "pass:$key_pass" --ks-pass "pass:$key_store_pass" \
+            --next-signer --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+            --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$apk"
+        else
+            $APKSIGNER_CMD --J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+            --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+            --in "$apk"
+        fi
     done
 
     # Sign all aab files with the upload key (new key)
