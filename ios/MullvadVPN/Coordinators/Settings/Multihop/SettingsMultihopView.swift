@@ -129,6 +129,8 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                         text: NSLocalizedString("Enable", comment: ""),
                         accessibilityId: .multihopSwitch
                     )
+                    .padding(.leading, UIMetrics.contentInsets.left)
+                    .padding(.trailing, UIMetrics.contentInsets.right)
                 #endif
             }
         }
