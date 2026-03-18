@@ -894,20 +894,28 @@ impl RelaySelector {
                 // We may run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
-                // TODO: This should only apply iff we *need* to route through an alternative relay.
                 let occupied = {
                     let mut constraints = constraints.clone();
                     constraints.general.location = Constraint::Any;
-                    let entry_relay = self
+                    let RelayPartitions { matches, discards } = self
                             // Compare with the equiv predicate for the `Predicate::Exit` case. Que
                             // interesante.
-                            .partition_relays(Predicate::Singlehop(constraints))
-                            .matches
-                            .into_iter()
-                            .exactly_one();
+                            .partition_relays(Predicate::Singlehop(constraints));
+
+                    let entry_relay = matches.into_iter().at_most_one();
 
                     match entry_relay {
-                        Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
+                        Ok(None) => {
+                            // There are *no* alternate entry relays ..
+                            // Collect all discards reasons, and reject all relays based on those reasons.
+                            let reasons: Vec<Reason> = discards
+                                .into_iter()
+                                .flat_map(|(_relay, reasons)| reasons)
+                                .unique()
+                                .collect();
+                            Criteria::new(move |_| Verdict::Reject(reasons.clone()))
+                        }
+                        Ok(Some(entry_relay)) => Criteria::new(move |relay: &WireguardRelay| {
                             (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
                         }),
                         Err(_) => {
