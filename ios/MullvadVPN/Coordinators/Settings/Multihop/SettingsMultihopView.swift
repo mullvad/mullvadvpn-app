@@ -50,89 +50,86 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView(viewModel: dataViewModel)
 
-                VStack(spacing: 1) {
-                    HStack {
-                        Text("Mode")
-                        Spacer()
-                    }
-                    .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-                    .background(Color(UIColor.primaryColor))
-                    ForEach(options) { option in
-                        HStack(spacing: 1) {
-                            HStack {
-                                Image(uiImage: UIImage.tick).opacity(tunnelViewModel.value == option.id ? 1.0 : 0.0)
-                                    .foregroundStyle(
-                                        (tunnelViewModel.value == option.id)
-                                            ? Color(UIColor.Cell.Background.selected)
-                                            : Color(UIColor.Cell.titleTextColor)
-                                    )
-                                Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-                                Text(option.label)
-                                    .foregroundStyle(
-                                        (tunnelViewModel.value == option.id)
-                                            ? Color(UIColor.Cell.Background.selected)
-                                            : Color(UIColor.Cell.titleTextColor)
-                                    )
-                                Spacer()
-                            }
-                            .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-                            .background(
-                                Color(UIColor.Cell.Background.indentationLevelZero)
-                            )
-                            if let helpText = option.helpText {
-                                VStack {
-                                    Spacer()
-                                    Button(action: {
-                                        self.alert = MullvadAlert(
-                                            type: .info, messages: helpText,
-                                            actions: [
-                                                .init(
-                                                    type: .default,
-                                                    title: "Got it!",
-                                                    identifier: .includeAllNetworksNotificationsAlertDismissButton,
-                                                    handler: {
-                                                        self.alert = nil
-                                                    }
-                                                )
-                                            ])
-                                    }) {
-                                        Image(.iconInfo)
-                                    }
-                                    //                                    .adjustingTapAreaSize()
-                                    .tint(.white)
+                #if DEBUG
+                    VStack(spacing: 1) {
+                        HStack {
+                            Text("Mode")
+                            Spacer()
+                        }
+                        .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
+                        .background(Color(UIColor.primaryColor))
+                        ForEach(options) { option in
+                            HStack(spacing: 1) {
+                                HStack {
+                                    Image(uiImage: UIImage.tick).opacity(tunnelViewModel.value == option.id ? 1.0 : 0.0)
+                                        .foregroundStyle(
+                                            (tunnelViewModel.value == option.id)
+                                                ? Color(UIColor.Cell.Background.selected)
+                                                : Color(UIColor.Cell.titleTextColor)
+                                        )
+                                    Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
+                                    Text(option.label)
+                                        .foregroundStyle(
+                                            (tunnelViewModel.value == option.id)
+                                                ? Color(UIColor.Cell.Background.selected)
+                                                : Color(UIColor.Cell.titleTextColor)
+                                        )
                                     Spacer()
                                 }
-                                .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
                                 .background(
-                                    //                                (tunnelViewModel.value == option.id)
-                                    //                                    ? Color(UIColor.Cell.Background.selected)
-                                    //                                    :
                                     Color(UIColor.Cell.Background.indentationLevelZero)
                                 )
-
+                                if let helpText = option.helpText {
+                                    VStack {
+                                        Spacer()
+                                        Button(action: {
+                                            self.alert = MullvadAlert(
+                                                type: .info, messages: helpText,
+                                                actions: [
+                                                    .init(
+                                                        type: .default,
+                                                        title: "Got it!",
+                                                        identifier: .includeAllNetworksNotificationsAlertDismissButton,
+                                                        handler: {
+                                                            self.alert = nil
+                                                        }
+                                                    )
+                                                ])
+                                        }) {
+                                            Image(.iconInfo)
+                                        }
+                                        .tint(.white)
+                                        Spacer()
+                                    }
+                                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                                    .background(
+                                        Color(UIColor.Cell.Background.indentationLevelZero)
+                                    )
+                                }
                             }
-
+                            .foregroundColor(Color(UIColor.Cell.titleTextColor))
+                            .onTapGesture {
+                                tunnelViewModel.value = option.id
+                            }
+                            .accessibilityIdentifier(option.accessibilityIdentifier.asString)
                         }
-                        //                        .background(
-                        //                            (tunnelViewModel.value == option.id)
-                        //                                ? Color(UIColor.Cell.Background.selected)
-                        //                                : Color(UIColor.Cell.Background.indentationLevelZero)
-                        //                        )
-                        .foregroundColor(Color(UIColor.Cell.titleTextColor))
-                        .onTapGesture {
-                            tunnelViewModel.value = option.id
-                        }
-                        .accessibilityIdentifier(option.accessibilityIdentifier.asString)
                     }
-                }
-                .cornerRadius(16)
-                .padding(.leading, UIMetrics.contentInsets.left)
-                .padding(.trailing, UIMetrics.contentInsets.right)
-                .listStyle(.plain)
-                .listRowSpacing(UIMetrics.TableView.separatorHeight)
-                .environment(\.defaultMinListRowHeight, 0)
-                .background(Color(.secondaryColor))
-                .foregroundColor(Color(.primaryTextColor))
+                    .cornerRadius(16)
+                    .padding(.leading, UIMetrics.contentInsets.left)
+                    .padding(.trailing, UIMetrics.contentInsets.right)
+                    .listStyle(.plain)
+                    .listRowSpacing(UIMetrics.TableView.separatorHeight)
+                    .environment(\.defaultMinListRowHeight, 0)
+                    .background(Color(.secondaryColor))
+                    .foregroundColor(Color(.primaryTextColor))
+                #else
+                    SwitchRowView(
+                        isOn: $tunnelViewModel.value.isUserSelected,
+                        text: NSLocalizedString("Enable", comment: ""),
+                        accessibilityId: .multihopSwitch
+                    )
+                #endif
             }
         }
         .mullvadAlert(item: $alert)
