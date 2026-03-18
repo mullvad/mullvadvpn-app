@@ -40,6 +40,9 @@ function build_test_executable {
     local node_path
     node_path="$(volta which node || which node)"
 
+    echo "$node_path"
+    $node_path --version
+
     # pack assets
     cp "$node_path" "$node_copy_path"
     # shellcheck disable=SC2068
