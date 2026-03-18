@@ -906,14 +906,11 @@ impl RelaySelector {
                 let can_find_autohop_entry = {
                     let mut singlehop_constraints = constraints.clone();
                     singlehop_constraints.general.location = Constraint::Any;
-                    let RelayPartitions { matches, discards } = self
-                            // Compare with the equiv predicate for the `Predicate::Exit` case. Que
-                            // interesante.
+                    let RelayPartitions { matches, .. } = self
+                            // Compare with the equiv predicate for the `Predicate::Exit` case.
                             .partition_relays(Predicate::Singlehop(singlehop_constraints));
 
-                    let entry_relay = matches.into_iter().at_most_one();
-
-                    match entry_relay {
+                    match matches.into_iter().at_most_one() {
                         Ok(None) => {
                             // Globally, there are no matching relays ....
                             // The most sane thing we can do is to convert the original Predicate from
@@ -1252,14 +1249,6 @@ impl<'a, T> Criteria<'a, T> {
 }
 
 impl<'a> Criteria<'a, WireguardRelay> {
-    /// If the given criteria `f` evaluates to `Accept`, the second provided function `reason` is run to
-    /// potentially reject the relay on a different premise.
-    fn and(f: Self, g: Self) -> Self {
-        Criteria::new(move |relay| match f.eval(relay) {
-            Verdict::Accept => g.eval(relay),
-            Verdict::Reject(reasons) => Verdict::Reject(reasons),
-        })
-    }
     /// Evaluate a single [`Criteria`] for a single [`Relay`].
     fn eval(&self, relay: &WireguardRelay) -> Verdict {
         (self.f)(relay)
