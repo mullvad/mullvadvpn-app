@@ -9,10 +9,14 @@ class BlockAll : public IFirewallRule
 {
 public:
 
-	BlockAll() = default;
+	BlockAll(const GUID &sublayerKey);
 	~BlockAll() = default;
-	
+
 	bool apply(IObjectInstaller &objectInstaller) override;
+
+private:
+
+	const GUID m_sublayerKey;
 };
 
 }

@@ -32,19 +32,6 @@ const GUID &LayerFromIp(const wfp::IpAddress &ip)
 	};
 }
 
-const GUID &TranslateSublayer(PermitEndpoint::Sublayer sublayer)
-{
-	switch (sublayer)
-	{
-		case PermitEndpoint::Sublayer::Baseline: return MullvadGuids::SublayerBaseline();
-		case PermitEndpoint::Sublayer::Dns: return MullvadGuids::SublayerDns();
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	};
-}
-
 } // anonymous namespace
 
 PermitEndpoint::PermitEndpoint
@@ -53,13 +40,13 @@ PermitEndpoint::PermitEndpoint
 	uint16_t relayPort,
 	WinFwProtocol protocol,
 	const std::vector<std::wstring> &relayClients,
-	Sublayer sublayer
+	const GUID &sublayerKey
 )
 	: m_relay(relay)
 	, m_relayPort(relayPort)
 	, m_protocol(protocol)
 	, m_relayClients(relayClients)
-	, m_sublayer(sublayer)
+	, m_sublayerKey(sublayerKey)
 {
 }
 
@@ -76,7 +63,7 @@ bool PermitEndpoint::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits communication with an endpoint")
 		.provider(MullvadGuids::Provider())
 		.layer(LayerFromIp(m_relay))
-		.sublayer(TranslateSublayer(m_sublayer))
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

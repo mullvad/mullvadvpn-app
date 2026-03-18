@@ -9,12 +9,14 @@ class PermitLanService : public IFirewallRule
 {
 public:
 
-	PermitLanService() = default;
+	PermitLanService(const GUID &sublayerKey);
 	~PermitLanService() = default;
-	
+
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
+
+	const GUID m_sublayerKey;
 
 	bool applyIpv4(IObjectInstaller &objectInstaller) const;
 	bool applyIpv6(IObjectInstaller &objectInstaller) const;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libshared/logging/logsink.h>
+#include <guiddef.h>
 #include <stdint.h>
 
 //
@@ -18,6 +19,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Structures
 ///////////////////////////////////////////////////////////////////////////////
+
+typedef struct tag_WinFwSublayerGuids
+{
+	GUID baseline;
+	GUID dns;
+	GUID persistent;
+}
+WinFwSublayerGuids;
 
 typedef struct tag_WinFwSettings
 {
@@ -92,6 +101,7 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
+	const WinFwSublayerGuids *sublayerGuids,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -112,6 +122,7 @@ bool
 WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
+	const WinFwSublayerGuids *sublayerGuids,
 	const WinFwSettings *settings,
 	const WinFwAllowedEndpoint *allowedEndpoint,
 	MullvadLogSink logSink,

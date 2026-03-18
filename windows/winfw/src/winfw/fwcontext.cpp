@@ -48,29 +48,30 @@ namespace
 void AppendSettingsRules
 (
 	FwContext::Ruleset &ruleset,
-	const WinFwSettings &settings
+	const WinFwSettings &settings,
+	const WinFwSublayerGuids &guids
 )
 {
 	if (settings.permitDhcp)
 	{
-		ruleset.emplace_back(std::make_unique<baseline::PermitDhcp>());
-		ruleset.emplace_back(std::make_unique<baseline::PermitNdp>());
+		ruleset.emplace_back(std::make_unique<baseline::PermitDhcp>(guids.baseline));
+		ruleset.emplace_back(std::make_unique<baseline::PermitNdp>(guids.baseline));
 	}
 
 	if (settings.permitLan)
 	{
-		ruleset.emplace_back(std::make_unique<baseline::PermitLan>());
-		ruleset.emplace_back(std::make_unique<baseline::PermitLanService>());
-		ruleset.emplace_back(baseline::PermitDhcpServer::WithExtent(baseline::PermitDhcpServer::Extent::IPv4Only));
+		ruleset.emplace_back(std::make_unique<baseline::PermitLan>(guids.baseline));
+		ruleset.emplace_back(std::make_unique<baseline::PermitLanService>(guids.baseline));
+		ruleset.emplace_back(baseline::PermitDhcpServer::WithExtent(baseline::PermitDhcpServer::Extent::IPv4Only, guids.baseline));
 	}
 
 	//
 	// DNS management
 	//
 
-	ruleset.emplace_back(std::make_unique<baseline::PermitDns>());
-	ruleset.emplace_back(std::make_unique<dns::PermitLoopback>());
-	ruleset.emplace_back(std::make_unique<dns::BlockAll>());
+	ruleset.emplace_back(std::make_unique<baseline::PermitDns>(guids.baseline));
+	ruleset.emplace_back(std::make_unique<dns::PermitLoopback>(guids.dns));
+	ruleset.emplace_back(std::make_unique<dns::BlockAll>(guids.dns));
 }
 
 //
@@ -80,14 +81,15 @@ void AppendRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwEndpoint &relay,
-	const std::vector<std::wstring> &relayClients
+	const std::vector<std::wstring> &relayClients,
+	const WinFwSublayerGuids &guids
 )
 {
-	auto sublayer =
+	const GUID &sublayerKey =
 	(
 		DNS_SERVER_PORT == relay.port
-		? rules::multi::PermitEndpoint::Sublayer::Dns
-		: rules::multi::PermitEndpoint::Sublayer::Baseline
+		? guids.dns
+		: guids.baseline
 	);
 
 	ruleset.emplace_back(std::make_unique<multi::PermitEndpoint>(
@@ -95,7 +97,7 @@ void AppendRelayRules
 		relay.port,
 		relay.protocol,
 		relayClients,
-		sublayer
+		sublayerKey
 	));
 }
 
@@ -105,7 +107,8 @@ void AppendRelayRules
 void AppendAllowedEndpointRules
 (
 	FwContext::Ruleset &ruleset,
-	const WinFwAllowedEndpoint &endpoint
+	const WinFwAllowedEndpoint &endpoint,
+	const WinFwSublayerGuids &guids
 )
 {
 	std::vector<std::wstring> clients;
@@ -114,11 +117,11 @@ void AppendAllowedEndpointRules
 		clients.push_back(endpoint.clients[i]);
 	}
 
-	auto sublayer =
+	const GUID &sublayerKey =
 	(
 		DNS_SERVER_PORT == endpoint.endpoint.port
-		? rules::multi::PermitEndpoint::Sublayer::Dns
-		: rules::multi::PermitEndpoint::Sublayer::Baseline
+		? guids.dns
+		: guids.baseline
 	);
 
 	ruleset.emplace_back(std::make_unique<multi::PermitEndpoint>(
@@ -126,24 +129,27 @@ void AppendAllowedEndpointRules
 		endpoint.endpoint.port,
 		endpoint.endpoint.protocol,
 		clients,
-		sublayer
+		sublayerKey
 	));
 }
 
-void AppendNetBlockedRules(FwContext::Ruleset &ruleset)
+void AppendNetBlockedRules(FwContext::Ruleset &ruleset, const WinFwSublayerGuids &guids)
 {
-	ruleset.emplace_back(std::make_unique<baseline::BlockAll>());
-	ruleset.emplace_back(std::make_unique<baseline::PermitLoopback>());
+	ruleset.emplace_back(std::make_unique<baseline::BlockAll>(guids.baseline));
+	ruleset.emplace_back(std::make_unique<baseline::PermitLoopback>(guids.baseline));
 }
 
 } // anonymous namespace
 
 FwContext::FwContext
 (
-	uint32_t timeout
+	uint32_t timeout,
+	const WinFwSublayerGuids &guids
 )
 	: m_baseline(0)
 	, m_activePolicy(Policy::None)
+	, m_objects(guids)
+	, m_guids(guids)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
 
@@ -164,11 +170,14 @@ FwContext::FwContext
 FwContext::FwContext
 (
 	uint32_t timeout,
+	const WinFwSublayerGuids &guids,
 	const WinFwSettings &settings,
 	const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 )
 	: m_baseline(0)
 	, m_activePolicy(Policy::None)
+	, m_objects(guids)
+	, m_guids(guids)
 {
 	auto engine = wfp::FilterEngine::StandardSession(timeout);
 
@@ -201,17 +210,17 @@ bool FwContext::applyPolicyConnecting
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset, m_guids);
+	AppendSettingsRules(ruleset, settings, m_guids);
 
 	for (const auto &relay : relays)
 	{
-		AppendRelayRules(ruleset, relay, relayClients);
+		AppendRelayRules(ruleset, relay, relayClients, m_guids);
 	}
 
 	if (allowedEndpoint.has_value())
 	{
-		AppendAllowedEndpointRules(ruleset, allowedEndpoint.value());
+		AppendAllowedEndpointRules(ruleset, allowedEndpoint.value(), m_guids);
 	}
 
 	if (tunnelInterfaceAlias.has_value())
@@ -221,12 +230,14 @@ bool FwContext::applyPolicyConnecting
 			case WinFwAllowedTunnelTrafficType::All:
 			{
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+					m_guids.baseline,
 					relayClients,
 					*tunnelInterfaceAlias,
 					std::nullopt,
 					exitEndpointIp
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+					m_guids.baseline,
 					relayClients,
 					*tunnelInterfaceAlias,
 					std::nullopt,
@@ -245,12 +256,14 @@ bool FwContext::applyPolicyConnecting
 						std::nullopt,
 				});
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+					m_guids.baseline,
 					relayClients,
 					*tunnelInterfaceAlias,
 					onlyEndpoint,
 					exitEndpointIp
 				));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+					m_guids.baseline,
 					relayClients,
 					*tunnelInterfaceAlias,
 					onlyEndpoint,
@@ -273,12 +286,14 @@ bool FwContext::applyPolicyConnecting
 								})
 				});
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+							m_guids.baseline,
 							relayClients,
 							*tunnelInterfaceAlias,
 							endpoints,
 							exitEndpointIp
 							));
 				ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+							m_guids.baseline,
 							relayClients,
 							*tunnelInterfaceAlias,
 							endpoints,
@@ -313,28 +328,29 @@ bool FwContext::applyPolicyConnected
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset, m_guids);
+	AppendSettingsRules(ruleset, settings, m_guids);
 
 	for (const auto &relay : relays)
 	{
-		AppendRelayRules(ruleset, relay, relayClients);
+		AppendRelayRules(ruleset, relay, relayClients, m_guids);
 	}
 
 	if (!tunnelDnsServers.empty())
 	{
 		ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
-			tunnelInterfaceAlias, tunnelDnsServers
+			m_guids.dns, tunnelInterfaceAlias, tunnelDnsServers
 		));
 	}
 	if (!nonTunnelDnsServers.empty())
 	{
 		ruleset.emplace_back(std::make_unique<dns::PermitNonTunnel>(
-			tunnelInterfaceAlias, nonTunnelDnsServers
+			m_guids.dns, tunnelInterfaceAlias, nonTunnelDnsServers
 		));
 	}
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+		m_guids.baseline,
 		relayClients,
 		tunnelInterfaceAlias,
 		std::nullopt,
@@ -342,6 +358,7 @@ bool FwContext::applyPolicyConnected
 	));
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+		m_guids.baseline,
 		relayClients,
 		tunnelInterfaceAlias,
 		std::nullopt,
@@ -394,12 +411,12 @@ FwContext::Ruleset FwContext::composePolicyBlocked(const WinFwSettings &settings
 {
 	Ruleset ruleset;
 
-	AppendNetBlockedRules(ruleset);
-	AppendSettingsRules(ruleset, settings);
+	AppendNetBlockedRules(ruleset, m_guids);
+	AppendSettingsRules(ruleset, settings, m_guids);
 
 	if (allowedEndpoint.has_value())
 	{
-		AppendAllowedEndpointRules(ruleset, allowedEndpoint.value());
+		AppendAllowedEndpointRules(ruleset, allowedEndpoint.value(), m_guids);
 	}
 
 	return ruleset;
@@ -445,8 +462,8 @@ bool FwContext::applyCommonBaseConfiguration(SessionController &controller, wfp:
 	// Install structural objects
 	//
 	return controller.addProvider(*MullvadObjects::Provider())
-		&& controller.addSublayer(*MullvadObjects::SublayerBaseline())
-		&& controller.addSublayer(*MullvadObjects::SublayerDns());
+		&& controller.addSublayer(*m_objects.sublayerBaseline())
+		&& controller.addSublayer(*m_objects.sublayerDns());
 }
 
 bool FwContext::applyRuleset(const Ruleset &ruleset)

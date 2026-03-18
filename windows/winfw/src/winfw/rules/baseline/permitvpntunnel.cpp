@@ -18,12 +18,14 @@ namespace rules::baseline
 {
 
 PermitVpnTunnel::PermitVpnTunnel(
+	const GUID &sublayerKey,
 	const std::vector<std::wstring> &relayClients,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::optional<Endpoints> &potentialEndpoints,
 	const std::optional<wfp::IpAddress> &exitEndpointIp
 )
-	: m_relayClients(relayClients)
+	: m_sublayerKey(sublayerKey)
+	, m_relayClients(relayClients)
 	, m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 	, m_potentialEndpoints(potentialEndpoints)
 	, m_exitEndpointIp(exitEndpointIp)
@@ -37,7 +39,7 @@ bool PermitVpnTunnel::AddEndpointFilter(const std::optional<Endpoint> &endpoint,
 	filterBuilder
 		.description(L"This filter is part of a rule that permits communications inside the VPN tunnel")
 		.provider(MullvadGuids::Provider())
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
     bool shouldAddV4Filter = !endpoint.has_value() || endpoint.value().ip.type() == wfp::IpAddress::Ipv4;
@@ -110,7 +112,7 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 		.description(L"This filter is part of a rule that allows exit IP traffic from select clients")
 		.name(L"Permit inbound exit relay connections on tunnel interface")
 		.provider(MullvadGuids::Provider())
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_ExitIp())
 		.weight(wfp::FilterBuilder::WeightClass::Max)
 		.permit();
@@ -163,7 +165,7 @@ bool PermitVpnTunnel::BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObj
 			.description(L"This filter is part of a rule that blocks exit IP traffic from unexpected clients")
 			.name(L"Block inbound exit relay connections on tunnel interface")
 			.provider(MullvadGuids::Provider())
-			.sublayer(MullvadGuids::SublayerBaseline())
+			.sublayer(m_sublayerKey)
 			.key(MullvadGuids::Filter_Baseline_PermitVpnTunnel_BlockExitIp())
 			.weight(wfp::FilterBuilder::WeightClass::Max)
 			.block();

@@ -7,6 +7,11 @@
 namespace rules::baseline
 {
 
+BlockAll::BlockAll(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool BlockAll::apply(IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
@@ -21,7 +26,7 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that restricts inbound and outbound traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Min)
 		.block();
 

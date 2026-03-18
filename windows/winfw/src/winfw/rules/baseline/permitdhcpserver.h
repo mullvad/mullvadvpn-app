@@ -17,13 +17,15 @@ public:
 		IPv6Only
 	};
 
-	static std::unique_ptr<PermitDhcpServer> WithExtent(Extent extent);
+	static std::unique_ptr<PermitDhcpServer> WithExtent(Extent extent, const GUID &sublayerKey);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
 
-	PermitDhcpServer() = default;
+	PermitDhcpServer(const GUID &sublayerKey);
+
+	const GUID m_sublayerKey;
 
 	bool applyIpv4(IObjectInstaller &objectInstaller) const;
 };

@@ -2,6 +2,11 @@
 #include "mullvadobjects.h"
 #include "mullvadguids.h"
 
+MullvadObjects::MullvadObjects(const WinFwSublayerGuids &guids)
+	: m_guids(guids)
+{
+}
+
 //static
 std::unique_ptr<wfp::ProviderBuilder> MullvadObjects::Provider()
 {
@@ -15,30 +20,28 @@ std::unique_ptr<wfp::ProviderBuilder> MullvadObjects::Provider()
 	return builder;
 }
 
-//static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerBaseline()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::sublayerBaseline() const
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
 		.name(L"Mullvad VPN baseline")
 		.description(L"Filters that enforce a good baseline")
-		.key(MullvadGuids::SublayerBaseline())
+		.key(m_guids.baseline)
 		.provider(MullvadGuids::Provider())
 		.weight(MAXUINT16);
 
 	return builder;
 }
 
-//static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerDns()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::sublayerDns() const
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
 		.name(L"Mullvad VPN DNS")
 		.description(L"Filters that restrict DNS traffic")
-		.key(MullvadGuids::SublayerDns())
+		.key(m_guids.dns)
 		.provider(MullvadGuids::Provider())
 		.weight(MAXUINT16 - 1);
 
@@ -59,15 +62,14 @@ std::unique_ptr<wfp::ProviderBuilder> MullvadObjects::ProviderPersistent()
 	return builder;
 }
 
-//static
-std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerPersistent()
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::sublayerPersistent() const
 {
 	auto builder = std::make_unique<wfp::SublayerBuilder>();
 
 	(*builder)
 		.name(L"Mullvad VPN persistent")
 		.description(L"Filters that restrict traffic before WinFw is initialized")
-		.key(MullvadGuids::SublayerPersistent())
+		.key(m_guids.persistent)
 		.provider(MullvadGuids::ProviderPersistent())
 		.persistent()
 		.weight(MAXUINT16);

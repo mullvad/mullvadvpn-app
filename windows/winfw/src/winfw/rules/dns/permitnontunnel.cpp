@@ -15,8 +15,9 @@ using namespace wfp::conditions;
 namespace rules::dns
 {
 
-PermitNonTunnel::PermitNonTunnel(std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
-	: m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))
+PermitNonTunnel::PermitNonTunnel(const GUID &sublayerKey, std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
+	: m_sublayerKey(sublayerKey)
+	, m_tunnelInterfaceAlias(std::move(tunnelInterfaceAlias))
 {
 	SplitAddresses(hosts, m_hostsIpv4, m_hostsIpv6);
 }
@@ -37,7 +38,7 @@ bool PermitNonTunnel::apply(IObjectInstaller &objectInstaller)
 			.description(L"This filter is part of a rule that permits non-tunnel DNS traffic")
 			.provider(MullvadGuids::Provider())
 			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-			.sublayer(MullvadGuids::SublayerDns())
+			.sublayer(m_sublayerKey)
 			.weight(wfp::FilterBuilder::WeightClass::Medium)
 			.permit();
 
@@ -76,7 +77,7 @@ bool PermitNonTunnel::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits non-tunnel DNS traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerDns())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

@@ -25,6 +25,7 @@ public:
 	};
 
 	PermitVpnTunnel(
+		const GUID &sublayerKey,
 		const std::vector<std::wstring> &relayClients,
 		const std::wstring &tunnelInterfaceAlias,
 		const std::optional<Endpoints> &potentialEndpoints,
@@ -37,6 +38,7 @@ private:
 	bool AddEndpointFilter(const std::optional<Endpoint> &endpoint, const GUID &ipv4Guid, const GUID &ipv6Guid, IObjectInstaller &objectInstaller);
 	bool BlockNonRelayClientExit(const wfp::IpAddress &exitIp, IObjectInstaller &objectInstaller);
 
+	const GUID m_sublayerKey;
 	const std::vector<std::wstring> m_relayClients;
 	const std::wstring m_tunnelInterfaceAlias;
 	const std::optional<Endpoints> m_potentialEndpoints;

@@ -30,48 +30,6 @@ const GUID &MullvadGuids::ProviderPersistent()
 }
 
 //static
-const GUID &MullvadGuids::SublayerBaseline()
-{
-	static const GUID g =
-	{
-		0xc78056ff,
-		0x2bc1,
-		0x4211,
-		{ 0xaa, 0xdd, 0x7f, 0x35, 0x8d, 0xef, 0x20, 0x2d }
-	};
-
-	return g;
-}
-
-//static
-const GUID &MullvadGuids::SublayerDns()
-{
-	static const GUID g =
-	{
-		0x60090787,
-		0xcca1,
-		0x4937,
-		{ 0xaa, 0xce, 0x51, 0x25, 0x6e, 0xf4, 0x81, 0xf3 }
-	};
-
-	return g;
-}
-
-//static
-const GUID &MullvadGuids::SublayerPersistent()
-{
-	static const GUID g =
-	{
-		0x3c28881e,
-		0x8891,
-		0x4d61,
-		{ 0xb8, 0x7f, 0xf2, 0x72, 0x50, 0x2d, 0x10, 0x05 }
-	};
-
-	return g;
-}
-
-//static
 const GUID &MullvadGuids::Filter_Boottime_BlockAll_Outbound_Ipv4()
 {
 	static const GUID g =

@@ -12,8 +12,6 @@ public:
 	MullvadGuids() = delete;
 
 	static const GUID &Provider();
-	static const GUID &SublayerBaseline();
-	static const GUID &SublayerDns();
 
 	//
 	// Filter identifiers
@@ -85,7 +83,6 @@ public:
 	//
 
 	static const GUID &ProviderPersistent();
-	static const GUID &SublayerPersistent();
 
 	static const GUID &Filter_Boottime_BlockAll_Inbound_Ipv4();
 	static const GUID &Filter_Boottime_BlockAll_Outbound_Ipv4();

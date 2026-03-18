@@ -25,6 +25,7 @@ MullvadLogSink g_logSink = nullptr;
 void *g_logSinkContext = nullptr;
 
 FwContext *g_fwContext = nullptr;
+WinFwSublayerGuids g_sublayerGuids = {};
 
 // Log the filename of active WFP sessions as comma-separated values. Note that the path is not logged.
 // If the process can not be opened or its filename can not be obtained, the process ID is logged instead.
@@ -144,6 +145,7 @@ bool
 WINFW_API
 WinFw_Initialize(
 	uint32_t timeout,
+	const WinFwSublayerGuids *sublayerGuids,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -159,13 +161,19 @@ WinFw_Initialize(
 			THROW_ERROR("Cannot initialize WINFW twice");
 		}
 
+		if (nullptr == sublayerGuids)
+		{
+			THROW_ERROR("Invalid argument: sublayerGuids");
+		}
+
 		// Convert seconds to milliseconds.
 		uint32_t timeout_ms = timeout * 1000;
 
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
+		g_sublayerGuids = *sublayerGuids;
 
-		g_fwContext = new FwContext(timeout_ms);
+		g_fwContext = new FwContext(timeout_ms, g_sublayerGuids);
 	}
 	catch (std::exception &err)
 	{
@@ -190,6 +198,7 @@ bool
 WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
+	const WinFwSublayerGuids *sublayerGuids,
 	const WinFwSettings *settings,
 	const WinFwAllowedEndpoint *allowedEndpoint,
 	MullvadLogSink logSink,
@@ -207,6 +216,11 @@ WinFw_InitializeBlocked(
 			THROW_ERROR("Cannot initialize WINFW twice");
 		}
 
+		if (nullptr == sublayerGuids)
+		{
+			THROW_ERROR("Invalid argument: sublayerGuids");
+		}
+
 		if (nullptr == settings)
 		{
 			THROW_ERROR("Invalid argument: settings");
@@ -217,8 +231,9 @@ WinFw_InitializeBlocked(
 
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
+		g_sublayerGuids = *sublayerGuids;
 
-		g_fwContext = new FwContext(timeout_ms, *settings, MakeOptional(allowedEndpoint));
+		g_fwContext = new FwContext(timeout_ms, g_sublayerGuids, *settings, MakeOptional(allowedEndpoint));
 	}
 	catch (std::exception &err)
 	{
@@ -274,19 +289,20 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
 			auto sessionController = std::make_unique<SessionController>(std::move(engine));
 
-			rules::persistent::BlockAll blockAll;
+			rules::persistent::BlockAll blockAll(g_sublayerGuids.persistent);
 
 			if (nullptr != g_logSink)
 			{
 				g_logSink(MULLVAD_LOG_LEVEL_DEBUG, "Adding persistent block rules", g_logSinkContext);
 			}
 
+			MullvadObjects objects(g_sublayerGuids);
 			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
 			{
 				ObjectPurger::GetRemoveNonPersistentFunctor()(engine);
 
 				return controller.addProvider(*MullvadObjects::ProviderPersistent())
-					&& controller.addSublayer(*MullvadObjects::SublayerPersistent())
+					&& controller.addSublayer(*objects.sublayerPersistent())
 					&& blockAll.apply(controller);
 			});
 		}

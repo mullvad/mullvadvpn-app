@@ -14,6 +14,11 @@ using namespace wfp::conditions;
 namespace rules::baseline
 {
 
+PermitNdp::PermitNdp(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 {
 	const wfp::IpNetwork linkLocal(wfp::IpAddress::Literal6({ 0xFE80, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 }), 10);
@@ -32,7 +37,7 @@ bool PermitNdp::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits the most central parts of NDP")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

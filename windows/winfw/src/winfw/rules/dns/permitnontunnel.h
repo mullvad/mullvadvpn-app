@@ -24,12 +24,13 @@ public:
 	//
 	// If a tunnel does exist, the alias must be provided.
 	//
-	PermitNonTunnel(std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts);
+	PermitNonTunnel(const GUID &sublayerKey, std::optional<std::wstring> tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts);
 	
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
 
+	const GUID m_sublayerKey;
 	const std::optional<std::wstring> m_tunnelInterfaceAlias;
 	std::vector<wfp::IpAddress> m_hostsIpv4;
 	std::vector<wfp::IpAddress> m_hostsIpv6;

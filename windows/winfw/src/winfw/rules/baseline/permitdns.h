@@ -9,10 +9,14 @@ class PermitDns : public IFirewallRule
 {
 public:
 
-	PermitDns() = default;
+	PermitDns(const GUID &sublayerKey);
 	~PermitDns() = default;
 
 	bool apply(IObjectInstaller& objectInstaller) override;
+
+private:
+
+	const GUID m_sublayerKey;
 };
 
 }

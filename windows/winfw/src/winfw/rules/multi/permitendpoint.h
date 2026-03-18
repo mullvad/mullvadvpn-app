@@ -12,21 +12,15 @@ class PermitEndpoint : public IFirewallRule
 {
 public:
 
-	enum class Sublayer
-	{
-		Baseline,
-		Dns
-	};
-
 	PermitEndpoint
 	(
 		const wfp::IpAddress &relay,
 		uint16_t relayPort,
 		WinFwProtocol protocol,
 		const std::vector<std::wstring> &relayClients,
-		Sublayer sublayer
+		const GUID &sublayerKey
 	);
-	
+
 	bool apply(IObjectInstaller &objectInstaller) override;
 
 private:
@@ -35,7 +29,7 @@ private:
 	const uint16_t m_relayPort;
 	const WinFwProtocol m_protocol;
 	const std::vector<std::wstring> m_relayClients;
-	const Sublayer m_sublayer;
+	const GUID m_sublayerKey;
 };
 
 }

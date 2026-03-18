@@ -3,6 +3,7 @@
 use std::ffi::{CStr, c_char, c_void};
 use talpid_windows::string::multibyte_to_wide;
 use windows_sys::Win32::Globalization::CP_ACP;
+use windows_sys::core::GUID;
 
 use super::{Error, WideCString};
 
@@ -104,6 +105,13 @@ pub enum WinFwAllowedTunnelTrafficType {
     Two,
 }
 
+#[repr(C)]
+pub struct WinFwSublayerGuids {
+    pub baseline: GUID,
+    pub dns: GUID,
+    pub persistent: GUID,
+}
+
 ffi_error!(InitializationResult, Error::Initialization);
 ffi_error!(DeinitializationResult, Error::Deinitialization);
 
@@ -111,6 +119,7 @@ unsafe extern "system" {
     #[link_name = "WinFw_Initialize"]
     pub fn WinFw_Initialize(
         timeout: libc::c_uint,
+        sublayer_guids: &WinFwSublayerGuids,
         sink: Option<LogSink>,
         sink_context: *const c_char,
     ) -> InitializationResult;
@@ -118,6 +127,7 @@ unsafe extern "system" {
     #[link_name = "WinFw_InitializeBlocked"]
     pub fn WinFw_InitializeBlocked(
         timeout: libc::c_uint,
+        sublayer_guids: &WinFwSublayerGuids,
         settings: &WinFwSettings,
         allowed_endpoint: *const WinFwAllowedEndpoint<'_>,
         sink: Option<LogSink>,

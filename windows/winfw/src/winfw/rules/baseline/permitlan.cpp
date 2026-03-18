@@ -13,6 +13,11 @@ using namespace wfp::conditions;
 namespace rules::baseline
 {
 
+PermitLan::PermitLan(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool PermitLan::apply(IObjectInstaller &objectInstaller)
 {
 	return applyIpv4(objectInstaller) && applyIpv6(objectInstaller);
@@ -32,7 +37,7 @@ bool PermitLan::applyIpv4(IObjectInstaller &objectInstaller) const
 		.description(L"This filter is part of a rule that permits LAN traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
@@ -78,7 +83,7 @@ bool PermitLan::applyIpv6(IObjectInstaller &objectInstaller) const
 		.description(L"This filter is part of a rule that permits LAN traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

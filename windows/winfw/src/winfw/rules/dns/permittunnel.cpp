@@ -15,8 +15,9 @@ using namespace wfp::conditions;
 namespace rules::dns
 {
 
-PermitTunnel::PermitTunnel(const std::wstring &tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
-	: m_tunnelInterfaceAlias(tunnelInterfaceAlias)
+PermitTunnel::PermitTunnel(const GUID &sublayerKey, const std::wstring &tunnelInterfaceAlias, const std::vector<wfp::IpAddress> &hosts)
+	: m_sublayerKey(sublayerKey)
+	, m_tunnelInterfaceAlias(tunnelInterfaceAlias)
 {
 	SplitAddresses(hosts, m_hostsIpv4, m_hostsIpv6);
 }
@@ -37,7 +38,7 @@ bool PermitTunnel::apply(IObjectInstaller &objectInstaller)
 			.description(L"This filter is part of a rule that permits DNS traffic inside the VPN tunnel")
 			.provider(MullvadGuids::Provider())
 			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-			.sublayer(MullvadGuids::SublayerDns())
+			.sublayer(m_sublayerKey)
 			.weight(wfp::FilterBuilder::WeightClass::Medium)
 			.permit();
 
@@ -72,7 +73,7 @@ bool PermitTunnel::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits DNS traffic inside the VPN tunnel")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerDns())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

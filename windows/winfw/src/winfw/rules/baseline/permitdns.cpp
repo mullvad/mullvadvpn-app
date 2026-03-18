@@ -11,6 +11,11 @@ using namespace wfp::conditions;
 namespace rules::baseline
 {
 
+PermitDns::PermitDns(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool PermitDns::apply(IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
@@ -25,7 +30,7 @@ bool PermitDns::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that permits outbound DNS")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

@@ -9,10 +9,14 @@ class PermitLoopback : public IFirewallRule
 {
 public:
 
-	PermitLoopback() = default;
+	PermitLoopback(const GUID &sublayerKey);
 	~PermitLoopback() = default;
-	
+
 	bool apply(IObjectInstaller &objectInstaller) override;
+
+private:
+
+	const GUID m_sublayerKey;
 };
 
 }

@@ -6,18 +6,21 @@ use talpid_types::{net::TransportProtocol, tunnel::FirewallPolicyError};
 
 mod sys;
 use sys::*;
-pub use sys::{WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings};
+pub use sys::{
+    WinFwAllowedEndpointContainer, WinFwCleanupPolicy, WinFwSettings, WinFwSublayerGuids,
+};
 
 /// Timeout for acquiring the WFP transaction lock
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
 /// Initialize WinFw module. Returns an initialization error if called multiple times without
 /// interleaving [deinit].
-pub(super) fn initialize() -> Result<(), Error> {
+pub(super) fn initialize(guids: &WinFwSublayerGuids) -> Result<(), Error> {
     // SAFETY: This function is always safe to call.
     let init = unsafe {
         WinFw_Initialize(
             WINFW_TIMEOUT_SECONDS,
+            guids,
             Some(log_sink),
             LOGGING_CONTEXT.as_ptr(),
         )
@@ -29,6 +32,7 @@ pub(super) fn initialize() -> Result<(), Error> {
 /// Initialize WinFw module and apply blocking rules. Returns an initialization error if called
 /// multiple times without interleaving [deinit].
 pub(super) fn initialize_blocked(
+    guids: &WinFwSublayerGuids,
     allowed_endpoint: AllowedEndpoint,
     allow_lan: bool,
 ) -> Result<(), Error> {
@@ -38,6 +42,7 @@ pub(super) fn initialize_blocked(
     let init = unsafe {
         WinFw_InitializeBlocked(
             WINFW_TIMEOUT_SECONDS,
+            guids,
             &cfg,
             &allowed_endpoint.as_endpoint(),
             Some(log_sink),

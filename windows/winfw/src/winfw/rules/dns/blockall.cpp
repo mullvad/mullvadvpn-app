@@ -11,6 +11,11 @@ using namespace wfp::conditions;
 namespace rules::dns
 {
 
+BlockAll::BlockAll(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool BlockAll::apply(IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
@@ -25,7 +30,7 @@ bool BlockAll::apply(IObjectInstaller &objectInstaller)
 		.description(L"This filter is part of a rule that blocks DNS requests")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerDns())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Min)
 		.block();
 

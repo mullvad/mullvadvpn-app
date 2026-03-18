@@ -1,5 +1,6 @@
 #pragma once
 
+#include "winfw.h"
 #include "libwfp/providerbuilder.h"
 #include "libwfp/sublayerbuilder.h"
 #include "libwfp/conditionbuilder.h"
@@ -10,12 +11,16 @@ class MullvadObjects
 {
 public:
 
-	MullvadObjects() = delete;
+	MullvadObjects(const WinFwSublayerGuids &guids);
 
 	static std::unique_ptr<wfp::ProviderBuilder> Provider();
-	static std::unique_ptr<wfp::SublayerBuilder> SublayerBaseline();
-	static std::unique_ptr<wfp::SublayerBuilder> SublayerDns();
+	std::unique_ptr<wfp::SublayerBuilder> sublayerBaseline() const;
+	std::unique_ptr<wfp::SublayerBuilder> sublayerDns() const;
 
 	static std::unique_ptr<wfp::ProviderBuilder> ProviderPersistent();
-	static std::unique_ptr<wfp::SublayerBuilder> SublayerPersistent();
+	std::unique_ptr<wfp::SublayerBuilder> sublayerPersistent() const;
+
+private:
+
+	WinFwSublayerGuids m_guids;
 };

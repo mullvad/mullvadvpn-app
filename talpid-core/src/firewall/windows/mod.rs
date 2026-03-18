@@ -11,6 +11,29 @@ use widestring::WideCString;
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_dns::ResolvedDnsConfig;
+use windows_sys::core::GUID;
+
+/// Sublayer GUIDs to use for WinFw
+const DEFAULT_SUBLAYER_GUIDS: WinFwSublayerGuids = WinFwSublayerGuids {
+    baseline: GUID {
+        data1: 0xc78056ff,
+        data2: 0x2bc1,
+        data3: 0x4211,
+        data4: [0xaa, 0xdd, 0x7f, 0x35, 0x8d, 0xef, 0x20, 0x2d],
+    },
+    dns: GUID {
+        data1: 0x60090787,
+        data2: 0xcca1,
+        data3: 0x4937,
+        data4: [0xaa, 0xce, 0x51, 0x25, 0x6e, 0xf4, 0x81, 0xf3],
+    },
+    persistent: GUID {
+        data1: 0x3c28881e,
+        data2: 0x8891,
+        data3: 0x4d61,
+        data4: [0xb8, 0x7f, 0xf2, 0x72, 0x50, 0x2d, 0x10, 0x05],
+    },
+};
 
 #[macro_use] // must come before other mod declarations
 mod ffi;
@@ -100,7 +123,7 @@ impl Firewall {
     }
 
     pub fn new() -> Result<Self, Error> {
-        winfw::initialize()?;
+        winfw::initialize(&DEFAULT_SUBLAYER_GUIDS)?;
         log::trace!("Successfully initialized windows firewall module");
         Ok(Firewall::default())
     }
@@ -109,7 +132,7 @@ impl Firewall {
         allowed_endpoint: AllowedEndpoint,
         allow_lan: bool,
     ) -> Result<Self, Error> {
-        winfw::initialize_blocked(allowed_endpoint, allow_lan)?;
+        winfw::initialize_blocked(&DEFAULT_SUBLAYER_GUIDS, allowed_endpoint, allow_lan)?;
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
         with_wmi_if_enabled(|wmi| {

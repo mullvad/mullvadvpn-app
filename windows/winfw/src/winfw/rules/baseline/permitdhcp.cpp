@@ -15,6 +15,11 @@ using namespace wfp::conditions;
 namespace rules::baseline
 {
 
+PermitDhcp::PermitDhcp(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 bool PermitDhcp::apply(IObjectInstaller &objectInstaller)
 {
 	return applyIpv4(objectInstaller) && applyIpv6(objectInstaller);
@@ -41,7 +46,7 @@ bool PermitDhcp::applyIpv4(IObjectInstaller &objectInstaller) const
 		.description(L"This filter is part of a rule that permits DHCP client traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
@@ -93,7 +98,7 @@ bool PermitDhcp::applyIpv6(IObjectInstaller &objectInstaller) const
 		.description(L"This filter is part of a rule that permits DHCP client traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

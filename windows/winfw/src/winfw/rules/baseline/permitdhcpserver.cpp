@@ -15,15 +15,20 @@ using namespace wfp::conditions;
 namespace rules::baseline
 {
 
+PermitDhcpServer::PermitDhcpServer(const GUID &sublayerKey)
+	: m_sublayerKey(sublayerKey)
+{
+}
+
 //static
-std::unique_ptr<PermitDhcpServer> PermitDhcpServer::WithExtent(Extent extent)
+std::unique_ptr<PermitDhcpServer> PermitDhcpServer::WithExtent(Extent extent, const GUID &sublayerKey)
 {
 	if (extent != Extent::IPv4Only)
 	{
 		THROW_ERROR("The only supported mode is IPv4Only");
 	}
 
-	return std::unique_ptr<PermitDhcpServer>(new PermitDhcpServer);
+	return std::unique_ptr<PermitDhcpServer>(new PermitDhcpServer(sublayerKey));
 }
 
 bool PermitDhcpServer::apply(IObjectInstaller &objectInstaller)
@@ -45,7 +50,7 @@ bool PermitDhcpServer::applyIpv4(IObjectInstaller &objectInstaller) const
 		.description(L"This filter is part of a rule that permits DHCP server traffic")
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4)
-		.sublayer(MullvadGuids::SublayerBaseline())
+		.sublayer(m_sublayerKey)
 		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 

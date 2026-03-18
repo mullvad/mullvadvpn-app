@@ -1,6 +1,7 @@
 #pragma once
 
 #include "winfw.h"
+#include "mullvadobjects.h"
 #include "sessioncontroller.h"
 #include "rules/ifirewallrule.h"
 #include "libwfp/ipaddress.h"
@@ -14,12 +15,13 @@ class FwContext
 {
 public:
 
-	FwContext(uint32_t timeout);
+	FwContext(uint32_t timeout, const WinFwSublayerGuids &guids);
 
 	// This ctor applies the "blocked" policy.
 	FwContext
 	(
 		uint32_t timeout,
+		const WinFwSublayerGuids &guids,
 		const WinFwSettings &settings,
 		const std::optional<WinFwAllowedEndpoint> &allowedEndpoint
 	);
@@ -83,4 +85,6 @@ private:
 
 	uint32_t m_baseline;
 	Policy m_activePolicy;
+	MullvadObjects m_objects;
+	WinFwSublayerGuids m_guids;
 };

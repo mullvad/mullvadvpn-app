@@ -9,10 +9,14 @@ class PermitNdp : public IFirewallRule
 {
 public:
 
-	PermitNdp() = default;
+	PermitNdp(const GUID &sublayerKey);
 	~PermitNdp() = default;
-	
+
 	bool apply(IObjectInstaller &objectInstaller) override;
+
+private:
+
+	const GUID m_sublayerKey;
 };
 
 }
