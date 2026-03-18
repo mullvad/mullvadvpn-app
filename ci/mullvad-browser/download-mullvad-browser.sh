@@ -11,6 +11,13 @@ BROWSER_RELEASES=( \
     "alpha_aarch64.rpm" \
     "alpha_arm64.deb" )
 
+# NOTE: Currently this script will distribute the Stable and Alpha
+# browser packages to both the "stable" and "beta" sections of the
+# repositories. This is intentional and is also mentioned on the
+# browser download page.
+# If this needs to change in the future then the code near the end
+# ( for repository in "${REPOSITORIES[@]}"; do ... ) will need to
+# be updated to separate the packages by release.
 REPOSITORIES=("stable" "beta")
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
