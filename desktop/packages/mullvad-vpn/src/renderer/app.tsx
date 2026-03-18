@@ -368,10 +368,10 @@ export default class AppRenderer {
       this.history = new History(navigationBase);
     }
 
-    if (window.env.e2e) {
-      // Make the current location available to the tests if running e2e tests
-      window.e2e = { location: this.history.location.pathname };
-    }
+    // Make the current location available to the tests if running e2e tests
+    window.e2e = { location: this.history.location.pathname };
+    // if (window.env.e2e) {
+    // }
   }
 
   public renderView() {
