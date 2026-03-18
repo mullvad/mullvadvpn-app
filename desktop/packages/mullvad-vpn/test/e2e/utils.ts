@@ -71,7 +71,8 @@ async function closePage(page: Page) {
   }
 }
 
-function getCurrentRoute(page: Page): Promise<string | null> {
+async function getCurrentRoute(page: Page): Promise<string | null> {
+  await page.evaluate('"window.e2e", console.log(window.e2e)');
   return page.evaluate('window?.e2e?.location ?? null');
 }
 
