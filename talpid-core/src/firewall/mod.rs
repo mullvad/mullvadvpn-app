@@ -371,4 +371,10 @@ impl Firewall {
     pub fn persist(&mut self, persist: bool) {
         self.inner.persist(persist);
     }
+
+    /// Returns whether split tunneling is available for this session.
+    #[cfg(target_os = "windows")]
+    pub fn split_tunnel_available(&self) -> bool {
+        self.inner.split_tunnel_available()
+    }
 }

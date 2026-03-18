@@ -659,3 +659,44 @@ WinFw_Reset()
 		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 }
+
+extern "C"
+WINFW_LINKAGE
+bool
+WINFW_API
+WinFw_HasSublayerConflict(const WinFwSublayerGuids *guids)
+{
+	try
+	{
+		if (nullptr == guids)
+		{
+			return false;
+		}
+
+		auto engine = wfp::FilterEngine::DynamicSession();
+		const GUID keys[] = { guids->baseline, guids->dns, guids->persistent };
+		bool conflict = false;
+
+		wfp::ObjectEnumerator::Sublayers(*engine, [&](const FWPM_SUBLAYER0 &s) -> bool
+		{
+			for (const auto &key : keys)
+			{
+				if (s.subLayerKey == key
+					&& s.providerKey != nullptr
+					&& *s.providerKey != MullvadGuids::Provider()
+					&& *s.providerKey != MullvadGuids::ProviderPersistent())
+				{
+					conflict = true;
+					return false;
+				}
+			}
+			return true;
+		});
+
+		return conflict;
+	}
+	catch (...)
+	{
+		return false;
+	}
+}

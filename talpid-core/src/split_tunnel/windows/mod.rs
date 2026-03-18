@@ -171,6 +171,16 @@ impl SplitTunnel {
         split_tunnel
     }
 
+    /// Return a permanently disabled split tunnel instance (no driver interaction).
+    ///
+    /// Used when a WFP sublayer GUID conflict forces the firewall to use fallback GUIDs,
+    /// making the `win-split-tunnel` driver (which hardcodes the primary GUIDs) unusable.
+    pub fn disabled() -> Self {
+        Self {
+            state: SplitTunnelState::Failed(FailedSplitTunnelState::new()),
+        }
+    }
+
     /// Set a list of applications to exclude from the tunnel.
     pub fn set_paths<T: AsRef<OsStr>>(
         &mut self,

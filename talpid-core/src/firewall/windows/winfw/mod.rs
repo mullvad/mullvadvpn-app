@@ -13,6 +13,13 @@ pub use sys::{
 /// Timeout for acquiring the WFP transaction lock
 const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
+/// Check whether any of the provided sublayer GUIDs is already registered in WFP by a
+/// non-Mullvad provider. Returns `false` on any error.
+pub(super) fn has_sublayer_conflict(guids: &WinFwSublayerGuids) -> bool {
+    // SAFETY: `guids` is necessarily a valid pointer.
+    unsafe { WinFw_HasSublayerConflict(guids) }
+}
+
 /// Initialize WinFw module. Returns an initialization error if called multiple times without
 /// interleaving [deinit].
 pub(super) fn initialize(guids: &WinFwSublayerGuids) -> Result<(), Error> {

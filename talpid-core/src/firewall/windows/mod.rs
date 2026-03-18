@@ -35,6 +35,32 @@ const DEFAULT_SUBLAYER_GUIDS: WinFwSublayerGuids = WinFwSublayerGuids {
     },
 };
 
+/// Fallback sublayer GUIDs used when [`DEFAULT_SUBLAYER_GUIDS`] conflict with other software.
+/// The conflict usually occurs because split tunneling depends on the existence of the sublayers,
+/// so other VPN clients add them and conflict with this one.
+/// If the fallback GUIDs are used, split tunneling must be disabled, as `win-split-tunnel`
+/// hardcodes the default GUIDs (except `persistent`).
+const FALLBACK_SUBLAYER_GUIDS: WinFwSublayerGuids = WinFwSublayerGuids {
+    baseline: GUID {
+        data1: 0x6c9d2e4f,
+        data2: 0x1a3b,
+        data3: 0x5c7d,
+        data4: [0x8e, 0x9f, 0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f],
+    },
+    dns: GUID {
+        data1: 0x7d0e3f50,
+        data2: 0x2b4c,
+        data3: 0x6d8e,
+        data4: [0x9f, 0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f, 0x60],
+    },
+    persistent: GUID {
+        data1: 0x3c28881e,
+        data2: 0x8891,
+        data3: 0x4d61,
+        data4: [0xb8, 0x7f, 0xf2, 0x72, 0x50, 0x2d, 0x10, 0x05],
+    },
+};
+
 #[macro_use] // must come before other mod declarations
 mod ffi;
 
@@ -105,15 +131,20 @@ pub struct Firewall {
     ///
     /// This should only very cautiously be turned off.
     persist: bool,
-}
 
-impl Default for Firewall {
-    fn default() -> Self {
-        Self { persist: true }
-    }
+    /// Whether split tunneling is available for this session.
+    ///
+    /// Set to `false` when a WFP sublayer GUID conflict was detected at startup, causing the
+    /// firewall to initialize with fallback GUIDs. In that case, `win-split-tunnel` (which
+    /// hardcodes the primary GUIDs) must not be used.
+    split_tunnel_available: bool,
 }
 
 impl Firewall {
+    pub fn split_tunnel_available(&self) -> bool {
+        self.split_tunnel_available
+    }
+
     pub fn from_args(args: FirewallArguments) -> Result<Self, Error> {
         if let InitialFirewallState::Blocked(allowed_endpoint) = args.initial_state {
             Self::initialize_blocked(allowed_endpoint, args.allow_lan)
@@ -123,16 +154,21 @@ impl Firewall {
     }
 
     pub fn new() -> Result<Self, Error> {
-        winfw::initialize(&DEFAULT_SUBLAYER_GUIDS)?;
+        let (guids, split_tunnel_available) = Self::guids();
+        winfw::initialize(guids)?;
         log::trace!("Successfully initialized windows firewall module");
-        Ok(Firewall::default())
+        Ok(Self {
+            split_tunnel_available,
+            persist: true,
+        })
     }
 
     fn initialize_blocked(
         allowed_endpoint: AllowedEndpoint,
         allow_lan: bool,
     ) -> Result<Self, Error> {
-        winfw::initialize_blocked(&DEFAULT_SUBLAYER_GUIDS, allowed_endpoint, allow_lan)?;
+        let (guids, split_tunnel_available) = Self::guids();
+        winfw::initialize_blocked(guids, allowed_endpoint, allow_lan)?;
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
         with_wmi_if_enabled(|wmi| {
@@ -140,7 +176,19 @@ impl Firewall {
             consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
         });
 
-        Ok(Firewall::default())
+        Ok(Self {
+            split_tunnel_available,
+            persist: true,
+        })
+    }
+
+    fn guids() -> (&'static WinFwSublayerGuids, bool) {
+        if winfw::has_sublayer_conflict(&DEFAULT_SUBLAYER_GUIDS) {
+            log::warn!("WFP sublayer GUID conflict detected. Disabling split tunneling");
+            (&FALLBACK_SUBLAYER_GUIDS, false)
+        } else {
+            (&DEFAULT_SUBLAYER_GUIDS, true)
+        }
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {

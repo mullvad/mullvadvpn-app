@@ -431,14 +431,18 @@ impl TunnelStateMachine {
         let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new(
-            runtime.clone(),
-            args.resource_dir.clone(),
-            args.command_tx.clone(),
-            volume_update_rx,
-            args.route_manager.clone(),
-            &args.settings.exclude_paths,
-        );
+        let split_tunnel = if firewall.split_tunnel_available() {
+            split_tunnel::SplitTunnel::new(
+                runtime.clone(),
+                args.resource_dir.clone(),
+                args.command_tx.clone(),
+                volume_update_rx,
+                args.route_manager.clone(),
+                &args.settings.exclude_paths,
+            )
+        } else {
+            split_tunnel::SplitTunnel::disabled()
+        };
 
         #[cfg(target_os = "macos")]
         if let Err(error) = split_tunnel

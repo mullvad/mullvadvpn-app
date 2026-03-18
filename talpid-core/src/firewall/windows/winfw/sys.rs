@@ -173,6 +173,9 @@ unsafe extern "system" {
 
     #[link_name = "WinFw_Reset"]
     pub fn WinFw_Reset() -> WinFwPolicyStatus;
+
+    #[link_name = "WinFw_HasSublayerConflict"]
+    pub fn WinFw_HasSublayerConflict(guids: &WinFwSublayerGuids) -> bool;
 }
 
 pub type LogSink = extern "system" fn(level: log::Level, msg: *const c_char, context: *mut c_void);

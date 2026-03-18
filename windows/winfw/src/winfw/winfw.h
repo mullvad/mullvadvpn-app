@@ -257,3 +257,19 @@ WINFW_LINKAGE
 WINFW_POLICY_STATUS
 WINFW_API
 WinFw_Reset();
+
+//
+// WinFw_HasSublayerConflict:
+//
+// Opens a dynamic WFP session and checks whether any of the three provided sublayer GUIDs
+// is already registered with a provider key that belongs to a foreign (non-Mullvad) provider.
+//
+// Returns true if a conflict is found, false otherwise (including on error).
+//
+extern "C"
+WINFW_LINKAGE
+bool
+WINFW_API
+WinFw_HasSublayerConflict(
+	const WinFwSublayerGuids *guids
+);
