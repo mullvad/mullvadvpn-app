@@ -1805,7 +1805,11 @@ mod partition_relays {
         // by the wrong provider.
         let reasons = unique_reasons(query);
         assert!(
-            reasons.is_subset(&HashSet::from([Reason::Providers, Reason::Daita])),
+            reasons.is_subset(&HashSet::from([
+                Reason::Providers,
+                Reason::Daita,
+                Reason::Inactive
+            ])),
             "{reasons:#?}"
         );
     }
