@@ -5703,9 +5703,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tipsy"
-version = "0.6.5"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91456c51834a52defbaf5f9797f8791df0e2814aec790956669485dc8eab621c"
+checksum = "f0358649974c8e93f90d086ff3e0d4323b5d73b00ddbfbfdf514811df42709d7"
 dependencies = [
  "dirs",
  "futures-util",
