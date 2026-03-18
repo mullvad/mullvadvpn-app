@@ -38,7 +38,14 @@ export function useViewTransitions(onTransition?: () => void): Location<Location
   });
 
   const onTransitionEnd = useEffectEvent((location: Location<LocationState>) => {
+    console.log('transition end', location.pathname);
+    if (!window.e2e) {
+      window.e2e = {
+        location: location.pathname,
+      };
+    }
     window.e2e.location = location.pathname;
+
     // if (window.env.e2e) {
     // }
 
