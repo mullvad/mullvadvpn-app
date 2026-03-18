@@ -320,6 +320,7 @@ jobs:
           export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ls -la "$TEST_DIST_DIR"
+          export > /home/test/ci_run.log
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
