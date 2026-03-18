@@ -895,25 +895,22 @@ impl RelaySelector {
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
                 let occupied = {
-                    let mut constraints = constraints.clone();
-                    constraints.general.location = Constraint::Any;
+                    let mut singlehop_constraints = constraints.clone();
+                    singlehop_constraints.general.location = Constraint::Any;
                     let RelayPartitions { matches, discards } = self
                             // Compare with the equiv predicate for the `Predicate::Exit` case. Que
                             // interesante.
-                            .partition_relays(Predicate::Singlehop(constraints));
+                            .partition_relays(Predicate::Singlehop(singlehop_constraints));
 
                     let entry_relay = matches.into_iter().at_most_one();
 
                     match entry_relay {
                         Ok(None) => {
-                            // There are *no* alternate entry relays ..
-                            // Collect all discards reasons, and reject all relays based on those reasons.
-                            let reasons: Vec<Reason> = discards
-                                .into_iter()
-                                .flat_map(|(_relay, reasons)| reasons)
-                                .unique()
-                                .collect();
-                            Criteria::new(move |_| Verdict::Reject(reasons.clone()))
+                            // Globally, there are no matching relays ....
+                            // The most sane thing we can do is to convert the original Predicate from
+                            // `Autohop` to `Singlehop`, and re-evaluate those criteria for each relay
+                            // to retrieve accurate reject reasons.
+                            return self.criteria(Predicate::Singlehop(constraints));
                         }
                         Ok(Some(entry_relay)) => Criteria::new(move |relay: &WireguardRelay| {
                             (relay.inner == entry_relay.inner).if_true(Reason::Conflict)

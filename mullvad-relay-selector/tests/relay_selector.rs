@@ -1803,8 +1803,10 @@ mod partition_relays {
         //
         // Note that some relays will be discarded simply because they lack DAITA OR are operated
         // by the wrong provider.
+        let reasons = unique_reasons(query);
         assert!(
-            unique_reasons(query).is_subset(&HashSet::from([Reason::Providers, Reason::Daita]))
+            reasons.is_subset(&HashSet::from([Reason::Providers, Reason::Daita])),
+            "{reasons:#?}"
         );
     }
 
