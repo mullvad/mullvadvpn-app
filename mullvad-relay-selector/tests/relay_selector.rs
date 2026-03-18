@@ -1716,23 +1716,16 @@ mod partition_relays {
         // Query for all DAITA relays.
         let RelayPartitions { matches, discards } =
             RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
-        for relay in &matches {
+        for relay in matches {
             assert!(relay.endpoint_data.daita)
         }
         // Not all relays were discarded because they do not have DAITA, but some were!
         // Use them as entry relays, and use smart routing to forcibly select alternate entry
         // routes.
-        let non_daita_relays: Vec<_> = discards
+        for relay in discards
             .into_iter()
-            .filter_map(|(discard, reasons)| {
-                if reasons == vec![Reason::Daita] {
-                    Some(discard)
-                } else {
-                    None
-                }
-            })
-            .collect();
-        for relay in non_daita_relays {
+            .filter_map(|(discard, reasons)| (reasons == vec![Reason::Daita]).then_some(discard))
+        {
             // Force the entry relay to be a relay without DAITA.
             let constraints = EntryConstraints::default().daita(true).general(
                 ExitConstraints::default().location(GeographicLocationConstraint::hostname(
@@ -1742,12 +1735,13 @@ mod partition_relays {
                 )),
             );
             // Demonstrate the difference between autohop / singlehop.
-            let RelayPartitions { matches, discards } =
+            let RelayPartitions { matches, .. } =
                 RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
-
             assert_eq!(matches, vec![relay]);
-            let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
-            assert!(query.matches.is_empty());
+
+            let RelayPartitions { matches, .. } =
+                RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+            assert!(matches.is_empty());
         }
     }
 
