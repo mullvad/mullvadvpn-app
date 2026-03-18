@@ -959,10 +959,7 @@ impl RelaySelector {
                         )
                         .if_false(Reason::Location);
                         let active = relay.active.if_false(Reason::Inactive);
-                        ownership
-                            .compose(providers)
-                            .compose(location)
-                            .compose(active)
+                        ownership.and(providers).and(location).and(active)
                     })
                 };
 
@@ -979,7 +976,9 @@ impl RelaySelector {
                             Verdict::Accept => Verdict::Accept,
                             // The relay can only be used as an exit and requires another entry
                             // Check that another entry can be found
-                            Verdict::Reject(reasons) => collides_with_auto_entry.eval(relay),
+                            Verdict::Reject(reasons) => collides_with_auto_entry
+                                .eval(relay)
+                                .or(Verdict::Reject(reasons)),
                         },
                         Verdict::Reject(reasons) => Verdict::Reject(reasons),
                     }
@@ -1097,7 +1096,7 @@ impl RelaySelector {
                 ObfuscationVerdict::AcceptWireguardEndpoint => wg_endpoint_ip_version.eval(relay),
                 ObfuscationVerdict::AcceptSeparateEndpoint => Verdict::Accept,
                 ObfuscationVerdict::Reject(reason) => {
-                    Verdict::reject(reason).compose(wg_endpoint_ip_version.eval(relay))
+                    Verdict::reject(reason).and(wg_endpoint_ip_version.eval(relay))
                 }
             }
         });
@@ -1283,7 +1282,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
         criterias
             .into_iter()
             .map(|criteria| criteria.eval(relay))
-            .fold(Verdict::Accept, Verdict::compose)
+            .fold(Verdict::Accept, Verdict::and)
     }
 
     /// Flatten a nested structure of different criteria into one.
@@ -1292,7 +1291,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
             criterias
                 .iter()
                 .map(|criteria| criteria.eval(relay))
-                .fold(Verdict::Accept, Verdict::compose)
+                .fold(Verdict::Accept, Verdict::and)
         })
     }
 }
@@ -1313,12 +1312,25 @@ impl Verdict {
     /// This composition is biased towards the negative case, i.e. rejections always take
     /// precedence. If two rejecting verdicts are composed, all of their reasons are composed as
     /// well.
-    fn compose(self, other: Verdict) -> Verdict {
+    fn and(self, other: Verdict) -> Verdict {
         use Verdict::*;
         match (self, other) {
             (Accept, Accept) => Accept,
             (Accept, Reject(reasons)) | (Reject(reasons), Accept) => Reject(reasons),
             (Reject(left), Reject(right)) => Reject([left, right].concat()),
+        }
+    }
+
+    /// Compose two [`Verdict`]s into one single verdict.
+    ///
+    /// This composition is biased towards the positive case, i.e. accepts always take
+    /// precedence. If two rejecting verdicts are composed, all of their reasons are composed as
+    /// well.
+    fn or(self, other: Verdict) -> Verdict {
+        use Verdict::*;
+        match (self, other) {
+            (Reject(left), Reject(right)) => Reject([left, right].concat()),
+            _ => Accept,
         }
     }
 
