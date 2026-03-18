@@ -681,12 +681,11 @@ WinFw_HasSublayerConflict(const WinFwSublayerGuids *guids)
 		{
 			for (const auto &key : keys)
 			{
-				if (s.subLayerKey == key
-					&& s.providerKey != nullptr
-					&& *s.providerKey != MullvadGuids::Provider()
-					&& *s.providerKey != MullvadGuids::ProviderPersistent())
+				if (s.subLayerKey == key)
 				{
-					conflict = true;
+					conflict = s.providerKey == nullptr
+						|| (*s.providerKey != MullvadGuids::Provider()
+						&& *s.providerKey != MullvadGuids::ProviderPersistent());
 					return false;
 				}
 			}
