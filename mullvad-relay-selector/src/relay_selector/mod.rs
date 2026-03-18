@@ -903,7 +903,7 @@ impl RelaySelector {
                 // We may run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
-                let collides_with_auto_entry = {
+                let can_find_autohop_entry = {
                     let mut singlehop_constraints = constraints.clone();
                     singlehop_constraints.general.location = Constraint::Any;
                     let RelayPartitions { matches, discards } = self
@@ -933,7 +933,7 @@ impl RelaySelector {
                 };
 
                 // Check criteria that apply to both exits and entries
-                let exit_criteria = {
+                let can_be_used_as_exit = {
                     let constraints = constraints.clone();
                     Criteria::new(move |relay| {
                         let ownership = matcher::filter_on_ownership(
@@ -964,24 +964,15 @@ impl RelaySelector {
                 };
 
                 // Check criteria that apply specifically to entries
-                let entry_criteria: Criteria<'_, WireguardRelay> =
+                let can_be_used_as_entry: Criteria<'_, WireguardRelay> =
                     Criteria::flatten(self.entry_criteria(constraints.clone()));
 
                 let criteria = Criteria::new(move |relay| {
-                    match exit_criteria.eval(relay) {
-                        // The relay can be used as an exit
-                        // We must now determine of we can also use it as an entry or if another entry is required
-                        Verdict::Accept => match entry_criteria.eval(relay) {
-                            // The relay is accepted, and we can route to it directly (singlehop)
-                            Verdict::Accept => Verdict::Accept,
-                            // The relay can only be used as an exit and requires another entry
-                            // Check that another entry can be found
-                            Verdict::Reject(reasons) => collides_with_auto_entry
-                                .eval(relay)
-                                .or(Verdict::Reject(reasons)),
-                        },
-                        Verdict::Reject(reasons) => Verdict::Reject(reasons),
-                    }
+                    can_be_used_as_exit.eval(relay).and(
+                        can_be_used_as_entry // The relay must also be a valid entry.
+                            .eval(relay)
+                            .or(can_find_autohop_entry.eval(relay)), // Else another entry must be found.
+                    )
                 });
                 vec![criteria]
             }
