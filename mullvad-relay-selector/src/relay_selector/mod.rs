@@ -880,10 +880,19 @@ impl RelaySelector {
         match predicate {
             Predicate::Singlehop(constraints) => {
                 let mut singlehop_criteria = self.entry_criteria(constraints.clone());
+
+                let ownership = Criteria::new(move |relay| {
+                    matcher::filter_on_ownership(constraints.general.ownership.as_ref(), relay)
+                        .if_false(Reason::Ownership)
+                });
+                let providers = Criteria::new(move |relay| {
+                    matcher::filter_on_providers(constraints.general.providers.as_ref(), relay)
+                        .if_false(Reason::Providers)
+                });
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
                 let location = self.location_criteria(constraints.general.location);
-                singlehop_criteria.extend([active, location]);
+                singlehop_criteria.extend([active, location, ownership, providers]);
                 singlehop_criteria
             }
             Predicate::Autohop(constraints) => {
@@ -894,7 +903,7 @@ impl RelaySelector {
                 // We may run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
-                let occupied = {
+                let collides_with_auto_entry = {
                     let mut singlehop_constraints = constraints.clone();
                     singlehop_constraints.general.location = Constraint::Any;
                     let RelayPartitions { matches, discards } = self
@@ -923,8 +932,8 @@ impl RelaySelector {
                     }
                 };
 
-                // Ugly hack for filters applying to both entry and exit, even if we're autohoping.
-                let apply_entry_guards = {
+                // Check criteria that apply to both exits and entries
+                let exit_criteria = {
                     let constraints = constraints.clone();
                     Criteria::new(move |relay| {
                         let ownership = matcher::filter_on_ownership(
@@ -956,7 +965,25 @@ impl RelaySelector {
                             .compose(active)
                     })
                 };
-                let criteria = Criteria::and(apply_entry_guards, occupied);
+
+                // Check criteria that apply specifically to entries
+                let entry_criteria: Criteria<'_, WireguardRelay> =
+                    Criteria::flatten(self.entry_criteria(constraints.clone()));
+
+                let criteria = Criteria::new(move |relay| {
+                    match exit_criteria.eval(relay) {
+                        // The relay can be used as an exit
+                        // We must now determine of we can also use it as an entry or if another entry is required
+                        Verdict::Accept => match entry_criteria.eval(relay) {
+                            // The relay is accepted, and we can route to it directly (singlehop)
+                            Verdict::Accept => Verdict::Accept,
+                            // The relay can only be used as an exit and requires another entry
+                            // Check that another entry can be found
+                            Verdict::Reject(reasons) => collides_with_auto_entry.eval(relay),
+                        },
+                        Verdict::Reject(reasons) => Verdict::Reject(reasons),
+                    }
+                });
                 vec![criteria]
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
@@ -988,10 +1015,19 @@ impl RelaySelector {
                 // Except for the `occupied` condition, the remainder of the work is ~equiv
                 // to `Predicate::Singlehop`.
                 let mut criteria = self.entry_criteria(entry.clone());
+                let ownership = Criteria::new(move |relay| {
+                    matcher::filter_on_ownership(entry.general.ownership.as_ref(), relay)
+                        .if_false(Reason::Ownership)
+                });
+                let providers = Criteria::new(move |relay| {
+                    matcher::filter_on_providers(entry.general.providers.as_ref(), relay)
+                        .if_false(Reason::Providers)
+                });
+
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
                 let location = self.location_criteria(entry.general.location);
-                criteria.extend([active, location, occupied]);
+                criteria.extend([active, location, occupied, ownership, providers]);
                 criteria
             }
             Predicate::Exit(MultihopConstraints { entry, exit }) => {
@@ -1066,20 +1102,12 @@ impl RelaySelector {
             }
         });
 
-        let ownership = Criteria::new(move |relay| {
-            matcher::filter_on_ownership(constraints.general.ownership.as_ref(), relay)
-                .if_false(Reason::Ownership)
-        });
-        let providers = Criteria::new(move |relay| {
-            matcher::filter_on_providers(constraints.general.providers.as_ref(), relay)
-                .if_false(Reason::Providers)
-        });
-
         let daita = Criteria::new(move |relay| {
             let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
             matcher::filter_on_daita(&daita_on, relay).if_false(Reason::Daita)
         });
-        vec![ownership, providers, daita, obfuscation_ipversion_port]
+
+        vec![daita, obfuscation_ipversion_port]
     }
 
     fn obfuscation_criteria(
@@ -1256,6 +1284,16 @@ impl<'a> Criteria<'a, WireguardRelay> {
             .into_iter()
             .map(|criteria| criteria.eval(relay))
             .fold(Verdict::Accept, Verdict::compose)
+    }
+
+    /// Flatten a nested structure of different criteria into one.
+    fn flatten(criterias: Vec<Self>) -> Self {
+        Criteria::new(move |relay| {
+            criterias
+                .iter()
+                .map(|criteria| criteria.eval(relay))
+                .fold(Verdict::Accept, Verdict::compose)
+        })
     }
 }
 

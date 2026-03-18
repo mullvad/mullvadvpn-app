@@ -1714,18 +1714,18 @@ mod partition_relays {
     fn daita() {
         let constraints = EntryConstraints::default().daita(true);
         // Query for all DAITA relays.
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
-        for relay in &query.matches {
+        let RelayPartitions { matches, discards } =
+            RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        for relay in &matches {
             assert!(relay.endpoint_data.daita)
         }
         // Not all relays were discarded because they do not have DAITA, but some were!
         // Use them as entry relays, and use smart routing to forcibly select alternate entry
         // routes.
-        let non_daita_relays: Vec<_> = query
-            .discards
+        let non_daita_relays: Vec<_> = discards
             .into_iter()
             .filter_map(|(discard, reasons)| {
-                if reasons.contains(&Reason::Daita) {
+                if reasons == vec![Reason::Daita] {
                     Some(discard)
                 } else {
                     None
@@ -1736,14 +1736,16 @@ mod partition_relays {
             // Force the entry relay to be a relay without DAITA.
             let constraints = EntryConstraints::default().daita(true).general(
                 ExitConstraints::default().location(GeographicLocationConstraint::hostname(
-                    relay.location.country.clone(),
-                    relay.location.city.clone(),
+                    relay.location.country_code.clone(),
+                    relay.location.city_code.clone(),
                     relay.hostname.clone(),
                 )),
             );
             // Demonstrate the difference between autohop / singlehop.
-            let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
-            assert!(!query.matches.is_empty());
+            let RelayPartitions { matches, discards } =
+                RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
+
+            assert_eq!(matches, vec![relay]);
             let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
             assert!(query.matches.is_empty());
         }
