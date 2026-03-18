@@ -72,13 +72,16 @@ if [[ $deb == "true" ]]; then
         log_header "deb"
     fi
 
-    bash -c " podman run --rm -it debian:12 sh -c \
-        \"apt update $silent_stderr $silent_stdout; \
-        apt install -y curl $silent_stderr $silent_stdout; \
-        curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc; \
-        echo \\\"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/$release_channel $release_channel main\\\" > /etc/apt/sources.list.d/mullvad.list; \
-        apt update $silent_stderr $silent_stdout; \
-        apt list mullvad-* $silent_stderr | grep 'amd64'\" $silent_stderr"
+    bash -c "podman run --rm -i debian:12 sh $silent_stderr" <<SCRIPT
+apt update $silent_stderr $silent_stdout
+apt install -y curl $silent_stderr $silent_stdout
+curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc
+echo "deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64,arm64] $repository_server_public_url/deb/$release_channel $release_channel main" > /etc/apt/sources.list.d/mullvad.list
+# Add arm64 architecture to enable listing packages for both amd64 and arm64
+dpkg --add-architecture arm64
+apt update $silent_stderr $silent_stdout
+apt list mullvad-* $silent_stderr | grep -E 'amd64|arm64'
+SCRIPT
 fi
 
 if [[ $rpm == "true" ]]; then
@@ -86,8 +89,11 @@ if [[ $rpm == "true" ]]; then
         log_header "rpm"
     fi
 
-    bash -c "podman run --rm -it fedora:41 sh -c \
-        \"dnf install -y 'dnf-command(config-manager)' $silent_stderr $silent_stdout; \
-        dnf config-manager addrepo --from-repofile=$repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stderr; \
-        dnf list --refresh mullvad-* $silent_stderr | grep 'x86_64'\" $silent_stderr"
+    bash -c "podman run --rm -i fedora:41 sh $silent_stderr" <<SCRIPT
+dnf install -y 'dnf-command(config-manager)' $silent_stderr $silent_stdout
+dnf config-manager addrepo --from-repofile=$repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stderr
+# Create aarch64 repository to enable listing packages for both x86_64 and aarch64
+sed 's/\$basearch/aarch64/g; s/\[mullvad/[mullvad-aarch64/' /etc/yum.repos.d/*.repo > /etc/yum.repos.d/mullvad-aarch64.repo
+dnf list --refresh mullvad-* $silent_stderr | grep -E 'x86_64|aarch64'
+SCRIPT
 fi
