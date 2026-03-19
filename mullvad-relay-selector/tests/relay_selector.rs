@@ -1771,11 +1771,8 @@ mod partition_relays {
     /// constraints will unblock the relay.
     #[test]
     fn test_unblocking_based_on_reasons() {
-        fn test_constraint(
-            relay_selector: &RelaySelector,
-            constraints: EntryConstraints,
-            expected_reason: Reason,
-        ) {
+        fn test_constraint(expected_reason: Reason, constraints: EntryConstraints) {
+            let relay_selector = relay_selector();
             let expected_reasons = vec![expected_reason];
             let non_matching_relays = relay_selector
                 .partition_relays(Predicate::Singlehop(constraints))
@@ -1794,7 +1791,6 @@ mod partition_relays {
             } = relay_selector.partition_relays(Predicate::Singlehop(EntryConstraints::default()));
             non_matching_relays.is_subset(&HashSet::from_iter(matches));
         }
-        let relay_selector = relay_selector();
 
         let test_cases = [
             (Reason::Daita, EntryConstraints::default().daita(true)),
@@ -1825,7 +1821,7 @@ mod partition_relays {
             ),
         ];
         for (reason, constraint) in test_cases {
-            test_constraint(&relay_selector, constraint, reason);
+            test_constraint(reason, constraint);
         }
     }
 
