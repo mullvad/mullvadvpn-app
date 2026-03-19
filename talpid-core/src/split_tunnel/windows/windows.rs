@@ -3,6 +3,7 @@ use std::{
     fs, io, iter, mem,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
+        fs::OpenOptionsExt,
         prelude::AsRawHandle,
     },
     path::{Component, Path},
@@ -21,7 +22,8 @@ use windows_sys::Win32::{
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     // Preferentially, use GetFinalPathNameByHandleW. If the file does not exist
     // or cannot be opened, infer the path from the label only.
-    if let Ok(file) = fs::OpenOptions::new().read(true).open(path.as_ref()) {
+    // Note: we do not even need read access here, so we explicitly set `access_mode` to `0`.
+    if let Ok(file) = fs::OpenOptions::new().access_mode(0).open(path.as_ref()) {
         return unsafe { get_final_path_name_by_handle(file.as_raw_handle() as HANDLE) };
     }
 
