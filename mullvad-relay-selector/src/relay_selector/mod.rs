@@ -984,7 +984,7 @@ impl RelaySelector {
                 let can_be_used_as_entry = {
                     let exit_relay = self
                             // Compare with the equiv predicate for the `Predicate::Exit` case.
-                            .partition_relays(Predicate::Autohop(EntryConstraints { general: exit, ..Default::default()} ))
+                            .partition_relays(Predicate::Singlehop(EntryConstraints { general: exit, ..Default::default()} ))
                             .matches
                             .into_iter()
                             .exactly_one();
