@@ -4664,6 +4664,9 @@
         }
       }
     },
+    "Always connect via an entry server. The location can either be set manually or automatically in the \"Select location\" view." : {
+
+    },
     "Amsterdam" : {
       "localizations" : {
         "da" : {
@@ -6433,6 +6436,9 @@
           }
         }
       }
+    },
+    "Attention: This will ignore filter settings for the entry server that is being automatically selected." : {
+
     },
     "Attention: toggling “Local network sharing” requires restarting the VPN connection." : {
       "localizations" : {
@@ -28454,6 +28460,9 @@
         }
       }
     },
+    "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" : {
+
+    },
     "Import" : {
       "localizations" : {
         "da" : {
@@ -36374,6 +36383,9 @@
           }
         }
       }
+    },
+    "Mode" : {
+
     },
     "Montreal" : {
       "localizations" : {

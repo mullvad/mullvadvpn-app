@@ -263,6 +263,9 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Multihop
     case multihopSwitch
+    case multihopAlways
+    case multihopNever
+    case multihopWhenNeeded
 
     // WireGuard obfuscation settings
     case wireGuardObfuscationUdpOverTcpTable
