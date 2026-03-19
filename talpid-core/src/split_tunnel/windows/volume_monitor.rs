@@ -115,8 +115,10 @@ fn start_internal_monitor(
         if !is_device_arrival_or_removal(message, w_param) {
             return unsafe { DefWindowProcW(window, message, w_param, l_param) };
         }
-        let paths_guard = paths.lock().unwrap();
+        // Note: These locks must be acquired in the same order as in `frontend_monitor` to prevent
+        // a potential deadlock.
         let mut known_state_guard = known_state.lock().unwrap();
+        let paths_guard = paths.lock().unwrap();
 
         let volumes = unsafe { parse_device_volume_broadcast(&*(l_param as *const _)) };
 
