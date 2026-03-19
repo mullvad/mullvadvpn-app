@@ -1621,9 +1621,19 @@ mod partition_relays {
         constraints.entry.general.location = wg101.clone().into();
         constraints.exit.location = wg101.clone().into();
 
-        let query = relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
         // Assert that the same host cannot be used for entry and exit
-        assert_eq!(query.matches.len(), 0);
+        assert_eq!(matches.len(), 0);
+        assert_eq!(
+            discards
+                .iter()
+                .find_map(|(relay, reasons)| {
+                    (relay.hostname.as_str() == "se-got-wg-101").then_some(reasons)
+                })
+                .unwrap(),
+            &vec![Reason::Conflict]
+        );
 
         // Correct the erroneous query by setting `wg001` as the entry relay
         let mut constraints = MultihopConstraints::default();
