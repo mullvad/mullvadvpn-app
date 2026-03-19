@@ -1153,6 +1153,10 @@ impl RelaySelector {
                                         })
                                     });
                                 match (cannot_use_wg_endpoint, other_ip_matches) {
+                                    (false, true | false) => {
+                                        // Port is usable on WireGuard endpoint, so fall back to it
+                                        AcceptWireguardEndpoint
+                                    }
                                     (true, true) => {
                                         // Switching IP version would unblock the relay.
                                         // Note that the relay could also be unblocked by removing the port constraint
@@ -1166,10 +1170,6 @@ impl RelaySelector {
                                         // so that a Wireguard endpoint can be used. This endpoint must
                                         // then also be available with the requested IP version.
                                         Reject(Reason::Port)
-                                    }
-                                    (false, true | false) => {
-                                        // Port is usable on WireGuard endpoint, so fall back to it
-                                        AcceptWireguardEndpoint
                                     }
                                 }
                             }
