@@ -351,10 +351,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func search(searchText: String) {
-        exitLocationsDataSource.search(by: searchText)
-        exitCustomListsDataSource.search(by: searchText)
-        entryLocationsDataSource.search(by: searchText)
-        entryCustomListsDataSource.search(by: searchText)
+        exitContext.locations = exitLocationsDataSource.search(by: searchText)
+        exitContext.customLists = exitCustomListsDataSource.search(by: searchText)
+        entryContext.locations = entryLocationsDataSource.search(by: searchText)
+        entryContext.locations = entryCustomListsDataSource.search(by: searchText)
     }
 
     private func updateSelections() {
