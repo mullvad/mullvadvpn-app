@@ -1447,12 +1447,11 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
 }
 
 mod partition_relays {
-    //! Tests covering "PartitionRelays" algorithm.
+    //! Tests covering the [RelaySelector::partition_relays] algorithm.
     //!
     //! This is partly a port of pre-existing tests to prevent regressions in the relay selection logic.
     //! The long term goal is to completely remove all old tests, but they will have to remain until
-    //! the relay selector internals have been refactored to use the new "partition relays"
-    //! algorithm.
+    //! the relay selector internals have been refactored to use the new partition_relays algorithm.
 
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
