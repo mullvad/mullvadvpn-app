@@ -1134,7 +1134,6 @@ impl RelaySelector {
                         // The relay may have IPs specifically meant for shadowsocks,
                         // which we want to use if possible.
                         let ss_extra_addrs = &relay.endpoint().shadowsocks_extra_addr_in;
-
                         // Check if any of them matches the requested IP version.
                         match any_ip_matches_version(ip_version, ss_extra_addrs) {
                             Ok(()) => AcceptSeparateEndpoint,
@@ -1175,8 +1174,13 @@ impl RelaySelector {
                             }
                         }
                     }
-                    Quic => match relay.endpoint().quic() {
-                        Some(quic) => match any_ip_matches_version(ip_version, quic.in_addr()) {
+                    Quic => {
+                        // TODO: Refactor using `if-let guards` once 1.95 is stable.
+                        let Some(quic) = relay.endpoint().quic() else {
+                            // QUIC is disabled
+                            return Reject(Reason::Obfuscation);
+                        };
+                        match any_ip_matches_version(ip_version, quic.in_addr()) {
                             Ok(()) => AcceptSeparateEndpoint,
                             // Switching IP version would unblock the relay.
                             Err(true) => Reject(Reason::IpVersion),
@@ -1184,15 +1188,11 @@ impl RelaySelector {
                             // This scenario should be unreachable, but treat it as if obfuscation was
                             // unavailable just in case.
                             Err(false) => Reject(Reason::Obfuscation),
-                        },
-                        // QUIC is disabled
-                        None => Reject(Reason::Obfuscation),
-                    },
-
+                        }
+                    }
                     // LWO is only enabled on some relays
                     Lwo if relay.endpoint().lwo => AcceptWireguardEndpoint,
                     Lwo => Reject(Reason::Obfuscation),
-
                     // Other relays are always valid
                     // TODO:^ This might not be true. We might want to consider the selected port for
                     // udp2tcp & wireguard port ..
