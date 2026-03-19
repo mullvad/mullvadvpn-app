@@ -1,27 +1,18 @@
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
-import { spacings } from '../../../../../lib/foundations';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
-import { GeographicalLocationListItem } from '../geographical-location-list-item';
-import { useLocationListsContext } from '../location-lists/LocationListsContext';
+import { CountryLocation } from '../country-location';
 import { useRelayCount } from './hooks';
 
-const StyledLocationContainer = styled.div`
-  margin-bottom: ${spacings.tiny};
-`;
-
-export function CountryLocationList() {
+export function CountryLocations() {
   const { searchedLocations } = useSelectLocationViewContext();
   const { visibleRelays, totalRelays } = useRelayCount();
 
   const showFilterText = visibleRelays !== totalRelays;
-
-  const { handleSelect } = useLocationListsContext();
 
   return (
     <FlexColumn gap="tiny">
@@ -50,18 +41,9 @@ export function CountryLocationList() {
         )}
       </SectionTitle>
       <FlexColumn>
-        {searchedLocations.map((country) => {
-          const { key } = getLocationListItemMapProps(country, undefined);
-          return (
-            <StyledLocationContainer key={key}>
-              <GeographicalLocationListItem
-                root
-                location={country}
-                level={0}
-                onSelect={handleSelect}
-              />
-            </StyledLocationContainer>
-          );
+        {searchedLocations.map((location) => {
+          const { key } = getLocationListItemMapProps(location, undefined);
+          return <CountryLocation key={key} location={location} />;
         })}
       </FlexColumn>
     </FlexColumn>
