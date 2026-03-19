@@ -1492,44 +1492,35 @@ mod partition_relays {
     //
     // - [status] <test> (port)
     //
-    // - [x] test_entry_hostname_collision
-    // - [x] test_runtime_ipv4_unavailable
+    // - [x] test_entry_hostname_collision (entry_hostname_collision)
+    // - [x] test_runtime_ipv4_unavailable (runtime_ipv4_unavailable)
     // - [-] test_selecting_endpoint_with_udp2tcp_obfuscation
     // - [-] test_selecting_ignore_extra_ips_override_v4
     // - [-] test_include_in_country
     // - [-] test_selecting_ignore_extra_ips_override_v6
-    // - [x] test_selecting_over_lwo
-    // - [x] test_selecting_over_quic
-    // - [x] test_shadowsocks_runtime_ipv4_unavailable
-    // - [x] test_selecting_over_shadowsocks
+    // - [x] test_selecting_over_lwo (obfuscation)
+    // - [x] test_selecting_over_quic (obfuscation)
+    // - [x] test_shadowsocks_runtime_ipv4_unavailable (shadowsocks_runtime_ipv4_unavailable)
+    // - [x] test_selecting_over_shadowsocks (obfuscation)
     // - [-] test_selecting_over_shadowsocks_extra_ips
-    // - [x] test_daita
+    // - [x] test_daita (daita)
     // - [-] test_wg_port_selection
     // - [-] test_retry_order
     // - [-] valid_user_setting_should_yield_relay
-    // - [x] test_multihop_providers ()
+    // - [x] test_multihop_providers (multihop_ownership_and_provider)
     // - [-] test_load_balancing
-    // - [x] test_daita_smart_routing_overrides_multihop
+    // - [x] test_daita_smart_routing_overrides_multihop (daita_smart_routing_overrides_multihop)
     // - [-] test_selecting_endpoint_with_auto_obfuscation
     // - [-] test_selecting_location_will_consider_multihop
-    // - [x] test_providers
-    // - [x] test_multihop_ownership
-    // - [x] test_entry
-    // - [x] test_ownership
+    // - [x] test_providers (multihop_ownership_and_provider)
+    // - [x] test_multihop_ownership (multihop_ownership_and_provider)
+    // - [x] test_entry (multihop)
+    // - [x] test_ownership (multihop_ownership_and_provider)
     // - [-] test_udp2tcp_use_correct_port_ranges
-    //
-    // Additionally we should make sure to cover these test scenarios:
-    //
-    // # Singlehop (TODO)
-    // # AutoHop (TODO)
-    // # Multihop/Entry (TODO)
-    // # Multihop/Exit (TODO)
 
     /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
     /// for the entry and exit int the case of multihop, is reflected in the chosen relay
     /// and reflected in the "reasons" of the discarded relays.
-    ///
-    /// This is a port of multihop_ownership, test_ownership and test_provider.
     #[test]
     fn multihop_ownership_and_provider() {
         let exit_constraints = [
@@ -1638,11 +1629,6 @@ mod partition_relays {
     }
 
     /// Test that filtering on obfuscation works.
-    ///
-    /// This is a port of the following tests:
-    /// * test_selecting_over_quic
-    /// * test_selecting_over_lwo
-    /// * test_selecting_over_shadowsocks
     #[test]
     fn obfuscation() {
         // test_selecting_over_quic
@@ -1673,8 +1659,6 @@ mod partition_relays {
     }
 
     /// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
-    ///
-    /// This is a port of test_runtime_ipv4_unavailable.
     #[test]
     fn runtime_ipv4_unavailable() {
         let constraints = EntryConstraints::default().ip_version(IpVersion::V6);
@@ -1688,8 +1672,6 @@ mod partition_relays {
 
     /// Check that if IPv4 is not available and shadowsocks obfuscation is requested
     /// it should return a relay with IPv6 address.
-    ///
-    /// This is a port of test_shadowsocks_runtime_ipv4_unavailable.
     #[test]
     fn shadowsocks_runtime_ipv4_unavailable() {
         let constraints = EntryConstraints::default()
@@ -1707,8 +1689,6 @@ mod partition_relays {
     }
 
     /// Test that filtering on DAITA works.
-    ///
-    /// This is a port of `test_daita`
     #[test]
     fn daita() {
         let constraints = EntryConstraints::default().daita(true);
@@ -1746,8 +1726,6 @@ mod partition_relays {
 
     /// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
     /// multihop is enabled. This applies even if the entry is set explicitly.
-    ///
-    /// This is a port of test_daita_smart_routing_overrides_multihop
     #[test]
     fn daita_smart_routing_overrides_multihop() {
         let daita_constraints = EntryConstraints::default().daita(true);
@@ -1836,7 +1814,7 @@ mod partition_relays {
         );
     }
 
-    /// TODO
+    /// Assert that a relay is accepted even if the location does not contain any eligible relays when Autohopping.
     #[test]
     fn no_entry_constraints_on_autohop_exit() {
         // Curate a relay list with exactly two relays; one with DAITA & one without.
