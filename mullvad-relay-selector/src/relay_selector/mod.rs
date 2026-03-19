@@ -1125,7 +1125,7 @@ impl RelaySelector {
             // - User has set IPv6=only and anti-censorship=auto
             // - A relay doesn't have an IPv6 for its wg endpoint, but it does have an IPv6 extra shadowsocks addr.
             // In this scenario, we could conceivably allow the relay by enabling shadowsocks to resolve the IP constraint.
-            // This would negatively affect the performance of the connection, so we chose discard the relay.
+            // This would negatively affect the performance of the connection, so we have chosen to discard the relay for now.
             Constraint::Any => AcceptWireguardEndpoint,
             Constraint::Only(settings) => {
                 use mullvad_types::relay_constraints::SelectedObfuscation::*;
@@ -1152,23 +1152,25 @@ impl RelaySelector {
                                                 .any(|range| range.contains(&port))
                                         })
                                     });
-                                if cannot_use_wg_endpoint {
-                                    if other_ip_matches {
+                                match (cannot_use_wg_endpoint, other_ip_matches) {
+                                    (true, true) => {
                                         // Switching IP version would unblock the relay.
                                         // Note that the relay could also be unblocked by removing the port constraint
                                         // so that a normal WireGuard endpoint can be used IFF that endpoint
                                         // is available with the requested IP version. We cannot represent this, so we
                                         // opt to only inform the user about the IP version.
                                         Reject(Reason::IpVersion)
-                                    } else {
+                                    }
+                                    (true, false) => {
                                         // No extra addresses are available at all, the the port must be changed
                                         // so that a Wireguard endpoint can be used. This endpoint must
                                         // then also be available with the requested IP version.
                                         Reject(Reason::Port)
                                     }
-                                } else {
-                                    // Port is usable on WireGuard endpoint, so fall back to it
-                                    AcceptWireguardEndpoint
+                                    (false, true | false) => {
+                                        // Port is usable on WireGuard endpoint, so fall back to it
+                                        AcceptWireguardEndpoint
+                                    }
                                 }
                             }
                         }
