@@ -31,7 +31,8 @@ enum SettingsDisclosureType {
 class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
     typealias InfoButtonHandler = () -> Void
 
-    let disclosureImageView = UIImageView(image: nil)
+    let disclosureImageView = UIImageView()
+    let mainContentContainerWrapper = UIStackView()
     let mainContentContainer = UIView()
     let leftContentContainer = UIView()
     let rightContentContainer = UIView()
@@ -69,6 +70,25 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
             }
         }
     }
+
+    var breadcrumb: Breadcrumb? = nil {
+        didSet {
+            if let breadcrumb {
+                breadcrumbImageView.image = breadcrumb.icon
+                breadcrumbImageView.adjustsImageSizeForAccessibilityContentSizeCategory = true
+                breadcrumbImageView.isHidden = false
+            } else {
+                breadcrumbImageView.isHidden = true
+            }
+        }
+    }
+
+    let breadcrumbImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        imageView.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        return imageView
+    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -155,15 +175,20 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
             infoButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
         }
 
-        contentView.addConstrainedSubviews([leftContentContainer, mainContentContainer, rightContentContainer]) {
-            mainContentContainer.pinEdgesToSuperviewMargins(.all().excluding([.leading, .trailing]))
+        mainContentContainerWrapper.spacing = 8
+        mainContentContainerWrapper.alignment = .center
+        mainContentContainerWrapper.addArrangedSubview(mainContentContainer)
+        mainContentContainerWrapper.addArrangedSubview(breadcrumbImageView)
+
+        contentView.addConstrainedSubviews([leftContentContainer, mainContentContainerWrapper, rightContentContainer]) {
+            mainContentContainerWrapper.pinEdgesToSuperviewMargins(.all().excluding([.leading, .trailing]))
 
             leftContentContainer.pinEdgesToSuperviewMargins(.all().excluding([.leading, .trailing]))
             leftContentContainer.pinEdgesToSuperview(.init([.leading(16)]))
-            leftContentContainer.trailingAnchor.constraint(equalTo: mainContentContainer.leadingAnchor)
+            leftContentContainer.trailingAnchor.constraint(equalTo: mainContentContainerWrapper.leadingAnchor)
 
             rightContentContainer.pinEdgesToSuperview(.all().excluding(.leading))
-            rightContentContainer.leadingAnchor.constraint(equalTo: mainContentContainer.trailingAnchor)
+            rightContentContainer.leadingAnchor.constraint(equalTo: mainContentContainerWrapper.trailingAnchor)
             rightContentContainer.widthAnchor.constraint(
                 greaterThanOrEqualToConstant: UIMetrics.TableView.cellIndentationWidth
             )

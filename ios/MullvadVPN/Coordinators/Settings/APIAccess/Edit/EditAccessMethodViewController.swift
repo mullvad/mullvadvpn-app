@@ -51,9 +51,7 @@ class EditAccessMethodViewController: UIViewController {
         tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
-        tableView.sectionFooterHeight = UITableView.automaticDimension
-        tableView.estimatedSectionFooterHeight = 44
-        tableView.directionalLayoutMargins = .init(top: 0, leading: 16, bottom: 0, trailing: 16)
+        tableView.directionalLayoutMargins = UIMetrics.contentLayoutMargins
 
         view.addConstrainedSubviews([tableView]) {
             tableView.pinEdgesToSuperview(.all())
@@ -79,6 +77,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
         guard let itemIdentifier = dataSource?.itemIdentifier(for: indexPath) else { return }
 
         if case .methodSettings = itemIdentifier {
@@ -116,7 +115,9 @@ extension EditAccessMethodViewController: UITableViewDelegate {
         case .testingStatus:
             subject.value.testingStatus == .initial ? 0 : UITableView.automaticDimension
         case .enableMethod:
-            subject.value.infoHeaderConfig == nil ? 8 : UITableView.automaticDimension
+            subject.value.infoHeaderConfig == nil ? 16 : UITableView.automaticDimension
+        case .methodSettings, .testMethod, .deleteMethod:
+            24
         default:
             0
         }
@@ -141,7 +142,8 @@ extension EditAccessMethodViewController: UITableViewDelegate {
                 .TextProperties(
                     font: .mullvadMini,
                     color: .TableSection.footerTextColor
-                )
+                ),
+            directionalLayoutMargins: NSDirectionalEdgeInsets(UIMetrics.SettingsRowView.footerLayoutMargins)
         )
         contentConfiguration.text = sectionFooterText
         headerView.contentConfiguration = contentConfiguration
@@ -152,20 +154,17 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     // Footer height shenanigans to avoid extra spacing in testing sections when testing is NOT ongoing.
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
-        let defaultMargin: CGFloat = 24
 
         return switch sectionIdentifier {
         case .testingStatus:
             switch subject.value.testingStatus {
-            case .initial, .inProgress:
+            case .inProgress:
                 8
-            case .succeeded, .failed:
-                defaultMargin
+            default:
+                0
             }
-        case .cancelTest:
-            subject.value.testingStatus == .inProgress ? defaultMargin : 0
         default:
-            (sectionIdentifier.sectionFooter != nil) ? UITableView.automaticDimension : defaultMargin
+            (tableView.footerView(forSection: section) != nil) ? UITableView.automaticDimension : 0
         }
     }
 
@@ -254,6 +253,7 @@ extension EditAccessMethodViewController: UITableViewDelegate {
     private func configureMethodSettings(_ cell: UITableViewCell, itemIdentifier: EditAccessMethodItemIdentifier) {
         var contentConfiguration = ListCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
+        contentConfiguration.showBreadcrumb = interactor.shouldShowBreadcrumb
         cell.contentConfiguration = contentConfiguration
 
         if let cell = cell as? CustomCellDisclosureHandling {

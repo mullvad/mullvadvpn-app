@@ -68,7 +68,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                     HStack {
                         Group {
                             if !location.isActive {
-                                Image.mullvadRedDot
+                                Image.mullvadIconStateOffline
                             } else if location.isSelected {
                                 Image.mullvadIconTick
                                     .foregroundStyle(Color.mullvadSuccessColor)

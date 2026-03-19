@@ -50,6 +50,11 @@ enum UIMetrics {
         static let backgroundColor: UIColor = .black
     }
 
+    enum Dashboard {
+        static let padding: CGFloat = 16
+        static let cornerRadius: CGFloat = 12
+    }
+
     enum FormSheetTransition {
         static let duration: Duration = .milliseconds(500)
         static let delay: Duration = .zero

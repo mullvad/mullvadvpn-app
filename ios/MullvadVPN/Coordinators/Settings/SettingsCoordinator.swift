@@ -13,42 +13,6 @@ import Routing
 import SwiftUI
 import UIKit
 
-/// Settings navigation route.
-enum SettingsNavigationRoute: Equatable {
-    /// The route that's always displayed first upon entering settings.
-    case root
-
-    /// VPN settings.
-    case vpnSettings
-
-    /// Problem report.
-    case problemReport
-
-    /// FAQ section displayed as a modal safari browser.
-    case faq
-
-    /// API access route.
-    case apiAccess
-
-    /// changelog route.
-    case changelog
-
-    /// Multihop route.
-    case multihop
-
-    /// DAITA route.
-    case daita
-
-    /// Language route.
-    case language
-
-    /// Notification settings route.
-    case notificationSettings
-
-    /// IAN route.
-    case includeAllNetworks
-}
-
 /// Top-level settings coordinator.
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
     UINavigationControllerDelegate, Sendable
@@ -58,8 +22,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private var currentRoute: SettingsNavigationRoute?
     nonisolated(unsafe) private var modalRoute: SettingsNavigationRoute?
     private let interactorFactory: SettingsInteractorFactory
+    private let accessMethodRepository: AccessMethodRepositoryProtocol
+    private let breadcrumbsProvider: BreadcrumbsProvider
     private var viewControllerFactory: SettingsViewControllerFactory?
     private var alertPresenter: AlertPresenter?
+
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)? {
         didSet {
             viewControllerFactory?.didUpdateNotificationSettings = { [weak self] newValue in
@@ -98,10 +65,13 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         accessMethodRepository: AccessMethodRepositoryProtocol,
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository,
-        appPreferences: AppPreferencesDataSource
+        appPreferences: AppPreferencesDataSource,
+        breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
+        self.accessMethodRepository = accessMethodRepository
+        self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init()
 
@@ -111,6 +81,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             interactorFactory: interactorFactory,
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester,
+            breadcrumbsProvider: breadcrumbsProvider,
             ipOverrideRepository: ipOverrideRepository,
             navigationController: navigationController,
             alertPresenter: AlertPresenter(context: self),
@@ -314,7 +285,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     private func makeChild(for route: SettingsNavigationRoute) -> SettingsViewControllerFactory.MakeChildResult {
         if route == .root {
             let controller = SettingsViewController(
-                interactor: interactorFactory.makeSettingsInteractor()
+                interactor: interactorFactory.makeSettingsInteractor(),
+                breadcrumbsProvider: breadcrumbsProvider
             )
             controller.delegate = self
             return .viewController(controller)

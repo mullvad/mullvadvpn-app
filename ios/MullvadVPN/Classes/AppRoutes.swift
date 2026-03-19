@@ -123,6 +123,11 @@ enum AppRoute: AppRouteProtocol {
     case changelog
 
     /**
+     API access methods standalone route (not subsetting).
+     */
+    case apiAccess
+
+    /**
      Alert route. Alert id must be a unique string in order to produce a unique route
      that distinguishes between different kinds of alerts.
      */
@@ -158,7 +163,8 @@ enum AppRoute: AppRouteProtocol {
             return .selectLocation
         case .account:
             return .account
-        case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides, .includeAllNetworks:
+        case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides,
+            .includeAllNetworks, .apiAccess:
             return .settings
         case let .alert(id):
             return .alert(id)

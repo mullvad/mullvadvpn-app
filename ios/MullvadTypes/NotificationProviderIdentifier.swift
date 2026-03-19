@@ -27,6 +27,7 @@ public enum NotificationProviderIdentifier: String {
     case registeredDeviceInAppNotification = "RegisteredDeviceInAppNotification"
     case tunnelStatusNotificationProvider = "TunnelStatusNotificationProvider"
     case latestChangesInAppNotificationProvider = "LatestChangesInAppNotificationProvider"
+    case invalidShadowsocksCipherInAppNotificationProvider = "InvalidShadowsocksCipherInAppNotificationProvider"
     case `default` = "default"
 
     public var domainIdentifier: String {
