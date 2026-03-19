@@ -1,6 +1,9 @@
+@file:Suppress("TooManyFunctions")
+
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.relay_selector.RelaySelector
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
@@ -8,11 +11,15 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.EntryConstraints
+import net.mullvad.mullvadvpn.lib.model.ExitConstraints
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -22,6 +29,7 @@ import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.RelaySelectorPredicate
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
@@ -32,13 +40,15 @@ internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationC
     ManagementInterface.LocationConstraint.newBuilder()
         .apply {
             when (this@fromDomain) {
-                is Constraint.Any -> {}
-                is Constraint.Only -> {
-                    when (val relayItemId = value) {
+                Constraint.Any ->
+                    setLocation(
+                        ManagementInterface.GeographicLocationConstraint.getDefaultInstance()
+                    )
+                is Constraint.Only ->
+                    when (val relayItemId = this@fromDomain.value) {
                         is CustomListId -> setCustomList(relayItemId.value)
                         is GeoLocationId -> setLocation(relayItemId.fromDomain())
                     }
-                }
             }
         }
         .build()
@@ -102,34 +112,33 @@ internal fun ObfuscationMode.fromDomain():
 
 internal fun Udp2TcpObfuscationSettings.fromDomain():
     ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation =
-    when (val port = port) {
-        is Constraint.Any ->
-            ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.newBuilder()
-                .clearPort()
-                .build()
-        is Constraint.Only ->
-            ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.newBuilder()
-                .setPort(port.value.value)
-                .build()
-    }
+    ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.newBuilder()
+        .let {
+            when (val port = port) {
+                is Constraint.Any -> it.clearPort()
+                is Constraint.Only -> it.setPort(port.value.value)
+            }
+        }
+        .build()
 
 internal fun Constraint<Port>.fromDomain(): ManagementInterface.ObfuscationSettings.WireguardPort =
-    when (this) {
-        is Constraint.Any ->
-            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder().clearPort()
-        is Constraint.Only ->
-            ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder()
-                .setPort(this.value.value)
-    }.build()
+    ManagementInterface.ObfuscationSettings.WireguardPort.newBuilder()
+        .let {
+            when (this) {
+                is Constraint.Any -> it.clearPort()
+                is Constraint.Only -> it.setPort(value.value)
+            }
+        }
+        .build()
 
 internal fun GeoLocationId.fromDomain(): ManagementInterface.GeographicLocationConstraint =
     ManagementInterface.GeographicLocationConstraint.newBuilder()
-        .apply {
-            when (val id = this@fromDomain) {
-                is GeoLocationId.Country -> setCountry(id.code)
-                is GeoLocationId.City -> setCountry(id.country.code).setCity(id.code)
+        .let {
+            when (this) {
+                is GeoLocationId.Country -> it.setCountry(code)
+                is GeoLocationId.City -> it.setCountry(country.code).setCity(code)
                 is GeoLocationId.Hostname ->
-                    setCountry(id.country.code).setCity(id.city.code).setHostname(id.code)
+                    it.setCountry(country.code).setCity(city.code).setHostname(code)
             }
         }
         .build()
@@ -145,10 +154,10 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
     ManagementInterface.WireguardConstraints.newBuilder()
         .setUseMultihop(isMultihopEnabled)
         .setEntryLocation(entryLocation.fromDomain())
-        .apply {
-            when (val ipVersion = this@fromDomain.ipVersion) {
-                is Constraint.Any -> clearIpVersion()
-                is Constraint.Only -> setIpVersion(ipVersion.value.fromDomain())
+        .let {
+            when (val ipVersion = ipVersion) {
+                is Constraint.Any -> it.clearIpVersion()
+                is Constraint.Only -> it.setIpVersion(ipVersion.value.fromDomain())
             }
         }
         .build()
@@ -271,3 +280,73 @@ internal fun IpVersion.fromDomain(): ManagementInterface.IpVersion =
         IpVersion.IPV4 -> ManagementInterface.IpVersion.V4
         IpVersion.IPV6 -> ManagementInterface.IpVersion.V6
     }
+
+internal fun RelaySelectorPredicate.fromDomain(): RelaySelector.Predicate =
+    when (this) {
+        is RelaySelectorPredicate.Autohop -> fromDomain()
+        is RelaySelectorPredicate.Entry -> fromDomain()
+        is RelaySelectorPredicate.Exit -> fromDomain()
+        is RelaySelectorPredicate.SingleHop -> fromDomain()
+    }
+
+internal fun RelaySelectorPredicate.SingleHop.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setSinglehop(entryConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Autohop.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setAutohop(entryConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Entry.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setEntry(multihopConstraints.fromDomain()).build()
+
+internal fun RelaySelectorPredicate.Exit.fromDomain() =
+    RelaySelector.Predicate.newBuilder().setExit(multihopConstraints.fromDomain()).build()
+
+internal fun MultihopConstraints.fromDomain(): RelaySelector.MultiHopConstraints =
+    RelaySelector.MultiHopConstraints.newBuilder()
+        .setEntry(entryConstraints.fromDomain())
+        .setExit(exitConstraints.fromDomain())
+        .build()
+
+internal fun EntryConstraints.fromDomain(): RelaySelector.EntryConstraints =
+    RelaySelector.EntryConstraints.newBuilder()
+        .setGeneralConstraints(generalConstraints.fromDomain())
+        .applyIfOnly(obfuscation) { setObfuscationSettings(it.fromDomain()) }
+        .applyIfOnly(daitaSettings) { setDaitaSettings(it.fromDomain()) }
+        .applyIfOnly(ipVersion) { setIpVersion(it.fromDomain()) }
+        .build()
+
+internal fun ExitConstraints.fromDomain(): RelaySelector.ExitConstraints =
+    RelaySelector.ExitConstraints.newBuilder()
+        .applyIfOnly(location) { setLocation(it.fromDomain()) }
+        .setOwnership(ownership.fromDomain())
+        .addAllProviders(providers.fromDomain1())
+        .build()
+
+internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
+    ManagementInterface.DaitaSettings.newBuilder()
+        .setEnabled(enabled)
+        .setDirectOnly(directOnly)
+        .build()
+
+internal fun Constraint<Providers>.fromDomain1(): List<RelaySelector.Provider> =
+    when (this) {
+        is Constraint.Any -> emptyList()
+        is Constraint.Only ->
+            value.map { RelaySelector.Provider.newBuilder().setName(it.value).build() }
+    }
+
+internal fun <L, T> L.applyIfOnly(constraint: Constraint<T>, transform: L.(T) -> L): L =
+    when (constraint) {
+        Constraint.Any -> this
+        is Constraint.Only<T> -> this.transform(constraint.value)
+    }
+
+internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
+    ManagementInterface.LocationConstraint.newBuilder()
+        .let {
+            when (this) {
+                is CustomListId -> it.setCustomList(value)
+                is GeoLocationId -> it.setLocation(fromDomain())
+            }
+        }
+        .build()

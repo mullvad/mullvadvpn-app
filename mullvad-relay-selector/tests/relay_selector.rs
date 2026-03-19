@@ -13,8 +13,8 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    Error, GetRelay, RETRY_ORDER, RelaySelector, SelectedObfuscator, SelectorConfig,
-    WireguardConfig,
+    Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason, RelaySelector,
+    SelectedObfuscator, SelectorConfig, WireguardConfig,
     query::{ObfuscationQuery, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
@@ -1444,4 +1444,692 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
 
     relay_selector.get_relay_by_query(query)?;
     Ok(())
+}
+
+mod partition_relays {
+    //! Tests covering the [RelaySelector::partition_relays] algorithm.
+    //!
+    //! This is partly a port of pre-existing tests to prevent regressions in the relay selection logic.
+    //! The long term goal is to completely remove all old tests, but they will have to remain until
+    //! the relay selector internals have been refactored to use the new partition_relays algorithm.
+
+    use itertools::Itertools;
+    use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
+    use mullvad_types::constraints::Constraint;
+    use mullvad_types::relay_constraints::{
+        LocationConstraint, ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings,
+    };
+    use std::collections::HashSet;
+
+    use super::*;
+
+    use super::relay_list_builder::RelayListBuilder;
+
+    // An updated relay list can be fetched using
+    // `cargo run -p  mullvad-api --bin relay_list -- --internal`
+    static RELAYS: LazyLock<(RelayList, BridgeList)> = LazyLock::new(|| {
+        let relays = include_bytes!("./relays.json");
+        serde_json::from_slice(relays).unwrap()
+    });
+
+    /// Create a [`RelaySelector`] using [`RELAYS`] as a backing relay list.
+    fn relay_selector() -> RelaySelector {
+        static RELAY_SELECTOR: LazyLock<RelaySelector> = LazyLock::new(|| {
+            let (relay_list, bridge_list) = &*RELAYS;
+            RelaySelector::new(
+                SelectorConfig::default(),
+                relay_list.clone(),
+                bridge_list.clone(),
+            )
+        });
+        RELAY_SELECTOR.clone()
+    }
+
+    /// Get a set of unique `[Reason]`s from the discards of a relay partition.
+    fn unique_reasons(RelayPartitions { discards, .. }: RelayPartitions) -> HashSet<Reason> {
+        discards
+            .into_iter()
+            .flat_map(|(_relay, reasons)| reasons)
+            .collect()
+    }
+
+    // These are tests that should be ported from the old relay selector:
+    //
+    // - [status] <test> (port)
+    //
+    // - [x] test_entry_hostname_collision (entry_hostname_collision)
+    // - [x] test_runtime_ipv4_unavailable (runtime_ipv4_unavailable)
+    // - [-] test_selecting_endpoint_with_udp2tcp_obfuscation
+    // - [-] test_selecting_ignore_extra_ips_override_v4
+    // - [-] test_include_in_country
+    // - [-] test_selecting_ignore_extra_ips_override_v6
+    // - [x] test_selecting_over_lwo (obfuscation)
+    // - [x] test_selecting_over_quic (obfuscation)
+    // - [x] test_shadowsocks_runtime_ipv4_unavailable (shadowsocks_runtime_ipv4_unavailable)
+    // - [x] test_selecting_over_shadowsocks (obfuscation)
+    // - [-] test_selecting_over_shadowsocks_extra_ips
+    // - [x] test_daita (daita)
+    // - [-] test_wg_port_selection
+    // - [-] test_retry_order
+    // - [-] valid_user_setting_should_yield_relay
+    // - [x] test_multihop_providers (multihop_ownership_and_provider)
+    // - [-] test_load_balancing
+    // - [x] test_daita_smart_routing_overrides_multihop (daita_smart_routing_overrides_multihop)
+    // - [-] test_selecting_endpoint_with_auto_obfuscation
+    // - [-] test_selecting_location_will_consider_multihop
+    // - [x] test_providers (multihop_ownership_and_provider)
+    // - [x] test_multihop_ownership (multihop_ownership_and_provider)
+    // - [x] test_entry (multihop)
+    // - [x] test_ownership (multihop_ownership_and_provider)
+    // - [-] test_udp2tcp_use_correct_port_ranges
+
+    /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
+    /// for the entry and exit in multihop case, is reflected in the chosen relay and in the
+    /// "reasons" of the discarded relays.
+    #[test]
+    fn multihop_ownership_and_provider() {
+        let exit_constraints = [
+            ExitConstraints::default().ownership(Ownership::MullvadOwned),
+            ExitConstraints::default().ownership(Ownership::Rented),
+            ExitConstraints::default().providers(Providers::new(["100TB"]).unwrap()),
+            ExitConstraints::default().providers(Providers::new(["100TB", "31173"]).unwrap()),
+            ExitConstraints::default()
+                .providers(Providers::new(["31173"]).unwrap())
+                .ownership(Ownership::MullvadOwned),
+        ];
+
+        // Test all combinations of entry and exit constraints.
+        for (entry_general, exit_constraints) in exit_constraints
+            .iter()
+            .cartesian_product(exit_constraints.iter())
+        {
+            let entry_constraints = EntryConstraints::default().general(entry_general.clone());
+            let multihop_constraints = MultihopConstraints::default()
+                .entry(entry_constraints.clone())
+                .exit(exit_constraints.clone());
+
+            for scenario in [
+                Predicate::Singlehop(entry_constraints.clone()),
+                Predicate::Autohop(entry_constraints),
+                Predicate::Entry(multihop_constraints.clone()),
+                Predicate::Exit(multihop_constraints),
+            ] {
+                // Select the constraints that corresponds to the returned relays of `partition_relays` for the given
+                let expected_exit_constraints = match &scenario {
+                    Predicate::Exit(MultihopConstraints { exit, .. }) => exit,
+                    Predicate::Singlehop(entry)
+                    | Predicate::Autohop(entry)
+                    | Predicate::Entry(MultihopConstraints { entry, .. }) => &entry.general,
+                };
+
+                let relays = relay_selector().partition_relays(scenario.clone());
+                assert!(!relays.matches.is_empty());
+
+                for relay in &relays.matches {
+                    if let Constraint::Only(ownership) = expected_exit_constraints.ownership {
+                        assert_eq!(
+                            relay.owned,
+                            ownership.mullvad(),
+                            "{scenario:#?} => {relay:#?}"
+                        );
+                    }
+                    if let Constraint::Only(ref providers) = expected_exit_constraints.providers {
+                        assert!(
+                            providers.providers().contains(&relay.provider),
+                            "cannot find exit provider {provider} in {providers:?}",
+                            provider = relay.provider
+                        );
+                    }
+                }
+
+                let mut expected_reasons = HashSet::from([Reason::Inactive]);
+                if expected_exit_constraints.ownership.is_only() {
+                    expected_reasons.insert(Reason::Ownership);
+                }
+                if expected_exit_constraints.providers.is_only() {
+                    expected_reasons.insert(Reason::Providers);
+                }
+                assert!(
+                    unique_reasons(relays).is_subset(&expected_reasons),
+                    "expected reasons to be a subset of expected_reasons"
+                );
+            }
+        }
+    }
+
+    /// If a multihop constraint has the same entry and exit relay, the relay selector
+    /// should fail to come up with a valid configuration.
+    ///
+    /// If instead the entry and exit relay are distinct, and assuming that the relays exist, the relay
+    /// selector should instead always return a valid configuration.
+    #[test]
+    fn entry_hostname_collision() {
+        let relay_selector = relay_selector();
+        // Define two distinct Wireguard relays.
+        let wg101 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+            "se",
+            "got",
+            "se-got-wg-101",
+        ));
+        let wg001 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+            "se",
+            "got",
+            "se-got-wg-001",
+        ));
+
+        let mut constraints = MultihopConstraints::default();
+        constraints.entry.general.location = wg101.clone().into();
+        constraints.exit.location = wg101.clone().into();
+
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
+        // Assert that the same host cannot be used for entry and exit
+        assert_eq!(matches.len(), 0);
+        assert_eq!(
+            discards
+                .iter()
+                .find_map(|(relay, reasons)| {
+                    (relay.hostname.as_str() == "se-got-wg-101").then_some(reasons)
+                })
+                .unwrap(),
+            &vec![Reason::Conflict]
+        );
+
+        // Correct the erroneous query by setting `wg001` as the entry relay
+        let mut constraints = MultihopConstraints::default();
+        constraints.exit.location = wg101.into();
+        constraints.entry.general.location = wg001.into();
+        let query = relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
+        // Assert that the new query succeeds when the entry and exit hosts differ
+        assert!(!query.matches.is_empty());
+    }
+
+    /// Test that filtering on obfuscation works.
+    #[test]
+    fn obfuscation() {
+        let relay_selector = relay_selector();
+        // test_selecting_over_quic
+        let quic = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Quic,
+            ..Default::default()
+        };
+        // test_selecting_over_lwo
+        let lwo = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Lwo,
+            ..Default::default()
+        };
+        // test_selecting_over_shadowsocks
+        let shadowsocks = ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Shadowsocks,
+            ..Default::default()
+        };
+
+        for obfuscation in [quic, lwo, shadowsocks] {
+            let constraints = EntryConstraints::default().obfuscation(obfuscation);
+            let query = relay_selector.partition_relays(Predicate::Singlehop(constraints));
+
+            assert!(
+                unique_reasons(query)
+                    .is_subset(&HashSet::from([Reason::Obfuscation, Reason::Inactive]))
+            );
+        }
+    }
+
+    /// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
+    #[test]
+    fn runtime_ipv4_unavailable() {
+        let constraints = EntryConstraints::default().ip_version(IpVersion::V6);
+        // Query for all DAITA relays.
+        let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
+        assert!(!query.matches.is_empty());
+        for relay in &query.matches {
+            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
+        }
+    }
+
+    /// Check that if IPv4 is not available and shadowsocks obfuscation is requested
+    /// it should return a relay with IPv6 address.
+    #[test]
+    fn shadowsocks_runtime_ipv4_unavailable() {
+        let constraints = EntryConstraints::default()
+            .ip_version(IpVersion::V6)
+            .obfuscation(ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                ..Default::default()
+            });
+        // Query for all DAITA relays.
+        let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
+        assert!(!query.matches.is_empty());
+        for relay in &query.matches {
+            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
+        }
+    }
+
+    /// Test that filtering on DAITA works.
+    #[test]
+    fn daita() {
+        let relay_selector = relay_selector();
+        let constraints = EntryConstraints::default().daita(true);
+        // Query for all DAITA relays.
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        for relay in matches {
+            assert!(relay.endpoint_data.daita)
+        }
+        // Not all relays were discarded because they do not have DAITA, but some were!
+        // Use them as entry relays, and use smart routing to forcibly select alternate entry
+        // routes.
+        for relay in discards
+            .into_iter()
+            .filter_map(|(discard, reasons)| (reasons == vec![Reason::Daita]).then_some(discard))
+        {
+            // Force the entry relay to be a relay without DAITA.
+            let constraints = EntryConstraints::default().daita(true).general(
+                ExitConstraints::default().location(GeographicLocationConstraint::hostname(
+                    relay.location.country_code.clone(),
+                    relay.location.city_code.clone(),
+                    relay.hostname.clone(),
+                )),
+            );
+            // Demonstrate the difference between autohop / singlehop.
+            let RelayPartitions { matches, .. } =
+                relay_selector.partition_relays(Predicate::Autohop(constraints.clone()));
+            assert_eq!(matches, vec![relay]);
+
+            let RelayPartitions { matches, .. } =
+                relay_selector.partition_relays(Predicate::Singlehop(constraints));
+            assert!(matches.is_empty());
+        }
+    }
+
+    /// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
+    /// multihop is enabled. This applies even if the entry is set explicitly.
+    #[test]
+    fn daita_smart_routing_overrides_multihop() {
+        let relay_selector = relay_selector();
+        let daita_constraints = EntryConstraints::default().daita(true);
+        for non_daita_relay in relay_selector
+            .partition_relays(Predicate::Singlehop(daita_constraints.clone()))
+            .discards
+            .into_iter()
+            .filter_map(|(discard, reasons)| {
+                (reasons.contains(&Reason::Daita) && !reasons.contains(&Reason::Inactive))
+                    .then_some(discard)
+            })
+        {
+            let mut constraints = daita_constraints.clone();
+            // Force the entry relay to be a relay without DAITA.
+            constraints.general.location =
+                LocationConstraint::from(GeographicLocationConstraint::hostname(
+                    non_daita_relay.location.country.clone(),
+                    non_daita_relay.location.city.clone(),
+                    non_daita_relay.hostname.clone(),
+                ))
+                .into();
+
+            // Make sure a DAITA-enabled relay is always selected due to smart routing.
+            let query = relay_selector.partition_relays(Predicate::Autohop(constraints.clone()));
+            for relay in query.matches {
+                assert!(relay.endpoint_data.daita, "{relay:#?}");
+            }
+            // Note: We have already asserted that the same query without smart routing works at
+            // this point.
+        }
+    }
+
+    /// Test that when a relay is rejected because of a single setting, removing that setting from the
+    /// constraints will unblock the relay.
+    #[test]
+    fn test_unblocking_based_on_reasons() {
+        fn test_constraint(expected_reason: Reason, constraints: EntryConstraints) {
+            let relay_selector = relay_selector();
+            let expected_reasons = vec![expected_reason];
+            let non_matching_relays = relay_selector
+                .partition_relays(Predicate::Singlehop(constraints))
+                .discards
+                .into_iter()
+                .filter(|(_, reasons)| reasons == &expected_reasons)
+                .map(|(discard, _)| discard)
+                .collect::<HashSet<_>>();
+            assert!(
+                !non_matching_relays.is_empty(),
+                "Set should not be empty, else test is useless"
+            );
+            let RelayPartitions {
+                matches,
+                discards: _,
+            } = relay_selector.partition_relays(Predicate::Singlehop(EntryConstraints::default()));
+            non_matching_relays.is_subset(&HashSet::from_iter(matches));
+        }
+
+        let test_cases = [
+            (Reason::Daita, EntryConstraints::default().daita(true)),
+            (
+                Reason::Obfuscation,
+                EntryConstraints::default().obfuscation(ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Quic,
+                    ..Default::default()
+                }),
+            ),
+            (
+                Reason::Ownership,
+                EntryConstraints::default().ownership(Ownership::MullvadOwned),
+            ),
+            (
+                Reason::Providers,
+                EntryConstraints::default().providers(Providers::new(["DataPacket"]).unwrap()),
+            ),
+            (
+                Reason::Port,
+                EntryConstraints::default().obfuscation(ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                    shadowsocks: ShadowsocksSettings {
+                        port: Constraint::Only(123),
+                    },
+                    ..Default::default()
+                }),
+            ),
+        ];
+        for (reason, constraint) in test_cases {
+            test_constraint(reason, constraint);
+        }
+    }
+
+    /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
+    /// relays, while DAITA only affects entry relays.
+    #[test]
+    fn daita_no_direct_only_provider() {
+        // "100TB" does not have any DAITA relays, and because filters should apply for both entry
+        // and exit even if we're autohoppin', we should not show any matching relays.
+        let providers = Providers::new(["100TB"]).unwrap();
+
+        let constraints = EntryConstraints::default().providers(providers).daita(true);
+
+        let query = relay_selector().partition_relays(Predicate::Autohop(constraints));
+        assert_eq!(query.matches.len(), 0);
+
+        // Assert that a relay was discarded because we could not select an entry because of
+        // DAITA and provider constraints not making sense.
+        //
+        // Note that some relays will be discarded simply because they lack DAITA OR are operated
+        // by the wrong provider.
+        let reasons = unique_reasons(query);
+        assert!(
+            reasons.is_subset(&HashSet::from([
+                Reason::Providers,
+                Reason::Daita,
+                Reason::Inactive
+            ])),
+            "{reasons:#?}"
+        );
+    }
+
+    /// Autohopping through an alternate entry relay should only be done iff the settings force us
+    /// to. I.e. all relays which may be connected to directly should of course not be discarded.
+    #[test]
+    fn autohop_no_need_for_alternate_entry() {
+        // A slightly more contrived example than `daita_no_direct_only_provider`: perform a
+        // pre-step pruning all DAITA relays from the relay list. As such, no other factor comes
+        // into play (provider, ownership).
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_relay("non-daita-relay");
+        let relay_selector = RelaySelector::from(relay_list);
+
+        let constraints = EntryConstraints::default();
+
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Autohop(constraints));
+        // The single relay in the relay list ought to be matched in this instance.
+        assert!(
+            discards.is_empty(),
+            "Discard should be empty: {discards:#?}"
+        );
+        assert_eq!(matches.len(), 1);
+        assert_eq!(
+            matches.first().map(|relay| relay.hostname.as_ref()),
+            Some("non-daita-relay")
+        );
+    }
+
+    /// Assert that a relay is accepted even if the location does not contain any eligible relays when Autohopping.
+    #[test]
+    fn no_entry_constraints_on_autohop_exit() {
+        // Curate a relay list with exactly two relays; one with DAITA & one without.
+        let mut relay_list = RelayListBuilder::new();
+        // Without DAITA.
+        relay_list.add_location("non-daita-land", "non-daita-city");
+        relay_list.add_relay("non-daita-relay");
+        relay_list.add_location("daita-land", "daita-city");
+        // With DAITA.
+        let daita_relay = relay_list.add_relay("daita-relay");
+        daita_relay.endpoint_data.daita = true;
+        let relay_selector = RelaySelector::from(relay_list);
+
+        // Constraint with DAITA and a location that doesn't have it
+        let constraints = EntryConstraints::default()
+            .daita(true)
+            .general(ExitConstraints::default().country("non-daita-land"));
+
+        let RelayPartitions {
+            mut matches,
+            mut discards,
+        } = relay_selector.partition_relays(Predicate::Autohop(constraints));
+
+        // Should still show the relay from the non-daita-country.
+        assert_eq!(matches.len(), 1);
+        let matching = matches.pop().unwrap();
+        assert_eq!(
+            matching.hostname,
+            "non-daita-relay".to_string(),
+            "{matching:#?}"
+        );
+        // The daita-relay should be discarded due to incompatible location constraint.
+        assert_eq!(discards.len(), 1);
+        let (discarded, reasons) = discards.pop().unwrap();
+        assert_eq!(
+            discarded.hostname,
+            "daita-relay".to_string(),
+            "{discarded:#?}"
+        );
+        assert_eq!(reasons.as_slice(), &[Reason::Location]);
+    }
+
+    /// Test some multihop scenarios:
+    /// - First scenario:
+    ///     - Selecting one entry city with exactly one mathcing relay will remove it from the list of exit relays.
+    ///     - Selecting one exit city with exactly one matching relay will remove it from the list of entry relays.
+    /// - Second scenario:
+    ///     - Selecting one entry country with exactly one matching relay will remove it from the list of exit relays.
+    ///     - Selecting one exit country with exactly one matching relay will remove it from the list of entry relays.
+    ///
+    /// Supersedes test_entry.
+    #[test]
+    fn multihop() {
+        let relay_selector = {
+            // Curate a relay list with exactly two relays in one country; one with DAITA & one without.
+            let mut relay_list = RelayListBuilder::new();
+            relay_list.add_location("albania", "tirana");
+            // Without DAITA.
+            relay_list.add_relay("non-daita-relay");
+            // With DAITA.
+            let daita_relay = relay_list.add_relay("daita-relay");
+            daita_relay.endpoint_data.daita = true;
+            RelaySelector::from(relay_list)
+        };
+
+        // Second scenario: The entry constraint is set rather loosely to "albania", but because there is
+        // only one relay with DAITA the relay selector should reserve that relay when showing the list of
+        // possible exit relays.
+        //
+        // Note: This is also a good description for the first scenario described in the doc-comment.
+        let first = {
+            let entry_constraints = EntryConstraints::default()
+                .daita(true)
+                .general(ExitConstraints::default().country("albania"));
+            let exit_constraints = ExitConstraints::default().city("albania", "tirana");
+            MultihopConstraints::default()
+                .entry(entry_constraints)
+                .exit(exit_constraints)
+        };
+
+        let second = {
+            let entry_constraints = EntryConstraints::default()
+                .daita(true)
+                .general(ExitConstraints::default().country("albania"));
+            let exit_constraints = ExitConstraints::default().country("albania");
+            MultihopConstraints::default()
+                .entry(entry_constraints)
+                .exit(exit_constraints)
+        };
+
+        for scenario in [first, second] {
+            let RelayPartitions {
+                mut matches,
+                mut discards,
+            } = relay_selector.partition_relays(Predicate::Entry(scenario.clone()));
+            // Should show the relay with DAITA, and discard the one without.
+            let matched = matches.pop().unwrap();
+            assert!(matched.daita(), "{matched:#?}");
+            let discarded = discards.pop().unwrap();
+            assert!(!discarded.0.daita(), "{discarded:#?}");
+            // Assert that the exit relay list only contain the non-DAITA relay.
+            let RelayPartitions {
+                mut matches,
+                mut discards,
+            } = relay_selector.partition_relays(Predicate::Exit(scenario));
+            // Should show the relay with DAITA, and discard the one without.
+            let matched = matches.pop().unwrap();
+            assert!(!matched.daita(), "{matched:#?}");
+            let discarded = discards.pop().unwrap();
+            assert!(discarded.0.daita(), "{discarded:#?}");
+        }
+    }
+}
+
+mod relay_list_builder {
+    use std::{fmt::Display, net::Ipv4Addr};
+
+    use mullvad_relay_selector::{Relay, RelaySelector, SelectorConfig};
+    use mullvad_types::{
+        location::Location,
+        relay_list::{
+            BridgeList, EndpointData, RelayList, RelayListCity, RelayListCountry, WireguardRelay,
+            WireguardRelayEndpointData,
+        },
+    };
+    use talpid_types::net::wireguard::PublicKey;
+
+    pub struct RelayListBuilder {
+        relay_list: RelayList,
+    }
+
+    impl From<RelayListBuilder> for RelaySelector {
+        fn from(val: RelayListBuilder) -> Self {
+            RelaySelector::new(
+                SelectorConfig::default(),
+                val.finish(),
+                BridgeList::default(),
+            )
+        }
+    }
+
+    impl RelayListBuilder {
+        pub fn new() -> Self {
+            let relay_list = RelayList {
+                countries: vec![RelayListCountry {
+                    name: "test-country".into(),
+                    code: "tc".into(),
+                    cities: vec![RelayListCity {
+                        name: "test-city".into(),
+                        code: "tc".into(),
+                        latitude: 0.0,
+                        longitude: 0.0,
+                        relays: vec![],
+                    }],
+                }],
+                wireguard: EndpointData {
+                    port_ranges: vec![
+                        53..=53,
+                        443..=443,
+                        4000..=33433,
+                        33565..=51820,
+                        52000..=60000,
+                    ],
+                    ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                    ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                    udp2tcp_ports: vec![80, 443, 5001],
+                    shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
+                },
+            };
+            Self { relay_list }
+        }
+
+        /// Add a relay into the previously added location, which defaults to "test-country".
+        pub fn add_relay(&mut self, hostname: impl Display) -> &mut WireguardRelay {
+            let country = self
+                .relay_list
+                .countries
+                .last_mut()
+                .expect("Some active country");
+            let city = country.cities.last_mut().expect("Some active city");
+            city.relays.push(WireguardRelay {
+                overridden_ipv4: false,
+                overridden_ipv6: false,
+                include_in_country: true,
+                owned: true,
+                provider: "TestProvider".into(),
+                endpoint_data: WireguardRelayEndpointData::new(
+                    PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                ),
+                inner: Relay {
+                    hostname: hostname.to_string(),
+                    ipv4_addr_in: Ipv4Addr::new(0, 0, 0, 0),
+                    ipv6_addr_in: None,
+                    active: true,
+                    weight: 1,
+                    location: Location {
+                        country_code: country.code.clone(),
+                        city: city.name.clone(),
+                        latitude: city.latitude,
+                        longitude: city.longitude,
+                        country: country.name.clone(),
+                        city_code: city.code.clone(),
+                    },
+                },
+            });
+            city.relays.last_mut().unwrap()
+        }
+
+        pub fn add_location(&mut self, country: &str, city: &str) {
+            let country = match self
+                .relay_list
+                .countries
+                .iter_mut()
+                .find(|c| c.code == country)
+            {
+                Some(country) => country,
+                None => {
+                    let country = RelayListCountry {
+                        code: country.to_string(),
+                        name: country.to_string(),
+                        cities: vec![],
+                    };
+                    self.relay_list.countries.push(country);
+                    self.relay_list.countries.last_mut().unwrap()
+                }
+            };
+            let city = RelayListCity {
+                code: city.to_string(),
+                name: city.to_string(),
+                latitude: 0.0,
+                longitude: 0.0,
+                relays: vec![],
+            };
+            country.cities.push(city);
+        }
+
+        pub fn finish(self) -> RelayList {
+            self.relay_list
+        }
+    }
 }

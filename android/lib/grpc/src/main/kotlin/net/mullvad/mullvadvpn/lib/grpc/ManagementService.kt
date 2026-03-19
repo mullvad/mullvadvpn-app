@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.management_interface.ManagementServiceGrpcKt
+import mullvad_daemon.relay_selector.RelaySelectorServiceGrpcKt
 import net.mullvad.mullvadvpn.lib.grpc.mapper.fromDomain
 import net.mullvad.mullvadvpn.lib.grpc.mapper.toDomain
 import net.mullvad.mullvadvpn.lib.grpc.util.AndroidLoggingHandler
@@ -107,6 +108,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId as ModelRelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayList as ModelRelayList
 import net.mullvad.mullvadvpn.lib.model.RelayList
+import net.mullvad.mullvadvpn.lib.model.RelayPartitions
+import net.mullvad.mullvadvpn.lib.model.RelaySelectorPredicate
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
@@ -175,6 +178,27 @@ class ManagementService(
             .map(ConnectivityState::toDomain)
             .onEach { Logger.i("ManagementService connection state: $it") }
             .stateIn(scope, SharingStarted.Eagerly, channel.getState(false).toDomain())
+
+    private val service by lazy {
+        RelaySelectorServiceGrpcKt.RelaySelectorServiceCoroutineStub(channel)
+            .withExecutor(Dispatchers.IO.asExecutor())
+            .let {
+                if (extensiveLogging) {
+                    it.withInterceptors(LogInterceptor())
+                } else it
+            }
+            .withWaitForReady()
+    }
+
+    suspend fun partitionRelays(
+        predicate: RelaySelectorPredicate
+    ): Either<PartitionRelaysError, RelayPartitions> =
+        Either.catch {
+                service.partitionRelays(predicate.fromDomain()).toDomain().also {
+                    Logger.d("Partition relays matches: ${it.matches}")
+                }
+            }
+            .mapLeft(PartitionRelaysError::Unknown)
 
     private val grpc by lazy {
         ManagementServiceGrpcKt.ManagementServiceCoroutineStub(channel)
@@ -961,6 +985,10 @@ class ManagementService(
 
         const val TOO_MANY_REQUESTS = "429 Too Many Requests"
     }
+}
+
+sealed interface PartitionRelaysError {
+    data class Unknown(val error: Throwable) : PartitionRelaysError
 }
 
 sealed interface GrpcConnectivityState {

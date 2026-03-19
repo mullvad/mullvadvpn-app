@@ -213,7 +213,7 @@ private fun SelectLocationListContent(
                     customListHeader = {
                         CustomListHeader(
                             onAddCustomList,
-                            if (state.value.customLists.isNotEmpty()) onEditCustomLists else null,
+                            if (it.canEdit) onEditCustomLists else null,
                         )
                     },
                 )
@@ -269,7 +269,7 @@ private fun Lce<Unit, SelectLocationListUiState, Unit>.indexOfSelectedRelayItem(
                     is RelayListItem.RecentListItem -> it.isSelected
                     is RelayListItem.CustomListEntryItem,
                     is RelayListItem.CustomListFooter,
-                    RelayListItem.CustomListHeader,
+                    is RelayListItem.CustomListHeader,
                     RelayListItem.LocationHeader,
                     is RelayListItem.LocationsEmptyText,
                     is RelayListItem.EmptyRelayList,
