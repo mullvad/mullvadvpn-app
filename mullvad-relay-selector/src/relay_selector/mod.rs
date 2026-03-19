@@ -1241,7 +1241,7 @@ impl<'a, T> Criteria<'a, T> {
 }
 
 impl<'a> Criteria<'a, WireguardRelay> {
-    /// Evaluate a single [`Criteria`] for a single [`Relay`].
+    /// Evaluate [`Criteria`] for a single [`Relay`].
     fn eval(&self, relay: &WireguardRelay) -> Verdict {
         (self.f)(relay)
     }
@@ -1249,8 +1249,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     /// Combine two [`Criteria`].
     ///
     /// This composition is biased towards the negative case, i.e. rejections always take
-    /// precedence. If two rejecting criteria are composed, all of their reasons are composed as
-    /// well.
+    /// precedence. If two rejecting criteria are composed, all of their reasons accumulate.
     fn and(self, other: Self) -> Self {
         Criteria::new(move |relay| self.eval(relay).and(other.eval(relay)))
     }
@@ -1258,8 +1257,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     /// Combine two [`Criteria`].
     ///
     /// This composition is biased towards the positive case, i.e. accepts always take
-    /// precedence. If two rejecting criteria are composed, all of their reasons are composed as
-    /// well.
+    /// precedence. If two rejecting criteria are composed, all of their reasons accumulate.
     fn or(self, other: Self) -> Self {
         Criteria::new(move |relay| self.eval(relay).or(other.eval(relay)))
     }
@@ -1301,8 +1299,7 @@ impl Verdict {
     /// Combine two [`Verdict`]s into one single verdict.
     ///
     /// This composition is biased towards the negative case, i.e. rejections always take
-    /// precedence. If two rejecting verdicts are composed, all of their reasons are composed as
-    /// well.
+    /// precedence. If two rejecting verdicts are composed, all of their reasons accumulate.
     fn and(self, other: Verdict) -> Verdict {
         use Verdict::*;
         match (self, other) {
@@ -1315,8 +1312,7 @@ impl Verdict {
     /// Combine two [`Verdict`]s into one single verdict.
     ///
     /// This composition is biased towards the positive case, i.e. accepts always take
-    /// precedence. If two rejecting verdicts are composed, all of their reasons are composed as
-    /// well.
+    /// precedence. If two rejecting verdicts are composed, all of their reasons accumulate.
     fn or(self, other: Verdict) -> Verdict {
         use Verdict::*;
         match (self, other) {
