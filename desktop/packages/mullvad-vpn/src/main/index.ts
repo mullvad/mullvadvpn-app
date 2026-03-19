@@ -426,6 +426,10 @@ class ApplicationMain
 
     this.updateCurrentLocale();
 
+    // Load split tunneling before connecting to the daemon to make sure that it is initialized
+    // before first daemon connected event is handled.
+    await this.loadSplitTunneling();
+
     this.connectToDaemon();
 
     if (process.platform === 'darwin') {
@@ -461,8 +465,6 @@ class ApplicationMain
         });
       }
     });
-
-    await this.loadSplitTunneling();
 
     this.registerIpcListeners();
 
