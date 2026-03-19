@@ -1092,7 +1092,11 @@ impl RelaySelector {
     fn obfuscation_criteria(
         &self,
         relay: &WireguardRelay,
-        constraints: &EntryConstraints,
+        EntryConstraints {
+            obfuscation_settings,
+            ip_version,
+            ..
+        }: &EntryConstraints,
     ) -> ObfuscationVerdict {
         /// Returns `Ok(())` if any IP in `ip_list` matches `requested_ip_version`,
         /// or `Err(true)` if switching IP version would yield a match (`Err(false)` otherwise).
@@ -1115,11 +1119,6 @@ impl RelaySelector {
             }
         }
 
-        let EntryConstraints {
-            obfuscation_settings,
-            ip_version,
-            ..
-        } = constraints;
         use ObfuscationVerdict::*;
         match obfuscation_settings {
             // Possible edge case that we have not implemented:
