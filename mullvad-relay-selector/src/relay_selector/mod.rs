@@ -1275,12 +1275,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
 
     /// Flatten a nested structure of different criteria into one.
     fn flatten(criterias: Vec<Self>) -> Self {
-        Criteria::new(move |relay| {
-            criterias
-                .iter()
-                .map(|criteria| criteria.eval(relay))
-                .fold(Verdict::Accept, Verdict::and)
-        })
+        Criteria::new(move |relay| Criteria::fold(criterias.iter(), relay))
     }
 }
 
