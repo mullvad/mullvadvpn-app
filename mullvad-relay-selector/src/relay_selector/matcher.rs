@@ -47,7 +47,7 @@ pub fn filter_matching_relay_list_include_all(
             // Filter by providers
             .filter(|relay| filter_on_providers(query.providers().as_ref(), relay))
             // Filter by DAITA support
-            .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
+            .filter(|relay| filter_on_daita(query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
             .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
 }
@@ -79,7 +79,7 @@ pub fn filter_on_providers(filter: Constraint<&Providers>, relay: &WireguardRela
 }
 
 /// Returns whether `relay` satisfy the daita constraint posed by `filter`.
-pub fn filter_on_daita(filter: &Constraint<bool>, relay: &WireguardRelay) -> bool {
+pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool {
     match (filter, &relay.endpoint_data) {
         // Only a subset of relays support DAITA, so filter out ones that don't.
         (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,

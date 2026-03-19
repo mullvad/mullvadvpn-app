@@ -1083,7 +1083,7 @@ impl RelaySelector {
 
         let daita = Criteria::new(move |relay| {
             let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
-            matcher::filter_on_daita(&daita_on, relay).if_false(Reason::Daita)
+            matcher::filter_on_daita(daita_on, relay).if_false(Reason::Daita)
         });
 
         vec![daita, obfuscation_ipversion_port]
