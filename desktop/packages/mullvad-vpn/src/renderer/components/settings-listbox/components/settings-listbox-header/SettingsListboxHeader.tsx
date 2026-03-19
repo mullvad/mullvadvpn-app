@@ -7,7 +7,9 @@ import { useSettingsListboxContext } from '../../SettingsListboxContext';
 
 export type SettingsListboxHeaderProps = ListboxHeaderProps;
 
-export const StyledSettingsListboxHeader = styled(Listbox.Header)``;
+export const StyledSettingsListboxHeader = styled(Listbox.Header)`
+  margin-bottom: 1px;
+`;
 
 export function SettingsListboxHeader({ children, ...props }: SettingsListboxHeaderProps) {
   const { anchorId } = useSettingsListboxContext();

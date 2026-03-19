@@ -1,22 +1,24 @@
 import React from 'react';
 
 import { TextField, TextFieldProps } from '../../lib/components/text-field';
+import { useDebounce } from '../../lib/hooks/use-debounce';
 import { SearchTextFieldClearButton } from './components';
 
-export type SearchTextFieldProps = TextFieldProps;
+export type SearchTextFieldProps = TextFieldProps & {
+  delay?: number;
+};
 
-function SearchTextField({ value, onValueChange, ...props }: SearchTextFieldProps) {
+function SearchTextField({ value, onValueChange, delay = 200, ...props }: SearchTextFieldProps) {
   const [internalValue, setInternalValue] = React.useState(value);
-
-  const deferredValue = React.useDeferredValue(internalValue);
+  const debouncedValue = useDebounce(internalValue, internalValue === '' ? 0 : delay);
 
   React.useEffect(() => {
-    if (deferredValue === undefined) {
+    if (debouncedValue === undefined) {
       return;
     }
 
-    onValueChange?.(deferredValue);
-  }, [deferredValue, onValueChange]);
+    onValueChange?.(debouncedValue);
+  }, [debouncedValue, onValueChange]);
 
   return <TextField value={internalValue} onValueChange={setInternalValue} {...props} />;
 }

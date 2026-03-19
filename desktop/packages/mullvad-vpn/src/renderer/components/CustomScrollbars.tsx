@@ -136,6 +136,10 @@ class CustomScrollbars extends React.Component<IProps, IState> {
     this.updateScrollbarsHelper({ size: true });
   });
 
+  public getScrollOffsetHeight(): number {
+    return this.scrollableRef.current?.offsetHeight ?? 0;
+  }
+
   public scrollToTop(smooth = false) {
     const scrollable = this.scrollableRef.current;
     scrollable?.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
