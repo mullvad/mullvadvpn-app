@@ -1767,7 +1767,8 @@ mod partition_relays {
         }
     }
 
-    /// Test that when on
+    /// Test that when a relay is rejected because of a single setting, removing that setting from the
+    /// constraints will unblock the relay.
     #[test]
     fn test_unblocking_based_on_reasons() {
         fn test_constraint(
