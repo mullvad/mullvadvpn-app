@@ -351,32 +351,33 @@ impl DeviceHandle {
         DriverState::try_from(raw_state).map_err(io::Error::other)
     }
 
+    /// Set configured applications to exclude `device_paths`. These should be DOS paths
+    /// like `C:\Program Files (x86)\Steam\steam.exe`, not NT paths like
+    /// `\Device\HarddiskVolume4\Program Files (x86)\Steam\steam.exe`.
+    ///
+    /// # Note
+    ///
+    /// Resolving DOS paths to NT device paths appears to block at times where filesystem filter
+    /// drivers block `CreateFile` calls.
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
-        let mut device_paths = Vec::with_capacity(apps.len());
-        for app in apps {
-            match get_device_path(app.as_ref()) {
-                Err(error) if error.kind() == io::ErrorKind::NotFound => {
-                    log::debug!(
-                        "{}\nPath: {}",
-                        error.display_chain_with_msg("Ignoring path on unmounted volume"),
-                        Path::new(app.as_ref()).display()
-                    );
-                }
-                Err(error) => return Err(error),
-                Ok(path) => device_paths.push(path),
-            }
-        }
+        let device_paths = resolve_paths(apps)?;
+        self.set_config_resolved(&device_paths)
+    }
 
+    /// Set configured applications to exclude `device_paths`. These must be NT device object
+    /// paths such as `\Device\HarddiskVolume4\Program Files (x86)\Steam\steam.exe`, not
+    /// DOS paths like `C:\Program Files (x86)\Steam\steam.exe`.
+    pub fn set_config_resolved(&self, device_paths: &[OsString]) -> io::Result<()> {
         if device_paths.is_empty() {
             return self.clear_config();
         }
 
         log::debug!("Excluded device paths:");
-        for path in &device_paths {
-            log::debug!("    {}", Path::new(&path).display());
+        for path in device_paths {
+            log::debug!("    {}", Path::new(path).display());
         }
 
-        let config = make_process_config(&device_paths);
+        let config = make_process_config(device_paths);
 
         device_io_control(
             self,
@@ -397,6 +398,26 @@ impl DeviceHandle {
         device_io_control(self, DriverIoctlCode::Reset as u32, None, 0)?;
         Ok(())
     }
+}
+
+/// Resolve a list of app paths to device paths, filtering out paths on unmounted volumes.
+/// Some software (possibly filesystem drivers) seems to block file open.
+pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsString>> {
+    let mut device_paths = Vec::with_capacity(apps.len());
+    for app in apps {
+        match get_device_path(app.as_ref()) {
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                log::debug!(
+                    "{}\nPath: {}",
+                    error.display_chain_with_msg("Ignoring path on unmounted volume"),
+                    Path::new(app.as_ref()).display()
+                );
+            }
+            Err(error) => return Err(error),
+            Ok(path) => device_paths.push(path),
+        }
+    }
+    Ok(device_paths)
 }
 
 impl AsRawHandle for DeviceHandle {
