@@ -949,19 +949,7 @@ impl RelaySelector {
                         matcher::filter_on_providers(providers.as_ref(), relay)
                             .if_false(Reason::Providers)
                     });
-
-                    let location = Criteria::new(move |relay| {
-                        let custom_lists: CustomListsSettings = self.custom_lists();
-                        matcher::filter_on_location(
-                            matcher::ResolvedLocationConstraint::from_constraint(
-                                location.as_ref(),
-                                &custom_lists,
-                            )
-                            .as_ref(),
-                            relay,
-                        )
-                        .if_false(Reason::Location)
-                    });
+                    let location = self.location_criteria(location);
 
                     ownership.and(providers).and(location)
                 };
