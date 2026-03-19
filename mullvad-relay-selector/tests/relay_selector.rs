@@ -1519,8 +1519,8 @@ mod partition_relays {
     // - [-] test_udp2tcp_use_correct_port_ranges
 
     /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
-    /// for the entry and exit int the case of multihop, is reflected in the chosen relay
-    /// and reflected in the "reasons" of the discarded relays.
+    /// for the entry and exit in multihop case, is reflected in the chosen relay and in the
+    /// "reasons" of the discarded relays.
     #[test]
     fn multihop_ownership_and_provider() {
         let exit_constraints = [
