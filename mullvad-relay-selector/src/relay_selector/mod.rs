@@ -936,33 +936,34 @@ impl RelaySelector {
 
                 // Check criteria that apply to both exits and entries
                 let can_be_used_as_exit = {
-                    let constraints = constraints.clone();
-                    Criteria::new(move |relay| {
-                        let ownership = matcher::filter_on_ownership(
-                            constraints.general.ownership.as_ref(),
-                            relay,
-                        )
-                        .if_false(Reason::Ownership);
+                    let ExitConstraints {
+                        location,
+                        providers,
+                        ownership,
+                    } = constraints.general.clone();
+                    let ownership = Criteria::new(move |relay| {
+                        matcher::filter_on_ownership(ownership.as_ref(), relay)
+                            .if_false(Reason::Ownership)
+                    });
+                    let providers = Criteria::new(move |relay| {
+                        matcher::filter_on_providers(providers.as_ref(), relay)
+                            .if_false(Reason::Providers)
+                    });
 
-                        let providers = matcher::filter_on_providers(
-                            constraints.general.providers.as_ref(),
-                            relay,
-                        )
-                        .if_false(Reason::Providers);
-
+                    let location = Criteria::new(move |relay| {
                         let custom_lists: CustomListsSettings = self.custom_lists();
-                        let location = matcher::filter_on_location(
+                        matcher::filter_on_location(
                             matcher::ResolvedLocationConstraint::from_constraint(
-                                constraints.general.location.as_ref(),
+                                location.as_ref(),
                                 &custom_lists,
                             )
                             .as_ref(),
                             relay,
                         )
-                        .if_false(Reason::Location);
-                        let active = relay.active.if_false(Reason::Inactive);
-                        ownership.and(providers).and(location).and(active)
-                    })
+                        .if_false(Reason::Location)
+                    });
+
+                    ownership.and(providers).and(location)
                 };
 
                 // Check criteria that apply specifically to entries
