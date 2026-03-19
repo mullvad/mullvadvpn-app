@@ -1099,11 +1099,11 @@ impl RelaySelector {
         }: &EntryConstraints,
     ) -> ObfuscationVerdict {
         /// Returns `Ok(())` if any IP in `ip_list` matches `requested_ip_version`,
-        /// or `Err(true)` if switching IP version would yield a match (`Err(false)` otherwise).
+        /// or `Err(Some(ip_version))` if switching to `ip_version` would yield a match (`Err(None)` otherwise).
         fn any_ip_matches_version(
             requested_ip_version: &Constraint<IpVersion>,
             ip_list: impl IntoIterator<Item: Borrow<IpAddr>>,
-        ) -> Result<(), bool> {
+        ) -> Result<(), Option<IpAvailability>> {
             let (has_ipv4, has_ipv6) =
                 ip_list.into_iter().fold((false, false), |(v4, v6), addr| {
                     (v4 || addr.borrow().is_ipv4(), v6 || addr.borrow().is_ipv6())
@@ -1113,9 +1113,9 @@ impl RelaySelector {
                 Constraint::Only(IpVersion::V4) if has_ipv4 => Ok(()),
                 Constraint::Only(IpVersion::V6) if has_ipv6 => Ok(()),
                 // No match — report whether the *other* IP version is available.
-                Constraint::Any => Err(false),
-                Constraint::Only(IpVersion::V4) => Err(has_ipv6),
-                Constraint::Only(IpVersion::V6) => Err(has_ipv4),
+                Constraint::Any => Err(None),
+                Constraint::Only(IpVersion::V4) => Err(Some(IpAvailability::Ipv6)),
+                Constraint::Only(IpVersion::V6) => Err(Some(IpAvailability::Ipv4)),
             }
         }
 
@@ -1152,11 +1152,11 @@ impl RelaySelector {
                                         })
                                     });
                                 match (cannot_use_wg_endpoint, other_ip_matches) {
-                                    (false, true | false) => {
+                                    (false, None | Some(_)) => {
                                         // Port is usable on WireGuard endpoint, so fall back to it
                                         AcceptWireguardEndpoint
                                     }
-                                    (true, true) => {
+                                    (true, Some(_)) => {
                                         // Switching IP version would unblock the relay.
                                         // Note that the relay could also be unblocked by removing the port constraint
                                         // so that a normal WireGuard endpoint can be used IFF that endpoint
@@ -1164,7 +1164,7 @@ impl RelaySelector {
                                         // opt to only inform the user about the IP version.
                                         Reject(Reason::IpVersion)
                                     }
-                                    (true, false) => {
+                                    (true, None) => {
                                         // No extra addresses are available at all, the the port must be changed
                                         // so that a Wireguard endpoint can be used. This endpoint must
                                         // then also be available with the requested IP version.
@@ -1183,11 +1183,11 @@ impl RelaySelector {
                         match any_ip_matches_version(ip_version, quic.in_addr()) {
                             Ok(()) => AcceptSeparateEndpoint,
                             // Switching IP version would unblock the relay.
-                            Err(true) => Reject(Reason::IpVersion),
+                            Err(Some(_)) => Reject(Reason::IpVersion),
                             // The relay has quic but no IPv4 or IPv6 addresses to use it.
                             // This scenario should be unreachable, but treat it as if obfuscation was
                             // unavailable just in case.
-                            Err(false) => Reject(Reason::Obfuscation),
+                            Err(None) => Reject(Reason::Obfuscation),
                         }
                     }
                     // LWO is only enabled on some relays
