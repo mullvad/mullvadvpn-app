@@ -30,18 +30,14 @@ final actor StorePaymentManager: @unchecked Sendable {
 
     /// Start listening for transaction updates.
     func start() async {
-        logger.debug("Starting StoreKit transaction listener.")
+        logger.debug("Starting StoreKit transaction listener")
 
         #if !DEBUG
             // Always clean up non-production transactions immediately. Reason for this is that if there
             // are any old unfinished sandbox transactions that has spilled over from TestFlight, they
             // will clog up the pipeline since they can never be finished or removed in production.
-            await finishOutstandingSandboxTransactions()
+            await Self.finishOutstandingSandboxAndOldAPITransactions()
         #endif
-
-        // Disabled so as not to have a parallell listener for SK 1 transactions running at the
-        // same time as SK 2 listener. Enable when enabling SK 1 payment flow.
-        // legacyStorePaymentManager.start()
 
         _ = try? await processOutstandingTransactions()
 
@@ -109,6 +105,8 @@ final actor StorePaymentManager: @unchecked Sendable {
         var timeAdded: TimeInterval = 0
         var failedOneOrMoreTransactions = false
 
+        logger.debug("Processing outstanding transactions")
+
         for await verification in Transaction.unfinished {
             guard shouldProcessPayment(verification: verification) else {
                 continue
@@ -141,13 +139,23 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    static func finishOutstandingSandboxTransactions() async {
+    static func finishOutstandingSandboxAndOldAPITransactions() async {
         for await verification in Transaction.unfinished {
             guard let payload = try? verification.payloadValue else {
                 continue
             }
 
-            if payload.environment != .production {
+            let logger = Logger(label: "StorePaymentManager")
+            logger.debug("Unfinished transaction environment is \(payload.environment)")
+
+            let isStagingEnvironment = payload.environment != .production
+            let isOldAPI = !StoreSubscription.allCases
+                .map { $0.rawValue }
+                .contains(payload.productID)
+
+            if isStagingEnvironment || isOldAPI {
+                logger.debug(
+                    "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)")
                 await payload.finish()
             }
         }
@@ -165,6 +173,8 @@ final actor StorePaymentManager: @unchecked Sendable {
     }
 
     private func uploadReceipt(verification: VerificationResult<Transaction>) async throws {
+        logger.debug("Uploading receipt")
+
         let result = await interactor.checkPayment(jwsRepresentation: verification.jwsRepresentation)
 
         switch result {
@@ -194,6 +204,8 @@ final actor StorePaymentManager: @unchecked Sendable {
             return
         }
 
+        logger.debug("Updating account data")
+
         let result = await interactor.getAccountData(accountNumber: accountNumber)
 
         switch result {
@@ -208,33 +220,25 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    private func finishOutstandingSandboxTransactions() async {
-        for await verification in Transaction.unfinished {
-            guard let payload = try? verification.payloadValue else {
-                continue
-            }
-
-            logger.debug("Unfinished transaction environment is '\(payload.environment)'")
-
-            if payload.environment != .production {
-                logger.debug("Finishing transaction with environment '\(payload.environment)'")
-                await payload.finish()
-            }
-        }
-    }
-
     private func transactionHasBeenProcessed(_ verificationResult: VerificationResult<Transaction>) -> Bool {
         guard let transactionId = try? verificationResult.payloadValue.id else {
             return true
         }
 
-        return processedTransactionIds.contains(transactionId)
+        let hasAlreadyBeenProcessed = processedTransactionIds.contains(transactionId)
+        if hasAlreadyBeenProcessed {
+            logger.debug("Verification has already been processed")
+        }
+
+        return hasAlreadyBeenProcessed
     }
 
     private func addToProcessedTransactions(_ verificationResult: VerificationResult<Transaction>) {
         guard let transactionId = try? verificationResult.payloadValue.id else {
             return
         }
+
+        logger.debug("Adding to processed transactions")
 
         _ = processedTransactionIds.insert(transactionId)
     }
@@ -252,27 +256,35 @@ final actor StorePaymentManager: @unchecked Sendable {
 
     private func shouldProcessPayment(verification: VerificationResult<Transaction>) -> Bool {
         guard case VerificationResult<Transaction>.verified = verification else {
+            logger.debug("Verification was not .verified, instead was: \(verification)")
             return false
         }
 
-        let revocationDate = try? verification.payloadValue.revocationDate
-        return (revocationDate == nil) && !transactionHasBeenProcessed(verification)
+        if let revocationDate = try? verification.payloadValue.revocationDate {
+            logger.debug("Verification was revoked at: \(revocationDate)")
+            return false
+        }
+
+        return !transactionHasBeenProcessed(verification)
     }
 
     // MARK: Notifications
 
     /// Purchase was successful.
     private func didPurchaseMoreTime(outcome: StorePaymentOutcome) {
+        logger.debug("Purchase successful")
         notifyObservers(of: .successfulPayment(outcome))
     }
 
     /// User cancelled purchase before it was completed.
     private func userDidCancel() {
+        logger.debug("User cancelled purchase")
         notifyObservers(of: .userCancelled)
     }
 
     /// Purchase is still pending, transaction may be delivered asynchronously.
     private func didSuspendPurchase() {
+        logger.debug("Did suspend purchase")
         notifyObservers(of: .pending)
     }
 
@@ -280,6 +292,7 @@ final actor StorePaymentManager: @unchecked Sendable {
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailFetchingToken(error: Error) {
+        logger.debug("Did fail fetching token, with error: \(error)")
         notifyObservers(of: .failed(.getPaymentToken(error)))
     }
 
@@ -287,6 +300,7 @@ final actor StorePaymentManager: @unchecked Sendable {
     ///
     /// - Parameter error: error thrown by the API client
     private func didFailUploadingReceipt() {
+        logger.debug("Did fail uploading receipt")
         notifyObservers(of: .failed(.receiptUpload))
     }
 
@@ -298,6 +312,8 @@ final actor StorePaymentManager: @unchecked Sendable {
         error: VerificationResult<Transaction>.VerificationError
     ) async {
         await transaction.finish()
+
+        logger.debug("Did fail verification, with error: \(error)")
         notifyObservers(of: .failed(.verification(error)))
     }
 
@@ -314,10 +330,10 @@ final actor StorePaymentManager: @unchecked Sendable {
             failure = .purchaseError(purchaseError)
 
         default:
-            logger.error("Caught unknown error during purchase call: \(error)")
             failure = .unknown
         }
 
+        logger.debug("Did fail purchase, with error: \(error)")
         notifyObservers(of: .failed(failure))
     }
 

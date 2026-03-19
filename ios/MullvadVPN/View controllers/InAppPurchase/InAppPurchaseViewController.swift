@@ -55,10 +55,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
 
         Task {
             await handlePaymentAction(paymentAction)
-
-            // NOTE! When enabling or disabling legacy payments, make sure
-            // to also enable/disable them in StorePaymentManager.start().
-            // await handleLegacyPaymentAction(paymentAction)
         }
     }
 
