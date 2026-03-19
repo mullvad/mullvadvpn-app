@@ -1471,14 +1471,19 @@ mod partition_relays {
         let relays = include_str!("./relays.json");
         serde_json::from_str(relays).unwrap()
     });
-    static RELAY_SELECTOR: LazyLock<RelaySelector> = LazyLock::new(|| {
-        let (relay_list, bridge_list) = &*RELAYS;
-        RelaySelector::new(
-            SelectorConfig::default(),
-            relay_list.clone(),
-            bridge_list.clone(),
-        )
-    });
+
+    /// Create a [`RelaySelector`] using [`RELAYS`] as a backing relay list.
+    fn relay_selector() -> RelaySelector {
+        static RELAY_SELECTOR: LazyLock<RelaySelector> = LazyLock::new(|| {
+            let (relay_list, bridge_list) = &*RELAYS;
+            RelaySelector::new(
+                SelectorConfig::default(),
+                relay_list.clone(),
+                bridge_list.clone(),
+            )
+        });
+        RELAY_SELECTOR.clone()
+    }
 
     /// Get a set of unique `[Reason]`s from the discards of a relay partition.
     fn unique_reasons(RelayPartitions { discards, .. }: RelayPartitions) -> HashSet<Reason> {
@@ -1557,7 +1562,7 @@ mod partition_relays {
                     | Predicate::Entry(MultihopConstraints { entry, .. }) => &entry.general,
                 };
 
-                let query = RELAY_SELECTOR.partition_relays(scenario.clone());
+                let query = relay_selector().partition_relays(scenario.clone());
                 assert!(!query.matches.is_empty());
 
                 for relay in &query.matches {
@@ -1599,6 +1604,7 @@ mod partition_relays {
     /// selector should instead always return a valid configuration.
     #[test]
     fn entry_hostname_collision() {
+        let relay_selector = relay_selector();
         // Define two distinct Wireguard relays.
         let wg101 = LocationConstraint::from(GeographicLocationConstraint::hostname(
             "se",
@@ -1615,7 +1621,7 @@ mod partition_relays {
         constraints.entry.general.location = wg101.clone().into();
         constraints.exit.location = wg101.clone().into();
 
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints.clone()));
+        let query = relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
         // Assert that the same host cannot be used for entry and exit
         assert_eq!(query.matches.len(), 0);
 
@@ -1623,7 +1629,7 @@ mod partition_relays {
         let mut constraints = MultihopConstraints::default();
         constraints.exit.location = wg101.into();
         constraints.entry.general.location = wg001.into();
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Exit(constraints.clone()));
+        let query = relay_selector.partition_relays(Predicate::Exit(constraints.clone()));
         // Assert that the new query succeeds when the entry and exit hosts differ
         assert!(!query.matches.is_empty());
     }
@@ -1631,6 +1637,7 @@ mod partition_relays {
     /// Test that filtering on obfuscation works.
     #[test]
     fn obfuscation() {
+        let relay_selector = relay_selector();
         // test_selecting_over_quic
         let quic = ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Quic,
@@ -1649,7 +1656,7 @@ mod partition_relays {
 
         for obfuscation in [quic, lwo, shadowsocks] {
             let constraints = EntryConstraints::default().obfuscation(obfuscation);
-            let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+            let query = relay_selector.partition_relays(Predicate::Singlehop(constraints));
 
             assert!(
                 unique_reasons(query)
@@ -1663,7 +1670,7 @@ mod partition_relays {
     fn runtime_ipv4_unavailable() {
         let constraints = EntryConstraints::default().ip_version(IpVersion::V6);
         // Query for all DAITA relays.
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
         assert!(!query.matches.is_empty());
         for relay in &query.matches {
             assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
@@ -1681,7 +1688,7 @@ mod partition_relays {
                 ..Default::default()
             });
         // Query for all DAITA relays.
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+        let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
         assert!(!query.matches.is_empty());
         for relay in &query.matches {
             assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
@@ -1691,10 +1698,11 @@ mod partition_relays {
     /// Test that filtering on DAITA works.
     #[test]
     fn daita() {
+        let relay_selector = relay_selector();
         let constraints = EntryConstraints::default().daita(true);
         // Query for all DAITA relays.
         let RelayPartitions { matches, discards } =
-            RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
         for relay in matches {
             assert!(relay.endpoint_data.daita)
         }
@@ -1715,11 +1723,11 @@ mod partition_relays {
             );
             // Demonstrate the difference between autohop / singlehop.
             let RelayPartitions { matches, .. } =
-                RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
+                relay_selector.partition_relays(Predicate::Autohop(constraints.clone()));
             assert_eq!(matches, vec![relay]);
 
             let RelayPartitions { matches, .. } =
-                RELAY_SELECTOR.partition_relays(Predicate::Singlehop(constraints));
+                relay_selector.partition_relays(Predicate::Singlehop(constraints));
             assert!(matches.is_empty());
         }
     }
@@ -1728,8 +1736,9 @@ mod partition_relays {
     /// multihop is enabled. This applies even if the entry is set explicitly.
     #[test]
     fn daita_smart_routing_overrides_multihop() {
+        let relay_selector = relay_selector();
         let daita_constraints = EntryConstraints::default().daita(true);
-        for non_daita_relay in RELAY_SELECTOR
+        for non_daita_relay in relay_selector
             .partition_relays(Predicate::Singlehop(daita_constraints.clone()))
             .discards
             .into_iter()
@@ -1749,7 +1758,7 @@ mod partition_relays {
                 .into();
 
             // Make sure a DAITA-enabled relay is always selected due to smart routing.
-            let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints.clone()));
+            let query = relay_selector.partition_relays(Predicate::Autohop(constraints.clone()));
             for relay in query.matches {
                 assert!(relay.endpoint_data.daita, "{relay:#?}");
             }
@@ -1768,7 +1777,7 @@ mod partition_relays {
 
         let constraints = EntryConstraints::default().providers(providers).daita(true);
 
-        let query = RELAY_SELECTOR.partition_relays(Predicate::Autohop(constraints));
+        let query = relay_selector().partition_relays(Predicate::Autohop(constraints));
         assert_eq!(query.matches.len(), 0);
 
         // Assert that a relay was discarded because we could not select an entry because of
