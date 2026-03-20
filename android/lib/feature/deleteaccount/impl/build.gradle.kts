@@ -10,10 +10,9 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.deleteaccount.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
-    implementation(projects.lib.feature.login.impl)
-    implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.deleteaccount.api)
+    implementation(projects.lib.feature.login.api)
+    implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

@@ -51,8 +51,8 @@ import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
-import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
 import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavResult
@@ -245,7 +245,9 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(EditCustomListNavKey(customListId = customList.id))
+                navigator.navigate(
+                    EditCustomListLocationsNavKey(customListId = customList.id, newList = false)
+                )
             },
         onDeleteCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->

@@ -10,8 +10,9 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.autoconnect.impl" }
 
 dependencies {
+    implementation(projects.lib.feature.autoconnect.api)
+
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.compose.constrainlayout)
-    implementation(projects.lib.feature.autoconnect.api)
 }

@@ -10,8 +10,8 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.managedevices.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
     implementation(projects.lib.navigation)
+    implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

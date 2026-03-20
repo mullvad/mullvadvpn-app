@@ -12,7 +12,6 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.EmptyNavigator
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.RemoveDeviceConfirmationDialogResult
-import net.mullvad.mullvadvpn.feature.managedevices.impl.confirmation.ManageDeviceRemoveConfirmationPreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
@@ -22,7 +21,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewRemoveDeviceConfirmationDialog(
-    @PreviewParameter(ManageDeviceRemoveConfirmationPreviewParameterProvider::class) device: Device
+    @PreviewParameter(RemoveDeviceConfirmationPreviewParameterProvider::class) device: Device
 ) {
     AppTheme { RemoveDeviceConfirmation(EmptyNavigator, device = device) }
 }

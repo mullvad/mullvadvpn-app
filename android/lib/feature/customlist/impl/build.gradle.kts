@@ -10,10 +10,10 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.customlist.impl" }
 
 dependencies {
+    implementation(projects.lib.feature.customlist.api)
+    implementation(projects.lib.navigation)
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
-    implementation(projects.lib.navigation)
-    implementation(projects.lib.feature.customlist.api)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

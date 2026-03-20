@@ -10,12 +10,12 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.apiaccess.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
+    implementation(projects.lib.feature.apiaccess.api)
     implementation(projects.lib.navigation)
+    implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-    implementation(projects.lib.feature.apiaccess.api)
 
     // This dependency can be replaced when minimum SDK is 29 or higher.
     // It can then be replaced with InetAddress.isNumericAddress

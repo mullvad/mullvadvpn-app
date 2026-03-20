@@ -10,19 +10,15 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.vpnsettings.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
-    implementation(projects.lib.usecase)
-    implementation(projects.lib.navigation)
-    // Used for destinations
-    implementation(projects.lib.feature.autoconnect.impl)
-    implementation(projects.lib.feature.autoconnect.api)
-    implementation(projects.lib.feature.anticensorship.impl)
     implementation(projects.lib.feature.anticensorship.api)
-    implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.vpnsettings.api)
-    implementation(libs.androidx.navigation3.ui)
+    implementation(projects.lib.navigation)
+    implementation(projects.lib.repository)
+    implementation(projects.lib.usecase)
 
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     // This dependency can be replaced when minimum SDK is 29 or higher.

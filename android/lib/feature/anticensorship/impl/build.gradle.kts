@@ -10,10 +10,10 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.anticensorship.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
-    implementation(projects.lib.navigation)
-    implementation(projects.lib.ui.util)
     implementation(projects.lib.feature.anticensorship.api)
+    implementation(projects.lib.navigation)
+    implementation(projects.lib.repository)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

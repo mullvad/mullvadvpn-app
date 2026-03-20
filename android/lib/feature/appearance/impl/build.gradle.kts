@@ -10,9 +10,9 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.appearance.impl" }
 
 dependencies {
+    implementation(projects.lib.feature.appearance.api)
     implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-    implementation(projects.lib.feature.appearance.api)
 }

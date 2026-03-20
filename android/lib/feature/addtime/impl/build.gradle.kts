@@ -10,9 +10,9 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.addtime.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
-    implementation(projects.lib.payment)
     implementation(projects.lib.feature.addtime.api)
+    implementation(projects.lib.payment)
+    implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
