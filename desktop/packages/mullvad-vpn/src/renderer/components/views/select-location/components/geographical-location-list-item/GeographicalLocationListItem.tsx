@@ -74,8 +74,8 @@ function GeographicalLocationListItemImpl({
         expanded={expanded}
         onExpandedChange={setExpanded}
         disabled={disabled}>
-        <LocationListItem.Header level={level} position={position}>
-          <LocationListItem.HeaderTrigger
+        <LocationListItem.Accordion.Header level={level} position={position}>
+          <LocationListItem.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -86,15 +86,17 @@ function GeographicalLocationListItemImpl({
                 location: location.label,
               },
             )}>
-            <LocationListItem.HeaderItem>
-              <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
-            </LocationListItem.HeaderItem>
-          </LocationListItem.HeaderTrigger>
+            <LocationListItem.Accordion.Header.Item>
+              <LocationListItem.Accordion.Header.Item.Title>
+                {location.label}
+              </LocationListItem.Accordion.Header.Item.Title>
+            </LocationListItem.Accordion.Header.Item>
+          </LocationListItem.Accordion.Header.Trigger>
           <GeographicalLocationTrailingActions location={location} />
-        </LocationListItem.Header>
-        <LocationListItem.AccordionContent>
+        </LocationListItem.Accordion.Header>
+        <LocationListItem.Accordion.Content>
           {showChildren ? renderChildren() : null}
-        </LocationListItem.AccordionContent>
+        </LocationListItem.Accordion.Content>
       </LocationListItem.Accordion>
     </LocationListItem>
   );

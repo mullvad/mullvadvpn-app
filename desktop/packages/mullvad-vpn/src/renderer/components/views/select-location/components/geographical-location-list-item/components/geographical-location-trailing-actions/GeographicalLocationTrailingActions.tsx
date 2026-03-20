@@ -36,30 +36,32 @@ export function GeographicalLocationTrailingActions({
   }
 
   return (
-    <LocationListItem.HeaderTrailingActions>
+    <LocationListItem.Accordion.Header.TrailingActions>
       {showAddToCustomListButton && (
-        <LocationListItem.HeaderTrailingActions.Action>
+        <LocationListItem.Accordion.Header.TrailingActions.Action>
           <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
           <AddLocationToCustomListDialog
             open={addLocationToCustomListDialogOpen}
             onOpenChange={setAddLocationToCustomListDialogOpen}
             location={location}
           />
-        </LocationListItem.HeaderTrailingActions.Action>
+        </LocationListItem.Accordion.Header.TrailingActions.Action>
       )}
       {showAccordionTrigger && (
-        <LocationListItem.AccordionTrigger
+        <LocationListItem.Accordion.Header.Trigger
           aria-label={sprintf(
-            expanded === true
+            expanded
               ? messages.pgettext('accessibility', 'Collapse %(location)s')
               : messages.pgettext('accessibility', 'Expand %(location)s'),
             { location: location.label },
           )}>
-          <LocationListItem.HeaderTrailingActions.Action>
-            <LocationListItem.HeaderChevron />
-          </LocationListItem.HeaderTrailingActions.Action>
-        </LocationListItem.AccordionTrigger>
+          <LocationListItem.Accordion.Header.TrailingActions.Action>
+            <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
+              icon={expanded ? 'chevron-up' : 'chevron-down'}
+            />
+          </LocationListItem.Accordion.Header.TrailingActions.Action>
+        </LocationListItem.Accordion.Header.Trigger>
       )}
-    </LocationListItem.HeaderTrailingActions>
+    </LocationListItem.Accordion.Header.TrailingActions>
   );
 }
