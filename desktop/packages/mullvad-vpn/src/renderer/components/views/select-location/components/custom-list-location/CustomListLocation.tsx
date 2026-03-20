@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import { CustomListLocation } from '../../../../../features/locations/types';
+import { type CustomListLocation } from '../../../../../features/locations/types';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
@@ -63,8 +63,8 @@ export function CustomListLocationImpl({
         expanded={expanded}
         onExpandedChange={setExpanded}
         disabled={disabled}>
-        <LocationListItem.Header level={0}>
-          <LocationListItem.HeaderTrigger
+        <LocationListItem.Accordion.Header level={0}>
+          <LocationListItem.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -75,9 +75,11 @@ export function CustomListLocationImpl({
                 location: customList.label,
               },
             )}>
-            <LocationListItem.HeaderItem>
+            <LocationListItem.Accordion.Header.Item>
               <FlexColumn>
-                <LocationListItem.HeaderTitle>{customList.label}</LocationListItem.HeaderTitle>
+                <LocationListItem.Accordion.Header.Item.Title>
+                  {customList.label}
+                </LocationListItem.Accordion.Header.Item.Title>
                 {showEmptySubtitle && (
                   <FootnoteMiniSemiBold color="whiteAlpha60">
                     {
@@ -87,13 +89,13 @@ export function CustomListLocationImpl({
                   </FootnoteMiniSemiBold>
                 )}
               </FlexColumn>
-            </LocationListItem.HeaderItem>
-          </LocationListItem.HeaderTrigger>
+            </LocationListItem.Accordion.Header.Item>
+          </LocationListItem.Accordion.Header.Trigger>
           <CustomListTrailingActions customList={customList} />
-        </LocationListItem.Header>
-        <LocationListItem.AccordionContent>
+        </LocationListItem.Accordion.Header>
+        <LocationListItem.Accordion.Content>
           <AnimatedList>{expanded ? renderChildren() : null}</AnimatedList>
-        </LocationListItem.AccordionContent>
+        </LocationListItem.Accordion.Content>
       </LocationListItem.Accordion>
     </LocationListItem>
   );
