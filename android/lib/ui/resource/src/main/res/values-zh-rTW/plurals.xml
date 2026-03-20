@@ -21,4 +21,7 @@
     <plurals name="account_credit_expires_in_hours">
         <item quantity="other">帳戶點數將在 %1$d 小時後到期</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="other">您將失去剩餘 %1$d 天。</item>
+    </plurals>
 </resources>

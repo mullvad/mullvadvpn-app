@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Doładowanie konta wygasa za kilka minut</string>
     <string name="account_credit_has_expired">Na tym koncie nie masz już czasu VPN.</string>
+    <string name="account_delete_placeholder">Wprowadź cyfry numeru konta</string>
+    <string name="account_deleted">Usunięto konto</string>
     <string name="account_number">Numer konta</string>
     <string name="account_time_notification_channel_description">Pokazuje przypomnienia, gdy kończy się czas na koncie</string>
     <string name="account_time_notification_channel_name">Przypomnienia o czasie na koncie</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
     <string name="connection_details_out">Wyjście</string>
+    <string name="cont">Kontynuuj</string>
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
     <string name="copied_mullvad_account_number">Skopiowano numer konta Mullvad do schowka</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">Do konta dodano 30 dni.</string>
     <string name="days_were_added_90">Do konta dodano 90 dni.</string>
     <string name="delete">Usuń</string>
+    <string name="delete_account">Usuń konto</string>
+    <string name="delete_account_cant_be_undone">Usunięcia konta nie można cofnąć.</string>
+    <string name="delete_account_confirm_first_item"><b>Tego działania nie można cofnąć.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Utracisz dostęp do tego konta na wszystkich urządzeniach.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Przywrócenie konta nie będzie możliwe.</b></string>
+    <string name="delete_account_confirmation_check">Zaznaczając to pole, akceptuję ryzyko związane z usunięciem mojego konta</string>
+    <string name="delete_account_confirmation_enter_account_number">Aby usunąć konto Mullvad VPN, wprowadź poniżej numer tego konta.</string>
+    <string name="delete_account_error">Nie można usunąć konta, skontaktuj się z pomocą techniczną</string>
+    <string name="delete_account_failed_loading_days">Nie można wyświetlić pozostałej liczby dni.</string>
+    <string name="delete_account_first_item">Utracisz dostęp do tego konta na wszystkich urządzeniach.</string>
+    <string name="delete_account_forth_item">Przywrócenie konta nie będzie możliwe.</string>
+    <string name="delete_account_info">W ten sposób usuniesz swoje konto Mullvad VPN.</string>
+    <string name="delete_account_info_part2">Wskutek usunięcia konta:</string>
+    <string name="delete_account_loading_days">Utracisz pozostałe</string>
+    <string name="delete_account_number_must_match">Numer konta musi być zgodny</string>
+    <string name="delete_account_second_item">Pozostały czas zostanie unieważniony.</string>
+    <string name="delete_account_third_item">Zwroty kosztów nie będą możliwe.</string>
+    <string name="delete_account_unable_to_verify">Nie można zweryfikować numeru konta, skontaktuj się z pomocą techniczną</string>
+    <string name="delete_account_warning"><b>Ostrzeżenie:</b></string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
     <string name="delete_list">Usuń listę</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Szczegółowe informacje znajdziesz w naszej %1$s.</string>
     <string name="include_account_token_warning_title">Ma to wpływ na anonimowość</string>
     <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
+    <string name="invalid_ipv6_config">Nieprawidłowa konfiguracja protokołu IPv6, spróbuj zmienić ustawienia VPN.</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ip_version_v4_unavailable">Protokół IPv4 jest niedostępny, spróbuj zmienić ustawienie „Wersja protokołu IP urządzenia”.</string>
     <string name="ip_version_v6_unavailable">Protokół IPv6 jest niedostępny, spróbuj zmienić ustawienie „Wersja protokołu IP urządzenia”.</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Brak historii ostatnich wyborów</string>
     <string name="none">Brak</string>
     <string name="not_found">Nie znaleziono</string>
+    <string name="notification_settings">Ustawienia powiadomień</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Wył.</string>

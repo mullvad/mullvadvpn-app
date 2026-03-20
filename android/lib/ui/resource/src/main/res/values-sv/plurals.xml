@@ -28,4 +28,8 @@
         <item quantity="one">Kontokrediten slutar gälla om en timme</item>
         <item quantity="other">Kontokrediten slutar gälla om %1$d timmar</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Du förlorar din återstående dag.</item>
+        <item quantity="other">Du förlorar dina återstående %1$d dagar.</item>
+    </plurals>
 </resources>

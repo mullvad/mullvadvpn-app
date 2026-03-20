@@ -42,4 +42,10 @@
         <item quantity="many">Срок действия баланса учетной записи истекает через %1$d часов</item>
         <item quantity="other">Срок действия баланса учетной записи истекает через %1$d часа</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Вы потеряете %1$d оставшийся день.</item>
+        <item quantity="few">Вы потеряете %1$d оставшихся дня.</item>
+        <item quantity="many">Вы потеряете %1$d оставшихся дней.</item>
+        <item quantity="other">Вы потеряете оставшиеся %1$d дня.</item>
+    </plurals>
 </resources>

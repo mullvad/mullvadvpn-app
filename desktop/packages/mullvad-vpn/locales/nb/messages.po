@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2026-03-06 09:26\n"
+"PO-Revision-Date: 2026-03-20 09:19\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -2788,6 +2788,9 @@ msgstr "30 dager ble lagt til kontoen din."
 msgid "90 days was added to your account."
 msgstr "90 dager ble lagt til kontoen din."
 
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Kontogjenoppretting vil ikke være mulig.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Merk:</b> Det er bare enkelte servere som støtter alle porter."
 
@@ -2796,6 +2799,15 @@ msgstr "<b>Merk:</b> Appen lukkes automatisk og må åpnes manuelt igjen etter a
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Vær oppmerksom på at disse metodene ikke forbedrer ytelsen og kan øke systemutnyttelsen og batteriforbruket.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Denne handlingen kan ikke angres.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Advarsel:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Du vil miste tilgang til denne kontoen på alle enheter.</b>"
 
 msgid "API reachable, adding method..."
 msgstr "API tilgjengelig, legger til metode …"
@@ -2806,8 +2818,17 @@ msgstr "API ikke tilgjengelig, lagre metoden uansett?"
 msgid "Account credit expires in a few minutes"
 msgstr "Kontokreditt utløper om noen få minutter"
 
+msgid "Account deleted"
+msgstr "Konto slettet"
+
 msgid "Account number is too long, please enter a valid number"
 msgstr "Kontonummeret er for langt. Skriv inn et gyldig nummer"
+
+msgid "Account number must match"
+msgstr "Kontonummeret må stemme overens"
+
+msgid "Account recovery will not be possible."
+msgstr "Kontogjenoppretting vil ikke være mulig."
 
 msgid "Account time reminders"
 msgstr "Påminnelser om tidsavbrudd for konto"
@@ -2857,6 +2878,9 @@ msgstr "VPN som alltid er på, er tilordnet en annen VPN"
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 har en kjent feil. Start enheten på nytt og prøv igjen. For å finne ut mer,"
 
+msgid "Any remaining time will be null and void."
+msgstr "All gjenværende tid vil være ugyldig."
+
 msgid "Appearance"
 msgstr "Utseende"
 
@@ -2899,6 +2923,9 @@ msgstr "Nettleser"
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Når du legger ved kontotokenet ditt, kobles denne rapporten til kontoen din. Det hjelper oss med å løse problemet ditt raskere. Alle rapporter slettes automatisk etter en bestemt tid."
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Ved å merke av i denne boksen godtar jeg risikoene involvert med å slette kontoen min"
+
 msgid "Can't connect?"
 msgstr "Kan du ikke koble til?"
 
@@ -2923,6 +2950,9 @@ msgstr "Koble til et annet nettverk"
 msgid "Connecting..."
 msgstr "Kobler til ..."
 
+msgid "Continue"
+msgstr "Fortsett"
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierte Mullvad-kontonummer til utklippstavlen"
 
@@ -2931,6 +2961,9 @@ msgstr "Logger kopiert til utklippstavlen"
 
 msgid "Copy"
 msgstr "Kopier"
+
+msgid "Could not display remaining days."
+msgstr "Kunne ikke vise gjenværende dager."
 
 msgid "Create"
 msgstr "Opprett"
@@ -2956,11 +2989,20 @@ msgstr "DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart"
 msgid "Delete \"%s\"?"
 msgstr "Slette «%s»?"
 
+msgid "Delete account"
+msgstr "Slett konto"
+
 msgid "Delete method"
 msgstr "Slett metoden"
 
 msgid "Delete method?"
 msgstr "Slette metoden?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "Sletting av kontoen kan ikke angres."
+
+msgid "Deleting your account:"
+msgstr "Sletting av kontoen:"
 
 msgid "Direct"
 msgstr "Direkte"
@@ -3028,6 +3070,9 @@ msgstr "Aktiver nylige"
 msgid "Enter MTU"
 msgstr "Angi MTU"
 
+msgid "Enter account number digits"
+msgstr "Skriv inn sifrene i kontonummeret ditt"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Inngangsrelé er det samme som utgangsrelé"
 
@@ -3045,6 +3090,9 @@ msgstr "KUNNE IKKE KOBLE TIL"
 
 msgid "Failed to apply patch"
 msgstr "Kunne ikke bruke oppdatering"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Kunne ikke slette konto. Kontakt kundestøtte"
 
 msgid "Failed to load products, please try again"
 msgstr "Kunne ikke laste opp produkter. Prøv på nytt"
@@ -3111,6 +3159,9 @@ msgstr "Produkter i appen er ikke tilgjengelige. Sørg for at du har den nyeste 
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Inkluder kontotokenet mitt for raskere hjelp med betaling eller problemer knyttet til kontoen"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Ugyldig IPv6-konfiruasjon. Prøv å endre VPN-innstillingene."
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Ugyldig eller mangler verdien «%1$s»"
@@ -3202,6 +3253,9 @@ msgstr "Ikke funnet"
 msgid "Notes"
 msgstr "Merknader"
 
+msgid "Notification settings"
+msgstr "Varslingsinnstillinger"
+
 msgid "Open app details"
 msgstr "Åpne appdetaljer"
 
@@ -3252,6 +3306,9 @@ msgstr "Nylige er deaktivert og historikken er slettet"
 
 msgid "Recursion limit"
 msgstr "Rekursjonsgrense"
+
+msgid "Refunds will not be possible."
+msgstr "Refusjoner er ikke mulig."
 
 msgid "Remove %1$s from %2$s"
 msgstr "Fjern %1$s fra %2$s"
@@ -3331,6 +3388,9 @@ msgstr "Tester %s ..."
 msgid "Text"
 msgstr "Tekst"
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Takk for at du er en del av fellesskapet.\\nPersonvern er for folket!"
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Du finner innstillingene for automatisk tilkobling og låsemodus i Androids systeminnstillinger. Følg denne veiledningen for å aktivere én eller begge."
 
@@ -3385,6 +3445,9 @@ msgstr "Hvis du vil legge til plasseringer i en liste, kan du trykke på pennen 
 msgid "To create a custom list press the \"+\""
 msgstr "For å opprette en egendefinert liste, kan du trykke på «+»"
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "For å slette Mullvad VPN-kontoen må du skrive inn kontonummeret nedenfor."
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg."
 
@@ -3414,6 +3477,9 @@ msgstr "Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, fø
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for <b>%s</b> før du bruker Mullvad VPN."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Kunne ikke verifisere kontonummeret. Kontakt kundestøtte"
 
 msgid "Unavailable"
 msgstr "Utilgjengelig"
@@ -3499,11 +3565,20 @@ msgstr "WireGuard-port"
 msgid "Yes, log out device"
 msgstr "Ja, logg ut av enheten"
 
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Du er i ferd med å slette Mullvad VPN-kontoen din."
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr "Du kan legge til mer tid via kontooversikten eller nettstedet for å fortsette å bruke VPN."
 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Du kan legge til mer tid via kontooversikten for å fortsette å bruke VPN."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Du vil miste tilgang til denne kontoen på alle enheter."
+
+msgid "You will lose your remaining"
+msgstr "Du vil miste gjenværende"
 
 msgid "\"%s\" was created"
 msgstr "«%s» ble opprettet"
@@ -3560,4 +3635,9 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Kontokreditt utløper om én time"
 msgstr[1] "Kontokreditt utløper om %d timer"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Du vil miste gjenværende dag."
+msgstr[1] "Du vil miste gjenværende %d dager."
 

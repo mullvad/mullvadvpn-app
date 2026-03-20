@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2026-03-06 09:26\n"
+"PO-Revision-Date: 2026-03-20 09:19\n"
 
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
@@ -2800,6 +2800,9 @@ msgstr "На учетную запись добавлено 30 дней."
 msgid "90 days was added to your account."
 msgstr "На вашу учетную запись добавлено 90 дней."
 
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Восстановить учетную запись будет невозможно.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Внимание:</b> не все серверы поддерживают полный диапазон портов."
 
@@ -2808,6 +2811,15 @@ msgstr "<b>Внимание:</b> после выбора нового значк
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Это действие нельзя отменить.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Предупреждение:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Вы потеряете доступ к этой учетной записи на всех устройствах.</b>"
 
 msgid "API reachable, adding method..."
 msgstr "Есть доступ к API, добавляем метод..."
@@ -2818,8 +2830,17 @@ msgstr "Нет доступа к API. Сохранить метод?"
 msgid "Account credit expires in a few minutes"
 msgstr "Баланс учетной записи закончится через несколько минут"
 
+msgid "Account deleted"
+msgstr "Учетная запись удалена"
+
 msgid "Account number is too long, please enter a valid number"
 msgstr "Номер учетной записи слишком длинный, введите действительный номер"
+
+msgid "Account number must match"
+msgstr "Номер учетной записи должен совпадать"
+
+msgid "Account recovery will not be possible."
+msgstr "Восстановить учетную запись будет невозможно."
 
 msgid "Account time reminders"
 msgstr "Напоминания о времени на учетной записи"
@@ -2869,6 +2890,9 @@ msgstr "Опция «Постоянная VPN» назначена другой 
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "В Android 16 есть известная проблема. Перезагрузите устройство и попробуйте снова. Чтобы узнать больше,"
 
+msgid "Any remaining time will be null and void."
+msgstr "Всё оставшееся время будет аннулировано."
+
 msgid "Appearance"
 msgstr "Внешний вид"
 
@@ -2911,6 +2935,9 @@ msgstr "Браузер"
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени."
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Отмечая этот флажок, я принимаю риски, связанные с удалением учетной записи"
+
 msgid "Can't connect?"
 msgstr "Проблемы с подключением?"
 
@@ -2935,6 +2962,9 @@ msgstr "Подключиться к другой сети."
 msgid "Connecting..."
 msgstr "Идет подключение..."
 
+msgid "Continue"
+msgstr "Продолжить"
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Номер учетной записи Mullvad скопирован в буфер обмена"
 
@@ -2943,6 +2973,9 @@ msgstr "Журналы скопированы в буфер обмена"
 
 msgid "Copy"
 msgstr "Копировать"
+
+msgid "Could not display remaining days."
+msgstr "Не удалось отобразить количество оставшихся дней."
 
 msgid "Create"
 msgstr "Создать"
@@ -2968,11 +3001,20 @@ msgstr "Настройки DNS могут не сразу вступить в с
 msgid "Delete \"%s\"?"
 msgstr "Удалить список «%s»?"
 
+msgid "Delete account"
+msgstr "Удалить учетную запись"
+
 msgid "Delete method"
 msgstr "Удалить метод"
 
 msgid "Delete method?"
 msgstr "Удалить метод?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "После удаления учетной записи вы не сможете вернуть ее."
+
+msgid "Deleting your account:"
+msgstr "При удалении учетной записи:"
 
 msgid "Direct"
 msgstr "Напрямую"
@@ -3040,6 +3082,9 @@ msgstr "Включить недавние"
 msgid "Enter MTU"
 msgstr "Введите MTU"
 
+msgid "Enter account number digits"
+msgstr "Введите номер учетной записи"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Входной сервер ретрансляции совпадает с выходным сервером ретрансляции"
 
@@ -3057,6 +3102,9 @@ msgstr "НЕ УДАЛОСЬ ПОДКЛЮЧИТЬСЯ"
 
 msgid "Failed to apply patch"
 msgstr "Не удалось применить патч"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Не удалось удалить учетную запись, обратитесь в службу поддержки"
 
 msgid "Failed to load products, please try again"
 msgstr "Не удалось загрузить продукты — повторите попытку"
@@ -3123,6 +3171,9 @@ msgstr "Встроенные покупки недоступны — убеди
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Прикрепить токен моей учетной записи для ускоренной помощи по вопросам, связанным с оплатой или учетной записью"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Недействительная конфигурация IPv6. Попробуйте изменить настройки VPN."
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Недопустимое или отсутствующее значение «%1$s»"
@@ -3214,6 +3265,9 @@ msgstr "Не найдено"
 msgid "Notes"
 msgstr "Заметки"
 
+msgid "Notification settings"
+msgstr "Настройки уведомлений"
+
 msgid "Open app details"
 msgstr "Открыть сведения о приложении"
 
@@ -3264,6 +3318,9 @@ msgstr "Недавние отключены, история очищена"
 
 msgid "Recursion limit"
 msgstr "Предел рекурсии"
+
+msgid "Refunds will not be possible."
+msgstr "Вы не сможете получить возмещение средств."
 
 msgid "Remove %1$s from %2$s"
 msgstr "Удалить местоположение %1$s из списка «%2$s»"
@@ -3343,6 +3400,9 @@ msgstr "Проверка метода «%s»..."
 msgid "Text"
 msgstr "Текст"
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Спасибо, что были частью нашего сообщества.\\nКонфиденциальность — право каждого!"
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Настройки автоподключения и режима блокировки можно найти в системных настройках Android. Чтобы включить их, следуйте этой инструкции."
 
@@ -3397,6 +3457,9 @@ msgstr "Чтобы добавить местоположения в список
 msgid "To create a custom list press the \"+\""
 msgstr "Чтобы создать свой список, нажмите «+»"
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "Чтобы удалить учетную запись Mullvad VPN, укажите номер учетной записи ниже."
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Чтобы удостовериться, что вы используете наиболее безопасную версию приложения, и сообщить вам о возможных проблемах в ней, приложение автоматически проверяет свою версию. При этом на серверы Mullvad передаются данные о версии приложения и системы Android. Mullvad ведет учет количества пользователей с определенными версиями приложения и ОС Android. Эти данные не хранятся и не используются каким бы то ни было образом, позволяющим вас идентифицировать."
 
@@ -3426,6 +3489,9 @@ msgstr "Не удалось запустить туннельное соедин
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Не удалось запустить туннельное подключение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN» для приложения <b>%s</b>."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Не удалось проверить номер учетной записи, обратитесь в службу поддержки"
 
 msgid "Unavailable"
 msgstr "Недоступно"
@@ -3511,11 +3577,20 @@ msgstr "Порт WireGuard"
 msgid "Yes, log out device"
 msgstr "Выйти из профиля на устройстве"
 
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Вы собираетесь удалить учетную запись Mullvad VPN."
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr "Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи или сайт."
 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Вы потеряете доступ к этой учетной записи на всех устройствах."
+
+msgid "You will lose your remaining"
+msgstr "Вы потеряете оставшееся время:"
 
 msgid "\"%s\" was created"
 msgstr "Список «%s» создан"
@@ -3586,4 +3661,11 @@ msgstr[0] "Срок действия баланса учетной записи 
 msgstr[1] "Срок действия баланса учетной записи истекает через %d часа"
 msgstr[2] "Срок действия баланса учетной записи истекает через %d часов"
 msgstr[3] "Срок действия баланса учетной записи истекает через %d часа"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Вы потеряете %d оставшийся день."
+msgstr[1] "Вы потеряете %d оставшихся дня."
+msgstr[2] "Вы потеряете %d оставшихся дней."
+msgstr[3] "Вы потеряете оставшиеся %d дня."
 

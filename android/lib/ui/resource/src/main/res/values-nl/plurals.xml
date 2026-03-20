@@ -28,4 +28,8 @@
         <item quantity="one">Accountkrediet verloopt over een uur</item>
         <item quantity="other">Accountkrediet verloopt over %1$d uur</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">U verliest uw resterende dag.</item>
+        <item quantity="other">U verliest uw %1$d resterende dagen.</item>
+    </plurals>
 </resources>

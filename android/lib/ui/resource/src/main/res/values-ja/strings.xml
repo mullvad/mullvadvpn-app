@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">アカウントのクレジットが数分後に無効になります</string>
     <string name="account_credit_has_expired">このアカウントには、もう残っているVPN時間がありません。</string>
+    <string name="account_delete_placeholder">アカウント番号を入力してください</string>
+    <string name="account_deleted">アカウントを削除しました</string>
     <string name="account_number">アカウント番号</string>
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
     <string name="connection_details_out">外側</string>
+    <string name="cont">続行</string>
     <string name="continue_login">ログインを続ける</string>
     <string name="copied_logs_to_clipboard">ログをクリップボードにコピーしました</string>
     <string name="copied_mullvad_account_number">Mullvadアカウント番号をクリップボードにコピーしました</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">アカウントに30日分が追加されました。</string>
     <string name="days_were_added_90">アカウントに90日分が追加されました。</string>
     <string name="delete">削除</string>
+    <string name="delete_account">アカウントを削除する</string>
+    <string name="delete_account_cant_be_undone">アカウントを削除すると元に戻すことはできません。</string>
+    <string name="delete_account_confirm_first_item"><b>この操作は取り消すことができません。</b></string>
+    <string name="delete_account_confirm_second_item"><b>すべてのデバイスでこのアカウントへのアクセス権が失われます。</b></string>
+    <string name="delete_account_confirm_third_item"><b>アカウントの復旧はできません。</b></string>
+    <string name="delete_account_confirmation_check">このボックスにチェックを入れることで、アカウント削除に伴うリスクに同意します</string>
+    <string name="delete_account_confirmation_enter_account_number">Mullvad VPNアカウントを削除するには、以下にアカウント番号を入力してください。</string>
+    <string name="delete_account_error">アカウントを削除できません。サポートまでお問い合わせください</string>
+    <string name="delete_account_failed_loading_days">残り日数を表示できませんでした。</string>
+    <string name="delete_account_first_item">すべてのデバイスでこのアカウントへのアクセス権が失われます。</string>
+    <string name="delete_account_forth_item">アカウントの復旧はできません。</string>
+    <string name="delete_account_info">Mullvad VPNアカウントを削除しようとしています。</string>
+    <string name="delete_account_info_part2">アカウントの削除：</string>
+    <string name="delete_account_loading_days">残り期間が失われます</string>
+    <string name="delete_account_number_must_match">アカウント番号が一致している必要があります</string>
+    <string name="delete_account_second_item">残りの期間はすべて無効となります。</string>
+    <string name="delete_account_third_item">返金はできません。</string>
+    <string name="delete_account_unable_to_verify">アカウント番号を確認できません。サポートまでお問い合わせください</string>
+    <string name="delete_account_warning"><b>警告：</b></string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
     <string name="delete_list">リストを削除</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">詳細については、当社の%1$sをご覧ください。</string>
     <string name="include_account_token_warning_title">これはあなたの匿名性に影響を与えます</string>
     <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
+    <string name="invalid_ipv6_config">IPv6の設定が無効です。VPNの設定を変更してください。</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
     <string name="ip_version_v4_unavailable">IPv4は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
     <string name="ip_version_v6_unavailable">IPv6は利用できません。「デバイスのIPバージョン」の設定を変更してみてください。</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">最近の選択履歴はありません</string>
     <string name="none">なし</string>
     <string name="not_found">見つかりませんでした</string>
+    <string name="notification_settings">通知設定</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">オフ</string>

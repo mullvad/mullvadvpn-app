@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">اعتبار حساب در چند دقیقهٔ آینده منقضی می‌شود</string>
     <string name="account_credit_has_expired">شما هیچگونه زمان VPN باقیمانده دیگری در این حساب ندارید.</string>
+    <string name="account_delete_placeholder">ارقام شماره حساب را وارد کنید</string>
+    <string name="account_deleted">حساب حذف شد</string>
     <string name="account_number">شماره حساب</string>
     <string name="account_time_notification_channel_description">هنگام نزدیک شدن زمان پایان اعتبار حساب، یادآورها را نشان می‌دهد</string>
     <string name="account_time_notification_channel_name">یادآورهای زمان حساب</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">در حال اتصال به سرویس سیستم Mullvad...</string>
     <string name="connection_details_in">ورودی</string>
     <string name="connection_details_out">خروجی</string>
+    <string name="cont">ادامه</string>
     <string name="continue_login">ادامه با ورود</string>
     <string name="copied_logs_to_clipboard">گزارش‌ها در کلیپ‌بورد کپی شدند</string>
     <string name="copied_mullvad_account_number">شمارهٔ حساب Mullvad در کلیپ‌بورد کپی شد</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">30 روز به حساب شما اضافه شد.</string>
     <string name="days_were_added_90">90 روز به حساب شما اضافه شد.</string>
     <string name="delete">حذف کردن</string>
+    <string name="delete_account">حذف حساب</string>
+    <string name="delete_account_cant_be_undone">حذف حسابتان قابل بازگرداندن نیست.</string>
+    <string name="delete_account_confirm_first_item"><b>این اقدام قابل بازگرداندن نیست.</b></string>
+    <string name="delete_account_confirm_second_item"><b>دسترسی به این حساب را در همه دستگاه‌ها از دست خواهید داد.</b></string>
+    <string name="delete_account_confirm_third_item"><b>بازیابی حساب ممکن نخواهد بود.</b></string>
+    <string name="delete_account_confirmation_check">با زدن این تیک، با خطرات مرتبط با حذف حسابم موافقت می‌کنم</string>
+    <string name="delete_account_confirmation_enter_account_number">برای حذف حساب Mullvad VPN خود، لطفاً شماره حسابتان را در پایین وارد کنید.</string>
+    <string name="delete_account_error">حذف حساب ناموفق بود، لطفاً با پشتیبانی تماس بگیرید</string>
+    <string name="delete_account_failed_loading_days">نمایش روزهای باقی‌مانده امکان‌پذیر نیست.</string>
+    <string name="delete_account_first_item">دسترسی به این حساب را در همه دستگاه‌ها از دست خواهید داد.</string>
+    <string name="delete_account_forth_item">بازیابی حساب ممکن نخواهد بود.</string>
+    <string name="delete_account_info">شما در آستانه حذف حساب Mullvad VPN خود هستید.</string>
+    <string name="delete_account_info_part2">با حذف حسابتان:</string>
+    <string name="delete_account_loading_days">روزهای باقی‌مانده خود را از دست خواهید داد</string>
+    <string name="delete_account_number_must_match">شماره حساب باید مطابقت داشته باشد</string>
+    <string name="delete_account_second_item">هر مقدار زمانی که باقی مانده باشد، باطل و بی‌اعتبار خواهد شد.</string>
+    <string name="delete_account_third_item">بازپرداخت ممکن نخواهد بود.</string>
+    <string name="delete_account_unable_to_verify">تأیید شماره حساب ممکن نیست، لطفاً با پشتیبانی تماس بگیرید</string>
+    <string name="delete_account_warning"><b>هشدار:</b></string>
     <string name="delete_custom_list_confirmation_description">حذف «%1$s»؟</string>
     <string name="delete_custom_list_message">%1$s حذف شد</string>
     <string name="delete_list">حذف فهرست</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">برای بررسی جزئیات، لطفاً %1$s ما را ببینید.</string>
     <string name="include_account_token_warning_title">این مورد بر ناشناس‌ماندن شما تأثیر می‌گذارد</string>
     <string name="invalid_dns_servers">آدرس‌های سرور DNS سفارشی %1$s نامعتبر هستند</string>
+    <string name="invalid_ipv6_config">پیکربندی IPv6 نامعتبر است، لطفاً سعی کنید تنظیمات VPN را تغییر دهید.</string>
     <string name="invalid_voucher">کد ووچر نامعتبر است.</string>
     <string name="ip_version_v4_unavailable">IPv4 در دسترس نیست، لطفاً تنظیم «نسخه IP دستگاه» را تغییر دهید و دوباره امتحان کنید.</string>
     <string name="ip_version_v6_unavailable">Pv6 در دسترس نیست، لطفاً تنظیم «نسخه IP دستگاه» را تغییر دهید و دوباره امتحان کنید.</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">هیچ سابقهٔ انتخاب اخیر وجود ندارد</string>
     <string name="none">هیچکدام</string>
     <string name="not_found">پیدا نشد</string>
+    <string name="notification_settings">تنظیمات اعلان</string>
     <string name="number_of_providers">ارائه‌دهندگان: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">خاموش</string>

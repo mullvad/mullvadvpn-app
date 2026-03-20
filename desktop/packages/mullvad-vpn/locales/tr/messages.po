@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2026-03-06 09:26\n"
+"PO-Revision-Date: 2026-03-20 09:19\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -2788,6 +2788,9 @@ msgstr "Hesabınıza 30gün eklendi."
 msgid "90 days was added to your account."
 msgstr "Hesabınıza 90 gün eklendi."
 
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Hesap kurtarma mümkün olmayacaktır.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Dikkat:</b> Sadece bazı sunucular tam bağlantı noktası aralığını destekler."
 
@@ -2796,6 +2799,15 @@ msgstr "<b>Dikkat:</b> Uygulama otomatik olarak kapanacağı için yeni bir simg
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Bu işlem geri alınamaz.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Uyarı:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz.</b>"
 
 msgid "API reachable, adding method..."
 msgstr "Erişilebilir API, yöntem ekleniyor..."
@@ -2806,8 +2818,17 @@ msgstr "API'ye erişilemiyor, yöntem yine de kaydedilsin mi?"
 msgid "Account credit expires in a few minutes"
 msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
 
+msgid "Account deleted"
+msgstr "Hesap silindi"
+
 msgid "Account number is too long, please enter a valid number"
 msgstr "Hesap numarası çok uzun, lütfen geçerli bir numara girin"
+
+msgid "Account number must match"
+msgstr "Hesap numarası eşleşmelidir"
+
+msgid "Account recovery will not be possible."
+msgstr "Hesap kurtarma mümkün olmayacaktır."
 
 msgid "Account time reminders"
 msgstr "Hesap süresi hatırlatıcıları"
@@ -2857,6 +2878,9 @@ msgstr "Her zaman açık VPN diğer VPN'e atandı"
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için"
 
+msgid "Any remaining time will be null and void."
+msgstr "Kalan süre geçersiz olacaktır."
+
 msgid "Appearance"
 msgstr "Görünüm"
 
@@ -2899,6 +2923,9 @@ msgstr "Tarayıcı"
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir."
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Bu kutuyu işaretleyerek hesabımı silmeyle ilgili riskleri kabul ediyorum"
+
 msgid "Can't connect?"
 msgstr "Bağlanamıyor musunuz?"
 
@@ -2923,6 +2950,9 @@ msgstr "Farklı bir ağa bağlan"
 msgid "Connecting..."
 msgstr "Bağlanılıyor..."
 
+msgid "Continue"
+msgstr "İleri"
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad hesap numarası panoya kopyalandı"
 
@@ -2931,6 +2961,9 @@ msgstr "Günlükler panoya kopyalandı"
 
 msgid "Copy"
 msgstr "Kopyala"
+
+msgid "Could not display remaining days."
+msgstr "Kalan günler gösterilemiyor."
 
 msgid "Create"
 msgstr "Oluştur"
@@ -2956,11 +2989,20 @@ msgstr "DNS ayarları hemen etkili olmayabilir"
 msgid "Delete \"%s\"?"
 msgstr "\"%s\" silinsin mi\"?"
 
+msgid "Delete account"
+msgstr "Hesabı sil"
+
 msgid "Delete method"
 msgstr "Yöntemi sil"
 
 msgid "Delete method?"
 msgstr "Yöntem silinsin mi?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "Hesabınızı silme işlemi geri alınamaz."
+
+msgid "Deleting your account:"
+msgstr "Hesabınızı sildiğinizde:"
 
 msgid "Direct"
 msgstr "Doğrudan"
@@ -3028,6 +3070,9 @@ msgstr "Son filtreleri etkinleştir"
 msgid "Enter MTU"
 msgstr "MTU'yu girin"
 
+msgid "Enter account number digits"
+msgstr "Hesap numarası rakamlarını girin"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Giriş aktarıcısı çıkış aktarıcısıyla aynı"
 
@@ -3045,6 +3090,9 @@ msgstr "BAĞLANTI KURULAMADI"
 
 msgid "Failed to apply patch"
 msgstr "Yama uygulanamadı"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Hesap silinemedi, lütfen destek ekibiyle iletişime geçin"
 
 msgid "Failed to load products, please try again"
 msgstr "Ürünler yüklenemedi, lütfen tekrar deneyin"
@@ -3111,6 +3159,9 @@ msgstr "Uygulama içi ürünler kullanılamıyor. Lütfen Google Play'in en yeni
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Ödeme veya hesapla ilgili sorunlarda daha hızlı yardım almak için hesap token'ımı ekle"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Geçersiz IPv6 yapılandırması, lütfen VPN ayarlarını değiştirmeyi deneyin."
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Geçersiz veya eksik \"%1$s\" değeri"
@@ -3202,6 +3253,9 @@ msgstr "Bulunamadı"
 msgid "Notes"
 msgstr "Notlar"
 
+msgid "Notification settings"
+msgstr "Bildirim ayarları"
+
 msgid "Open app details"
 msgstr "Uygulama ayrıntılarını aç"
 
@@ -3252,6 +3306,9 @@ msgstr "Son kullanılanlar devre dışı bırakıldı ve geçmiş temizlendi"
 
 msgid "Recursion limit"
 msgstr "Yineleme sınırı"
+
+msgid "Refunds will not be possible."
+msgstr "Geri ödeme mümkün olmayacaktır."
 
 msgid "Remove %1$s from %2$s"
 msgstr "%1$s, %2$s listesinden kaldırılsın"
@@ -3331,6 +3388,9 @@ msgstr "%s test ediliyor..."
 msgid "Text"
 msgstr "Metin"
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Topluluğumuzun bir parçası olduğunuz için teşekkür ederiz.\\nGizlilik herkes için önemlidir!"
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın."
 
@@ -3385,6 +3445,9 @@ msgstr "Konumları bir listeye eklemek için kalem simgesine dokunun veya bir ü
 msgid "To create a custom list press the \"+\""
 msgstr "Özel bir liste oluşturmak için “+” simgesine dokunun"
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "Mullvad VPN hesabınızı silmek için lütfen aşağıya hesap numaranızı girin."
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz."
 
@@ -3414,6 +3477,9 @@ msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce 
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tünel bağlantısı başlatılamıyor. Mullvad VPN'i kullanmadan önce lütfen Her zaman açık VPN'i <b>%s</b> için devre dışı bırakın."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Hesap numaranız doğrulanamıyor, lütfen destek ekibiyle iletişime geçin"
 
 msgid "Unavailable"
 msgstr "Mevcut değil"
@@ -3499,11 +3565,20 @@ msgstr "WireGuard portu"
 msgid "Yes, log out device"
 msgstr "Evet, cihazdan çıkış yap"
 
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Mullvad VPN hesabınızı silmek üzeresiniz."
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr "VPN kullanmaya devam etmek için hesap görünümünden ya da web sitesinden daha fazla süre ekleyebilirsiniz."
 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "VPN kullanmaya devam etmek için hesap görünümünden daha fazla süre ekleyebilirsiniz."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz."
+
+msgid "You will lose your remaining"
+msgstr "Kalan bakiyenizi kaybedeceksiniz"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" oluşturuldu"
@@ -3560,4 +3635,9 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Hesap kredisi bir saat içinde sona eriyor"
 msgstr[1] "Hesap kredisi %d saat içinde sona eriyor"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Kalan günlerinizi kaybedeceksiniz."
+msgstr[1] "Kalan %d gününüzü kaybedeceksiniz."
 

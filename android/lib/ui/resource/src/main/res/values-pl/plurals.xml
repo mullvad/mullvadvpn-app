@@ -42,4 +42,10 @@
         <item quantity="many">Doładowanie konta wygasa za %1$d godzin</item>
         <item quantity="other">Doładowanie konta wygasa za %1$d godziny</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Utracisz pozostały dzień.</item>
+        <item quantity="few">Utracisz pozostałe %1$d dni.</item>
+        <item quantity="many">Utracisz pozostałych %1$d dni.</item>
+        <item quantity="other">Utracisz pozostałe %1$d dnia.</item>
+    </plurals>
 </resources>
