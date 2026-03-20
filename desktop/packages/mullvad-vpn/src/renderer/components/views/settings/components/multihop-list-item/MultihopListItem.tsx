@@ -11,15 +11,17 @@ export function MultihopListItem(props: MultihopListItemProps) {
 
   return (
     <SettingsNavigationListItem to={RoutePath.multihopSettings} {...props}>
-      <SettingsNavigationListItem.Label>
-        {messages.pgettext('settings-view', 'Multihop')}
-      </SettingsNavigationListItem.Label>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Text>
-          {isOn ? messages.gettext('On') : messages.gettext('Off')}
-        </SettingsNavigationListItem.Text>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Label>
+          {messages.pgettext('settings-view', 'Multihop')}
+        </SettingsNavigationListItem.Item.Label>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Text>
+            {isOn ? messages.gettext('On') : messages.gettext('Off')}
+          </SettingsNavigationListItem.Item.Text>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }

@@ -45,14 +45,14 @@ export function UdpOverTcpPortSetting() {
   return (
     <SettingsListbox value={port} onValueChange={selectPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.HeaderItem>
-          <SettingsListbox.Label>
+        <SettingsListbox.Header.Item>
+          <SettingsListbox.Header.Item.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </SettingsListbox.Label>
-          <SettingsListbox.ActionGroup>
+          </SettingsListbox.Header.Item.Label>
+          <SettingsListbox.Header.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -61,18 +61,18 @@ export function UdpOverTcpPortSetting() {
                 )}
               </ModalMessage>
             </InfoButton>
-          </SettingsListbox.ActionGroup>
-        </SettingsListbox.HeaderItem>
+          </SettingsListbox.Header.Item.ActionGroup>
+        </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={'any'}>
+        <SettingsListbox.Options.BaseOption value={'any'}>
           {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
+        </SettingsListbox.Options.BaseOption>
         {portItems.map((item) => {
           return (
-            <SettingsListbox.BaseOption key={item.value} value={item.value}>
+            <SettingsListbox.Options.BaseOption key={item.value} value={item.value}>
               {item.label}
-            </SettingsListbox.BaseOption>
+            </SettingsListbox.Options.BaseOption>
           );
         })}
       </SettingsListbox.Options>

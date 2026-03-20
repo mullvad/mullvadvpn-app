@@ -51,8 +51,8 @@ function AnyLocationListItemImpl({
         expanded={expanded && hasChildren}
         onExpandedChange={setExpanded}
         disabled={location.disabled || disabled}>
-        <LocationListItem.Header ref={selectedRef} level={level} position={position}>
-          <LocationListItem.HeaderTrigger
+        <LocationListItem.Accordion.Header ref={selectedRef} level={level} position={position}>
+          <LocationListItem.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -63,9 +63,11 @@ function AnyLocationListItemImpl({
                 location: location.label,
               },
             )}>
-            <LocationListItem.HeaderItem>
+            <LocationListItem.Accordion.Header.Item>
               <FlexColumn>
-                <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
+                <LocationListItem.Accordion.Header.Item.Title>
+                  {location.label}
+                </LocationListItem.Accordion.Header.Item.Title>
                 {showEmptySubtitle && (
                   <FootnoteMiniSemiBold color="whiteAlpha60">
                     {
@@ -75,16 +77,16 @@ function AnyLocationListItemImpl({
                   </FootnoteMiniSemiBold>
                 )}
               </FlexColumn>
-            </LocationListItem.HeaderItem>
-          </LocationListItem.HeaderTrigger>
+            </LocationListItem.Accordion.Header.Item>
+          </LocationListItem.Accordion.Header.Trigger>
           {location.type === 'customList' ? (
             <CustomListTrailingActions customList={location} />
           ) : (
             <GeographicalLocationTrailingActions location={location} />
           )}
-        </LocationListItem.Header>
+        </LocationListItem.Accordion.Header>
 
-        <LocationListItem.AccordionContent>{children}</LocationListItem.AccordionContent>
+        <LocationListItem.Accordion.Content>{children}</LocationListItem.Accordion.Content>
       </LocationListItem.Accordion>
     </LocationListItem>
   );

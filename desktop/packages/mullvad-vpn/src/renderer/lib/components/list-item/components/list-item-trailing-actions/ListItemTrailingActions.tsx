@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { Radius } from '../../../../foundations';
 import { FlexRow } from '../../../flex-row';
-import { StyledListItemTrailingAction } from '../list-item-trailing-action/ListItemTrailingAction';
+import { ListItemTrailingAction, StyledListItemTrailingAction } from './components';
 
 export type ListItemTrailingActionsProps = React.ComponentPropsWithRef<'div'>;
 
@@ -26,6 +26,12 @@ export const StyledListItemTrailingActions = styled(FlexRow)`
   }
 `;
 
-export function ListItemTrailingActions({ children, ...props }: ListItemTrailingActionsProps) {
+function ListItemTrailingActions({ children, ...props }: ListItemTrailingActionsProps) {
   return <StyledListItemTrailingActions {...props}>{children}</StyledListItemTrailingActions>;
 }
+
+const ListItemTrailingActionsNamespace = Object.assign(ListItemTrailingActions, {
+  Action: ListItemTrailingAction,
+});
+
+export { ListItemTrailingActionsNamespace as ListItemTrailingActions };

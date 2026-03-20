@@ -13,18 +13,18 @@ export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
           <StartMinimizedSwitch.Label>
             {messages.pgettext('user-interface-settings-view', 'Start minimized')}
           </StartMinimizedSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <StartMinimizedSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </StartMinimizedSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText>
+        <SettingsListItem.Footer.Text>
           {messages.pgettext(
             'user-interface-settings-view',
             'Show only the tray icon when the app starts.',
           )}
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

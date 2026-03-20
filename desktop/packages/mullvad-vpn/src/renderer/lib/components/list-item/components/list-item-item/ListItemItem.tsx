@@ -2,9 +2,18 @@ import React from 'react';
 import styled, { css, RuleSet } from 'styled-components';
 
 import { Radius } from '../../../../foundations';
+import { Checkbox } from '../../../checkbox';
 import { FlexRow } from '../../../flex-row';
 import { useListItemAnimation, useListItemBackgroundColor } from '../../hooks';
 import { useListItemContext } from '../../ListItemContext';
+import {
+  ListItemItemActionGroup,
+  ListItemItemGroup,
+  ListItemItemIcon,
+  ListItemItemLabel,
+  ListItemItemText,
+  ListItemItemTextField,
+} from './components';
 import { useIndent } from './hooks';
 
 export type ListItemItemProps = {
@@ -34,7 +43,7 @@ export const StyledListItemItem = styled(FlexRow)<{
   }}
 `;
 
-export function ListItemItem({ children, ...props }: ListItemItemProps) {
+function ListItemItem({ children, ...props }: ListItemItemProps) {
   const backgroundColor = useListItemBackgroundColor();
   const { animation: contextAnimation } = useListItemContext();
   const animation = useListItemAnimation(contextAnimation);
@@ -53,3 +62,15 @@ export function ListItemItem({ children, ...props }: ListItemItemProps) {
     </StyledListItemItem>
   );
 }
+
+const ListItemItemNamespace = Object.assign(ListItemItem, {
+  ActionGroup: ListItemItemActionGroup,
+  Group: ListItemItemGroup,
+  Icon: ListItemItemIcon,
+  Label: ListItemItemLabel,
+  Text: ListItemItemText,
+  TextField: ListItemItemTextField,
+  Checkbox: Checkbox,
+});
+
+export { ListItemItemNamespace as ListItemItem };

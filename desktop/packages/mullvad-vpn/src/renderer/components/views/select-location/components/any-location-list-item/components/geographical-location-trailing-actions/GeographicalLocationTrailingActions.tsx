@@ -47,40 +47,40 @@ export function GeographicalLocationTrailingActions({
   }
 
   return (
-    <LocationListItem.HeaderTrailingActions>
+    <LocationListItem.Accordion.Header.TrailingActions>
       {showAddToCustomListButton && (
-        <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.Accordion.Header.TrailingActions.Action>
           <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
           <AddLocationToCustomListDialog
             open={addLocationToCustomListDialogOpen}
             onOpenChange={setAddLocationToCustomListDialogOpen}
             location={location}
           />
-        </LocationListItem.HeaderTrailingAction>
+        </LocationListItem.Accordion.Header.TrailingActions.Action>
       )}
       {/* Show remove from custom list button if location is top level item in a custom list. */}
       {showRemoveFromCustomListButton && (
-        <LocationListItem.HeaderTrailingAction>
+        <LocationListItem.Accordion.Header.TrailingActions.Action>
           <RemoveLocationFromCustomListButton
             location={location}
             loading={loading}
             onLoadingChange={setLoading}
           />
-        </LocationListItem.HeaderTrailingAction>
+        </LocationListItem.Accordion.Header.TrailingActions.Action>
       )}
       {showAccordionTrigger && (
-        <LocationListItem.AccordionTrigger
+        <LocationListItem.Accordion.Trigger
           aria-label={sprintf(
             expanded === true
               ? messages.pgettext('accessibility', 'Collapse %(location)s')
               : messages.pgettext('accessibility', 'Expand %(location)s'),
             { location: location.label },
           )}>
-          <LocationListItem.HeaderTrailingAction>
-            <LocationListItem.HeaderChevron />
-          </LocationListItem.HeaderTrailingAction>
-        </LocationListItem.AccordionTrigger>
+          <LocationListItem.Accordion.Header.TrailingActions.Action>
+            <LocationListItem.Accordion.Header.Item.Chevron />
+          </LocationListItem.Accordion.Header.TrailingActions.Action>
+        </LocationListItem.Accordion.Trigger>
       )}
-    </LocationListItem.HeaderTrailingActions>
+    </LocationListItem.Accordion.Header.TrailingActions>
   );
 }

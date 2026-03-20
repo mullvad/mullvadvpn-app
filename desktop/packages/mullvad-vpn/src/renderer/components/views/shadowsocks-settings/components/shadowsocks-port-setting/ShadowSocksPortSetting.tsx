@@ -47,47 +47,47 @@ export function ShadowsocksPortSetting() {
   return (
     <SettingsListbox value={selectedOption.value} onValueChange={setShadowsocksPort}>
       <SettingsListbox.Header>
-        <SettingsListbox.HeaderItem>
-          <SettingsListbox.Label>
+        <SettingsListbox.Header.Item>
+          <SettingsListbox.Header.Item.Label>
             {
               // TRANSLATORS: The title for the WireGuard port selector.
               messages.pgettext('wireguard-settings-view', 'Port')
             }
-          </SettingsListbox.Label>
-        </SettingsListbox.HeaderItem>
+          </SettingsListbox.Header.Item.Label>
+        </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={null}>
+        <SettingsListbox.Options.BaseOption value={null}>
           {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
-        <SettingsListbox.InputOption
+        </SettingsListbox.Options.BaseOption>
+        <SettingsListbox.Options.InputOption
           value="custom"
           defaultValue={
             selectedOption.value === 'custom' ? selectedOption.port?.toString() : undefined
           }
           validate={validateValue}
           format={removeNonNumericCharacters}>
-          <SettingsListbox.InputOption.Label>
+          <SettingsListbox.Options.InputOption.Label>
             {messages.gettext('Custom')}
-          </SettingsListbox.InputOption.Label>
-          <SettingsListItem.ActionGroup>
-            <SettingsListbox.InputOption.Input
+          </SettingsListbox.Options.InputOption.Label>
+          <SettingsListItem.Item.ActionGroup>
+            <SettingsListbox.Options.InputOption.Input
               aria-describedby={descriptionId}
               type="text"
               placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
               maxLength={`${ALLOWED_RANGE[1]}`.length}
             />
-          </SettingsListItem.ActionGroup>
-        </SettingsListbox.InputOption>
+          </SettingsListItem.Item.ActionGroup>
+        </SettingsListbox.Options.InputOption>
       </SettingsListbox.Options>
       <SettingsListbox.Footer>
-        <SettingsListbox.FooterText id={descriptionId}>
+        <SettingsListbox.Footer.Text id={descriptionId}>
           {sprintf(
             // TRANSLATORS: Text describing the valid port range for a port selector.
             messages.pgettext('wireguard-settings-view', 'Valid range: %(min)s - %(max)s'),
             { min: ALLOWED_RANGE[0], max: ALLOWED_RANGE[1] },
           )}
-        </SettingsListbox.FooterText>
+        </SettingsListbox.Footer.Text>
       </SettingsListbox.Footer>
     </SettingsListbox>
   );

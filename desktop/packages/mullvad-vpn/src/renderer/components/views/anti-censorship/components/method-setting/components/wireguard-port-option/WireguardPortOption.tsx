@@ -20,14 +20,14 @@ export function WireguardPortOption() {
   const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
 
   return (
-    <SettingsListbox.SplitOption value={ObfuscationType.wireGuardPort}>
-      <SettingsListbox.SplitOption.Item
+    <SettingsListbox.Options.SplitOption value={ObfuscationType.wireGuardPort}>
+      <SettingsListbox.Options.SplitOption.Item
         aria-description={messages.pgettext(
           'accessibility',
           'Use the right arrow key to focus the settings button.',
         )}>
         <FlexColumn>
-          <SettingsListbox.SplitOption.Label>
+          <SettingsListbox.Options.SplitOption.Label>
             {sprintf(
               // TRANSLATORS: The label for the WireGuard port option.
               // TRANSLATORS: Available placeholders:
@@ -35,7 +35,7 @@ export function WireguardPortOption() {
               messages.gettext('%(wireguard)s port'),
               { wireguard: strings.wireguard },
             )}
-          </SettingsListbox.SplitOption.Label>
+          </SettingsListbox.Options.SplitOption.Label>
           {port && (
             <Text variant="labelTinySemiBold" color="whiteAlpha60">
               {sprintf(subLabelTemplate, {
@@ -44,8 +44,8 @@ export function WireguardPortOption() {
             </Text>
           )}
         </FlexColumn>
-      </SettingsListbox.SplitOption.Item>
-      <SettingsListbox.SplitOption.NavigateButton
+      </SettingsListbox.Options.SplitOption.Item>
+      <SettingsListbox.Options.SplitOption.NavigateButton
         to={RoutePath.wireguardPort}
         aria-label={sprintf(
           // TRANSLATORS: Text for screen readers to describe the WireGuard port settings navigation button.
@@ -55,6 +55,6 @@ export function WireguardPortOption() {
           { wireguard: strings.wireguard },
         )}
       />
-    </SettingsListbox.SplitOption>
+    </SettingsListbox.Options.SplitOption>
   );
 }

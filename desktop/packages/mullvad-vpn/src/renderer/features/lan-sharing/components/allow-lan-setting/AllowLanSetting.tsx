@@ -23,7 +23,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
           <AllowLanSwitch.Label>
             {messages.pgettext('vpn-settings-view', 'Local network sharing')}
           </AllowLanSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -48,7 +48,7 @@ export function AllowLanSetting(props: AllowLanSettingProps) {
             </InfoButton>
 
             <AllowLanSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </AllowLanSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>

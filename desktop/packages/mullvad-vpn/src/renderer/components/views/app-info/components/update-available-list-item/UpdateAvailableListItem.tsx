@@ -10,7 +10,7 @@ import { useHandleClick } from './hooks';
 
 export type UpdateAvailableListItemProps = Omit<ListItemProps, 'children'>;
 
-const StyledText = styled(ListItem.Text)`
+const StyledText = styled(ListItem.Item.Text)`
   margin-top: -4px;
 `;
 
@@ -25,18 +25,18 @@ export function UpdateAvailableListItem(props: UpdateAvailableListItemProps) {
       <ListItem.Trigger onClick={handleClick}>
         <ListItem.Item>
           <Flex flexDirection="column">
-            <ListItem.Label>
+            <ListItem.Item.Label>
               {
                 // TRANSLATORS: Label for update available list item.
                 messages.pgettext('app-info-view', 'Update available')
               }
-            </ListItem.Label>
+            </ListItem.Item.Label>
             <StyledText variant="footnoteMini">{suggestedUpgrade?.version}</StyledText>
           </Flex>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <Dot variant="warning" size="small" />
             <Icon icon={isLinux ? 'external' : 'chevron-right'} />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </ListItem.Item>
       </ListItem.Trigger>
     </ListItem>

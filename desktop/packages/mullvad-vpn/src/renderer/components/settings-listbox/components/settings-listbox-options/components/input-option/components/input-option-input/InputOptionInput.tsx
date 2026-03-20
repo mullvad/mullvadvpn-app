@@ -1,0 +1,72 @@
+import React from 'react';
+
+import { ListItem } from '../../../../../../../../lib/components/list-item';
+import type { ListItemItemTextFieldInputProps } from '../../../../../../../../lib/components/list-item/components/list-item-item/components/list-item-item-text-field/components';
+import { useListboxContext } from '../../../../../../../../lib/components/listbox';
+import { useInputOptionContext } from '../../InputOptionContext';
+
+type InputOptionInputProps = Omit<ListItemItemTextFieldInputProps, 'width'>;
+
+export function InputOptionInput(props: InputOptionInputProps) {
+  const { onValueChange: listBoxOnValueChange } = useListboxContext<string | undefined>();
+
+  const { inputRef, triggerRef, labelId, inputState } = useInputOptionContext();
+  const { value, invalid, dirty, blur, handleOnValueChange, reset } = inputState;
+  const [lastValidValue, setLastValidValue] = React.useState<string>(value);
+
+  // Prevent the click from propagating to the ListboxOption, which would select the option.
+  const handleClick = React.useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+  }, []);
+
+  const handleBlur = React.useCallback(
+    (event: React.FocusEvent) => {
+      const trigger = triggerRef.current;
+      const next = event.relatedTarget;
+
+      if (next instanceof Node && trigger?.contains(next)) {
+        // Focus moved to the trigger, do not reset the input.
+        return;
+      }
+
+      if (invalid) {
+        reset(lastValidValue);
+      } else {
+        setLastValidValue(value);
+        reset(value);
+      }
+    },
+    [triggerRef, invalid, reset, lastValidValue, value],
+  );
+
+  const handleSubmit = React.useCallback(
+    async (event: React.FormEvent) => {
+      event.preventDefault();
+      if (listBoxOnValueChange && !invalid) {
+        await listBoxOnValueChange(value);
+        blur();
+      }
+    },
+    [blur, invalid, listBoxOnValueChange, value],
+  );
+
+  return (
+    <ListItem.Item.TextField
+      value={value}
+      onValueChange={handleOnValueChange}
+      invalid={invalid && dirty}
+      onSubmit={handleSubmit}>
+      <ListItem.Item.TextField.Input
+        ref={inputRef}
+        value={value}
+        width="small"
+        aria-labelledby={labelId}
+        tabIndex={-1}
+        inputMode="numeric"
+        onClick={handleClick}
+        onBlur={handleBlur}
+        {...props}
+      />
+    </ListItem.Item.TextField>
+  );
+}

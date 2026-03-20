@@ -16,16 +16,18 @@ export function ProviderFilter(props: ProviderFilterProps) {
     <FilterAccordion title={messages.pgettext('filter-view', 'Providers')} {...props}>
       <SettingsListbox value={selectedProviders} onValueChange={toggleProviders}>
         <SettingsListbox.Options>
-          <SettingsListbox.CheckboxOption value={availableProviders} checked={allProvidersSelected}>
+          <SettingsListbox.Options.CheckboxOption
+            value={availableProviders}
+            checked={allProvidersSelected}>
             {messages.pgettext('filter-view', 'All providers')}
-          </SettingsListbox.CheckboxOption>
+          </SettingsListbox.Options.CheckboxOption>
           {availableProviders.map((provider) => (
-            <SettingsListbox.CheckboxOption
+            <SettingsListbox.Options.CheckboxOption
               key={provider}
               value={provider}
               checked={selectedProviders?.includes(provider)}>
               {provider}
-            </SettingsListbox.CheckboxOption>
+            </SettingsListbox.Options.CheckboxOption>
           ))}
         </SettingsListbox.Options>
       </SettingsListbox>

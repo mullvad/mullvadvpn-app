@@ -15,7 +15,7 @@ export function LockdownModeSetting(props: LockdownModeSettingProps) {
           <LockdownModeSwitch.Label>
             {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
           </LockdownModeSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -31,7 +31,7 @@ export function LockdownModeSetting(props: LockdownModeSettingProps) {
               </ModalMessage>
             </InfoButton>
             <LockdownModeSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </LockdownModeSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>

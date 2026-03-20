@@ -4,8 +4,8 @@ import { SettingsListbox } from '../../../../../../settings-listbox';
 
 export function QuicOption() {
   return (
-    <SettingsListbox.BaseOption value={ObfuscationType.quic}>
+    <SettingsListbox.Options.BaseOption value={ObfuscationType.quic}>
       {strings.quic}
-    </SettingsListbox.BaseOption>
+    </SettingsListbox.Options.BaseOption>
   );
 }
