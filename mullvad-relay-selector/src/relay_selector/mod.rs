@@ -1151,9 +1151,9 @@ fn obfuscation_criteria(
             Constraint::Any if has_ipv4 || has_ipv6 => IpVersionMatch::Ok,
             Constraint::Only(IpVersion::V4) if has_ipv4 => IpVersionMatch::Ok,
             Constraint::Only(IpVersion::V6) if has_ipv6 => IpVersionMatch::Ok,
-            Constraint::Any => IpVersionMatch::None,
-            Constraint::Only(IpVersion::V4) => IpVersionMatch::Other,
-            Constraint::Only(IpVersion::V6) => IpVersionMatch::Other,
+            Constraint::Only(IpVersion::V4) if has_ipv6 => IpVersionMatch::Other,
+            Constraint::Only(IpVersion::V6) if has_ipv4 => IpVersionMatch::Other,
+            _ => IpVersionMatch::None,
         }
     }
 
