@@ -123,6 +123,11 @@ impl<T> Constraint<T> {
     pub fn is_only_and(self, f: impl FnOnce(T) -> bool) -> bool {
         self.option().is_some_and(f)
     }
+
+    /// Returns true if the constraint is an `Any` or the value inside of it matches a predicate.
+    pub fn is_any_or(self, f: impl FnOnce(T) -> bool) -> bool {
+        self.option().is_none_or(f)
+    }
 }
 
 impl<T: PartialEq> Constraint<T> {
