@@ -27,6 +27,7 @@ class MultihopPage: Page {
         return self
     }
 
+    // the old on/off UI; delete once we get rid of the code
     @discardableResult func tapEnableSwitch() -> Self {
         app.switches[AccessibilityIdentifier.multihopSwitch].tap()
         return self
@@ -38,6 +39,12 @@ class MultihopPage: Page {
         if switchElement.value as? String == "1" {
             tapEnableSwitch()
         }
+        return self
+    }
+
+    // the new, tristate UI
+    @discardableResult func tapMultihopAlways() -> Self {
+        app.buttons[AccessibilityIdentifier.multihopAlways].tap()
         return self
     }
 }
