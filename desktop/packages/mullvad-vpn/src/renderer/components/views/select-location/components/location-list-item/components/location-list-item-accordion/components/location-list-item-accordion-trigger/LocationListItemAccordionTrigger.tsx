@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Accordion } from '../../../../../../../lib/components/accordion';
-import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
-import type { AccordionHeaderTriggerProps } from '../../../../../../../lib/components/accordion/components/accordion-header/components/accordion-header-trigger';
-import { useLocationListItemAccordionContext } from '../location-list-item-accordion/LocationListItemAccordionContext';
+import { Accordion } from '../../../../../../../../../lib/components/accordion';
+import { useAccordionContext } from '../../../../../../../../../lib/components/accordion/AccordionContext';
+import type { AccordionHeaderTriggerProps } from '../../../../../../../../../lib/components/accordion/components/accordion-header/components/accordion-header-trigger';
+import { useLocationListItemAccordionContext } from '../../../location-list-item-accordion/LocationListItemAccordionContext';
 
 export type LocationListItemAccordionTriggerProps = AccordionHeaderTriggerProps;
 
