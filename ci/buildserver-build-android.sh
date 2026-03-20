@@ -18,9 +18,14 @@ APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 SIGNING_CERTIFICATE_LINEAGE="$BUILD_DIR/ci/android-signing-config/SigningCertificateLineage"
 PROVIDER_ARG="$BUILD_DIR/ci/android-signing-config/provider-arg.cfg"
 
-
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
+
+if [[ -z ${YUBIKEY_PIN-} ]]; then
+    read -rsp "YUBIKEY_PIN = " YUBIKEY_PIN
+    echo ""
+    export YUBIKEY_PIN
+fi
 
 function upload {
     version=$1
@@ -149,16 +154,18 @@ function sign_artifacts {
     key_pass=$(sed -n 's/^keyPassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
     key_store_pass=$(sed -n 's/^storePassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
     for apk in MullvadVPN-*.apk; do
-        $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
+        echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+        --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
         --key-pass "pass:$key_pass" --ks-pass "pass:$key_store_pass" \
-        --next-signer --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+        --next-signer --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 \
+        --provider-arg "$PROVIDER_ARG" \
         --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$apk"
     done
 
     # Sign all aab files with the upload key (new key)
     for aab in MullvadVPN-*.aab
     do
-        $APKSIGNER_CMD --J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+        echo "$YUBIKEY_PIN" | $APKSIGNER_CMD --J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
         --ks NONE --ks-type PKCS11 --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
         --in "$aab"
     done
