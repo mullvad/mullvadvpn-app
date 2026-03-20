@@ -377,9 +377,7 @@ tasks.register("printVersion") {
 
 tasks.register("printWillSign") {
     val willSign = providers.gradleProperty("mullvad.app.config.signingConfig.release.enable")
-    doLast {
-        println(willSign.orNull)
-    }
+    doLast { println(willSign.orNull) }
 }
 
 play {
