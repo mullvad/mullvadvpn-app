@@ -63,8 +63,8 @@ function CustomListLocationListItemImpl({
         expanded={expanded}
         onExpandedChange={setExpanded}
         disabled={location.disabled || disabled}>
-        <LocationListItem.Header level={level} position={position}>
-          <LocationListItem.HeaderTrigger
+        <LocationListItem.Accordion.Header level={level} position={position}>
+          <LocationListItem.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -75,38 +75,42 @@ function CustomListLocationListItemImpl({
                 location: location.label,
               },
             )}>
-            <LocationListItem.HeaderItem>
-              <LocationListItem.HeaderTitle>{location.label}</LocationListItem.HeaderTitle>
-            </LocationListItem.HeaderItem>
-          </LocationListItem.HeaderTrigger>
-          <LocationListItem.HeaderTrailingActions>
+            <LocationListItem.Accordion.Header.Item>
+              <LocationListItem.Accordion.Header.Item.Title>
+                {location.label}
+              </LocationListItem.Accordion.Header.Item.Title>
+            </LocationListItem.Accordion.Header.Item>
+          </LocationListItem.Accordion.Header.Trigger>
+          <LocationListItem.Accordion.Header.TrailingActions>
             {showRemoveFromCustomListButton && (
-              <LocationListItem.HeaderTrailingActions.Action>
+              <LocationListItem.Accordion.Header.TrailingActions.Action>
                 <RemoveLocationFromCustomListButton
                   location={location}
                   loading={loading}
                   onLoadingChange={setLoading}
                 />
-              </LocationListItem.HeaderTrailingActions.Action>
+              </LocationListItem.Accordion.Header.TrailingActions.Action>
             )}
             {showAccordionTrigger && (
-              <LocationListItem.AccordionTrigger
+              <LocationListItem.Accordion.Trigger
                 aria-label={sprintf(
-                  expanded === true
+                  expanded
                     ? messages.pgettext('accessibility', 'Collapse %(location)s')
                     : messages.pgettext('accessibility', 'Expand %(location)s'),
                   { location: location.label },
                 )}>
-                <LocationListItem.HeaderTrailingActions.Action>
-                  <LocationListItem.HeaderChevron />
-                </LocationListItem.HeaderTrailingActions.Action>
-              </LocationListItem.AccordionTrigger>
+                <LocationListItem.Accordion.Header.TrailingActions.Action>
+                  <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
+                    icon={expanded ? 'chevron-up' : 'chevron-down'}
+                  />
+                </LocationListItem.Accordion.Header.TrailingActions.Action>
+              </LocationListItem.Accordion.Trigger>
             )}
-          </LocationListItem.HeaderTrailingActions>
-        </LocationListItem.Header>
-        <LocationListItem.AccordionContent>
+          </LocationListItem.Accordion.Header.TrailingActions>
+        </LocationListItem.Accordion.Header>
+        <LocationListItem.Accordion.Content>
           <AnimatedList>{showChildren ? children : null}</AnimatedList>
-        </LocationListItem.AccordionContent>
+        </LocationListItem.Accordion.Content>
       </LocationListItem.Accordion>
     </LocationListItem>
   );
