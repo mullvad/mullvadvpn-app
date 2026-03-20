@@ -28,4 +28,8 @@
         <item quantity="one">Kontokredit udløber om en time</item>
         <item quantity="other">Kontokredit udløber om %1$d timer</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Du vil miste den resterende dag.</item>
+        <item quantity="other">Du vil miste de resterende %1$d dage.</item>
+    </plurals>
 </resources>

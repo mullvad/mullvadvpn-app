@@ -28,4 +28,8 @@
         <item quantity="one">El crédito de la cuenta caduca en una hora</item>
         <item quantity="other">El crédito de la cuenta caduca en %1$d horas</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Perderá un día restante.</item>
+        <item quantity="other">Perderá %1$d días restantes.</item>
+    </plurals>
 </resources>

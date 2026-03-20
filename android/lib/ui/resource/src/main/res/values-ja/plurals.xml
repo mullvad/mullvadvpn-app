@@ -21,4 +21,7 @@
     <plurals name="account_credit_expires_in_hours">
         <item quantity="other">アカウントのクレジットが%1$d時間後に無効になります</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="other">残りの%1$d日分が失われます。</item>
+    </plurals>
 </resources>

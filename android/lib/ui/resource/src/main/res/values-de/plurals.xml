@@ -28,4 +28,8 @@
         <item quantity="one">Kontoguthaben läuft in einer Stunde ab</item>
         <item quantity="other">Kontoguthaben läuft in %1$d Stunden ab</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Sie verlieren Ihren verbleibenden Tag.</item>
+        <item quantity="other">Sie verlieren Ihre verbleibenden %1$d Tage.</item>
+    </plurals>
 </resources>

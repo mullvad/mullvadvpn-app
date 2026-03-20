@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Kontokrediten slutar gälla om några minuter</string>
     <string name="account_credit_has_expired">Du har ingen VPN-tid kvar på det här kontot.</string>
+    <string name="account_delete_placeholder">Ange siffrorna i kontonumret</string>
+    <string name="account_deleted">Kontot har tagits bort</string>
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Ansluter till Mullvads systemtjänst...</string>
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Ut</string>
+    <string name="cont">Fortsätt</string>
     <string name="continue_login">Fortsätt med inloggning</string>
     <string name="copied_logs_to_clipboard">Loggarna har kopierats till urklipp</string>
     <string name="copied_mullvad_account_number">Kopierade Mullvad-kontonummer till urklipp</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">30 dagar har lagts till i ditt konto.</string>
     <string name="days_were_added_90">90 dagar har lagts till i ditt konto.</string>
     <string name="delete">Ta bort</string>
+    <string name="delete_account">Ta bort konto</string>
+    <string name="delete_account_cant_be_undone">Det går inte att ångra borttagningen av kontot.</string>
+    <string name="delete_account_confirm_first_item"><b>Det går inte att ångra åtgärden.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Du förlorar åtkomsten till kontot på alla enheter.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Det går inte att återställa kontot.</b></string>
+    <string name="delete_account_confirmation_check">Genom att markera rutan godkänner jag riskerna med att ta bort mitt konto</string>
+    <string name="delete_account_confirmation_enter_account_number">Ange kontonumret nedan om du vill ta bort ditt Mullvad VPN-konto.</string>
+    <string name="delete_account_error">Det går inte att ta bort kontot, kontakta supporten</string>
+    <string name="delete_account_failed_loading_days">Det gick inte att visa återstående dagar.</string>
+    <string name="delete_account_first_item">Du förlorar åtkomsten till kontot på alla enheter.</string>
+    <string name="delete_account_forth_item">Det går inte att återställa kontot.</string>
+    <string name="delete_account_info">Du är på väg att ta bort Mullvad VPN-kontot.</string>
+    <string name="delete_account_info_part2">Om du tar bort kontot inträffar följande:</string>
+    <string name="delete_account_loading_days">Du förlorar dina återstående</string>
+    <string name="delete_account_number_must_match">Kontonumret måste stämma överens</string>
+    <string name="delete_account_second_item">All återstående tid blir ogiltig.</string>
+    <string name="delete_account_third_item">Det går inte att få återbetalningar.</string>
+    <string name="delete_account_unable_to_verify">Det går inte att verifiera kontonumret, kontakta supporten</string>
+    <string name="delete_account_warning"><b>Varning:</b></string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>
     <string name="delete_list">Ta bort lista</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Du hittar mer information i vår %1$s.</string>
     <string name="include_account_token_warning_title">Detta påverkar din anonymitet</string>
     <string name="invalid_dns_servers">De anpassade DNS-serveradresserna %1$s är ogiltiga</string>
+    <string name="invalid_ipv6_config">Ogiltig IPv6-konfiguration. Prova att ändra VPN-inställningarna.</string>
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
     <string name="ip_version_v4_unavailable">IPv4 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
     <string name="ip_version_v6_unavailable">IPv6 är inte tillgängligt, prova att ändra inställningen \"Enhetens IP-version\".</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Ingen historik av senaste val</string>
     <string name="none">Inget</string>
     <string name="not_found">Hittades inte</string>
+    <string name="notification_settings">Aviseringsinställningar</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Av</string>

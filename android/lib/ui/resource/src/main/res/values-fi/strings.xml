@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Tilin käyttöaika päättyy muutaman minuutin kuluttua</string>
     <string name="account_credit_has_expired">Sinulla ei ole enempää VPN-aikaa jäljellä tällä tilillä.</string>
+    <string name="account_delete_placeholder">Anna tilin numero</string>
+    <string name="account_deleted">Tili poistettiin</string>
     <string name="account_number">Tilin numero</string>
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
     <string name="connection_details_out">Lähtevä</string>
+    <string name="cont">Jatka</string>
     <string name="continue_login">Jatka kirjautumista</string>
     <string name="copied_logs_to_clipboard">Lokit kopioitu leikepöydälle</string>
     <string name="copied_mullvad_account_number">Mullvad-tilin numero kopioitu leikepöydälle</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">Tilillesi lisättiin 30 päivää käyttöaikaa.</string>
     <string name="days_were_added_90">Tilillesi lisättiin 90 päivää käyttöaikaa.</string>
     <string name="delete">Poista</string>
+    <string name="delete_account">Poista tili</string>
+    <string name="delete_account_cant_be_undone">Tilisi poistamista ei voi kumota.</string>
+    <string name="delete_account_confirm_first_item"><b>Tätä toimintoa ei voi kumota.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Menetät pääsyn tälle tilille kaikilla laitteilla.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Tilin palauttaminen ei ole mahdollista.</b></string>
+    <string name="delete_account_confirmation_check">Valitsemalla tämän ruudun hyväksyn tilini poistamiseen liittyvät riskit</string>
+    <string name="delete_account_confirmation_enter_account_number">Poista Mullvad VPN -tilisi antamalla tilinumerosi alla.</string>
+    <string name="delete_account_error">Tilin poistaminen epäonnistui. Ota yhteyttä tukeen.</string>
+    <string name="delete_account_failed_loading_days">Jäljellä olevia päiviä ei voida näyttää.</string>
+    <string name="delete_account_first_item">Menetät pääsyn tälle tilille kaikilla laitteilla.</string>
+    <string name="delete_account_forth_item">Tilin palauttaminen ei ole mahdollista.</string>
+    <string name="delete_account_info">Olet poistamassa Mullvad VPN -tiliäsi.</string>
+    <string name="delete_account_info_part2">Kun poistat tilisi:</string>
+    <string name="delete_account_loading_days">Menetät jäljellä olevat</string>
+    <string name="delete_account_number_must_match">Tilin numeron täytyy täsmätä</string>
+    <string name="delete_account_second_item">Jäljellä oleva käyttöaika mitätöityy.</string>
+    <string name="delete_account_third_item">Hyvitykset eivät ole mahdollisia.</string>
+    <string name="delete_account_unable_to_verify">Tilin numeron vahvistaminen ei onnistu. Ota yhteyttä tukeen.</string>
+    <string name="delete_account_warning"><b>Varoitus:</b></string>
     <string name="delete_custom_list_confirmation_description">Poistetaanko \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" poistettiin</string>
     <string name="delete_list">Poista luettelo</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Lisätietoja antaa %1$s.</string>
     <string name="include_account_token_warning_title">Tämä vaikuttaa anonymiteettiisi</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
+    <string name="invalid_ipv6_config">Virheellinen IPv6-määritys, kokeile muuttaa VPN-asetuksia.</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
     <string name="ip_version_v4_unavailable">IPv4 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
     <string name="ip_version_v6_unavailable">IPv6 ei ole käytettävissä. Kokeile vaihtaa Laitteen IP-versio -asetus.</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Ei viimeisimpien valintojen historiaa</string>
     <string name="none">Ei mitään</string>
     <string name="not_found">Ei löydy</string>
+    <string name="notification_settings">Ilmoitusasetukset</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Pois</string>

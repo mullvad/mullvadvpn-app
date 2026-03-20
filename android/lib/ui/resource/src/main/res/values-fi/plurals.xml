@@ -28,4 +28,8 @@
         <item quantity="one">Tilin käyttöaika päättyy tunnin kuluttua</item>
         <item quantity="other">Tilin käyttöaika päättyy %1$d tunnin kuluttua</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Menetät jäljellä olevan päivän.</item>
+        <item quantity="other">Menetät jäljellä olevat %1$d päivää.</item>
+    </plurals>
 </resources>

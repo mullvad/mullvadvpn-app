@@ -28,4 +28,8 @@
         <item quantity="one">Il credito dell\'account scade tra un\'ora</item>
         <item quantity="other">Il credito dell\'account scade tra %1$d ore</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Perderai il giorno rimanente.</item>
+        <item quantity="other">Perderai i %1$d giorni rimanenti.</item>
+    </plurals>
 </resources>
