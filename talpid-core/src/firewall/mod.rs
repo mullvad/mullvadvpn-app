@@ -329,27 +329,26 @@ pub enum InitialFirewallState {
 impl Firewall {
     /// Creates a firewall instance with the given arguments.
     pub fn from_args(args: FirewallArguments) -> Result<Self, Error> {
-        Ok(Firewall {
-            inner: imp::Firewall::from_args(args)?,
-        })
+        let inner = imp::Firewall::from_args(args)?;
+        Ok(Firewall { inner })
     }
 
-    /// Createsa new firewall instance.
+    /// Creates a new firewall instance.
+    #[cfg(not(target_os = "linux"))]
+    pub fn new() -> Result<Self, Error> {
+        let inner = imp::Firewall::new()?;
+        Ok(Firewall { inner })
+    }
+
+    /// Creates a new firewall instance.
+    #[cfg(target_os = "linux")]
     pub fn new(
-        #[cfg(target_os = "linux")] fwmark: u32,
-        #[cfg(target_os = "linux")] excluded_cgroup: Option<CGroup2>,
-        #[cfg(target_os = "linux")] net_cls: Option<u32>,
+        fwmark: u32,
+        excluded_cgroup: Option<CGroup2>,
+        net_cls: Option<u32>,
     ) -> Result<Self, Error> {
-        Ok(Firewall {
-            inner: imp::Firewall::new(
-                #[cfg(target_os = "linux")]
-                fwmark,
-                #[cfg(target_os = "linux")]
-                excluded_cgroup,
-                #[cfg(target_os = "linux")]
-                net_cls,
-            )?,
-        })
+        let inner = imp::Firewall::new(fwmark, excluded_cgroup, net_cls)?;
+        Ok(Firewall { inner })
     }
 
     /// Applies and starts enforcing the given `FirewallPolicy` Makes sure it is being kept in place
