@@ -1,13 +1,14 @@
 import styled from 'styled-components';
 
-import { Accordion } from '../../../../../../../lib/components/accordion';
+import { Accordion } from '../../../../../../../../../lib/components/accordion';
 import {
   type AccordionHeaderProps,
   StyledAccordionContent,
   StyledAccordionHeader,
-} from '../../../../../../../lib/components/accordion/components';
-import { StyledAccordionHeaderItem } from '../../../../../../../lib/components/accordion/components/accordion-header/components';
-import { StyledListItemTrailingAction } from '../../../../../../../lib/components/list-item/components/list-item-trailing-actions/components';
+} from '../../../../../../../../../lib/components/accordion/components';
+import { StyledAccordionHeaderItem } from '../../../../../../../../../lib/components/accordion/components/accordion-header/components';
+import { StyledListItemTrailingAction } from '../../../../../../../../../lib/components/list-item/components/list-item-trailing-actions/components';
+import { LocationListItemAccordionHeaderItem } from './components';
 
 export type LocationListItemHeaderProps = AccordionHeaderProps;
 
@@ -39,6 +40,14 @@ export const StyledLocationListItemHeader = styled(LocationListItemHeaderRoot)`
   }
 `;
 
-export function LocationListItemHeader({ children, ...props }: LocationListItemHeaderProps) {
+function LocationListItemHeader({ children, ...props }: LocationListItemHeaderProps) {
   return <StyledLocationListItemHeader {...props}>{children}</StyledLocationListItemHeader>;
 }
+
+const LocationListItemHeaderNamespace = Object.assign(LocationListItemHeader, {
+  Item: LocationListItemAccordionHeaderItem,
+  TrailingActions: Accordion.Header.TrailingActions,
+  Trigger: Accordion.Header.Trigger,
+});
+
+export { LocationListItemHeaderNamespace as LocationListItemHeader };
