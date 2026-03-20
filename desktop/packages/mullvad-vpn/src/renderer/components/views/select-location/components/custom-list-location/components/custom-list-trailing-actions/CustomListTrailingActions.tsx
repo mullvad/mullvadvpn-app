@@ -8,8 +8,8 @@ import {
 } from '../../../../../../../features/custom-lists/components';
 import { type CustomListLocation } from '../../../../../../../features/locations/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
-import { useCustomListLocationListItemContext } from '../../../custom-list-location-list-item/CustomListLocationListItemContext';
 import { LocationListItem } from '../../../location-list-item';
+import { useCustomListLocationContext } from '../../CustomListLocationContext';
 import { DeleteCustomListButton, EditCustomListButton } from './components';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{
@@ -18,7 +18,7 @@ export type CustomListTrailingActionsProps = React.PropsWithChildren<{
 
 export function CustomListTrailingActions({ customList }: CustomListTrailingActionsProps) {
   const { expanded } = useAccordionContext();
-  const { loading, setLoading } = useCustomListLocationListItemContext();
+  const { loading, setLoading } = useCustomListLocationContext();
 
   const [editCustomListDialogOpen, setEditCustomListDialogOpen] = React.useState(false);
   const showEditCustomListDialog = React.useCallback(() => {
@@ -54,13 +54,15 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
       </LocationListItem.Accordion.Header.TrailingActions.Action>
       <LocationListItem.Accordion.Trigger
         aria-label={sprintf(
-          expanded === true
+          expanded
             ? messages.pgettext('accessibility', 'Collapse %(location)s')
             : messages.pgettext('accessibility', 'Expand %(location)s'),
           { location: customList.label },
         )}>
         <LocationListItem.Accordion.Header.TrailingActions.Action>
-          <LocationListItem.Accordion.Header.Item.Chevron />
+          <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
+            icon={expanded ? 'chevron-up' : 'chevron-down'}
+          />
         </LocationListItem.Accordion.Header.TrailingActions.Action>
       </LocationListItem.Accordion.Trigger>
     </LocationListItem.Accordion.Header.TrailingActions>

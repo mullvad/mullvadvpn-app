@@ -6,7 +6,7 @@ import {
   SectionTitle,
   type SectionTitleProps,
 } from '../../../../../../../lib/components/section-title';
-import { useCustomListLocationListContext } from '../../CustomListLocationListContext';
+import { useCustomListLocationsContext } from '../../CustomListLocationsContext';
 
 export type CustomListsSectionTitleProps = SectionTitleProps;
 
@@ -16,7 +16,7 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
     setAddingCustomList,
     addCustomListDialogOpen,
     setAddCustomListDialogOpen,
-  } = useCustomListLocationListContext();
+  } = useCustomListLocationsContext();
 
   const handleOnClick = React.useCallback(() => {
     setAddCustomListDialogOpen(true);

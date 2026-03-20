@@ -8,12 +8,12 @@ import { spacings } from '../../../../../lib/foundations';
 import { useHasCustomLists } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
-import { CustomListLocationListItem } from '../custom-list-location-list-item';
+import { CustomListLocation } from '../custom-list-location';
 import { CustomListsSectionTitle } from './components';
 import {
-  CustomListLocationListProvider,
-  useCustomListLocationListContext,
-} from './CustomListLocationListContext';
+  CustomListLocationsProvider,
+  useCustomListLocationsContext,
+} from './CustomListLocationsContext';
 
 const StyledAnimatedList = styled(AnimatedList)`
   display: flex;
@@ -24,9 +24,9 @@ const StyledAnimatedListItem = styled(AnimatedList.Item)`
   margin-bottom: ${spacings.tiny};
 `;
 
-function CustomListLocationListImpl() {
+function CustomListLocationsImpl() {
+  const { addingCustomList } = useCustomListLocationsContext();
   const { customListLocations } = useSelectLocationViewContext();
-  const { addingCustomList } = useCustomListLocationListContext();
 
   const hasCustomLists = useHasCustomLists();
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
@@ -38,10 +38,10 @@ function CustomListLocationListImpl() {
       <FlexColumn>
         <StyledAnimatedList>
           {customListLocations.map((customList) => {
-            const { key } = getLocationListItemMapProps(customList);
+            const { key } = getLocationListItemMapProps(customList, undefined);
             return (
               <StyledAnimatedListItem key={key}>
-                <CustomListLocationListItem customList={customList} level={0} />
+                <CustomListLocation customList={customList} />
               </StyledAnimatedListItem>
             );
           })}
@@ -67,7 +67,7 @@ function CustomListLocationListImpl() {
                 // TRANSLATORS: Instructs the user how to add locations to the custom list.
                 messages.pgettext(
                   'select-location-view',
-                  'Click "+" on a location to add it to a list',
+                  'Click “+“ on a location to add it to a list',
                 )
               }
             </Text>
@@ -78,10 +78,10 @@ function CustomListLocationListImpl() {
   );
 }
 
-export function CustomListLocationList() {
+export function CustomListLocations() {
   return (
-    <CustomListLocationListProvider>
-      <CustomListLocationListImpl />
-    </CustomListLocationListProvider>
+    <CustomListLocationsProvider>
+      <CustomListLocationsImpl />
+    </CustomListLocationsProvider>
   );
 }

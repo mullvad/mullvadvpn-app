@@ -1,1 +1,1 @@
-export * from './use-handle-select-custom-list';
+export * from './use-handle-select-location-in-custom-list';

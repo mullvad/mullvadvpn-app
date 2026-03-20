@@ -1,7 +1,7 @@
 import type { LocationType } from '../../../../../features/locations/types';
 import { useHasCustomLists } from '../../hooks';
-import { CountryLocationList } from '../country-location-list';
-import { CustomListLocationList } from '../custom-list-location-list';
+import { CountryLocations } from '../country-locations';
+import { CustomListLocations } from '../custom-list-locations';
 import { NoSearchResult } from '../no-search-result';
 import { useHasSearched, useHasSearchedLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
@@ -15,14 +15,14 @@ export function LocationLists(props: LocationsListsProps) {
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
 
-  const showCustomListLocationList = !hasSearched || hasVisibleCustomLists;
-  const showCountryLocationList = !hasSearched || hasSearchedLocations;
-  const showNoSearchResult = hasSearched && !showCustomListLocationList && !showCountryLocationList;
+  const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
+  const showCountryLocations = !hasSearched || hasSearchedLocations;
+  const showNoSearchResult = hasSearched && !showCustomListLocationLists && !showCountryLocations;
 
   return (
     <LocationListsProvider {...props}>
-      {showCustomListLocationList && <CustomListLocationList />}
-      {showCountryLocationList && <CountryLocationList />}
+      {showCustomListLocationLists && <CustomListLocations />}
+      {showCountryLocations && <CountryLocations />}
       {showNoSearchResult && <NoSearchResult />}
     </LocationListsProvider>
   );
