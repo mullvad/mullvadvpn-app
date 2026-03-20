@@ -340,7 +340,7 @@ impl Firewall {
         Ok(Firewall { inner })
     }
 
-    /// Createsa new firewall instance.
+    /// Creates a new firewall instance.
     #[cfg(target_os = "linux")]
     pub fn new(
         fwmark: u32,
