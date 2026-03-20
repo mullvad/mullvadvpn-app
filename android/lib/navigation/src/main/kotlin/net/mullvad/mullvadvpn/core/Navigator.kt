@@ -12,21 +12,36 @@ class Navigator(private val state: NavigationState, val resultStore: ResultStore
     val backStack: List<NavKey2> by state::backStack
 
     /**
-     * Navigate to a navigation key
+     * Navigate to a navigation key.
      *
      * @param key the navigation key to navigate to.
      * @param clearBackStack if true clears the back stack before pushing the new key
-     * @param replaceTop if true pops the topmost entry of the stack before pushing the new key
      */
-    fun navigate(key: NavKey2, clearBackStack: Boolean = false, replaceTop: Boolean = false) {
+    fun navigate(key: NavKey2, clearBackStack: Boolean = false) {
         previousBackStack = state.backStack.toList()
 
         state.backStack.apply {
             if (clearBackStack) {
                 clear()
-            } else if (replaceTop) {
-                state.backStack.removeLastOrNull()
             }
+
+            if (key != state.backStack.lastOrNull()) {
+                add(key)
+            }
+        }
+    }
+
+    /**
+     * Navigate to a navigation key and pop the topmost entry of the stack before pushing the new
+     * key.
+     *
+     * @param key the navigation key to navigate to.
+     */
+    fun navigateReplaceTop(key: NavKey2) {
+        previousBackStack = state.backStack.toList()
+
+        state.backStack.apply {
+            state.backStack.removeLastOrNull()
 
             if (key != state.backStack.lastOrNull()) {
                 add(key)
@@ -36,8 +51,8 @@ class Navigator(private val state: NavigationState, val resultStore: ResultStore
 
     /** Go back to the previous navigation key. If there is no previous key, do nothing. */
     fun goBack() {
-        previousBackStack = state.backStack.toList()
-        tryPop()
+        val backStackBeforePop = state.backStack.toList()
+        if (tryPop()) previousBackStack = backStackBeforePop
     }
 
     /**
@@ -58,24 +73,29 @@ class Navigator(private val state: NavigationState, val resultStore: ResultStore
      *   destination, false otherwise
      */
     fun goBackUntil(key: NavKey2, inclusive: Boolean = false): Boolean {
+        val backStackBeforePop = state.backStack.toList()
+
         val index = state.backStack.indexOfLast { it == key }
         if (index == -1) return false
 
-        while (state.backStack.lastIndex != index) {
-            tryPop()
-        }
-        if (inclusive) {
-            tryPop()
-        }
+        // coerceAtLeast(1) guarantees we can't end up with an empty backstack
+        val keepUntil = (if (inclusive) index else index + 1).coerceAtLeast(1)
+        state.backStack.removeRange(keepUntil, state.backStack.size)
 
-        return state.backStack.lastIndex != index
+        val didPop = state.backStack.size != backStackBeforePop.size
+        if (didPop) {
+            previousBackStack = backStackBeforePop
+        }
+        return didPop
     }
 
-    private fun tryPop() {
+    private fun tryPop(): Boolean =
         if (state.backStack.size > 1) {
             state.backStack.removeLastOrNull()
+            true
+        } else {
+            false
         }
-    }
 }
 
 // Used for previews

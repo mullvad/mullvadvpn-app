@@ -5,6 +5,7 @@ package net.mullvad.mullvadvpn.app
 import android.Manifest
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
@@ -20,6 +21,9 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.SinglePaneSceneStrategy
@@ -64,6 +68,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
+import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
 import net.mullvad.mullvadvpn.screen.navigation.privacyDisclaimerEntry
 import net.mullvad.mullvadvpn.screen.navigation.splashEntry
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
@@ -83,7 +88,15 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     val nav3 = remember { Navigator(navigationState, resultStore) }
 
     val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
-    mullvadAppViewModel.setBackStackFlow(navigationState.backStackFlow)
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            navigationState.backStackFlow.collect { backstack ->
+                mullvadAppViewModel.setCurrentBackStack(backstack)
+            }
+        }
+    }
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         CheckNotificationPermission(serviceConnectionManager)
@@ -106,6 +119,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         loginEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)
+        noDaemonEntry(nav3)
         notificationEntry(nav3)
         privacyDisclaimerEntry(nav3)
         problemReportEntry(nav3)
@@ -131,18 +145,9 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
                     entries = navigationState.toEntries(entryProvider),
                     onBack = { nav3.goBack() },
                     sharedTransitionScope = this@SharedTransitionLayout,
-                    transitionSpec = {
-                        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
-                            fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
-                    },
-                    popTransitionSpec = {
-                        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
-                            fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
-                    },
-                    predictivePopTransitionSpec = {
-                        fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
-                            fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
-                    },
+                    transitionSpec = { defaultNavDisplayTransitionSpec() },
+                    popTransitionSpec = { defaultNavDisplayTransitionSpec() },
+                    predictivePopTransitionSpec = { defaultNavDisplayTransitionSpec() },
                 )
             }
         }
@@ -163,6 +168,10 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         }
     }
 }
+
+private fun defaultNavDisplayTransitionSpec(): ContentTransform =
+    fadeIn(tween(TRANSITION_DEFAULT_DURATION_MS)) togetherWith
+        fadeOut(tween(TRANSITION_DEFAULT_DURATION_MS))
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable

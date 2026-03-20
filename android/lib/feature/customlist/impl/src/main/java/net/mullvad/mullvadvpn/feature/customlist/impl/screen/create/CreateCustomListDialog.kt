@@ -62,12 +62,11 @@ fun CreateCustomList(locationCode: GeoLocationId?, navigator: Navigator) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
                 is CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen -> {
-                    navigator.navigate(
+                    navigator.navigateReplaceTop(
                         EditCustomListLocationsNavKey(
                             customListId = sideEffect.customListId,
                             newList = true,
-                        ),
-                        replaceTop = true,
+                        )
                     )
                 }
                 is CreateCustomListDialogSideEffect.ReturnWithResult -> {
