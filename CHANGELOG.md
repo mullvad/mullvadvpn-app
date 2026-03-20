@@ -25,7 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
   has available relays, and falls back to Sweden otherwise.
-- `mullvda-daemon` now defaults to `ERROR` log level when `-v` is not specified.
+- `mullvad-daemon` now defaults to `ERROR` log level when `-v` is not specified.
   `mullvad-daemon -vv` is used in system services to maintain previous `DEBUG` log level.
 - Update GotaTun from version `0.2.0` to `0.4.1`. This improves compliance with the
   WireGuard spec by implementing padding to multiples of 16 bytes, fixes a minor
