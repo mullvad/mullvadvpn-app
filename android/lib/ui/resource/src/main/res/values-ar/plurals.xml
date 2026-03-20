@@ -56,4 +56,12 @@
         <item quantity="many">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
         <item quantity="other">ستنتهي صلاحية رصيد الحساب بعد %1$d ساعة</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="zero">ستفقد %1$d من الأيام المتبقية لك.</item>
+        <item quantity="one">ستفقد %1$d من الأيام المتبقية لك.</item>
+        <item quantity="two">ستفقد %1$d من الأيام المتبقية لك.</item>
+        <item quantity="few">ستفقد %1$d أيام متبقية لك.</item>
+        <item quantity="many">ستفقد %1$d يومًا متبقيًا لك.</item>
+        <item quantity="other">ستفقد %1$d يوم متبق لك.</item>
+    </plurals>
 </resources>

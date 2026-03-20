@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Accountkrediet verloopt over enkele minuten</string>
     <string name="account_credit_has_expired">U hebt geen VPN-tijd meer op dit account.</string>
+    <string name="account_delete_placeholder">Voer accountnummer in</string>
+    <string name="account_deleted">Account verwijderd</string>
     <string name="account_number">Accountnummer</string>
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdherinneringen</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Uit</string>
+    <string name="cont">Doorgaan</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">Er zijn 30 dagen toegevoegd aan uw account.</string>
     <string name="days_were_added_90">Er zijn 90 dagen toegevoegd aan uw account.</string>
     <string name="delete">Verwijderen</string>
+    <string name="delete_account">Account verwijderen</string>
+    <string name="delete_account_cant_be_undone">Het verwijderen van uw account kan niet ongedaan gemaakt worden.</string>
+    <string name="delete_account_confirm_first_item"><b>Deze handeling kan niet ongedaan worden gemaakt.</b></string>
+    <string name="delete_account_confirm_second_item"><b>U verliest de toegang tot dit account op alle apparaten.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Accountherstel is niet mogelijk.</b></string>
+    <string name="delete_account_confirmation_check">Door dit vakje aan te vinken ga ik akkoord met de risico\'s van het verwijderen van mijn account</string>
+    <string name="delete_account_confirmation_enter_account_number">Voer hieronder uw accountnummer in om uw Mullvad VPN-account te verwijderen.</string>
+    <string name="delete_account_error">Verwijderen van account mislukt, neem contact op met de ondersteuning</string>
+    <string name="delete_account_failed_loading_days">Kan resterend aantal dagen niet weergeven.</string>
+    <string name="delete_account_first_item">U verliest de toegang tot dit account op alle apparaten.</string>
+    <string name="delete_account_forth_item">Accountherstel is niet mogelijk.</string>
+    <string name="delete_account_info">U staat op het punt uw Mullvad VPN-account te verwijderen.</string>
+    <string name="delete_account_info_part2">Als u uw account verwijdert:</string>
+    <string name="delete_account_loading_days">U verliest uw resterende</string>
+    <string name="delete_account_number_must_match">Accountnummer moet overeenkomen</string>
+    <string name="delete_account_second_item">Eventuele resterende tijd wordt ongeldig.</string>
+    <string name="delete_account_third_item">Terugbetaling is niet mogelijk.</string>
+    <string name="delete_account_unable_to_verify">Accountnummer kan niet worden geverifieerd, neem contact op met de ondersteuning</string>
+    <string name="delete_account_warning"><b>Waarschuwing:</b></string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>
     <string name="delete_list">Lijst verwijderen</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Zie ons %1$s voor meer informatie.</string>
     <string name="include_account_token_warning_title">Dit heeft gevolgen voor uw anonimiteit</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
+    <string name="invalid_ipv6_config">Ongeldige IPv6-configuratie, probeer de VPN-instellingen te wijzigen.</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="ip_version_v4_unavailable">IPv4 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
     <string name="ip_version_v6_unavailable">IPv6 is niet beschikbaar. Probeer de instelling \"IP-versie apparaat\" te wijzigen.</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Geen recente selectiegeschiedenis</string>
     <string name="none">Geen</string>
     <string name="not_found">Niet gevonden</string>
+    <string name="notification_settings">Meldingsinstellingen</string>
     <string name="number_of_providers">Providers: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Uit</string>

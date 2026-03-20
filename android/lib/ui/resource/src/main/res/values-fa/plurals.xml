@@ -28,4 +28,8 @@
         <item quantity="one">اعتبار حساب تا یک ساعت دیگر منقضی می‌شود</item>
         <item quantity="other">اعتبار حساب تا %1$d ساعت دیگر منقضی می‌شود</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">روز باقی‌مانده خود را از دست خواهید داد.</item>
+        <item quantity="other">%1$d روز باقی‌مانده خود را از دست خواهید داد.</item>
+    </plurals>
 </resources>

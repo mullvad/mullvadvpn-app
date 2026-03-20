@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">မိနစ်အနည်းငယ်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်</string>
     <string name="account_credit_has_expired">ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။</string>
+    <string name="account_delete_placeholder">အကောင့်နံပါတ်ဂဏန်းများကို ထည့်ပါ</string>
+    <string name="account_deleted">အကောင့်ကို ဖျက်လိုက်ပါပြီ</string>
     <string name="account_number">အကောင့် နံပါတ်</string>
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
     <string name="account_time_notification_channel_name">အကောင့်အချိန် သတိပေးချက်များ</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="connection_details_in">အဝင်</string>
     <string name="connection_details_out">အထွက်</string>
+    <string name="cont">ဆက်လုပ်မည်</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
     <string name="copied_logs_to_clipboard">ကလစ်ဘုတ်တွင် မှတ်တမ်းများ ကူးယူပြီး</string>
     <string name="copied_mullvad_account_number">Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">သင့်အကောင့်ထဲသို့ ရက် 30 ကို ပေါင်းထည့်ပြီးပါပြီ။</string>
     <string name="days_were_added_90">သင့်အကောင့်အတွက် ရက် 90 တိုးထားပါသည်။</string>
     <string name="delete">ဖျက်ရန်</string>
+    <string name="delete_account">အကောင့် ဖျက်ရန်</string>
+    <string name="delete_account_cant_be_undone">သင့်အကောင့် ဖျက်ခြင်းကို ပြန်ပြင်၍မရနိုင်ပါ။</string>
+    <string name="delete_account_confirm_first_item"><b>ဤလုပ်ဆောင်မှုကို ပြန်ပြင်၍မရပါ။</b></string>
+    <string name="delete_account_confirm_second_item"><b>စက်အားလုံးတွင် ဤအကောင့်သို့ ဝင်သုံးခွင့်ကို ဆုံးရှုံးပါမည်။</b></string>
+    <string name="delete_account_confirm_third_item"><b>အကောင့်ပြန်ဆယ်၍ ရနိုင်မည်မဟုတ်ပါ။</b></string>
+    <string name="delete_account_confirmation_check">ဤအကွက်ကို အမှန်ခြစ်ခြင်းဖြင့် ကျွန်ုပ်သည် ကျွန်ုပ်၏အကောင့်ကို ဖျက်ခြင်းကြောင့် ဖြစ်နိုင်ခြေရှိသည့် အန္တရာယ်များကို သိရှိနားလည်ကြောင်း သဘောတူပါသည်</string>
+    <string name="delete_account_confirmation_enter_account_number">သင်၏ Mullvad VPN အကောင့်ကို ဖျက်ရန် သင့်အကောင့်နံပါတ်ကို အောက်တွင် ထည့်ပါ။</string>
+    <string name="delete_account_error">အကောင့်ကို ဖျက်၍ မရခဲ့ပါ၊ ပံ့ပိုးကူညီရေးအဖွဲ့ကို ဆက်သွယ်ပါ</string>
+    <string name="delete_account_failed_loading_days">လက်ကျန်ရက်များကို ပြသ၍မရပါ။</string>
+    <string name="delete_account_first_item">သင်သည် စက်အားလုံးတွင် ဤအကောင့်သို့ ဝင်သုံးခွင့်ကို ဆုံးရှုံးပါမည်။</string>
+    <string name="delete_account_forth_item">အကောင့်ပြန်ဆယ်၍ ရနိုင်မည်မဟုတ်ပါ။</string>
+    <string name="delete_account_info">သင်သည် သင်၏ Mullvad VPN အကောင့်ကို ဖျက်တော့မည်။</string>
+    <string name="delete_account_info_part2">သင့်အကောင့်ကို ဖျက်ခြင်း-</string>
+    <string name="delete_account_loading_days">သင်သည် သင့်လက်ကျန်ကို ဆုံးရှုံးပါမည်</string>
+    <string name="delete_account_number_must_match">အကောင့်နံပါတ် ကိုက်ညီရမည်</string>
+    <string name="delete_account_second_item">ကျန်ရှိသောအချိန်မှန်သမျှသည် တရားမဝင်တော့ဘဲ ပျက်ပြယ်ပါမည်။</string>
+    <string name="delete_account_third_item">ငွေပြန်အမ်းပေးနိုင်မည်မဟုတ်ပါ။</string>
+    <string name="delete_account_unable_to_verify">အကောင့်နံပါတ်ကို အတည်ပြု၍မရပါ၊ ပံ့ပိုးကူညီမှုအဖွဲ့ကို ဆက်သွယ်ပါ</string>
+    <string name="delete_account_warning"><b>သတိပေးချက်-</b></string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" ကို ဖျက်မည်လား။</string>
     <string name="delete_custom_list_message">\"%1$s\" ကို ဖျက်ပြီးပါပြီ</string>
     <string name="delete_list">စာရင်းကို ဖျက်ရန်</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">အသေးစိတ်အချက်အလက်များအတွက် ကျွန်ုပ်တို့၏ %1$s ကို ကြည့်ပါ။</string>
     <string name="include_account_token_warning_title">ဤအရာကို ရွေးချယ်ပါက သင်၏ အမည်ဝှက်မှုကို သက်ရောက်မှု ရှိပါမည်</string>
     <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာ လိပ်စာများ %1$s သည် မမှန်ကန်ပါ</string>
+    <string name="invalid_ipv6_config">IPv6 သတ်မှတ်မှု မမှန်ကန်ပါ၊ VPN ဆက်တင်များကို ပြောင်းကြည့်ပါ။</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
     <string name="ip_version_v4_unavailable">IPv4 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။</string>
     <string name="ip_version_v6_unavailable">IPv6 ကို မရရှိနိုင်ပါသဖြင့် \"စက် IP ဗားရှင်း\" ဆက်တင်ကို ပြောင်းလဲကြည့်ပါ။</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">လတ်တလောရွေးချယ်မှု မှတ်တမ်း မရှိပါ</string>
     <string name="none">မရှိ</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
+    <string name="notification_settings">အသိပေးချက် ဆက်တင်များ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">ပိတ်</string>

@@ -28,4 +28,8 @@
         <item quantity="one">Hesap kredisi bir saat içinde sona eriyor</item>
         <item quantity="other">Hesap kredisi %1$d saat içinde sona eriyor</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Kalan günlerinizi kaybedeceksiniz.</item>
+        <item quantity="other">Kalan %1$d gününüzü kaybedeceksiniz.</item>
+    </plurals>
 </resources>

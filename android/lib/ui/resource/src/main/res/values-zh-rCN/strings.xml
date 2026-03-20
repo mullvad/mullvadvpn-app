@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">帐户额度将在几分钟后到期</string>
     <string name="account_credit_has_expired">此帐户没有更多的 VPN 时间了。</string>
+    <string name="account_delete_placeholder">输入帐号数字</string>
+    <string name="account_deleted">帐户已删除</string>
     <string name="account_number">帐号</string>
     <string name="account_time_notification_channel_description">在帐户时间即将到期时显示提醒</string>
     <string name="account_time_notification_channel_name">帐户时间提醒</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">正在连接到 Mullvad 系统服务…</string>
     <string name="connection_details_in">内部</string>
     <string name="connection_details_out">外部</string>
+    <string name="cont">继续</string>
     <string name="continue_login">继续登录</string>
     <string name="copied_logs_to_clipboard">已将日志复制到剪贴板</string>
     <string name="copied_mullvad_account_number">已将 Mullvad 帐号复制到剪贴板</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">已向您的帐户增加 30 天。</string>
     <string name="days_were_added_90">90 天已添加到您的帐户中。</string>
     <string name="delete">删除</string>
+    <string name="delete_account">删除帐户</string>
+    <string name="delete_account_cant_be_undone">删除帐户的操作无法撤消。</string>
+    <string name="delete_account_confirm_first_item"><b>此操作无法撤消</b>。</string>
+    <string name="delete_account_confirm_second_item"><b>您将在所有设备上失去此帐户的访问权限</b>。</string>
+    <string name="delete_account_confirm_third_item"><b>帐户将无法恢复</b>。</string>
+    <string name="delete_account_confirmation_check">选中此框，即表示我同意承担删除我的帐户带来的风险</string>
+    <string name="delete_account_confirmation_enter_account_number">要删除 Mullvad VPN 帐户，请在下方输入您的帐号。</string>
+    <string name="delete_account_error">无法删除帐户，请联系支持团队</string>
+    <string name="delete_account_failed_loading_days">无法显示剩余天数。</string>
+    <string name="delete_account_first_item">您将在所有设备上失去此帐户的访问权限。</string>
+    <string name="delete_account_forth_item">帐户将无法恢复。</string>
+    <string name="delete_account_info">您即将删除 Mullvad VPN 帐户。</string>
+    <string name="delete_account_info_part2">删除您的帐户：</string>
+    <string name="delete_account_loading_days">您会失去剩余的</string>
+    <string name="delete_account_number_must_match">帐号必须匹配</string>
+    <string name="delete_account_second_item">任何剩余时间都将清零并作废。</string>
+    <string name="delete_account_third_item">无法退款。</string>
+    <string name="delete_account_unable_to_verify">无法验证帐号，请联系支持团队</string>
+    <string name="delete_account_warning"><b>警告</b>：</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>
     <string name="delete_list">删除列表</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">有关详情，请参阅我们的%1$s。</string>
     <string name="include_account_token_warning_title">这会影响您的匿名性</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
+    <string name="invalid_ipv6_config">IPv6 配置无效，请尝试更改 VPN 设置。</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
     <string name="ip_version_v4_unavailable">IPv4 不可用，请尝试更改“设备 IP 版本”设置。</string>
     <string name="ip_version_v6_unavailable">IPv6 不可用，请尝试更改“设备 IP 版本”设置。</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">无最近选择历史记录</string>
     <string name="none">无</string>
     <string name="not_found">找不到</string>
+    <string name="notification_settings">通知设置</string>
     <string name="number_of_providers">提供商：%1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">关</string>

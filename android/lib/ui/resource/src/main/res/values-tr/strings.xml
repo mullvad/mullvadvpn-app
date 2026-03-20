@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Hesap kredisinin süresi birkaç dakika içinde doluyor</string>
     <string name="account_credit_has_expired">Bu hesap için artık VPN süreniz kalmadı.</string>
+    <string name="account_delete_placeholder">Hesap numarası rakamlarını girin</string>
+    <string name="account_deleted">Hesap silindi</string>
     <string name="account_number">Hesap Kimliği</string>
     <string name="account_time_notification_channel_description">Hesap süresinin dolmak üzere olduğunu bildiren hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
     <string name="connection_details_out">Çıkış</string>
+    <string name="cont">İleri</string>
     <string name="continue_login">Giriş yapmak için devam et</string>
     <string name="copied_logs_to_clipboard">Günlükler panoya kopyalandı</string>
     <string name="copied_mullvad_account_number">Mullvad hesap numarası panoya kopyalandı</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
     <string name="days_were_added_90">Hesabınıza 90 gün eklendi.</string>
     <string name="delete">Sil</string>
+    <string name="delete_account">Hesabı sil</string>
+    <string name="delete_account_cant_be_undone">Hesabınızı silme işlemi geri alınamaz.</string>
+    <string name="delete_account_confirm_first_item"><b>Bu işlem geri alınamaz.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Hesap kurtarma mümkün olmayacaktır.</b></string>
+    <string name="delete_account_confirmation_check">Bu kutuyu işaretleyerek hesabımı silmeyle ilgili riskleri kabul ediyorum</string>
+    <string name="delete_account_confirmation_enter_account_number">Mullvad VPN hesabınızı silmek için lütfen aşağıya hesap numaranızı girin.</string>
+    <string name="delete_account_error">Hesap silinemedi, lütfen destek ekibiyle iletişime geçin</string>
+    <string name="delete_account_failed_loading_days">Kalan günler gösterilemiyor.</string>
+    <string name="delete_account_first_item">Tüm cihazlarınızda bu hesaba erişiminizi kaybedeceksiniz.</string>
+    <string name="delete_account_forth_item">Hesap kurtarma mümkün olmayacaktır.</string>
+    <string name="delete_account_info">Mullvad VPN hesabınızı silmek üzeresiniz.</string>
+    <string name="delete_account_info_part2">Hesabınızı sildiğinizde:</string>
+    <string name="delete_account_loading_days">Kalan bakiyenizi kaybedeceksiniz</string>
+    <string name="delete_account_number_must_match">Hesap numarası eşleşmelidir</string>
+    <string name="delete_account_second_item">Kalan süre geçersiz olacaktır.</string>
+    <string name="delete_account_third_item">Geri ödeme mümkün olmayacaktır.</string>
+    <string name="delete_account_unable_to_verify">Hesap numaranız doğrulanamıyor, lütfen destek ekibiyle iletişime geçin</string>
+    <string name="delete_account_warning"><b>Uyarı:</b></string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
     <string name="delete_list">Listeyi sil</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Ayrıntılar için lütfen %1$s sayfamıza göz atın.</string>
     <string name="include_account_token_warning_title">Bu, anonimliğinizi etkileyebilir</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
+    <string name="invalid_ipv6_config">Geçersiz IPv6 yapılandırması, lütfen VPN ayarlarını değiştirmeyi deneyin.</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
     <string name="ip_version_v4_unavailable">IPv4 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
     <string name="ip_version_v6_unavailable">IPv6 mevcut değil. Lütfen \"Cihaz IP sürümü\" ayarını değiştirmeyi deneyin.</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Son seçim geçmişi yok</string>
     <string name="none">Hiçbiri</string>
     <string name="not_found">Bulunamadı</string>
+    <string name="notification_settings">Bildirim ayarları</string>
     <string name="number_of_providers">Hizmet sağlayıcılar: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Kapalı</string>

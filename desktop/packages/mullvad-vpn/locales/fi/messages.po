@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-03-10 10:11\n"
+"PO-Revision-Date: 2026-03-20 09:19\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -2788,6 +2788,9 @@ msgstr "Tilillesi lisättiin 30 päivää käyttöaikaa."
 msgid "90 days was added to your account."
 msgstr "Tilillesi lisättiin 90 päivää käyttöaikaa."
 
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Tilin palauttaminen ei ole mahdollista.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä."
 
@@ -2796,6 +2799,15 @@ msgstr "<b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja ots
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Tätä toimintoa ei voi kumota.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Varoitus:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Menetät pääsyn tälle tilille kaikilla laitteilla.</b>"
 
 msgid "API reachable, adding method..."
 msgstr "API tavoitettavissa, menetelmää lisätään..."
@@ -2806,8 +2818,17 @@ msgstr "API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?"
 msgid "Account credit expires in a few minutes"
 msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
 
+msgid "Account deleted"
+msgstr "Tili poistettiin"
+
 msgid "Account number is too long, please enter a valid number"
 msgstr "Tilin numero on liian pitkä. Anna kelvollinen numero."
+
+msgid "Account number must match"
+msgstr "Tilin numeron täytyy täsmätä"
+
+msgid "Account recovery will not be possible."
+msgstr "Tilin palauttaminen ei ole mahdollista."
 
 msgid "Account time reminders"
 msgstr "Muistutukset tilin käyttöajasta"
@@ -2857,6 +2878,9 @@ msgstr "Aina päällä oleva VPN on määritetty toiselle VPN:lle"
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja"
 
+msgid "Any remaining time will be null and void."
+msgstr "Jäljellä oleva käyttöaika mitätöityy."
+
 msgid "Appearance"
 msgstr "Ulkoasu"
 
@@ -2899,6 +2923,9 @@ msgstr "Selain"
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä auttaa meitä ratkaisemaan ongelmasi nopeammin. Kaikki raportit poistetaan automaattisesti tietyn ajan kuluttua."
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Valitsemalla tämän ruudun hyväksyn tilini poistamiseen liittyvät riskit"
+
 msgid "Can't connect?"
 msgstr "Eikö yhteyden muodostaminen onnistu?"
 
@@ -2923,6 +2950,9 @@ msgstr "Muodosta yhteys toiseen verkkoon"
 msgid "Connecting..."
 msgstr "Yhdistetään..."
 
+msgid "Continue"
+msgstr "Jatka"
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
 
@@ -2931,6 +2961,9 @@ msgstr "Lokit kopioitu leikepöydälle"
 
 msgid "Copy"
 msgstr "Kopioi"
+
+msgid "Could not display remaining days."
+msgstr "Jäljellä olevia päiviä ei voida näyttää."
 
 msgid "Create"
 msgstr "Luo"
@@ -2956,11 +2989,20 @@ msgstr "Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi"
 msgid "Delete \"%s\"?"
 msgstr "Poistetaanko \"%s\"?"
 
+msgid "Delete account"
+msgstr "Poista tili"
+
 msgid "Delete method"
 msgstr "Poista menetelmä"
 
 msgid "Delete method?"
 msgstr "Poista menetelmä?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "Tilisi poistamista ei voi kumota."
+
+msgid "Deleting your account:"
+msgstr "Kun poistat tilisi:"
 
 msgid "Direct"
 msgstr "Suora"
@@ -3028,6 +3070,9 @@ msgstr "Ota viimeisimmät käyttöön"
 msgid "Enter MTU"
 msgstr "Syötä MTU"
 
+msgid "Enter account number digits"
+msgstr "Anna tilin numero"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Tulovälityspalvelin on sama kuin lähtövälityspalvelin"
 
@@ -3045,6 +3090,9 @@ msgstr "YHDISTÄMINEN EPÄONNISTUI"
 
 msgid "Failed to apply patch"
 msgstr "Muutostiedoston käyttöönotto ei onnistunut"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Tilin poistaminen epäonnistui. Ota yhteyttä tukeen."
 
 msgid "Failed to load products, please try again"
 msgstr "Tuotteiden lataaminen epäonnistui, yritä uudelleen"
@@ -3111,6 +3159,9 @@ msgstr "Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, et
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin liittyvissä ongelmissa"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Virheellinen IPv6-määritys, kokeile muuttaa VPN-asetuksia."
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
@@ -3202,6 +3253,9 @@ msgstr "Ei löydy"
 msgid "Notes"
 msgstr "Huomautukset"
 
+msgid "Notification settings"
+msgstr "Ilmoitusasetukset"
+
 msgid "Open app details"
 msgstr "Avaa sovelluksen tiedot"
 
@@ -3252,6 +3306,9 @@ msgstr "Viimeisimmät on poistettu käytöstä ja historia on tyhjennetty"
 
 msgid "Recursion limit"
 msgstr "Toistorajoitus"
+
+msgid "Refunds will not be possible."
+msgstr "Hyvitykset eivät ole mahdollisia."
 
 msgid "Remove %1$s from %2$s"
 msgstr "Poista %1$s luettelosta %2$s"
@@ -3331,6 +3388,9 @@ msgstr "Testataan menetelmää %s..."
 msgid "Text"
 msgstr "Teksti"
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Kiitos, kun olit osa yhteisöämme.\\nYksityisyys on ihmisiä varten!"
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Automaattisen yhdistämisen ja lukitustilan asetukset löytyvät Androidin järjestelmäasetuksista. Voit ottaa jommankumman tai molemmat käyttöön tämän oppaan ohjeilla."
 
@@ -3385,6 +3445,9 @@ msgstr "Jos haluat lisätä luetteloon sijainteja, paina kynää tai paina pitk�
 msgid "To create a custom list press the \"+\""
 msgstr "Voit luoda mukautetun luettelon painamalla \"+\""
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "Poista Mullvad VPN -tilisi antamalla tilinumerosi alla."
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Sovellus suorittaa versiotarkistuksia automaattisesti varmistaakseen, että käytät kaikkein turvallisinta versiota, ja ilmoittaakseen sinulle kaikista parhaillaan käynnissä olevan version ongelmista. Se lähettää Mullvadin palvelimille tiedot sovellusversiosta ja Android-järjestelmäversiosta. Mullvad pitää lukua käytettyjen sovellusversioiden ja Android-versioiden määristä. Tietoja ei koskaan tallenneta tai käytetä tavalla, joka voisi mahdollistaa tunnistamisesi."
 
@@ -3414,6 +3477,9 @@ msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle <b>%s</b> ennen Mullvad VPN:n käyttämistä."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Tilin numeron vahvistaminen ei onnistu. Ota yhteyttä tukeen."
 
 msgid "Unavailable"
 msgstr "Ei saatavilla"
@@ -3499,11 +3565,20 @@ msgstr "WireGuard-portti"
 msgid "Yes, log out device"
 msgstr "Kyllä, kirjaa laite ulos"
 
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Olet poistamassa Mullvad VPN -tiliäsi."
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr "Voit lisätä aikaa tilinäkymän tai verkkosivuston kautta, jotta voit jatkaa VPN:n käyttöä."
 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Voit jatkaa VPN:n käyttöä lisäämällä aikaa tilinäkymän kautta."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Menetät pääsyn tälle tilille kaikilla laitteilla."
+
+msgid "You will lose your remaining"
+msgstr "Menetät jäljellä olevat"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" luotiin"
@@ -3560,4 +3635,9 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Tilin käyttöaika päättyy tunnin kuluttua"
 msgstr[1] "Tilin käyttöaika päättyy %d tunnin kuluttua"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Menetät jäljellä olevan päivän."
+msgstr[1] "Menetät jäljellä olevat %d päivää."
 
