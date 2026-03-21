@@ -7,7 +7,7 @@ import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
 import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { getLocationListItemMapProps } from '../../utils';
-import { LocationListItem } from '../location-list-item';
+import { Location } from '../location-list-item';
 import { GeographicalLocationTrailingActions } from './components';
 import {
   GeographicalLocationListItemProvider,
@@ -71,16 +71,13 @@ function GeographicalLocationListItemImpl({
   };
 
   return (
-    <LocationListItem selected={location.selected} root={root}>
-      <LocationListItem.Accordion
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        disabled={disabled}>
-        <LocationListItem.Accordion.Header
+    <Location selected={location.selected} root={root}>
+      <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
+        <Location.Accordion.Header
           ref={location.selected ? selectedLocationRef : null}
           level={level}
           position={position}>
-          <LocationListItem.Accordion.Header.Trigger
+          <Location.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -91,19 +88,19 @@ function GeographicalLocationListItemImpl({
                 location: location.label,
               },
             )}>
-            <LocationListItem.Accordion.Header.Item>
-              <LocationListItem.Accordion.Header.Item.Title>
+            <Location.Accordion.Header.Item>
+              <Location.Accordion.Header.Item.Title>
                 {location.label}
-              </LocationListItem.Accordion.Header.Item.Title>
-            </LocationListItem.Accordion.Header.Item>
-          </LocationListItem.Accordion.Header.Trigger>
+              </Location.Accordion.Header.Item.Title>
+            </Location.Accordion.Header.Item>
+          </Location.Accordion.Header.Trigger>
           <GeographicalLocationTrailingActions location={location} />
-        </LocationListItem.Accordion.Header>
-        <LocationListItem.Accordion.Content>
+        </Location.Accordion.Header>
+        <Location.Accordion.Content>
           {showChildren ? renderChildren() : null}
-        </LocationListItem.Accordion.Content>
-      </LocationListItem.Accordion>
-    </LocationListItem>
+        </Location.Accordion.Content>
+      </Location.Accordion>
+    </Location>
   );
 }
 
