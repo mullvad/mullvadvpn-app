@@ -10,11 +10,11 @@ import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
 import { GeographicalLocationTrailingActions } from './components';
 import {
-  GeographicalLocationListItemProvider,
-  useGeographicalLocationListItemContext,
-} from './GeographicalLocationListItemContext';
+  GeographicalLocationProvider,
+  useGeographicalLocationContext,
+} from './GeographicalLocationContext';
 
-export type GeographicalLocationListItemProps = Pick<ListItemProps, 'level' | 'position'> & {
+export type GeographicalLocationProps = Pick<ListItemProps, 'level' | 'position'> & {
   location: GeographicalLocation;
   root?: boolean;
   disabled?: boolean;
@@ -22,7 +22,7 @@ export type GeographicalLocationListItemProps = Pick<ListItemProps, 'level' | 'p
   expanded?: boolean;
 };
 
-function GeographicalLocationListItemImpl({
+function GeographicalLocationImpl({
   location,
   level,
   disabled: disabledProp,
@@ -30,8 +30,8 @@ function GeographicalLocationListItemImpl({
   position,
   onSelect,
   ...props
-}: GeographicalLocationListItemProps) {
-  const { loading } = useGeographicalLocationListItemContext();
+}: GeographicalLocationProps) {
+  const { loading } = useGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
   const locationChildren = getLocationChildren(location);
   const { selectedLocationRef } = useScrollPositionContext();
@@ -58,7 +58,7 @@ function GeographicalLocationListItemImpl({
     return locationChildren.map((locationChild) => {
       const { key, nextLevel } = getLocationListItemMapProps(locationChild, level);
       return (
-        <GeographicalLocationListItem
+        <GeographicalLocation
           key={key}
           location={locationChild}
           level={nextLevel}
@@ -104,10 +104,10 @@ function GeographicalLocationListItemImpl({
   );
 }
 
-export function GeographicalLocationListItem({ ...props }: GeographicalLocationListItemProps) {
+export function GeographicalLocation({ ...props }: GeographicalLocationProps) {
   return (
-    <GeographicalLocationListItemProvider>
-      <GeographicalLocationListItemImpl {...props} />
-    </GeographicalLocationListItemProvider>
+    <GeographicalLocationProvider>
+      <GeographicalLocationImpl {...props} />
+    </GeographicalLocationProvider>
   );
 }
