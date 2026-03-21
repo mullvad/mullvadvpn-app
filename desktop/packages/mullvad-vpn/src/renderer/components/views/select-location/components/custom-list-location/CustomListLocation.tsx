@@ -7,7 +7,7 @@ import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { getLocationListItemMapProps } from '../../utils';
-import { CustomListLocationListItem } from '../custom-list-location-list-item';
+import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { CustomListTrailingActions } from './components';
@@ -51,7 +51,7 @@ export function CustomListLocationImpl({
 
       return (
         <AnimatedList.Item key={key}>
-          <CustomListLocationListItem
+          <CustomListGeographicalLocation
             position={position}
             location={locationChild}
             level={nextLevel}
