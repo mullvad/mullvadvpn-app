@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { type GeographicalLocation } from '../../../../../features/locations/types';
+import type { GeographicalLocation } from '../../../../../features/locations/types';
 import { spacings } from '../../../../../lib/foundations';
-import { GeographicalLocationListItem } from '../geographical-location-list-item';
+import { GeographicalLocation as GeographicalLocationComponent } from '../geographical-location';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 
 const StyledLocationContainer = styled.div`
@@ -18,7 +18,7 @@ export function CountryLocation({ location }: CountryLocationProps) {
 
   return (
     <StyledLocationContainer>
-      <GeographicalLocationListItem root location={location} level={0} onSelect={handleSelect} />
+      <GeographicalLocationComponent root location={location} level={0} onSelect={handleSelect} />
     </StyledLocationContainer>
   );
 }
