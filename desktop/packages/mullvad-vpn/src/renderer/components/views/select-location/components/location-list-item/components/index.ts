@@ -1,1 +1,1 @@
-export * from './location-list-item-accordion';
+export * from './location-accordion';

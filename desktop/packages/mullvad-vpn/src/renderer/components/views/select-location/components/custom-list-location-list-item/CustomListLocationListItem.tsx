@@ -8,7 +8,7 @@ import { getLocationChildren } from '../../../../../features/locations/utils';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { getLocationListItemMapProps } from '../../utils';
-import { LocationListItem } from '../location-list-item';
+import { Location } from '../location-list-item';
 import {
   CustomListLocationListItemProvider,
   useCustomListLocationListItemContext,
@@ -58,13 +58,13 @@ function CustomListLocationListItemImpl({
   });
 
   return (
-    <LocationListItem selected={location.selected}>
-      <LocationListItem.Accordion
+    <Location selected={location.selected}>
+      <Location.Accordion
         expanded={expanded}
         onExpandedChange={setExpanded}
         disabled={location.disabled || disabled}>
-        <LocationListItem.Accordion.Header level={level} position={position}>
-          <LocationListItem.Accordion.Header.Trigger
+        <Location.Accordion.Header level={level} position={position}>
+          <Location.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -75,44 +75,44 @@ function CustomListLocationListItemImpl({
                 location: location.label,
               },
             )}>
-            <LocationListItem.Accordion.Header.Item>
-              <LocationListItem.Accordion.Header.Item.Title>
+            <Location.Accordion.Header.Item>
+              <Location.Accordion.Header.Item.Title>
                 {location.label}
-              </LocationListItem.Accordion.Header.Item.Title>
-            </LocationListItem.Accordion.Header.Item>
-          </LocationListItem.Accordion.Header.Trigger>
-          <LocationListItem.Accordion.Header.TrailingActions>
+              </Location.Accordion.Header.Item.Title>
+            </Location.Accordion.Header.Item>
+          </Location.Accordion.Header.Trigger>
+          <Location.Accordion.Header.TrailingActions>
             {showRemoveFromCustomListButton && (
-              <LocationListItem.Accordion.Header.TrailingActions.Action>
+              <Location.Accordion.Header.TrailingActions.Action>
                 <RemoveLocationFromCustomListButton
                   location={location}
                   loading={loading}
                   onLoadingChange={setLoading}
                 />
-              </LocationListItem.Accordion.Header.TrailingActions.Action>
+              </Location.Accordion.Header.TrailingActions.Action>
             )}
             {showAccordionTrigger && (
-              <LocationListItem.Accordion.Trigger
+              <Location.Accordion.Trigger
                 aria-label={sprintf(
                   expanded
                     ? messages.pgettext('accessibility', 'Collapse %(location)s')
                     : messages.pgettext('accessibility', 'Expand %(location)s'),
                   { location: location.label },
                 )}>
-                <LocationListItem.Accordion.Header.TrailingActions.Action>
-                  <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
+                <Location.Accordion.Header.TrailingActions.Action>
+                  <Location.Accordion.Header.TrailingActions.Action.Icon
                     icon={expanded ? 'chevron-up' : 'chevron-down'}
                   />
-                </LocationListItem.Accordion.Header.TrailingActions.Action>
-              </LocationListItem.Accordion.Trigger>
+                </Location.Accordion.Header.TrailingActions.Action>
+              </Location.Accordion.Trigger>
             )}
-          </LocationListItem.Accordion.Header.TrailingActions>
-        </LocationListItem.Accordion.Header>
-        <LocationListItem.Accordion.Content>
+          </Location.Accordion.Header.TrailingActions>
+        </Location.Accordion.Header>
+        <Location.Accordion.Content>
           <AnimatedList>{showChildren ? children : null}</AnimatedList>
-        </LocationListItem.Accordion.Content>
-      </LocationListItem.Accordion>
-    </LocationListItem>
+        </Location.Accordion.Content>
+      </Location.Accordion>
+    </Location>
   );
 }
 

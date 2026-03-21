@@ -7,7 +7,7 @@ import { useCustomLists } from '../../../../../../../features/custom-lists/hooks
 import { type GeographicalLocation } from '../../../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../../../features/locations/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
-import { LocationListItem } from '../../../location-list-item';
+import { Location } from '../../../location-list-item';
 import { AddLocationToCustomListButton } from './components';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
@@ -36,32 +36,32 @@ export function GeographicalLocationTrailingActions({
   }
 
   return (
-    <LocationListItem.Accordion.Header.TrailingActions>
+    <Location.Accordion.Header.TrailingActions>
       {showAddToCustomListButton && (
-        <LocationListItem.Accordion.Header.TrailingActions.Action>
+        <Location.Accordion.Header.TrailingActions.Action>
           <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
           <AddLocationToCustomListDialog
             open={addLocationToCustomListDialogOpen}
             onOpenChange={setAddLocationToCustomListDialogOpen}
             location={location}
           />
-        </LocationListItem.Accordion.Header.TrailingActions.Action>
+        </Location.Accordion.Header.TrailingActions.Action>
       )}
       {showAccordionTrigger && (
-        <LocationListItem.Accordion.Header.Trigger
+        <Location.Accordion.Header.Trigger
           aria-label={sprintf(
             expanded
               ? messages.pgettext('accessibility', 'Collapse %(location)s')
               : messages.pgettext('accessibility', 'Expand %(location)s'),
             { location: location.label },
           )}>
-          <LocationListItem.Accordion.Header.TrailingActions.Action>
-            <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
+          <Location.Accordion.Header.TrailingActions.Action>
+            <Location.Accordion.Header.TrailingActions.Action.Icon
               icon={expanded ? 'chevron-up' : 'chevron-down'}
             />
-          </LocationListItem.Accordion.Header.TrailingActions.Action>
-        </LocationListItem.Accordion.Header.Trigger>
+          </Location.Accordion.Header.TrailingActions.Action>
+        </Location.Accordion.Header.Trigger>
       )}
-    </LocationListItem.Accordion.Header.TrailingActions>
+    </Location.Accordion.Header.TrailingActions>
   );
 }

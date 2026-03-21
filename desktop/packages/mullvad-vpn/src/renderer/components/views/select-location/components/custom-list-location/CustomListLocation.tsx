@@ -8,7 +8,7 @@ import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListLocationListItem } from '../custom-list-location-list-item';
-import { LocationListItem } from '../location-list-item';
+import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { CustomListTrailingActions } from './components';
 import { CustomListLocationProvider } from './CustomListLocationContext';
@@ -63,13 +63,10 @@ export function CustomListLocationImpl({
   };
 
   return (
-    <LocationListItem root selected={customList.selected}>
-      <LocationListItem.Accordion
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        disabled={disabled}>
-        <LocationListItem.Accordion.Header level={0}>
-          <LocationListItem.Accordion.Header.Trigger
+    <Location root selected={customList.selected}>
+      <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
+        <Location.Accordion.Header level={0}>
+          <Location.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -80,11 +77,11 @@ export function CustomListLocationImpl({
                 location: customList.label,
               },
             )}>
-            <LocationListItem.Accordion.Header.Item>
+            <Location.Accordion.Header.Item>
               <FlexColumn>
-                <LocationListItem.Accordion.Header.Item.Title>
+                <Location.Accordion.Header.Item.Title>
                   {customList.label}
-                </LocationListItem.Accordion.Header.Item.Title>
+                </Location.Accordion.Header.Item.Title>
                 {showEmptySubtitle && (
                   <FootnoteMiniSemiBold color="whiteAlpha60">
                     {
@@ -94,15 +91,15 @@ export function CustomListLocationImpl({
                   </FootnoteMiniSemiBold>
                 )}
               </FlexColumn>
-            </LocationListItem.Accordion.Header.Item>
-          </LocationListItem.Accordion.Header.Trigger>
+            </Location.Accordion.Header.Item>
+          </Location.Accordion.Header.Trigger>
           <CustomListTrailingActions customList={customList} />
-        </LocationListItem.Accordion.Header>
-        <LocationListItem.Accordion.Content>
+        </Location.Accordion.Header>
+        <Location.Accordion.Content>
           <AnimatedList>{expanded ? renderChildren() : null}</AnimatedList>
-        </LocationListItem.Accordion.Content>
-      </LocationListItem.Accordion>
-    </LocationListItem>
+        </Location.Accordion.Content>
+      </Location.Accordion>
+    </Location>
   );
 }
 export function CustomListLocation({ ...props }: CustomListLocationProps) {

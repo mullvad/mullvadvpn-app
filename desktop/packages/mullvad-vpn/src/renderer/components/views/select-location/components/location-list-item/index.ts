@@ -1,1 +1,1 @@
-export * from './LocationListItem';
+export * from './Location';
