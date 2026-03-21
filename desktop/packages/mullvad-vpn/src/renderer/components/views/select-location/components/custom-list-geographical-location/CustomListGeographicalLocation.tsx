@@ -10,22 +10,22 @@ import { ListItemProps } from '../../../../../lib/components/list-item';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
 import {
-  CustomListLocationListItemProvider,
-  useCustomListLocationListItemContext,
-} from './CustomListLocationListItemContext';
+  CustomListGeographicalLocationProvider,
+  useCustomListGeographicalLocationContext,
+} from './CustomListGeographicalLocationContext';
 import { useHandleSelectLocationInCustomList } from './hooks';
-export type CustomListLocationListItemProps = Pick<ListItemProps, 'level' | 'position'> & {
+export type CustomListGeographicalLocationProps = Pick<ListItemProps, 'level' | 'position'> & {
   disabled?: boolean;
   location: GeographicalLocation;
 };
 
-function CustomListLocationListItemImpl({
+function CustomListGeographicalLocationImpl({
   location,
   level,
   disabled,
   position,
-}: CustomListLocationListItemProps) {
-  const { loading, setLoading } = useCustomListLocationListItemContext();
+}: CustomListGeographicalLocationProps) {
+  const { loading, setLoading } = useCustomListGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
 
   const locationChildren = getLocationChildren(location);
@@ -47,7 +47,7 @@ function CustomListLocationListItemImpl({
   const children = locationChildren.map((locationChild) => {
     const { key, nextLevel } = getLocationListItemMapProps(locationChild, level);
     return (
-      <CustomListLocationListItem
+      <CustomListGeographicalLocation
         key={key}
         location={locationChild}
         level={nextLevel}
@@ -116,10 +116,10 @@ function CustomListLocationListItemImpl({
   );
 }
 
-export function CustomListLocationListItem({ ...props }: CustomListLocationListItemProps) {
+export function CustomListGeographicalLocation({ ...props }: CustomListGeographicalLocationProps) {
   return (
-    <CustomListLocationListItemProvider>
-      <CustomListLocationListItemImpl {...props} />
-    </CustomListLocationListItemProvider>
+    <CustomListGeographicalLocationProvider>
+      <CustomListGeographicalLocationImpl {...props} />
+    </CustomListGeographicalLocationProvider>
   );
 }
