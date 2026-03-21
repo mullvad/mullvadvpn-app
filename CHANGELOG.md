@@ -22,6 +22,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+#### Android
+- Add split tunneling include mode. Users can now choose between exclude mode (selected apps bypass
+  the VPN) and include mode (only selected apps use the VPN tunnel).
+
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
   has available relays, and falls back to Sweden otherwise.

@@ -112,6 +112,9 @@ pub struct InitialTunnelState {
     /// Apps to exclude from the tunnel.
     #[cfg(target_os = "android")]
     pub exclude_paths: Vec<String>,
+    /// Split tunnel mode: whether the listed apps are excluded from or included in the tunnel.
+    #[cfg(target_os = "android")]
+    pub split_tunnel_mode: talpid_types::split_tunnel::SplitTunnelMode,
 }
 
 /// Identifiers for various network resources that should be unique to a given instance of a tunnel
@@ -240,6 +243,9 @@ pub enum TunnelCommand {
         oneshot::Sender<Result<(), split_tunnel::Error>>,
         Vec<String>,
     ),
+    /// Set the split tunnel mode (exclude or include).
+    #[cfg(target_os = "android")]
+    SetSplitTunnelMode(talpid_types::split_tunnel::SplitTunnelMode),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -462,6 +468,8 @@ impl TunnelStateMachine {
             split_tunnel,
             #[cfg(target_os = "android")]
             excluded_packages: args.settings.exclude_paths,
+            #[cfg(target_os = "android")]
+            split_tunnel_mode: args.settings.split_tunnel_mode,
             runtime,
             firewall,
             dns_monitor,
@@ -555,6 +563,8 @@ struct SharedTunnelStateValues {
     split_tunnel: split_tunnel::Handle,
     #[cfg(target_os = "android")]
     excluded_packages: Vec<String>,
+    #[cfg(target_os = "android")]
+    split_tunnel_mode: talpid_types::split_tunnel::SplitTunnelMode,
     runtime: tokio::runtime::Handle,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
@@ -720,6 +730,22 @@ impl SharedTunnelStateValues {
         }
     }
 
+    /// Update the split tunnel mode. Returns true if the mode changed and the tunnel must
+    /// be reconnected.
+    #[cfg(target_os = "android")]
+    pub fn set_split_tunnel_mode(
+        &mut self,
+        mode: talpid_types::split_tunnel::SplitTunnelMode,
+    ) -> bool {
+        if self.split_tunnel_mode != mode {
+            self.split_tunnel_mode = mode;
+            // Only need to reconnect if split tunneling is actually active
+            !self.excluded_packages.is_empty()
+        } else {
+            false
+        }
+    }
+
     /// Update the tunnel provider config. This does not actually create any tunnel.
     #[cfg(target_os = "android")]
     pub fn prepare_tun_config(&self, blocking: bool) {
@@ -734,6 +760,7 @@ impl SharedTunnelStateValues {
         }
         config.allow_lan = self.allow_lan;
         config.excluded_packages = self.excluded_packages.clone();
+        config.split_tunnel_mode = self.split_tunnel_mode;
     }
 
     /// Recreate the tunnel device. Note that this causes the current tunnel fd used by

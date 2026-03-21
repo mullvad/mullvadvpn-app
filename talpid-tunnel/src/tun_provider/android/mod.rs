@@ -280,8 +280,12 @@ pub struct VpnServiceConfig {
     /// Routes to configure for the tunnel.
     pub routes: Vec<InetNetwork>,
 
-    /// App packages that should be excluded from the tunnel.
+    /// App packages that should be excluded from or included in the tunnel (see `split_tunnel_mode`).
     pub excluded_packages: Vec<String>,
+
+    /// Split tunnel mode: 0 = exclude, 1 = include.
+    #[jnix(map = "|mode| mode as i32")]
+    pub split_tunnel_mode: u8,
 
     /// Maximum Transmission Unit in the tunnel.
     #[jnix(map = "|mtu| mtu as i32")]
@@ -298,6 +302,10 @@ impl VpnServiceConfig {
             dns_servers,
             routes,
             excluded_packages: tun_config.excluded_packages,
+            split_tunnel_mode: match tun_config.split_tunnel_mode {
+                talpid_types::split_tunnel::SplitTunnelMode::Exclude => 0,
+                talpid_types::split_tunnel::SplitTunnelMode::Include => 1,
+            },
             mtu: tun_config.mtu,
         }
     }

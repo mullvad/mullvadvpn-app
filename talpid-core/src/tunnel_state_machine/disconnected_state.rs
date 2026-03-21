@@ -249,6 +249,11 @@ impl TunnelState for DisconnectedState {
                 let _ = result_tx.send(Ok(()));
                 SameState(self)
             }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::SetSplitTunnelMode(mode)) => {
+                shared_values.set_split_tunnel_mode(mode);
+                SameState(self)
+            }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
