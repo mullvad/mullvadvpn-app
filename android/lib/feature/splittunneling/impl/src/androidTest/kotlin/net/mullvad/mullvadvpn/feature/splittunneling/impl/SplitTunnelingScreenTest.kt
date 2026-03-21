@@ -36,6 +36,7 @@ class SplitTunnelingScreenTest {
     private fun ComposeContext.initScreen(
         state: Lc<Loading, SplitTunnelingUiState>,
         onEnableSplitTunneling: (Boolean) -> Unit = {},
+        onSetMode: (net.mullvad.mullvadvpn.lib.model.SplitTunnelMode) -> Unit = {},
         onShowSystemAppsClick: (show: Boolean) -> Unit = {},
         onExcludeAppClick: (packageName: String) -> Unit = {},
         onIncludeAppClick: (packageName: String) -> Unit = {},
@@ -46,6 +47,7 @@ class SplitTunnelingScreenTest {
             SplitTunnelingScreen(
                 state = state,
                 onEnableSplitTunneling = onEnableSplitTunneling,
+                onSetMode = onSetMode,
                 onShowSystemAppsClick = onShowSystemAppsClick,
                 onExcludeAppClick = onExcludeAppClick,
                 onIncludeAppClick = onIncludeAppClick,

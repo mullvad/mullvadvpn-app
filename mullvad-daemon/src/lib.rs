@@ -52,6 +52,8 @@ use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
+#[cfg(target_os = "android")]
+use mullvad_types::settings::SplitTunnelMode;
 #[cfg(daita)]
 use mullvad_types::wireguard::DaitaSettings;
 use mullvad_types::{
@@ -399,6 +401,9 @@ pub enum DaemonCommand {
     /// Enable or disable split tunneling
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
+    /// Set split tunneling mode (exclude or include)
+    #[cfg(target_os = "android")]
+    SetSplitTunnelMode(ResponseTx<(), Error>, SplitTunnelMode),
     /// Returns all processes currently being excluded from the tunnel
     #[cfg(target_os = "windows")]
     GetSplitTunnelProcesses(ResponseTx<Vec<ExcludedProcess>, split_tunnel::Error>),
@@ -499,6 +504,8 @@ pub(crate) enum InternalDaemonEvent {
 pub(crate) enum ExcludedPathsUpdate {
     SetState(bool),
     SetPaths(HashSet<SplitApp>),
+    #[cfg(target_os = "android")]
+    SetMode(SplitTunnelMode),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -875,6 +882,8 @@ impl Daemon {
         } else {
             vec![]
         };
+        #[cfg(target_os = "android")]
+        let initial_split_tunnel_mode = settings.split_tunnel.mode;
 
         #[cfg(target_os = "linux")]
         let split_tunneling_pid_manager = split_tunnel::PidManager::default();
@@ -931,6 +940,8 @@ impl Daemon {
                 reset_firewall: *target_state != TargetState::Secured,
                 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
                 exclude_paths,
+                #[cfg(target_os = "android")]
+                split_tunnel_mode: initial_split_tunnel_mode,
             },
             parameters_generator.clone(),
             config.log_dir,
@@ -1588,6 +1599,8 @@ impl Daemon {
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx),
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled),
+            #[cfg(target_os = "android")]
+            SetSplitTunnelMode(tx, mode) => self.on_set_split_tunnel_mode(tx, mode),
             #[cfg(target_os = "windows")]
             GetSplitTunnelProcesses(tx) => self.on_get_split_tunnel_processes(tx),
             #[cfg(target_os = "windows")]
@@ -1861,6 +1874,12 @@ impl Daemon {
             ExcludedPathsUpdate::SetPaths(paths) => self
                 .settings
                 .update(move |settings| settings.split_tunnel.apps = paths)
+                .await
+                .map_err(Error::SettingsError),
+            #[cfg(target_os = "android")]
+            ExcludedPathsUpdate::SetMode(mode) => self
+                .settings
+                .update(move |settings| settings.split_tunnel.mode = mode)
                 .await
                 .map_err(Error::SettingsError),
         };
@@ -2291,6 +2310,21 @@ impl Daemon {
         settings: Settings,
         update: ExcludedPathsUpdate,
     ) {
+        // For mode changes (Android only): notify the tunnel and save settings
+        #[cfg(target_os = "android")]
+        if let ExcludedPathsUpdate::SetMode(mode) = update {
+            if mode == settings.split_tunnel.mode {
+                Self::oneshot_send(tx, Ok(()), response_msg);
+                return;
+            }
+            // Notify tunnel of mode change; it handles reconnect if needed
+            self.send_tunnel_command(TunnelCommand::SetSplitTunnelMode(mode));
+            let _ = self
+                .tx
+                .send(InternalDaemonEvent::ExcludedPathsEvent(ExcludedPathsUpdate::SetMode(mode), tx));
+            return;
+        }
+
         let new_list = match update {
             ExcludedPathsUpdate::SetPaths(ref paths) => {
                 if *paths == settings.split_tunnel.apps {
@@ -2300,6 +2334,8 @@ impl Daemon {
                 paths.iter()
             }
             ExcludedPathsUpdate::SetState(_) => settings.split_tunnel.apps.iter(),
+            #[cfg(target_os = "android")]
+            ExcludedPathsUpdate::SetMode(_) => unreachable!("handled above"),
         };
         let new_state = match update {
             ExcludedPathsUpdate::SetPaths(_) => settings.split_tunnel.enable_exclusions,
@@ -2310,6 +2346,8 @@ impl Daemon {
                 }
                 state
             }
+            #[cfg(target_os = "android")]
+            ExcludedPathsUpdate::SetMode(_) => unreachable!("handled above"),
         };
 
         // Update the tunnel state
@@ -2459,6 +2497,17 @@ impl Daemon {
             "set_split_tunnel_state response",
             settings,
             ExcludedPathsUpdate::SetState(state),
+        );
+    }
+
+    #[cfg(target_os = "android")]
+    fn on_set_split_tunnel_mode(&mut self, tx: ResponseTx<(), Error>, mode: SplitTunnelMode) {
+        let settings = self.settings.to_settings();
+        self.set_split_tunnel_paths(
+            tx,
+            "set_split_tunnel_mode response",
+            settings,
+            ExcludedPathsUpdate::SetMode(mode),
         );
     }
 

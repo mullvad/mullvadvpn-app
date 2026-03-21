@@ -3,7 +3,7 @@ pub mod android;
 pub mod net;
 pub mod tunnel;
 
-#[cfg(target_os = "windows")]
+#[cfg(any(target_os = "windows", target_os = "android"))]
 pub mod split_tunnel;
 
 pub mod drop_guard;

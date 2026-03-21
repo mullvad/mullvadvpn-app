@@ -8,6 +8,8 @@ data class TunConfig(
     val dnsServers: ArrayList<InetAddress>,
     val routes: ArrayList<InetNetwork>,
     val excludedPackages: ArrayList<String>,
+    /** 0 = exclude, 1 = include */
+    val splitTunnelMode: Int,
     val mtu: Int,
 ) {
     val hasIpv6Address: Boolean

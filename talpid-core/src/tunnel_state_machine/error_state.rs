@@ -243,6 +243,13 @@ impl TunnelState for ErrorState {
                 }
                 SameState(self)
             }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::SetSplitTunnelMode(mode)) => {
+                if shared_values.set_split_tunnel_mode(mode) {
+                    let _ = shared_values.restart_tunnel(true);
+                }
+                SameState(self)
+            }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 shared_values.exclude_paths(paths, result_tx);

@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.model.SplitTunnelMode
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -76,6 +77,7 @@ private fun PreviewSplitTunnelingScreen(
         SplitTunnelingScreen(
             state = state,
             onEnableSplitTunneling = {},
+            onSetMode = {},
             onShowSystemAppsClick = {},
             onExcludeAppClick = {},
             onIncludeAppClick = {},
@@ -110,6 +112,7 @@ fun SharedTransitionScope.SplitTunneling(
                 animatedVisibilityScope = animatedVisibilityScope,
             ),
         onEnableSplitTunneling = viewModel::onEnableSplitTunneling,
+        onSetMode = viewModel::onSetMode,
         onShowSystemAppsClick = viewModel::onShowSystemAppsClick,
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
@@ -122,6 +125,7 @@ fun SharedTransitionScope.SplitTunneling(
 fun SplitTunnelingScreen(
     state: Lc<Loading, SplitTunnelingUiState>,
     onEnableSplitTunneling: (Boolean) -> Unit,
+    onSetMode: (SplitTunnelMode) -> Unit,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
@@ -164,6 +168,7 @@ fun SplitTunnelingScreen(
                     appList(
                         state = state.value,
                         focusManager = focusManager,
+                        onSetMode = onSetMode,
                         onShowSystemAppsClick = onShowSystemAppsClick,
                         onExcludeAppClick = onExcludeAppClick,
                         onIncludeAppClick = onIncludeAppClick,
@@ -210,15 +215,23 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.appList(
     state: SplitTunnelingUiState,
     focusManager: FocusManager,
+    onSetMode: (SplitTunnelMode) -> Unit,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
     onResolveIcon: (String) -> Drawable?,
 ) {
+    modeToggle(
+        mode = state.mode,
+        onSetMode = onSetMode,
+        enabled = state.enabled,
+    )
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
-            textId = R.string.exclude_applications,
+            textId =
+                if (state.mode == SplitTunnelMode.INCLUDE) R.string.include_applications
+                else R.string.exclude_applications,
             enabled = state.enabled,
         )
         appItems(
@@ -249,6 +262,36 @@ private fun LazyListScope.appList(
         enabled = state.enabled,
         excluded = false,
     )
+}
+
+private fun LazyListScope.modeToggle(
+    mode: SplitTunnelMode,
+    onSetMode: (SplitTunnelMode) -> Unit,
+    enabled: Boolean,
+) {
+    itemWithDivider(
+        key = SplitTunnelingContentKey.MODE_TOGGLE,
+        contentType = ContentType.OTHER_ITEM,
+    ) {
+        SwitchListItem(
+            title = stringResource(id = R.string.split_tunneling_mode_include),
+            isToggled = mode == SplitTunnelMode.INCLUDE,
+            onCellClicked = { isInclude ->
+                onSetMode(
+                    if (isInclude) SplitTunnelMode.INCLUDE else SplitTunnelMode.EXCLUDE
+                )
+            },
+            isEnabled = enabled,
+            modifier = Modifier.animateItem(),
+            backgroundAlpha =
+                if (enabled) {
+                    AlphaVisible
+                } else {
+                    AlphaDisabled
+                },
+            position = Position.Single,
+        )
+    }
 }
 
 private fun LazyListScope.appItems(
@@ -417,4 +460,5 @@ internal object SplitTunnelingContentKey {
     const val EXCLUDED_APPLICATIONS = "excluded"
     const val SHOW_SYSTEM_APPLICATIONS = "show_system"
     const val INCLUDED_APPLICATIONS = "included"
+    const val MODE_TOGGLE = "mode_toggle"
 }

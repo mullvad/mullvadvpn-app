@@ -19,9 +19,22 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 })
                 .collect();
 
+            #[cfg(target_os = "android")]
+            let mode = match settings.split_tunnel.mode {
+                mullvad_types::settings::SplitTunnelMode::Exclude => {
+                    proto::SplitTunnelMode::Exclude as i32
+                }
+                mullvad_types::settings::SplitTunnelMode::Include => {
+                    proto::SplitTunnelMode::Include as i32
+                }
+            };
+            #[cfg(not(target_os = "android"))]
+            let mode = proto::SplitTunnelMode::Exclude as i32;
+
             Some(proto::SplitTunnelSettings {
                 enable_exclusions: settings.split_tunnel.enable_exclusions,
                 apps,
+                mode,
             })
         };
         #[cfg(target_os = "linux")]
@@ -193,9 +206,16 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
 impl From<proto::SplitTunnelSettings> for mullvad_types::settings::SplitTunnelSettings {
     fn from(value: proto::SplitTunnelSettings) -> Self {
         use mullvad_types::settings::{SplitApp, SplitTunnelSettings};
+        #[cfg(target_os = "android")]
+        let mode = match proto::SplitTunnelMode::try_from(value.mode) {
+            Ok(proto::SplitTunnelMode::Include) => mullvad_types::settings::SplitTunnelMode::Include,
+            _ => mullvad_types::settings::SplitTunnelMode::Exclude,
+        };
         SplitTunnelSettings {
             enable_exclusions: value.enable_exclusions,
             apps: value.apps.into_iter().map(SplitApp::from).collect(),
+            #[cfg(target_os = "android")]
+            mode,
         }
     }
 }

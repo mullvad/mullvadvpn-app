@@ -1000,6 +1000,34 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(target_os = "android")]
+    async fn set_split_tunnel_mode(
+        &self,
+        request: Request<i32>,
+    ) -> ServiceResult<()> {
+        use mullvad_types::settings::SplitTunnelMode;
+        log::debug!("set_split_tunnel_mode");
+        let mode_int = request.into_inner();
+        let mode = match types::SplitTunnelMode::try_from(mode_int) {
+            Ok(types::SplitTunnelMode::Exclude) => SplitTunnelMode::Exclude,
+            Ok(types::SplitTunnelMode::Include) => SplitTunnelMode::Include,
+            Err(_) => {
+                return Err(Status::invalid_argument("Invalid split tunnel mode"));
+            }
+        };
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetSplitTunnelMode(tx, mode))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(target_os = "android"))]
+    async fn set_split_tunnel_mode(&self, _: Request<i32>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+
     #[cfg(windows)]
     async fn get_excluded_processes(
         &self,
