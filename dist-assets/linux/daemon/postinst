@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eu
+
+chmod u+s "/usr/bin/mullvad-exclude"
+ln -sf /opt/Mullvad\ VPN/resources/mullvad-problem-report /usr/bin/mullvad-problem-report
+
+systemctl enable "/usr/lib/systemd/system/mullvad-daemon.service"
+systemctl start mullvad-daemon.service || echo "Failed to start mullvad-daemon.service"
+systemctl enable "/usr/lib/systemd/system/mullvad-early-boot-blocking.service"
