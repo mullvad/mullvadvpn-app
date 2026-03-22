@@ -7,6 +7,7 @@ import {
   IDnsOptions,
   IWireguardEndpointData,
   ObfuscationSettings,
+  type Recents,
   RelayOverride,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
@@ -117,6 +118,11 @@ export interface ISetRelayOverrides {
   relayOverrides: Array<RelayOverride>;
 }
 
+export interface ISetRecents {
+  type: 'SET_RECENTS';
+  recents: Recents;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -136,6 +142,7 @@ export type SettingsAction =
   | ISetSplitTunnelingSupportedAction
   | ISetObfuscationSettings
   | ISetCustomLists
+  | ISetRecents
   | ISetApiAccessMethods
   | ISetCurrentApiAccessMethod
   | ISetRelayOverrides;
@@ -297,6 +304,13 @@ function updateRelayOverrides(relayOverrides: Array<RelayOverride>): ISetRelayOv
   };
 }
 
+function updateRecents(recents: Recents): ISetRecents {
+  return {
+    type: 'SET_RECENTS',
+    recents,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -319,4 +333,5 @@ export default {
   updateApiAccessMethods,
   updateCurrentApiAccessMethod,
   updateRelayOverrides,
+  updateRecents,
 };

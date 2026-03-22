@@ -159,6 +159,11 @@ export default class Settings implements Readonly<ISettings> {
   public get customLists() {
     return this.settingsValue.customLists;
   }
+
+  public get recents() {
+    return this.settingsValue.recents;
+  }
+
   public get apiAccessMethods() {
     return this.settingsValue.apiAccessMethods;
   }
