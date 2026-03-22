@@ -15,3 +15,4 @@ export * from './use-filter-country-locations';
 export * from './use-map-redux-countries-to-country-locations';
 export * from './use-map-custom-lists-to-locations';
 export * from './use-search-custom-list-locations';
+export * from './use-recents';
