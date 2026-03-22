@@ -20,7 +20,7 @@ on your platform please submit an issue or a pull request.
     ```
 
 - You need Node.js and npm. You can find the exact versions in the `volta` section of
-  `desktop/package.json`. The toolchain is managed by volta.
+  `desktop/package.json`. The toolchain is managed by volta. This is optional if using `--daemon-only`.
 
   - Linux
 
@@ -37,7 +37,7 @@ on your platform please submit an issue or a pull request.
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
 - Install Go (ideally version `1.21`) by following the [official instructions](https://golang.org/doc/install).
-  Newer versions may work too.
+  Newer versions may work too. This is optional if using `--gotatun`.
 
 - Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
@@ -45,7 +45,7 @@ on your platform please submit an issue or a pull request.
   and they have to be put in `%PATH`. An additional package might also be required depending on
   Linux distro:
   - `protobuf-devel` on Fedora.
-  - `libprotobuf-dev` on Debian/Ubuntu.
+  - `libprotobuf-dev` and `protobuf-compiler` on Debian/Ubuntu.
 
 - **`bash` must be installed and available in PATH on all platforms**. This is required for building
   the desktop app:
@@ -75,7 +75,7 @@ sudo apt install rpm
 
 ```bash
 # For building the daemon
-sudo dnf install dbus-devel
+sudo dnf install gcc dbus-devel
 # For building the installer
 sudo dnf install rpm-build
 ```
@@ -201,6 +201,11 @@ produce a smaller installer and installed binaries:
 This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
 
 Building this requires at least 1GB of memory.
+
+## Notes on options
+
+- `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`. The output files will be located in `./target/debian/*` and `/target/generate-rpm/*`.
+- `--gotatun` - This will build with the `gotatun` Rust library instead the `wireguard-go-rs` Go library.
 
 ## Notes on targeting ARM64
 
