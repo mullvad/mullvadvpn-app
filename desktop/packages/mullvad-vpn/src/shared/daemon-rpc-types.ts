@@ -443,6 +443,11 @@ export interface IDeviceRemoval {
 
 export type CustomLists = Array<ICustomList>;
 
+export type Recents = Array<{
+  entry?: RelayLocation;
+  exit: RelayLocation;
+}>;
+
 export interface ICustomList {
   id: string;
   name: string;
@@ -465,6 +470,7 @@ export interface ISettings {
   splitTunnel: SplitTunnelSettings;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
+  recents: Recents;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
 }
