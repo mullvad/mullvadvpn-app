@@ -33,6 +33,8 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # Use gotatun instead of wireguard-go.
 GOTATUN="false"
+# If only the daemon should be built.
+DAEMON_ONLY="false"
 # Enable GotaTun by default on macOS.
 if [[ "$(uname -s)" == "Darwin" ]]; then
     GOTATUN="true"
@@ -51,6 +53,7 @@ while [[ "$#" -gt 0 ]]; do
             UNIVERSAL="true"
             ;;
         --gotatun) GOTATUN="true";;
+        --daemon-only) DAEMON_ONLY="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -382,23 +385,60 @@ fi
 log_info "Updating relays.json..."
 cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
+function build_daemon_packages {
+    local pkg_success=0
 
-log_header "Installing JavaScript dependencies"
+    if cargo deb --help &> /dev/null ; then
+        log_info "Packaging Debian (*.deb) package..."
+        if cargo deb --deb-version $PRODUCT_VERSION --no-build ; then
+            pkg_success=1
+        fi
+    else
+        log_error "Unable to package Debian package."
+        log_error "Please run \"cargo install cargo-deb\" to complete."
+    fi
 
-pushd desktop
-npm ci --no-audit --no-fund
+    if cargo generate-rpm --help &> /dev/null ; then
+        log_info "Packaging Fedora (*.rpm) package..."
+        if cargo generate-rpm -p mullvad-daemon -s 'version = "'$PRODUCT_VERSION'"' ; then
+            echo "${SCRIPT_DIR}/target/generate-rpm/"
+            pkg_success=1
+        fi
+    else
+        log_error "Unable to package Fedora package."
+        log_error "Please run \"cargo install cargo-generate-rpm\" to complete."
+    fi
 
-pushd packages/mullvad-vpn
+    if [ $pkg_success -eq 0 ]; then
+        return 1
+    fi
 
-log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+    return 0
+}
 
-case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
-    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
-    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
-esac
-popd
-popd
+if [[ "$DAEMON_ONLY" == "false" ]]; then
+
+    log_header "Installing JavaScript dependencies"
+
+    pushd desktop
+    npm ci --no-audit --no-fund
+
+    pushd packages/mullvad-vpn
+
+    log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+
+    case "$(uname -s)" in
+        Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
+        Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
+        MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
+    esac
+    popd
+    popd
+else
+    log_header "Packing Mullvad VPN daemon-only packages $PRODUCT_VERSION"
+
+    build_daemon_packages
+fi
 
 # When signing is enabled, we check that the working directory is clean before building,
 # further up. Now verify that this is still true. The build process should never make the
