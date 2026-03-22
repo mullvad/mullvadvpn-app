@@ -852,6 +852,7 @@ export default class AppRenderer {
     reduxSettings.updateCustomLists(newSettings.customLists);
     reduxSettings.updateApiAccessMethods(newSettings.apiAccessMethods);
     reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
+    reduxSettings.updateRecents(newSettings.recents);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
   }
