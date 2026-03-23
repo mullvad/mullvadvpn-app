@@ -22,6 +22,12 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
             Some(proto::SplitTunnelSettings {
                 enable_exclusions: settings.split_tunnel.enable_exclusions,
                 apps,
+                ip_exclusions: settings
+                    .split_tunnel
+                    .ip_exclusions
+                    .iter()
+                    .map(|net| net.to_string())
+                    .collect(),
             })
         };
         #[cfg(target_os = "linux")]
@@ -196,6 +202,17 @@ impl From<proto::SplitTunnelSettings> for mullvad_types::settings::SplitTunnelSe
         SplitTunnelSettings {
             enable_exclusions: value.enable_exclusions,
             apps: value.apps.into_iter().map(SplitApp::from).collect(),
+            ip_exclusions: value
+                .ip_exclusions
+                .into_iter()
+                .filter_map(|s| match s.parse() {
+                    Ok(net) => Some(net),
+                    Err(e) => {
+                        log::error!("Failed to parse IP network from proto: {s}: {e}");
+                        None
+                    }
+                })
+                .collect(),
         }
     }
 }

@@ -269,5 +269,8 @@ export const ipcSchema = {
     forgetManuallyAddedApplication: invoke<ISplitTunnelingApplication, void>(),
     getSupported: invoke<void, boolean>(),
     isSupported: notifyRenderer<boolean>(),
+    addIpNetwork: invoke<string, void>(),
+    removeIpNetwork: invoke<string, void>(),
+    clearIpNetworks: invoke<void, void>(),
   },
 };

@@ -13,13 +13,23 @@ pub const LOGGING_CONTEXT: &CStr = c"WinFw";
 pub struct WinFwSettings {
     permitDhcp: bool,
     permitLan: bool,
+    /// Number of IP/subnet exclusions.
+    numExcludedSubnets: usize,
+    /// Pointer to array of wide-string subnet representations (CIDR notation).
+    excludedSubnets: *const *const libc::wchar_t,
 }
 
 impl WinFwSettings {
-    pub fn new(permit_lan: bool) -> WinFwSettings {
+    pub fn new(
+        permit_lan: bool,
+        num_excluded_subnets: usize,
+        excluded_subnets_ptr: *const *const libc::wchar_t,
+    ) -> WinFwSettings {
         WinFwSettings {
             permitDhcp: true,
             permitLan: permit_lan,
+            numExcludedSubnets: num_excluded_subnets,
+            excludedSubnets: excluded_subnets_ptr,
         }
     }
 }
