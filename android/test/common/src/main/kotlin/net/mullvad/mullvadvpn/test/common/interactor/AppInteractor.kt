@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
@@ -87,6 +88,7 @@ class AppInteractor(
     suspend fun applySettings(
         pq: QuantumResistantState? = null,
         obfuscationMode: ObfuscationMode? = null,
+        wireguardPort: Constraint<Port>? = null,
         localNetworkSharing: Boolean? = null,
         daita: Boolean? = null,
         multihop: Boolean? = null,
@@ -103,6 +105,7 @@ class AppInteractor(
 
                 pq?.let { service.setWireguardQuantumResistant(it) }
                 obfuscationMode?.let { service.setObfuscation(it) }
+                wireguardPort?.let { service.setWireguardObfuscationPort(wireguardPort) }
                 localNetworkSharing?.let { service.setAllowLan(it) }
                 daita?.let { service.setDaitaEnabled(it) }
                 multihop?.let { service.setMultihop(it) }

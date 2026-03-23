@@ -608,17 +608,18 @@ internal fun ManagementInterface.RelayListCity.toDomain(
         id = cityCode,
         relays =
             relaysList
-                .map { it.toDomain(cityName = name, countryName = countryName) }
+                .map { it.toDomain(cityCode, cityName = name, countryName = countryName) }
                 .sortedWith(RelayNameComparator),
     )
 }
 
 internal fun ManagementInterface.Relay.toDomain(
+    city: GeoLocationId.City,
     cityName: String,
     countryName: String,
 ): RelayItem.Location.Relay =
     RelayItem.Location.Relay(
-        id = GeoLocationId.Hostname.from(hostname),
+        id = GeoLocationId.Hostname(city, hostname),
         cityName = cityName,
         countryName = countryName,
         active = active,
@@ -790,12 +791,12 @@ internal fun ManagementInterface.Recent.toDomain(): Recent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.map { GeoLocationId.Hostname.from(it.hostname) },
+        matches = matchesList.map { it.hostname },
         discards = discardsList.map { it.toDomain() },
     )
 
 internal fun RelaySelector.DiscardedRelay.toDomain() =
-    DiscardedRelay(GeoLocationId.Hostname.from(relay.hostname), why = why.toDomain())
+    DiscardedRelay(relay.hostname, why = why.toDomain())
 
 internal fun RelaySelector.IncompatibleConstraints.toDomain() =
     IncompatibleConstraints(

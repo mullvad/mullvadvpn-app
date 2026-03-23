@@ -53,9 +53,7 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         true
     }
 
-fun RelayItem.CustomList.filter(
-    validHostnames: List<GeoLocationId.Hostname>
-): RelayItem.CustomList {
+fun RelayItem.CustomList.filter(validHostnames: List<String>): RelayItem.CustomList {
     val newLocations =
         locations.mapNotNull {
             when (it) {
@@ -67,9 +65,7 @@ fun RelayItem.CustomList.filter(
     return copy(locations = newLocations)
 }
 
-fun RelayItem.Location.Country.filter(
-    validHostnames: List<GeoLocationId.Hostname>
-): RelayItem.Location.Country? {
+fun RelayItem.Location.Country.filter(validHostnames: List<String>): RelayItem.Location.Country? {
     val cities = cities.mapNotNull { it.filter(validHostnames) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
@@ -78,9 +74,7 @@ fun RelayItem.Location.Country.filter(
     }
 }
 
-private fun RelayItem.Location.City.filter(
-    validHostnames: List<GeoLocationId.Hostname>
-): RelayItem.Location.City? {
+private fun RelayItem.Location.City.filter(validHostnames: List<String>): RelayItem.Location.City? {
     val relays = relays.mapNotNull { it.filter(validHostnames) }
     return if (relays.isNotEmpty()) {
         this.copy(relays = relays)
@@ -90,8 +84,8 @@ private fun RelayItem.Location.City.filter(
 }
 
 private fun RelayItem.Location.Relay.filter(
-    validHostnames: List<GeoLocationId.Hostname>
-): RelayItem.Location.Relay? = if (validHostnames.contains(id)) this else null
+    validHostnames: List<String>
+): RelayItem.Location.Relay? = if (validHostnames.contains(id.code)) this else null
 
 fun List<RelayItem.Location.Country>.findByGeoLocationId(
     geoLocationId: GeoLocationId

@@ -4,18 +4,17 @@ import androidx.test.platform.app.InstrumentationRegistry
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
+import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
-import net.mullvad.mullvadvpn.test.common.page.AntiCensorshipSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
-import net.mullvad.mullvadvpn.test.common.page.SelectPortPage
-import net.mullvad.mullvadvpn.test.common.page.SettingsPage
-import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.enableDAITAStory
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
@@ -48,25 +47,15 @@ class LeakTest : EndToEndTest() {
     fun setupVPNSettings() {
         app.launchAndLogIn(accountTestRule.validAccountNumber)
 
-        on<ConnectPage> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> {
-            clickLocalNetworkSharingSwitch()
-            scrollUntilAntiCensorshipCell()
-            clickAntiCensorshipCell()
+        runBlocking {
+            app.applySettings(
+                localNetworkSharing = true,
+                obfuscationMode = ObfuscationMode.WireguardPort,
+                wireguardPort = Constraint.Only(Port(51820)),
+            )
         }
 
-        on<AntiCensorshipSettingsPage> { clickWireguardSelectPortButton() }
-
-        on<SelectPortPage> { clickPresetPort(51820) }
-
-        device.pressBack()
-
-        on<AntiCensorshipSettingsPage> { clickWireguardPortCell() }
-
-        repeat(3) { device.pressBack() }
+        on<ConnectPage>()
     }
 
     @Test
