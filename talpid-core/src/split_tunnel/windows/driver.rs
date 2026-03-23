@@ -410,6 +410,7 @@ fn log_if_slow<T>(label: &str, threshold: Duration, f: impl FnOnce() -> T) -> T 
 /// Some software (possibly filesystem drivers) seems to block file open.
 pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsString>> {
     const TIMEOUT: Duration = Duration::from_secs(60);
+    const LOG_THRESHOLD: Duration = Duration::from_millis(300);
 
     let apps: Vec<OsString> = apps.iter().map(|a| a.as_ref().to_os_string()).collect();
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
@@ -420,7 +421,7 @@ pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsStr
             for app in &apps {
                 let result = log_if_slow(
                     &format!("Resolving path {}", Path::new(app).display()),
-                    Duration::from_millis(300),
+                    LOG_THRESHOLD,
                     || get_device_path(Path::new(app)),
                 );
                 match result {
