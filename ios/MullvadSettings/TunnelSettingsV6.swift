@@ -32,7 +32,7 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
+        tunnelQuantumResistance: TunnelQuantumResistance = .on,
         tunnelMultihopState: MultihopStateV1 = .off,
         daita: DAITASettings = DAITASettings()
     ) {

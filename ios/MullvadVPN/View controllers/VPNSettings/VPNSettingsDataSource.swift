@@ -76,7 +76,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationQuic
         case wireGuardObfuscationLwo
         case wireGuardObfuscationOff
-        case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
 
@@ -99,7 +98,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
 
         static var quantumResistance: [Item] {
-            [.quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff]
+            [.quantumResistanceOn, .quantumResistanceOff]
         }
 
         var accessibilityIdentifier: AccessibilityIdentifier {
@@ -124,8 +123,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscationLwo
             case .wireGuardObfuscationOff:
                 .wireGuardObfuscationOff
-            case .quantumResistanceAutomatic:
-                .quantumResistanceAutomatic
             case .quantumResistanceOn:
                 .quantumResistanceOn
             case .quantumResistanceOff:
@@ -147,7 +144,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscation
             case .wireGuardObfuscationUdpOverTcp, .wireGuardObfuscationShadowsocks, .wireGuardObfuscationLwo:
                 .wireGuardObfuscationOption
-            case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
+            case .quantumResistanceOn, .quantumResistanceOff:
                 .quantumResistance
             }
         }
@@ -192,7 +189,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         let quantumResistanceItem: Item =
             switch viewModel.quantumResistance {
-            case .automatic: .quantumResistanceAutomatic
             case .off: .quantumResistanceOff
             case .on: .quantumResistanceOn
             }
@@ -331,9 +327,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        case .quantumResistanceAutomatic:
-            selectQuantumResistance(.automatic)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
         case .quantumResistanceOn:
             selectQuantumResistance(.on)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
