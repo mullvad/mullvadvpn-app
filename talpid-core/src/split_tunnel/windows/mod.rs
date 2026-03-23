@@ -654,6 +654,8 @@ impl InitializedSplitTunnelState {
                         paths,
                         device_paths,
                     } => {
+                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
+
                         let result = handle
                             .set_config_resolved(&device_paths)
                             .map_err(Error::SetConfiguration);
@@ -665,7 +667,7 @@ impl InitializedSplitTunnelState {
                                     error.display_chain_with_msg("Failed to update path monitor")
                                 );
                             }
-                            *monitored_paths.lock().unwrap() = paths;
+                            *monitored_paths_guard = paths;
                         }
 
                         result
