@@ -367,6 +367,14 @@ impl ConnectedState {
                     SameState(self)
                 }
             }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::SetSplitTunnelMode(mode)) => {
+                if shared_values.set_split_tunnel_mode(mode) {
+                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                } else {
+                    SameState(self)
+                }
+            }
             #[cfg(target_os = "macos")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 match shared_values.set_exclude_paths(paths) {

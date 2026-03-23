@@ -13,6 +13,8 @@ use serde::{Deserialize, Deserializer, Serialize, Serializer};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
 use talpid_types::net::GenericTunnelOptions;
+#[cfg(target_os = "android")]
+pub use talpid_types::split_tunnel::SplitTunnelMode;
 
 mod dns;
 
@@ -186,8 +188,14 @@ impl TryFrom<&RelaySettings> for Recent {
 pub struct SplitTunnelSettings {
     /// Toggles split tunneling on or off
     pub enable_exclusions: bool,
-    /// Set of applications to exclude from the tunnel.
+    /// Set of applications in the split-tunnel list.
+    /// In [`SplitTunnelMode::Exclude`] these apps bypass the tunnel.
+    /// In [`SplitTunnelMode::Include`] only these apps use the tunnel.
     pub apps: HashSet<SplitApp>,
+    /// Whether apps in the list are excluded from or included in the tunnel.
+    #[cfg(target_os = "android")]
+    #[serde(default)]
+    pub mode: SplitTunnelMode,
 }
 
 /// An application whose traffic should be excluded from any active tunnel.

@@ -71,8 +71,11 @@ pub struct TunConfig {
     /// Unless specified, the gateways will be used for DNS
     pub dns_servers: Option<Vec<IpAddr>>,
 
-    /// Applications to exclude from the tunnel.
+    /// Applications to exclude from or include in the tunnel (depending on `split_tunnel_mode`).
     pub excluded_packages: Vec<String>,
+    /// Whether `excluded_packages` contains apps to exclude or apps to include.
+    #[cfg(target_os = "android")]
+    pub split_tunnel_mode: talpid_types::split_tunnel::SplitTunnelMode,
 
     /// Path to resource directory
     #[cfg(target_os = "windows")]
@@ -142,6 +145,8 @@ pub fn blocking_config(
         #[cfg(not(target_os = "android"))]
         dns_servers: None,
         excluded_packages: vec![],
+        #[cfg(target_os = "android")]
+        split_tunnel_mode: talpid_types::split_tunnel::SplitTunnelMode::Exclude,
         #[cfg(target_os = "windows")]
         resource_dir,
     }

@@ -110,7 +110,16 @@ open class TalpidVpnService : LifecycleVpnService() {
         setBlocking(false)
         setMeteredIfSupported(false)
 
-        config.excludedPackages.forEach { app -> addDisallowedApplication(app) }
+        if (config.splitTunnelMode == 1) {
+            // Include mode: only listed apps use the VPN tunnel.
+            // The VPN app itself must also be allowed so that protect() keeps working
+            // for the WireGuard socket, enabling the daemon to reach relay servers.
+            config.excludedPackages.forEach { app -> addAllowedApplication(app) }
+            addAllowedApplication(packageName)
+        } else {
+            // Exclude mode: listed apps bypass the VPN tunnel (default)
+            config.excludedPackages.forEach { app -> addDisallowedApplication(app) }
+        }
 
         accumulate {
             accumulating { addAddressesAndRoutesSafe(config).bind() }

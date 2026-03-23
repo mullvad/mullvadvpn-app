@@ -9,6 +9,7 @@ import arrow.optics.dsl.index
 import arrow.optics.typeclasses.Index
 import co.touchlab.kermit.Logger
 import com.google.protobuf.BoolValue
+import com.google.protobuf.Int32Value
 import com.google.protobuf.Empty
 import com.google.protobuf.StringValue
 import com.google.protobuf.UInt32Value
@@ -828,6 +829,22 @@ class ManagementService(
             .onLeft { Logger.e("Set split tunneling state error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)
             .mapEmpty()
+
+    suspend fun setSplitTunnelingMode(
+        mode: net.mullvad.mullvadvpn.lib.model.SplitTunnelMode
+    ): Either<RemoveSplitTunnelingAppError, Unit> {
+        val modeInt =
+            when (mode) {
+                net.mullvad.mullvadvpn.lib.model.SplitTunnelMode.INCLUDE ->
+                    ManagementInterface.SplitTunnelMode.SPLIT_TUNNEL_MODE_INCLUDE_VALUE
+                net.mullvad.mullvadvpn.lib.model.SplitTunnelMode.EXCLUDE ->
+                    ManagementInterface.SplitTunnelMode.SPLIT_TUNNEL_MODE_EXCLUDE_VALUE
+            }
+        return Either.catch { grpc.setSplitTunnelMode(Int32Value.of(modeInt)) }
+            .onLeft { Logger.e("Set split tunneling mode error") }
+            .mapLeft(RemoveSplitTunnelingAppError::Unknown)
+            .mapEmpty()
+    }
 
     suspend fun getWebsiteAuthToken(): Either<Throwable, WebsiteAuthToken> =
         Either.catch { grpc.getWwwAuthToken(Empty.getDefaultInstance()) }

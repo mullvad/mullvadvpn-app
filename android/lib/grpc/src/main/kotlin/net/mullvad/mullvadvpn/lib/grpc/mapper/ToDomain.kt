@@ -75,6 +75,7 @@ import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.SplitTunnelMode
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
@@ -670,6 +671,12 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
     SplitTunnelSettings(
         enabled = enableExclusions,
         excludedApps = appsList.map { AppId(it) }.toSet(),
+        mode =
+            when (mode) {
+                ManagementInterface.SplitTunnelMode.SPLIT_TUNNEL_MODE_INCLUDE ->
+                    SplitTunnelMode.INCLUDE
+                else -> SplitTunnelMode.EXCLUDE
+            },
     )
 
 internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =

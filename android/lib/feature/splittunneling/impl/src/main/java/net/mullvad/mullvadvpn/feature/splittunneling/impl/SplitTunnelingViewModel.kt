@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.SplitTunnelMode
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
 class SplitTunnelingViewModel(
@@ -35,14 +36,18 @@ class SplitTunnelingViewModel(
         combine(
                 splitTunnelingRepository.excludedApps,
                 splitTunnelingRepository.splitTunnelingEnabled,
+                splitTunnelingRepository.splitTunnelingMode,
                 allApps,
                 showSystemApps,
-            ) { excludedApps, enabled, allApps, showSystemApps ->
+            ) { excludedApps, enabled, mode, allApps, showSystemApps ->
                 if (allApps == null) {
                     return@combine Lc.Loading(Loading(enabled = enabled, isModal = navArgs.isModal))
                 }
 
-                val (excludedApps, includedApps) =
+                // In EXCLUDE mode: apps in the list are shown in the top "selected" section.
+                // In INCLUDE mode: apps in the list are shown in the top "selected" section.
+                // Either way, "selected" apps are those in the repository list.
+                val (selectedApps, unselectedApps) =
                     allApps.partition { appData ->
                         if (enabled) {
                             excludedApps.contains(AppId(appData.packageName))
@@ -53,10 +58,11 @@ class SplitTunnelingViewModel(
 
                 SplitTunnelingUiState(
                         enabled = enabled,
-                        excludedApps = excludedApps,
+                        mode = mode,
+                        excludedApps = selectedApps,
                         includedApps =
-                            if (showSystemApps) includedApps
-                            else includedApps.filter { appData -> !appData.isSystemApp },
+                            if (showSystemApps) unselectedApps
+                            else unselectedApps.filter { appData -> !appData.isSystemApp },
                         showSystemApps = showSystemApps,
                         isModal = navArgs.isModal,
                     )
@@ -92,6 +98,10 @@ class SplitTunnelingViewModel(
 
     fun onShowSystemAppsClick(show: Boolean) {
         viewModelScope.launch(dispatcher) { showSystemApps.emit(show) }
+    }
+
+    fun onSetMode(mode: SplitTunnelMode) {
+        viewModelScope.launch(dispatcher) { splitTunnelingRepository.setMode(mode) }
     }
 
     private suspend fun fetchApps() {

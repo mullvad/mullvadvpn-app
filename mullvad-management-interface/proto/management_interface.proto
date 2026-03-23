@@ -112,6 +112,9 @@ service ManagementService {
   rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
+  // Split tunneling (Android)
+  rpc SetSplitTunnelMode(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
+
   // Split tunneling (Windows, macOS)
   rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
@@ -546,9 +549,15 @@ message Recent {
   }
 }
 
+enum SplitTunnelMode {
+  SPLIT_TUNNEL_MODE_EXCLUDE = 0;
+  SPLIT_TUNNEL_MODE_INCLUDE = 1;
+}
+
 message SplitTunnelSettings {
   bool enable_exclusions = 1;
   repeated string apps = 2;
+  SplitTunnelMode mode = 3;
 }
 
 message RelaySettings {

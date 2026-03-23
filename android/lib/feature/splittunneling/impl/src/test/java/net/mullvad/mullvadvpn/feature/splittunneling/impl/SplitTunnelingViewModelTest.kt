@@ -41,11 +41,14 @@ class SplitTunnelingViewModelTest {
 
     private val excludedApps: MutableStateFlow<Set<AppId>> = MutableStateFlow(emptySet())
     private val enabled: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val mode: MutableStateFlow<net.mullvad.mullvadvpn.lib.model.SplitTunnelMode> =
+        MutableStateFlow(net.mullvad.mullvadvpn.lib.model.SplitTunnelMode.EXCLUDE)
 
     @BeforeEach
     fun setup() {
         every { mockedSplitTunnelingRepository.splitTunnelingEnabled } returns enabled
         every { mockedSplitTunnelingRepository.excludedApps } returns excludedApps
+        every { mockedSplitTunnelingRepository.splitTunnelingMode } returns mode
     }
 
     @AfterEach
