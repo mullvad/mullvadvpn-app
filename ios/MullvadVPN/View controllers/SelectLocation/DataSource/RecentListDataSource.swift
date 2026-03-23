@@ -31,7 +31,7 @@ class RecentListDataSource: LocationDataSourceProtocol {
                         ?? allLocationNode
                 else { return nil }
 
-                // Preserve automatic location as a AutomaticLocationNode and return early
+                // Preserve automatic location as an AutomaticLocationNode and return early
                 guard !(node is AutomaticLocationNode) else {
                     return node.copy()
                 }
