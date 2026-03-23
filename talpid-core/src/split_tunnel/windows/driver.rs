@@ -395,10 +395,22 @@ impl DeviceHandle {
     }
 }
 
+/// Call `f` and log a warning if it takes longer than `threshold`.
+fn log_at_timeout<T>(label: &str, threshold: Duration, f: impl FnOnce() -> T) -> T {
+    let t = std::time::Instant::now();
+    let result = f();
+    let elapsed = t.elapsed();
+    if elapsed > threshold {
+        log::warn!("{label} took {elapsed:?}");
+    }
+    result
+}
+
 /// Resolve a list of app paths to device paths, filtering out paths on unmounted volumes.
 /// Some software (possibly filesystem drivers) seems to block file open.
 pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsString>> {
     const TIMEOUT: Duration = Duration::from_secs(60);
+    const LOG_THRESHOLD: Duration = Duration::from_millis(300);
 
     let apps: Vec<OsString> = apps.iter().map(|a| a.as_ref().to_os_string()).collect();
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
@@ -407,7 +419,12 @@ pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsStr
         let mut device_paths = Vec::with_capacity(apps.len());
         let result = (|| {
             for app in &apps {
-                match get_device_path(Path::new(app)) {
+                let result = log_at_timeout(
+                    &format!("Resolving path {}", Path::new(app).display()),
+                    LOG_THRESHOLD,
+                    || get_device_path(Path::new(app)),
+                );
+                match result {
                     Err(error) if error.kind() == io::ErrorKind::NotFound => {
                         log::debug!(
                             "{}\nPath: {}",
