@@ -398,21 +398,34 @@ impl DeviceHandle {
 /// Resolve a list of app paths to device paths, filtering out paths on unmounted volumes.
 /// Some software (possibly filesystem drivers) seems to block file open.
 pub(crate) fn resolve_paths<T: AsRef<OsStr>>(apps: &[T]) -> io::Result<Vec<OsString>> {
-    let mut device_paths = Vec::with_capacity(apps.len());
-    for app in apps {
-        match get_device_path(app.as_ref()) {
-            Err(error) if error.kind() == io::ErrorKind::NotFound => {
-                log::debug!(
-                    "{}\nPath: {}",
-                    error.display_chain_with_msg("Ignoring path on unmounted volume"),
-                    Path::new(app.as_ref()).display()
-                );
+    const TIMEOUT: Duration = Duration::from_secs(60);
+
+    let apps: Vec<OsString> = apps.iter().map(|a| a.as_ref().to_os_string()).collect();
+    let (tx, rx) = std::sync::mpsc::sync_channel(1);
+
+    std::thread::spawn(move || {
+        let mut device_paths = Vec::with_capacity(apps.len());
+        let result = (|| {
+            for app in &apps {
+                match get_device_path(Path::new(app)) {
+                    Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                        log::debug!(
+                            "{}\nPath: {}",
+                            error.display_chain_with_msg("Ignoring path on unmounted volume"),
+                            Path::new(app).display()
+                        );
+                    }
+                    Err(error) => return Err(error),
+                    Ok(path) => device_paths.push(path),
+                }
             }
-            Err(error) => return Err(error),
-            Ok(path) => device_paths.push(path),
-        }
-    }
-    Ok(device_paths)
+            Ok(device_paths)
+        })();
+        let _ = tx.send(result);
+    });
+
+    rx.recv_timeout(TIMEOUT)
+        .map_err(|_| io::Error::new(io::ErrorKind::TimedOut, "resolve_paths timed out"))?
 }
 
 impl AsRawHandle for DeviceHandle {
