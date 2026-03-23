@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -91,9 +90,9 @@ class FilteredRelayListUseCase(
                 !port
         }
 
-    private fun List<RelayItem.Location.Country>.filter(
-        validHostnames: List<GeoLocationId.Hostname>
-    ) = mapNotNull { it.filter(validHostnames) }
+    private fun List<RelayItem.Location.Country>.filter(validHostnames: List<String>) = mapNotNull {
+        it.filter(validHostnames)
+    }
 }
 
 private fun Settings.toEntryConstraint(
