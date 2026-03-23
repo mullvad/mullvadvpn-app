@@ -12,17 +12,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
-import kotlin.text.format
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.core.OnNavResultValue
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
-import net.mullvad.mullvadvpn.feature.anticensorship.impl.customport.CustomPortDialogNavArgs
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavResult
+import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -41,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview("Loading|Automatic|80")
 @Composable
@@ -58,19 +55,13 @@ private fun PreviewSelectPortScreen(
     }
 }
 
-@Destination<ExternalModuleGraph>(
-    style = SlideInFromRightTransition::class,
-    navArgs = SelectPortNavArgs::class,
-)
 @Composable
-fun SelectPort(
-    navigator: DestinationsNavigator,
-    customPortResult: ResultRecipient<CustomPortDestination, Port?>,
-) {
-    val viewModel = koinViewModel<SelectPortViewModel>()
+fun SelectPort(navArgs: SelectPortNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<SelectPortViewModel> { parametersOf(navArgs) }
     val stateLc by viewModel.uiState.collectAsStateWithLifecycle()
 
-    customPortResult.OnNavResultValue { port ->
+    LocalResultStore.current.consumeResult<CustomPortNavResult>()?.let { result ->
+        val port = result.port
         if (port != null) {
             viewModel.onPortSelected(Constraint.Only(port))
         } else {
@@ -86,17 +77,15 @@ fun SelectPort(
                 val state = stateLc.contentOrNull() ?: return@dropUnlessResumed
 
                 navigator.navigate(
-                    CustomPortDestination(
-                        CustomPortDialogNavArgs(
-                            portType = state.portType,
-                            allowedPortRanges = state.allowedPortRanges,
-                            recommendedPortRanges = state.recommendedPortRanges,
-                            customPort = customPort,
-                        )
+                    CustomPortNavKey(
+                        portType = state.portType,
+                        allowedPortRanges = state.allowedPortRanges,
+                        recommendedPortRanges = state.recommendedPortRanges,
+                        customPort = customPort,
                     )
                 )
             },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 

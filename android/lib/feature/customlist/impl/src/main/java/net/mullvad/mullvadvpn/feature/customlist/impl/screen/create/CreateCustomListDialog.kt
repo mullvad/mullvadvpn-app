@@ -11,22 +11,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
 import net.mullvad.mullvadvpn.feature.customlist.impl.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CreateWithLocationsError
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -57,43 +54,34 @@ private fun PreviewCreateCustomListDialogError() {
     }
 }
 
-data class CreateCustomListNavArgs(val locationCode: GeoLocationId?)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = CreateCustomListNavArgs::class,
-)
-fun CreateCustomList(
-    navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.CreatedWithLocations>,
-) {
-    val vm: CreateCustomListDialogViewModel = koinViewModel()
+fun CreateCustomList(locationCode: GeoLocationId?, navigator: Navigator) {
+    val vm: CreateCustomListDialogViewModel = koinViewModel() { parametersOf(locationCode) }
+
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
             when (sideEffect) {
                 is CreateCustomListDialogSideEffect.NavigateToCustomListLocationsScreen -> {
-                    navigator.navigate(
-                        CustomListLocationsDestination(
+                    navigator.navigateReplaceTop(
+                        EditCustomListLocationsNavKey(
                             customListId = sideEffect.customListId,
                             newList = true,
                         )
-                    ) {
-                        launchSingleTop = true
-                    }
+                    )
                 }
                 is CreateCustomListDialogSideEffect.ReturnWithResult -> {
-                    backNavigator.navigateBack(result = sideEffect.result)
+                    navigator.goBack(result = CreateCustomListNavResult(sideEffect.result))
                 }
             }
         }
     }
+
     val state by vm.uiState.collectAsStateWithLifecycle()
     CreateCustomListDialog(
         state = state,
         createCustomList = vm::createCustomList,
         onInputChanged = vm::clearError,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }
 

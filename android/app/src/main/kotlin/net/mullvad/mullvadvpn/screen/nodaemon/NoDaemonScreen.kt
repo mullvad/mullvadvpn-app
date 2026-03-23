@@ -23,12 +23,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.app.MainGraph
-import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -40,12 +37,9 @@ private fun PreviewNoDaemonScreen() {
 }
 
 // Set this as the start destination of the default nav graph
-@Destination<MainGraph>(style = DefaultTransition::class)
 @Composable
-fun NoDaemon(navigator: DestinationsNavigator) {
-    NoDaemonScreen(
-        onNavigateToSettings = dropUnlessResumed { navigator.navigate(SettingsDestination) }
-    )
+fun NoDaemon(navigator: Navigator) {
+    NoDaemonScreen(onNavigateToSettings = dropUnlessResumed { navigator.navigate(SettingsNavKey) })
 }
 
 @Composable

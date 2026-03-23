@@ -2,15 +2,14 @@ package net.mullvad.mullvadvpn.feature.customlist.impl
 
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.customlist.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsData
-import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsNavArgs
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsSideEffect
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsViewModel
@@ -322,12 +321,10 @@ class CustomListLocationsViewModelTest {
         newList: Boolean,
     ): CustomListLocationsViewModel {
         return CustomListLocationsViewModel(
+            navArgs = EditCustomListLocationsNavKey(customListId = customListId, newList = newList),
             relayListRepository = mockRelayListRepository,
             customListRelayItemsUseCase = mockCustomListRelayItemsUseCase,
             customListActionUseCase = mockCustomListUseCase,
-            savedStateHandle =
-                CustomListLocationsNavArgs(customListId = customListId, newList = newList)
-                    .toSavedStateHandle(),
         )
     }
 

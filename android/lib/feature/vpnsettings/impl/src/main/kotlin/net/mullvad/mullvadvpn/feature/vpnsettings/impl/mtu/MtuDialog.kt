@@ -9,17 +9,16 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.MtuTextField
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -36,21 +35,16 @@ private fun PreviewMtuDialog() {
     }
 }
 
-data class MtuNavArgs(val initialMtu: Mtu? = null)
-
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = MtuNavArgs::class,
-)
 @Composable
-fun Mtu(navigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<MtuDialogViewModel>()
+fun Mtu(navArgs: MtuNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<MtuDialogViewModel> { parametersOf(navArgs) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            MtuDialogSideEffect.Complete -> navigator.navigateBack(result = true)
-            MtuDialogSideEffect.Error -> navigator.navigateBack(result = false)
+            MtuDialogSideEffect.Complete -> navigator.goBack(result = MtuNavResult(true))
+            MtuDialogSideEffect.Error -> navigator.goBack(result = MtuNavResult(false))
         }
     }
     MtuDialog(
@@ -58,7 +52,7 @@ fun Mtu(navigator: ResultBackNavigator<Boolean>) {
         onInputChanged = viewModel::onInputChanged,
         onSaveMtu = viewModel::onSaveClick,
         onResetMtu = viewModel::onRestoreClick,
-        onDismiss = dropUnlessResumed { navigator.navigateBack() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }
 

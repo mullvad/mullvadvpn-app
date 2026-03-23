@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.anticensorship.impl
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.anticensorship.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -14,7 +13,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport.SelectPortNavArgs
+import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport.SelectPortUiState
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport.SelectPortViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -50,13 +49,13 @@ class SelectPortViewModelTest {
 
     private lateinit var viewModel: SelectPortViewModel
 
-    private fun setViewModel(navArgs: SelectPortNavArgs) {
+    private fun setViewModel(navArgs: SelectPortNavKey) {
         viewModel =
             SelectPortViewModel(
+                navArgs = navArgs,
                 settingsRepository = mockSettingsRepository,
                 resources = mockk(relaxed = true),
                 relayListRepository = mockRelayListRepository,
-                savedStateHandle = navArgs.toSavedStateHandle(),
             )
     }
 
@@ -77,13 +76,13 @@ class SelectPortViewModelTest {
 
     @Test
     fun `initial state should be loading`() = runTest {
-        setViewModel(SelectPortNavArgs(portType = PortType.Wireguard))
+        setViewModel(SelectPortNavKey(portType = PortType.Wireguard))
         viewModel.uiState.test { assertInstanceOf<Lc.Loading<Boolean>>(awaitItem()) }
     }
 
     @Test
     fun `uiState should reflect latest port value from settings`() = runTest {
-        setViewModel(SelectPortNavArgs(portType = PortType.Shadowsocks))
+        setViewModel(SelectPortNavKey(portType = PortType.Shadowsocks))
 
         // Arrange
         val mockSettings: Settings = mockk()
@@ -103,7 +102,7 @@ class SelectPortViewModelTest {
     @Test
     fun `selecting custom Udp2Tcp port should invoke setCustomUdp2TcpObfuscationPort on SettingsRepository`() =
         runTest {
-            setViewModel(SelectPortNavArgs(portType = PortType.Udp2Tcp))
+            setViewModel(SelectPortNavKey(portType = PortType.Udp2Tcp))
             val customPort = Port(5001)
             coEvery {
                 mockSettingsRepository.setCustomUdp2TcpObfuscationPort(Constraint.Only(customPort))
@@ -118,7 +117,7 @@ class SelectPortViewModelTest {
     fun `setting custom Wireguard port should invoke setWireguardPort on SettingsRepository`() =
         runTest {
             // Arrange
-            setViewModel(SelectPortNavArgs(portType = PortType.Wireguard))
+            setViewModel(SelectPortNavKey(portType = PortType.Wireguard))
             val wireguardPort: Constraint<Port> = Constraint.Only(Port(99))
             coEvery { mockSettingsRepository.setCustomWireguardPort(any()) } returns Unit.right()
 
@@ -133,7 +132,7 @@ class SelectPortViewModelTest {
     fun `setting custom Shadowsocks port should invoke setCustomShadowsocksObfuscationPort on SettingsRepository`() =
         runTest {
             // Arrange
-            setViewModel(SelectPortNavArgs(portType = PortType.Shadowsocks))
+            setViewModel(SelectPortNavKey(portType = PortType.Shadowsocks))
             val customPort: Constraint<Port> = Constraint.Only(Port(51900))
             coEvery { mockSettingsRepository.setCustomShadowsocksObfuscationPort(any()) } returns
                 Unit.right()
@@ -152,7 +151,7 @@ class SelectPortViewModelTest {
         // Arrange
         coEvery { mockSettingsRepository.setCustomWireguardPort(any()) } returns Unit.right()
 
-        setViewModel(SelectPortNavArgs(portType = PortType.Wireguard))
+        setViewModel(SelectPortNavKey(portType = PortType.Wireguard))
         val mockSettings: Settings = mockk()
         val port = Port(60000)
         every { mockSettings.obfuscationSettings.wireguardPort } returns Constraint.Only(port)
@@ -173,7 +172,7 @@ class SelectPortViewModelTest {
     @Test
     fun `when reset custom port is called should reset custom port`() = runTest {
         // Arrange
-        setViewModel(SelectPortNavArgs(portType = PortType.Shadowsocks))
+        setViewModel(SelectPortNavKey(portType = PortType.Shadowsocks))
         val mockSettings: Settings = mockk()
         val port = Port(123)
         every { mockSettings.obfuscationSettings.shadowsocks.port } returns Constraint.Only(port)

@@ -1,15 +1,14 @@
 package net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.SaveApiAccessMethodDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
@@ -17,10 +16,9 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
 
 class SaveApiAccessMethodViewModel(
+    navArgs: SaveApiAccessMethodNavKey,
     private val apiAccessRepository: ApiAccessRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val navArgs = SaveApiAccessMethodDestination.argsFrom(savedStateHandle)
     private val apiAccessMethodId: ApiAccessMethodId? = navArgs.id
     private val apiAccessMethodName: ApiAccessMethodName = navArgs.name
     private val customProxy: ApiAccessMethod.CustomProxy = navArgs.customProxy

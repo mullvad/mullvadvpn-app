@@ -7,18 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.splittunneling.impl"
-    ksp { arg("compose-destinations.moduleName", "splittunneling") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.splittunneling.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    implementation(projects.lib.feature.splittunneling.api)
 }

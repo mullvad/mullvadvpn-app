@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport
 
-import com.ramcosta.composedestinations.spec.BaseRoute
-import com.ramcosta.composedestinations.spec.Direction
+import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
@@ -16,7 +15,7 @@ data class SelectPortUiState(
     val allowedPortRanges: List<PortRange> = emptyList(),
     val recommendedPortRanges: List<PortRange> = emptyList(),
     val presetPorts: List<Port> = emptyList(),
-    val infoDestination: BaseRoute? = null,
+    val infoDestination: NavKey2? = null,
 ) {
     val isCustom = port is Constraint.Only && port.value !in presetPorts
 }
@@ -27,5 +26,5 @@ data class PortTypeUiState(
     val recommendedPortRanges: List<PortRange>,
     val customPortEnabled: Boolean,
     val title: String,
-    val infoDestination: Direction? = null,
+    val infoDestination: NavKey2? = null,
 )

@@ -37,20 +37,16 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.account.destinations.AccountDestination
-import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.home.destinations.ConnectDestination
-import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
-import com.ramcosta.composedestinations.generated.settings.destinations.SettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
+import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
-import net.mullvad.mullvadvpn.feature.home.impl.HomeTransition
+import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
+import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
@@ -82,9 +78,8 @@ private fun PreviewOutOfTimeScreen(
     }
 }
 
-@Destination<ExternalModuleGraph>(style = HomeTransition::class)
 @Composable
-fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
+fun OutOfTime(navigator: Navigator) {
     val vm = koinViewModel<OutOfTimeViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -96,10 +91,7 @@ fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
             is OutOfTimeViewModel.UiSideEffect.OpenAccountView ->
                 openAccountPage(uiSideEffect.token)
             OutOfTimeViewModel.UiSideEffect.OpenConnectScreen ->
-                navController.navigate(ConnectDestination.route) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+                navigator.navigate(ConnectNavKey, clearBackStack = true)
             OutOfTimeViewModel.UiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -110,11 +102,11 @@ fun OutOfTime(navController: NavController, navigator: DestinationsNavigator) {
     OutOfTimeScreen(
         state = state,
         snackbarHostState = snackbarHostState,
-        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
-        onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
+        onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
+            dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
     )
 }

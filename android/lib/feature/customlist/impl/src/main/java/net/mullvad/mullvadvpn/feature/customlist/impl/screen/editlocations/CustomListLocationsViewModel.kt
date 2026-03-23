@@ -1,11 +1,9 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.getOrElse
 import arrow.core.raise.either
-import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +15,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.ancestors
@@ -38,13 +37,12 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListRelayItemsUseCas
 
 @Suppress("TooManyFunctions")
 class CustomListLocationsViewModel(
+    private val navArgs: EditCustomListLocationsNavKey,
     private val relayListRepository: RelayListRepository,
     private val customListRelayItemsUseCase: CustomListRelayItemsUseCase,
     private val customListActionUseCase: CustomListActionUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val navArgs =
-        CustomListLocationsDestination.argsFrom(savedStateHandle = savedStateHandle)
+
     private val _uiSideEffect = Channel<CustomListLocationsSideEffect>()
     val uiSideEffect: Flow<CustomListLocationsSideEffect> = _uiSideEffect.receiveAsFlow()
 

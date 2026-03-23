@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl.selectport
 
 import android.content.res.Resources
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
 import arrow.core.right
 import co.touchlab.kermit.Logger
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.SelectPortDestination
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,6 +16,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.UDP2TCP_PRESET_PORTS
@@ -36,13 +35,12 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 class SelectPortViewModel(
+    navArgs: SelectPortNavKey,
     private val settingsRepository: SettingsRepository,
     private val resources: Resources,
     relayListRepository: RelayListRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val navArgs = SelectPortDestination.argsFrom(savedStateHandle)
     private val portType = navArgs.portType
 
     private val initialOrCustomPort = MutableStateFlow<Port?>(null)

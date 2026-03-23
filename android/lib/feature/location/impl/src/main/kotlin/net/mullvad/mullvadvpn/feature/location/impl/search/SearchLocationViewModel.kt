@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.location.impl.search
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -50,6 +48,7 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItem
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
+    private val relayListType: RelayListType,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
@@ -63,11 +62,7 @@ class SearchLocationViewModel(
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-
-    private val relayListType: RelayListType =
-        SearchLocationDestination.argsFrom(savedStateHandle).relayListType
 
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
     private val _expandOverrides = MutableStateFlow<Map<String, Boolean>>(emptyMap())

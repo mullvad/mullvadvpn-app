@@ -10,13 +10,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavResult
 import net.mullvad.mullvadvpn.lib.common.util.asString
-import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
@@ -25,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -45,16 +44,16 @@ private fun PreviewWireguardCustomPortDialog() {
     }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun CustomPort(navArg: CustomPortDialogNavArgs, backNavigator: ResultBackNavigator<Port?>) {
-    val viewModel = koinViewModel<CustomPortDialogViewModel>()
+fun CustomPort(navArg: CustomPortNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<CustomPortDialogViewModel> { parametersOf(navArg) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            is CustomPortDialogSideEffect.Success -> backNavigator.navigateBack(it.port)
+            is CustomPortDialogSideEffect.Success ->
+                navigator.goBack(result = CustomPortNavResult(it.port))
         }
     }
 
@@ -76,7 +75,7 @@ fun CustomPort(navArg: CustomPortDialogNavArgs, backNavigator: ResultBackNavigat
         onInputChanged = viewModel::onInputChanged,
         onSavePort = viewModel::onSaveClick,
         onResetPort = viewModel::onResetClick,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }
 

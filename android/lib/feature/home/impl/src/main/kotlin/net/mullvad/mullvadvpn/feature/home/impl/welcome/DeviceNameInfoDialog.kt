@@ -3,16 +3,12 @@ package net.mullvad.mullvadvpn.feature.home.impl.welcome
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DeviceNameInfo(navigator: DestinationsNavigator) {
+fun DeviceNameInfo(navigator: Navigator) {
     InfoDialog(
         message =
             buildString {
@@ -22,6 +18,6 @@ fun DeviceNameInfo(navigator: DestinationsNavigator) {
                 appendLine()
                 append(stringResource(id = R.string.device_name_info_third_paragraph))
             },
-        onDismiss = dropUnlessResumed { navigator.navigateUp() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }

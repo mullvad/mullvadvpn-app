@@ -5,12 +5,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.destinations.PrivacyDisclaimerDestination
-import com.ramcosta.composedestinations.generated.destinations.SplashDestination
-import com.ramcosta.composedestinations.spec.DestinationSpec
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
@@ -18,29 +16,35 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.util.BackstackObserver
+import net.mullvad.mullvadvpn.screen.navigation.PrivacyDisclaimerNavKey
+import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 
-private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerDestination)
+private val noServiceNavKeys = listOf(SplashNavKey, PrivacyDisclaimerNavKey)
 
 class MullvadAppViewModel(
     private val connectionProxy: ConnectionProxy,
     managementService: ManagementService,
-    backstackObserver: BackstackObserver,
 ) : ViewModel(), LifecycleEventObserver {
 
     private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
 
+    private val backStackFlow: MutableStateFlow<List<NavKey2>> = MutableStateFlow(emptyList())
+
+    fun setCurrentBackStack(backStack: List<NavKey2>) {
+        backStackFlow.value = backStack
+    }
+
     @OptIn(FlowPreview::class)
     val uiSideEffect =
-        combine(
-                lifecycleFlow,
-                managementService.connectionState,
-                backstackObserver.destinationFlow,
-            ) { event, connEvent, destination ->
-                toDaemonState(event, connEvent, destination)
+        combine(lifecycleFlow, managementService.connectionState, backStackFlow) {
+                event,
+                connEvent,
+                backStack ->
+                toDaemonState(event, connEvent, backStack.lastOrNull())
             }
             .map { state ->
                 when (state) {
@@ -68,10 +72,10 @@ class MullvadAppViewModel(
     private fun toDaemonState(
         lifecycleEvent: Lifecycle.Event,
         serviceState: GrpcConnectivityState,
-        currentDestination: DestinationSpec,
+        currentDestination: NavKey2?,
     ): DaemonState {
         // In these destinations we don't care about showing the NoDaemonScreen
-        if (currentDestination in noServiceDestinations) {
+        if (currentDestination in noServiceNavKeys) {
             return DaemonState.Hidden.Ignored
         }
 

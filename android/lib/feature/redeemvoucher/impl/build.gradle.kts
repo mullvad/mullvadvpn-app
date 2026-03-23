@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.redeemvoucher.impl"
-    ksp { arg("compose-destinations.moduleName", "redeemvoucher") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.redeemvoucher.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
@@ -18,8 +15,6 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    implementation(projects.lib.feature.anticensorship.api)
+    implementation(projects.lib.feature.redeemvoucher.api)
 }

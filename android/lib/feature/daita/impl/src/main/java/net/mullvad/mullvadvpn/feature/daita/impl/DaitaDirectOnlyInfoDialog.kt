@@ -4,23 +4,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
+import net.mullvad.mullvadvpn.core.EmptyNavigator
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewDaitaDirectOnlyInfoDialog() {
-    AppTheme { DaitaDirectOnlyInfo(EmptyDestinationsNavigator) }
+    AppTheme { DaitaDirectOnlyInfo(EmptyNavigator) }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DaitaDirectOnlyInfo(navigator: DestinationsNavigator) {
+fun DaitaDirectOnlyInfo(navigator: Navigator) {
     InfoDialog(
         message =
             stringResource(
@@ -28,6 +24,6 @@ fun DaitaDirectOnlyInfo(navigator: DestinationsNavigator) {
                 stringResource(id = R.string.direct_only),
                 stringResource(id = R.string.daita),
             ),
-        onDismiss = dropUnlessResumed { navigator.navigateUp() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }

@@ -8,6 +8,7 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.lib.model" }
 
 dependencies {
+    implementation(libs.kotlinx.serialization.json)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.arrow)

@@ -9,12 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
+import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.core.EmptyNavigator
+import net.mullvad.mullvadvpn.core.NavResult
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -23,18 +21,19 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 @Preview
 @Composable
 private fun PreviewCreateAccountConfirmationDialog() {
-    AppTheme { CreateAccountConfirmation(EmptyResultBackNavigator()) }
+    AppTheme { CreateAccountConfirmation(EmptyNavigator) }
 }
 
+@Parcelize data class CreateAccountConfirmationDialogResult(val confirmed: Boolean) : NavResult
+
 @Composable
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
-fun CreateAccountConfirmation(navigator: ResultBackNavigator<Confirmed>) {
+fun CreateAccountConfirmation(navigator: Navigator) {
     InfoConfirmationDialog(
         onResult = {
             if (it != null) {
-                navigator.navigateBack(it)
+                navigator.goBack(result = CreateAccountConfirmationDialogResult(true))
             } else {
-                navigator.navigateBack()
+                navigator.goBack(result = CreateAccountConfirmationDialogResult(false))
             }
         },
         titleType = InfoConfirmationDialogTitleType.IconOnly,

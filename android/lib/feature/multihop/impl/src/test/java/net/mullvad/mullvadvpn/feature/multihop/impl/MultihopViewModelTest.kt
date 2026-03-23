@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.multihop.impl
 
 import app.cash.turbine.test
 import arrow.core.Either
-import com.ramcosta.composedestinations.generated.multihop.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -36,8 +35,8 @@ class MultihopViewModelTest {
 
         multihopViewModel =
             MultihopViewModel(
+                isModal = false,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                savedStateHandle = MultihopNavArgs().toSavedStateHandle(),
             )
     }
 
