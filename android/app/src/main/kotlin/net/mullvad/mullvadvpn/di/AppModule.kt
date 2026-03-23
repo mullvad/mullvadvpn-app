@@ -92,7 +92,11 @@ val appModule = module {
         NotificationProvider::class
     if (BuildConfig.FLAVOR_infrastructure != "prod") {
         single<ApiEndpointOverride> {
-            ApiEndpointOverride(BuildConfig.API_ENDPOINT, BuildConfig.API_IP)
+            ApiEndpointOverride(
+                hostname = BuildConfig.API_ENDPOINT,
+                address = BuildConfig.API_IP,
+                sigsumTrustedPubkeys = BuildConfig.SIGSUM_TRUSTED_PUBKEYS,
+            )
         }
     }
 }

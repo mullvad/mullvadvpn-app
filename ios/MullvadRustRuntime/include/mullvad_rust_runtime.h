@@ -65,6 +65,8 @@ typedef struct SwiftMullvadApiResponse {
   char *error_description;
   char *server_response_code;
   bool success;
+  int64_t sigsum_timestamp;
+  char *sigsum_digest;
 } SwiftMullvadApiResponse;
 
 typedef struct CompletionCookie {
@@ -383,7 +385,7 @@ struct SwiftCancelHandle mullvad_ios_api_addrs_available(struct SwiftApiContext 
 struct SwiftCancelHandle mullvad_ios_get_relays(struct SwiftApiContext api_context,
                                                 void *completion_cookie,
                                                 struct SwiftRetryStrategy retry_strategy,
-                                                const char *etag);
+                                                const char *_etag);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
