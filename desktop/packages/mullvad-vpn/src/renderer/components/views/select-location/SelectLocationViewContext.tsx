@@ -1,9 +1,11 @@
 import React from 'react';
 
 import {
-  useCustomListLocations,
-  useFilteredCountryLocations,
+  useFilterCountryLocations,
+  useMapCustomListsToLocations,
+  useMapReduxCountriesToCountryLocations,
   useSearchCountryLocations,
+  useSearchCustomListLocations,
   useSelectedLocation,
 } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
@@ -17,9 +19,8 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setLocationType: (locationType: LocationType) => void;
   searchTerm: string;
   setSearchTerm: (value: string) => void;
-  filteredLocations: ReturnType<typeof useFilteredCountryLocations>;
-  searchedLocations: ReturnType<typeof useSearchCountryLocations>;
-  customListLocations: ReturnType<typeof useCustomListLocations>;
+  countryLocations: ReturnType<typeof useSearchCountryLocations>;
+  customListLocations: ReturnType<typeof useSearchCustomListLocations>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -44,16 +45,23 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   const [searchTerm, setSearchTerm] = React.useState('');
   const relaySettings = useNormalRelaySettings();
   const selectedLocation = useSelectedLocation(locationTypeSelector);
-  const filteredLocations = useFilteredCountryLocations(locationTypeSelector);
-  const searchedLocations = useSearchCountryLocations(filteredLocations, searchTerm);
 
-  const activeSearch = searchTerm.length > 0;
+  const filteredCountries = useFilterCountryLocations(locationTypeSelector);
+  const filteredCountryLocations = useMapReduxCountriesToCountryLocations(
+    locationTypeSelector,
+    filteredCountries,
+  );
+  const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
 
-  const customListLocations = useCustomListLocations({
-    locations: activeSearch ? searchedLocations : filteredLocations,
-    selectedLocation,
+  const filteredCustomListLocations = useMapCustomListsToLocations(
+    filteredCountryLocations,
     searchTerm,
-  });
+    selectedLocation,
+  );
+  const searchedCustomListLocations = useSearchCustomListLocations(
+    filteredCustomListLocations,
+    searchTerm,
+  );
 
   const locationType = React.useMemo(() => {
     const allowEntryLocations = relaySettings?.wireguard.useMultihop;
@@ -70,16 +78,14 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setLocationType: setSelectLocationView,
       searchTerm,
       setSearchTerm,
-      filteredLocations,
-      searchedLocations,
-      customListLocations,
+      countryLocations: searchedCountryLocations,
+      customListLocations: searchedCustomListLocations,
     }),
     [
-      customListLocations,
-      filteredLocations,
+      searchedCustomListLocations,
+      searchedCountryLocations,
       locationType,
       searchTerm,
-      searchedLocations,
       setSearchTerm,
       setSelectLocationView,
     ],
