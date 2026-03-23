@@ -2,10 +2,10 @@ import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
 
 export function useRelayCount() {
-  const { searchedLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useSelectLocationViewContext();
   const { relayLocations } = useRelayLocations();
 
-  const visibleRelays = searchedLocations.reduce(
+  const visibleRelays = countryLocations.reduce(
     (countryAcc, country) =>
       countryAcc + country.cities.reduce((cityAcc, city) => cityAcc + city.relays.length, 0),
     0,

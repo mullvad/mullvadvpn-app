@@ -9,7 +9,7 @@ import { CountryLocation } from '../country-location';
 import { useRelayCount } from './hooks';
 
 export function CountryLocations() {
-  const { searchedLocations } = useSelectLocationViewContext();
+  const { countryLocations } = useSelectLocationViewContext();
   const { visibleRelays, totalRelays } = useRelayCount();
 
   const showFilterText = visibleRelays !== totalRelays;
@@ -41,7 +41,7 @@ export function CountryLocations() {
         )}
       </SectionTitle>
       <FlexColumn>
-        {searchedLocations.map((location) => {
+        {countryLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location, undefined);
           return <CountryLocation key={key} location={location} />;
         })}

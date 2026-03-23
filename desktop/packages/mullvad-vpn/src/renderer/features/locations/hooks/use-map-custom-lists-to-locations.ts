@@ -1,5 +1,3 @@
-import React from 'react';
-
 import type { RelayLocation } from '../../../../shared/daemon-rpc-types';
 import { useCustomLists } from '../../custom-lists/hooks';
 import {
@@ -15,21 +13,16 @@ import {
   searchMatchesLocation,
 } from '../utils';
 
-export function useCustomListLocations({
-  locations,
-  selectedLocation,
-  searchTerm,
-}: {
-  locations: CountryLocation[];
-  selectedLocation?: RelayLocation;
-  searchTerm: string;
-}): CustomListLocation[] {
+export function useMapCustomListsToLocations(
+  countryLocations: CountryLocation[],
+  searchTerm: string,
+  selectedLocation?: RelayLocation,
+): CustomListLocation[] {
   const { customLists } = useCustomLists();
-
-  const locationMap = React.useMemo(() => createLocationMap(locations), [locations]);
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
     const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
+    const locationMap = createLocationMap(countryLocations);
 
     // Get all ids of locations that are in the custom list
     const customListLocationIds = customList.locations.flatMap((location) => {
@@ -43,6 +36,7 @@ export function useCustomListLocations({
       return location.country;
     });
 
+    // Pick the locations from the map that are in the custom list, and add custom list details to them
     const customListGeographicalLocations: GeographicalLocation[] = [];
     for (const id of customListLocationIds) {
       const location = locationMap.get(id);

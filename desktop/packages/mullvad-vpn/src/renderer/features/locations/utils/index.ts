@@ -21,3 +21,6 @@ export * from './is-location-selected';
 export * from './search-matches-location';
 export * from './create-location-map';
 export * from './create-location-label';
+export * from './search-city-and-relays';
+export * from './search-country-and-cities';
+export * from './search-custom-list-and-locations';
