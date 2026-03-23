@@ -35,6 +35,11 @@ export function CustomListLocationImpl({
     }
   }, [customList.locations.length, setExpanded]);
 
+  // If custom list state is updated from outside, update state accordingly
+  useEffect(() => {
+    setExpanded(customList.expanded);
+  }, [customList.expanded]);
+
   const handleClick = useCallback(() => {
     void handleSelect(customList);
   }, [customList, handleSelect]);
