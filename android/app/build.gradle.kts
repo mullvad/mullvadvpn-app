@@ -111,7 +111,10 @@ android {
 
     buildTypes {
         getByName(BuildTypes.RELEASE) {
-            signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
+            signingConfig =
+                if (getBooleanProperty("mullvad.app.config.signingConfig.release.enable"))
+                    signingConfigs.findByName(SigningConfigs.RELEASE)
+                else null
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -370,6 +373,11 @@ tasks.register("printVersion") {
         println("versionCode=$versionCode")
         println("versionName=$versionName")
     }
+}
+
+tasks.register("printWillSign") {
+    val willSign = providers.gradleProperty("mullvad.app.config.signingConfig.release.enable")
+    doLast { println(willSign.orNull) }
 }
 
 play {

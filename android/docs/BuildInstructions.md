@@ -50,8 +50,9 @@ Run the following command to trigger a full debug build:
 ```
 
 ### Release build
-1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` environment variable to the
+1. [Enable signing config for release builds](#enable-gradle-signing-using-local-credentials)
+2. Configure a signing key by following [these instructions](#configure-signing-key).
+3. Run the following command after setting the `ANDROID_CREDENTIALS_DIR` environment variable to the
 directory configured in step 1:
 ```bash
 ../building/containerized-build.sh android --app-bundle
@@ -152,9 +153,10 @@ Run the following command to build a debug build:
 ```
 
 ### Release build
-1. Configure a signing key by following [these instructions](#configure-signing-key).
-2. Move, copy or symlink the directory from step 1 to [./credentials/](./credentials/) (`<repository>/android/credentials/`).
-3. Run the following command to build:
+1. [Enable signing config for release builds](#enable-gradle-signing-using-local-credentials)
+2. Configure a signing key by following [these instructions](#configure-signing-key).
+3. Move, copy or symlink the directory from step 1 to [./credentials/](./credentials/) (`<repository>/android/credentials/`).
+4. Run the following command to build:
    ```bash
    ../android/build.sh --app-bundle
    ```
@@ -256,6 +258,14 @@ To disable in-app notifications related to the app version during development or
 the `mullvad.app.config.inAppVersionNotifications.enable` property can be set:
 ```
 mullvad.app.config.inAppVersionNotifications.enable=false
+```
+
+### Enable gradle signing using local credentials
+By default build using `build.sh` are not signed as they are expected to be signed at a later stage.
+If you want to enable signing using credentials described [here](#configure-signing-key)
+the `mullvad.app.config.signingConfig.release.enable` can be set:
+```
+mullvad.app.config.signingConfig.release.enable=true
 ```
 
 ### Run tests highly affected by rate limiting
