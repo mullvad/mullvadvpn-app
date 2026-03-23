@@ -6,9 +6,8 @@ import { useIpVersion } from '../../tunnel/hooks';
 import { type LocationType } from '../types';
 import { filterLocations } from '../utils';
 import { useOwnership, useProviders } from '.';
-import { useMapReduxCountriesToCountryLocations } from './use-map-redux-countries-to-country-locations';
 
-export function useFilteredCountryLocations(locationType: LocationType) {
+export function useFilterCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
   const { activeOwnership } = useOwnership();
   const { activeProviders } = useProviders();
@@ -18,7 +17,7 @@ export function useFilteredCountryLocations(locationType: LocationType) {
   const { multihop } = useMultihop();
   const { ipVersion } = useIpVersion();
 
-  const filteredRelayLocations = filterLocations({
+  return filterLocations({
     locations,
     ownership: activeOwnership,
     providers: activeProviders,
@@ -29,6 +28,4 @@ export function useFilteredCountryLocations(locationType: LocationType) {
     obfuscation,
     ipVersion,
   });
-
-  return useMapReduxCountriesToCountryLocations(filteredRelayLocations, locationType);
 }

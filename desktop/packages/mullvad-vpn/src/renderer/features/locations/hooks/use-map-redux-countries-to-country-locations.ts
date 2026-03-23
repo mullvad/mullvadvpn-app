@@ -8,8 +8,8 @@ import { useDisabledLocation } from './use-disabled-location';
 import { useSelectedLocation } from './use-selected-location';
 
 export function useMapReduxCountriesToCountryLocations(
-  relayList: Array<IRelayLocationCountryRedux>,
   locationType: LocationType,
+  relayList: Array<IRelayLocationCountryRedux>,
 ): CountryLocation[] {
   const locale = useSelector((state) => state.userInterface.locale);
   const selectedLocation = useSelectedLocation(locationType);
