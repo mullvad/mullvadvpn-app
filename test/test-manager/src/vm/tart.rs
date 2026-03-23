@@ -63,7 +63,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
 
     match config.runtime_opts.display {
         config::Display::None => {
-            tart_cmd.arg("--no-graphics");
+            // tart_cmd.arg("--no-graphics");
         }
         config::Display::Local => (),
         config::Display::Vnc => {
