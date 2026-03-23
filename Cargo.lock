@@ -5044,9 +5044,9 @@ dependencies = [
 
 [[package]]
 name = "sigsum"
-version = "0.2.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2f3d828fbb3e889a635dee91129588ec757de125982f415a4a7aebac6ec1d71"
+checksum = "85cf5c271ac017559bedd2519f22ae055614d07e4bce0621bb714ea4acf65192"
 dependencies = [
  "base16ct",
  "base64ct",
