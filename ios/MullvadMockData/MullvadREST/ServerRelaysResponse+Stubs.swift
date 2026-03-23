@@ -99,6 +99,24 @@ public enum ServerRelaysResponseStubs {
                 latitude: 40.6963302,
                 longitude: -74.6034843
             ),
+            "hr-zag": REST.ServerLocation(
+                country: "Croatia",
+                city: "Zagreb",
+                latitude: 45.821,
+                longitude: 15.973
+            ),
+            "bg-sof": REST.ServerLocation(
+                country: "Bulgaria",
+                city: "Sofia",
+                latitude: 42.683333,
+                longitude: 23.316667
+            ),
+            "gr-ath": REST.ServerLocation(
+                country: "Greece",
+                city: "Athens",
+                latitude: 37.98381,
+                longitude: 23.727539
+            ),
         ],
         wireguard: REST.ServerWireguardTunnels(
             ipv4Gateway: .loopback,
@@ -280,6 +298,66 @@ public enum ServerRelaysResponseStubs {
                     owned: true,
                     location: "us-nyc",
                     provider: "Qnax",
+                    weight: 100,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil,
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "hr-zag-wg-001",
+                    active: true,
+                    owned: false,
+                    location: "hr-zag",
+                    provider: "DataPacket",
+                    weight: 100,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil,
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "bg-sof-wg-001",
+                    active: true,
+                    owned: false,
+                    location: "bg-sof",
+                    provider: "M247",
+                    weight: 100,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil,
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "gr-ath-wg-101",
+                    active: true,
+                    owned: false,
+                    location: "gr-ath",
+                    provider: "DataPacket",
+                    weight: 100,
+                    ipv4AddrIn: .loopback,
+                    ipv6AddrIn: .loopback,
+                    publicKey: PrivateKey().publicKey.rawValue,
+                    includeInCountry: true,
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil,
+                    features: .init(daita: .init(), quic: nil, lwo: nil)
+                ),
+                REST.ServerRelay(
+                    hostname: "us-nyc-wg-101",
+                    active: true,
+                    owned: false,
+                    location: "us-nyc",
+                    provider: "DataPacket",
                     weight: 100,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,

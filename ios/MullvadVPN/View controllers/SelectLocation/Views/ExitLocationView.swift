@@ -10,14 +10,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
-                && !context.customLists
-                    .filter {
-                        !$0.isHiddenFromSearch
-                    }.isEmpty)
+                && !context.customLists.isEmpty)
     }
 
     var isShowingAllLocationsSection: Bool {
-        !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
+        !context.locations.isEmpty
     }
 
     var isShowingRecentsSection: Bool {

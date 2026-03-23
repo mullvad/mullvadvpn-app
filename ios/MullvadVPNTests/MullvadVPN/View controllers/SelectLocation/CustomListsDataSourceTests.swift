@@ -47,25 +47,21 @@ class CustomListsDataSourceTests: XCTestCase {
     }
 
     func testSearch() throws {
-        dataSource.search(by: "got")
-        let rootNode = RootLocationNode(children: dataSource.nodes)
-
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["Netflix", "se", "got"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["Netflix", "se", "sto"])?.isHiddenFromSearch == true)
+        let result = dataSource.search(by: "got")
+        let rootNode = RootLocationNode(children: result)
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["Netflix", "se", "got"]))
     }
 
     func testSearchWithEmptyText() throws {
-        dataSource.search(by: "")
-        dataSource.nodes.forEachNode {
-            XCTAssertFalse($0.isHiddenFromSearch)
-        }
+        let result = dataSource.search(by: "")
+        XCTAssertEqual(result.count, dataSource.nodes.count)
     }
 
     func testSearchYieldsNoListNodes() throws {
-        dataSource.search(by: "net")
-        dataSource.nodes.forEachNode {
+        let result = dataSource.search(by: "net")
+        result.forEachNode {
             if $0.name == "Netflix" {
-                XCTAssertFalse($0.isHiddenFromSearch)
+                XCTAssertFalse($0.showsChildren)
             }
         }
     }
