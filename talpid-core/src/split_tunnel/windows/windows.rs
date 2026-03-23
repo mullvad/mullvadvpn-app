@@ -3,6 +3,7 @@ use std::{
     fs, io, iter, mem,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
+        fs::OpenOptionsExt,
         prelude::AsRawHandle,
     },
     path::{Component, Path},
@@ -21,8 +22,9 @@ use windows_sys::Win32::{
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     // Preferentially, use GetFinalPathNameByHandleW. If the file does not exist
     // or cannot be opened, infer the path from the label only.
-    if let Ok(file) = fs::OpenOptions::new().read(true).open(path.as_ref()) {
-        return unsafe { get_final_path_name_by_handle(file.as_raw_handle() as HANDLE) };
+    // Note: we do not even need read access here, so we explicitly set `access_mode` to `0`.
+    if let Ok(file) = fs::OpenOptions::new().access_mode(0).open(path.as_ref()) {
+        return get_final_path_name_by_handle(file);
     }
 
     let mut components = path.as_ref().components();
@@ -49,12 +51,18 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     Ok(new_path)
 }
 
-pub unsafe fn get_final_path_name_by_handle(raw_handle: HANDLE) -> Result<OsString, io::Error> {
+/// Resolve paths to the final NT device path. This will convert "DOS paths" (e.g., paths starting
+/// with `C:\`) to NT device paths (i.e., `\Device\HarddiskVolumeX`) and also resolve symlinks.
+pub fn get_final_path_name_by_handle(handle: impl AsRawHandle) -> Result<OsString, io::Error> {
+    let raw_handle = handle.as_raw_handle();
+
+    // SAFETY: file is a valid file handle
     let buffer_size =
         unsafe { GetFinalPathNameByHandleW(raw_handle, ptr::null_mut(), 0u32, VOLUME_NAME_NT) }
             as usize;
     let mut buffer = vec![0; buffer_size];
 
+    // SAFETY: `buffer` can contain `buffer_size` bytes. `raw_handle` is valid.
     let status = unsafe {
         GetFinalPathNameByHandleW(
             raw_handle,
