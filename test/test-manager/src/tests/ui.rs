@@ -1,4 +1,4 @@
-use super::{Error, TestContext, config::TEST_CONFIG, helpers};
+use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use std::{
@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use test_macro::test_function;
-use test_rpc::{ExecResult, ServiceClient, meta::Os};
+use test_rpc::{meta::Os, ExecResult, ServiceClient};
 
 pub async fn run_test<T: AsRef<str> + Debug>(
     rpc: &ServiceClient,
@@ -57,10 +57,17 @@ pub async fn run_test_env<
         }
     }
 
-    let env: BTreeMap<String, String> = env
+    let mut env: BTreeMap<String, String> = env
         .into_iter()
         .map(|(k, v)| (k.as_ref().to_string(), v.as_ref().to_string()))
         .collect();
+
+    // Inherit CI from test-manager's environment (set by GHA)
+    if let Ok(ci) = std::env::var("CI") {
+        env.insert("CI".to_string(), ci);
+    } else {
+        env.insert("CI".to_string(), "e2e".to_string());
+    }
 
     // env may contain sensitive info
     // log::info!("Running UI tests: {params:?}, env: {env:?}");
