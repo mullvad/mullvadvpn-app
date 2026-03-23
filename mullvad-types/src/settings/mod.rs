@@ -281,7 +281,8 @@ impl Default for Settings {
             },
             custom_lists: CustomListsSettings::default(),
             api_access_methods: access_method::Settings::default(),
-            allow_lan: false,
+            // Always allow LAN sharing in router mode (not otherwise).
+            allow_lan: cfg!(feature = "router"),
             #[cfg(not(target_os = "android"))]
             lockdown_mode: false,
             auto_connect: false,
