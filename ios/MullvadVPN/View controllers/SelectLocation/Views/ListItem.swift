@@ -12,6 +12,7 @@ struct ListItem<StatusIndicator: View>: View {
     let title: String
     var subtitle: String?
     var level: Int = 0
+    var selected: Bool = false
     @ViewBuilder var statusIndicator: () -> StatusIndicator?
 
     var body: some View {
@@ -22,7 +23,7 @@ struct ListItem<StatusIndicator: View>: View {
             VStack(alignment: .leading) {
                 Text(title)
                     .font(.mullvadSmallSemiBold)
-                    .foregroundStyle(Color.mullvadTextPrimary)
+                    .foregroundStyle(selected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary)
                 if let subtitle {
                     Text(subtitle)
                         .font(.mullvadMiniSemiBold)

@@ -45,6 +45,7 @@ struct RecentItemView: View {
             title: node.name,
             subtitle: subtitle,
             level: level,
+            selected: node.isSelected,
             statusIndicator: { statusIndicator }
         )
         .disabled(isDisabled)

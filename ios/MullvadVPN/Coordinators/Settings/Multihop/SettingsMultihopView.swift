@@ -12,6 +12,7 @@ import SwiftUI
 struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObservable<MultihopState> {
     @StateObject var tunnelViewModel: ViewModel
     @State private var alert: MullvadAlert?
+    private let itemFactory = ListItemFactory()
 
     private struct OptionSpec: Identifiable {
         let id: MultihopState
@@ -51,78 +52,49 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                 SettingsInfoView(viewModel: dataViewModel)
 
                 #if DEBUG
-                    VStack(spacing: 1) {
-                        HStack {
-                            Text("Mode")
-                            Spacer()
-                        }
-                        .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-                        .background(Color(UIColor.primaryColor))
-                        ForEach(options) { option in
-                            HStack(spacing: 1) {
-                                HStack {
-                                    Image(uiImage: UIImage.tick).opacity(tunnelViewModel.value == option.id ? 1.0 : 0.0)
-                                        .foregroundStyle(
-                                            (tunnelViewModel.value == option.id)
-                                                ? Color(UIColor.Cell.Background.selected)
-                                                : Color(UIColor.Cell.titleTextColor)
-                                        )
-                                    Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-                                    Button(option.label, action: { tunnelViewModel.value = option.id })
-                                        .foregroundStyle(
-                                            (tunnelViewModel.value == option.id)
-                                                ? Color(UIColor.Cell.Background.selected)
-                                                : Color(UIColor.Cell.titleTextColor)
-                                        )
-                                        .accessibilityIdentifier(option.accessibilityIdentifier.asString)
-                                    Spacer()
-                                }
-                                .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
-                                .background(
-                                    Color(UIColor.Cell.Background.indentationLevelZero)
-                                )
-                                if let helpText = option.helpText {
-                                    VStack {
-                                        Spacer()
-                                        Button(action: {
-                                            self.alert = MullvadAlert(
-                                                type: .info, messages: helpText,
-                                                actions: [
-                                                    .init(
-                                                        type: .default,
-                                                        title: "Got it!",
-                                                        identifier: .includeAllNetworksNotificationsAlertDismissButton,
-                                                        handler: {
-                                                            self.alert = nil
-                                                        }
-                                                    )
-                                                ])
-                                        }) {
-                                            Image(.iconInfo)
+                    VStack(spacing: 0) {
+                        SegmentedListItem(
+                            isLastInList: false,
+                            label: {
+                                itemFactory.label(for: .setting(title: "Mode"))
+                            },
+                            segment: {},
+                            groupedContent: {
+                                ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+                                    SegmentedListItem(
+                                        level: 1,
+                                        isLastInList: index == options.count - 1,
+                                        accessibilityIdentifier: option.accessibilityIdentifier,
+                                        label: {
+                                            itemFactory.label(
+                                                for: .setting(
+                                                    title: option.label,
+                                                    level: 1,
+                                                    selected:
+                                                        tunnelViewModel.value == option.id
+                                                ))
+                                        },
+                                        segment: {
+                                            if let helpText = option.helpText {
+                                                itemFactory.segment(
+                                                    for: .info(onSelect: {
+                                                        alert = getInfoAlert(for: helpText) { alert = nil }
+                                                    })
+                                                )
+                                            }
+                                        },
+                                        groupedContent: {},
+                                        onSelect: {
+                                            tunnelViewModel.value = option.id
                                         }
-                                        .tint(.white)
-                                        Spacer()
-                                    }
-                                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
-                                    .background(
-                                        Color(UIColor.Cell.Background.indentationLevelZero)
                                     )
                                 }
-                            }
-                            .foregroundColor(Color(UIColor.Cell.titleTextColor))
-                            .onTapGesture {
-                                tunnelViewModel.value = option.id
-                            }
-                        }
+                            },
+                            onSelect: {}
+                        )
                     }
-                    .cornerRadius(16)
                     .padding(.leading, UIMetrics.contentInsets.left)
                     .padding(.trailing, UIMetrics.contentInsets.right)
-                    .listStyle(.plain)
-                    .listRowSpacing(UIMetrics.TableView.separatorHeight)
-                    .environment(\.defaultMinListRowHeight, 0)
-                    .background(Color(.secondaryColor))
-                    .foregroundColor(Color(.primaryTextColor))
                 #else
                     SwitchRowView(
                         isOn: $tunnelViewModel.value.isUserSelected,
@@ -135,6 +107,20 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
             }
         }
         .mullvadAlert(item: $alert)
+    }
+
+    private func getInfoAlert(for messages: [LocalizedStringKey], completion: @escaping () -> Void) -> MullvadAlert {
+        MullvadAlert(
+            type: .info,
+            messages: messages,
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Got it!",
+                    handler: completion
+                )
+            ]
+        )
     }
 }
 

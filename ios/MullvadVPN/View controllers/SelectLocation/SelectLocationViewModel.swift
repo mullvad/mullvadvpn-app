@@ -364,7 +364,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         ([
             entryCustomListsDataSource,
             entryLocationsDataSource,
-            entryRecentsDataSource
+            entryRecentsDataSource,
         ] as [LocationDataSourceProtocol]).forEach {
             $0.setConnectedRelay(
                 relayConstraint: relayConstraints.entryLocations,
@@ -375,7 +375,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         ([
             exitCustomListsDataSource,
             exitLocationsDataSource,
-            exitRecentsDataSource
+            exitRecentsDataSource,
         ] as [LocationDataSourceProtocol]).forEach {
             $0.setConnectedRelay(
                 relayConstraint: relayConstraints.exitLocations,

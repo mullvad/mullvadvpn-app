@@ -12,7 +12,7 @@ struct ListItemFactory {
     enum Label {
         case location(node: LocationNode, context: MultihopContext, level: Int)
         case recent(node: LocationNode, level: Int)
-        case setting(title: String, subtitle: String?, level: Int, selected: Bool)
+        case setting(title: String, subtitle: String? = nil, level: Int = 0, selected: Bool = false)
     }
 
     enum Segment {
@@ -37,7 +37,10 @@ struct ListItemFactory {
             RecentItemView(node: node, level: level)
         case .setting(let title, let subtitle, let level, let selected):
             ListItem(
-                title: title, subtitle: subtitle, level: level,
+                title: title,
+                subtitle: subtitle,
+                level: level,
+                selected: selected,
                 statusIndicator: {
                     if selected {
                         statusIndicator(for: .tick)
