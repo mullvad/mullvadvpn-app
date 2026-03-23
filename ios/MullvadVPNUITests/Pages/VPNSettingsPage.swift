@@ -88,12 +88,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapQuantumResistantTunnelAutomaticCell() -> Self {
-        app.cells[AccessibilityIdentifier.quantumResistanceAutomatic]
-            .tap()
-        return self
-    }
-
     @discardableResult func tapQuantumResistantTunnelOnCell() -> Self {
         app.cells[AccessibilityIdentifier.quantumResistanceOn]
             .tap()
