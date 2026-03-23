@@ -24,7 +24,7 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     // or cannot be opened, infer the path from the label only.
     // Note: we do not even need read access here, so we explicitly set `access_mode` to `0`.
     if let Ok(file) = fs::OpenOptions::new().access_mode(0).open(path.as_ref()) {
-        return get_final_path_name_by_handle(file);
+        return get_final_path_name_by_handle(&file);
     }
 
     let mut components = path.as_ref().components();
@@ -53,8 +53,8 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
 
 /// Resolve paths to the final NT device path. This will convert "DOS paths" (e.g., paths starting
 /// with `C:\`) to NT device paths (i.e., `\Device\HarddiskVolumeX`) and also resolve symlinks.
-pub fn get_final_path_name_by_handle(handle: impl AsRawHandle) -> Result<OsString, io::Error> {
-    let raw_handle = handle.as_raw_handle();
+pub fn get_final_path_name_by_handle(file: &std::fs::File) -> Result<OsString, io::Error> {
+    let raw_handle = file.as_raw_handle();
 
     // SAFETY: `raw_handle` is a valid file handle
     let buffer_size =
