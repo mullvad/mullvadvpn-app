@@ -45,7 +45,7 @@ on your platform please submit an issue or a pull request.
   and they have to be put in `%PATH`. An additional package might also be required depending on
   Linux distro:
   - `protobuf-devel` on Fedora.
-  - `libprotobuf-compiler` on Debian/Ubuntu.
+  - `libprotobuf-dev` and `protobuf-compiler` on Debian/Ubuntu.
 
 - **`bash` must be installed and available in PATH on all platforms**. This is required for building
   the desktop app:
