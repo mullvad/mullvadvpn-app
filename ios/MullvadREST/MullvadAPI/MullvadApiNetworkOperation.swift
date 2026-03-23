@@ -79,7 +79,10 @@ extension REST {
                     logger.debug("\(#function): \(request.name) API response received")
 
                     if let apiError = response.error {
-                        logger.error("Request failed to send error=\(apiError)")
+                        logger
+                            .error(
+                                "Response contained error code \(apiError.statusCode), error: \(apiError.errorDescription)"
+                            )
                         finish(result: .failure(restError(apiError: apiError)))
                         return
                     }
