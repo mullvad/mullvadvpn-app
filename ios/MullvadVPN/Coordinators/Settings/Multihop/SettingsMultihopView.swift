@@ -68,12 +68,13 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                                                 : Color(UIColor.Cell.titleTextColor)
                                         )
                                     Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-                                    Text(option.label)
+                                    Button(option.label, action: { tunnelViewModel.value = option.id })
                                         .foregroundStyle(
                                             (tunnelViewModel.value == option.id)
                                                 ? Color(UIColor.Cell.Background.selected)
                                                 : Color(UIColor.Cell.titleTextColor)
                                         )
+                                        .accessibilityIdentifier(option.accessibilityIdentifier.asString)
                                     Spacer()
                                 }
                                 .padding(EdgeInsets(UIMetrics.SettingsCell.defaultLayoutMargins))
@@ -112,7 +113,6 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                             .onTapGesture {
                                 tunnelViewModel.value = option.id
                             }
-                            .accessibilityIdentifier(option.accessibilityIdentifier.asString)
                         }
                     }
                     .cornerRadius(16)
