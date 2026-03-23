@@ -61,6 +61,7 @@ struct RelayItemView: View {
             title: title,
             subtitle: subtitle,
             level: level,
+            selected: node.isSelected,
             statusIndicator: { statusIndicator }
         )
         .disabled(isDisabled)

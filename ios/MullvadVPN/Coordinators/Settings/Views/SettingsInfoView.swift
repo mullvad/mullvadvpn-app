@@ -38,7 +38,7 @@ struct SettingsInfoView: View {
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
-        viewModel.pages.count > 1 ? 48 : 24
+        viewModel.pages.count > 1 ? 48 : 0
     }
 
     var body: some View {
