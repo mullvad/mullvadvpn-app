@@ -21,7 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [android/2026.3-beta3] - 2025-03-17
+## [android/2026.3] - 2026-03-23
+Identical to `android/2026.3-beta3`.
+
+
+## [android/2026.3-beta3] - 2026-03-17
 ### Changed
 - Disable autofill for password in api access method edit screen.
 
@@ -30,7 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix input handling in delete account confirmation.
 
 
-## [android/2026.3-beta2] - 2025-03-12
+## [android/2026.3-beta2] - 2026-03-12
 ### Changed
 - Disable autofill for delete account textfield.
 
@@ -38,7 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix eager connection timeout in GotaTun.
 
 
-## [android/2026.3-beta1] - 2025-03-10
+## [android/2026.3-beta1] - 2026-03-10
 ### Added
 - Add link to notifications system settings from notifications screen.
 - Add support for account deletion.
@@ -47,22 +51,22 @@ Line wrap the file at 100 chars.                                              Th
 - Hide password by default on login screen.
 
 
-## [android/2026.2] - 2025-02-06
+## [android/2026.2] - 2026-02-06
 ### Fixed
 - Fix default launcher icon on TV devices.
 
 
-## [android/2026.1] - 2025-02-05
+## [android/2026.1] - 2026-02-05
 Identical to `android/2026.1-beta3`.
 
 
-## [android/2026.1-beta3] - 2025-02-02
+## [android/2026.1-beta3] - 2026-02-02
 ### Fixed
 - Fix long press on the quick settings tile not opening the app.
 - Fix snackbar dismiss button color being black instead of white.
 
 
-## [android/2026.1-beta2] - 2025-01-27
+## [android/2026.1-beta2] - 2026-01-27
 ### Changed
 - Disable "View logs" button until logs are fully parsed.
 
@@ -73,7 +77,7 @@ Identical to `android/2026.1-beta3`.
 - Fix disabled content blockers hint not showing.
 
 
-## [android/2026.1-beta1] - 2025-01-22
+## [android/2026.1-beta1] - 2026-01-22
 ### Added
 - Add Arabic and Persian as new languages in the app with full RTL support.
 - Add toggle button to enable/disable all content blockers.
