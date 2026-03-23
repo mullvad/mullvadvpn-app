@@ -1647,44 +1647,156 @@ mod partition_relays {
     /// Test that filtering on obfuscation works.
     #[test]
     fn obfuscation() {
-        let relay_selector = relay_selector();
-        // test_selecting_over_quic
-        let quic = ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Quic,
+        // Setup relay selector
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_relay("basic");
+        relay_list.add_relay("basic_ipv6").ipv6_addr_in = Some(Ipv6Addr::UNSPECIFIED);
+        relay_list.add_relay("lwo").endpoint_data.lwo = true;
+        relay_list.add_relay("quic_ipv4").endpoint_data.quic = Some(Quic::new(
+            vec1![Ipv4Addr::UNSPECIFIED.into()],
+            String::new(),
+            String::new(),
+        ));
+        relay_list.add_relay("quic_ipv6").endpoint_data.quic = Some(Quic::new(
+            vec1![Ipv6Addr::UNSPECIFIED.into()],
+            String::new(),
+            String::new(),
+        ));
+
+        relay_list.inner.wireguard.shadowsocks_port_ranges = vec![100..=200];
+        relay_list
+            .add_relay("shadowsocks_extra_ipv6")
+            .endpoint_data
+            .shadowsocks_extra_addr_in = HashSet::from([Ipv6Addr::UNSPECIFIED.into()]);
+        let relay_selector = RelaySelector::from(relay_list);
+
+        // "Auto" matches all relays
+        let constraints = EntryConstraints::default().obfuscation(ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
             ..Default::default()
-        };
-        // test_selecting_over_lwo
-        let lwo = ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Lwo,
-            ..Default::default()
-        };
-        // test_selecting_over_shadowsocks
-        let shadowsocks = ObfuscationSettings {
+        });
+        let RelayPartitions {
+            matches: _,
+            discards,
+        } = relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        assert!(discards.is_empty());
+
+        // Quic with Ipv4 constraint
+        let constraints = EntryConstraints::default()
+            .obfuscation(ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Quic,
+                ..Default::default()
+            })
+            .ip_version(IpVersion::V4);
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        assert_eq!(
+            &matches.into_iter().exactly_one().unwrap().hostname,
+            "quic_ipv4"
+        );
+        for (relay, reasons) in discards {
+            if &relay.hostname == "quic_ipv6" {
+                assert_eq!(reasons, vec![Reason::IpVersion]);
+            } else {
+                assert_eq!(reasons, vec![Reason::Obfuscation]);
+            }
+        }
+
+        // Plain shadowsocks matches all relays
+        let constraints = EntryConstraints::default().obfuscation(ObfuscationSettings {
             selected_obfuscation: SelectedObfuscation::Shadowsocks,
             ..Default::default()
-        };
+        });
+        let RelayPartitions {
+            matches: _,
+            discards,
+        } = relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        assert!(discards.is_empty(), "Plain shadowsocks matches all relays");
 
-        for obfuscation in [quic, lwo, shadowsocks] {
-            let constraints = EntryConstraints::default().obfuscation(obfuscation);
-            let query = relay_selector.partition_relays(Predicate::Singlehop(constraints));
-
-            assert!(
-                unique_reasons(query)
-                    .is_subset(&HashSet::from([Reason::Obfuscation, Reason::Inactive]))
+        // Shadowsocks with a port outside the configured port ranges (100..=200):
+        let out_of_range_port = 999; // outside 100..=200
+        let constraints = EntryConstraints::default().obfuscation(ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Shadowsocks,
+            shadowsocks: ShadowsocksSettings {
+                port: Constraint::Only(out_of_range_port),
+            },
+            ..Default::default()
+        });
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        // Only the relay with an extra IPv6 address should match (its extra addr satisfies
+        // `ip_version=Any` → IpVersionMatch::Ok → AcceptObfuscationEndpoint).
+        assert_eq!(
+            &matches.into_iter().exactly_one().unwrap().hostname,
+            "shadowsocks_extra_ipv6",
+            "Only the relay with extra IPv6 addr should match when port is out of range"
+        );
+        // All other relays have no extra addresses (IpVersionMatch::None) and the port is
+        // outside the WireGuard shadowsocks ranges, so they must be rejected with Reason::Port.
+        for (relay, reasons) in &discards {
+            assert_eq!(
+                reasons,
+                &vec![Reason::Port],
+                "relay '{}' should be rejected with Reason::Port",
+                relay.hostname
             );
+        }
+
+        // Shadowsocks with ip_version=V4 and a port outside the configured port ranges:
+        let constraints = EntryConstraints::default()
+            .obfuscation(ObfuscationSettings {
+                selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                shadowsocks: ShadowsocksSettings {
+                    port: Constraint::Only(out_of_range_port),
+                },
+                ..Default::default()
+            })
+            .ip_version(IpVersion::V4);
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        assert!(
+            matches.is_empty(),
+            "No relay should match shadowsocks+V4+out-of-range port"
+        );
+        for (relay, reasons) in &discards {
+            if relay.hostname == "shadowsocks_extra_ipv6" {
+                // Has extra addrs but only IPv6 → IpVersionMatch::Other → Reason::IpVersion.
+                // Switching to IPv6 would unblock this relay.
+                assert_eq!(
+                    reasons,
+                    &vec![Reason::IpVersion],
+                    "relay '{}' should be rejected with Reason::IpVersion",
+                    relay.hostname
+                );
+            } else {
+                // Other relays have no extra ss addrs at all → IpVersionMatch::None → Reason::Port.
+                // The port is the only thing blocking; the WireGuard endpoint would work with V4.
+                assert_eq!(
+                    reasons,
+                    &vec![Reason::Port],
+                    "relay '{}' should be rejected with Reason::Port",
+                    relay.hostname
+                );
+            }
         }
     }
 
     /// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
     #[test]
     fn runtime_ipv4_unavailable() {
+        let mut relay_list_builder = RelayListBuilder::new();
+        let has_ipv6 = relay_list_builder.add_relay("has_ipv6");
+        has_ipv6.inner.ipv6_addr_in = Some(Ipv6Addr::LOCALHOST);
+        let has_ipv6_clone = has_ipv6.clone();
+        let hasnt_ipv6_clone = relay_list_builder.add_relay("hasnt_ipv6").clone();
+
+        let relay_selector = RelaySelector::from(relay_list_builder);
         let constraints = EntryConstraints::default().ip_version(IpVersion::V6);
         // Query for all DAITA relays.
-        let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
-        assert!(!query.matches.is_empty());
-        for relay in &query.matches {
-            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
-        }
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Singlehop(constraints));
+        assert_eq!(matches, vec![has_ipv6_clone]);
+        assert_eq!(discards, vec![(hasnt_ipv6_clone, vec![Reason::IpVersion])]);
     }
 
     /// Check that if IPv4 is not available and shadowsocks obfuscation is requested
@@ -1695,14 +1807,33 @@ mod partition_relays {
             .ip_version(IpVersion::V6)
             .obfuscation(ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                shadowsocks: ShadowsocksSettings {
+                    port: Constraint::Only(1337),
+                },
                 ..Default::default()
             });
         // Query for all DAITA relays.
         let query = relay_selector().partition_relays(Predicate::Singlehop(constraints));
         assert!(!query.matches.is_empty());
         for relay in &query.matches {
-            assert!(relay.ipv6_addr_in.is_some(), "{relay:#?}");
+            assert!(
+                relay
+                    .endpoint_data
+                    .shadowsocks_extra_addr_in
+                    .iter()
+                    .any(|ip| ip.is_ipv6()),
+                "{relay:#?}"
+            );
         }
+
+        assert!(relay_selector().relay_list(|r| {
+            r.relays()
+                .any(|r| r.endpoint_data.shadowsocks_extra_addr_in.is_empty())
+        }));
+        assert_eq!(
+            unique_reasons(query),
+            (HashSet::from_iter([Reason::Port, Reason::IpVersion, Reason::Inactive,]))
+        );
     }
 
     /// Test that filtering on DAITA works.
@@ -2020,7 +2151,7 @@ mod relay_list_builder {
     use talpid_types::net::wireguard::PublicKey;
 
     pub struct RelayListBuilder {
-        relay_list: RelayList,
+        pub inner: RelayList,
     }
 
     impl From<RelayListBuilder> for RelaySelector {
@@ -2061,13 +2192,13 @@ mod relay_list_builder {
                     shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
                 },
             };
-            Self { relay_list }
+            Self { inner: relay_list }
         }
 
         /// Add a relay into the previously added location, which defaults to "test-country".
         pub fn add_relay(&mut self, hostname: impl Display) -> &mut WireguardRelay {
             let country = self
-                .relay_list
+                .inner
                 .countries
                 .last_mut()
                 .expect("Some active country");
@@ -2101,12 +2232,7 @@ mod relay_list_builder {
         }
 
         pub fn add_location(&mut self, country: &str, city: &str) {
-            let country = match self
-                .relay_list
-                .countries
-                .iter_mut()
-                .find(|c| c.code == country)
-            {
+            let country = match self.inner.countries.iter_mut().find(|c| c.code == country) {
                 Some(country) => country,
                 None => {
                     let country = RelayListCountry {
@@ -2114,8 +2240,8 @@ mod relay_list_builder {
                         name: country.to_string(),
                         cities: vec![],
                     };
-                    self.relay_list.countries.push(country);
-                    self.relay_list.countries.last_mut().unwrap()
+                    self.inner.countries.push(country);
+                    self.inner.countries.last_mut().unwrap()
                 }
             };
             let city = RelayListCity {
@@ -2129,7 +2255,7 @@ mod relay_list_builder {
         }
 
         pub fn finish(self) -> RelayList {
-            self.relay_list
+            self.inner
         }
     }
 }
