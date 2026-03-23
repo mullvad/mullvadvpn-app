@@ -25,6 +25,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationOption
         case wireGuardObfuscationPort
         case quantumResistance
+        case ipVersion
 
         var reusableViewClass: AnyClass {
             switch self {
@@ -44,6 +45,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .quantumResistance:
                 return SelectableSettingsCell.self
+            case .ipVersion:
+                return SelectableSettingsCell.self
             }
         }
     }
@@ -62,6 +65,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardPorts
         case wireGuardObfuscation
         case quantumResistance
+        case ipVersion
         case privacyAndSecurity
     }
 
@@ -79,6 +83,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
+        case ipVersionAutomatic
+        case ipVersionIPv4
+        case ipVersionIPv6
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
@@ -100,6 +107,10 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         static var quantumResistance: [Item] {
             [.quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff]
+        }
+
+        static var ipVersion: [Item] {
+            [.ipVersionAutomatic, .ipVersionIPv4, .ipVersionIPv6]
         }
 
         var accessibilityIdentifier: AccessibilityIdentifier {
@@ -130,6 +141,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .quantumResistanceOn
             case .quantumResistanceOff:
                 .quantumResistanceOff
+            case .ipVersionAutomatic:
+                .ipVersionAutomatic
+            case .ipVersionIPv4:
+                .ipVersionIPv4
+            case .ipVersionIPv6:
+                .ipVersionIPv6
             }
         }
 
@@ -149,6 +166,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .wireGuardObfuscationOption
             case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
                 .quantumResistance
+            case .ipVersionAutomatic, .ipVersionIPv4, .ipVersionIPv6:
+                .ipVersion
             }
         }
     }
@@ -197,10 +216,18 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             case .on: .quantumResistanceOn
             }
 
+        let ipVersionItem: Item =
+            switch viewModel.ipVersion {
+            case .automatic: .ipVersionAutomatic
+            case .ipv4: .ipVersionIPv4
+            case .ipv6: .ipVersionIPv6
+            }
+
         return [
             wireGuardPortItem,
             obfuscationStateItem,
             quantumResistanceItem,
+            ipVersionItem,
         ].compactMap { indexPath(for: $0) }
     }
 
@@ -222,6 +249,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             switch section {
             case .obfuscation: .wireGuardObfuscation
             case .quantumResistance: .quantumResistance
+            case .ipVersion: .ipVersion
             default: nil
             }
 
@@ -340,6 +368,15 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .quantumResistanceOff:
             selectQuantumResistance(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
+        case .ipVersionAutomatic:
+            selectIPVersion(.automatic)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.ipVersion(viewModel.ipVersion))
+        case .ipVersionIPv4:
+            selectIPVersion(.ipv4)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.ipVersion(viewModel.ipVersion))
+        case .ipVersionIPv6:
+            selectIPVersion(.ipv6)
+            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.ipVersion(viewModel.ipVersion))
         default:
             break
         }
@@ -378,6 +415,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             return view
         case .quantumResistance:
             configureQuantumResistanceHeader(view)
+            return view
+        case .ipVersion:
+            configureIPVersionHeader(view)
             return view
         default:
             return UIView()
@@ -478,6 +518,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 .appendItems(
                     Item.quantumResistance,
                     toSection: .quantumResistance
+                )
+        } else if onlyShowSection == .ipVersion {
+            snapshot
+                .appendItems(
+                    Item.ipVersion,
+                    toSection: .ipVersion
                 )
         }
 
@@ -595,6 +641,32 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    private func configureIPVersionHeader(_ header: SettingsHeaderView) {
+        let title = NSLocalizedString("IP version", comment: "")
+
+        header.setAccessibilityIdentifier(.ipVersionCell)
+        header.titleLabel.text = title
+        header.accessibilityCustomActionName = title
+        header.isExpanded = isExpanded(.ipVersion)
+        if onlyShowSection == nil || onlyShowSection != .ipVersion {
+            header.didCollapseHandler = { [weak self] header in
+                guard let self else { return }
+
+                var snapshot = snapshot()
+                if header.isExpanded {
+                    snapshot.deleteItems(Item.ipVersion)
+                } else {
+                    snapshot.appendItems(Item.ipVersion, toSection: .ipVersion)
+                }
+                header.isExpanded.toggle()
+                applySnapshot(snapshot, animated: true)
+            }
+        }
+        header.infoButtonHandler = { [weak self] in
+            self.map { $0.delegate?.showInfo(for: .ipVersion) }
+        }
+    }
+
     private func selectRow(at indexPath: IndexPath?, animated: Bool = false) {
         tableView?.selectRow(at: indexPath, animated: animated, scrollPosition: .none)
     }
@@ -653,5 +725,9 @@ extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
 
     func selectQuantumResistance(_ state: TunnelQuantumResistance) {
         viewModel.setQuantumResistance(state)
+    }
+
+    func selectIPVersion(_ version: IPVersion) {
+        viewModel.setIPVersion(version)
     }
 }

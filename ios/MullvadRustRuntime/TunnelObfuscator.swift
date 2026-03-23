@@ -17,6 +17,11 @@ public enum TunnelObfuscationProtocol {
     case shadowsocks
     case quic(hostname: String, token: String)
     case lwo(serverPublicKey: PublicKey, clientPublicKey: PublicKey)
+
+    public var isLwo: Bool {
+        if case .lwo = self { return true }
+        return false
+    }
 }
 
 public protocol TunnelObfuscation {

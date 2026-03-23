@@ -94,6 +94,7 @@ struct VPNSettingsViewModel: Equatable {
 
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
+    private(set) var ipVersion: IPVersion
     private(set) var includeAllNetworks: IncludeAllNetworksSettings
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
@@ -188,6 +189,10 @@ struct VPNSettingsViewModel: Equatable {
         quantumResistance = newState
     }
 
+    mutating func setIPVersion(_ newVersion: IPVersion) {
+        ipVersion = newVersion
+    }
+
     mutating func setMultihop(_ newState: MultihopState) {
         multihopState = newState
     }
@@ -258,6 +263,7 @@ struct VPNSettingsViewModel: Equatable {
 
         quantumResistance = tunnelSettings.tunnelQuantumResistance
         multihopState = tunnelSettings.tunnelMultihopState
+        ipVersion = tunnelSettings.ipVersion
 
         includeAllNetworks = tunnelSettings.includeAllNetworks
     }

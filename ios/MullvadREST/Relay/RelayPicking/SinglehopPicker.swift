@@ -23,7 +23,7 @@ struct SinglehopPicker: RelayPicking {
         guard whenNeeded || automaticSelection else { return false }
 
         return switch reason {
-        case .noDaitaRelaysFound, .noObfuscatedRelaysFound:
+        case .noDaitaRelaysFound, .noObfuscatedRelaysFound, .noIPv6RelayFound:
             true
         case .filterConstraintNotMatching, .invalidPort, .entryEqualsExit,
             .multihopInvalidFlow, .noActiveRelaysFound, .relayConstraintNotMatching, .invalidObfuscationPort:
