@@ -113,7 +113,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try oneToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            selectCloseRelay: false
+            selectNearbyLocation: false
         )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se2-wireguard")
@@ -129,7 +129,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelaysWithoutSmartRouting = try oneToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            selectCloseRelay: false
+            selectNearbyLocation: false
         )
 
         XCTAssertEqual(selectedRelaysWithoutSmartRouting.entry?.hostname, "se2-wireguard")
@@ -139,7 +139,7 @@ class MultihopDecisionFlowTests: XCTestCase {
             oneToMany.pick(
                 entryCandidates: [seSto2],
                 exitCandidates: [seSto2, seSto6],
-                selectCloseRelay: true
+                selectNearbyLocation: true
             ))
         XCTAssertEqual(selectedRelaysWithSmartRouting.entry?.hostname, "se2-wireguard")
         XCTAssertEqual(selectedRelaysWithSmartRouting.exit.hostname, "se6-wireguard")
@@ -154,7 +154,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            selectCloseRelay: false
+            selectNearbyLocation: false
         )
 
         XCTAssertEqual(selectedRelays.entry?.hostname, "se6-wireguard")
@@ -170,7 +170,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            selectCloseRelay: false
+            selectNearbyLocation: false
         )
 
         if selectedRelays.exit.hostname == "se2-wireguard" {
