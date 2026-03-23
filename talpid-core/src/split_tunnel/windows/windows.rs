@@ -56,7 +56,7 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
 pub fn get_final_path_name_by_handle(handle: impl AsRawHandle) -> Result<OsString, io::Error> {
     let raw_handle = handle.as_raw_handle();
 
-    // SAFETY: file is a valid file handle
+    // SAFETY: `raw_handle` is a valid file handle
     let buffer_size =
         unsafe { GetFinalPathNameByHandleW(raw_handle, ptr::null_mut(), 0u32, VOLUME_NAME_NT) }
             as usize;
