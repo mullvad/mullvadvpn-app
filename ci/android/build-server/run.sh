@@ -167,6 +167,16 @@ function build_sign_and_publish_ref {
     echo ""
 }
 
+function upload_fdroid {
+    # shellcheck source=ci/buildserver-config.sh
+    source "$SCRIPT_DIR/buildserver-config.sh"
+
+    local fdroid-local-release = "$BUILD_DIR/android/fdroid-repo/"
+    fdroid-local-release --update $1
+    fdroid-local-release --sign
+    fdroid-local-release --push "${PRODUCTION_UPLOAD_SERVERS[0]}/android/fdroid/"
+}
+
 cd "$BUILD_DIR"
 
 while true; do

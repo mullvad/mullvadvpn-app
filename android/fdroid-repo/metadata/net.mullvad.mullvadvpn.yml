@@ -1,0 +1,35 @@
+Categories:
+  - Connectivity
+  - Internet
+  - Security
+  - System
+  - VPN & Proxy
+License: GPL-3.0-or-later
+WebSite: https://mullvad.net
+SourceCode: https://github.com/mullvad/mullvadvpn-app
+IssueTracker: https://github.com/mullvad/mullvadvpn-app/issues
+Translation:
+  https://github.com/mullvad/mullvadvpn-app/blob/HEAD/CONTRIBUTING.md#localization--translations
+Changelog:
+  https://github.com/mullvad/mullvadvpn-app/blob/HEAD/android/CHANGELOG.md
+
+AutoName: Mullvad VPN
+
+Summary: >-
+   Protect your online privacy with a fast, trustworthy, and easy-to-use VPN.
+
+Description: >-
+   Free the internet from data collection with Mullvad VPN – a service that helps keep your online activity, identity, and location private. Only €5/month.
+
+RepoType: git
+Repo: https://github.com/mullvad/mullvadvpn-app.git
+
+Builds:
+  - versionName: '2026.3'
+    versionCode: 26039000
+    commit: a4e3140a8cea229e62a4b0852f978f47e2d2842e
+
+AutoUpdateMode: None
+UpdateCheckMode: None
+CurrentVersion: '2026.3'
+CurrentVersionCode: 26039000
