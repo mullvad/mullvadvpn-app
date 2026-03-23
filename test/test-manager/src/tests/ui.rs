@@ -62,12 +62,10 @@ pub async fn run_test_env<
         .map(|(k, v)| (k.as_ref().to_string(), v.as_ref().to_string()))
         .collect();
 
-    // Inherit CI from test-manager's environment (set by GHA)
-    if let Ok(ci) = std::env::var("CI") {
-        env.insert("CI".to_string(), ci);
-    } else {
-        env.insert("CI".to_string(), "e2e".to_string());
-    }
+    // Always set CI=e2e so that:
+    // 1. window.env.e2e is truthy in the renderer (enables window.e2e routing state)
+    // 2. On Linux, main/index.ts skips setWindowIcon (which hangs Playwright)
+    env.insert("CI".to_string(), "e2e".to_string());
 
     // env may contain sensitive info
     // log::info!("Running UI tests: {params:?}, env: {env:?}");
