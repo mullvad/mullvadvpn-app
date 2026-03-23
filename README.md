@@ -29,22 +29,9 @@ your download on [Mullvad's Open Source page].
 
 ### Platform/OS support
 
-These are the operating systems and their versions that the app officially supports. It might
-work on many more versions, but we don't test for those and can't guarantee the quality or
-security.
-
-| OS/Platform | Supported versions |
-|-------------|--------------------|
-| Windows     | 10 and 11          |
-| macOS       | The three latest major releases |
-| Linux (Ubuntu)| The two latest LTS releases and the latest non-LTS releases |
-| Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
-| Linux (Debian) | 12 and newer    |
-| Android     | 8 and newer        |
-| iOS         | 17.0 and newer     |
-
-On Linux we test using the Gnome desktop environment. The app should, and probably does work
-in other DEs, but we don't regularly test those.
+See [Supported Platforms](docs/supported-platforms.md) for details on which operating
+systems, versions and architectures are supported, and which ones are covered by our
+automated test suite.
 
 ## Features
 
