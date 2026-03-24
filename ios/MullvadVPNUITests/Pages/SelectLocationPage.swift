@@ -77,6 +77,18 @@ class SelectLocationPage: Page {
         app.buttons[identifier]
     }
 
+    @discardableResult func verifyAutomaticCellsExist() -> Self {
+        XCTAssertTrue(cellWithIdentifier(identifier: .recentListItem("Automatic")).exists)
+        XCTAssertTrue(cellWithIdentifier(identifier: .locationListItem("Automatic")).exists)
+        return self
+    }
+
+    @discardableResult func verifyNoAutomaticCellsExist() -> Self {
+        XCTAssertFalse(cellWithIdentifier(identifier: .recentListItem("Automatic")).exists)
+        XCTAssertFalse(cellWithIdentifier(identifier: .locationListItem("Automatic")).exists)
+        return self
+    }
+
     @discardableResult func tapFilterButton() -> Self {
         app.buttons[AccessibilityIdentifier.selectLocationFilterButton]
             .firstMatch

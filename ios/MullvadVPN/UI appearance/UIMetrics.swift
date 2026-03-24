@@ -108,7 +108,6 @@ enum UIMetrics {
     enum LocationList {
         static let cellCornerRadius: CGFloat = 16
         static let cellMinHeight: CGFloat = 56
-
     }
 
     enum SettingsInfoView {

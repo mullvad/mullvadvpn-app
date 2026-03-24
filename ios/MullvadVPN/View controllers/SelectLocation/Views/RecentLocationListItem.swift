@@ -23,7 +23,7 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
             accessibilityIdentifier: .recentListItem(location.name),
             accessibilityLabel: location.name,
             label: {
-                itemFactory.label(for: .recent(node: location, level: 0))
+                itemFactory.label(for: .recent(node: location))
             },
             segment: {
                 if isAutomaticLocation {
