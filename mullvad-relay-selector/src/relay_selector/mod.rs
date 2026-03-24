@@ -388,7 +388,7 @@ impl RelaySelector {
             }
             SpecializedSelectorConfig::Normal(normal_config) => {
                 let relay_list = self.get_relays();
-                Self::get_relay_inner(&query, &relay_list, normal_config.custom_lists)
+                Self::get_wireguard_relay_inner(&query, normal_config.custom_lists, &relay_list)
             }
         }
     }
@@ -450,49 +450,28 @@ impl RelaySelector {
                 let maybe_relay = retry_order
                     .iter()
                     .filter_map(|query| query.clone().intersection(user_query.clone()))
-                    .filter_map(|query| {
-                        Self::get_relay_inner(&query, &parsed_relays, custom_lists).ok()
-                    })
+                    .filter_map(|query| Self::get_wireguard_relay_inner(&query, custom_lists, &parsed_relays).ok())
                     .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
                     .nth(retry_attempt);
                 match maybe_relay {
                     Some(v) => Ok(v),
                     // If none of the queries in `retry_order` merged with `user_preferences` yield any relays,
                     // attempt to only consider the user's preferences.
-                    None => Self::get_relay_inner(&user_query, &parsed_relays, custom_lists),
+                    None => {
+                        Self::get_wireguard_relay_inner(&user_query, custom_lists, &parsed_relays)
+                    }
                 }
             }
         }
     }
 
-    /// "Execute" the given query, yielding a final set of relays and/or bridges which the VPN
-    /// traffic shall be routed through.
+    /// Derive a valid relay configuration from `query`.
     ///
     /// # Parameters
     /// - `query`: Constraints that filter the available relays, such as geographic location or
     ///   tunnel protocol.
-    /// - `config`: Configuration settings that influence relay selection, including bridge state
-    ///   and custom lists.
     /// - `parsed_relays`: The complete set of parsed relays available for selection.
-    ///
-    /// # Returns
-    /// * A randomly selected relay that meets the specified constraints (and a random bridge/entry
-    ///   relay if applicable). See [`GetRelay`] for more details.
-    /// * An `Err` if no suitable relay is found
-    /// * An `Err` if no suitable bridge is found
-    fn get_relay_inner(
-        query: &RelayQuery,
-        parsed_relays: &RelayList,
-        custom_lists: &CustomListsSettings,
-    ) -> Result<GetRelay, Error> {
-        Self::get_wireguard_relay_inner(query, custom_lists, parsed_relays)
-    }
-
-    /// Derive a valid relay configuration from `query`.
-    ///
-    /// # Note
-    /// This function should *only* be called with a Wireguard query.
-    /// It will panic if the tunnel type is not specified as Wireguard.
+    /// - `custom_lists`
     ///
     /// # Returns
     /// * An `Err` if no exit relay can be chosen
