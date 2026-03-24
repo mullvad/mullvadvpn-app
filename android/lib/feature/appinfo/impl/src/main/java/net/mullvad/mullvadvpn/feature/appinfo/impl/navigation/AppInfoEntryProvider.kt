@@ -4,11 +4,14 @@ import androidx.navigation3.runtime.EntryProviderScope
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.slideInHorizontalTransition
+import net.mullvad.mullvadvpn.core.scene.ListDetailSceneStrategy
 import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfo
 
 internal fun EntryProviderScope<NavKey2>.appInfoEntry(navigator: Navigator) {
-    entry<AppInfoNavKey>(metadata = slideInHorizontalTransition()) {
+    entry<AppInfoNavKey>(
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+    ) {
         AppInfo(navigator = navigator)
     }
 }

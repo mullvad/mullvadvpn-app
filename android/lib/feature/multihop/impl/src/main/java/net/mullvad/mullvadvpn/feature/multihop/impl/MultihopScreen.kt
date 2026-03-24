@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -84,7 +85,7 @@ fun MultihopScreen(
             if (state.isModal()) {
                 NavigateCloseIconButton(onBackClick)
             } else {
-                NavigateBackIconButton(onNavigateBack = onBackClick)
+                unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
     ) { modifier ->

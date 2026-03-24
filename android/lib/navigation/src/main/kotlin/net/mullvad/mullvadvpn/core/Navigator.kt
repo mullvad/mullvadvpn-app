@@ -3,7 +3,11 @@ package net.mullvad.mullvadvpn.core
 import androidx.compose.runtime.toMutableStateList
 
 /** Handles navigation events (forward and back) by updating the navigation state. */
-class Navigator(private val state: NavigationState, val resultStore: ResultStore) {
+class Navigator(
+    private val state: NavigationState,
+    val resultStore: ResultStore,
+    val screenIsListDetailTargetWidth: Boolean,
+) {
 
     /** A view of the previous back stack as it was before the last navigation/pop event. */
     var previousBackStack: List<NavKey2> = state.backStack.toList()
@@ -14,10 +18,10 @@ class Navigator(private val state: NavigationState, val resultStore: ResultStore
     /**
      * Navigate to a navigation key.
      *
-     * @param key the navigation key to navigate to.
+     * @param keys the navigation keys to navigate to.
      * @param clearBackStack if true clears the back stack before pushing the new key
      */
-    fun navigate(key: NavKey2, clearBackStack: Boolean = false) {
+    fun navigate(vararg keys: NavKey2, clearBackStack: Boolean = false) {
         previousBackStack = state.backStack.toList()
 
         state.backStack.apply {
@@ -25,8 +29,10 @@ class Navigator(private val state: NavigationState, val resultStore: ResultStore
                 clear()
             }
 
-            if (key != state.backStack.lastOrNull()) {
-                add(key)
+            keys.forEach { key ->
+                if (key != state.backStack.lastOrNull()) {
+                    add(key)
+                }
             }
         }
     }
@@ -103,4 +109,5 @@ val EmptyNavigator =
     Navigator(
         state = NavigationState(emptyList<NavKey2>().toMutableStateList()),
         resultStore = ResultStore(),
+        screenIsListDetailTargetWidth = false,
     )

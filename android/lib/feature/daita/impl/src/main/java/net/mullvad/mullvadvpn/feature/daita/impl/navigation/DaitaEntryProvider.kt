@@ -6,11 +6,14 @@ import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.slideInHorizontalTransition
+import net.mullvad.mullvadvpn.core.scene.ListDetailSceneStrategy
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.daita.impl.Daita
 
 fun EntryProviderScope<NavKey2>.daitaEntry(navigator: Navigator) {
-    entry<DaitaNavKey>(metadata = slideInHorizontalTransition()) { navKey ->
+    entry<DaitaNavKey>(
+        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+    ) { navKey ->
         LocalSharedTransitionScope.current?.Daita(
             navigator = navigator,
             isModal = navKey.isModal,
