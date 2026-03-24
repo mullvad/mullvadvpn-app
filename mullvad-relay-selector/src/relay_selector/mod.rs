@@ -90,7 +90,7 @@ pub struct RelaySelector {
 pub struct SelectorConfig {
     // Normal relay settings
     pub relay_settings: RelaySettings,
-    pub additional_constraints: AdditionalRelayConstraints,
+    pub additional_constraints: AdditionalWireguardConstraints,
     pub custom_lists: CustomListsSettings,
     // Wireguard specific data
     pub obfuscation_settings: ObfuscationSettings,
@@ -98,24 +98,22 @@ pub struct SelectorConfig {
 
 impl SelectorConfig {
     pub fn from_settings(settings: &Settings) -> Self {
-        let additional_constraints = AdditionalRelayConstraints {
-            wireguard: AdditionalWireguardConstraints {
-                #[cfg(daita)]
-                daita: settings.tunnel_options.wireguard.daita.enabled,
-                #[cfg(daita)]
-                daita_use_multihop_if_necessary: settings
-                    .tunnel_options
-                    .wireguard
-                    .daita
-                    .use_multihop_if_necessary,
+        let additional_constraints = AdditionalWireguardConstraints {
+            #[cfg(daita)]
+            daita: settings.tunnel_options.wireguard.daita.enabled,
+            #[cfg(daita)]
+            daita_use_multihop_if_necessary: settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary,
 
-                #[cfg(not(daita))]
-                daita: false,
-                #[cfg(not(daita))]
-                daita_use_multihop_if_necessary: false,
+            #[cfg(not(daita))]
+            daita: false,
+            #[cfg(not(daita))]
+            daita_use_multihop_if_necessary: false,
 
-                quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
-            },
+            quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
         };
 
         Self {
@@ -128,12 +126,6 @@ impl SelectorConfig {
 }
 
 /// Extra relay constraints not specified in `relay_settings`.
-#[derive(Default, Debug, Clone, Eq, PartialEq)]
-pub struct AdditionalRelayConstraints {
-    pub wireguard: AdditionalWireguardConstraints,
-}
-
-/// Constraints to use when selecting WireGuard servers
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct AdditionalWireguardConstraints {
     /// If true, select WireGuard relays that support DAITA. If false, select any
@@ -176,7 +168,7 @@ enum SpecializedSelectorConfig<'a> {
 #[derive(Debug, Clone)]
 struct NormalSelectorConfig<'a> {
     user_preferences: &'a RelayConstraints,
-    additional_preferences: &'a AdditionalRelayConstraints,
+    additional_preferences: &'a AdditionalWireguardConstraints,
     custom_lists: &'a CustomListsSettings,
     // Wireguard specific data
     obfuscation_settings: &'a ObfuscationSettings,
@@ -216,7 +208,7 @@ impl Default for SelectorConfig {
         let default_settings = Settings::default();
         SelectorConfig {
             relay_settings: default_settings.relay_settings,
-            additional_constraints: AdditionalRelayConstraints::default(),
+            additional_constraints: AdditionalWireguardConstraints::default(),
             obfuscation_settings: default_settings.obfuscation_settings,
             custom_lists: default_settings.custom_lists,
         }
@@ -297,7 +289,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
 
         let wireguard_constraints = wireguard_constraints(
             value.user_preferences.wireguard_constraints.clone(),
-            value.additional_preferences.wireguard.clone(),
+            value.additional_preferences.clone(),
             value.obfuscation_settings.clone(),
         );
         Ok(RelayQuery::new(
