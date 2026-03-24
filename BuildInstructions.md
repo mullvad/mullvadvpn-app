@@ -204,7 +204,7 @@ Building this requires at least 1GB of memory.
 
 ## Notes on options
 
-- `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`. The output files will be located in `./target/debian/*` and `/target/generate-rpm/*`.
+- `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
 - `--gotatun` - This will build with the `gotatun` Rust library instead the `wireguard-go-rs` Go library.
 
 ## Notes on targeting ARM64
