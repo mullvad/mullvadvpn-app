@@ -14,7 +14,6 @@ REPO_MOUNT_TARGET="/build"
 CARGO_TARGET_VOLUME_NAME=${CARGO_TARGET_VOLUME_NAME:-"cargo-target"}
 CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
-ANDROID_CREDENTIALS_DIR=${ANDROID_CREDENTIALS_DIR:-""}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -32,10 +31,6 @@ case ${1-:""} in
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
         optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
 
-        if [ -n "$ANDROID_CREDENTIALS_DIR" ]; then
-            optional_android_credentials_volume=(-v "$ANDROID_CREDENTIALS_DIR:$REPO_MOUNT_TARGET/android/credentials:Z")
-        fi
-
         shift 1
     ;;
     *)
@@ -49,5 +44,4 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
-    "${optional_android_credentials_volume[@]}" \
     "$container_image_name" bash -c "$*"

@@ -6,7 +6,6 @@
 #     -v $CARGO_TARGET_VOLUME_NAME:/cargo-target:Z \
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
-#     -v $ANDROID_CREDENTIALS_DIR:/build/android/credentials:Z \
 #     -v /path/to/repository_root:/build:Z \
 #     mullvadvpn-app-build-android ./android/build.sh --dev-build
 #
