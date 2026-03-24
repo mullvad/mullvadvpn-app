@@ -34,6 +34,11 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
     /// IP version preference for relay connections.
     public var ipVersion: IPVersion
 
+    public var automaticMultihopIsEnabled: Bool {
+        (tunnelMultihopState == .whenNeeded)
+        || (tunnelMultihopState == .always && relayConstraints.entryLocations == .any)
+    }
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),

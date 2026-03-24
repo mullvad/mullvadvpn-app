@@ -124,7 +124,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             if !$context.recents.isEmpty {
                 RecentLocationsListView(
                     locations: $context.recents,
-                    multihopContext: viewModel.multihopContext,
                     onSelectLocation: { location in
                         context.selectLocation(location)
                     },
