@@ -9,8 +9,6 @@ GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
-RUN_PLAY_PUBLISH_TASKS="no"
-PLAY_PUBLISH_TASKS=()
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
@@ -23,8 +21,6 @@ while [ -n "${1:-""}" ]; do
         BUNDLE_TASKS=(createOssProdFdroidDistBundle)
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
-    elif [[ "${1:-""}" == "--enable-play-publishing" ]]; then
-        RUN_PLAY_PUBLISH_TASKS="yes"
     fi
 
     shift 1
@@ -36,6 +32,10 @@ function assert_clean_working_directory {
         exit 1
     fi
 }
+
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+    assert_clean_working_directory
+fi
 
 echo "Computing build version..."
 echo ""
@@ -53,18 +53,6 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
             createPlayDevmoleReleaseDistBundle
             createPlayStagemoleReleaseDistBundle
         )
-    fi
-
-    if [[ "$PRODUCT_VERSION" != *"-dev-"* ]]; then
-        PLAY_PUBLISH_TASKS+=(
-            publishPlayProdReleaseBundle
-        )
-        if [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
-            PLAY_PUBLISH_TASKS+=(
-                publishPlayDevmoleReleaseBundle
-                publishPlayStagemoleReleaseBundle
-            )
-        fi
     fi
 fi
 
@@ -94,10 +82,6 @@ fi
 # This could for example happen if lockfiles are outdated, and the build process updates them.
 if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     assert_clean_working_directory
-fi
-
-if [[ "$RUN_PLAY_PUBLISH_TASKS" == "yes" && "${#PLAY_PUBLISH_TASKS[@]}" -ne 0 ]]; then
-    $GRADLE_CMD --console plain "${PLAY_PUBLISH_TASKS[@]}"
 fi
 
 echo "**********************************"
