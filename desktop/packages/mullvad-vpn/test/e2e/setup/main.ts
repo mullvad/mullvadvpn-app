@@ -94,7 +94,7 @@ class ApplicationMain {
       frame: true,
       webPreferences: {
         offscreen: CI_E2E && !TEST_SHOW_WINDOW,
-        preload: path.join(import.meta.dirname, 'preload.js'),
+        preload: path.join(import.meta.dirname, 'preload.cjs'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,

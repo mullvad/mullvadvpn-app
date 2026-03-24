@@ -118,9 +118,13 @@ const viteConfig = defineConfig({
             outDir: OUT_DIR,
             rollupOptions: {
               output: {
-                // We have to specify preload.js here as otherwise it would
-                // use the '.mjs' file extension.
-                entryFileNames: 'preload.js',
+                // We have to keep the preload script as an CJS module as otherwise we
+                // would not be able to disable the Chromium sandbox at runtime using
+                // the --no-sandbox flag.
+                //
+                // For more information see the Preload section in:
+                // https://github.com/electron/electron/blob/v39.2.6/docs/tutorial/esm.md
+                entryFileNames: 'preload.cjs',
               },
             },
           },
