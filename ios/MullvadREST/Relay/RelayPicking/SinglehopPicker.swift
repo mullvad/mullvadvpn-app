@@ -17,10 +17,11 @@ struct SinglehopPicker: RelayPicking {
     let connectionAttemptCount: UInt
 
     private func shouldTriggerMultihop(reason: NoRelaysSatisfyingConstraintsReason) -> Bool {
-        let whenNeeded = tunnelSettings.tunnelMultihopState == .whenNeeded
-        let automaticSelection = tunnelSettings.relayConstraints.entryLocations == .any
+        let multihopWhenNeeded = tunnelSettings.tunnelMultihopState == .whenNeeded
+        let multihopAlways = tunnelSettings.tunnelMultihopState == .always
+        let anyLocation = tunnelSettings.relayConstraints.entryLocations == .any
 
-        guard whenNeeded || automaticSelection else { return false }
+        guard multihopWhenNeeded || (multihopAlways && anyLocation) else { return false }
 
         return switch reason {
         case .noDaitaRelaysFound, .noObfuscatedRelaysFound, .noIPv6RelayFound:
