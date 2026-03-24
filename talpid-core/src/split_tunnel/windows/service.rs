@@ -49,6 +49,10 @@ pub enum Error {
     #[error("Failed to update service configuration")]
     UpdateServiceConfig(#[source] windows_service::Error),
 
+    /// Split tunnel service is running with wrong driver path
+    #[error("Split tunnel service is running with the wrong driver path")]
+    RunningWithWrongPath,
+
     /// Failed to start ST service
     #[error("Timed out waiting on service to start")]
     StartTimeout,
@@ -90,6 +94,17 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
     // installation registered the service with a different path, update the config.
     let config = service.query_config().map_err(Error::QueryServiceConfig)?;
     if !paths_equal(&config.executable_path, &expected_syspath) {
+        let status = service.query_status().map_err(Error::QueryServiceStatus)?;
+        if status.current_state != ServiceState::Stopped {
+            // The service is running with the wrong binary. We cannot safely stop old versions of
+            // the driver without first resetting it (risk of BSOD), so bail out.
+            log::error!(
+                "Split tunnel service is running with the wrong path ({:?}), expected {:?}",
+                config.executable_path,
+                expected_syspath,
+            );
+            return Err(Error::RunningWithWrongPath);
+        }
         log::debug!(
             "Split tunnel service has incorrect path ({:?}), updating to {:?}",
             config.executable_path,
