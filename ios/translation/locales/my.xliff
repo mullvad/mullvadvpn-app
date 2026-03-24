@@ -15,6 +15,11 @@
         <target state="final">%@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">%2$@ ကို %1$@ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
         <target state="final">%1$@ (%2$@) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။</target>
@@ -49,6 +54,11 @@
         <source>%@ was added to your account.</source>
         <target state="final">%@ ကို သင့်အကောင့်တွင် ထည့်လိုက်ပြီ။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">"%2$@" ကို %1$@ရန်အတွက် VPN ချိတ်ဆက်မှုကို ပြန်လည်စတင်ရန် လိုအပ်ပြီး ထိုအချိန်အတွင်း ချိတ်ဆက်မှုပြတ်တောက်၍ သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။ ထိုသို့မဖြစ်စေရန် ဆက်မလုပ်မီ လေယာဉ်ပျံမုဒ်ကို ကိုယ်တိုင်ဖွင့်ပြီး Wi-Fi ကို ပိတ်ပါ။</target>
+        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
@@ -145,6 +155,11 @@
         <target state="final">အကောင့် နံပါတ်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Account time reminders" xml:space="preserve" approved="yes">
+        <source>Account time reminders</source>
+        <target state="final">အကောင့်အချိန် သတိပေးချက်များ</target>
+        <note from="auto-generated">Accessibility identifier for the switch that controls account time reminders.</note>
+      </trans-unit>
       <trans-unit id="Active features" xml:space="preserve" approved="yes">
         <source>Active features</source>
         <target state="final">သက်ဝင်နေသည့် လုပ်ဆောင်ချက်များ</target>
@@ -199,6 +214,11 @@
         <source>Adult content</source>
         <target state="final">လူကြီး အကြောင်းအရာ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="After updating, you will have to enable “%@” manually again." xml:space="preserve" approved="yes">
+        <source>After updating, you will have to enable “%@” manually again.</source>
+        <target state="final">အပ်ဒိတ်လုပ်ပြီးနောက် သင်သည် "%@" ကို ကိုယ်တိုင်ပြန်ဖွင့်ရပါမည်။</target>
+        <note from="auto-generated">A note that appears below the option to disable IAN in the alert. The argument is the string “Force all apps”.</note>
       </trans-unit>
       <trans-unit id="Agree and continue" xml:space="preserve" approved="yes">
         <source>Agree and continue</source>
@@ -805,6 +825,16 @@
         <target state="final">လတ်တလောအရာများကို ပိတ်ပါ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable “%@”" xml:space="preserve" approved="yes">
+        <source>Disable “%@”</source>
+        <target state="final">"%@" ကို ပိတ်ရန်</target>
+        <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
+        <source>Disabling</source>
+        <target state="final">ပိတ်</target>
+        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">လတ်တလောအရာများကို ပိတ်လိုက်ပါက မှတ်တမ်းကိုလည်း ရှင်းလင်းသွားပါမည်။</target>
@@ -924,6 +954,11 @@
         <source>Enable recents</source>
         <target state="final">လတ်တလောအရာများကို ဖွင့်ရန်</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
+        <source>Enabling</source>
+        <target state="final">ဖွင့်</target>
+        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1195,6 +1230,11 @@
         <target state="final">ယခု ချိတ်ဆက်မှု ဖြတ်တောက်လိုက်ပါက ထိုစက် အွန်လိုင်းမတက်မချင်း သင်၏ ချိတ်ဆက်မှုကို လုံခြုံအောင် ပြုလုပ်နိုင်မည် မဟုတ်ပါ။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="If you do not wish to disable “%@“, you can disconnect from the VPN instead." xml:space="preserve" approved="yes">
+        <source>If you do not wish to disable “%@“, you can disconnect from the VPN instead.</source>
+        <target state="final">"%@" ကို မပိတ်လိုပါက ထိုအစား VPN ချိတ်ဆက်မှုဖြုတ်နိုင်သည်။</target>
+        <note from="auto-generated">Text in an alert presented to a user when a new app version is available, The argument is the string “Force all apps”.</note>
+      </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
         <target state="final">ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။</target>
@@ -1320,6 +1360,11 @@
         <target state="final">အစ္စတန်ဘူလ်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:" xml:space="preserve" approved="yes">
+        <source>It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</source>
+        <target state="final">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</target>
+        <note from="auto-generated">Additional information about how the local network sharing feature works.</note>
+      </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve" approved="yes">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
         <target state="final">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</target>
@@ -1363,6 +1408,11 @@
       <trans-unit id="Kyiv" xml:space="preserve" approved="yes">
         <source>Kyiv</source>
         <target state="final">ကိယက်ဗ်</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="LWO" xml:space="preserve" approved="yes">
+        <source>LWO</source>
+        <target state="final">LWO</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lagos" xml:space="preserve" approved="yes">
@@ -1419,6 +1469,11 @@
         <source>Ljubljana</source>
         <target state="final">လစ်ဘီယာနာ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Local Network Sharing" xml:space="preserve" approved="yes">
+        <source>Local Network Sharing</source>
+        <target state="final">ကွန်ရက်တွင်း မျှဝေမှု</target>
+        <note from="auto-generated">The name of the feature that will be disabled when "Disabling Local Network Sharing" is selected.</note>
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve" approved="yes">
         <source>Local network sharing</source>
@@ -1849,6 +1904,11 @@
         <source>Phoenix, AZ</source>
         <target state="final">ဖီးနစ်၊ အရီဇိုးနား</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve" approved="yes">
+        <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
+        <target state="final">ကွန်ရက်ချိတ်ဆက်နိုင်စွမ်း မဆုံးရှုံးကြောင်း သေချာစေရန် အသိပေးချက်များကို ဖွင့်ပါ။ မည်သို့ပင်ဖြစ်စေ ဆက်လုပ်လိုပါသလား။</target>
+        <note from="auto-generated">Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve" approved="yes">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
@@ -2427,6 +2487,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">ရွေးချယ်ထားသော WireGuard ပေါ့တ်ကို တွဲဖက်လုပ်ဆောင်နိုင်ခြင်း မရှိသဖြင့် ** VPN ဆက်တင် များ ** တွင်ပြောင်းပေးပါ။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The selected obfuscation port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
+        <source>The selected obfuscation port is not supported, please change it under **VPN settings**.</source>
+        <target state="final">ရွေးချယ်ထားသော Obfuscation ပေါ့တ်ကို သုံးနိုင်ခြင်း မရှိသဖြင့် ** VPN ဆက်တင်များ ** တွင် ၎င်းကို ပြောင်းပေးပါ။</target>
+        <note from="auto-generated">Description of an in-app notification that appears when the selected obfuscation port is not supported.</note>
+      </trans-unit>
       <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
         <target state="final">စက်ပေါ်တွင် သိမ်းဆည်းထားသော ဆက်တင်များ၏ ဗားရှင်းကို မသိရှိပါ။ ဆက်တင်များကို ပုံသေအတိုင်း ပြန်လည်သတ်မှတ်မည်ဖြစ်ပြီး စက်မှ အကောင့်ထွက်သွားပါမည်။</target>
@@ -2486,6 +2551,11 @@ Do you want to remove the saved account number?</source>
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="final">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
+        <source>This will also disable “%@“.</source>
+        <target state="final">၎င်းက "%@" ကိုလည်း ပိတ်ပါမည်။</target>
+        <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
@@ -2647,6 +2717,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">အပ်ဒိတ် ရရှိနိုင်ပါပြီ</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
+      <trans-unit id="Update relay list" xml:space="preserve" approved="yes">
+        <source>Update relay list</source>
+        <target state="final">ထပ်ဆင့်လွှင့်စာရင်းကို အပ်ဒိတ်လုပ်ရန်</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
         <target state="final">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</target>
@@ -2676,6 +2751,11 @@ Do you want to remove the saved account number?</source>
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">ဝင်သည့် အပိုင်းအခြား- %1$d - %2$d</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Valid ranges: %@" xml:space="preserve" approved="yes">
+        <source>Valid ranges: %@</source>
+        <target state="final">အကျုံးဝင်သည့် အပိုင်းအခြား- %@</target>
+        <note from="auto-generated">A string describing the valid port ranges for LWO obfuscation. The argument is the string “”.</note>
       </trans-unit>
       <trans-unit id="Vancouver" xml:space="preserve" approved="yes">
         <source>Vancouver</source>
@@ -2793,6 +2873,16 @@ Do you want to remove the saved account number?</source>
         <target state="final">"Mullvad ပေါင်းကူးများ" နည်းလမ်းဖြင့်ဆိုလျှင် အက်ပ်သည် Mullvad API ဆာဗာအား Mullvad ပေါင်းကူး ဆာဗာမှတစ်ဆင့် ဆက်သွယ်ပါသည်။ Shadowsock များဖြင့် ရှုပ်ထွေးအောင် ပြုလုပ်ထားသည့် ဒေတာကူးလူးမှုများကို ပေးပို့ခြင်းဖြင့် ၎င်းက အဆိုပါကိစ္စကို ဆောင်ရွက်ပါသည်။</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue to %1$@ “%2$@”?</source>
+        <target state="final">“%2$@” ကို %1$@ ရန် ဆက်လုပ်လိုပါသလား။</target>
+        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue?</source>
+        <target state="final">ဆက်လုပ်လိုပါသလား။</target>
+        <note from="auto-generated">Question asked when a user is prompted to continue an action that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
         <target state="final">ဟုတ်ပါသည်၊ ဆက်လုပ်ပါ</target>
@@ -2837,6 +2927,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Apple ဝန်ဆောင်မှုများမှတစ်ဆင့် လုပ်ဆောင်သော အက်ပ်တွင်း ပေးချေမှုမှန်သမျှကို ရှာကြည့်ရန်အတွက် "ဝယ်ယူမှုများကို ပြန်လည်ရယူရန်" လုပ်ဆောင်ချက်ကို သုံးနိုင်ပါသည်။ ငွေပေးချေမှုတစ်ခုခုအတွက် ရသင့်သည့် အချိန်ကို အကောင့်တွင် မထည့်သေးပါက ထိုသို့လုပ်ဆောင်ခြင်းဖြင့် လက်ရှိဝင်ရောက်ထားသော Mullvat အကောင့်တွင် အချိန်ထပ်တိုးပေးပါမည်။</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
+        <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
+        <target state="final">သင်သည် လောလောဆယ် အသိပေးချက်များကို ပိတ်ထားသည်။ သို့ဖြစ်၍ အပ်ဒိတ်တစ်ခု ရရှိနိုင်သည့်အခါ အပ်ဒိတ်မလုပ်မီ ဤလုပ်ဆောင်ချက်ကို သင်ပိတ်နိုင်စေရန် သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်နိုင်စေရန် သင့်ထံ အသိပေးချက် ပို့နိုင်မည်မဟုတ်ပါ။</target>
+        <note from="auto-generated">First paragraph of an alert that appears when the user is prompted to reconsider enabling notifications.</note>
       </trans-unit>
       <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
@@ -2931,6 +3026,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">ဇူးရစ်ချ်</target>
         <note/>
       </trans-unit>
+      <trans-unit id="disable" xml:space="preserve" approved="yes">
+        <source>disable</source>
+        <target state="final">ပိတ်ရန်</target>
+        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="enable" xml:space="preserve" approved="yes">
+        <source>enable</source>
+        <target state="final">ဖွင့်ရန်</target>
+        <note from="auto-generated">The action to perform when continuing.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
         <target state="final">ကိုယ်ပိုင်အချက်အလက် မူဝါဒ</target>
@@ -2940,6 +3045,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <source>value</source>
         <target state="final">တန်ဖိုး</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN." xml:space="preserve" approved="yes">
+        <source>“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN.</source>
+        <target state="final">"%@" ကို ဖွင့်ထားသည်၊ အပ်ဒိတ်မလုပ်မီ ၎င်းကို ပိတ်ပါ၊ သို့မဟုတ်ပါက ကွန်ရက်ချိတ်ဆက်နိုင်စွမ်း ဆုံးရှုံးပါမည်။ VPN ကို သင်ပြန်လည်ချိတ်ဆက်စဉ် သင့်ဒေတာသုံးစွဲမှုကို ခဏကြာ ထုတ်ဖော်ခံရပါမည်။</target>
+        <note from="auto-generated">A message in an in-app notification alert that explains the purpose of the alert and gives an option to disable a feature that might cause a user to lose network connectivity when an app update is available. The first argument The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity." xml:space="preserve" approved="yes">
+        <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
+        <target state="final">"%@" ကို ဖွင့်ထားသည်၊ အပ်ဒိတ်မလုပ်မီ ၎င်းကို ပိတ်ပါ သို့မဟုတ် ချိတ်ဆက်မှုဖြုတ်ပါ၊ သို့မဟုတ်ပါက ကွန်ရက်ချိတ်ဆက်နိုင်စွမ်း ဆုံးရှုံးပါမည်။</target>
+        <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
       </trans-unit>
     </body>
   </file>
@@ -3019,6 +3134,11 @@ We strongly believe in retaining as little data as possible because we want you 
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
         <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
         <target state="final">ကွန်ရက် ချိတ်ဆက်မှု မဆုံးရှုံးစေရန် အပ်ဒိတ်မလုပ်မီ “%@” ကို ပိတ်ပါ သို့မဟုတ် ချိတ်ဆက်မှု ဖြုတ်ပါ။</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">အက်ပ်အားလုံး၌ မဖြစ်မနေ လုပ်ဆောင်ရန်</target>
         <note/>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">

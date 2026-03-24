@@ -33,7 +33,7 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                 "Manage and add custom methods to access the Mullvad API.",
                 comment: ""
             )
-            let about = NSLocalizedString("About API access...", comment: "")
+            let about = NSLocalizedString("About API access…", comment: "")
 
             MullvadList(
                 viewModel.items,
