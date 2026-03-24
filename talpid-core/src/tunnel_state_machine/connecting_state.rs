@@ -203,6 +203,8 @@ impl ConnectingState {
             allowed_tunnel_traffic,
             #[cfg(target_os = "macos")]
             redirect_interface,
+            #[cfg(target_os = "windows")]
+            excluded_subnets: shared_values.excluded_subnets.clone(),
         };
         shared_values
             .firewall
@@ -540,6 +542,16 @@ impl ConnectingState {
                     }
                 }
                 SameState(self)
+            }
+            #[cfg(target_os = "windows")]
+            Some(TunnelCommand::SetExcludedSubnets(subnets, complete_tx)) => {
+                let consequence = if shared_values.set_excluded_subnets(subnets) {
+                    self.reset_firewall(shared_values)
+                } else {
+                    SameState(self)
+                };
+                let _ = complete_tx.send(());
+                consequence
             }
         }
     }

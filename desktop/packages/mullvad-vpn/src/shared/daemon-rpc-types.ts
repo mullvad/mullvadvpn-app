@@ -472,6 +472,7 @@ export interface ISettings {
 export type SplitTunnelSettings = {
   enableExclusions: boolean;
   appsList: string[];
+  ipExclusionsList: string[];
 };
 
 export type WireGuardPortObfuscationSettings = {

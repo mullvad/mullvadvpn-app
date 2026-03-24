@@ -91,6 +91,7 @@ simple-signal = "1.1"
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
 dirs = { workspace = true }
+ipnetwork = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
 windows-service = "0.6.0"

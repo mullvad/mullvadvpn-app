@@ -14,6 +14,7 @@
 #include "rules/baseline/permitvpntunnel.h"
 #include "rules/baseline/permitvpntunnelservice.h"
 #include "rules/baseline/permitdns.h"
+#include "rules/baseline/permitsplittunnelsubnets.h"
 #include "rules/dns/blockall.h"
 #include "rules/dns/permitloopback.h"
 #include "rules/dns/permittunnel.h"
@@ -62,6 +63,47 @@ void AppendSettingsRules
 		ruleset.emplace_back(std::make_unique<baseline::PermitLan>());
 		ruleset.emplace_back(std::make_unique<baseline::PermitLanService>());
 		ruleset.emplace_back(baseline::PermitDhcpServer::WithExtent(baseline::PermitDhcpServer::Extent::IPv4Only));
+	}
+
+	//
+	// Split tunnel subnet exclusions
+	//
+	if (settings.numExcludedSubnets > 0 && settings.excludedSubnets != nullptr)
+	{
+		std::vector<wfp::IpNetwork> ipv4Subnets;
+		std::vector<wfp::IpNetwork> ipv6Subnets;
+
+		for (size_t i = 0; i < settings.numExcludedSubnets; i++)
+		{
+			const std::wstring cidr(settings.excludedSubnets[i]);
+
+			// Split CIDR into address and prefix length
+			const auto slashPos = cidr.find(L'/');
+			if (slashPos == std::wstring::npos)
+			{
+				continue;
+			}
+
+			const auto ipStr = cidr.substr(0, slashPos);
+			const auto prefixLen = static_cast<uint8_t>(std::stoi(cidr.substr(slashPos + 1)));
+
+			// Determine address family by checking for ':'
+			if (ipStr.find(L':') != std::wstring::npos)
+			{
+				ipv6Subnets.emplace_back(wfp::IpAddress(ipStr.c_str()), prefixLen);
+			}
+			else
+			{
+				ipv4Subnets.emplace_back(wfp::IpAddress(ipStr.c_str()), prefixLen);
+			}
+		}
+
+		if (!ipv4Subnets.empty() || !ipv6Subnets.empty())
+		{
+			ruleset.emplace_back(std::make_unique<baseline::PermitSplitTunnelSubnets>(
+				ipv4Subnets, ipv6Subnets
+			));
+		}
 	}
 
 	//

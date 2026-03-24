@@ -734,6 +734,62 @@ const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Redirect()
 }
 
 //static
+const GUID &MullvadGuids::Filter_Baseline_PermitSplitTunnelSubnets_Outbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x3a7e1f2c,
+		0xd514,
+		0x4b8a,
+		{ 0x91, 0xe3, 0x7c, 0xf8, 0xa2, 0x5b, 0x6d, 0x01 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitSplitTunnelSubnets_Inbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x3a7e1f2c,
+		0xd514,
+		0x4b8a,
+		{ 0x91, 0xe3, 0x7c, 0xf8, 0xa2, 0x5b, 0x6d, 0x02 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitSplitTunnelSubnets_Outbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x3a7e1f2c,
+		0xd514,
+		0x4b8a,
+		{ 0x91, 0xe3, 0x7c, 0xf8, 0xa2, 0x5b, 0x6d, 0x03 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitSplitTunnelSubnets_Inbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x3a7e1f2c,
+		0xd514,
+		0x4b8a,
+		{ 0x91, 0xe3, 0x7c, 0xf8, 0xa2, 0x5b, 0x6d, 0x04 }
+	};
+
+	return g;
+}
+
+//static
 const GUID &MullvadGuids::Filter_Baseline_PermitDns_Outbound_Ipv4()
 {
 	static const GUID g =
