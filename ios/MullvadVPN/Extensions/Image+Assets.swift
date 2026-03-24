@@ -21,7 +21,7 @@ extension Image {
     static let mullvadIconStateOffline = Image("IconStateOffline")
     static let mullvadIconStateIssue = Image("IconStateIssue")
     static let mullvadIconInternet = Image("IconInternet")
-    static let mullvadServer = Image("IconServer")
+    static let mullvadLocationAdd = Image("IconLocationAdd")
     static let mullvadSmartphone = Image("IconSmartphone")
     static let mullvadLocation = Image("IconLocation")
     static let mullvadIconError = Image("IconError")
