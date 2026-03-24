@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { type CustomListLocation } from '../../../../../features/locations/types';
 import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
+import { spacings } from '../../../../../lib/foundations';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
 import { Location } from '../location-list-item';
@@ -18,10 +20,11 @@ export type CustomListLocationProps = {
   disabled?: boolean;
 };
 
-export function CustomListLocationImpl({
-  customList,
-  disabled: disabledProp,
-}: CustomListLocationProps) {
+const StyledLocationContainer = styled.div`
+  margin-bottom: ${spacings.tiny};
+`;
+
+function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomListLocationProps) {
   const [expanded, setExpanded] = useState(customList.expanded);
   const { handleSelect } = useLocationListsContext();
 
@@ -63,43 +66,45 @@ export function CustomListLocationImpl({
   };
 
   return (
-    <Location root selected={customList.selected}>
-      <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
-        <Location.Accordion.Header level={0}>
-          <Location.Accordion.Header.Trigger
-            onClick={handleClick}
-            aria-label={sprintf(
-              // TRANSLATORS: Accessibility label for a button that connects to a location.
-              // TRANSLATORS: Available placeholders:
-              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-              messages.pgettext('accessibility', 'Connect to %(location)s'),
-              {
-                location: customList.label,
-              },
-            )}>
-            <Location.Accordion.Header.Item>
-              <FlexColumn>
-                <Location.Accordion.Header.Item.Title>
-                  {customList.label}
-                </Location.Accordion.Header.Item.Title>
-                {showEmptySubtitle && (
-                  <FootnoteMiniSemiBold color="whiteAlpha60">
-                    {
-                      // TRANSLATORS: Label for custom lists that don't have any locations added to them yet.
-                      messages.pgettext('select-location-view', 'Empty')
-                    }
-                  </FootnoteMiniSemiBold>
-                )}
-              </FlexColumn>
-            </Location.Accordion.Header.Item>
-          </Location.Accordion.Header.Trigger>
-          <CustomListTrailingActions customList={customList} />
-        </Location.Accordion.Header>
-        <Location.Accordion.Content>
-          <AnimatedList>{expanded ? renderChildren() : null}</AnimatedList>
-        </Location.Accordion.Content>
-      </Location.Accordion>
-    </Location>
+    <StyledLocationContainer>
+      <Location root selected={customList.selected}>
+        <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
+          <Location.Accordion.Header level={0}>
+            <Location.Accordion.Header.Trigger
+              onClick={handleClick}
+              aria-label={sprintf(
+                // TRANSLATORS: Accessibility label for a button that connects to a location.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
+                messages.pgettext('accessibility', 'Connect to %(location)s'),
+                {
+                  location: customList.label,
+                },
+              )}>
+              <Location.Accordion.Header.Item>
+                <FlexColumn>
+                  <Location.Accordion.Header.Item.Title>
+                    {customList.label}
+                  </Location.Accordion.Header.Item.Title>
+                  {showEmptySubtitle && (
+                    <FootnoteMiniSemiBold color="whiteAlpha60">
+                      {
+                        // TRANSLATORS: Label for custom lists that don't have any locations added to them yet.
+                        messages.pgettext('select-location-view', 'Empty')
+                      }
+                    </FootnoteMiniSemiBold>
+                  )}
+                </FlexColumn>
+              </Location.Accordion.Header.Item>
+            </Location.Accordion.Header.Trigger>
+            <CustomListTrailingActions customList={customList} />
+          </Location.Accordion.Header>
+          <Location.Accordion.Content>
+            <AnimatedList>{expanded ? renderChildren() : null}</AnimatedList>
+          </Location.Accordion.Content>
+        </Location.Accordion>
+      </Location>
+    </StyledLocationContainer>
   );
 }
 export function CustomListLocation({ ...props }: CustomListLocationProps) {
