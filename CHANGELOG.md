@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
+### Fixed
+#### Windows
+- Fix regression in 2026.1 that could cause split tunneling to become unavailable.
+
 ### Security
 #### macOS
 - Mitigate multiple local privilege escalation attacks from admin user to root in the `preinstall`
