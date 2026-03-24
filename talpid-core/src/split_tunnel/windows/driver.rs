@@ -39,9 +39,26 @@ use windows_sys::Win32::{
         Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
     },
 };
+use windows_sys::core::GUID;
 
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
+
+/// Matches MullvadGuids::SublayerBaseline() in winfw/mullvadguids.cpp
+const WINFW_SUBLAYER_BASELINE: GUID = GUID {
+    data1: 0xc78056ff,
+    data2: 0x2bc1,
+    data3: 0x4211,
+    data4: [0xaa, 0xdd, 0x7f, 0x35, 0x8d, 0xef, 0x20, 0x2d],
+};
+
+/// Matches MullvadGuids::SublayerDns() in winfw/mullvadguids.cpp
+const WINFW_SUBLAYER_DNS: GUID = GUID {
+    data1: 0x60090787,
+    data2: 0xcca1,
+    data3: 0x4937,
+    data4: [0xaa, 0xce, 0x51, 0x25, 0x6e, 0xf4, 0x81, 0xf3],
+};
 
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     (device_type << 16) | (access << 14) | (function << 2) | method
@@ -50,7 +67,7 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
 #[repr(u32)]
 #[expect(dead_code)]
 pub enum DriverIoctlCode {
-    Initialize = ctl_code(ST_DEVICE_TYPE, 1, METHOD_NEITHER, FILE_ANY_ACCESS),
+    Initialize = ctl_code(ST_DEVICE_TYPE, 1, METHOD_BUFFERED, FILE_ANY_ACCESS),
     DequeEvent = ctl_code(ST_DEVICE_TYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS),
     RegisterProcesses = ctl_code(ST_DEVICE_TYPE, 3, METHOD_BUFFERED, FILE_ANY_ACCESS),
     RegisterIpAddresses = ctl_code(ST_DEVICE_TYPE, 4, METHOD_BUFFERED, FILE_ANY_ACCESS),
@@ -256,7 +273,16 @@ impl DeviceHandle {
     }
 
     fn initialize(&self) -> io::Result<()> {
-        device_io_control(self, DriverIoctlCode::Initialize as u32, None, 0)?;
+        let guids = SublayerGuids {
+            baseline: WINFW_SUBLAYER_BASELINE,
+            dns: WINFW_SUBLAYER_DNS,
+        };
+        device_io_control(
+            self,
+            DriverIoctlCode::Initialize as u32,
+            Some(as_uninit_byte_slice(&guids)),
+            0,
+        )?;
         Ok(())
     }
 
@@ -449,6 +475,14 @@ impl AsRawHandle for DeviceHandle {
     fn as_raw_handle(&self) -> RawHandle {
         self.handle.as_raw_handle()
     }
+}
+
+/// Input buffer for `IOCTL_ST_INITIALIZE`. Mirrors `ST_SUBLAYER_GUIDS` from the driver.
+#[derive(Clone, Copy)]
+#[repr(C)]
+struct SublayerGuids {
+    baseline: GUID,
+    dns: GUID,
 }
 
 #[derive(Clone, Copy)]
