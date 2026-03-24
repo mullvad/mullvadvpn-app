@@ -13,6 +13,61 @@ LegalCopyright = "(c) 2026 Mullvad VPN AB"
 InternalName = "mullvad-daemon"
 OriginalFilename = "mullvad-daemon.exe"
 
+[package.metadata.deb]
+name = "mullvad-vpn-daemon"
+conflicts = ["mullvad-vpn"]
+maintainer = "Mullvad VPN <support@mullvadvpn.net>"
+copyright = "2026, Mullvad VPN AB <support@mullvadvpn.net>"
+license-file = ["../LICENSE.md", "0"]
+section = "net"
+priority = "optional"
+depends = "$auto"
+profile = "release"
+maintainer-scripts = "../dist-assets/linux/daemon/"
+assets = [
+  { source = "target/release/mullvad", dest = "usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-daemon", dest = "usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-exclude", dest = "usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-setup", dest = "opt/Mullvad VPN/resources/", mode = "755" },
+  { source = "target/release/mullvad-problem-report", dest = "opt/Mullvad VPN/resources/", mode = "755" },
+  { source = "../dist-assets/linux/mullvad-daemon.service", dest = "usr/lib/systemd/system/", mode = "644" },
+  { source = "../dist-assets/linux/mullvad-early-boot-blocking.service", dest = "usr/lib/systemd/system/", mode = "644" },
+  { source = "../dist-assets/ca.crt", dest = "opt/Mullvad VPN/resources/", mode = "644" },
+  { source = "../build/relays.json", dest = "opt/Mullvad VPN/resources/", mode = "644" },
+  { source = "../build/shell-completions/mullvad.bash", dest = "usr/share/bash-completion/completions/mullvad", mode = "644" },
+  { source = "../build/shell-completions/_mullvad", dest = "usr/local/share/zsh/site-functions/_mullvad", mode = "644" },
+  { source = "../build/shell-completions/mullvad.fish", dest = "usr/share/fish/vendor_completions.d/mullvad.fish", mode = "644" },
+  { source = "../CHANGELOG.md", dest = "opt/Mullvad VPN/resources/", mode = "644" },
+]
+
+[package.metadata.generate-rpm]
+name = "mullvad-vpn-daemon"
+vendor = "Mullvad VPN <support@mullvadvpn.net>"
+auto-req = "yes"
+pre_install_script = "../dist-assets/linux/daemon/preinst"
+pre_uninstall_script = "../dist-assets/linux/daemon/prerm"
+post_install_script = "../dist-assets/linux/daemon/postinst"
+post_uninstall_script = "../dist-assets/linux/daemon/postrm"
+post_trans_script = "../dist-assets/linux/post-transaction.sh"
+assets = [
+  { source = "target/release/mullvad", dest = "/usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-daemon", dest = "/usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-exclude", dest = "/usr/bin/", mode = "755" },
+  { source = "target/release/mullvad-setup", dest = "/opt/Mullvad VPN/resources/", mode = "755" },
+  { source = "target/release/mullvad-problem-report", dest = "/opt/Mullvad VPN/resources/", mode = "755" },
+  { source = "../dist-assets/linux/mullvad-daemon.service", dest = "/usr/lib/systemd/system/", mode = "644" },
+  { source = "../dist-assets/linux/mullvad-early-boot-blocking.service", dest = "/usr/lib/systemd/system/", mode = "644" },
+  { source = "../dist-assets/ca.crt", dest = "/opt/Mullvad VPN/resources/", mode = "644" },
+  { source = "../build/relays.json", dest = "/opt/Mullvad VPN/resources/", mode = "644" },
+  { source = "../build/shell-completions/mullvad.bash", dest = "/usr/share/bash-completion/completions/mullvad", mode = "644" },
+  { source = "../build/shell-completions/_mullvad", dest = "/usr/share/zsh/site-functions/_mullvad", mode = "644" },
+  { source = "../build/shell-completions/mullvad.fish", dest = "/usr/share/fish/vendor_completions.d/mullvad.fish", mode = "644" },
+  { source = "../CHANGELOG.md", dest = "/opt/Mullvad VPN/resources/", mode = "644" },
+]
+
+[package.metadata.generate-rpm.conflicts]
+mullvad-vpn = "*"
+
 [dependencies]
 anyhow = { workspace = true }
 chrono = { workspace = true }
@@ -126,58 +181,3 @@ wireguard-go = ["talpid-core/wireguard-go"]
 
 [lints]
 workspace = true
-
-[package.metadata.deb]
-name = "mullvad-vpn-daemon"
-conflicts = ["mullvad-vpn"]
-maintainer = "Mullvad VPN <support@mullvadvpn.net>"
-copyright = "2026, Mullvad VPN AB <support@mullvadvpn.net>"
-license-file = ["../LICENSE.md", "0"]
-section = "net"
-priority = "optional"
-depends = "$auto"
-profile = "release"
-maintainer-scripts = "../dist-assets/linux/daemon/"
-assets = [
-    ["target/release/mullvad", "usr/bin/", "755"],
-    ["target/release/mullvad-daemon", "usr/bin/", "755"],
-    ["target/release/mullvad-exclude", "usr/bin/", "755"],
-    ["target/release/mullvad-setup", "opt/Mullvad VPN/resources/", "755"],
-    ["target/release/mullvad-problem-report", "opt/Mullvad VPN/resources/", "755"],
-    ["../dist-assets/linux/mullvad-daemon.service", "usr/lib/systemd/system/", "644"],
-    ["../dist-assets/linux/mullvad-early-boot-blocking.service", "usr/lib/systemd/system/", "644"],
-    ["../dist-assets/ca.crt", "opt/Mullvad VPN/resources/", "644"],
-    ["../build/relays.json", "opt/Mullvad VPN/resources/", "644"],
-    ["../build/shell-completions/mullvad.bash", "usr/share/bash-completion/completions/mullvad", "644"],
-    ["../build/shell-completions/_mullvad", "usr/local/share/zsh/site-functions/_mullvad", "644"],
-    ["../build/shell-completions/mullvad.fish", "usr/share/fish/vendor_completions.d/mullvad.fish", "644"],
-    ["../CHANGELOG.md", "opt/Mullvad VPN/resources/", "644"],
-]
-
-[package.metadata.generate-rpm]
-name = "mullvad-vpn-daemon"
-vendor = "Mullvad VPN <support@mullvadvpn.net>"
-auto-req = "yes"
-pre_install_script = "../dist-assets/linux/daemon/preinst"
-pre_uninstall_script = "../dist-assets/linux/daemon/prerm"
-post_install_script = "../dist-assets/linux/daemon/postinst"
-post_uninstall_script = "../dist-assets/linux/daemon/postrm"
-post_trans_script = "../dist-assets/linux/post-transaction.sh"
-assets = [
-    { source = "target/release/mullvad", dest = "/usr/bin/", mode = "755"},
-    { source = "target/release/mullvad-daemon", dest = "/usr/bin/", mode = "755"},
-    { source = "target/release/mullvad-exclude", dest = "/usr/bin/", mode = "755"},
-    { source = "target/release/mullvad-setup", dest = "/opt/Mullvad VPN/resources/", mode = "755"},
-    { source = "target/release/mullvad-problem-report", dest = "/opt/Mullvad VPN/resources/", mode = "755"},
-    { source = "../dist-assets/linux/mullvad-daemon.service", dest = "/usr/lib/systemd/system/", mode = "644"},
-    { source = "../dist-assets/linux/mullvad-early-boot-blocking.service", dest = "/usr/lib/systemd/system/", mode = "644"},
-    { source = "../dist-assets/ca.crt", dest = "/opt/Mullvad VPN/resources/", mode = "644"},
-    { source = "../build/relays.json", dest = "/opt/Mullvad VPN/resources/", mode = "644"},
-    { source = "../build/shell-completions/mullvad.bash", dest = "/usr/share/bash-completion/completions/mullvad", mode = "644"},
-    { source = "../build/shell-completions/_mullvad", dest = "/usr/share/zsh/site-functions/_mullvad", mode = "644"},
-    { source = "../build/shell-completions/mullvad.fish", dest = "/usr/share/fish/vendor_completions.d/mullvad.fish", mode = "644"},
-    { source = "../CHANGELOG.md", dest = "/opt/Mullvad VPN/resources/", mode = "644"},
-]
-
-[package.metadata.generate-rpm.conflicts]
-mullvad-vpn = "*"
