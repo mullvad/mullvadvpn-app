@@ -40,15 +40,6 @@ class DAITAPage: Page {
         return self
     }
 
-    @discardableResult func tapEnableSwitchIfOn() -> Self {
-        let switchElement = app.switches[AccessibilityIdentifier.daitaSwitch]
-
-        if switchElement.value as? String == "1" {
-            tapEnableSwitch()
-        }
-        return self
-    }
-
     @discardableResult func tapEnableSwitchIfOff() -> Self {
         let switchElement = app.switches[AccessibilityIdentifier.daitaSwitch]
 

@@ -77,7 +77,7 @@ class CustomListsDataSourceTests: XCTestCase {
             customListSelection: .init(listId: customListId, isList: false)
         )
 
-        let nodeByLocations = dataSource.node(by: relays)
+        let nodeByLocations = dataSource.node(by: .only(relays))
         let nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["Netflix", "es1-wireguard"])
 
         XCTAssertEqual(nodeByLocations, nodeByCode)
@@ -92,7 +92,7 @@ class CustomListsDataSourceTests: XCTestCase {
 
         dataSource
             .setSelectedNode(
-                selectedRelays: userSelectedRelays
+                constraint: .only(userSelectedRelays)
             )
 
         dataSource.nodes.forEachNode { node in
@@ -105,7 +105,7 @@ class CustomListsDataSourceTests: XCTestCase {
 
         dataSource
             .setSelectedNode(
-                selectedRelays: .init(locations: [.country("invalid")])
+                constraint: .only(.init(locations: [.country("invalid")]))
             )
         dataSource.nodes.forEachNode { node in
             XCTAssertFalse(node.isSelected)
@@ -119,7 +119,7 @@ class CustomListsDataSourceTests: XCTestCase {
             ]
         )
 
-        dataSource.setSelectedNode(selectedRelays: selectedRelays)
+        dataSource.setSelectedNode(constraint: .only(selectedRelays))
 
         dataSource.nodes.forEachNode { node in
             XCTAssertFalse(node.isSelected)

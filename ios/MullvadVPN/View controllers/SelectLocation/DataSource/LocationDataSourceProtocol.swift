@@ -86,19 +86,19 @@ extension LocationDataSourceProtocol {
     /// It prevent the user from making a selection that would lead to the blocked state.
     /// - Parameters:
     ///   - constraint: The selection that should be checked for exclusion.
-    func setExcludedNode(constraint: RelayConstraint<UserSelectedRelays>) {
-        guard let selectedRelayLocations = constraint.value?.locations else {
-            return
-        }
-
-        guard selectedRelayLocations.count == 1,
-            let selectedRelayLocation = selectedRelayLocations.first
-        else {
-            return
-        }
-
+    func setExcludedNode(constraint: RelayConstraint<UserSelectedRelays>?) {
         nodes.forEachNode { node in
             node.isExcluded = false
+
+            guard let selectedRelayLocations = constraint?.value?.locations else {
+                return
+            }
+
+            guard selectedRelayLocations.count == 1,
+                let selectedRelayLocation = selectedRelayLocations.first
+            else {
+                return
+            }
 
             let locations = Set((node.flattened + [node]).flatMap { $0.locations })
             if locations

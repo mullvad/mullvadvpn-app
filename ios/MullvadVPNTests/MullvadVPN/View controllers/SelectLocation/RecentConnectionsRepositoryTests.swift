@@ -14,10 +14,10 @@ import Testing
 
 @Suite("RecentConnectionsRepositoryTests")
 final class RecentConnectionsRepositoryTests {
-    let se = UserSelectedRelays(locations: [.country("se")])
-    let fr = UserSelectedRelays(locations: [.country("fr")])
-    let nl = UserSelectedRelays(locations: [.country("nl")])
-    let de = UserSelectedRelays(locations: [.country("de")])
+    let se = RelayConstraint<UserSelectedRelays>.only(UserSelectedRelays(locations: [.country("se")]))
+    let fr = RelayConstraint<UserSelectedRelays>.only(UserSelectedRelays(locations: [.country("fr")]))
+    let nl = RelayConstraint<UserSelectedRelays>.only(UserSelectedRelays(locations: [.country("nl")]))
+    let de = RelayConstraint<UserSelectedRelays>.only(UserSelectedRelays(locations: [.country("de")]))
     private var cancellables = Set<Combine.AnyCancellable>()
 
     @Test("Adds locations up to the limit 1 for either entry or exit")
@@ -39,8 +39,8 @@ final class RecentConnectionsRepositoryTests {
             })
             .store(in: &cancellables)
 
-        repository.enable(se, selectedExitRelays: de)
-        repository.add(de, selectedExitRelays: se)
+        repository.enable(se, selectedExitConstraint: de)
+        repository.add(de, selectedExitConstraint: se)
 
         let value = try #require(recentConnections)
         #expect(thrownError == nil)
@@ -67,18 +67,20 @@ final class RecentConnectionsRepositoryTests {
             })
             .store(in: &cancellables)
 
-        repository.enable(se, selectedExitRelays: de)
+        repository.enable(se, selectedExitConstraint: de)
         repository.add(
-            UserSelectedRelays(
-                locations: se.locations,
-                customListSelection: UserSelectedRelays.CustomListSelection(listId: UUID(), isList: true)),
-            selectedExitRelays: se)
+            .only(
+                UserSelectedRelays(
+                    locations: se.value!.locations,
+                    customListSelection: UserSelectedRelays.CustomListSelection(listId: UUID(), isList: true))),
+            selectedExitConstraint: se)
         repository.add(
-            UserSelectedRelays(
-                locations: se.locations,
-                customListSelection: UserSelectedRelays.CustomListSelection(listId: UUID(), isList: false)),
-            selectedExitRelays: se)
-        repository.add(de, selectedExitRelays: nl)
+            .only(
+                UserSelectedRelays(
+                    locations: se.value!.locations,
+                    customListSelection: UserSelectedRelays.CustomListSelection(listId: UUID(), isList: false))),
+            selectedExitConstraint: se)
+        repository.add(de, selectedExitConstraint: nl)
 
         let value = try #require(recentConnections)
         #expect(thrownError == nil)
@@ -134,7 +136,7 @@ final class RecentConnectionsRepositoryTests {
                 }
             })
             .store(in: &cancellables)
-        repository.add(de, selectedExitRelays: se)
+        repository.add(de, selectedExitConstraint: se)
 
         let error = try #require(thrownError as? RecentConnectionsRepositoryError)
         #expect(error == RecentConnectionsRepositoryError.recentsDisabled)
@@ -162,20 +164,20 @@ final class RecentConnectionsRepositoryTests {
         let deletedListId = UUID()
 
         let listItem = UserSelectedRelays(
-            locations: se.locations + de.locations,
+            locations: se.value!.locations + de.value!.locations,
             customListSelection: .init(listId: deletedListId, isList: true)
         )
 
         let referencingItem = UserSelectedRelays(
-            locations: de.locations,
+            locations: de.value!.locations,
             customListSelection: .init(listId: deletedListId, isList: false)
         )
 
-        let unrelatedItem = UserSelectedRelays(locations: nl.locations)
+        let unrelatedItem = UserSelectedRelays(locations: nl.value!.locations)
 
-        repository.enable(listItem, selectedExitRelays: se)
-        repository.add(referencingItem, selectedExitRelays: de)
-        repository.add(unrelatedItem, selectedExitRelays: nl)
+        repository.enable(.only(listItem), selectedExitConstraint: se)
+        repository.add(.only(referencingItem), selectedExitConstraint: de)
+        repository.add(.only(unrelatedItem), selectedExitConstraint: nl)
 
         repository.deleteCustomList(deletedListId)
 
@@ -183,9 +185,8 @@ final class RecentConnectionsRepositoryTests {
         #expect(thrownError == nil)
 
         #expect(value.entryLocations.count == 2)
-        #expect(value.entryLocations.contains { $0.locations == de.locations && $0.customListSelection == nil })
-        #expect(value.entryLocations.contains { $0.locations == nl.locations })
-
+        #expect(value.entryLocations.contains { $0 == de && $0.value!.customListSelection == nil })
+        #expect(value.entryLocations.contains { $0 == nl })
         #expect(value.exitLocations.count == 3)
     }
 
