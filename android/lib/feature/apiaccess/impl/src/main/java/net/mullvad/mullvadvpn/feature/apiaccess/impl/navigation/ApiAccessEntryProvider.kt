@@ -13,6 +13,7 @@ fun EntryProviderScope<NavKey2>.apiAccessEntry(navigator: Navigator) {
     }
 
     apiAccessMethodDetailsEntry(navigator)
+    apiAccessMethodInfoEntry(navigator)
     editApiAccessMethodEntry(navigator)
     deleteApiAccessEntry(navigator)
     discardApiAccessChangesEntry(navigator)
