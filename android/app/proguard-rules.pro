@@ -19,6 +19,7 @@
 # grpc
 -keep class io.grpc.okhttp.OkHttpChannelBuilder { *; }
 -keep class mullvad_daemon.management_interface.** { *; }
+-keep class mullvad_daemon.relay_selector.** { *; }
 -keep class com.google.protobuf.Timestamp { *; }
 -keepnames class com.google.protobuf.** { *; }
 -dontwarn com.google.j2objc.annotations.ReflectionSupport
