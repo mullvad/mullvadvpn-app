@@ -1,12 +1,9 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
-import java.io.FileInputStream
-import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 import utilities.BuildTypes
 import utilities.FlavorDimensions
 import utilities.Flavors
-import utilities.SigningConfigs
 import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
