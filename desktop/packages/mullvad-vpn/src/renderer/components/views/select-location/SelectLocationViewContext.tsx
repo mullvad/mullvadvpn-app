@@ -3,6 +3,7 @@ import React from 'react';
 import {
   useFilterCountryLocations,
   useMapCustomListsToLocations,
+  useMapRecentsToLocations,
   useMapReduxCountriesToCountryLocations,
   useSearchCountryLocations,
   useSearchCustomListLocations,
@@ -21,6 +22,7 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setSearchTerm: (value: string) => void;
   countryLocations: ReturnType<typeof useSearchCountryLocations>;
   customListLocations: ReturnType<typeof useSearchCustomListLocations>;
+  recentLocations: ReturnType<typeof useMapRecentsToLocations>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -63,6 +65,11 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     searchTerm,
   );
 
+  const recentLocations = useMapRecentsToLocations(
+    searchedCountryLocations,
+    searchedCustomListLocations,
+  );
+
   const locationType = React.useMemo(() => {
     const allowEntryLocations = relaySettings?.wireguard.useMultihop;
 
@@ -80,6 +87,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setSearchTerm,
       countryLocations: searchedCountryLocations,
       customListLocations: searchedCustomListLocations,
+      recentLocations,
     }),
     [
       searchedCustomListLocations,
@@ -88,6 +96,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       searchTerm,
       setSearchTerm,
       setSelectLocationView,
+      recentLocations,
     ],
   );
 
