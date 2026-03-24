@@ -427,13 +427,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         updateLocationsDataSources(
             [exitCustomListsDataSource, exitLocationsDataSource], selectedExitConstraint, selectedEntryConstraint)
 
+        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
+        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
+
         exitContext.selectedLocation =
             [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode
         entryContext.selectedLocation =
             [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource].firstSelectedNode
-
-        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
-        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
     }
 
     func didFinish() {
@@ -471,25 +471,25 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     private func updateRecents(
         dataSource: LocationDataSourceProtocol,
-        selected: UserSelectedRelays
+        selected: RelayConstraint<UserSelectedRelays>
     ) {
-        dataSource.setSelectedNode(selectedRelays: selected)
+        dataSource.setSelectedNode(constraint: selected)
     }
 
     private func updateLocationDataSources(
         dataSources: [LocationDataSourceProtocol],
-        selected: UserSelectedRelays,
-        excluded: UserSelectedRelays
+        selected: RelayConstraint<UserSelectedRelays>,
+        excluded: RelayConstraint<UserSelectedRelays>
     ) {
         if let dataSource = dataSources.first(where: { $0.node(by: selected) != nil }) {
-            dataSource.setSelectedNode(selectedRelays: selected)
+            dataSource.setSelectedNode(constraint: selected)
             dataSource.expandSelection()
         }
 
         guard isMultihopEnabled else { return }
 
         dataSources.forEach {
-            $0.setExcludedNode(excludedSelection: excluded)
+            $0.setExcludedNode(constraint: excluded)
         }
     }
 

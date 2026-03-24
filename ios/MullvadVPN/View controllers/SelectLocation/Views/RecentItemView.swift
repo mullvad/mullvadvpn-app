@@ -10,7 +10,6 @@ import SwiftUI
 
 struct RecentItemView: View {
     let node: LocationNode
-    let level: Int
 
     var isDisabled: Bool {
         !node.isActive || node.isExcluded
@@ -44,7 +43,7 @@ struct RecentItemView: View {
         ListItem(
             title: node.name,
             subtitle: subtitle,
-            level: level,
+            level: 0,
             selected: node.isSelected,
             statusIndicator: { statusIndicator }
         )
@@ -58,7 +57,6 @@ struct RecentItemView: View {
             name: "A great location",
             code: "a-great-location",
             isSelected: true
-        ),
-        level: 0
+        )
     )
 }

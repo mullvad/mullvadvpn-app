@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-protocol AccountDeletionBackEnd {
+protocol AccountDeletionBackEnd: Sendable {
     var accountNumber: String? { get }
 
     func deleteAccount(accountNumber: String) async throws

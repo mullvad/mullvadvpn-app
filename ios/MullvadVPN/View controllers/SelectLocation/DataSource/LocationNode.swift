@@ -24,6 +24,10 @@ class LocationNode: @unchecked Sendable {
     var isOverridden: Bool
     let id = UUID()
 
+    var isSearchable: Bool {
+        true
+    }
+
     init(
         name: String,
         code: String,
@@ -279,10 +283,13 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
 class AutomaticLocationNode: LocationNode, @unchecked Sendable {
     var locationInfo: [String]?
 
+    override var isSearchable: Bool {
+        false
+    }
+
     init(
         name: String = NSLocalizedString("Automatic", comment: ""),
         code: String = "automatic",
-        isHiddenFromSearch: Bool = true,
         isConnected: Bool = false,
         isSelected: Bool = false,
         locationInfo: [String]? = nil
@@ -292,7 +299,6 @@ class AutomaticLocationNode: LocationNode, @unchecked Sendable {
         super.init(
             name: name,
             code: code,
-            isHiddenFromSearch: isHiddenFromSearch,
             isConnected: isConnected,
             isSelected: isSelected
         )
@@ -302,7 +308,6 @@ class AutomaticLocationNode: LocationNode, @unchecked Sendable {
         AutomaticLocationNode(
             name: name,
             code: code,
-            isHiddenFromSearch: isHiddenFromSearch,
             isConnected: isConnected,
             isSelected: isSelected,
             locationInfo: locationInfo
