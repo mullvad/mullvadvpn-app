@@ -7,7 +7,7 @@ import {
   type GeographicalLocation,
 } from '../types';
 import {
-  createLocationMap,
+  createCountryLocationMap,
   isCustomListDisabled,
   isLocationSelected,
   searchMatchesLocation,
@@ -22,7 +22,7 @@ export function useMapCustomListsToLocations(
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
     const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
-    const locationMap = createLocationMap(countryLocations);
+    const locationMap = createCountryLocationMap(countryLocations);
 
     // Get all ids of locations that are in the custom list
     const customListLocationIds = customList.locations.flatMap((location) => {
