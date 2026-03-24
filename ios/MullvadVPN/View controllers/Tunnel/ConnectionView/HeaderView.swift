@@ -34,11 +34,12 @@ extension ConnectionView {
                             ? LocalizedStringKey("Collapse connection details")
                             : LocalizedStringKey("Expand connection details")
                     )
+                    .showIf(viewModel.showsConnectionDetails)
             }
             .accessibilityElement(children: .contain)
-            .showIf(viewModel.showsConnectionDetails)
             .contentShape(Rectangle())
             .onTapGesture {
+                guard viewModel.showsConnectionDetails else { return }
                 withAnimation {
                     isExpanded.toggle()
                 }
