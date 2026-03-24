@@ -1137,75 +1137,67 @@ fn obfuscation_criteria(
     }
 
     use ObfuscationVerdict::*;
-    match obfuscation_settings {
+    use mullvad_types::relay_constraints::SelectedObfuscation::*;
+    match obfuscation_settings.selected_obfuscation {
+        Shadowsocks => {
+            // The relay may have IPs specifically meant for shadowsocks.
+            // Use them if they match the requested IP version.
+            match any_ip_matches_version(ip_version, &relay.endpoint().shadowsocks_extra_addr_in) {
+                IpVersionMatch::Ok => AcceptObfuscationEndpoint,
+                // Check if we can fall back to using the WireGuard endpoint instead.
+                // A few port ranges on it are dedicated to shadowsocks. If a specific port
+                // is requested it must lie within these ranges.
+                _ if obfuscation_settings.shadowsocks.port.is_any_or(|port| {
+                    shadowsocks_port_ranges
+                        .iter()
+                        .any(|range| range.contains(&port))
+                }) =>
+                {
+                    AcceptWireguardEndpoint
+                }
+                // -- We cannot resolve the relay on any endpoint, so reject it --
+
+                // Switching IP version would unblock the relay, so give that as the reject reason.
+                // Note that the relay could also be unblocked by removing the port constraint
+                // so that a normal WireGuard endpoint can be used IFF that endpoint
+                // is available with the requested IP version. We cannot represent this, so we
+                // opt to only inform the user about the IP version.
+                IpVersionMatch::Other => Reject(Reason::IpVersion),
+                // No extra addresses are available at all, the port must be changed
+                // so that a Wireguard endpoint can be used. This endpoint must
+                // then also be available with the requested IP version, which
+                // is checked for outside this function.
+                IpVersionMatch::None => Reject(Reason::Port),
+            }
+        }
+        Quic => {
+            // TODO: Refactor using `if-let guards` once 1.95 is stable.
+            let Some(quic) = relay.endpoint().quic() else {
+                // QUIC is disabled
+                return Reject(Reason::Obfuscation);
+            };
+            match any_ip_matches_version(ip_version, quic.in_addr()) {
+                IpVersionMatch::Ok => AcceptObfuscationEndpoint,
+                // Switching IP version would unblock the relay.
+                IpVersionMatch::Other => Reject(Reason::IpVersion),
+                // The relay has quic but no IPv4 or IPv6 addresses to use it.
+                // This scenario should be unreachable, but treat it as if obfuscation was
+                // unavailable just in case.
+                IpVersionMatch::None => Reject(Reason::Obfuscation),
+            }
+        }
+        // LWO is only enabled on some relays
+        Lwo if relay.endpoint().lwo => AcceptWireguardEndpoint,
+        Lwo => Reject(Reason::Obfuscation),
+        // Other relays are always valid
+        // TODO:^ This might not be true. We might want to consider the selected port for
+        // udp2tcp & wireguard port ..
         // Possible edge case that we have not implemented:
         // - User has set IPv6=only and anti-censorship=auto
         // - A relay doesn't have an IPv6 for its wg endpoint, but it does have an IPv6 extra shadowsocks addr.
         // In this scenario, we could conceivably allow the relay by enabling shadowsocks to resolve the IP constraint.
         // This would negatively affect the performance of the connection, so we have chosen to discard the relay for now.
-        Constraint::Any => AcceptWireguardEndpoint,
-        Constraint::Only(settings) => {
-            use mullvad_types::relay_constraints::SelectedObfuscation::*;
-            match settings.selected_obfuscation {
-                Shadowsocks => {
-                    // The relay may have IPs specifically meant for shadowsocks.
-                    // Use them if they match the requested IP version.
-                    match any_ip_matches_version(
-                        ip_version,
-                        &relay.endpoint().shadowsocks_extra_addr_in,
-                    ) {
-                        IpVersionMatch::Ok => AcceptObfuscationEndpoint,
-                        // Check if we can fall back to using the WireGuard endpoint instead.
-                        // A few port ranges on it are dedicated to shadowsocks. If a specific port
-                        // is requested it must lie within these ranges.
-                        _ if settings.shadowsocks.port.is_any_or(|port| {
-                            shadowsocks_port_ranges
-                                .iter()
-                                .any(|range| range.contains(&port))
-                        }) =>
-                        {
-                            AcceptWireguardEndpoint
-                        }
-                        // -- We cannot resolve the relay on any endpoint, so reject it --
-
-                        // Switching IP version would unblock the relay, so give that as the reject reason.
-                        // Note that the relay could also be unblocked by removing the port constraint
-                        // so that a normal WireGuard endpoint can be used IFF that endpoint
-                        // is available with the requested IP version. We cannot represent this, so we
-                        // opt to only inform the user about the IP version.
-                        IpVersionMatch::Other => Reject(Reason::IpVersion),
-                        // No extra addresses are available at all, the port must be changed
-                        // so that a Wireguard endpoint can be used. This endpoint must
-                        // then also be available with the requested IP version, which
-                        // is checked for outside this function.
-                        IpVersionMatch::None => Reject(Reason::Port),
-                    }
-                }
-                Quic => {
-                    // TODO: Refactor using `if-let guards` once 1.95 is stable.
-                    let Some(quic) = relay.endpoint().quic() else {
-                        // QUIC is disabled
-                        return Reject(Reason::Obfuscation);
-                    };
-                    match any_ip_matches_version(ip_version, quic.in_addr()) {
-                        IpVersionMatch::Ok => AcceptObfuscationEndpoint,
-                        // Switching IP version would unblock the relay.
-                        IpVersionMatch::Other => Reject(Reason::IpVersion),
-                        // The relay has quic but no IPv4 or IPv6 addresses to use it.
-                        // This scenario should be unreachable, but treat it as if obfuscation was
-                        // unavailable just in case.
-                        IpVersionMatch::None => Reject(Reason::Obfuscation),
-                    }
-                }
-                // LWO is only enabled on some relays
-                Lwo if relay.endpoint().lwo => AcceptWireguardEndpoint,
-                Lwo => Reject(Reason::Obfuscation),
-                // Other relays are always valid
-                // TODO:^ This might not be true. We might want to consider the selected port for
-                // udp2tcp & wireguard port ..
-                Off | Auto | WireguardPort | Udp2Tcp => AcceptWireguardEndpoint,
-            }
-        }
+        Off | Auto | WireguardPort | Udp2Tcp => AcceptWireguardEndpoint,
     }
 }
 

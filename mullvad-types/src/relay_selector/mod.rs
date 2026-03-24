@@ -29,7 +29,7 @@ pub enum Predicate {
 pub struct EntryConstraints {
     pub general: ExitConstraints,
     // Entry-specific constraints.
-    pub obfuscation_settings: Constraint<ObfuscationSettings>,
+    pub obfuscation_settings: ObfuscationSettings,
     pub daita: Constraint<DaitaSettings>,
     pub ip_version: Constraint<IpVersion>,
 }
@@ -105,7 +105,7 @@ impl EntryConstraints {
     }
 
     pub fn obfuscation(mut self, obfuscation_settings: ObfuscationSettings) -> Self {
-        self.obfuscation_settings = Constraint::Only(obfuscation_settings);
+        self.obfuscation_settings = obfuscation_settings;
         self
     }
 

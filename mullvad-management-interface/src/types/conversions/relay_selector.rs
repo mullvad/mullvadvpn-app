@@ -72,10 +72,10 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .map(talpid_types::net::IpVersion::from)?
             .into();
 
-        let obfuscation_settings: Constraint<_> = obfuscation_settings
+        let obfuscation_settings = obfuscation_settings
             .map(mullvad_types::relay_constraints::ObfuscationSettings::try_from)
             .transpose()?
-            .into();
+            .unwrap_or_default();
 
         let daita: Constraint<_> = daita_settings
             .map(mullvad_types::wireguard::DaitaSettings::from)
