@@ -90,8 +90,7 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         }
     };
 
-    // Verify the registered binary path matches what we expect. If a previous
-    // installation registered the service with a different path, update the config.
+    // Ensure path to the driver is correct.
     let config = service.query_config().map_err(Error::QueryServiceConfig)?;
     if !paths_equal(&config.executable_path, &expected_syspath) {
         let status = service.query_status().map_err(Error::QueryServiceStatus)?;
