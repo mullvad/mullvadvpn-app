@@ -244,7 +244,7 @@ impl Drop for MachineCopy {
 /// `tart` likes to be invoked as a non-privileged user. If this program was invoked with `sudo`,
 /// the returned [`Command`] will invoke `tart` using `sudo -u $SUDO_USER`.
 fn tart() -> Command {
-    if let Some(user) = std::env::var("SUDO_USER").ok() {
+    if let Ok(user) = std::env::var("SUDO_USER") {
         log::debug!("SUDO_USER is set. Invoking tart as user {user:?}");
         let mut tart_cmd = Command::new("sudo");
         tart_cmd.args(["-u", &user]);
