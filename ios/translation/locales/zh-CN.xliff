@@ -15,6 +15,12 @@
         <target state="final">%@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">%1$@“%2$@”需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。
+为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。</target>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
         <target state="final">%1$@ (%2$@) 会隐藏您的加密 VPN 流量中的模式。</target>
@@ -49,6 +55,12 @@
         <source>%@ was added to your account.</source>
         <target state="final">%@已添加到您的帐户中。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">%1$@“%2$@”需要重启 VPN 连接，这将导致您断开连接并短暂暴露您的流量。
+为防止发生这种情况，请在继续操作前手动启用飞行模式并关闭 Wi-Fi。</target>
+        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
@@ -145,6 +157,11 @@
         <target state="final">帐号</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Account time reminders" xml:space="preserve" approved="yes">
+        <source>Account time reminders</source>
+        <target state="final">帐户时间提醒</target>
+        <note from="auto-generated">Accessibility identifier for the switch that controls account time reminders.</note>
+      </trans-unit>
       <trans-unit id="Active features" xml:space="preserve" approved="yes">
         <source>Active features</source>
         <target state="final">有效功能</target>
@@ -199,6 +216,11 @@
         <source>Adult content</source>
         <target state="final">成人内容</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="After updating, you will have to enable “%@” manually again." xml:space="preserve" approved="yes">
+        <source>After updating, you will have to enable “%@” manually again.</source>
+        <target state="final">更新后，您需要手动重新启用“%@”。</target>
+        <note from="auto-generated">A note that appears below the option to disable IAN in the alert. The argument is the string “Force all apps”.</note>
       </trans-unit>
       <trans-unit id="Agree and continue" xml:space="preserve" approved="yes">
         <source>Agree and continue</source>
@@ -805,6 +827,16 @@
         <target state="final">停用最近使用</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable “%@”" xml:space="preserve" approved="yes">
+        <source>Disable “%@”</source>
+        <target state="final">停用“%@”</target>
+        <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
+        <source>Disabling</source>
+        <target state="final">停用</target>
+        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">停用最近使用的位置时也会清除历史记录。</target>
@@ -924,6 +956,11 @@
         <source>Enable recents</source>
         <target state="final">启用最近使用</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
+        <source>Enabling</source>
+        <target state="final">启用</target>
+        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1195,6 +1232,11 @@
         <target state="final">如果您现在断开连接，在设备重新上线之前将无法保障您的连接安全。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="If you do not wish to disable “%@“, you can disconnect from the VPN instead." xml:space="preserve" approved="yes">
+        <source>If you do not wish to disable “%@“, you can disconnect from the VPN instead.</source>
+        <target state="final">如果不想停用“%@”，您可以改为断开 VPN。</target>
+        <note from="auto-generated">Text in an alert presented to a user when a new app version is available, The argument is the string “Force all apps”.</note>
+      </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
         <target state="final">如果您退出窗体并稍后再试，您输入的信息仍会在这里。</target>
@@ -1320,6 +1362,11 @@
         <target state="final">伊斯坦布尔</target>
         <note/>
       </trans-unit>
+      <trans-unit id="It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:" xml:space="preserve" approved="yes">
+        <source>It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</source>
+        <target state="final">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</target>
+        <note from="auto-generated">Additional information about how the local network sharing feature works.</note>
+      </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve" approved="yes">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
         <target state="final">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</target>
@@ -1363,6 +1410,11 @@
       <trans-unit id="Kyiv" xml:space="preserve" approved="yes">
         <source>Kyiv</source>
         <target state="final">基辅</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="LWO" xml:space="preserve" approved="yes">
+        <source>LWO</source>
+        <target state="final">LWO</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lagos" xml:space="preserve" approved="yes">
@@ -1419,6 +1471,11 @@
         <source>Ljubljana</source>
         <target state="final">卢布尔雅那</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Local Network Sharing" xml:space="preserve" approved="yes">
+        <source>Local Network Sharing</source>
+        <target state="final">本地网络共享</target>
+        <note from="auto-generated">The name of the feature that will be disabled when "Disabling Local Network Sharing" is selected.</note>
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve" approved="yes">
         <source>Local network sharing</source>
@@ -1849,6 +1906,11 @@
         <source>Phoenix, AZ</source>
         <target state="final">亚利桑那州菲尼克斯</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve" approved="yes">
+        <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
+        <target state="final">请启用通知以确保不会失去网络连接。仍要继续吗？</target>
+        <note from="auto-generated">Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve" approved="yes">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
@@ -2294,7 +2356,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
         <source>Tunnel connected to %1$@, %2$@</source>
-        <target state="final">隧道已连接到%1$@%2$@</target>
+        <target state="final">隧道已连接到%2$@%1$@</target>
         <note>VoiceOver announcement when connected to a relay</note>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
@@ -2339,7 +2401,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
         <source>Tap here to go to AppStore</source>
-        <target state="final">点按此处前往 App Store</target>
+        <target state="final">轻点此处前往 App Store</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2427,6 +2489,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">所选 WireGuard 端口不受支持，请在 **VPN 设置**下更改。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The selected obfuscation port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
+        <source>The selected obfuscation port is not supported, please change it under **VPN settings**.</source>
+        <target state="final">所选混淆端口不受支持，请在 **VPN 设置**下更改。</target>
+        <note from="auto-generated">Description of an in-app notification that appears when the selected obfuscation port is not supported.</note>
+      </trans-unit>
       <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
         <target state="final">存储在设备上的设置版本无法识别。设置将被重置为默认值，且设备将退出登录。</target>
@@ -2486,6 +2553,11 @@ Do you want to remove the saved account number?</source>
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="final">这可能会导致某些网站、服务和应用出现问题。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
+        <source>This will also disable “%@“.</source>
+        <target state="final">这也会停用“%@”。</target>
+        <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
@@ -2647,6 +2719,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">有可用的更新</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
+      <trans-unit id="Update relay list" xml:space="preserve" approved="yes">
+        <source>Update relay list</source>
+        <target state="final">更新中继列表</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
         <target state="final">使用自定义 DNS 服务器</target>
@@ -2676,6 +2753,11 @@ Do you want to remove the saved account number?</source>
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">有效范围：%1$d - %2$d</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Valid ranges: %@" xml:space="preserve" approved="yes">
+        <source>Valid ranges: %@</source>
+        <target state="final">有效范围：%@</target>
+        <note from="auto-generated">A string describing the valid port ranges for LWO obfuscation. The argument is the string “”.</note>
       </trans-unit>
       <trans-unit id="Vancouver" xml:space="preserve" approved="yes">
         <source>Vancouver</source>
@@ -2792,6 +2874,16 @@ Do you want to remove the saved account number?</source>
         <target state="final">使用“Mullvad 桥接”方法，应用通过 Mullvad 桥接服务器与 Mullvad API 服务器进行通信。这是通过发送被 Shadowsocks 混淆的流量来实现的。</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue to %1$@ “%2$@”?</source>
+        <target state="final">要继续%1$@“%2$@”吗？</target>
+        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue?</source>
+        <target state="final">要继续吗？</target>
+        <note from="auto-generated">Question asked when a user is prompted to continue an action that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
         <target state="final">是，继续</target>
@@ -2836,6 +2928,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">您可以使用“恢复购买”功能来检查通过 Apple 服务进行的任何应用内付款。如果存在未记入的付款，系统会将相应时间添加到当前登录的 Mullvad 帐户中。</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
+        <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
+        <target state="final">您当前已停用通知。这意味着，有可用更新时，我们无法向您发送通知，因此您可以在更新前停用此功能或断开连接。</target>
+        <note from="auto-generated">First paragraph of an alert that appears when the user is prompted to reconsider enabling notifications.</note>
       </trans-unit>
       <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
@@ -2930,6 +3027,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="final">苏黎世</target>
         <note/>
       </trans-unit>
+      <trans-unit id="disable" xml:space="preserve" approved="yes">
+        <source>disable</source>
+        <target state="final">停用</target>
+        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="enable" xml:space="preserve" approved="yes">
+        <source>enable</source>
+        <target state="final">启用</target>
+        <note from="auto-generated">The action to perform when continuing.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
         <target state="final">隐私政策</target>
@@ -2939,6 +3046,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <source>value</source>
         <target state="final">值</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN." xml:space="preserve" approved="yes">
+        <source>“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN.</source>
+        <target state="final">“%@”已启用，请在更新前将其停用，以免网络连接中断。这将在您重新连接到 VPN 时短暂暴露您的流量。</target>
+        <note from="auto-generated">A message in an in-app notification alert that explains the purpose of the alert and gives an option to disable a feature that might cause a user to lose network connectivity when an app update is available. The first argument The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity." xml:space="preserve" approved="yes">
+        <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
+        <target state="final">“%@”已启用，请在更新前将其停用或断开连接，以免网络连接中断。</target>
+        <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
       </trans-unit>
     </body>
   </file>
@@ -3018,6 +3135,11 @@ We strongly believe in retaining as little data as possible because we want you 
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
         <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
         <target state="final">更新前停用“%@”或断开连接，以免网络连接断开。</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">强制所有 App</target>
         <note/>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">

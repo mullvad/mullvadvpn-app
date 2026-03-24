@@ -5649,6 +5649,7 @@
 				my,
 				tr,
 				pt,
+				uk,
 			);
 			mainGroup = 58CE5E57224146200008646E;
 			packageReferences = (
@@ -6083,7 +6084,6 @@
 				7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */,
 				7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */,
 				F072D3D22C071AD100906F64 /* ShadowsocksLoaderTests.swift in Sources */,
-				0107F3F92F56E3ED0012451B /* RelayCacheTrackerTests.swift in Sources */,
 				F050AE5C2B73797D003F4EDB /* CustomListRepositoryTests.swift in Sources */,
 				01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */,
 				A9A5F9F62ACB05160083449F /* TunnelStatusNotificationProvider.swift in Sources */,

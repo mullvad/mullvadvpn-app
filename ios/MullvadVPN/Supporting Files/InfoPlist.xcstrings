@@ -137,6 +137,12 @@
             "value" : "Uygulamanın buna bağlanması ve yeni bir yöntemi test etmesi gerekir."
           }
         },
+        "uk" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Застосунку потрібно це, щоб підключитись і перевірити новий метод."
+          }
+        },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
