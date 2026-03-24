@@ -3,7 +3,8 @@ import { useHasCustomLists } from '../../hooks';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
 import { NoSearchResult } from '../no-search-result';
-import { useHasSearched, useHasSearchedLocations } from './hooks';
+import { RecentLocations } from '../recent-locations';
+import { useHasSearched, useHasSearchedLocations, useHasVisibleRecentLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
 
 export type LocationsListsProps = React.PropsWithChildren & {
@@ -12,15 +13,19 @@ export type LocationsListsProps = React.PropsWithChildren & {
 
 export function LocationLists(props: LocationsListsProps) {
   const hasSearched = useHasSearched();
+  const hasVisibleRecentLocations = useHasVisibleRecentLocations();
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
 
+  const showRecentLocations = hasVisibleRecentLocations;
   const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
   const showCountryLocations = !hasSearched || hasSearchedLocations;
-  const showNoSearchResult = hasSearched && !showCustomListLocationLists && !showCountryLocations;
+  const showNoSearchResult =
+    hasSearched && !showCustomListLocationLists && !showCountryLocations && !showRecentLocations;
 
   return (
     <LocationListsProvider {...props}>
+      {showRecentLocations && <RecentLocations />}
       {showCustomListLocationLists && <CustomListLocations />}
       {showCountryLocations && <CountryLocations />}
       {showNoSearchResult && <NoSearchResult />}

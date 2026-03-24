@@ -4,7 +4,6 @@ import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { spacings } from '../../../../../lib/foundations';
 import { useHasCustomLists } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
@@ -18,10 +17,6 @@ import {
 const StyledAnimatedList = styled(AnimatedList)`
   display: flex;
   flex-direction: column;
-`;
-
-const StyledAnimatedListItem = styled(AnimatedList.Item)`
-  margin-bottom: ${spacings.tiny};
 `;
 
 function CustomListLocationsImpl() {
@@ -40,9 +35,9 @@ function CustomListLocationsImpl() {
           {customListLocations.map((customList) => {
             const { key } = getLocationListItemMapProps(customList, undefined);
             return (
-              <StyledAnimatedListItem key={key}>
+              <AnimatedList.Item key={key}>
                 <CustomListLocation customList={customList} />
-              </StyledAnimatedListItem>
+              </AnimatedList.Item>
             );
           })}
         </StyledAnimatedList>
