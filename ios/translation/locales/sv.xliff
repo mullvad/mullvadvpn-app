@@ -15,6 +15,11 @@
         <target state="final">%@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">%1$@ av %2$@ kräver omstart av VPN-anslutningen, vilket kopplar bort dig och exponerar din trafik tillfälligt. För att undvika det kan du aktivera flygplansläget och inaktivera wi-fi innan du fortsätter.</target>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve" approved="yes">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
         <target state="final">%1$@ (%2$@) döljer mönster i din krypterade VPN-trafik.</target>
@@ -49,6 +54,11 @@
         <source>%@ was added to your account.</source>
         <target state="final">%@ har lagts till i ditt konto.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve" approved="yes">
+        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="final">%1$@ av "%2$@" kräver omstart av VPN-anslutningen, vilket kopplar bort dig och exponerar din trafik tillfälligt. För att undvika det kan du aktivera flygplansläget manuellt och inaktivera wi-fi innan du fortsätter.</target>
+        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve" approved="yes">
         <source>%1$@, %2$@</source>
@@ -145,6 +155,11 @@
         <target state="final">Kontonummer</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Account time reminders" xml:space="preserve" approved="yes">
+        <source>Account time reminders</source>
+        <target state="final">Påminnelser om kontotid</target>
+        <note from="auto-generated">Accessibility identifier for the switch that controls account time reminders.</note>
+      </trans-unit>
       <trans-unit id="Active features" xml:space="preserve" approved="yes">
         <source>Active features</source>
         <target state="final">Aktiva funktioner</target>
@@ -199,6 +214,11 @@
         <source>Adult content</source>
         <target state="final">Vuxet innehåll</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="After updating, you will have to enable “%@” manually again." xml:space="preserve" approved="yes">
+        <source>After updating, you will have to enable “%@” manually again.</source>
+        <target state="final">Efter uppdateringen måste du aktivera "%@" manuellt igen.</target>
+        <note from="auto-generated">A note that appears below the option to disable IAN in the alert. The argument is the string “Force all apps”.</note>
       </trans-unit>
       <trans-unit id="Agree and continue" xml:space="preserve" approved="yes">
         <source>Agree and continue</source>
@@ -282,7 +302,7 @@
       </trans-unit>
       <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve" approved="yes">
         <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="final">Obs! Du måste starta om VPN-anslutningen om du vill växla "Lokal nätverksdelning".</target>
+        <target state="final">Obs! Du måste starta om VPN-anslutningen om du vill slå på/av "Lokal nätverksdelning".</target>
         <note/>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve" approved="yes">
@@ -805,6 +825,16 @@
         <target state="final">Inaktivera senaste</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable “%@”" xml:space="preserve" approved="yes">
+        <source>Disable “%@”</source>
+        <target state="final">Inaktivera "%@"</target>
+        <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="Disabling" xml:space="preserve" approved="yes">
+        <source>Disabling</source>
+        <target state="final">Inaktivering av</target>
+        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve" approved="yes">
         <source>Disabling recents will also clear history.</source>
         <target state="final">Historiken rensas om du inaktiverar senaste.</target>
@@ -924,6 +954,11 @@
         <source>Enable recents</source>
         <target state="final">Aktivera senaste</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Enabling" xml:space="preserve" approved="yes">
+        <source>Enabling</source>
+        <target state="final">Aktivering av</target>
+        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve" approved="yes">
         <source>Enter IP</source>
@@ -1195,6 +1230,11 @@
         <target state="final">Om du kopplar från nu kommer du inte att kunna skydda din anslutning förrän enheten är online.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="If you do not wish to disable “%@“, you can disconnect from the VPN instead." xml:space="preserve" approved="yes">
+        <source>If you do not wish to disable “%@“, you can disconnect from the VPN instead.</source>
+        <target state="final">Om du inte vill inaktivera "%@", kan du koppla från VPN istället.</target>
+        <note from="auto-generated">Text in an alert presented to a user when a new app version is available, The argument is the string “Force all apps”.</note>
+      </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve" approved="yes">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
         <target state="final">Om du lämnar formuläret och försöker igen senare kommer informationen du anger att finnas kvar.</target>
@@ -1320,6 +1360,11 @@
         <target state="final">Istanbul</target>
         <note/>
       </trans-unit>
+      <trans-unit id="It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:" xml:space="preserve" approved="yes">
+        <source>It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</source>
+        <target state="final">Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:</target>
+        <note from="auto-generated">Additional information about how the local network sharing feature works.</note>
+      </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve" approved="yes">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
         <target state="final">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</target>
@@ -1363,6 +1408,11 @@
       <trans-unit id="Kyiv" xml:space="preserve" approved="yes">
         <source>Kyiv</source>
         <target state="final">Kiev</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="LWO" xml:space="preserve" approved="yes">
+        <source>LWO</source>
+        <target state="final">LWO</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lagos" xml:space="preserve" approved="yes">
@@ -1419,6 +1469,11 @@
         <source>Ljubljana</source>
         <target state="final">Ljubljana</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Local Network Sharing" xml:space="preserve" approved="yes">
+        <source>Local Network Sharing</source>
+        <target state="final">Lokal nätverksdelning</target>
+        <note from="auto-generated">The name of the feature that will be disabled when "Disabling Local Network Sharing" is selected.</note>
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve" approved="yes">
         <source>Local network sharing</source>
@@ -1849,6 +1904,11 @@
         <source>Phoenix, AZ</source>
         <target state="final">Phoenix, AZ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve" approved="yes">
+        <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
+        <target state="final">Aktivera aviseringar så att du inte förlorar nätverksanslutningen. Vill du fortsätta ändå?</target>
+        <note from="auto-generated">Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve" approved="yes">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
@@ -2293,7 +2353,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
         <source>Tunnel connected to %1$@, %2$@</source>
-        <target state="final">Tunnel ansluten till %1$@, %2$@</target>
+        <target state="final">Tunneln är ansluten till %1$@, %2$@</target>
         <note>VoiceOver announcement when connected to a relay</note>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">
@@ -2338,7 +2398,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
         <source>Tap here to go to AppStore</source>
-        <target state="final">Tryck här för att gå till AppStore</target>
+        <target state="final">Tryck här för att gå till App Store</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
@@ -2426,6 +2486,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">Den valda WireGuard-porten stöds inte, ändra den i **VPN-inställningar**.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The selected obfuscation port is not supported, please change it under **VPN settings**." xml:space="preserve" approved="yes">
+        <source>The selected obfuscation port is not supported, please change it under **VPN settings**.</source>
+        <target state="final">Den valda obfuskeringsporten stöds inte. Ändra den i **VPN-inställningar**.</target>
+        <note from="auto-generated">Description of an in-app notification that appears when the selected obfuscation port is not supported.</note>
+      </trans-unit>
       <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve" approved="yes">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
         <target state="final">Den version av inställningarna som lagras på enheten känns inte igen. Inställningarna återställs till standard och enheten loggas ut.</target>
@@ -2485,6 +2550,11 @@ Do you want to remove the saved account number?</source>
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="final">Detta kan orsaka problem på vissa webbplatser, tjänster och appar.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
+        <source>This will also disable “%@“.</source>
+        <target state="final">Detta inaktiverar även "%@".</target>
+        <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve" approved="yes">
         <source>Time left: %@</source>
@@ -2646,6 +2716,11 @@ Do you want to remove the saved account number?</source>
         <target state="final">Uppdatering tillgänglig</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
+      <trans-unit id="Update relay list" xml:space="preserve" approved="yes">
+        <source>Update relay list</source>
+        <target state="final">Uppdatera relälistan</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
         <source>Use custom DNS server</source>
         <target state="final">Använd anpassad DNS-server</target>
@@ -2675,6 +2750,11 @@ Do you want to remove the saved account number?</source>
         <source>Valid range: %1$d - %2$d</source>
         <target state="final">Giltigt intervall: %1$d–%2$d</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Valid ranges: %@" xml:space="preserve" approved="yes">
+        <source>Valid ranges: %@</source>
+        <target state="final">Giltiga intervall: %@</target>
+        <note from="auto-generated">A string describing the valid port ranges for LWO obfuscation. The argument is the string “”.</note>
       </trans-unit>
       <trans-unit id="Vancouver" xml:space="preserve" approved="yes">
         <source>Vancouver</source>
@@ -2791,6 +2871,16 @@ Do you want to remove the saved account number?</source>
         <target state="final">Med metoden "Mullvad-broar" kommunicerar appen med en Mullvad API-server via en Mullvad-broserver. Den gör det genom att skicka trafiken som obfuskeras av Shadowsocks.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue to %1$@ “%2$@”?</source>
+        <target state="final">Vill du fortsätta och %1$@ "%2$@"?</target>
+        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="Would you like to continue?" xml:space="preserve" approved="yes">
+        <source>Would you like to continue?</source>
+        <target state="final">Vill du fortsätta?</target>
+        <note from="auto-generated">Question asked when a user is prompted to continue an action that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="Yes, continue" xml:space="preserve" approved="yes">
         <source>Yes, continue</source>
         <target state="final">Ja, fortsätt</target>
@@ -2835,6 +2925,11 @@ Do you want to remove the saved account number?</source>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="final">Du kan använda funktionen "återställ köp" för att kontrollera betalningar som görs i appen via Apple-tjänster. Om en betalning inte har krediterats, läggs tiden till i Mullvad-kontot som för närvarande är inloggat.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve" approved="yes">
+        <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
+        <target state="final">Du har inaktiverat aviseringar. Det innebär att vi inte kan skicka aviseringar till dig när en uppdatering är tillgänglig så att du kan inaktivera funktionen eller koppla från innan du uppdaterar.</target>
+        <note from="auto-generated">First paragraph of an alert that appears when the user is prompted to reconsider enabling notifications.</note>
       </trans-unit>
       <trans-unit id="You have %@ left on this account." xml:space="preserve" approved="yes">
         <source>You have %@ left on this account.</source>
@@ -2929,6 +3024,16 @@ Vi tror starkt på att lagra så lite data som möjligt eftersom vi vill att du 
         <target state="final">Zürich</target>
         <note/>
       </trans-unit>
+      <trans-unit id="disable" xml:space="preserve" approved="yes">
+        <source>disable</source>
+        <target state="final">inaktivera</target>
+        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="enable" xml:space="preserve" approved="yes">
+        <source>enable</source>
+        <target state="final">aktivera</target>
+        <note from="auto-generated">The action to perform when continuing.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve" approved="yes">
         <source>privacy policy</source>
         <target state="final">integritetspolicy</target>
@@ -2938,6 +3043,16 @@ Vi tror starkt på att lagra så lite data som möjligt eftersom vi vill att du 
         <source>value</source>
         <target state="final">värde</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN." xml:space="preserve" approved="yes">
+        <source>“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN.</source>
+        <target state="final">"%@" är aktiverat. Om du inte inaktiverar det innan du uppdaterar kommer du att tappa nätverksanslutningen. Då exponeras din trafik tillfälligt medan du återansluter till VPN.</target>
+        <note from="auto-generated">A message in an in-app notification alert that explains the purpose of the alert and gives an option to disable a feature that might cause a user to lose network connectivity when an app update is available. The first argument The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity." xml:space="preserve" approved="yes">
+        <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
+        <target state="final">"%@" är aktiverat. Om du inte inaktiverar det eller kopplar från innan du uppdaterar kommer du att tappa nätverksanslutningen.</target>
+        <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
       </trans-unit>
     </body>
   </file>
@@ -3017,6 +3132,11 @@ Vi tror starkt på att lagra så lite data som möjligt eftersom vi vill att du 
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve" approved="yes">
         <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
         <target state="final">Inaktivera "%@" eller koppla från innan du uppdaterar så att inte nätverksanslutningen bryts.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve" approved="yes">
+        <source>Force all apps</source>
+        <target state="final">Tvinga alla appar</target>
         <note/>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve" approved="yes">
