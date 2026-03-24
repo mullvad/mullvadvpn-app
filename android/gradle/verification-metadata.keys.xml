@@ -47,6 +47,7 @@
          </trusted-key>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
             <trusting group="androidx.activity"/>
+            <trusting group="androidx.annotation"/>
             <trusting group="androidx.appcompat"/>
             <trusting group="androidx.benchmark"/>
             <trusting group="androidx.collection"/>

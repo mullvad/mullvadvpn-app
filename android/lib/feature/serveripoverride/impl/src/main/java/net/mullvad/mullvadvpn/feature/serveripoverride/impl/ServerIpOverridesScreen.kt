@@ -51,6 +51,7 @@ import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavKey
@@ -195,7 +196,7 @@ fun ServerIpOverridesScreen(
             if (state.isModal()) {
                 NavigateCloseIconButton(onBackClick)
             } else {
-                NavigateBackIconButton(onNavigateBack = onBackClick)
+                unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
         actions = {

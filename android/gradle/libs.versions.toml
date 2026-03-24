@@ -25,8 +25,8 @@ androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
 androidx-ktx = "1.18.0"
 androidx-lifecycle = "2.10.0"
+androidx-adaptive = "1.2.0"
 androidx-nav3 = "1.1.0-beta01"
-androidx-material3-adaptive = "1.2.0"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
 androidx-testorchestrator = "1.6.1"
@@ -85,6 +85,7 @@ androidx-activity-compose = { module = "androidx.activity:activity-compose", ver
 androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
 androidx-annotation-jvm = { group = "androidx.annotation", name = "annotation-jvm", version.ref = "annotation-jvm" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-adaptive-layout = { module = "androidx.compose.material3.adaptive:adaptive-layout", version.ref = "androidx-adaptive" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmark-macro-junit4" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "androidx-credentials" }
@@ -100,7 +101,6 @@ androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-ru
 androidx-lifecycle-service = { module = "androidx.lifecycle:lifecycle-service", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "androidx-lifecycle" }
-androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.adaptive", name = "adaptive-navigation3", version.ref = "androidx-material3-adaptive" }
 androidx-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "androidx-nav3" }
 androidx-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "androidx-nav3" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
@@ -122,6 +122,7 @@ compose-constrainlayout = { module = "androidx.constraintlayout:constraintlayout
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose-material-icons-extended" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
+compose-material3-windowsizeclass = { module = "androidx.compose.material3:material3-window-size-class", version.ref = "compose-material3" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }

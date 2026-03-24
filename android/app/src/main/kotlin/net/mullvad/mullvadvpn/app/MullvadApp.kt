@@ -36,10 +36,12 @@ import kotlinx.coroutines.cancel
 import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.TRANSITION_DEFAULT_DURATION_MS
 import net.mullvad.mullvadvpn.core.rememberNavigationState
 import net.mullvad.mullvadvpn.core.rememberResultStore
+import net.mullvad.mullvadvpn.core.scene.rememberListDetailSceneStrategy
 import net.mullvad.mullvadvpn.core.toEntries
 import net.mullvad.mullvadvpn.feature.account.impl.navigation.accountEntry
 import net.mullvad.mullvadvpn.feature.addtime.impl.navigation.addTimeVerificationPendingEntry
@@ -85,7 +87,15 @@ import org.koin.androidx.compose.koinViewModel
 fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     val resultStore = rememberResultStore()
     val navigationState = rememberNavigationState(SplashNavKey)
-    val nav3 = remember { Navigator(navigationState, resultStore) }
+    val listDetailStrategy = rememberListDetailSceneStrategy<NavKey2>()
+
+    val nav3 = remember {
+        Navigator(
+            state = navigationState,
+            resultStore = resultStore,
+            screenIsListDetailTargetWidth = listDetailStrategy.isListDetailTargetWidth(),
+        )
+    }
 
     val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
@@ -141,7 +151,12 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
                         Modifier.semantics { testTagsAsResourceId = true }
                             .fillMaxSize()
                             .accessibilityDataSensitive(),
-                    sceneStrategies = listOf(DialogSceneStrategy(), SinglePaneSceneStrategy()),
+                    sceneStrategies =
+                        listOf(
+                            listDetailStrategy,
+                            DialogSceneStrategy(),
+                            SinglePaneSceneStrategy(),
+                        ),
                     entries = navigationState.toEntries(entryProvider),
                     onBack = { nav3.goBack() },
                     sharedTransitionScope = this@SharedTransitionLayout,

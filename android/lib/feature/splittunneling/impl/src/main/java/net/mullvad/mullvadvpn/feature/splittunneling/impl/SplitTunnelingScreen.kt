@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
@@ -127,7 +128,7 @@ fun SplitTunnelingScreen(
             if (state.isModal()) {
                 NavigateCloseIconButton(onNavigateClose = onBackClick)
             } else {
-                NavigateBackIconButton(onNavigateBack = onBackClick)
+                unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
     ) { modifier, lazyListState: LazyListState ->

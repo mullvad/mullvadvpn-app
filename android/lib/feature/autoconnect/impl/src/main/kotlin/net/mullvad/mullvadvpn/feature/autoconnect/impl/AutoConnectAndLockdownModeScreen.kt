@@ -57,6 +57,7 @@ import androidx.core.text.HtmlCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
@@ -92,6 +93,7 @@ fun AutoConnectAndLockdownMode(navigator: Navigator) {
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun AutoConnectAndLockdownModeScreen(
     state: AutoConnectAndLockdownModeUiState,
@@ -100,7 +102,9 @@ fun AutoConnectAndLockdownModeScreen(
     val context = LocalContext.current
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
         bottomBar = {
             PrimaryButton(
                 text = stringResource(id = R.string.go_to_vpn_settings),

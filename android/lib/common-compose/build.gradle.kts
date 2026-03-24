@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.lib.ui.resource)
     implementation(projects.lib.model)
     implementation(projects.lib.common)
+    implementation(projects.lib.navigation)
     implementation(libs.arrow)
     implementation(libs.kermit)
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.isTv
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
@@ -83,7 +84,9 @@ fun NotificationSettingsScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_notifications),
-        navigationIcon = { NavigateBackIconButton { onBackClick() } },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
         bottomBar = {
             if (!isTv()) {
                 PrimaryButton(
