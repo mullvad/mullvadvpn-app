@@ -238,6 +238,7 @@ private fun LazyListScope.appList(
         enabled = state.enabled,
         excluded = false,
     )
+    spacer()
 }
 
 private fun LazyListScope.appItems(
