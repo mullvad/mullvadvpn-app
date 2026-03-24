@@ -197,14 +197,17 @@ impl From<RelayQuery> for RelaySettings {
 #[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct WireguardRelayQuery {
     pub ip_version: Constraint<IpVersion>,
+    // Not covered by Predicate. Probably doesn't belong in the relay selector.
     pub allowed_ips: Constraint<AllowedIps>,
     pub use_multihop: Constraint<bool>,
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
+    // ObfuscationQuery might be a better abstraction than Obfuscation settings
     pub obfuscation: ObfuscationQuery,
     pub daita: Constraint<bool>,
     pub daita_use_multihop_if_necessary: Constraint<bool>,
+    // Not covered. Seems unused?
     pub quantum_resistant: Constraint<QuantumResistantState>,
 }
 

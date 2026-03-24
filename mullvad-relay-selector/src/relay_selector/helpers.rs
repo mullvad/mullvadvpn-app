@@ -273,6 +273,7 @@ pub fn desired_or_random_port_from_range<R: RangeBounds<u16> + Iterator<Item = u
     desired_port: Constraint<u16>,
 ) -> Result<u16, Error> {
     match desired_port {
+        // TODO: port check should not be redone
         Constraint::Only(port) => port_if_in_range(port_ranges, port),
         Constraint::Any => select_random_port(port_ranges),
     }

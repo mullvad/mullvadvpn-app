@@ -183,6 +183,7 @@ pub enum GetRelay {
     Mullvad {
         endpoint: MullvadEndpoint,
         obfuscator: Option<SelectedObfuscator>,
+        // This field seems really weird to me, can we get rid of
         inner: WireguardConfig,
     },
     Custom(CustomTunnelEndpoint),
@@ -504,6 +505,8 @@ impl RelaySelector {
             match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
+                    // TODO: This autohop logic should be replaced
+
                     // If we found no matching relays because DAITA was enabled, and
                     // `use_multihop_if_necessary` is enabled, try enabling
                     // multihop and connecting using an automatically selected
@@ -584,6 +587,7 @@ impl RelaySelector {
                 .map(|entry| RelayWithDistance::new_with_distance_from(entry, &exit.location))
                 .collect_vec();
 
+        // TODO: We need to keep logic for sorting/weighing the selection
         // sort entry relay candidates by distance, and pick one from those that are closest
         entry_candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
         let smallest_distance = entry_candidates.first().map(|relay| relay.distance);
@@ -875,6 +879,7 @@ impl RelaySelector {
                     // Search globally for an alternate entry relay.
                     let global_predicate = {
                         let mut constraints = constraints.clone();
+                        // TODO: Clear the entire `general`, i.e. provider and ownership filters too
                         constraints.general.location = Constraint::Any;
                         Predicate::Singlehop(constraints)
                     };
