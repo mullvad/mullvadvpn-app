@@ -19,7 +19,7 @@ export * from './is-relay-disabled';
 export * from './is-custom-list-disabled';
 export * from './is-location-selected';
 export * from './search-matches-location';
-export * from './create-location-map';
+export * from './create-country-location-map';
 export * from './create-location-label';
 export * from './search-city-and-relays';
 export * from './search-country-and-cities';
