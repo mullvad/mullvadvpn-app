@@ -119,7 +119,7 @@ final class TunnelSettingsUpdateTests: XCTestCase {
         XCTAssertTrue(settings.tunnelQuantumResistance.isEnabled)
 
         // When again:
-        update = TunnelSettingsUpdate.quantumResistance(.automatic)
+        update = TunnelSettingsUpdate.quantumResistance(.on)
         update.apply(to: &settings)
 
         // Then again:

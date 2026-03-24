@@ -26,7 +26,7 @@ public struct TunnelSettingsV4: Codable, Equatable, TunnelSettings {
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic
+        tunnelQuantumResistance: TunnelQuantumResistance = .on
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
