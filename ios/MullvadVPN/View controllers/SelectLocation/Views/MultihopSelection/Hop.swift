@@ -25,7 +25,7 @@ struct Hop {
         }
         return switch multihopContext {
         case .entry:
-            Image.mullvadServer
+            Image.mullvadLocationAdd
         case .exit:
             Image.mullvadLocation
         }
