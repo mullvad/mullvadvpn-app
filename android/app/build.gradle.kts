@@ -36,8 +36,6 @@ val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
 val changelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
-val credentialsPath = "${rootProject.projectDir}/credentials"
-
 val appVersion = appVersionProvider.get()
 
 android {
@@ -353,7 +351,7 @@ tasks.register("printVersion") {
 }
 
 play {
-    serviceAccountCredentials.set(file("$credentialsPath/play-api-key.json"))
+    System.getenv("PLAY_API_KEY")?.let { serviceAccountCredentials.set(file(it)) }
     // Disable for all flavors by default. Only specific flavors should be enabled using
     // PlayConfigs.
     enabled = false
