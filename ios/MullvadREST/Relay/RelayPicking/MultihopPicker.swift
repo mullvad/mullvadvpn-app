@@ -83,7 +83,7 @@ struct MultihopPicker: RelayPicking {
         return try decisionFlow.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            selectNearbyLocation: daitaSettings.isAutomaticRouting || (constraints.entryLocations == .any)
+            selectNearbyLocation: tunnelSettings.automaticMultihopIsEnabled
         )
     }
 

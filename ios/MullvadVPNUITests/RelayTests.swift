@@ -552,6 +552,13 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testMultihopSelection() throws {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .verifyNoAutomaticCellsExist()
+            .tapDoneButton()
+
         HeaderBar(app)
             .tapSettingsButton()
 
@@ -572,7 +579,16 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
+            .verifyNoAutomaticCellsExist()
             .tapEntryLocationButton()
+            .tapLocationCell(withName: "Automatic")
+
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        SelectLocationPage(app)
+            .tapEntryLocationButton()
+            .verifyAutomaticCellsExist()
             .tapLocationCellExpandButton(
                 withName: BaseUITestCase.testsDefaultCountryName
             )
