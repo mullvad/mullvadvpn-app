@@ -33,7 +33,7 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # Use gotatun instead of wireguard-go.
 GOTATUN="false"
-# If only the daemon should be built.
+# If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
 # Enable GotaTun by default on macOS.
 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -388,26 +388,54 @@ cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 function build_daemon_packages {
     local pkg_success=0
 
-    if cargo deb --help &> /dev/null ; then
-        log_info "Packaging Debian (*.deb) package..."
-        if cargo deb --deb-version $PRODUCT_VERSION --no-build ; then
-            pkg_success=1
-        fi
-    else
-        log_error "Unable to package Debian package."
-        log_error "Please run \"cargo install cargo-deb\" to complete."
-    fi
+    for specified_target in "${TARGETS[@]:-""}"; do
+        local current_target=${specified_target:-"$HOST"}
+        local arch="${current_target%%-*}"
 
-    if cargo generate-rpm --help &> /dev/null ; then
-        log_info "Packaging Fedora (*.rpm) package..."
-        if cargo generate-rpm -p mullvad-daemon -s 'version = "'$PRODUCT_VERSION'"' ; then
-            echo "${SCRIPT_DIR}/target/generate-rpm/"
-            pkg_success=1
+        local pkg_args=(-p mullvad-daemon)
+        if [[ -n "$specified_target" ]]; then
+            pkg_args+=(--target "$specified_target")
         fi
-    else
-        log_error "Unable to package Fedora package."
-        log_error "Please run \"cargo install cargo-generate-rpm\" to complete."
-    fi
+
+        local deb_arch="${arch}"
+        local rpm_arch="${arch}"
+
+        case $arch in
+            x86_64) deb_arch="amd64";;
+            aarch64) deb_arch="arm64";;
+        esac
+
+        local deb_name="mullvad-vpn-daemon_${PRODUCT_VERSION}_${deb_arch}.deb"
+        local rpm_name="mullvad-vpn-daemon_${PRODUCT_VERSION}_${rpm_arch}.rpm"
+        local deb_file="dist/${deb_name}"
+        local rpm_file="dist/${rpm_name}"
+
+        if cargo deb --help &> /dev/null ; then
+            log_info "Packaging Debian (*.deb) package for ${arch}..."
+            if cargo deb "${pkg_args[@]}" \
+                     --deb-version "${PRODUCT_VERSION}" --no-build \
+                     -o "${deb_file}" > /dev/null ; then
+                log_info "Packaged $deb_file"
+                pkg_success=1
+            fi
+        else
+            log_error "Unable to package Debian package."
+            log_error "Please run \"cargo install cargo-deb\" to complete."
+        fi
+
+        if cargo generate-rpm --help &> /dev/null ; then
+            log_info "Packaging Fedora (*.rpm) package for ${arch}..."
+            if cargo generate-rpm "${pkg_args[@]}" \
+                     -s "version = \"${PRODUCT_VERSION}\"" \
+                     -o "${rpm_file}" ; then
+                log_info "Packaged $rpm_file"
+                pkg_success=1
+            fi
+        else
+            log_error "Unable to package Fedora package."
+            log_error "Please run \"cargo install cargo-generate-rpm\" to complete."
+        fi
+    done
 
     if [ $pkg_success -eq 0 ]; then
         return 1
