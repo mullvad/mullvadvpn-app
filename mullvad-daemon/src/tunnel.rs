@@ -1,3 +1,4 @@
+use std::net::SocketAddr;
 use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 
 use talpid_types::net::wireguard::TunnelParameters;
@@ -128,8 +129,10 @@ impl InnerParametersGenerator {
                 };
                 let server_override = {
                     let first_relay = entry.as_ref().unwrap_or(&exit);
-                    (first_relay.overridden_ipv4 && endpoint.peer.endpoint.is_ipv4())
-                        || (first_relay.overridden_ipv6 && endpoint.peer.endpoint.is_ipv6())
+                    match endpoint.peer.endpoint {
+                        SocketAddr::V4(_) => first_relay.overridden_ipv4,
+                        SocketAddr::V6(_) => first_relay.overridden_ipv6,
+                    }
                 };
 
                 self.last_generated_relays = Some(LastSelectedRelays {
