@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show disabled servers in location view.
 - Add ability which types of local notifications are delivered.
 - Remove invalid Shadowsocks ciphers.
+- Remove Automatic quantum-resistant tunnel option
 
 [TunnelCrack]: https://tunnelcrack.mathyvanhoef.com/
 
