@@ -32,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmationNavKey
@@ -118,7 +119,7 @@ fun DaitaScreen(
             if (state.isModal()) {
                 NavigateCloseIconButton { onBackClick() }
             } else {
-                NavigateBackIconButton { onBackClick() }
+                unlessIsDetail { NavigateBackIconButton { onBackClick() } }
             }
         },
     ) { modifier ->

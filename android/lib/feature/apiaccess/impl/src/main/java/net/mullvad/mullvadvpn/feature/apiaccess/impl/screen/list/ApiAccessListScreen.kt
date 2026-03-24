@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.itemsIndexedWithDivider
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessMethodDetailsNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessMethodInfoNavKey
@@ -82,7 +83,7 @@ fun ApiAccessListScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),

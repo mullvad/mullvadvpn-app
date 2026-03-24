@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.settings.impl
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
@@ -20,16 +21,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
 import net.mullvad.mullvadvpn.common.compose.createUriHook
+import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessNavKey
 import net.mullvad.mullvadvpn.feature.appearance.api.AppearanceNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
+import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.notification.api.NotificationSettingsNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -77,20 +84,40 @@ private fun PreviewSettingsScreen(
 fun Settings(navigator: Navigator) {
     val vm = koinViewModel<SettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
+    val isTv = isTv()
+
+    BackHandler(enabled = navigator.screenIsListDetailTargetWidth) {
+        navigator.goBackUntil(SettingsNavKey, inclusive = true)
+    }
+
+    navigator.assureHasDetailPane<SettingsNavKey>(DaitaNavKey())
+
     SettingsScreen(
         state = state,
-        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsNavKey()) },
+        onVpnSettingCellClick =
+            dropUnlessResumed {
+                if (navigator.screenIsListDetailTargetWidth) {
+                    val detailKey = if (isTv) AntiCensorshipNavKey() else AutoConnectNavKey
+                    navigator.navigate(VpnSettingsNavKey(), detailKey)
+                } else {
+                    navigator.navigate(VpnSettingsNavKey())
+                }
+            },
         onSplitTunnelingCellClick =
-            dropUnlessResumed { navigator.navigate(SplitTunnelingNavKey()) },
-        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoNavKey) },
-        onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessNavKey) },
-        onReportProblemCellClick = dropUnlessResumed { navigator.navigate(ProblemReportNavKey) },
-        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopNavKey()) },
-        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaNavKey()) },
-        onBackClick = dropUnlessResumed { navigator.goBack() },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(SplitTunnelingNavKey()) },
+        onAppInfoClick = dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppInfoNavKey) },
+        onApiAccessClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ApiAccessNavKey) },
+        onReportProblemCellClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ProblemReportNavKey) },
+        onMultihopClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(MultihopNavKey()) },
+        onDaitaClick = dropUnlessResumed { navigator.navigateReplaceIfDetailPane(DaitaNavKey()) },
         onNotificationSettingsCellClick =
-            dropUnlessResumed { navigator.navigate(NotificationSettingsNavKey) },
-        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceNavKey) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(NotificationSettingsNavKey) },
+        onAppObfuscationClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppearanceNavKey) },
+        onBackClick = dropUnlessResumed { navigator.goBackUntil(SettingsNavKey, inclusive = true) },
     )
 }
 

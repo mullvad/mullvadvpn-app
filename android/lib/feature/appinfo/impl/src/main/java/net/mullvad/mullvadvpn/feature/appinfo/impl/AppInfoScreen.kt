@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -94,7 +95,9 @@ fun AppInfo(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.app_info),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = {
+            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+        },
         snackbarHostState = snackbarHostState,
     ) { modifier ->
         Column(

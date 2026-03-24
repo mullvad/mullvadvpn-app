@@ -22,6 +22,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
@@ -117,7 +118,7 @@ fun AntiCensorshipSettingsScreen(
             if (state.contentOrNull()?.isModal == true) {
                 NavigateCloseIconButton(onBackClick)
             } else {
-                NavigateBackIconButton(onNavigateBack = onBackClick)
+                unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
     ) { modifier, lazyListState: LazyListState ->
