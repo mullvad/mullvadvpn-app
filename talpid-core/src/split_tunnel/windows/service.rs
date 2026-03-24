@@ -41,6 +41,14 @@ pub enum Error {
     #[error("Failed to install split tunnel driver")]
     InstallService(#[source] windows_service::Error),
 
+    /// Failed to query service configuration
+    #[error("Failed to query service configuration")]
+    QueryServiceConfig(#[source] windows_service::Error),
+
+    /// Failed to update service configuration
+    #[error("Failed to update service configuration")]
+    UpdateServiceConfig(#[source] windows_service::Error),
+
     /// Failed to start ST service
     #[error("Timed out waiting on service to start")]
     StartTimeout,
@@ -78,6 +86,20 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         }
     };
 
+    // Verify the registered binary path matches what we expect. If a previous
+    // installation registered the service with a different path, update the config.
+    let config = service.query_config().map_err(Error::QueryServiceConfig)?;
+    if !paths_equal(&config.executable_path, &expected_syspath) {
+        log::debug!(
+            "Split tunnel service has incorrect path ({:?}), updating to {:?}",
+            config.executable_path,
+            expected_syspath,
+        );
+        service
+            .change_config(&driver_service_info(&expected_syspath))
+            .map_err(Error::UpdateServiceConfig)?;
+    }
+
     start_and_wait_for_service(&service)
 }
 
@@ -114,10 +136,8 @@ fn stop_service(service: &Service) -> Result<(), Error> {
     wait_for_status(service, ServiceState::Stopped)
 }
 
-fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
-    log::debug!("Installing split tunnel driver");
-
-    let service_info = ServiceInfo {
+fn driver_service_info(syspath: &Path) -> ServiceInfo {
+    ServiceInfo {
         name: SPLIT_TUNNEL_SERVICE.into(),
         display_name: SPLIT_TUNNEL_DISPLAY_NAME.into(),
         service_type: ServiceType::KERNEL_DRIVER,
@@ -128,11 +148,15 @@ fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
         dependencies: vec![],
         account_name: None,
         account_password: None,
-    };
+    }
+}
+
+fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
+    log::debug!("Installing split tunnel driver");
 
     let service = scm
         .create_service(
-            &service_info,
+            &driver_service_info(syspath),
             ServiceAccess::START | ServiceAccess::QUERY_STATUS,
         )
         .map_err(Error::InstallService)?;
@@ -172,4 +196,15 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
     }
 
     Ok(())
+}
+
+/// Compare two paths case-insensitively.
+/// This also strips the NT namespace `\??\` prefix.
+fn paths_equal(a: &Path, b: &Path) -> bool {
+    strip_nt_prefix(a).to_string_lossy().to_lowercase()
+        == strip_nt_prefix(b).to_string_lossy().to_lowercase()
+}
+
+fn strip_nt_prefix(path: &Path) -> &Path {
+    path.strip_prefix(r"\??\").unwrap_or(path)
 }
