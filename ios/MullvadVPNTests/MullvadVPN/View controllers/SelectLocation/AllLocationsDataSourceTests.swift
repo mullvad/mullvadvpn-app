@@ -7,6 +7,7 @@
 //
 
 import MullvadMockData
+import MullvadREST
 import MullvadTypes
 import XCTest
 
@@ -28,6 +29,15 @@ class AllLocationsDataSourceTests: XCTestCase {
         XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["us", "dal"]))
         XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["es1-wireguard"]))
         XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
+    }
+
+    func testAddAutomaticLocation() throws {
+        let automaticNode = dataSource.nodes.compactMap { $0.asAutomaticLocationNode }.first!
+
+        XCTAssertTrue(automaticNode.name == "Automatic")
+        XCTAssertTrue(automaticNode.code == "automatic")
+        XCTAssertTrue(automaticNode.locations.isEmpty)
+        XCTAssertTrue(automaticNode.locationInfo == nil)
     }
 
     func testSearchCity() throws {
@@ -85,34 +95,113 @@ class AllLocationsDataSourceTests: XCTestCase {
     func testNodeByLocation() throws {
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
-        var nodeByLocation = dataSource.node(by: .init(locations: [.country("es")]))
+        var nodeByLocation = dataSource.node(by: .only(.init(locations: [.country("es")])))
         var nodeByCode = rootNode.descendantNodeFor(codes: ["es"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
-        nodeByLocation = dataSource.node(by: .init(locations: [.city("es", "mad")]))
+        nodeByLocation = dataSource.node(by: .only(.init(locations: [.city("es", "mad")])))
         nodeByCode = rootNode.descendantNodeFor(codes: ["es", "mad"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
-        nodeByLocation = dataSource.node(by: .init(locations: [.hostname("es", "mad", "es1-wireguard")]))
+        nodeByLocation = dataSource.node(by: .only(.init(locations: [.hostname("es", "mad", "es1-wireguard")])))
         nodeByCode = rootNode.descendantNodeFor(codes: ["es1-wireguard"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
     }
 
-    func testConnectedNode() throws {
+    func testConnectedNodeWithValidHostname() throws {
         let hostname = "es1-wireguard"
-        dataSource.setConnectedRelay(hostname: hostname)
+        let constraint = RelayConstraint<UserSelectedRelays>.only(.init(locations: [.hostname("es", "mad", hostname)]))
+        let selectedRelay = SelectedRelay(
+            endpoint: .init(
+                socketAddress: .ipv4(.init(ip: .loopback, port: 0)),
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                publicKey: Data(),
+                obfuscation: .off
+            ),
+            hostname: hostname,
+            location: .init(
+                country: "",
+                countryCode: "",
+                city: "",
+                cityCode: "",
+                latitude: 0,
+                longitude: 0
+            ),
+            features: nil
+        )
+
+        dataSource.setConnectedRelay(relayConstraint: constraint, selectedRelay: selectedRelay)
         dataSource.nodes.forEachNode { node in
             XCTAssertEqual(node.isConnected, node.name == hostname)
         }
+    }
 
-        dataSource.setConnectedRelay(hostname: "invalid-hostname")
+    func testConnectedNodeWithInvalidHostname() throws {
+        let constraint = RelayConstraint<UserSelectedRelays>.only(
+            .init(locations: [.hostname("es", "mad", "es1-wireguard")]))
+        let selectedRelay = SelectedRelay(
+            endpoint: .init(
+                socketAddress: .ipv4(.init(ip: .loopback, port: 0)),
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                publicKey: Data(),
+                obfuscation: .off
+            ),
+            hostname: "invalid-hostname",
+            location: .init(
+                country: "",
+                countryCode: "",
+                city: "",
+                cityCode: "",
+                latitude: 0,
+                longitude: 0
+            ),
+            features: nil
+        )
+
+        dataSource.setConnectedRelay(relayConstraint: constraint, selectedRelay: selectedRelay)
         dataSource.nodes.forEachNode { node in
             XCTAssertFalse(node.isConnected)
         }
     }
 
+    func testConnectedNodeWithAutomaticLocation() throws {
+        let constraint = RelayConstraint<UserSelectedRelays>.any
+        let selectedRelay = SelectedRelay(
+            endpoint: .init(
+                socketAddress: .ipv4(.init(ip: .loopback, port: 0)),
+                ipv4Gateway: .loopback,
+                ipv6Gateway: .loopback,
+                publicKey: Data(),
+                obfuscation: .off
+            ),
+            hostname: "",
+            location: .init(
+                country: "Sweden",
+                countryCode: "",
+                city: "Gothenburg",
+                cityCode: "",
+                latitude: 0,
+                longitude: 0
+            ),
+            features: nil
+        )
+
+        dataSource.setConnectedRelay(relayConstraint: constraint, selectedRelay: selectedRelay)
+
+        let connectedNodes = dataSource.nodes.filter { node in
+            node.isConnected
+        }
+        XCTAssert(connectedNodes.count == 1)
+
+        let connectedNode = try XCTUnwrap(connectedNodes.first?.asAutomaticLocationNode)
+        XCTAssertTrue(connectedNode.isConnected)
+        XCTAssertEqual(connectedNode.locationInfo, ["Sweden", "Gothenburg"])
+    }
+
     func testSetSelectedLocation() throws {
-        dataSource.setSelectedNode(selectedRelays: .init(locations: [.country("es")]))
+        dataSource.setSelectedNode(constraint: .only(.init(locations: [.country("es")])))
 
         dataSource.nodes.forEachNode { node in
             if node.locations == [.country("es")] {
@@ -124,7 +213,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
         dataSource
             .setSelectedNode(
-                selectedRelays: .init(locations: [.country("invalid")])
+                constraint: .only(.init(locations: [.country("invalid")]))
             )
         dataSource.nodes.forEachNode { node in
             XCTAssertFalse(node.isSelected)
@@ -133,8 +222,8 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocation() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])
-        dataSource.setExcludedNode(excludedSelection: excludedRelays)
-        let excludedNode = dataSource.node(by: excludedRelays)!
+        dataSource.setExcludedNode(constraint: .only(excludedRelays))
+        let excludedNode = dataSource.node(by: .only(excludedRelays))!
 
         XCTAssertTrue(excludedNode.isExcluded)
 
@@ -142,7 +231,7 @@ class AllLocationsDataSourceTests: XCTestCase {
             XCTAssertFalse(ancestor.isExcluded)
         }
 
-        let includedNode = dataSource.node(by: .init(locations: [.country("es")]))!
+        let includedNode = dataSource.node(by: .only(.init(locations: [.country("es")])))!
         XCTAssertFalse(includedNode.isExcluded)
         includedNode.forEachDescendant { child in
             XCTAssertFalse(child.isExcluded)
@@ -156,13 +245,13 @@ class AllLocationsDataSourceTests: XCTestCase {
         let entryRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
 
         // Simulate multihop: exclusion is applied, Japan is excluded.
-        dataSource.setExcludedNode(excludedSelection: entryRelays)
-        let jpNode = dataSource.node(by: entryRelays)!
+        dataSource.setExcludedNode(constraint: .only(entryRelays))
+        let jpNode = dataSource.node(by: .only(entryRelays))!
         XCTAssertTrue(jpNode.isExcluded)
 
         // Simulate switching to singlehop: the view model should pass nil
         // to clear exclusions rather than passing the entry relay.
-        dataSource.setExcludedNode(excludedSelection: nil)
+        dataSource.setExcludedNode(constraint: nil)
 
         // In singlehop, Japan should NOT be excluded
         XCTAssertFalse(jpNode.isExcluded)
@@ -173,8 +262,8 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocationIncludesAncestors() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
-        dataSource.setExcludedNode(excludedSelection: excludedRelays)
-        let excludedNode = dataSource.node(by: excludedRelays)!
+        dataSource.setExcludedNode(constraint: .only(excludedRelays))
+        let excludedNode = dataSource.node(by: .only(excludedRelays))!
 
         XCTAssertTrue(excludedNode.isExcluded)
 
@@ -183,7 +272,7 @@ class AllLocationsDataSourceTests: XCTestCase {
             XCTAssertTrue(ancestor.isExcluded)
         }
 
-        let includedNode = dataSource.node(by: .init(locations: [.country("se")]))!
+        let includedNode = dataSource.node(by: .only(.init(locations: [.country("se")])))!
         XCTAssertFalse(includedNode.isExcluded)
         includedNode.forEachDescendant { child in
             XCTAssertFalse(child.isExcluded)
@@ -198,5 +287,6 @@ extension AllLocationsDataSourceTests {
 
         dataSource = AllLocationDataSource()
         dataSource.reload(relays)
+        dataSource.addAutomaticLocationNode()
     }
 }

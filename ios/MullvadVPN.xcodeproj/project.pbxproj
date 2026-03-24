@@ -507,6 +507,7 @@
 		7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C392B7111A700BBD33D /* IPOverrideWrapper.swift */; };
 		7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A516C3B2B712F0B00BBD33D /* IPOverrideWrapperTests.swift */; };
 		7A52C4502F6D8A6A005CD885 /* RecentItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52C44F2F6D8A60005CD885 /* RecentItemView.swift */; };
+		7A52C45A2F7277C9005CD885 /* BreadcrumbsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2917F52F606D76001E5DB6 /* BreadcrumbsProvider.swift */; };
 		7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */; };
 		7A52F96C2C17450C00B133B9 /* RelaySelectorWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A52F96B2C17450C00B133B9 /* RelaySelectorWrapperTests.swift */; };
 		7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A5468AB2C6A55B100590086 /* LocationRelays.swift */; };
@@ -6106,6 +6107,7 @@
 				44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */,
 				F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */,
 				A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */,
+				7A52C45A2F7277C9005CD885 /* BreadcrumbsProvider.swift in Sources */,
 				A9A5F9ED2ACB05160083449F /* NSRegularExpression+IPAddress.swift in Sources */,
 				A9A5F9EE2ACB05160083449F /* StorePaymentOutcome.swift in Sources */,
 				F0AC644E2F3B53150024427C /* UNUserNotificationCenter+Permission.swift in Sources */,
