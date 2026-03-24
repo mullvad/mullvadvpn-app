@@ -18,55 +18,31 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
     let contextMenu: (LocationNode) -> ContextMenu
 
     var body: some View {
-        let isAutomaticLocation = location is AutomaticLocationNode
+        if location is AutomaticLocationNode {
+            AutomaticLocationListItem(location: $location, isRecent: true, onSelect: onSelect)
+        } else {
+            recentLocationListItem
+        }
+    }
 
+    @ViewBuilder
+    var recentLocationListItem: some View {
         SegmentedListItem(
             accessibilityIdentifier: .recentListItem(location.name),
             accessibilityLabel: location.name,
             label: {
-                itemFactory.label(for: .recent(node: location, level: 0))
+                itemFactory.label(for: .recent(node: location))
             },
-            segment: {
-                if isAutomaticLocation {
-                    itemFactory.segment(
-                        for: .info(onSelect: {
-                            alert = getAutomaticLocationInfoAlert { alert = nil }
-                        })
-                    )
-                }
-            },
+            segment: {},
             groupedContent: {},
             onSelect: {
                 onSelect(location)
             }
         )
         .contextMenu {
-            isAutomaticLocation ? nil : contextMenu(location)
+            contextMenu(location)
         }
         .id(location.id)  // to be able to scroll to this item programmatically
         .mullvadAlert(item: $alert)
-    }
-
-    func getAutomaticLocationInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
-        let message = [
-            (NSLocalizedString(
-                "Picks a suitable location based on your exit location, this is based on a number "
-                    + "of different factors such as distance, provider, and server load.", comment: "")),
-            (NSLocalizedString(
-                "Attention: This will ignore filter settings for the server that is being "
-                    + "used as an entry point", comment: "")),
-        ].joinedParagraphs()
-
-        return MullvadAlert(
-            type: .info,
-            messages: [LocalizedStringKey(message)],
-            actions: [
-                MullvadAlert.Action(
-                    type: .default,
-                    title: "Got it!",
-                    handler: completion
-                )
-            ]
-        )
     }
 }

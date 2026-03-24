@@ -1,7 +1,7 @@
 import MullvadTypes
 import SwiftUI
 
-struct RelayItemView: View {
+struct LocationItemView: View {
     let node: LocationNode
     let multihopContext: MultihopContext
     let level: Int
@@ -69,7 +69,7 @@ struct RelayItemView: View {
 }
 
 #Preview {
-    RelayItemView(
+    LocationItemView(
         node: LocationNode(
             name: "A great location",
             code: "a-great-location",

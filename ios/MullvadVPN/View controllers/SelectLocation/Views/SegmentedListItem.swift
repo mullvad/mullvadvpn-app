@@ -26,7 +26,9 @@ struct SegmentedListItem<Label: View, Segment: View, GroupedContent: View>: View
     var body: some View {
         HStack(spacing: 2) {
             Button {
-                onSelect()
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    onSelect()
+                }
             } label: {
                 label()
                     .background(Color.colorForLevel(level))
@@ -45,7 +47,9 @@ struct SegmentedListItem<Label: View, Segment: View, GroupedContent: View>: View
         .accessibilityLabel(accessibilityLabel)
         .accessibilityIdentifier(accessibilityIdentifier)
         .accessibilityAction(named: Text("Select \(accessibilityLabel)")) {
-            onSelect()
+            withAnimation(.easeInOut(duration: 0.15)) {
+                onSelect()
+            }
         }
         .clipShape(
             UnevenRoundedRectangle(

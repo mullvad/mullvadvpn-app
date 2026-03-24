@@ -399,6 +399,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     private func updateSelections() {
         let selectedEntryConstraint = tunnelManager.settings.relayConstraints.entryLocations
         let selectedExitConstraint = tunnelManager.settings.relayConstraints.exitLocations
+
         let updateRecentsDataSources:
             (
                 LocationDataSourceProtocol,
@@ -422,18 +423,19 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     }
                 }
             }
+
         updateLocationsDataSources(
             [entryCustomListsDataSource, entryLocationsDataSource], selectedEntryConstraint, selectedExitConstraint)
         updateLocationsDataSources(
             [exitCustomListsDataSource, exitLocationsDataSource], selectedExitConstraint, selectedEntryConstraint)
 
+        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
+        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
+
         exitContext.selectedLocation =
             [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode
         entryContext.selectedLocation =
             [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource].firstSelectedNode
-
-        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
-        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
     }
 
     func didFinish() {
@@ -467,35 +469,5 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             updateSelections()
             updateConnectedLocations(tunnelManager.tunnelStatus)
         }
-    }
-
-    private func updateRecents(
-        dataSource: LocationDataSourceProtocol,
-        selected: UserSelectedRelays
-    ) {
-        dataSource.setSelectedNode(selectedRelays: selected)
-    }
-
-    private func updateLocationDataSources(
-        dataSources: [LocationDataSourceProtocol],
-        selected: UserSelectedRelays,
-        excluded: UserSelectedRelays
-    ) {
-        if let dataSource = dataSources.first(where: { $0.node(by: selected) != nil }) {
-            dataSource.setSelectedNode(selectedRelays: selected)
-            dataSource.expandSelection()
-        }
-
-        guard isMultihopEnabled else { return }
-
-        dataSources.forEach {
-            $0.setExcludedNode(excludedSelection: excluded)
-        }
-    }
-
-    private func selectedNode(
-        from dataSources: [LocationDataSourceProtocol]
-    ) -> LocationNode? {
-        dataSources.firstSelectedNode
     }
 }

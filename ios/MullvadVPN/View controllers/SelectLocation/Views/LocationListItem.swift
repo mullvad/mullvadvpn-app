@@ -12,16 +12,23 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     let contextMenu: (LocationNode) -> ContextMenu
     var level = 0
 
-    var filteredChildrenIndices: [Int] {
+    var childIndices: [Int] {
         location.children
             .enumerated()
             .map { $0.offset }
     }
 
     var body: some View {
-        let isAutomaticLocation = location is AutomaticLocationNode
-        let childrenIndices = filteredChildrenIndices
-        let hasChildren = !childrenIndices.isEmpty
+        if location is AutomaticLocationNode {
+            AutomaticLocationListItem(location: $location, isRecent: false, onSelect: onSelect)
+        } else {
+            locationListItem
+        }
+    }
+
+    @ViewBuilder
+    var locationListItem: some View {
+        let hasChildren = !childIndices.isEmpty
         let isExpanded = location.showsChildren
         let isDisabled = !location.isActive || location.isExcluded
 
@@ -35,15 +42,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 itemFactory.label(for: .location(node: location, context: multihopContext, level: level))
             },
             segment: {
-                if isAutomaticLocation {
-                    itemFactory.segment(
-                        for: .info(
-                            onSelect: {
-                                alert = getAutomaticLocationInfoAlert { alert = nil }
-                            }
-                        )
-                    )
-                } else if hasChildren {
+                if hasChildren {
                     itemFactory.segment(
                         for: .expand(
                             isExpanded: isExpanded,
@@ -57,13 +56,13 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             groupedContent: {
                 if isExpanded {
                     ForEach(
-                        Array(childrenIndices.enumerated()),
+                        Array(childIndices.enumerated()),
                         id: \.element
                     ) { index, indexInChildrenList in
                         let location = $location.children[indexInChildrenList]
                         LocationListItem(
                             location: location,
-                            isLastInList: isLastInList && index == (childrenIndices.count - 1),
+                            isLastInList: isLastInList && index == (childIndices.count - 1),
                             multihopContext: multihopContext,
                             onSelect: onSelect,
                             contextMenu: { location in contextMenu(location) },
@@ -84,40 +83,16 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
                 }
         }
         .contextMenu {
-            isAutomaticLocation ? nil : contextMenu(location)
+            contextMenu(location)
         }
         .zIndex(level == 0 ? 2 : 1 / Double(level))  // prevent wrong overlapping during animations
         .id(location.id)  // to be able to scroll to this item programmatically
-        .mullvadAlert(item: $alert)
     }
 
     func toggleChildren() {
         withAnimation(.default.speed(3)) {
             location.showsChildren.toggle()
         }
-    }
-
-    func getAutomaticLocationInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
-        let message = [
-            (NSLocalizedString(
-                "Picks a suitable location based on your exit location, this is based on a number "
-                    + "of different factors such as distance, provider, and server load.", comment: "")),
-            (NSLocalizedString(
-                "Attention: This will ignore filter settings for the server that is being "
-                    + "used as an entry point", comment: "")),
-        ].joinedParagraphs()
-
-        return MullvadAlert(
-            type: .info,
-            messages: [LocalizedStringKey(message)],
-            actions: [
-                MullvadAlert.Action(
-                    type: .default,
-                    title: "Got it!",
-                    handler: completion
-                )
-            ]
-        )
     }
 }
 
