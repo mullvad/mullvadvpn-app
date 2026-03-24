@@ -152,12 +152,10 @@ function sign_artifacts {
 
     pushd "$dir"
     # Sign all apk files with the old and new key
-    key_pass=$(sed -n 's/^keyPassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
-    key_store_pass=$(sed -n 's/^storePassword *= *//p' "$ANDROID_CREDENTIALS_DIR/keystore.properties")
     for apk in MullvadVPN-*.apk; do
         echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
         --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
-        --key-pass "pass:$key_pass" --ks-pass "pass:$key_store_pass" \
+        --ks-pass "file:$ANDROID_CREDENTIALS_DIR/keystore.properties.new" \
         --next-signer --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
         --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
         --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$apk"
