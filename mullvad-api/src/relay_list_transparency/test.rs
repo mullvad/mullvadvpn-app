@@ -14,7 +14,7 @@ mod sigsum_test {
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
         let timestamp = validate_relay_list_signature(&sig, &pubkeys).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
-        let digest_hex = RelayListDigest::new(hex::encode(digest));
+        let digest_hex = RelayListDigest::new(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
 
@@ -27,7 +27,7 @@ mod sigsum_test {
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
-        let digest_hex = RelayListDigest::new(hex::encode(digest));
+        let digest_hex = RelayListDigest::new(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
 
@@ -39,7 +39,7 @@ mod sigsum_test {
         let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
-        let digest_hex = RelayListDigest::new(hex::encode(digest));
+        let digest_hex = RelayListDigest::new(digest);
         validate_relay_list_content(&timestamp, &digest_hex).unwrap();
     }
 
