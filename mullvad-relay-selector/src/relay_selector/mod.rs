@@ -841,7 +841,7 @@ impl RelaySelector {
         let (matches, discards) = self.get_relays()
             .into_relays()
             .map(|relay| {
-                let verdict = Criteria::fold(criteria.iter(), &relay);
+                let verdict = criteria.eval(&relay);
                 (relay, verdict)
             })
             // After this mapping, a single reduce is performed to partition the relays based on
@@ -854,18 +854,19 @@ impl RelaySelector {
     }
 
     /// Calculate the set of criteria each predicate will render for scrutinizing relays.
-    fn criteria(&self, predicate: Predicate) -> Vec<Criteria<'_, WireguardRelay>> {
+    fn criteria(&self, predicate: Predicate) -> Criteria<'_, WireguardRelay> {
         let shadowsocks_port_ranges =
             self.relay_list(|rl| rl.wireguard.shadowsocks_port_ranges.clone());
         let custom_lists: CustomListsSettings = self.custom_lists();
 
         match predicate {
             Predicate::Singlehop(constraints) => {
+                // TODO: get rid of clone?
                 let usable_as_exit =
                     Self::usable_as_exit(constraints.general.clone(), custom_lists);
                 let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
 
-                vec![usable_as_entry, usable_as_exit]
+                usable_as_entry.and(usable_as_exit)
             }
             Predicate::Autohop(constraints) => {
                 // This case is identical to `singlehop`, except that it does not generally care about obfuscation, DAITA, etc.
@@ -912,14 +913,13 @@ impl RelaySelector {
                 // Check criteria that apply specifically to entries
                 let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
 
-                let criteria = usable_as_exit.and(
+                usable_as_exit.and(
                     // The relay must also be a valid entry.
                     usable_as_entry.or(
                         // Else another entry must be found.
                         can_find_autohop_entry,
                     ),
-                );
-                vec![criteria]
+                )
             }
             Predicate::Entry(MultihopConstraints { entry, exit }) => {
                 // If an exit is already selected, it should be rejected as a possible entry relay.
@@ -952,7 +952,9 @@ impl RelaySelector {
                 // ~equiv to `Predicate::Singlehop`.
                 let usable_as_entry = Self::usable_as_entry(entry.clone(), shadowsocks_port_ranges);
                 let usable_as_exit = Self::usable_as_exit(entry.general, custom_lists);
-                vec![usable_as_entry, usable_as_exit, doesnt_collide_with_exit]
+                usable_as_entry
+                    .and(usable_as_exit)
+                    .and(doesnt_collide_with_exit)
             }
             Predicate::Exit(MultihopConstraints { entry, exit }) => {
                 // If an entry is already selected, it should be rejected as a possible exit relay.
@@ -979,7 +981,7 @@ impl RelaySelector {
                 };
 
                 let usable_as_exit = Self::usable_as_exit(exit, custom_lists);
-                vec![usable_as_exit, doesnt_collide_with_entry]
+                usable_as_exit.and(doesnt_collide_with_entry)
             }
         }
     }
