@@ -11,7 +11,7 @@ import { useMapReduxCountriesToCountryLocations } from './use-map-redux-countrie
 export function useFilteredCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
   const { activeOwnership } = useOwnership();
-  const { providers } = useProviders();
+  const { activeProviders } = useProviders();
   const { daitaEnabled } = useDaitaEnabled();
   const { daitaDirectOnly } = useDaitaDirectOnly();
   const { obfuscation } = useObfuscation();
@@ -21,7 +21,7 @@ export function useFilteredCountryLocations(locationType: LocationType) {
   const filteredRelayLocations = filterLocations({
     locations,
     ownership: activeOwnership,
-    providers,
+    providers: activeProviders,
     daita: daitaEnabled,
     directOnly: daitaDirectOnly,
     locationType,
