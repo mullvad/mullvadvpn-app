@@ -85,12 +85,12 @@ fn get_product_version(target: Target) -> String {
 /// `product_version` or a git repository cannot be found, the suffix is empty. Otherwise,
 /// `-dev-$hash` is appended to the release version.
 fn get_suffix(release_tag: &str) -> String {
-    if !valid_git_repo() {
+    let Some((git_dir, git_common_dir)) = git_dirs() else {
         return String::new();
     };
     // Rerun this build script on changes to the git ref that affects the build version.
     // NOTE: This must be kept up to date with the behavior of `git_rev_parse_commit_hash`.
-    rerun_if_git_ref_changed(release_tag);
+    rerun_if_git_ref_changed(&git_dir, &git_common_dir, release_tag);
     let head_commit_hash =
         git_rev_parse_commit_hash("HEAD").expect("Failed to run `git rev-parse HEAD^{{commit}}`");
     let product_version_commit_hash = git_rev_parse_commit_hash(release_tag);
@@ -103,45 +103,37 @@ fn get_suffix(release_tag: &str) -> String {
     }
 }
 
-fn valid_git_repo() -> bool {
-    // Use `rev-parse` instead of `status` to avoid taking a write lock on `.git/index.lock`.
-    // `git status` refreshes the index as a side effect, causing lock contention when
-    // rust-analyzer triggers `cargo check` concurrently with other git operations.
-    matches!(Command::new("git").args(["rev-parse", "--git-dir"]).status(), Ok(status) if status.success())
+/// Returns `(git_dir, git_common_dir)` for this repository, or `None` if not in a git repo.
+/// In a worktree these differ: `git_dir` is worktree-specific (`HEAD`), `git_common_dir` is
+/// shared (`refs/`).
+fn git_dirs() -> Option<(PathBuf, PathBuf)> {
+    let git_dir = git_output(&["rev-parse", "--git-dir"]).map(PathBuf::from)?;
+    let git_common_dir = git_output(&["rev-parse", "--git-common-dir"]).map(PathBuf::from)?;
+    Some((git_dir, git_common_dir))
 }
 
-/// Trigger rebuild of `mullvad-version` on changing branch (`.git/HEAD`), on changes to the ref of
-/// the current branch (`.git/refs/heads/$current_branch`) and on changes to the ref of the current
-/// release tag (`.git/refs/tags/$current_release_tag`).
-///
-/// Returns an error if not in a git repository, or the git binary is not in `PATH`.
-fn rerun_if_git_ref_changed(release_tag: &str) {
-    let git_dir = Path::new("..").join(".git");
-
-    // The `.git/HEAD` file contains the position of the current head. If in 'detached HEAD' state,
-    // this will be the ref of the current commit. If on a branch it will just point to it, e.g.
-    // `ref: refs/heads/main`. Tracking changes to this file will tell us if we change branch, or
-    // modify the current detached HEAD state (e.g. committing or rebasing).
+/// Trigger rebuild of `mullvad-version` on changing branch (`HEAD`), on changes to the ref of
+/// the current branch (`refs/heads/$current_branch`) and on changes to the ref of the current
+/// release tag (`refs/tags/$current_release_tag`).
+fn rerun_if_git_ref_changed(git_dir: &Path, git_common_dir: &Path, release_tag: &str) {
+    // Track HEAD to detect branch switches and detached HEAD changes (commits, rebases).
+    // HEAD lives in the worktree-specific git_dir.
     let head_path = git_dir.join("HEAD");
     if head_path.exists() {
         println!("cargo:rerun-if-changed={}", head_path.display());
     }
 
     // The above check will not cause a rebuild when modifying commits on a currently checked out
-    // branch. To catch this, we need to track the `.git/refs/heads/$current_branch` file.
-    let output = Command::new("git")
-        .arg("branch")
-        .arg("--show-current")
-        .output()
-        .expect("Failed to execute `git branch --show-current`");
-
-    let current_branch = String::from_utf8(output.stdout).unwrap();
-    let current_branch = current_branch.trim();
+    // branch. To catch this, we need to track the `refs/heads/$current_branch` file.
+    let current_branch = git_output(&["branch", "--show-current"]).unwrap_or_default();
 
     // When in 'detached HEAD' state, the output will be empty. However, in that case we already get
-    // the ref from `.git/HEAD`, so we can safely skip this part.
+    // the ref from `HEAD`, so we can safely skip this part.
     if !current_branch.is_empty() {
-        let git_current_branch_ref = git_dir.join("refs").join("heads").join(current_branch);
+        let git_current_branch_ref = git_common_dir
+            .join("refs")
+            .join("heads")
+            .join(current_branch);
         if git_current_branch_ref.exists() {
             println!(
                 "cargo:rerun-if-changed={}",
@@ -152,16 +144,16 @@ fn rerun_if_git_ref_changed(release_tag: &str) {
 
     // Since the product version depends on if the build is done on the commit with the
     // corresponding release tag or not, we must track creation of/changes to said tag
-    let git_release_tag_ref = git_dir.join("refs").join("tags").join(release_tag);
+    let git_release_tag_ref = git_common_dir.join("refs").join("tags").join(release_tag);
     if git_release_tag_ref.exists() {
         println!("cargo:rerun-if-changed={}", git_release_tag_ref.display());
     };
 
     // NOTE: As the repository has gotten quite large, you may find the contents of the
-    // `.git/refs/heads` and `.git/refs/tags` empty. This happens because `git pack-refs` compresses
-    // and moves the information into the `.git/packed-refs` file to save storage. We do not have to
-    // track this file, however, as any changes to the current branch, 'detached HEAD' state
-    // or tags will update the corresponding `.git/refs` file we are tracking, even if it had
+    // `refs/heads` and `refs/tags` directories empty. This happens because `git pack-refs`
+    // compresses and moves the information into the `packed-refs` file to save storage. We do not
+    // have to track this file, however, as any changes to the current branch, 'detached HEAD'
+    // state or tags will update the corresponding `refs` file we are tracking, even if it had
     // previously been pruned.
 }
 
@@ -169,11 +161,13 @@ fn rerun_if_git_ref_changed(release_tag: &str) {
 ///
 /// Returns `None` if the git reference cannot be found.
 fn git_rev_parse_commit_hash(git_ref: &str) -> Option<String> {
-    let output = Command::new("git")
-        .arg("rev-parse")
-        .arg(format!("{git_ref}^{{commit}}"))
-        .output()
-        .expect("Failed to run `git rev-parse`");
+    git_output(&["rev-parse", &format!("{git_ref}^{{commit}}")])
+}
+
+/// Runs a git command with the given arguments and returns the trimmed stdout as a `String`, or
+/// `None` if the command fails to execute or exits with a non-zero status.
+fn git_output(args: &[&str]) -> Option<String> {
+    let output = Command::new("git").args(args).output().ok()?;
     if !output.status.success() {
         return None;
     }
