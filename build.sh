@@ -239,6 +239,21 @@ function build {
         for_target_string=" for local target $HOST"
     fi
 
+    log_header "Checking libmnl and libnftnl static libraries$for_target_string"
+
+    local clib_dir="${SCRIPT_DIR}/dist-assets/binaries/${current_target}"
+    local libmnl_file="${clib_dir}/libmnl.a"
+    local libnftnl_file="${clib_dir}/libnftnl.a"
+
+    if [ ! -f "${libmnl_file}" ] || [ ! -f "${libnftnl_file}" ]; then
+         log_warn "Libraries not found at ${clib_dir}/*"
+         log_warn "Check \"dist-assets/binaries\" for build details!"
+    else
+        log_info "Libraries found:"
+        log_info "${libmnl_file}"
+        log_info "${libnftnl_file}"
+    fi
+
     ################################################################################
     # Compile and link all binaries.
     ################################################################################
@@ -403,6 +418,10 @@ function build_daemon_packages {
         case $arch in
             x86_64) deb_arch="amd64";;
             aarch64) deb_arch="arm64";;
+            riscv64gc)
+                deb_arch="riscv64"
+                rpm_arch="riscv64"
+                ;;
         esac
 
         local deb_name="mullvad-vpn-daemon_${PRODUCT_VERSION}_${deb_arch}.deb"

@@ -26,6 +26,11 @@ function log_error {
     log "!! $1" $RED
 }
 
+function log_warn {
+    local ORANGE="1;33m"
+    log "!! $1" $ORANGE
+}
+
 function log_info {
     local BOLD="1m"
     log "$1" $BOLD
