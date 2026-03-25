@@ -666,6 +666,12 @@ export class DaemonRpc extends GrpcClient {
     await this.callEmpty(this.client.clearAllRelayOverrides);
   }
 
+  public async setEnableRecents(enabled: boolean): Promise<void> {
+    const boolValue = new BoolValue();
+    boolValue.setValue(enabled);
+    await this.call(this.client.setEnableRecents, boolValue);
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;

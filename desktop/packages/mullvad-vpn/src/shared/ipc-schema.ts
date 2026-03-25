@@ -210,6 +210,7 @@ export const ipcSchema = {
     clearAllRelayOverrides: invoke<void, void>(),
     setEnableDaita: invoke<boolean, void>(),
     setDaitaDirectOnly: invoke<boolean, void>(),
+    setEnableRecents: invoke<boolean, void>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),
