@@ -88,7 +88,7 @@ export class ErrorNotificationProvider
                   // TRANSLATORS: Label for the in-app banner when the app encountered an error
                   // TRANSLATORS: and will block network traffic until the error is resolved.
                   messages.pgettext(
-                    'in-app-notifications',
+                    'notifications',
                     'Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling.',
                   ),
                   { splitTunneling: strings.splitTunneling.toLowerCase() },
