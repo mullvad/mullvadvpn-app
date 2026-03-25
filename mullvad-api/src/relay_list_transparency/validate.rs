@@ -52,7 +52,7 @@ pub(crate) fn validate_relay_list_signature(
     sig: &RelayListSignature,
     trusted_pubkeys: &[SigsumPublicKey],
 ) -> Result<Timestamp, SignatureVerificationFailedError> {
-    static POLICY: &BuiltInPolicy = &sigsum::policy::SIGSUM_TEST_2025_3;
+    static POLICY: &BuiltInPolicy = &sigsum::policy::SIGSUM_GENERIC_2025_1;
 
     let sigsum_signature = SigsumSignature::from_ascii(&sig.unparsed_sigsum_signature)
         .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
