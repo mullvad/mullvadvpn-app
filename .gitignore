@@ -24,6 +24,7 @@
 /dist-assets/aarch64-apple-darwin/
 /dist-assets/aarch64-pc-windows-msvc/
 /dist-assets/aarch64-unknown-linux-gnu/
+/dist-assets/riscv64gc-unknown-linux-gnu/
 /dist-assets/x86_64-apple-darwin/
 /windows/version.h
 /windows/winfw/src/winfw/lannetworks.h
