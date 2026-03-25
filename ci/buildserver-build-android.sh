@@ -180,6 +180,7 @@ function upload_google_play {
     rm -r "${upload_dir:?}/*"
     cp "$file" "$upload_dir/"
 
+    PLAY_CREDENTIALS_PATH="$ANDROID_CREDENTIALS_DIR/play-api-key.json" \
     ./building/container-run.sh android ./android/gradlew -p android "$task" --artifact-dir "$upload_dir"
 }
 

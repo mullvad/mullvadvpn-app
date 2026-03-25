@@ -15,6 +15,7 @@ CARGO_TARGET_VOLUME_NAME=${CARGO_TARGET_VOLUME_NAME:-"cargo-target"}
 CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -31,6 +32,13 @@ case ${1-:""} in
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
         optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
 
+        if [ -n "$PLAY_CREDENTIALS_PATH" ]; then
+            optional_play_credentials_file=(
+                -v "$PLAY_CREDENTIALS_PATH:$REPO_MOUNT_TARGET/android/credentials/play-api-key.json:Z"
+                -e "PLAY_CREDENTIALS_PATH=$REPO_MOUNT_TARGET/android/credentials/play-api-key.json"
+            )
+        fi
+
         shift 1
     ;;
     *)
@@ -44,4 +52,5 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
+    "${optional_play_credentials_file[@]}" \
     "$container_image_name" bash -c "$*"
