@@ -236,6 +236,56 @@ TARGETS="aarch64-pc-windows-msvc" ./build.sh
 
 You may have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
 
+## Notes on building for RISC-V
+
+These instructions are for building, packaging and installing the Mullvad VPN daemon and CLI interface for use with RISC-V systems. It includes support for RVA22 and RVA23 profiles; for example, on Framework Laptop 13 with [DeepComputing RISC-V Mainboards](https://frame.work/marketplace/mainboards?search=risc-v) running Ubuntu.
+
+Build and package:
+```bash
+./build.sh --daemon-only --optimize
+```
+
+Install on Debian/Ubuntu:
+```bash
+sudo dpkg -i dist/mullvad-vpn-daemon_<version>_riscv64.deb
+```
+
+Install on Fedora:
+```bash
+sudo dnf install dist/mullvad-vpn-daemon_<version>_riscv64.rpm
+```
+
+### Cross-compling for RISC-V from other hosts such as Debian/Ubuntu AMD64
+
+Install dependencies:
+```bash
+# As root
+dpkg --add-architecture riscv64 && \
+    apt update && \
+    apt install libdbus-1-dev:riscv64 gcc-riscv64-linux-gnu
+```
+
+Add target to Rust toolchain:
+```bash
+rustup target add riscv64gc-unknown-linux-gnu
+```
+
+Update your local Cargo configuration to use the correct linker and libraries, add the
+following `~/.cargo/config.toml`:
+```
+[target.riscv64-unknown-linux-gnu]
+linker = "riscv64-linux-gnu-gcc"
+
+[target.riscv64-unknown-linux-gnu.dbus]
+rustc-link-search = ["/usr/riscv64-linux-gnu/lib"]
+rustc-link-lib = ["dbus-1"]
+```
+
+Build and package:
+```bash
+TARGETS="riscv64gc-unknown-linux-gnu" ./build.sh --daemon-only --optimize
+```
+
 # Building and running mullvad-daemon
 
 This section is for building the system service individually.

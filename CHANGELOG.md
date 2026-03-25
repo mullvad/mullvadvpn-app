@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 
 #### Linux
+- Add support for RISC-V builds.
 - Add `--daemon-only` build option for deb and rpm packages for CLI usage.
 
 ### Changed
