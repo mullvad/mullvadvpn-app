@@ -21,7 +21,7 @@ class RelayFilterViewController: UIViewController {
     private let buttonContainerView: UIStackView = {
         let containerView = UIStackView()
         containerView.axis = .vertical
-        containerView.spacing = 8
+        containerView.spacing = 16
         containerView.isLayoutMarginsRelativeArrangement = true
         return containerView
     }()
@@ -30,10 +30,9 @@ class RelayFilterViewController: UIViewController {
         let label = UILabel()
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
-        label.font = .mullvadSmall
+        label.font = .mullvadTiny
         label.adjustsFontForContentSizeCategory = true
         label.textColor = .secondaryTextColor
-        label.textAlignment = .center
         return label
     }()
 
@@ -113,7 +112,13 @@ class RelayFilterViewController: UIViewController {
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
-                descriptionLabel.text = filterDescriptor.description
+
+                if let description = filterDescriptor.description {
+                    descriptionLabel.text = description
+                    descriptionLabel.isHidden = false
+                } else {
+                    descriptionLabel.isHidden = true
+                }
             }
             .store(in: &disposeBag)
         dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)

@@ -22,7 +22,7 @@ class DAITAPage: Page {
         return self
     }
 
-    @discardableResult func tapEnableDirectOnlyDialogButtonIfPresent() -> Self {
+    @discardableResult func tapEnableDialogButtonIfPresent() -> Self {
         let buttonElement = app.buttons[AccessibilityIdentifier.daitaConfirmAlertEnableButton]
         if buttonElement.exists {
             buttonElement.tap()
@@ -46,51 +46,6 @@ class DAITAPage: Page {
         if switchElement.value as? String == "0" {
             tapEnableSwitch()
         }
-        return self
-    }
-
-    @discardableResult func verifyDirectOnlySwitchIsEnabled() -> Self {
-        XCTAssertTrue(app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch].isEnabled)
-        return self
-    }
-
-    @discardableResult func verifyDirectOnlySwitchIsDisabled() -> Self {
-        XCTAssertFalse(app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch].isEnabled)
-        return self
-    }
-
-    @discardableResult func tapDirectOnlySwitch() -> Self {
-        app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch].tap()
-        return self
-    }
-
-    @discardableResult func tapDirectOnlySwitchIfOn() -> Self {
-        let switchElement = app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch]
-
-        if switchElement.value as? String == "1" {
-            tapDirectOnlySwitch()
-        }
-        return self
-    }
-
-    @discardableResult func tapDirectOnlySwitchIfOff() -> Self {
-        let switchElement = app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch]
-
-        if switchElement.value as? String == "0" {
-            tapDirectOnlySwitch()
-        }
-        return self
-    }
-
-    @discardableResult func verifyDirectOnlySwitchOn() -> Self {
-        let switchElement = app.switches[AccessibilityIdentifier.daitaDirectOnlySwitch]
-
-        guard let switchValue = switchElement.value as? String else {
-            XCTFail("Failed to read switch state")
-            return self
-        }
-
-        XCTAssertEqual(switchValue, "1")
         return self
     }
 }

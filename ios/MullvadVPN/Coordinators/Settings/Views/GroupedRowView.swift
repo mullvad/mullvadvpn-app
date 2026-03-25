@@ -25,10 +25,9 @@ struct GroupedRowView<Content: View>: View {
 }
 
 #Preview("GroupedRowView") {
-    StatefulPreviewWrapper((enabled: true, directOnly: false)) { values in
+    StatefulPreviewWrapper(true) { value in
         GroupedRowView {
-            SwitchRowView(isOn: values.enabled, text: "Enable")
-            SwitchRowView(isOn: values.directOnly, text: "Direct only")
+            SwitchRowView(isOn: value, text: "Enable")
         }
     }
 }

@@ -10,8 +10,10 @@ protocol SelectLocationViewModel: ObservableObject {
     var entryContext: LocationContext { get set }
     var multihopContext: MultihopContext { get set }
     var searchText: String { get set }
-    var showDAITAInfo: Bool { get }
-    var isMultihopEnabled: Bool { get }
+    var showMultihopInfo: Bool { get }
+    var isMultihopActive: Bool { get }
+    var connectedEntryLocation: Location? { get }
+    var multihopState: MultihopState { get set }
     var isRecentsEnabled: Bool { get }
     func onFilterTapped(_ filter: SelectLocationFilter)
     func onFilterRemoved(_ filter: SelectLocationFilter)
@@ -24,8 +26,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func showDaitaSettings()
     func showEditCustomListView(locations: [LocationNode])
     func showAddCustomListView(locations: [LocationNode])
-    func showFilterView()
-    func toggleMultihop()
+    func showFilterView(context: MultihopContext)
     func toggleRecents()
     func manuallyFetchRelayList()
 }
@@ -44,13 +45,25 @@ struct SelectLocationDelegate {
 
 @MainActor
 class SelectLocationViewModelImpl: SelectLocationViewModel {
-    @Published var isMultihopEnabled: Bool
+    @Published var isMultihopActive: Bool = false
     @Published var isRecentsEnabled: Bool = true
     @Published var multihopContext: MultihopContext = .exit
     @Published var exitContext = LocationContext()
     @Published var entryContext = LocationContext()
     @Published var searchText: String = ""
-    @Published var showDAITAInfo: Bool
+    @Published var showMultihopInfo: Bool = false
+    @Published var connectedEntryLocation: Location? = nil
+
+    @Published var multihopState: MultihopState {
+        didSet {
+            // .whenNeeded and entry location are loosely coupled, so it's
+            // best to clean the latter when the former isn't present.
+            if !multihopState.isWhenNeeded {
+                connectedEntryLocation = nil
+            }
+            tunnelManager.updateSettings([.multihop(multihopState)])
+        }
+    }
 
     private let exitLocationsDataSource = AllLocationDataSource()
     private let entryLocationsDataSource = AllLocationDataSource()
@@ -97,6 +110,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             repository: recentConnectionsRepository)
 
         self.delegate = delegate
+        self.multihopState = tunnelManager.settings.tunnelMultihopState
+
         self.entryCustomListsDataSource = CustomListsDataSource(
             repository: customListRepository
         )
@@ -109,12 +124,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         self.exitRecentsDataSource = RecentListDataSource(
             exitLocationsDataSource, customListsDataSource: exitCustomListsDataSource)
 
-        showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
-
-        // If multihop is enabled, we should check if there's a DAITA related error when opening the location
-        // view. If there is, help the user by showing the entry instead of the exit view.
-        isMultihopEnabled = tunnelManager.settings.tunnelMultihopState.isUserSelected
-
         // Reactively keep `isRecentsEnabled` in sync with the interactor's enabled state.
         recentsInteractor
             .isEnabledPublisher
@@ -125,13 +134,6 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 isRecentsEnabled = isEnabled
             })
             .store(in: &cancellables)
-
-        if isMultihopEnabled {
-            self.multihopContext =
-                if case .noRelaysSatisfyingDaitaConstraints = tunnelManager.tunnelStatus.observedState
-                    .blockedState?.reason
-                { .entry } else { .exit }
-        }
 
         self.entryContext = LocationContext(
             filter: SelectLocationFilter.getActiveFilters(tunnelManager.settings).0,
@@ -165,22 +167,24 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateTunnelStatus: { [weak self] _, status in
+                    self?.updateMultihopState()
                     self?.updateConnectedLocations(status)
                 },
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
-                    isMultihopEnabled = settings.tunnelMultihopState.isUserSelected
-                    if !isMultihopEnabled {
-                        multihopContext = .exit
-                    }
+
                     reloadAllDataSources()
                     updateSelections()
+                    updateMultihopState()
                     updateConnectedLocations(tunnelManager.tunnelStatus)
+
+                    if !isMultihopActive {
+                        multihopContext = .exit
+                    }
+
                     if !searchText.isEmpty {
                         search(searchText: searchText)
                     }
-
-                    showDAITAInfo = tunnelManager.settings.daita.isAutomaticRouting
 
                     let (activeEntryFilter, activeExitFilter) = SelectLocationFilter.getActiveFilters(
                         settings
@@ -204,18 +208,16 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
+
         reloadAllDataSources()
         updateSelections()
+        updateMultihopState()
         updateConnectedLocations(tunnelManager.tunnelStatus)
     }
 
     deinit {
         guard let tunnelObserver else { return }
         tunnelManager.removeObserver(tunnelObserver)
-    }
-
-    func toggleMultihop() {
-        tunnelManager.updateSettings([.multihop(isMultihopEnabled ? .never : .always)])
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
@@ -301,6 +303,39 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         updateConnectedLocations(tunnelManager.tunnelStatus)
     }
 
+    func didFinish() {
+        delegate.didFinish()
+    }
+
+    func showDaitaSettings() {
+        delegate.showDaitaSettings()
+    }
+
+    func showEditCustomListView(locations: [LocationNode]) {
+        delegate.showEditCustomListView(locations, nil)
+    }
+
+    func showAddCustomListView(locations: [LocationNode]) {
+        delegate.showAddCustomListView(locations)
+    }
+
+    func showFilterView(context: MultihopContext) {
+        delegate.showFilterView(context)
+    }
+
+    func toggleRecents() {
+        recentsInteractor.toggle()
+    }
+
+    func manuallyFetchRelayList() {
+        _ = relayCacheTracker.fetchRelays { [weak self] _ in
+            guard let self else { return }
+            reloadAllDataSources()
+            updateSelections()
+            updateConnectedLocations(tunnelManager.tunnelStatus)
+        }
+    }
+
     private func reloadAllDataSources() {
         fetchLocations()
         refreshCustomLists()
@@ -348,7 +383,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             if let entryRelays = relaysCandidates.entryRelays {
                 entryLocationsDataSource.reload(entryRelays.toLocationRelays())
 
-                if tunnelManager.settings.tunnelMultihopState.isUserSelected {
+                if tunnelManager.settings.tunnelMultihopState.isAlways {
                     entryLocationsDataSource.addAutomaticLocationNode()
                 }
 
@@ -418,7 +453,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     $0.setSelectedNode(constraint: selected)
                     $0.expandSelection()
 
-                    if self.isMultihopEnabled {
+                    if self.isMultihopActive {
                         $0.setExcludedNode(constraint: excluded)
                     }
                 }
@@ -438,36 +473,28 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource].firstSelectedNode
     }
 
-    func didFinish() {
-        delegate.didFinish()
-    }
+    private func updateMultihopState() {
+        let newState = tunnelManager.settings.tunnelMultihopState
+        if multihopState != newState {
+            multihopState = newState
+        }
 
-    func showDaitaSettings() {
-        delegate.showDaitaSettings()
+        connectedEntryLocation = tunnelManager.tunnelStatus.state.relays?.entry?.location
+        let whenNeededIsActive = multihopState.isWhenNeeded && connectedEntryLocation != nil
+        showMultihopInfo = whenNeededIsActive
+        isMultihopActive = whenNeededIsActive || multihopState.isAlways
     }
+}
 
-    func showEditCustomListView(locations: [LocationNode]) {
-        delegate.showEditCustomListView(locations, nil)
-    }
-
-    func showAddCustomListView(locations: [LocationNode]) {
-        delegate.showAddCustomListView(locations)
-    }
-
-    func showFilterView() {
-        delegate.showFilterView(multihopContext)
-    }
-
-    func toggleRecents() {
-        recentsInteractor.toggle()
-    }
-
-    func manuallyFetchRelayList() {
-        _ = relayCacheTracker.fetchRelays { [weak self] _ in
-            guard let self else { return }
-            reloadAllDataSources()
-            updateSelections()
-            updateConnectedLocations(tunnelManager.tunnelStatus)
+extension MultihopState {
+    var icon: Image {
+        switch self {
+        case .always:
+            .mullvadIconMultihopAlways
+        case .never:
+            .mullvadIconMultihopNever
+        case .whenNeeded:
+            .mullvadIconMultihopWhenNeeded
         }
     }
 }

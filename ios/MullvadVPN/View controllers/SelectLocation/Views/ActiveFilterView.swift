@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActiveFilterView: View {
     let activeFilter: [SelectLocationFilter]
+    let disabled: Bool
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
 
@@ -21,21 +22,30 @@ struct ActiveFilterView: View {
                     } label: {
                         HStack {
                             Text(filter.title)
+                                .foregroundStyle(
+                                    disabled
+                                        ? Color.MullvadText.disabled
+                                        : Color.mullvadTextPrimary
+                                )
                             if filter.isRemovable {
                                 Button {
                                     onRemove(filter)
                                 } label: {
                                     Image(systemName: "xmark")
+                                        .tint(Color.mullvadTextPrimary)
                                 }
                                 .accessibilityIdentifier(.relayFilterChipCloseButton)
                             }
                         }
-                        .foregroundStyle(Color.mullvadTextPrimary)
                         .font(.mullvadMiniSemiBold)
                         .padding(8)
                         .background {
                             RoundedRectangle(cornerRadius: 8)
-                                .foregroundStyle(Color.MullvadButton.primary)
+                                .foregroundStyle(
+                                    disabled
+                                        ? Color.MullvadButton.primaryDisabled
+                                        : Color.MullvadButton.primary
+                                )
                         }
                     }
                     .accessibilityIdentifier(filter.accessibilityIdentifier)
@@ -44,6 +54,14 @@ struct ActiveFilterView: View {
             .padding(.horizontal)
         }
         .scrollIndicators(.never)
+
+        if disabled {
+            Text("Filters are disabled when entry location is set to automatic")
+                .font(.mullvadMini)
+                .foregroundStyle(Color.MullvadText.onBackground)
+                .padding(.horizontal)
+                .padding(.top, -4)
+        }
     }
 }
 
@@ -60,10 +78,11 @@ struct ActiveFilterView: View {
                             .provider(2),
                             .obfuscation,
                         ],
-                        onSelect: { _ in
-                        },
+                        disabled: true,
+                        onSelect: { _ in },
                         onRemove: { _ in }
                     )
+                    .background(Color.mullvadBackground)
                 }
             }
         }

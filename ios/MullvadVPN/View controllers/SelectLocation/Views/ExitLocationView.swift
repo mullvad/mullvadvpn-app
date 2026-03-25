@@ -41,7 +41,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         }
                     if !context.filter.isEmpty {
                         ActiveFilterView(
-                            activeFilter: context.filter
+                            activeFilter: context.filter,
+                            disabled: context.isAutomaticLocation
                         ) { filter in
                             viewModel.onFilterTapped(filter)
                         } onRemove: { filter in

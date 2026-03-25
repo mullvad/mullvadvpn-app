@@ -45,7 +45,7 @@ enum SelectLocationFilter: Hashable {
         case .ipv6:
             .ipv6FilterPill
         case .owned, .rented, .provider:
-            .selectLocationFilterButton
+            .selectLocationFilterPill
         }
     }
 
@@ -53,27 +53,30 @@ enum SelectLocationFilter: Hashable {
         [SelectLocationFilter],
         [SelectLocationFilter]
     ) {
+        let isAlwaysMultihop = settings.tunnelMultihopState.isAlways
+        let isNeverMultihop = settings.tunnelMultihopState.isNever
+
         var activeEntryFilter = [SelectLocationFilter]()
-        add(relayFilter: settings.relayConstraints.entryFilter, to: &activeEntryFilter)
+        if isAlwaysMultihop {
+            add(relayFilter: settings.relayConstraints.entryFilter, to: &activeEntryFilter)
+        }
 
         var activeExitFilter = [SelectLocationFilter]()
         add(relayFilter: settings.relayConstraints.exitFilter, to: &activeExitFilter)
 
-        let isMultihop = settings.tunnelMultihopState.isUserSelected
-
-        if settings.daita.isDirectOnly {
-            if isMultihop {
+        if settings.daita.isEnabled {
+            if isAlwaysMultihop {
                 activeEntryFilter.append(.daita)
-            } else {
+            } else if isNeverMultihop {
                 activeExitFilter.append(.daita)
             }
         }
 
         let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
         if isObfuscation {
-            if isMultihop {
+            if isAlwaysMultihop {
                 activeEntryFilter.append(.obfuscation)
-            } else {
+            } else if isNeverMultihop {
                 activeExitFilter.append(.obfuscation)
             }
         }
@@ -81,9 +84,9 @@ enum SelectLocationFilter: Hashable {
         // Show IPv6 filter when IPv6 is selected AND obfuscation (shadowsocks/quic) is active
         // because regular entry IPv6 addresses don't work with these obfuscation methods
         if settings.ipVersion.isIPv6 && isObfuscation {
-            if isMultihop {
+            if isAlwaysMultihop {
                 activeEntryFilter.append(.ipv6)
-            } else {
+            } else if isNeverMultihop {
                 activeExitFilter.append(.ipv6)
             }
         }

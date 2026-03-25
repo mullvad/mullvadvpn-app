@@ -9,7 +9,7 @@
 import CoreLocation
 import Foundation
 
-public struct Location: Codable, Equatable, Sendable {
+public struct Location: Codable, Equatable, Hashable, Sendable {
     public var country: String
     public var countryCode: String
     public var city: String

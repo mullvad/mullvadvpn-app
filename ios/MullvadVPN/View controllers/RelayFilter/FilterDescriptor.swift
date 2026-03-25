@@ -25,24 +25,33 @@ struct FilterDescriptor {
         return createTitleForAvailableServers()
     }
 
-    var description: String {
-        return if shouldShowDaitaDescription {
-            NSLocalizedString("When using DAITA, one provider with DAITA-enabled servers is required.", comment: "")
+    var description: String? {
+        if shouldShowDisabledDescription {
+            NSLocalizedString("Filters are disabled when entry location is set to automatic", comment: "")
+        } else if shouldShowDaitaDescription {
+            NSLocalizedString("When using DAITA, one provider with DAITA-enabled servers is required", comment: "")
         } else {
-            ""
+            nil
+        }
+    }
+
+    var shouldShowDisabledDescription: Bool {
+        return switch multihopContext {
+        case .entry:
+            settings.automaticMultihopIsEnabled
+        case .exit:
+            false
         }
     }
 
     var shouldShowDaitaDescription: Bool {
-        let isDaitaEnabled = settings.daita.daitaState.isEnabled
-        let isAutomaticRoutingEnabled = settings.daita.isAutomaticRouting
-        let isMultihopEnabled = settings.tunnelMultihopState.isUserSelected
+        let isDaitaEnabled = settings.daita.isEnabled
 
         return switch multihopContext {
         case .entry:
-            isDaitaEnabled
+            isDaitaEnabled && settings.tunnelMultihopState.isAlways
         case .exit:
-            isDaitaEnabled && !isAutomaticRoutingEnabled && !isMultihopEnabled
+            isDaitaEnabled && settings.tunnelMultihopState.isNever
         }
     }
 

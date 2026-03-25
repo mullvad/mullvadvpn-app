@@ -18,8 +18,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
 
         DAITAPage(app)
             .tapEnableSwitchIfOff()
-            .tapDirectOnlySwitchIfOff()
-            .tapEnableDirectOnlyDialogButtonIfPresent()
+            .tapEnableDialogButtonIfPresent()
             .tapBackButton()
 
         SettingsPage(app)
@@ -57,7 +56,7 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihopOff()
+            .verifyMultihop(state: .never)
             .tapDoneButton()
 
         TunnelControlPage(app)
@@ -65,15 +64,15 @@ class SelectLocationTests: LoggedInWithTimeUITestCase {
 
         SelectLocationPage(app)
             .tapMenuButton()
-            .verifyMultihopOff()
-            .tapToggleMultihop()
+            .verifyMultihopState(.never)
+            .setMultihopState(.always)
             .tapDoneButton()
 
         HeaderBar(app)
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihopOn()
+            .verifyMultihop(state: .never)
             .tapDoneButton()
     }
 
