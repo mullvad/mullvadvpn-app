@@ -16,8 +16,7 @@ struct QuicObfuscator: RelayObfuscating {
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterQuicRelays(from: relays),
+            relays: filterQuicRelays(from: relays),
             port: .only(443),
             method: .quic
         )

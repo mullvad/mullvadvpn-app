@@ -10,6 +10,8 @@ extension Font {
     static var mullvadTinySemiBold: Font { .mullvadTiny.weight(.semibold) }
     static var mullvadMini: Font { .footnote }
     static var mullvadMiniSemiBold: Font { mullvadMini.weight(.semibold) }
+    static var mullvadMicro: Font { .caption2 }
+    static var mullvadMicroSemiBold: Font { mullvadMicro.weight(.semibold) }
 }
 
 extension UIFont {
@@ -22,4 +24,6 @@ extension UIFont {
     static var mullvadTinySemiBold: UIFont { .preferredFont(forTextStyle: .subheadline, weight: .semibold) }
     static var mullvadMini: UIFont { .preferredFont(forTextStyle: .footnote) }
     static var mullvadMiniSemiBold: UIFont { .preferredFont(forTextStyle: .footnote, weight: .semibold) }
+    static var mullvadMicro: UIFont { .preferredFont(forTextStyle: .caption2) }
+    static var mullvadMicroSemiBold: UIFont { .preferredFont(forTextStyle: .caption2, weight: .semibold) }
 }

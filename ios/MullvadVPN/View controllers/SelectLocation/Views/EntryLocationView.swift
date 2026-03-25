@@ -4,9 +4,9 @@ struct EntryLocationView<ViewModel: SelectLocationViewModel>: View {
     @ObservedObject var viewModel: ViewModel
     let onScrollVisibilityChange: (Bool) -> Void
     var body: some View {
-        if viewModel.showDAITAInfo {
-            DaitaWarningView {
-                viewModel.showDaitaSettings()
+        if viewModel.showMultihopInfo {
+            MultihopWhenNeededInfoView {
+                viewModel.multihopState = .always
             }
         } else {
             ExitLocationView(

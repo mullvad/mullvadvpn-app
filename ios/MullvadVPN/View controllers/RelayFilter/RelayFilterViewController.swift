@@ -21,20 +21,16 @@ class RelayFilterViewController: UIViewController {
     private let buttonContainerView: UIStackView = {
         let containerView = UIStackView()
         containerView.axis = .vertical
-        containerView.spacing = 8
+        containerView.spacing = 16
         containerView.isLayoutMarginsRelativeArrangement = true
         return containerView
     }()
 
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        label.lineBreakMode = .byWordWrapping
-        label.font = .mullvadSmall
-        label.adjustsFontForContentSizeCategory = true
-        label.textColor = .secondaryTextColor
-        label.textAlignment = .center
-        return label
+    private let descriptionContainer: UIStackView = {
+        let container = UIStackView()
+        container.axis = .vertical
+        container.spacing = 16
+        return container
     }()
 
     private let applyButton: AppButton = {
@@ -69,7 +65,11 @@ class RelayFilterViewController: UIViewController {
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString("Filter", comment: "")
+        if viewModel.multihopContext == .entry {
+            navigationItem.title = NSLocalizedString("Entry filter", comment: "")
+        } else {
+            navigationItem.title = NSLocalizedString("Exit filter", comment: "")
+        }
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .cancel,
@@ -89,7 +89,7 @@ class RelayFilterViewController: UIViewController {
         tableView.isMultipleTouchEnabled = false
 
         view.addSubview(tableView)
-        buttonContainerView.addArrangedSubview(descriptionLabel)
+        buttonContainerView.addArrangedSubview(descriptionContainer)
         buttonContainerView.addArrangedSubview(applyButton)
 
         view.addConstrainedSubviews([tableView, buttonContainerView]) {
@@ -113,7 +113,25 @@ class RelayFilterViewController: UIViewController {
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
-                descriptionLabel.text = filterDescriptor.description
+
+                descriptionContainer.subviews.forEach { $0.removeFromSuperview() }
+                if filterDescriptor.descriptions.isEmpty {
+                    descriptionContainer.isHidden = true
+                } else {
+                    descriptionContainer.isHidden = false
+
+                    filterDescriptor.descriptions.forEach { description in
+                        let label = UILabel()
+                        label.numberOfLines = 0
+                        label.lineBreakMode = .byWordWrapping
+                        label.font = .mullvadTiny
+                        label.adjustsFontForContentSizeCategory = true
+                        label.textColor = .secondaryTextColor
+                        label.text = description
+
+                        descriptionContainer.addArrangedSubview(label)
+                    }
+                }
             }
             .store(in: &disposeBag)
         dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)

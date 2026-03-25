@@ -43,8 +43,6 @@ struct DaitaFeature: ChipFeature {
     }
 
     var name: String {
-        // When multihop is enabled via DAITA without being explicitly enabled
-        // by the user, display combined indicator instead.
         NSLocalizedString("DAITA", comment: "")
     }
 }
@@ -76,9 +74,13 @@ struct MultihopFeature: ChipFeature {
     }
 
     var icon: Image? {
-        // Smart Location icon should only be visible when multihop has been
-        // automatically activated, and not explicitly selected by the user
-        settings.tunnelMultihopState.isUserSelected ? nil : Image("IconSmartLocation")
+        if settings.tunnelMultihopState.isAlways && (settings.relayConstraints.entryLocations == .any) {
+            .mullvadIconMultihopAlways
+        } else if settings.tunnelMultihopState.isWhenNeeded {
+            .mullvadIconMultihopWhenNeeded
+        } else {
+            nil
+        }
     }
 }
 

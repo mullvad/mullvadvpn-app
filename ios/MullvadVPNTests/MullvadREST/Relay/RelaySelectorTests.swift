@@ -76,7 +76,8 @@ class RelaySelectorTests: XCTestCase {
             constraints.exitLocations,
             filterConstraint: constraints.exitFilter,
             daitaEnabled: false,
-            relays: relayWithLocations
+            relays: relayWithLocations,
+            obfuscation: nil
         )
 
         XCTAssertTrue(
@@ -259,7 +260,8 @@ class RelaySelectorTests: XCTestCase {
             by: .any,
             in: sampleRelays,
             filterConstraint: .any,
-            daitaEnabled: false
+            daitaEnabled: false,
+            obfuscation: nil
         )
 
         XCTAssertFalse(candidates.contains { $0.relay.hostname == "us-nyc-wg-302" })
@@ -271,6 +273,7 @@ class RelaySelectorTests: XCTestCase {
             in: sampleRelays,
             filterConstraint: .any,
             daitaEnabled: false,
+            obfuscation: nil,
             includeInactive: true
         )
 
@@ -284,6 +287,7 @@ class RelaySelectorTests: XCTestCase {
             in: sampleRelaysNoActive,
             filterConstraint: .any,
             daitaEnabled: false,
+            obfuscation: nil,
             includeInactive: true
         )
 
@@ -303,7 +307,8 @@ extension RelaySelectorTests {
             by: constraints.exitLocations,
             in: relays,
             filterConstraint: constraints.exitFilter,
-            daitaEnabled: daitaEnabled
+            daitaEnabled: daitaEnabled,
+            obfuscation: nil
         )
 
         return try RelaySelector.WireGuard.pickCandidate(

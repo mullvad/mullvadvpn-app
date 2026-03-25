@@ -1,3 +1,4 @@
+import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
@@ -19,7 +20,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     }
 
     private var showSearchField: Bool {
-        return !viewModel.showDAITAInfo || viewModel.multihopContext == .exit
+        return !viewModel.showMultihopInfo || viewModel.multihopContext == .exit
     }
 
     var body: some View {
@@ -29,23 +30,37 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         ZStack(alignment: .topLeading) {
             VStack(spacing: 16) {
                 MultihopSelectionView(
-                    hops: (viewModel.isMultihopEnabled ? MultihopContext.allCases : [MultihopContext.exit])
+                    hops: (viewModel.isMultihopActive ? MultihopContext.allCases : [MultihopContext.exit])
                         .map {
-                            let selectedLocation =
-                                switch $0 {
-                                case .entry:
-                                    viewModel.showDAITAInfo
-                                        ? LocationNode(name: "Automatic", code: "")
-                                        : viewModel.entryContext.selectedLocation
-                                case .exit: viewModel.exitContext.selectedLocation
-                                }
+                            var selectedLocation: LocationNode?
+                            var filterCount = 0
+                            switch $0 {
+                            case .entry:
+                                selectedLocation =
+                                    viewModel.showMultihopInfo
+                                    ? AutomaticLocationNode(
+                                        locationInfo: (viewModel.connectedEntryLocation.flatMap {
+                                            [$0.country]
+                                        }) ?? []
+                                    )
+                                    : viewModel.entryContext.selectedLocation
+                                filterCount = viewModel.entryContext.filter.count
+                            case .exit:
+                                selectedLocation = viewModel.exitContext.selectedLocation
+                                filterCount = viewModel.exitContext.filter.count
+                            }
                             return Hop(
                                 multihopContext: $0,
-                                selectedLocation: selectedLocation
+                                multihopState: viewModel.multihopState,
+                                selectedLocation: selectedLocation,
+                                filterCount: filterCount
                             )
                         },
                     selectedMultihopContext: $viewModel.multihopContext,
-                    isExpanded: headerIsExpanded
+                    isExpanded: headerIsExpanded,
+                    onFilterTapped: {
+                        viewModel.showFilterView(context: $0)
+                    }
                 )
                 .padding(.horizontal, 16)
                 if showSearchField {
@@ -118,7 +133,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         }
         .animation(.default, value: showSearchField)
         .animation(.default, value: viewModel.multihopContext)
-        .animation(.default, value: viewModel.isMultihopEnabled)
+        .animation(.default, value: viewModel.isMultihopActive)
         .animation(.default, value: viewModel.isRecentsEnabled)
         .background(Color.mullvadDarkBackground)
         .navigationTitle("Select location")
@@ -138,33 +153,21 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 placement: .topBarLeading,
                 content: {
                     Menu {
-                        Button {
-                            viewModel.showFilterView()
-                        } label: {
-                            HStack {
-                                Text("Filters")
-                                Image.mullvadIconFilter
-                                    .renderingMode(.template)
-                            }
-                        }
-                        .accessibilityIdentifier(.selectLocationFilterButton)
-
-                        Button {
-                            viewModel.toggleMultihop()
-                        } label: {
-                            var title: LocalizedStringKey {
-                                viewModel.isMultihopEnabled ? "Disable multihop" : "Enable multihop"
-                            }
-                            HStack {
-                                Text(title)
-                                viewModel.isMultihopEnabled
-                                    ? Image.mullvadIconDisableMultihop
+                        Picker(selection: $viewModel.multihopState) {
+                            ForEach(MultihopState.allCases, id: \.self) { state in
+                                HStack {
+                                    Text(state.description)
+                                    state.icon
                                         .renderingMode(.template)
-                                    : Image.mullvadIconEnableMultihop
-                                        .renderingMode(.template)
+                                }
+                                .accessibilityIdentifier(.multihopState(state.description))
                             }
+                        } label: {
+                            Text("Multihop mode")
+                            Text(viewModel.multihopState.description)
                         }
-                        .accessibilityIdentifier(.toggleMultihopButton)
+                        .pickerStyle(MenuPickerStyle())
+                        .accessibilityIdentifier(.multihopMenuPicker)
 
                         Button {
                             if viewModel.isRecentsEnabled {

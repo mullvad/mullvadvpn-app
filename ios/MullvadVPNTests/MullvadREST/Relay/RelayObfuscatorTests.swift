@@ -47,14 +47,8 @@ final class RelayObfuscatorTests: XCTestCase {
             )
         )
 
-        let obfuscationResult = try RelayObfuscator(
-            relays: sampleRelays,
-            tunnelSettings: settings,
-            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
-        ).obfuscate()
-
         let picker = SinglehopPicker(
-            obfuscation: obfuscationResult,
+            relays: sampleRelays,
             tunnelSettings: settings,
             connectionAttemptCount: 0
         )
@@ -75,14 +69,8 @@ final class RelayObfuscatorTests: XCTestCase {
             )
         )
 
-        let obfuscationResult = try RelayObfuscator(
-            relays: sampleRelays,
-            tunnelSettings: settings,
-            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
-        ).obfuscate()
-
         let picker = MultihopPicker(
-            obfuscation: obfuscationResult,
+            relays: sampleRelays,
             tunnelSettings: settings,
             connectionAttemptCount: 0
         )
@@ -192,7 +180,7 @@ final class RelayObfuscatorTests: XCTestCase {
             !relay.shadowsocksExtraAddrIn.isNil
         }
 
-        XCTAssertEqual(obfuscationResult.obfuscatedRelays.wireguard.relays.count, relaysWithExtraAddresses.count)
+        XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, relaysWithExtraAddresses.count)
     }
 
     func testObfuscateShadowsocksRelayFilteringWithPortInsideDefaultRanges() throws {
@@ -211,7 +199,7 @@ final class RelayObfuscatorTests: XCTestCase {
             obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
-        XCTAssertEqual(obfuscationResult.obfuscatedRelays.wireguard.relays.count, sampleRelays.wireguard.relays.count)
+        XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, sampleRelays.wireguard.relays.count)
     }
 
     // MARK: QUIC
@@ -250,7 +238,7 @@ final class RelayObfuscatorTests: XCTestCase {
             relay.supportsLwo
         }
 
-        XCTAssertEqual(obfuscationResult.obfuscatedRelays.wireguard.relays.count, relaysWithLwoSupport.count)
+        XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, relaysWithLwoSupport.count)
     }
 
     func testObfuscateLwoPortCustom() throws {
@@ -465,7 +453,7 @@ extension RelayObfuscatorTests {
 
         // Standard ports can use regular ipv6AddrIn, so all relays should be available
         XCTAssertEqual(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.count,
+            obfuscationResult.relays.wireguard.relays.count,
             testData.response.wireguard.relays.count,
             "Shadowsocks with standard ports should not filter relays for IPv6"
         )
@@ -490,7 +478,7 @@ extension RelayObfuscatorTests {
             obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
-        let filteredHostnames = Set(obfuscationResult.obfuscatedRelays.wireguard.relays.map(\.hostname))
+        let filteredHostnames = Set(obfuscationResult.relays.wireguard.relays.map(\.hostname))
         let expectedHostnames = Set(testData.shadowsocksIPv6Relays.map(\.hostname))
 
         // Custom ports outside standard ranges require IPv6 in shadowsocksExtraAddrIn
@@ -525,7 +513,7 @@ extension RelayObfuscatorTests {
         // but not further filter by IPv6
         let relaysWithExtraAddrs = testData.response.wireguard.relays.filter { $0.shadowsocksExtraAddrIn != nil }
         XCTAssertEqual(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.count,
+            obfuscationResult.relays.wireguard.relays.count,
             relaysWithExtraAddrs.count,
             "IPv4 mode with custom port should filter by shadowsocksExtraAddrIn presence, not IPv6"
         )
@@ -548,7 +536,7 @@ extension RelayObfuscatorTests {
             obfuscationBypass: IdentityObfuscationProvider()
         ).obfuscate()
 
-        let filteredHostnames = Set(obfuscationResult.obfuscatedRelays.wireguard.relays.map(\.hostname))
+        let filteredHostnames = Set(obfuscationResult.relays.wireguard.relays.map(\.hostname))
         let expectedHostnames = Set(testData.quicIPv6Relays.map(\.hostname))
 
         XCTAssertEqual(filteredHostnames, expectedHostnames, "Only relays with IPv6 QUIC addresses should be included")
@@ -571,7 +559,7 @@ extension RelayObfuscatorTests {
         // Should only filter by QUIC support, not IPv6
         let relaysWithQuic = testData.response.wireguard.relays.filter { $0.supportsQuic }
         XCTAssertEqual(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.count,
+            obfuscationResult.relays.wireguard.relays.count,
             relaysWithQuic.count,
             "IPv4 mode should only filter by QUIC support, not IPv6 addresses"
         )
@@ -594,7 +582,7 @@ extension RelayObfuscatorTests {
         // Should only filter by QUIC support, not IPv6
         let relaysWithQuic = testData.response.wireguard.relays.filter { $0.supportsQuic }
         XCTAssertEqual(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.count,
+            obfuscationResult.relays.wireguard.relays.count,
             relaysWithQuic.count,
             "Automatic IP mode should only filter by QUIC support, not IPv6 addresses"
         )
@@ -656,7 +644,7 @@ extension RelayObfuscatorTests {
 
         // With IPv6 and QUIC, but no IPv6 QUIC addresses, the filtered relays should be empty
         XCTAssertTrue(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.isEmpty,
+            obfuscationResult.relays.wireguard.relays.isEmpty,
             "QUIC with IPv6 should filter out relays without IPv6 QUIC addresses"
         )
     }
@@ -682,7 +670,7 @@ extension RelayObfuscatorTests {
 
         // UDP over TCP uses regular IPv6 addresses, so no extra filtering needed
         XCTAssertEqual(
-            obfuscationResult.obfuscatedRelays.wireguard.relays.count,
+            obfuscationResult.relays.wireguard.relays.count,
             testData.response.wireguard.relays.count,
             "UDP over TCP should not filter relays based on extra IPv6 addresses"
         )

@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import XCTest
 
 class MultihopPage: Page {
@@ -27,9 +28,8 @@ class MultihopPage: Page {
         return self
     }
 
-    // the new, tristate UI
-    @discardableResult func tapMultihopAlways() -> Self {
-        app.buttons[AccessibilityIdentifier.multihopAlways].tap()
+    @discardableResult func tapMultihopState(_ state: MultihopState) -> Self {
+        app.buttons[AccessibilityIdentifier.multihopState(state.description)].tap()
         return self
     }
 }

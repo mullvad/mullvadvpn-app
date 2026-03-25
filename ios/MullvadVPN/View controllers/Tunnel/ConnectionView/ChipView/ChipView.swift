@@ -20,7 +20,8 @@ struct ChipView: View {
             HStack(spacing: UIMetrics.FeatureIndicators.chipViewIconTextSpacing) {
                 if let icon = item.icon {
                     icon
-                        .foregroundStyle(UIColor.primaryTextColor.color)
+                        .resizable()
+                        .frame(width: 14, height: 14)
                 }
                 Text(item.name)
                     .font(.subheadline)
@@ -55,7 +56,7 @@ struct ChipView: View {
 
 #Preview("Text + icon") {
     ZStack {
-        ChipView(item: ChipModel(id: .daita, name: "Example", icon: Image("IconSmartLocation"))) {}
+        ChipView(item: ChipModel(id: .daita, name: "Example", icon: .mullvadIconMultihopWhenNeeded)) {}
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(UIColor.secondaryColor.color)

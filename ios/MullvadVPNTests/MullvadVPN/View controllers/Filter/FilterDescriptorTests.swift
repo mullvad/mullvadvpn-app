@@ -14,6 +14,23 @@ import Testing
 
 @Suite("FilterDescriptorTests")
 struct FilterDescriptorTests {
+    enum FilterDescription: String {
+        case disabled = "Filters are disabled when entry location is set to automatic"
+        case daita = "When using DAITA, one provider with DAITA-enabled servers is required"
+        case none = ""
+
+        var shortDescription: String {
+            switch self {
+            case .disabled:
+                ".disabled"
+            case .daita:
+                ".daita"
+            case .none:
+                ".none"
+            }
+        }
+    }
+
     @Test(
         "Returns correct filter descriptor based on settings and relays",
         arguments: [
@@ -21,140 +38,95 @@ struct FilterDescriptorTests {
                 LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: [], exitRelays: createRelayWithLocation()),
                 false,
-                false,
+                FilterDescription.none,
                 MultihopContext.entry
             ),
             (
                 LatestTunnelSettings(tunnelMultihopState: .always),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                false,
+                FilterDescription.none,
                 MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
-            // DAITA on + automatic routing: exit doesn't need DAITA description
+            // DAITA on + automatic routing: exit doesn't need any description
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
+                LatestTunnelSettings(
+                    tunnelMultihopState: .whenNeeded,
+                    daita: DAITASettings(daitaState: .on)
+                ),
                 RelayCandidates(entryRelays: [], exitRelays: [esMad1]),
                 true,
-                false,
+                FilterDescription.none,
                 MultihopContext.exit
             ),
-            // DAITA on + automatic routing: entry needs DAITA description
+            // DAITA on + automatic routing: entry needs "disabled" description
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
+                LatestTunnelSettings(
+                    tunnelMultihopState: .whenNeeded,
+                    daita: DAITASettings(daitaState: .on)
+                ),
                 RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
                 true,
-                true,
+                FilterDescription.disabled,
                 MultihopContext.entry
             ),
-            // DAITA on + automatic routing: exit doesn't need DAITA description
+            // DAITA on + automatic routing: exit doesn't need any description
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
+                LatestTunnelSettings(
+                    tunnelMultihopState: .whenNeeded,
+                    daita: DAITASettings(daitaState: .on)
+                ),
                 RelayCandidates(entryRelays: [esMad1], exitRelays: [seSto6]),
                 true,
-                false,
+                FilterDescription.none,
                 MultihopContext.exit
             ),
-            // DAITA on + direct only: exit needs DAITA description (no auto routing, no multihop)
+            // DAITA on: exit needs DAITA description (no auto routing, no multihop)
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .on)),
+                LatestTunnelSettings(daita: DAITASettings(daitaState: .on)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1]),
                 true,
-                true,
+                FilterDescription.daita,
                 MultihopContext.exit
             ),
             (
-                LatestTunnelSettings(daita: DAITASettings(daitaState: .off, directOnlyState: .off)),
+                LatestTunnelSettings(daita: DAITASettings(daitaState: .off)),
                 RelayCandidates(entryRelays: nil, exitRelays: [esMad1, seSto6]),
                 true,
-                false,
+                FilterDescription.none,
                 MultihopContext.exit
             ),
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .off, directOnlyState: .on)
+                    daita: DAITASettings(daitaState: .off)
                 ),
                 RelayCandidates(entryRelays: nil, exitRelays: []),
                 false,
-                false,
+                FilterDescription.none,
                 MultihopContext.allCases.randomElement().unsafelyUnwrapped
             ),
+            // Multihop + DAITA: entry shows DAITA description
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .off, directOnlyState: .off)
-                ),
-                RelayCandidates(entryRelays: nil, exitRelays: []),
-                false,
-                false,
-                MultihopContext.allCases.randomElement().unsafelyUnwrapped
-            ),
-            // Multihop + DAITA + direct only: entry shows description
-            (
-                LatestTunnelSettings(
-                    tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .on)
+                    daita: DAITASettings(daitaState: .on)
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                true,
+                FilterDescription.daita,
                 MultihopContext.entry
             ),
-            // Multihop + DAITA + direct only: exit does not (multihop handles it)
+            // Multihop + DAITA: exit does not show description
             (
                 LatestTunnelSettings(
                     tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .on)
+                    daita: DAITASettings(daitaState: .on)
                 ),
                 RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
                 true,
-                false,
+                FilterDescription.none,
                 MultihopContext.exit
-            ),
-            // Multihop + DAITA + automatic routing: entry shows description
-            (
-                LatestTunnelSettings(
-                    tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
-                ),
-                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
-                true,
-                true,
-                MultihopContext.entry
-            ),
-            // Multihop + DAITA + automatic routing: exit does not
-            (
-                LatestTunnelSettings(
-                    tunnelMultihopState: .always,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
-                ),
-                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
-                true,
-                false,
-                MultihopContext.exit
-            ),
-            // Multihop + DAITA + automatic routing: exit does not
-            (
-                LatestTunnelSettings(
-                    tunnelMultihopState: .whenNeeded,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
-                ),
-                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
-                true,
-                false,
-                MultihopContext.exit
-            ),
-            // Multihop + DAITA + automatic routing: entry does
-            (
-                LatestTunnelSettings(
-                    tunnelMultihopState: .whenNeeded,
-                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
-                ),
-                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
-                true,
-                true,
-                MultihopContext.entry
             ),
         ]
     )
@@ -162,7 +134,7 @@ struct FilterDescriptorTests {
         _ settings: LatestTunnelSettings,
         _ relayCandidates: RelayCandidates,
         _ expectedEnabledState: Bool,
-        _ expectedDescription: Bool,
+        _ expectedDescription: FilterDescription,
         _ multihopContext: MultihopContext
     ) {
         let filterDescriptor = FilterDescriptor(
@@ -179,9 +151,10 @@ struct FilterDescriptorTests {
             (filterDescriptor.title.rangeOfCharacter(from: .decimalDigits) != nil) == expectedEnabledState,
             "Title should contain numbers only when enabled"
         )
+
         #expect(
-            filterDescriptor.description.isEmpty != expectedDescription,
-            "Description should \(expectedDescription ? "not be empty" : "be empty")"
+            (filterDescriptor.description ?? "") == expectedDescription.rawValue,
+            "Description should be \(expectedDescription.shortDescription)"
         )
     }
 

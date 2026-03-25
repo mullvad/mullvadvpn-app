@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActiveFilterView: View {
     let activeFilter: [SelectLocationFilter]
+    let automaticLocationIsActive: Bool
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
 
@@ -21,16 +22,21 @@ struct ActiveFilterView: View {
                     } label: {
                         HStack {
                             Text(filter.title)
+                                .foregroundStyle(
+                                    automaticLocationIsActive && filter.isOverriddenByAutomaticLocation
+                                        ? Color.MullvadText.disabled
+                                        : Color.mullvadTextPrimary
+                                )
                             if filter.isRemovable {
                                 Button {
                                     onRemove(filter)
                                 } label: {
                                     Image(systemName: "xmark")
+                                        .tint(Color.mullvadTextPrimary)
                                 }
                                 .accessibilityIdentifier(.relayFilterChipCloseButton)
                             }
                         }
-                        .foregroundStyle(Color.mullvadTextPrimary)
                         .font(.mullvadMiniSemiBold)
                         .padding(8)
                         .background {
@@ -44,6 +50,19 @@ struct ActiveFilterView: View {
             .padding(.horizontal)
         }
         .scrollIndicators(.never)
+
+        if automaticLocationIsActive && activeFilter.contains(where: { $0.isOverriddenByAutomaticLocation }) {
+            HStack(alignment: .center, spacing: 8) {
+                UIImage.Buttons.info
+                    .scaledIcon(fromBaseSize: 14, to: .footnote)
+                    .foregroundStyle(Color.white)
+                Text("Filters are overridden when using the automatic location")
+                    .font(.mullvadMini)
+                    .foregroundStyle(Color.MullvadText.onBackground)
+            }
+            .padding(.horizontal)
+            .padding(.top, -4)
+        }
     }
 }
 
@@ -60,10 +79,11 @@ struct ActiveFilterView: View {
                             .provider(2),
                             .obfuscation,
                         ],
-                        onSelect: { _ in
-                        },
+                        automaticLocationIsActive: true,
+                        onSelect: { _ in },
                         onRemove: { _ in }
                     )
+                    .background(Color.mullvadBackground)
                 }
             }
         }

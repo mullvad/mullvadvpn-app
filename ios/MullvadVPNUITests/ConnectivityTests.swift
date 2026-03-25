@@ -49,8 +49,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapMenuButton()
-            .tapFilterButton()
+            .tapExitFilterButton()
 
         SelectLocationFilterPage(app)
             .tapMullvadOwnershipCell()
@@ -69,8 +68,7 @@ class ConnectivityTests: LoggedOutUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapMenuButton()
-            .tapFilterButton()
+            .tapExitFilterButton()
 
         SelectLocationFilterPage(app)
             .tapRentedOwnershipCell()
@@ -165,7 +163,7 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     func testIfLocalNetworkSharingIsBlocking() throws {
         let skipReason = """
-                This test is currently skipped since there is no way to allow local network access for UI tests.
+            This test is currently skipped since there is no way to allow local network access for UI tests.
             Since its blocked by the system, there is no way of testing the `Local network sharing` switch.
             Non of these solutions worked: https://developer.apple.com/forums/thread/668729
             """
