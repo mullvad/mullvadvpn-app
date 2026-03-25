@@ -4,17 +4,22 @@ struct PressedExposingButton<Content: View>: View {
     let action: () -> Void
     let label: () -> Content
     let onPressedChange: ((Bool) -> Void)?
+    let disabled: Bool
+
     struct MyButtonStyle: ButtonStyle {
         let action: () -> Void
         let label: () -> Content
         let onPressedChange: ((Bool) -> Void)?
+        let disabled: Bool
 
         func makeBody(configuration: Configuration) -> some View {
             configuration.label
                 .onChange(of: configuration.isPressed) {
-                    onPressedChange?(configuration.isPressed)
+                    if !disabled {
+                        onPressedChange?(configuration.isPressed)
+                    }
                 }
-                .opacity(configuration.isPressed ? 0.6 : 1.0)
+                .opacity(configuration.isPressed && !disabled ? 0.6 : 1.0)
         }
     }
 
@@ -24,7 +29,8 @@ struct PressedExposingButton<Content: View>: View {
                 MyButtonStyle(
                     action: action,
                     label: label,
-                    onPressedChange: onPressedChange
+                    onPressedChange: onPressedChange,
+                    disabled: disabled
                 )
             )
     }

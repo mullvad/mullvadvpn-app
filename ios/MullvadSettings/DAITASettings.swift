@@ -12,15 +12,6 @@ import Foundation
 public enum DAITAState: Codable, Sendable {
     case on
     case off
-
-    public var isEnabled: Bool {
-        get {
-            self == .on
-        }
-        set {
-            self = newValue ? .on : .off
-        }
-    }
 }
 
 /// Whether "direct only" is enabled, meaning no automatic routing to DAITA relays.
@@ -48,19 +39,16 @@ public struct DAITASettings: Codable, Equatable, Sendable {
     public let state: DAITAState = .off
 
     public var daitaState: DAITAState
-    public var directOnlyState: DirectOnlyState
+    /// > Warning: Deprecated and should only be used in multihop migration.
+    public var directOnlyState: DirectOnlyState = .off
 
-    public var isAutomaticRouting: Bool {
-        daitaState.isEnabled && !directOnlyState.isEnabled
+    public var isEnabled: Bool {
+        get { daitaState == .on }
+        set { daitaState = newValue ? .on : .off }
     }
 
-    public var isDirectOnly: Bool {
-        daitaState.isEnabled && directOnlyState.isEnabled
-    }
-
-    public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
+    public init(daitaState: DAITAState = .off) {
         self.daitaState = daitaState
-        self.directOnlyState = directOnlyState
     }
 
     public init(from decoder: any Decoder) throws {
@@ -69,10 +57,6 @@ public struct DAITASettings: Codable, Equatable, Sendable {
         daitaState =
             try container.decodeIfPresent(DAITAState.self, forKey: .daitaState)
             ?? container.decodeIfPresent(DAITAState.self, forKey: .state)
-            ?? .off
-
-        directOnlyState =
-            try container.decodeIfPresent(DirectOnlyState.self, forKey: .directOnlyState)
             ?? .off
     }
 }

@@ -9,7 +9,7 @@
 import MullvadREST
 import MullvadSettings
 
-class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
+class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
     typealias TunnelSetting = DAITASettings
 
     let tunnelManager: TunnelManager
@@ -17,13 +17,11 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
 
     var isAutomaticRoutingActive: Bool
 
-    var didFailDAITAValidation: (((item: DAITASettingsPromptItem, setting: DAITASettings)) -> Void)?
+    var didFailDAITAValidation: ((DAITASettingsPromptItem) -> Void)?
 
-    var value: DAITASettings {
+    @Published var value: DAITASettings {
         willSet {
             guard newValue != value else { return }
-
-            objectWillChange.send()
             tunnelManager.updateSettings([.daita(newValue)])
         }
     }
@@ -33,7 +31,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
         value = tunnelManager.settings.daita
 
         var isAutomaticRoutingActive: Bool {
-            tunnelManager.tunnelStatus.state.isMultihop && !tunnelManager.settings.tunnelMultihopState.isUserSelected
+            tunnelManager.tunnelStatus.state.isMultihop && tunnelManager.settings.tunnelMultihopState.isWhenNeeded
         }
         self.isAutomaticRoutingActive = isAutomaticRoutingActive
 
@@ -50,9 +48,9 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
 
     func evaluate(setting: DAITASettings) {
         if let error = evaluateDaitaSettingsCompatibility(setting) {
-            let promptItem = promptItem(from: error, setting: setting)
+            let promptItem = promptItem(from: error)
 
-            didFailDAITAValidation?((item: promptItem, setting: setting))
+            didFailDAITAValidation?(promptItem)
             return
         }
 
@@ -61,49 +59,28 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
 }
 
 extension DAITATunnelSettingsViewModel {
-    private func promptItem(
-        from error: DAITASettingsCompatibilityError,
-        setting: DAITASettings
-    ) -> DAITASettingsPromptItem {
-        let promptItemSetting: DAITASettingsPromptItem.Setting =
-            if setting.daitaState != value.daitaState {
-                .daita
-            } else {
-                .directOnly
-            }
-
-        var promptItem: DAITASettingsPromptItem
-
+    private func promptItem(from error: DAITASettingsCompatibilityError) -> DAITASettingsPromptItem {
         switch error {
         case .singlehop:
-            promptItem = .daitaSettingIncompatibleWithSinglehop(promptItemSetting)
+            .daitaSettingIncompatibleWithSinglehop
         case .multihop:
-            promptItem = .daitaSettingIncompatibleWithMultihop(promptItemSetting)
+            .daitaSettingIncompatibleWithMultihop
         }
-
-        return promptItem
     }
 
     private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
-        guard settings.daitaState.isEnabled else { return nil }
+        guard settings.isEnabled else { return nil }
 
         var tunnelSettings = tunnelManager.settings
         tunnelSettings.daita = settings
 
-        var compatibilityError: DAITASettingsCompatibilityError?
+        let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
 
-        if settings.isDirectOnly {
-            let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
-
-            // Even if the reason for not finding any relays is not DAITA specific, if both DAITA and Direct
-            // only are enabled, we should return a DAITA related error since the current settings would have
-            // resulted in the relay selector not being able to select a DAITA relay anyway.
-            if relays == nil {
-                compatibilityError = tunnelSettings.tunnelMultihopState.isUserSelected ? .multihop : .singlehop
-            }
+        return if relays == nil {
+            tunnelSettings.tunnelMultihopState.isAlways ? .multihop : .singlehop
+        } else {
+            nil
         }
-
-        return compatibilityError
     }
 }
 

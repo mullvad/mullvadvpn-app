@@ -1,9 +1,12 @@
+import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
 struct Hop {
     let multihopContext: MultihopContext
+    let multihopState: MultihopState
     let selectedLocation: LocationNode?
+    let filterCount: Int
     var noMatchFound: NoMatchFoundReason? {
         if let selectedLocation {
             if let customListLocation = selectedLocation as? CustomListLocationNode {
@@ -21,14 +24,19 @@ struct Hop {
     }
 
     var icon: Image {
-        if noMatchFound != nil {
-            return Image.mullvadIconError
-        }
-        return switch multihopContext {
-        case .entry:
-            Image.mullvadServer
-        case .exit:
-            Image.mullvadLocation
+        return if noMatchFound != nil {
+            .mullvadIconError
+        } else {
+            switch multihopContext {
+            case .entry:
+                if selectedLocation is AutomaticLocationNode {
+                    multihopState.icon
+                } else {
+                    .mullvadServer
+                }
+            case .exit:
+                .mullvadLocation
+            }
         }
     }
 

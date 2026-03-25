@@ -12,13 +12,11 @@ import MullvadTypes
 protocol RelayObfuscating {
     var relays: REST.ServerRelaysResponse { get }
     var tunnelSettings: LatestTunnelSettings { get }
-    var connectionAttemptCount: UInt { get }
     func obfuscate() throws -> RelayObfuscation
 }
 
-struct RelayObfuscation {
-    let allRelays: REST.ServerRelaysResponse
-    let obfuscatedRelays: REST.ServerRelaysResponse
+public struct RelayObfuscation {
+    let relays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
     var method: WireGuardObfuscationState
 }
@@ -40,31 +38,26 @@ struct RelayObfuscator: RelayObfuscating {
         case .udpOverTcp:
             UdpOverTcpObfuscator(
                 relays: relays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                tunnelSettings: tunnelSettings
             ).obfuscate()
         case .shadowsocks:
             ShadowsocksObfuscator(
                 relays: relays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                tunnelSettings: tunnelSettings
             ).obfuscate()
         case .quic:
             QuicObfuscator(
                 relays: relays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                tunnelSettings: tunnelSettings
             ).obfuscate()
         case .lwo:
             try LwoObfuscator(
                 relays: relays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
+                tunnelSettings: tunnelSettings
             ).obfuscate()
         default:
             RelayObfuscation(
-                allRelays: relays,
-                obfuscatedRelays: relays,
+                relays: relays,
                 port: tunnelSettings.relayConstraints.port,
                 method: obfuscationMethod
             )

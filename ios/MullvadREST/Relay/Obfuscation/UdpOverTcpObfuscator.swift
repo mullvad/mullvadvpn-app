@@ -12,24 +12,16 @@ import MullvadTypes
 struct UdpOverTcpObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: relays,
-            port: obfuscateUdpOverTcpPort(
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
-            ),
+            relays: relays,
+            port: obfuscateUdpOverTcpPort(tunnelSettings: tunnelSettings),
             method: .udpOverTcp
         )
     }
 
-    private func obfuscateUdpOverTcpPort(
-        tunnelSettings: LatestTunnelSettings,
-        connectionAttemptCount: UInt
-    ) -> RelayConstraint<UInt16> {
+    private func obfuscateUdpOverTcpPort(tunnelSettings: LatestTunnelSettings) -> RelayConstraint<UInt16> {
         switch tunnelSettings.wireGuardObfuscation.udpOverTcpPort {
         case .automatic:
             // Only include ports 80 and 443 for automatic case since they're the most

@@ -6,7 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import MullvadSettings
 import XCTest
 
 class SelectLocationPage: Page {
@@ -89,10 +89,18 @@ class SelectLocationPage: Page {
         return self
     }
 
-    @discardableResult func tapFilterButton() -> Self {
-        app.buttons[AccessibilityIdentifier.selectLocationFilterButton]
-            .firstMatch
-            .tap()
+    @discardableResult func tapFilterPill() -> Self {
+        app.buttons[AccessibilityIdentifier.selectLocationFilterPill].tap()
+        return self
+    }
+
+    @discardableResult func tapEntryFilterButton() -> Self {
+        app.buttons[AccessibilityIdentifier.selectLocationEntryFilterButton].tap()
+        return self
+    }
+
+    @discardableResult func tapExitFilterButton() -> Self {
+        app.buttons[AccessibilityIdentifier.selectLocationExitFilterButton].tap()
         return self
     }
 
@@ -106,8 +114,15 @@ class SelectLocationPage: Page {
         return self
     }
 
-    @discardableResult func tapToggleMultihop() -> Self {
-        app.buttons[AccessibilityIdentifier.toggleMultihopButton].tap()
+    @discardableResult func setMultihopState(_ state: MultihopState) -> Self {
+        app.pickers[.multihopState(state.description)].tap()
+        app.buttons[AccessibilityIdentifier.multihopState(state.description)].tap()
+        return self
+    }
+
+    @discardableResult func verifyMultihopState(_ state: MultihopState) -> Self {
+        let textElementExists = app.label.contains(state.description)
+        XCTAssertTrue(textElementExists)
         return self
     }
 
@@ -131,22 +146,6 @@ class SelectLocationPage: Page {
     func verifyEditCustomListsButtonIs(enabled: Bool) {
         let editCustomListsButton = app.buttons[AccessibilityIdentifier.editCustomListButton]
         XCTAssertTrue(editCustomListsButton.isEnabled == enabled)
-    }
-
-    @discardableResult func verifyMultihopOff() -> Self {
-        let textElement = app.buttons["Enable multihop"]
-
-        XCTAssertTrue(textElement.exists)
-
-        return self
-    }
-
-    @discardableResult func verifyMultihopOn() -> Self {
-        let textElement = app.buttons["Disable multihop"]
-
-        XCTAssertTrue(textElement.exists)
-
-        return self
     }
 
     @discardableResult func enableRecents() -> Self {
