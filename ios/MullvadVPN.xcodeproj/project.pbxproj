@@ -983,7 +983,6 @@
 		F0791F1B2D76377500449F6D /* RelayCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0791F1A2D76377400449F6D /* RelayCandidates.swift */; };
 		F07B53572C53B5270024F547 /* LocalNetworkIPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07B53562C53B5270024F547 /* LocalNetworkIPs.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
-		F07C9D952B220C77006F1C5E /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */; };
 		F07CFF2029F2720E008C0343 /* NewDeviceNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */; };
 		F07F63CE2C63E5790027A351 /* AccessMethodRepository+Stub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EB92B4456D30020268D /* AccessMethodRepository+Stub.swift */; };
 		F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF875A2B16385400C098B2 /* AccessMethodRepositoryProtocol.swift */; };
@@ -2650,7 +2649,6 @@
 				58D223DC294C8EB90029F5F8 /* MullvadTypes.framework in Frameworks */,
 				01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */,
 				44A2624B2D6373E000085380 /* WireGuardKitTypes in Frameworks */,
-				F07C9D952B220C77006F1C5E /* libmullvad_ios.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
