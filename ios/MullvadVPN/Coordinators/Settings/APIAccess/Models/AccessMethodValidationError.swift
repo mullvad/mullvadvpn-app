@@ -69,11 +69,11 @@ struct AccessMethodFieldValidationError: Error, Equatable {
     var errorDescription: String {
         switch kind {
         case .emptyValue:
-            String(format: NSLocalizedString("%@ cannot be empty", comment: ""), field.rawValue)
+            String(format: NSLocalizedString("%@ cannot be empty.", comment: ""), field.rawValue)
         case .invalidIPAddress:
-            NSLocalizedString("Please enter a valid IPv4 or IPv6 address", comment: "")
+            NSLocalizedString("Please enter a valid IPv4 or IPv6 address.", comment: "")
         case .invalidPort:
-            NSLocalizedString("Please enter a valid remote server port", comment: "")
+            NSLocalizedString("Please enter a valid remote server port.", comment: "")
         case .nameTooLong:
             String(
                 format: NSLocalizedString("Name should be no longer than %i characters", comment: ""),
