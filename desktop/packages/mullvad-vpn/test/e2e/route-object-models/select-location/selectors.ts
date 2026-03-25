@@ -3,7 +3,8 @@ import { Page } from 'playwright';
 export const createSelectors = (page: Page) => ({
   entryButton: () => page.getByRole('button', { name: 'Entry' }),
   exitButton: () => page.getByRole('button', { name: 'Exit' }),
-  filterButton: () => page.getByRole('button', { name: 'Filter' }),
+  selectLocationMenuButton: () => page.getByRole('button', { name: 'Open select location menu' }),
+  filterMenuOption: () => page.getByRole('button', { name: 'Filter' }),
   filterChip: (label: string) => {
     return page.locator('button', { hasText: label });
   },
