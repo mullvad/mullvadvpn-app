@@ -22,12 +22,12 @@ struct MultihopSelectionView: View {
     @Binding var selectedMultihopContext: MultihopContext
     let isExpanded: Bool
     var deviceLocationName: String?
+    var onFilterTapped: (MultihopContext) -> Void
 
     @State private var animationIdSelection: UUID = .init()
     @State private var animationIdBackground: UUID = .init()
     @Namespace private var animation
     @State private var pressedMultihopContext: MultihopContext?
-
     @State private var iconPositions: [AnyHashable: CGRect] = [:]
 
     var filteredIconPositions: [AnyHashable: CGRect] {
@@ -75,51 +75,55 @@ struct MultihopSelectionView: View {
                         let isSelected = hop.multihopContext == selectedMultihopContext
                         ZStack(alignment: .topLeading) {
                             VStack(alignment: .leading, spacing: 2) {
-                                PressedExposingButton {
-                                    withAnimation {
-                                        selectedMultihopContext = hop.multihopContext
-                                    }
-                                } label: {
-                                    HopView(
-                                        hop: hop,
-                                        isSelected: selectedMultihopContext == hop.multihopContext,
-                                        onFilterTapped: {
-                                        },
-                                        onIconPositionChange: { position in
-                                            iconPositions[hop.multihopContext] = position
+                                PressedExposingButton(
+                                    action: {
+                                        withAnimation {
+                                            selectedMultihopContext = hop.multihopContext
                                         }
-                                    )
-                                    .background {
-                                        ZStack {
-                                            if isSelected {
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .fill(Color.MullvadList.Item.child3)
-                                                    .matchedGeometryEffect(id: animationIdSelection, in: animation)
-                                                    .background {
-                                                        if hops.count == 1 {
-                                                            Color.clear
-                                                                .matchedGeometryEffect(
-                                                                    id: animationIdBackground,
-                                                                    in: animation
-                                                                )
+                                    },
+                                    label: {
+                                        HopView(
+                                            hop: hop,
+                                            isSelected: isSelected,
+                                            onFilterTapped: onFilterTapped,
+                                            onIconPositionChange: { position in
+                                                iconPositions[hop.multihopContext] = position
+                                            }
+                                        )
+                                        .background {
+                                            ZStack {
+                                                if isSelected {
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .fill(Color.MullvadList.Item.child3)
+                                                        .matchedGeometryEffect(id: animationIdSelection, in: animation)
+                                                        .background {
+                                                            if hops.count == 1 {
+                                                                Color.clear
+                                                                    .matchedGeometryEffect(
+                                                                        id: animationIdBackground,
+                                                                        in: animation
+                                                                    )
+                                                            }
                                                         }
-                                                    }
-                                            }
-                                            if hop.noMatchFound != nil {
-                                                RoundedRectangle(cornerRadius: 12)
-                                                    .inset(by: 1)
-                                                    .stroke(Color.mullvadDangerColor)
+                                                }
+                                                if hop.noMatchFound != nil {
+                                                    RoundedRectangle(cornerRadius: 12)
+                                                        .inset(by: 1)
+                                                        .stroke(Color.mullvadDangerColor)
+                                                }
                                             }
                                         }
-                                    }
-                                    .contentShape(Rectangle())
+                                        .contentShape(Rectangle())
 
-                                } onPressedChange: {
-                                    pressedMultihopContext = $0 ? hop.multihopContext : nil
-                                }
+                                    },
+                                    onPressedChange: {
+                                        pressedMultihopContext = $0 ? hop.multihopContext : nil
+                                    },
+                                    disabled: isSelected
+                                )
                                 .accessibilityIdentifier(hop.multihopContext.accessibilityIdentifier)
                                 .accessibilityLabel(hop.multihopContext.description)
-                                .disabled(hops.count == 1)
+
                                 if let noMatchFound = hop.noMatchFound {
                                     Text(noMatchFound.description)
                                         .padding(.leading, 34)
@@ -197,22 +201,19 @@ struct MultihopSelectionView: View {
         VStack(spacing: 8) {
             Spacer()
             MultihopSelectionView(
-                hops: [.init(multihopContext: .exit, selectedLocation: nil)],
+                hops: [
+                    .init(
+                        multihopContext: .exit,
+                        multihopState: .whenNeeded,
+                        selectedLocation: nil,
+                        filterCount: 1
+                    )
+                ],
                 selectedMultihopContext: .constant(.exit),
-                isExpanded: isExpanded
-            )
-            .padding()
-            MultihopSelectionView(
-                hops:
-                    contexts
-                    .map {
-                        Hop(
-                            multihopContext: $0,
-                            selectedLocation: .init(name: "\($0.description)", code: "se"))
-                    },
-                selectedMultihopContext: $selectedContext,
                 isExpanded: isExpanded,
-                deviceLocationName: "Sweden"
+                onFilterTapped: {
+                    print("\($0.description) filter tapped")
+                }
             )
             .padding()
             MultihopSelectionView(
@@ -221,12 +222,36 @@ struct MultihopSelectionView: View {
                     .map {
                         Hop(
                             multihopContext: $0,
-                            selectedLocation: nil
+                            multihopState: .whenNeeded,
+                            selectedLocation: .init(name: "\($0.description)", code: "se"),
+                            filterCount: 1
                         )
                     },
                 selectedMultihopContext: $selectedContext,
                 isExpanded: isExpanded,
-                deviceLocationName: "Sweden"
+                deviceLocationName: "Sweden",
+                onFilterTapped: {
+                    print("\($0.description) filter tapped")
+                }
+            )
+            .padding()
+            MultihopSelectionView(
+                hops:
+                    contexts
+                    .map {
+                        Hop(
+                            multihopContext: $0,
+                            multihopState: .whenNeeded,
+                            selectedLocation: nil,
+                            filterCount: 1
+                        )
+                    },
+                selectedMultihopContext: $selectedContext,
+                isExpanded: isExpanded,
+                deviceLocationName: "Sweden",
+                onFilterTapped: {
+                    print("\($0.description) filter tapped")
+                }
             )
             .padding()
             Spacer()

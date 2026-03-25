@@ -16,9 +16,8 @@ protocol RelayObfuscating {
     func obfuscate() throws -> RelayObfuscation
 }
 
-struct RelayObfuscation {
-    let allRelays: REST.ServerRelaysResponse
-    let obfuscatedRelays: REST.ServerRelaysResponse
+public struct RelayObfuscation {
+    let relays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
     var method: WireGuardObfuscationState
 }
@@ -63,8 +62,7 @@ struct RelayObfuscator: RelayObfuscating {
             ).obfuscate()
         default:
             RelayObfuscation(
-                allRelays: relays,
-                obfuscatedRelays: relays,
+                relays: relays,
                 port: tunnelSettings.relayConstraints.port,
                 method: obfuscationMethod
             )

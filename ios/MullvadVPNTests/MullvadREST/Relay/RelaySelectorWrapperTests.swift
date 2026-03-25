@@ -45,7 +45,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         relayCache = RelayCache(fileCache: fileCache)
     }
 
-    func testSelectRelayWithMultihopOff() throws {
+    func testSelectRelayWithMultihopNever() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
@@ -58,7 +58,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         XCTAssertNil(selectedRelays.entry)
     }
 
-    func testSelectRelayWithMultihopOn() throws {
+    func testSelectRelayWithMultihopAlways() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
@@ -71,7 +71,7 @@ class RelaySelectorWrapperTests: XCTestCase {
         XCTAssertNotNil(selectedRelays.entry)
     }
 
-    func testCanSelectRelayWithMultihopOnAndDaitaOn() throws {
+    func testCanSelectRelayWithMultihopAlwaysAndDaitaOn() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
@@ -83,19 +83,19 @@ class RelaySelectorWrapperTests: XCTestCase {
         XCTAssertNoThrow(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
     }
 
-    func testCannotSelectRelayWithMultihopOnDaitaOnDirectOnlyOn() throws {
+    func testCannotSelectRelayWithMultihopAlwaysDaitaOn() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
             relayConstraints: multihopWithoutDaitaConstraints,
             tunnelMultihopState: .always,
-            daita: DAITASettings(daitaState: .on, directOnlyState: .on)
+            daita: DAITASettings(daitaState: .on)
         )
 
         XCTAssertThrowsError(try wrapper.selectRelays(tunnelSettings: settings, connectionAttemptCount: 0))
     }
 
-    func testCanSelectRelayWithMultihopOffAndDaitaOn() throws {
+    func testCanSelectRelayWithMultihopNeverAndDaitaOn() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(
@@ -110,7 +110,7 @@ class RelaySelectorWrapperTests: XCTestCase {
 
     // If DAITA is enabled and no supported relays are found, we should try to find the nearest
     // available relay that supports DAITA and use it as entry in a multihop selection.
-    func testCanSelectRelayWithMultihopOffDaitaOnThroughMultihop() throws {
+    func testCanSelectRelayWithMultihopWhenNeededDaitaOnThroughMultihop() throws {
         let wrapper = RelaySelectorWrapper(relayCache: relayCache)
 
         let settings = LatestTunnelSettings(

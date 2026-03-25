@@ -9,6 +9,10 @@ struct LocationContext {
     var availableRelayCount: Int
     var selectedLocation: LocationNode?
 
+    var isAutomaticLocation: Bool {
+        selectedLocation is AutomaticLocationNode
+    }
+
     init(
         recents: [LocationNode] = [],
         locations: [LocationNode] = [],
@@ -30,5 +34,7 @@ struct LocationContext {
         self.customListAvailableLocations = locations
     }
 
-    var relaysAreFiltered: Bool { availableRelayCount < totalRelayCount }
+    var relaysAreFiltered: Bool {
+        (availableRelayCount < totalRelayCount) && !isAutomaticLocation
+    }
 }

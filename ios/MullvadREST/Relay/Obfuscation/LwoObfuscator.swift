@@ -16,8 +16,7 @@ struct LwoObfuscator: RelayObfuscating {
 
     func obfuscate() throws -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterLwoRelays(from: relays),
+            relays: filterLwoRelays(from: relays),
             port: try validateLwoPort(relays: relays, tunnelSettings: tunnelSettings),
             method: .lwo
         )

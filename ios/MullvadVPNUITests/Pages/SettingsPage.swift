@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadSettings
 import XCTest
 
 class SettingsPage: Page {
@@ -68,20 +69,10 @@ class SettingsPage: Page {
         return self
     }
 
-    @discardableResult func verifyMultihopOn() -> Self {
+    @discardableResult func verifyMultihop(state: MultihopState) -> Self {
         let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
             .cells[AccessibilityIdentifier.multihopCell]
-            .staticTexts["On"]
-
-        XCTAssertTrue(textElement.exists)
-
-        return self
-    }
-
-    @discardableResult func verifyMultihopOff() -> Self {
-        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
-            .cells[AccessibilityIdentifier.multihopCell]
-            .staticTexts["Off"]
+            .staticTexts[state.description]
 
         XCTAssertTrue(textElement.exists)
 
