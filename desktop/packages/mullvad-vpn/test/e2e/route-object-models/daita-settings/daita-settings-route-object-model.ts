@@ -18,11 +18,11 @@ export class DaitaSettingsRouteObjectModel {
     return this.selectors.enableDaitaSwitch();
   }
 
-  async setEnableDaitaSwitch(enabled: boolean) {
+  async setEnableDaitaSwitch(enable: boolean) {
     const enableDaitaSwitch = this.selectors.enableDaitaSwitch();
-    const ariaChecked = await enableDaitaSwitch.getAttribute('aria-checked');
+    const checked = await enableDaitaSwitch.isChecked();
 
-    if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
+    if ((enable && !checked) || (!enable && checked)) {
       await enableDaitaSwitch.click();
     }
   }

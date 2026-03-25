@@ -32,13 +32,13 @@ test.describe('DAITA settings', () => {
     await routes.daitaSettings.setEnableDaitaSwitch(false);
     const daitaSwitch = routes.daitaSettings.getEnableDaitaSwitch();
 
-    await expect(daitaSwitch).toHaveAttribute('aria-checked', 'false');
+    await expect(daitaSwitch).not.toBeChecked();
   });
 
   test('Should enable DAITA when clicking switch', async () => {
     await routes.daitaSettings.setEnableDaitaSwitch(true);
     const daitaSwitch = routes.daitaSettings.getEnableDaitaSwitch();
 
-    await expect(daitaSwitch).toHaveAttribute('aria-checked', 'true');
+    await expect(daitaSwitch).toBeChecked();
   });
 });
