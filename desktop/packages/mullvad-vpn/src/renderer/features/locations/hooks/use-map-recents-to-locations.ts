@@ -7,7 +7,9 @@ import {
   type CityLocation,
   type CountryLocation,
   type CustomListLocation,
-  LocationType,
+  type RecentLocation,
+  type RecentMultihopLocation,
+  type RecentSinglehopLocation,
   type RelayLocation,
 } from '../types';
 import { useRecents } from './use-recents';
@@ -15,8 +17,12 @@ import { useRecents } from './use-recents';
 export function useMapRecentsToLocations(
   countryLocations: CountryLocation[],
   customListLocations: CustomListLocation[],
-): { entry: AnyLocation[]; exit: AnyLocation[] } {
+): RecentLocation[] | undefined {
   const { recents } = useRecents();
+
+  if (!recents) {
+    return undefined;
+  }
 
   const relayLocations = countryLocations.flatMap((country) =>
     country.cities.flatMap((city) => city.relays),
@@ -24,72 +30,71 @@ export function useMapRecentsToLocations(
 
   const cityLocations = countryLocations.flatMap((country) => country.cities);
 
-  const recentEntries = recents.filter((recent) => recent.entry);
   const recentEntryLocations = getRecentLocations(
-    LocationType.entry,
-    recentEntries,
+    recents,
     customListLocations,
     countryLocations,
     cityLocations,
     relayLocations,
   );
 
-  const recentExits = recents.filter((recent) => recent.exit);
-  const recentExitLocations = getRecentLocations(
-    LocationType.exit,
-    recentExits,
-    customListLocations,
-    countryLocations,
-    cityLocations,
-    relayLocations,
-  );
-
-  return { entry: recentEntryLocations, exit: recentExitLocations };
+  return recentEntryLocations;
 }
 
 function getRecentLocations(
-  locationType: LocationType,
   recents: Recents,
   customListLocations: CustomListLocation[],
   countryLocations: CountryLocation[],
   cityLocations: CityLocation[],
   relayLocations: RelayLocation[],
-): AnyLocation[] {
-  const addedRecentLocations = new Set<string>();
+): RecentLocation[] {
   return recents
     .map((recent) => {
-      const { entry, exit } = recent;
-      let recentLocation: AnyLocation | undefined;
-      if (locationType === LocationType.entry && entry) {
-        recentLocation = findMatchingLocation(
+      if (recent.type === 'multihop') {
+        const { entry, exit } = recent;
+        const entryLocation = findMatchingLocation(
           entry,
           relayLocations,
           cityLocations,
           countryLocations,
           customListLocations,
         );
-      } else if (locationType === LocationType.exit) {
-        recentLocation = findMatchingLocation(
+        const exitLocation = findMatchingLocation(
           exit,
           relayLocations,
           cityLocations,
           countryLocations,
           customListLocations,
         );
-      }
+        if (entryLocation && exitLocation) {
+          const multihopLocation: RecentMultihopLocation = {
+            type: 'multihop',
+            entry: entryLocation,
+            exit: exitLocation,
+          };
+          return multihopLocation;
+        }
+      } else if (recent.type === 'singlehop') {
+        const recentLocation = findMatchingLocation(
+          recent.location,
+          relayLocations,
+          cityLocations,
+          countryLocations,
+          customListLocations,
+        );
+        if (recentLocation) {
+          const singlehopLocation: RecentSinglehopLocation = {
+            type: 'singlehop',
+            location: recentLocation,
+          };
 
-      if (recentLocation) {
-        const locationKey = JSON.stringify(recentLocation.details);
-        if (!addedRecentLocations.has(locationKey)) {
-          addedRecentLocations.add(locationKey);
-          return recentLocation;
+          return singlehopLocation;
         }
       }
 
       return undefined;
     })
-    .filter((location) => location !== undefined)
-    .slice(0, 3);
+    .filter((location) => location !== undefined);
 }
 
 function findMatchingLocation(

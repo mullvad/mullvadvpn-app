@@ -473,6 +473,8 @@ export default class AppRenderer {
   public importSettingsFile = (path: string) => IpcRendererEventChannel.settings.importFile(path);
   public importSettingsText = (text: string) => IpcRendererEventChannel.settings.importText(text);
   public clearAllRelayOverrides = () => IpcRendererEventChannel.settings.clearAllRelayOverrides();
+  public setEnabledRecents = (enabled: boolean) =>
+    IpcRendererEventChannel.settings.setEnableRecents(enabled);
   public getMapData = () => IpcRendererEventChannel.map.getData();
   public setAnimateMap = (displayMap: boolean): void =>
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);

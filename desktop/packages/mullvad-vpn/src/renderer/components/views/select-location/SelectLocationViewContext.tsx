@@ -10,6 +10,11 @@ import {
   useSelectedLocation,
 } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
+import {
+  getRecentMultihopEntryLocations,
+  getRecentMultihopExitLocations,
+  getRecentSinglehopLocations,
+} from '../../../features/locations/utils';
 import useActions from '../../../lib/actionsHook';
 import { useNormalRelaySettings } from '../../../lib/relay-settings-hooks';
 import { useSelector } from '../../../redux/store';
@@ -22,7 +27,9 @@ type SelectLocationViewContextProps = Omit<SelectLocationViewProviderProps, 'chi
   setSearchTerm: (value: string) => void;
   countryLocations: ReturnType<typeof useSearchCountryLocations>;
   customListLocations: ReturnType<typeof useSearchCustomListLocations>;
-  recentLocations: ReturnType<typeof useMapRecentsToLocations>;
+  recentSinglehopLocations: ReturnType<typeof getRecentSinglehopLocations>;
+  recentMultihopEntryLocations: ReturnType<typeof getRecentMultihopEntryLocations>;
+  recentMultihopExitLocations: ReturnType<typeof getRecentMultihopExitLocations>;
 };
 
 const SelectLocationViewContext = React.createContext<SelectLocationViewContextProps | undefined>(
@@ -70,6 +77,10 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     searchedCustomListLocations,
   );
 
+  const recentSinglehopLocations = getRecentSinglehopLocations(recentLocations);
+  const recentMultihopEntryLocations = getRecentMultihopEntryLocations(recentLocations);
+  const recentMultihopExitLocations = getRecentMultihopExitLocations(recentLocations);
+
   const locationType = React.useMemo(() => {
     const allowEntryLocations = relaySettings?.wireguard.useMultihop;
 
@@ -87,7 +98,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       setSearchTerm,
       countryLocations: searchedCountryLocations,
       customListLocations: searchedCustomListLocations,
-      recentLocations,
+      recentSinglehopLocations,
+      recentMultihopEntryLocations,
+      recentMultihopExitLocations,
     }),
     [
       searchedCustomListLocations,
@@ -96,7 +109,9 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
       searchTerm,
       setSearchTerm,
       setSelectLocationView,
-      recentLocations,
+      recentSinglehopLocations,
+      recentMultihopEntryLocations,
+      recentMultihopExitLocations,
     ],
   );
 

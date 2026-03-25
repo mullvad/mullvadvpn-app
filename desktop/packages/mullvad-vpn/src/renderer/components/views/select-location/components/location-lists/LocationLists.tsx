@@ -1,4 +1,6 @@
 import type { LocationType } from '../../../../../features/locations/types';
+import { Accordion } from '../../../../../lib/components/accordion';
+import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useHasCustomLists } from '../../hooks';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
@@ -25,10 +27,16 @@ export function LocationLists(props: LocationsListsProps) {
 
   return (
     <LocationListsProvider {...props}>
-      {showRecentLocations && <RecentLocations />}
-      {showCustomListLocationLists && <CustomListLocations />}
-      {showCountryLocations && <CountryLocations />}
-      {showNoSearchResult && <NoSearchResult />}
+      <Accordion expanded={showRecentLocations}>
+        <Accordion.Content>
+          <RecentLocations />
+        </Accordion.Content>
+      </Accordion>
+      <FlexColumn gap="large">
+        {showCustomListLocationLists && <CustomListLocations />}
+        {showCountryLocations && <CountryLocations />}
+        {showNoSearchResult && <NoSearchResult />}
+      </FlexColumn>
     </LocationListsProvider>
   );
 }
