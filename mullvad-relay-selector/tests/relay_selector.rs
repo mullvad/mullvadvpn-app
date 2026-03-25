@@ -2073,6 +2073,47 @@ mod partition_relays {
         assert_eq!(reasons.as_slice(), &[Reason::Location]);
     }
 
+    /// Test that the autohop predicate discards inactive relays.
+    #[test]
+    fn test_autohop_inactive() {
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_location("country", "city");
+        relay_list.add_relay("inactive").active = false;
+        relay_list.add_relay("active");
+        let relay_selector = RelaySelector::from(relay_list);
+        let results = relay_selector.partition_relays(Predicate::Autohop(EntryConstraints {
+            general: ExitConstraints {
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Hostname(
+                        "country".into(),
+                        "city".into(),
+                        "inactive".into(),
+                    ),
+                )),
+                ..Default::default()
+            },
+            ..Default::default()
+        }));
+        assert!(
+            results
+                .discards
+                .iter()
+                .find(|d| &d.0.hostname == "inactive")
+                .unwrap()
+                .1
+                == vec![Reason::Inactive]
+        );
+        assert!(
+            results
+                .discards
+                .iter()
+                .find(|d| &d.0.hostname == "active")
+                .unwrap()
+                .1
+                == vec![Reason::Location]
+        );
+    }
+
     /// Test some multihop scenarios:
     /// - First scenario:
     ///     - Selecting one entry city with exactly one mathcing relay will remove it from the list of exit relays.
