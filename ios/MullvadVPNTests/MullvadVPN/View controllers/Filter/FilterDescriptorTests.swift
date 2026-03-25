@@ -134,6 +134,28 @@ struct FilterDescriptorTests {
                 false,
                 MultihopContext.exit
             ),
+            // Multihop + DAITA + automatic routing: exit does not
+            (
+                LatestTunnelSettings(
+                    tunnelMultihopState: .whenNeeded,
+                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
+                ),
+                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
+                true,
+                false,
+                MultihopContext.exit
+            ),
+            // Multihop + DAITA + automatic routing: entry does
+            (
+                LatestTunnelSettings(
+                    tunnelMultihopState: .whenNeeded,
+                    daita: DAITASettings(daitaState: .on, directOnlyState: .off)
+                ),
+                RelayCandidates(entryRelays: createRelayWithLocation(), exitRelays: createRelayWithLocation()),
+                true,
+                true,
+                MultihopContext.entry
+            ),
         ]
     )
     func testFilterDescriptor(
