@@ -20,8 +20,8 @@ pub type Sha256Bytes = [u8; 32];
 pub struct RelayListDigest(String);
 
 impl RelayListDigest {
-    pub fn new(digest: String) -> Self {
-        RelayListDigest(digest)
+    pub fn new(digest: Sha256Bytes) -> Self {
+        RelayListDigest(hex::encode(digest))
     }
 }
 
@@ -34,6 +34,19 @@ impl AsRef<str> for RelayListDigest {
 impl Display for RelayListDigest {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
+    }
+}
+
+/// The relay list digest together with it's timestamp.
+#[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
+pub struct TimestampedRelayListDigest {
+    pub digest: RelayListDigest,
+    pub timestamp: DateTime<Utc>,
+}
+
+impl TimestampedRelayListDigest {
+    pub fn new(digest: RelayListDigest, timestamp: DateTime<Utc>) -> Self {
+        TimestampedRelayListDigest { digest, timestamp }
     }
 }
 
@@ -78,11 +91,14 @@ impl RelayListSignature {
 pub struct SigsumVerifiedPayload {
     /// The unparsed relay list JSON as raw bytes.
     pub content: Vec<u8>,
-    /// The digest that for the raw JSON bytes.
+    /// The digest for the raw JSON bytes.
     pub digest: RelayListDigest,
     /// The timestamp that was returned from the corresponding call to `/trl/v0/timestamps/latest`.
     pub timestamp: DateTime<Utc>,
 }
+
+/// The timestamp must not be older than this for it to be valid.
+static TIMESTAMP_MAX_VALID_AGE: Duration = Duration::from_hours(24);
 
 /// Downloads and verifies the transparency logged relay list.
 /// If the verification fails the error is only logged, and a new relay list will still be
@@ -97,8 +113,7 @@ pub struct SigsumVerifiedPayload {
 /// * `sigsum_trusted_pubkeys` - The sigsum pubkeys that should be used for verification.
 pub async fn download_and_verify_relay_list(
     proxy: &RelayListProxy,
-    latest_digest: Option<RelayListDigest>,
-    latest_timestamp: Option<DateTime<Utc>>,
+    latest_digest: Option<TimestampedRelayListDigest>,
     sigsum_trusted_pubkeys: &[SigsumPublicKey],
 ) -> Result<Option<SigsumVerifiedPayload>, rest::Error> {
     // Fetch relay list latest sigsum signature.
@@ -132,27 +147,26 @@ pub async fn download_and_verify_relay_list(
 
     // Verify that the timestamp is not too old.
     let new_timestamp = timestamp.timestamp;
-    if new_timestamp < (Utc::now() - Duration::from_hours(24)) {
-        log::error!("SIGSUM: Relay list timestamp is older than 24 hours: {new_timestamp}",);
+    if new_timestamp < (Utc::now() - TIMESTAMP_MAX_VALID_AGE) {
+        log::error!("SIGSUM: Relay list timestamp is too old: {new_timestamp}",);
     }
 
-    // Verify that the timestamp we got from the API is not older than the most recent timestamp
-    // we have seen.
-    if let Some(ts) = latest_timestamp
-        && new_timestamp < ts
-    {
-        log::error!(
-            "SIGSUM: Relay list timestamp is older than current timestamp\n\
-                current {ts}, new: {new_timestamp}",
-        );
-    }
+    if let Some(digest) = latest_digest {
+        // Verify that the timestamp we got from the API is not older than the most recent timestamp
+        // we have seen.
+        if new_timestamp < digest.timestamp {
+            log::error!(
+                "SIGSUM: Relay list timestamp is older than current timestamp\n\
+                current {}, new: {new_timestamp}",
+                digest.timestamp,
+            );
+        }
 
-    // If the digest has not changed we do not need to fetch the relay list.
-    if let Some(digest) = latest_digest
-        && digest == timestamp.digest
-    {
-        log::debug!("SIGSUM: timestamp digest hasn't changed - will not fetch new relay list");
-        return Ok(None);
+        // If the digest has not changed we do not need to fetch the relay list.
+        if digest.digest == timestamp.digest {
+            log::debug!("SIGSUM: timestamp digest hasn't changed - will not fetch new relay list");
+            return Ok(None);
+        }
     }
 
     // Fetch the actual relay list given the timestamp digest.
