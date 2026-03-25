@@ -12,12 +12,10 @@ import MullvadTypes
 struct ShadowsocksObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterShadowsocksRelays(
+            relays: filterShadowsocksRelays(
                 from: relays,
                 for: tunnelSettings.wireGuardObfuscation.shadowsocksPort
             ),

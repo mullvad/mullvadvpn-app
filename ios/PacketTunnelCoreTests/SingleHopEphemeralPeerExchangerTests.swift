@@ -25,7 +25,8 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             by: relayConstraints.exitLocations,
             in: ServerRelaysResponseStubs.sampleRelays,
             filterConstraint: relayConstraints.exitFilter,
-            daitaEnabled: false
+            daitaEnabled: false,
+            obfuscation: nil
         )
 
         let match = try RelaySelector.WireGuard.pickCandidate(

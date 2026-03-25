@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
 extension UIImage {
@@ -39,5 +40,29 @@ extension UIImage {
         return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
             draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: alpha)
         }
+    }
+
+    func scaledIcon(
+        fromBaseSize size: CGFloat? = nil,
+        to textStyle: UIFont.TextStyle,
+        offset: CGPoint = .zero
+    ) -> UIImage {
+        let scaledSize = UIFontMetrics(forTextStyle: textStyle).scaledValue(for: size ?? self.size.width)
+        let size = CGSize(width: scaledSize, height: scaledSize)
+        let renderer = UIGraphicsImageRenderer(size: size)
+
+        let scaledIcon = renderer.image { _ in
+            draw(in: CGRect(origin: offset, size: size))
+        }.withRenderingMode(.alwaysTemplate)
+
+        return scaledIcon
+    }
+
+    func scaledIcon(
+        fromBaseSize size: CGFloat? = nil,
+        to textStyle: UIFont.TextStyle,
+        offset: CGPoint = .zero
+    ) -> Image {
+        Image(uiImage: scaledIcon(fromBaseSize: size, to: textStyle, offset: offset))
     }
 }

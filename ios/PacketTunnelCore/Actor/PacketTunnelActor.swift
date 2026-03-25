@@ -283,7 +283,7 @@ extension PacketTunnelActor {
             "\(#function): Tunnel settings: relay=\(settings.relayConstraints) multihop=\(settings.multihopState) obfuscation=\(settings.obfuscation) quantum=\(settings.quantumResistance) dns=\(settings.dnsServers)"
         )
 
-        if settings.quantumResistance.isEnabled || settings.daita.daitaState.isEnabled {
+        if settings.quantumResistance.isEnabled || settings.daita.isEnabled {
             try await tryStartEphemeralPeerNegotiation(withSettings: settings, nextRelays: nextRelays, reason: reason)
         } else {
             try await tryStartConnection(withSettings: settings, nextRelays: nextRelays, reason: reason)
@@ -436,7 +436,7 @@ extension PacketTunnelActor {
                 transportLayer: .udp,
                 remotePort: connectedRelay.endpoint.socketAddress.port,
                 isPostQuantum: settings.quantumResistance.isEnabled,
-                isDaitaEnabled: settings.daita.daitaState.isEnabled
+                isDaitaEnabled: settings.daita.isEnabled
             )
         case .disconnecting, .disconnected:
             return nil
@@ -479,7 +479,7 @@ extension PacketTunnelActor {
             transportLayer: transportLayer,
             remotePort: protocolObfuscator.remotePort,
             isPostQuantum: settings.quantumResistance.isEnabled,
-            isDaitaEnabled: settings.daita.daitaState.isEnabled
+            isDaitaEnabled: settings.daita.isEnabled
         )
     }
 

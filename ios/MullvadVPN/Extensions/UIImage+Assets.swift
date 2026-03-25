@@ -94,6 +94,24 @@ extension UIImage {
         static var success: UIImage { UIImage(named: "IconSuccess")! }
     }
 
+    enum Filter {
+        static var filter: UIImage {
+            UIImage(named: "IconFilter")!
+        }
+
+        static var filterDisabled: UIImage {
+            UIImage(named: "IconFilterDisabled")!
+        }
+
+        static var filterCutout: UIImage {
+            UIImage(named: "IconFilterCutout")!
+        }
+
+        static var filterCutoutDisabled: UIImage {
+            UIImage(named: "IconFilterCutoutDisabled")!
+        }
+    }
+
     // miscellaneous images
     static var backTransitionMask: UIImage {
         UIImage(named: "IconBackTransitionMask")!

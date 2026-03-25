@@ -94,7 +94,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             tunnelStatus.state = .connecting(
                 selectedRelays,
                 isPostQuantum: interactor.settings.tunnelQuantumResistance.isEnabled,
-                isDaita: interactor.settings.daita.daitaState.isEnabled
+                isDaita: interactor.settings.daita.isEnabled
             )
         }
 
