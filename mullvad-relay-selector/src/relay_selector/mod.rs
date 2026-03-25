@@ -851,9 +851,14 @@ impl RelaySelector {
 
     /// Calculate the set of criteria each predicate will render for scrutinizing relays.
     fn criteria(&self, predicate: Predicate) -> Vec<Criteria<'_, WireguardRelay>> {
+        let shadowsocks_port_ranges =
+            self.relay_list(|rl| rl.wireguard.shadowsocks_port_ranges.clone());
+        let custom_lists: CustomListsSettings = self.custom_lists();
+
         match predicate {
             Predicate::Singlehop(constraints) => {
-                let entry_criteria = self.entry_criteria(constraints.clone());
+                let entry_criteria =
+                    Self::entry_criteria(constraints.clone(), shadowsocks_port_ranges);
 
                 let ownership = Criteria::new(move |relay| {
                     matcher::filter_on_ownership(constraints.general.ownership.as_ref(), relay)
@@ -865,7 +870,7 @@ impl RelaySelector {
                 });
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = self.location_criteria(constraints.general.location);
+                let location = Self::location_criteria(constraints.general.location, custom_lists);
                 vec![entry_criteria, active, location, ownership, providers]
             }
             Predicate::Autohop(constraints) => {
@@ -920,13 +925,14 @@ impl RelaySelector {
                         matcher::filter_on_providers(providers.as_ref(), relay)
                             .if_false(Reason::Providers)
                     });
-                    let location = self.location_criteria(location);
+                    let location = Self::location_criteria(location, custom_lists);
 
                     ownership.and(providers).and(location)
                 };
 
                 // Check criteria that apply specifically to entries
-                let can_be_used_as_entry = self.entry_criteria(constraints);
+                let can_be_used_as_entry =
+                    Self::entry_criteria(constraints, shadowsocks_port_ranges);
 
                 let criteria = can_be_used_as_exit.and(
                     // The relay must also be a valid entry.
@@ -964,7 +970,7 @@ impl RelaySelector {
 
                 // Except for the `can_be_used_as_exit` condition, the remainder of the work is
                 // ~equiv to `Predicate::Singlehop`.
-                let criteria = self.entry_criteria(entry.clone());
+                let criteria = Self::entry_criteria(entry.clone(), shadowsocks_port_ranges);
                 let ownership = Criteria::new(move |relay| {
                     matcher::filter_on_ownership(entry.general.ownership.as_ref(), relay)
                         .if_false(Reason::Ownership)
@@ -976,7 +982,7 @@ impl RelaySelector {
 
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = self.location_criteria(entry.general.location);
+                let location = Self::location_criteria(entry.general.location, custom_lists);
                 vec![
                     criteria,
                     active,
@@ -1020,7 +1026,7 @@ impl RelaySelector {
 
                 let active =
                     Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = self.location_criteria(location);
+                let location = Self::location_criteria(location, custom_lists);
                 let ownership = Criteria::new(move |relay| {
                     matcher::filter_on_ownership(ownership.as_ref(), relay)
                         .if_false(Reason::Ownership)
@@ -1038,14 +1044,14 @@ impl RelaySelector {
     /// All criteria that apply for specifically for entry relays.
     ///
     /// Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
-    fn entry_criteria(&self, constraints: EntryConstraints) -> Criteria<'_, WireguardRelay> {
+    fn entry_criteria(
+        constraints: EntryConstraints,
+        shadowsocks_port_ranges: Vec<RangeInclusive<u16>>,
+    ) -> Criteria<'static, WireguardRelay> {
         let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
         let daita = Criteria::new(move |relay| {
             matcher::filter_on_daita(daita_on, relay).if_false(Reason::Daita)
         });
-
-        let shadowsocks_port_ranges =
-            self.relay_list(|rl| rl.wireguard.shadowsocks_port_ranges.clone());
 
         let obfuscation_ipversion_port = Criteria::new(move |relay: &WireguardRelay| {
             let wg_endpoint_ip_version = match constraints.ip_version {
@@ -1068,10 +1074,9 @@ impl RelaySelector {
     }
 
     fn location_criteria(
-        &self,
         location: Constraint<LocationConstraint>,
-    ) -> Criteria<'_, WireguardRelay> {
-        let custom_lists: CustomListsSettings = self.custom_lists();
+        custom_lists: CustomListsSettings,
+    ) -> Criteria<'static, WireguardRelay> {
         Criteria::new(move |relay| {
             let location = matcher::ResolvedLocationConstraint::from_constraint(
                 location.as_ref(),
