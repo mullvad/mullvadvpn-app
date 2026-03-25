@@ -3217,6 +3217,7 @@ name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
  "either",
+ "insta",
  "ipnetwork",
  "itertools 0.14.0",
  "log",
