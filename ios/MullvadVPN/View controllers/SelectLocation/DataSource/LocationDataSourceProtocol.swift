@@ -14,41 +14,98 @@ protocol SearchableLocationDataSource: LocationDataSourceProtocol {}
 
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
+    var selectedNode: LocationNode? { get }
     func node(by selectedRelays: UserSelectedRelays) -> LocationNode?
+}
+extension LocationDataSourceProtocol {
+    var selectedNode: LocationNode? {
+        nodes
+            .flatMap { $0.flattened + [$0] }
+            .first { $0.isSelected }
+    }
 }
 
 extension SearchableLocationDataSource {
-    func search(by text: String) {
-        nodes.forEachNode { node in
-            node.isHiddenFromSearch = false
-            node.showsChildren = false
-        }
+    func search(by text: String) -> [LocationNode] {
         guard !text.isEmpty else {
-            return
+            return nodes
         }
-        nodes.forEach { node in
-            _ = hideInSearch(
-                node: node,
-                searchText: text
-            )
-        }
+        let results =
+            nodes
+            .compactMap { searchTree($0, searchText: text) }
+            .flatMap(flattenResults)
+            .sorted {
+                if $0.score != $1.score {
+                    return $0.score > $1.score
+                }
+
+                if $0.bestMatchIsSelf != $1.bestMatchIsSelf {
+                    return $0.bestMatchIsSelf
+                }
+
+                return $0.node.name < $1.node.name
+            }
+            .map { $0.node }
+        return results
     }
 
-    private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
-        let matchesSelf = node.name.fuzzyMatch(searchText)
-        var childMatches = false
-        for child in node.children where !hideInSearch(node: child, searchText: searchText) {
-            childMatches = true
-        }
-        if matchesSelf && !childMatches {
-            node.forEachDescendant { child in
-                child.isHiddenFromSearch = false
-                child.showsChildren = false
+    private func searchTree(
+        _ node: LocationNode,
+        searchText: String
+    ) -> NodeResult? {
+
+        let selfScore = node.name.search(searchText)
+        let selfMatches = selfScore != .none
+
+        var childResults: [NodeResult] = []
+
+        for child in node.children {
+            if let result = searchTree(child, searchText: searchText) {
+                childResults.append(result)
             }
         }
-        node.isHiddenFromSearch = !matchesSelf && !childMatches
-        node.showsChildren = childMatches
-        return node.isHiddenFromSearch
+
+        if !selfMatches && childResults.isEmpty {
+            return nil
+        }
+
+        let bestChildScore = childResults.map(\.score).max() ?? .none
+        let bestScore = max(selfScore, bestChildScore)
+        let bestMatchIsSelf = selfScore >= bestChildScore
+
+        return NodeResult(
+            node: node,
+            score: bestScore,
+            matchedSelf: selfMatches,
+            bestMatchIsSelf: bestMatchIsSelf,
+            matchedChildren: childResults
+        )
+    }
+
+    private func flattenResults(_ result: NodeResult) -> [NodeResult] {
+        let children = result.matchedChildren
+        let totalChildren = result.node.children.count
+
+        // Show the parent only if it matches AND it is the best match in its subtree
+        if result.matchedSelf, result.bestMatchIsSelf {
+            return [result]
+        }
+
+        if !result.bestMatchIsSelf {
+            let matchedChildren = children.filter({ $0.score == result.score })
+            // Collapse if ALL children matched
+            if matchedChildren.count > 1 && matchedChildren.count == totalChildren {
+                return [result]
+            }
+            return matchedChildren.flatMap(flattenResults)
+        }
+
+        // Repopulate node
+        if !children.isEmpty {
+            return children.flatMap(flattenResults)
+        }
+
+        return []
     }
 }
 
@@ -104,39 +161,6 @@ extension LocationDataSourceProtocol {
         }
     }
 
-    func search(by text: String) {
-        nodes.forEachNode { node in
-            node.isHiddenFromSearch = false
-            node.showsChildren = false
-        }
-        guard !text.isEmpty else {
-            return
-        }
-        nodes.forEach { node in
-            _ = hideInSearch(
-                node: node,
-                searchText: text
-            )
-        }
-    }
-
-    private func hideInSearch(node: LocationNode, searchText: String) -> Bool {
-        let matchesSelf = node.name.fuzzyMatch(searchText)
-        var childMatches = false
-        for child in node.children where !hideInSearch(node: child, searchText: searchText) {
-            childMatches = true
-        }
-        if matchesSelf && !childMatches {
-            node.forEachDescendant { child in
-                child.isHiddenFromSearch = false
-                child.showsChildren = false
-            }
-        }
-        node.isHiddenFromSearch = !matchesSelf && !childMatches
-        node.showsChildren = childMatches
-        return node.isHiddenFromSearch
-    }
-
     func descendantNode(
         in rootNode: LocationNode,
         for location: RelayLocation,
@@ -170,5 +194,18 @@ extension LocationDataSourceProtocol {
             }
         }
         return codes
+    }
+}
+private struct NodeResult {
+    let node: LocationNode
+    let score: SearchScore
+    let matchedSelf: Bool
+    let bestMatchIsSelf: Bool
+    let matchedChildren: [NodeResult]
+}
+
+extension Array where Element == LocationDataSourceProtocol {
+    var firstSelectedNode: LocationNode? {
+        return compactMap(\.selectedNode).first
     }
 }

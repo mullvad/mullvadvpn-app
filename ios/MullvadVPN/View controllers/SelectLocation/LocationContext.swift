@@ -6,6 +6,7 @@ struct LocationContext {
     let selectLocation: (LocationNode) -> Void
     var totalRelayCount: Int
     var availableRelayCount: Int
+    var selectedLocation: LocationNode?
 
     init(
         recents: [LocationNode] = [],
@@ -25,12 +26,6 @@ struct LocationContext {
         self.totalRelayCount = totalRelayCount
         self.availableRelayCount = availableRelayCount
         self.selectLocation = selectLocation
-    }
-
-    var selectedLocation: LocationNode? {
-        (recents + customLists + locations)
-            .flatMap { $0.flattened + [$0] }
-            .first { $0.isSelected }
     }
 
     var relaysAreFiltered: Bool { availableRelayCount < totalRelayCount }

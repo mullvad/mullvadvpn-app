@@ -31,55 +31,61 @@ class AllLocationsDataSourceTests: XCTestCase {
     }
 
     func testSearchCity() throws {
-        dataSource.search(by: "got")
-        let rootNode = RootLocationNode(children: dataSource.nodes)
-
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == true)
+        let result = dataSource.search(by: "got")
+        let rootNode = RootLocationNode(children: result)
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "got"]))
+        XCTAssertNil(rootNode.descendantNodeFor(codes: ["se", "sto"]))
     }
 
     func testSearchShowsParentsAndChildrenIfBothMatch() throws {
-        dataSource.search(by: "se")
-        let rootNode = RootLocationNode(children: dataSource.nodes)
+        let result = dataSource.search(by: "se")
+        let rootNode = RootLocationNode(children: result)
 
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "got"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se10-wireguard"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se", "sto"])?.isHiddenFromSearch == false)
-        XCTAssertTrue(rootNode.descendantNodeFor(codes: ["se2-wireguard"])?.isHiddenFromSearch == false)
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "got"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se10-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "sto"]))
+        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
     }
 
-    func testSearchCityExpandsParents() throws {
-        dataSource.search(by: "Sweden")
-        let rootNode = RootLocationNode(children: dataSource.nodes)
+    func testShowsParentIfChildrenMatchSearch() throws {
+        let result = dataSource.search(by: "se")
+        let rootNode = RootLocationNode(children: result)
         let node = rootNode.descendantNodeFor(codes: ["se"])!
-
-        node.forEachAncestor { location in
-            XCTAssertFalse(location.isHiddenFromSearch)
-            XCTAssertTrue(location.showsChildren)
-        }
-        XCTAssertFalse(node.isHiddenFromSearch)
+        let subNode = rootNode.descendantNodeFor(codes: ["se-"])
+        XCTAssertNil(subNode)
         XCTAssertFalse(node.showsChildren)
     }
 
-    func testSearchCityIncludesChildren() throws {
-        dataSource.search(by: "Sweden")
-        let rootNode = RootLocationNode(children: dataSource.nodes)
-        let node = rootNode.descendantNodeFor(codes: ["se"])!
-
-        node.forEachDescendant { child in
-            XCTAssertFalse(child.isHiddenFromSearch)
-            XCTAssertFalse(child.showsChildren)
-        }
-        XCTAssertFalse(node.isHiddenFromSearch)
-        XCTAssertFalse(node.showsChildren)
+    func testRankSearchResultsCorrectly() throws {
+        let query = "gr"
+        let greece = "Greece"
+        let bulgaria = "Bulgaria"
+        let result = dataSource.search(by: query)
+        let greeceIndex = try XCTUnwrap(result.firstIndex(where: { $0.name == greece }))
+        let bulgariaIndex = try XCTUnwrap(result.firstIndex(where: { $0.name == bulgaria }))
+        XCTAssertLessThan(greeceIndex, bulgariaIndex)
     }
 
-    func testSearchWithEmptyText() throws {
-        dataSource.search(by: "")
-        dataSource.nodes.forEachNode {
-            XCTAssertFalse($0.isHiddenFromSearch)
-        }
+    func testFilterCountryWhenCityMatches() throws {
+        let query = "za"
+        let zagreb = "Zagreb"
+        let result = dataSource.search(by: query)
+        let zagrebIndex = try XCTUnwrap(result.firstIndex(where: { $0.name == zagreb }))
+        XCTAssertNotNil(zagrebIndex)
+    }
+
+    func testAbbreviationsMatches() throws {
+        let query = "ny"
+        let newYork = "New York"
+        let result = dataSource.search(by: query)
+        let newYorkIndex = try XCTUnwrap(result.firstIndex(where: { $0.name.contains(newYork) }))
+        XCTAssertNotNil(newYorkIndex)
+    }
+
+    func testSearchWithEmptyText() {
+        let result = dataSource.search(by: "")
+        XCTAssertEqual(dataSource.nodes.count, result.count)
     }
 
     func testNodeByLocation() throws {
