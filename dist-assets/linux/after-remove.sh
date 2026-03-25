@@ -64,7 +64,7 @@ case $@ in
   # apt remove passes "remove"
   "remove")
     ;;
-  # yum remove passes a 0
+  # dnf remove passes a 0
   "0")
     remove_logs_and_cache
     remove_config
