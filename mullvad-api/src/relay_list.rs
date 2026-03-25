@@ -166,7 +166,7 @@ pub struct CachedRelayList {
     /// from the sigsum timestamp matches this digest, there is no new relay list that needs to
     /// be fetched.
     ///
-    /// The timestamp p is when the relay list was signed. This is needed to check that the timestamp
+    /// The timestamp is when the relay list was signed. This is needed to check that the timestamp
     /// we get form the API is not older than this value.
     #[serde(default)]
     digest: TimestampedRelayListDigest,
