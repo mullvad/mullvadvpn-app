@@ -1,14 +1,13 @@
 import Foundation
+import MullvadSettings
 import MullvadTypes
 
 class MockSelectLocationViewModel: SelectLocationViewModel {
-
     var isRecentsEnabled: Bool = true
-
-    var isMultihopEnabled: Bool = true
-
-    var showDAITAInfo = false
-
+    var isMultihopActive: Bool = true
+    var multihopState: MultihopState = .always
+    var showMultihopInfo: Bool = false
+    var connectedEntryLocation: Location? = nil
     var entryContext: LocationContext
     var exitContext: LocationContext
 
@@ -153,8 +152,6 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         }
     }
 
-    func toggleMultihop() { isMultihopEnabled.toggle() }
-
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
     }
@@ -189,7 +186,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
 
     func showAddCustomListView(locations: [LocationNode]) {}
 
-    func showFilterView() {}
+    func showFilterView(context: MultihopContext) {}
 
     func expandSelectedLocation() {}
 

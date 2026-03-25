@@ -23,24 +23,16 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         let relays = try relayCache.read().relays
         try validateWireguardCustomPort(tunnelSettings, relays: relays)
 
-        // Filter for obfuscation
-        let obfuscation = try RelayObfuscator(
-            relays: relays,
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount,
-            obfuscationBypass: IdentityObfuscationProvider()
-        ).obfuscate()
-
         return switch tunnelSettings.tunnelMultihopState {
         case .never, .whenNeeded:
             try SinglehopPicker(
-                obfuscation: obfuscation,
+                relays: relays,
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
         case .always:
             try MultihopPicker(
-                obfuscation: obfuscation,
+                relays: relays,
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount
             ).pick()
@@ -60,59 +52,56 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         ).obfuscate()
 
         let findCandidates:
-            (REST.ServerRelaysResponse, Bool, RelayConstraint) throws
-                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, filter in
+            (REST.ServerRelaysResponse, Bool, RelayConstraint, RelayObfuscation?) throws
+                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, filter, obfuscation in
                     try RelaySelector.WireGuard.findCandidates(
                         by: .any,
                         in: relays,
                         filterConstraint: filter,
                         daitaEnabled: daitaEnabled,
+                        obfuscation: obfuscation,
                         includeInactive: true
                     )
                 }
 
-        return if tunnelSettings.daita.isAutomaticRouting {
-            // When "Direct only" is not enabled the user will pick from the exit relays and
-            // is then multihopped to a compatible server if necessary. We need to apply the
-            // obfuscated relays to exit selection too so that the user doesn't pick
-            // anything that isn't available for the entry server IF multihop DOESN'T kick in.
+        return if tunnelSettings.automaticMultihopIsEnabled {
             RelayCandidates(
                 entryRelays: try findCandidates(
-                    obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled,
-                    tunnelSettings.relayConstraints.entryFilter
+                    relays,
+                    tunnelSettings.daita.isEnabled,
+                    .any,
+                    obfuscation
                 ),
                 exitRelays: try findCandidates(
-                    // If multihop is explicitly enabled as well, any exit should be viable.
-                    tunnelSettings.tunnelMultihopState.isUserSelected
-                        ? obfuscation.allRelays : obfuscation.obfuscatedRelays,
+                    relays,
                     false,
-                    tunnelSettings.relayConstraints.exitFilter
+                    tunnelSettings.relayConstraints.exitFilter,
+                    nil
                 )
             )
-        } else if tunnelSettings.tunnelMultihopState.isUserSelected {
-            // Any exit is viable due to multihop. DAITA and obfuscation is applied on
-            // the entry only.
+        } else if tunnelSettings.tunnelMultihopState.isAlways {
             RelayCandidates(
                 entryRelays: try findCandidates(
-                    obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled,
-                    tunnelSettings.relayConstraints.entryFilter
+                    relays,
+                    tunnelSettings.daita.isEnabled,
+                    tunnelSettings.relayConstraints.entryFilter,
+                    obfuscation
                 ),
                 exitRelays: try findCandidates(
-                    obfuscation.allRelays,
+                    relays,
                     false,
-                    tunnelSettings.relayConstraints.exitFilter
+                    tunnelSettings.relayConstraints.exitFilter,
+                    nil
                 )
             )
         } else {
-            // Singlehop. Always apply DAITA and obfuscation.
             RelayCandidates(
                 entryRelays: nil,
                 exitRelays: try findCandidates(
-                    obfuscation.obfuscatedRelays,
-                    tunnelSettings.daita.daitaState.isEnabled,
-                    tunnelSettings.relayConstraints.exitFilter
+                    relays,
+                    tunnelSettings.daita.isEnabled,
+                    tunnelSettings.relayConstraints.exitFilter,
+                    obfuscation
                 )
             )
         }

@@ -68,7 +68,8 @@ public struct UnsupportedObfuscationProvider: ObfuscationProviding {
                 by: relayConstraint,
                 in: relays,
                 filterConstraint: filterConstraint,
-                daitaEnabled: daitaEnabled
+                daitaEnabled: daitaEnabled,
+                obfuscation: nil
             )
             return candidates.isEmpty ? .udpOverTcp : obfuscation
         } catch {

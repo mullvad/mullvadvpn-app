@@ -409,14 +409,15 @@ class RelayTests: LoggedInWithTimeUITestCase {
     }
 
     func testDAITASettings() throws {
-        let skipReason = """
-            This test is currently skipped due to multihop currently defaulting to off. Once we default multihop to "When needed". ,
-            https://linear.app/mullvad/issue/IOS-1550/migrate-users-to-new-multihop-behaviour
-            """
-        try XCTSkipIf(true, skipReason)
-
         HeaderBar(app)
             .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapMultihopCell()
+
+        MultihopPage(app)
+            .tapMultihopState(.whenNeeded)
+            .tapBackButton()
 
         SettingsPage(app)
             .verifyDAITAOff()
@@ -424,9 +425,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         DAITAPage(app)
             .verifyTwoPages()
-            .verifyDirectOnlySwitchIsDisabled()
             .tapEnableSwitch()
-            .verifyDirectOnlySwitchIsEnabled()
             .tapBackButton()
 
         SettingsPage(app)
@@ -444,7 +443,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .waitForConnectedLabel()
             .verifyConnectingUsingDAITAThroughMultihop()
-            .verifyNotConnectingOverMultihop()
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
@@ -484,7 +482,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         DAITAPage(app)
             .verifyTwoPages()
-            .verifyDirectOnlySwitchIsDisabled()
             .tapEnableSwitch()
             .tapBackButton()
 
@@ -528,16 +525,16 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihopOff()
+            .verifyMultihop(state: .never)
             .tapMultihopCell()
 
         MultihopPage(app)
             .verifyOnePage()
-            .tapMultihopAlways()
+            .tapMultihopState(.always)
             .tapBackButton()
 
         SettingsPage(app)
-            .verifyMultihopOn()
+            .verifyMultihop(state: .always)
             .tapDoneButton()
 
         TunnelControlPage(app)
@@ -563,15 +560,15 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
-            .verifyMultihopOff()
+            .verifyMultihop(state: .never)
             .tapMultihopCell()
 
         MultihopPage(app)
-            .tapMultihopAlways()
+            .tapMultihopState(.always)
             .tapBackButton()
 
         SettingsPage(app)
-            .verifyMultihopOn()
+            .verifyMultihop(state: .always)
             .tapDoneButton()
 
         TunnelControlPage(app)

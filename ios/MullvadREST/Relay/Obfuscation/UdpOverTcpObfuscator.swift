@@ -16,8 +16,7 @@ struct UdpOverTcpObfuscator: RelayObfuscating {
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: relays,
+            relays: relays,
             port: obfuscateUdpOverTcpPort(
                 tunnelSettings: tunnelSettings,
                 connectionAttemptCount: connectionAttemptCount

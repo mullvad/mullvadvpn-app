@@ -42,11 +42,11 @@ struct AutomaticLocationListItem: View {
     func getAutomaticLocationInfoAlert(completion: @escaping () -> Void) -> MullvadAlert {
         let message = [
             (NSLocalizedString(
-                "Picks a suitable location based on your exit location, this is based on a number "
-                    + "of different factors such as distance, provider, and server load.", comment: "")),
+                "When the “\("Automatic")“ location is selected, the app automatically picks a random entry server, "
+                    + "prioritizing those closer to the exit location for better performance.", comment: "")),
             (NSLocalizedString(
-                "Attention: This will ignore filter settings for the server that is being "
-                    + "used as an entry point", comment: "")),
+                "Attention: With the “\("Automatic")“ location, any enabled filters are ignored for the "
+                    + "entry server.", comment: "")),
         ].joinedParagraphs()
 
         return MullvadAlert(

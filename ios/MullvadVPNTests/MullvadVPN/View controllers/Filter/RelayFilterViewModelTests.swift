@@ -17,15 +17,17 @@ struct RelayFilterViewModelTests {
         "Filters relays based on settings",
         arguments: [
             LatestTunnelSettings(),
-            LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .on)),
-            LatestTunnelSettings(daita: DAITASettings(daitaState: .on, directOnlyState: .off)),
             LatestTunnelSettings(
-                tunnelMultihopState: .always,
-                daita: DAITASettings(daitaState: .on, directOnlyState: .on)
+                tunnelMultihopState: .never,
+                daita: DAITASettings(daitaState: .on)
+            ),
+            LatestTunnelSettings(
+                tunnelMultihopState: .whenNeeded,
+                daita: DAITASettings(daitaState: .on)
             ),
             LatestTunnelSettings(
                 tunnelMultihopState: .always,
-                daita: DAITASettings(daitaState: .on, directOnlyState: .off)
+                daita: DAITASettings(daitaState: .on)
             ),
         ]
     )

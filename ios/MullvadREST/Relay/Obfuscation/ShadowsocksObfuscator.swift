@@ -16,8 +16,7 @@ struct ShadowsocksObfuscator: RelayObfuscating {
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterShadowsocksRelays(
+            relays: filterShadowsocksRelays(
                 from: relays,
                 for: tunnelSettings.wireGuardObfuscation.shadowsocksPort
             ),
