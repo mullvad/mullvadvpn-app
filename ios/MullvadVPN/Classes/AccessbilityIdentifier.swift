@@ -257,7 +257,6 @@ public enum AccessibilityIdentifier: Equatable {
     case localNetworkSharingSwitch
 
     // Quantum resistance
-    case quantumResistanceAutomatic
     case quantumResistanceOff
     case quantumResistanceOn
 

@@ -32,7 +32,7 @@ extension SettingsReaderStub {
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
                 wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
-                tunnelQuantumResistance: .automatic,
+                tunnelQuantumResistance: .on,
                 tunnelMultihopState: .never,
                 daita: DAITASettings()
             )

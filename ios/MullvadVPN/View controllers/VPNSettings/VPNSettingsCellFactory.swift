@@ -175,13 +175,6 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
-        case .quantumResistanceAutomatic:
-            guard let cell = cell as? SelectableSettingsCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString("Automatic", comment: "")
-            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.applySubCellStyling()
-
         case .quantumResistanceOn:
             guard let cell = cell as? SelectableSettingsCell else { return }
 

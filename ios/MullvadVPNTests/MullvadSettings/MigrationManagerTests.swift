@@ -333,6 +333,59 @@ final class MigrationManagerTests: XCTestCase, @unchecked Sendable {
         XCTAssertFalse(settings.includeAllNetworks.localNetworkSharingIsEnabled)
     }
 
+    /// Migration test: ensures that previously stored settings using the removed
+    /// `automatic` case for `tunnelQuantumResistance` are safely mapped to `.on`.
+    /// Prevents crashes and guarantees consistent behavior for existing users
+    /// after upgrading to versions where `automatic` no longer exists.
+    func testTunnelQuantumResistanceMigratesAutomaticToOn() throws {
+        let oldSettingsJSON = Data(
+            """
+            {
+                "version": 4,
+                "data": {
+                    "relayConstraints": {
+                        "location": {"only": ["se"]},
+                        "locations": {"only": {"locations": [["se"]]}},
+                        "entryLocations": {"only": {"locations": [["se"]]}},
+                        "exitLocations": {"only": {"locations": [["se"]]}},
+                        "port": "any",
+                        "filter": "any"
+                    },
+                    "dnsSettings": {
+                        "blockingOptions": 0,
+                        "enableCustomDNS": false,
+                        "customDNSDomains": []
+                    },
+                    "wireGuardObfuscation": {
+                        "port": 0,
+                        "state": {"automatic": {}},
+                        "udpOverTcpPort": {"automatic": {}},
+                        "shadowsocksPort": {"automatic": {}}
+                    },
+                    "tunnelQuantumResistance": {"automatic": {}}
+                }
+            }
+            """.utf8)
+
+        let store = Self.store
+        let parser = SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
+        let tunnelSettingsV4 = try parser.parsePayload(as: TunnelSettingsV4.self, from: oldSettingsJSON)
+        try write(settings: tunnelSettingsV4, version: 4, in: store)
+
+        let successfulMigrationExpectation = expectation(description: "Successful migration")
+        manager.migrateSettings(store: store) { result in
+            if case .success = result {
+                successfulMigrationExpectation.fulfill()
+            }
+        }
+        wait(for: [successfulMigrationExpectation], timeout: .UnitTest.timeout)
+
+        let latestSettingsData = try XCTUnwrap(store.read(key: .settings))
+        let latestSettings = try parser.parsePayload(as: LatestTunnelSettings.self, from: latestSettingsData)
+
+        XCTAssertEqual(latestSettings.tunnelQuantumResistance, .on)
+    }
+
     private func migrateToLatest(_ settings: any TunnelSettings, version: SchemaVersion) throws {
         let store = Self.store
         try write(settings: settings, version: version.rawValue, in: store)
