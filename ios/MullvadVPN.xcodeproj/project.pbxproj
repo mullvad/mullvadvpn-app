@@ -2394,7 +2394,7 @@
 		85557B1D2B5FB8C700795FE1 /* HeaderBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBar.swift; sourceTree = "<group>"; };
 		85557B1F2B5FBBD700795FE1 /* AccountPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPage.swift; sourceTree = "<group>"; };
 		8555C65F2D102FFE0092DAD0 /* LeakCheck.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeakCheck.swift; sourceTree = "<group>"; };
-		8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = MullvadApi.swift; path = MullvadVPNUITests/MullvadApi.swift; sourceTree = "<group>"; };
+		8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApi.swift; sourceTree = "<group>"; };
 		8556EB552B9B0AC500D26DD4 /* RevokedDevicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RevokedDevicePage.swift; sourceTree = "<group>"; };
 		855D9F5A2B63E56B00D7C64D /* ProblemReportPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportPage.swift; sourceTree = "<group>"; };
 		85607C882D131CCD00037E34 /* TestRouterAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestRouterAPIClient.swift; sourceTree = "<group>"; };
@@ -4047,7 +4047,6 @@
 				58F3C0A824A50C0E003E76BE /* Assets */,
 				58ECD29023F178FD004298B6 /* Configurations */,
 				584F991F2902CBDD001F858D /* Frameworks */,
-				8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */,
 				58D223F4294C8FF00029F5F8 /* MullvadLogging */,
 				F0ACE3092BE4E478006D5333 /* MullvadMockData */,
 				06799ABD28F98E1D00ACD94E /* MullvadREST */,
@@ -4649,6 +4648,7 @@
 		852969262B4D9C1F007EAD4C /* MullvadVPNUITests */ = {
 			isa = PBXGroup;
 			children = (
+				8556EB512B9A1C6900D26DD4 /* MullvadApi.swift */,
 				01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */,
 				7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */,
 				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
