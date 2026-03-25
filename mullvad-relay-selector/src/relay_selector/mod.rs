@@ -806,7 +806,7 @@ impl RelaySelector {
     // == NEW relay selector API. ==
     // Starting afresh, but this should be used in existing functions.
 
-    /// As oppossed to the prior [`Self::get_relay_by_query`], this function is stateless with
+    /// As opposed to the prior [`Self::get_relay_by_query`], this function is stateless with
     /// regards to any particular config / settings, but is stateful in the sense that it works with
     /// the [`RelaySelector`]s current relay list. [`RelaySelector::partition_relays`] is idempotent
     /// if the relay list is pinned.
@@ -832,7 +832,7 @@ impl RelaySelector {
     pub fn partition_relays(&self, predicate: Predicate) -> RelayPartitions {
         let criteria = self.criteria(predicate);
         // The relay selection algorithm is embarrassingly parallel: https://en.wikipedia.org/wiki/Embarrassingly_parallel.
-        // We may explore the entire search space (`relays` x `criteria`) without any synchronisation between different
+        // We may explore the entire search space (`relays` x `criteria`) without any synchronization between different
         // branches if we really wanted to.
         let (matches, discards) = self.get_relays()
             .into_relays()
@@ -1245,7 +1245,7 @@ impl<'a> Criteria<'a, WireguardRelay> {
     }
 }
 
-/// If a relay is accepted or rejected. If it is rejected, all [reasons](Reason) for that judgement
+/// If a relay is accepted or rejected. If it is rejected, all [reasons](Reason) for that judgment
 /// is provided as well.
 ///
 /// # Note
