@@ -104,7 +104,10 @@ fn get_suffix(release_tag: &str) -> String {
 }
 
 fn valid_git_repo() -> bool {
-    matches!(Command::new("git").arg("status").status(), Ok(status) if status.success())
+    // Use `rev-parse` instead of `status` to avoid taking a write lock on `.git/index.lock`.
+    // `git status` refreshes the index as a side effect, causing lock contention when
+    // rust-analyzer triggers `cargo check` concurrently with other git operations.
+    matches!(Command::new("git").args(["rev-parse", "--git-dir"]).status(), Ok(status) if status.success())
 }
 
 /// Trigger rebuild of `mullvad-version` on changing branch (`.git/HEAD`), on changes to the ref of
