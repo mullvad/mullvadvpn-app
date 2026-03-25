@@ -39,11 +39,11 @@ test.describe('VPN settings', () => {
     test.afterEach(async () => {
       await routes.vpnSettings.setAutoConnectSwitch(false);
       const autoConnectSwitch = routes.vpnSettings.getAutoConnectSwitch();
-      await expect(autoConnectSwitch).toHaveAttribute('aria-checked', 'false');
+      await expect(autoConnectSwitch).not.toBeChecked();
 
       await routes.vpnSettings.setLaunchAppOnStartupSwitch(false);
       const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
-      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'false');
+      await expect(launchOnStartupSwitch).not.toBeChecked();
     });
 
     test.describe('Launch app on start-up', () => {
@@ -54,7 +54,7 @@ test.describe('VPN settings', () => {
 
         await routes.vpnSettings.setLaunchAppOnStartupSwitch(true);
         const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
-        await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
+        await expect(launchOnStartupSwitch).toBeChecked();
 
         if (process.platform === 'linux') {
           expect(autoStartPathExists()).toBeTruthy();
@@ -73,7 +73,7 @@ test.describe('VPN settings', () => {
       test('Should be enabled when switch is clicked', async () => {
         await routes.vpnSettings.setAutoConnectSwitch(true);
         const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
-        await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
+        await expect(autoConnectSwitchChecked).toBeChecked();
       });
 
       test('Should not enable cli auto-connect when enabled alone', async () => {
@@ -88,10 +88,10 @@ test.describe('VPN settings', () => {
       await routes.vpnSettings.setAutoConnectSwitch(true);
 
       const launchOnStartupSwitch = routes.vpnSettings.getLaunchAppOnStartupSwitch();
-      await expect(launchOnStartupSwitch).toHaveAttribute('aria-checked', 'true');
+      await expect(launchOnStartupSwitch).toBeChecked();
 
       const autoConnectSwitchChecked = routes.vpnSettings.getAutoConnectSwitch();
-      await expect(autoConnectSwitchChecked).toHaveAttribute('aria-checked', 'true');
+      await expect(autoConnectSwitchChecked).toBeChecked();
 
       const cliAutoConnect = execSync('mullvad auto-connect get').toString();
       expect(cliAutoConnect).toContain('on');
@@ -99,27 +99,28 @@ test.describe('VPN settings', () => {
   });
 
   test.describe('LAN settings', () => {
-    const expectLocalNetworkSharing = async (
-      ariaChecked: 'true' | 'false',
-      cliState: 'allow' | 'block',
-    ) => {
+    const expectLocalNetworkSharing = async (checked: boolean, cliState: 'allow' | 'block') => {
       const lanSwitch = routes.vpnSettings.getLanSwitch();
-      await expect(lanSwitch).toHaveAttribute('aria-checked', ariaChecked);
+      if (checked) {
+        await expect(lanSwitch).toBeChecked();
+      } else {
+        await expect(lanSwitch).not.toBeChecked();
+      }
       const cliStateOutput = execSync('mullvad lan get').toString();
       expect(cliStateOutput).toContain(cliState);
     };
 
     const expectLocalNetworkSharingEnabled = async () => {
-      await expectLocalNetworkSharing('true', 'allow');
+      await expectLocalNetworkSharing(true, 'allow');
     };
 
     const expectLocalNetworkSharingDisabled = async () => {
-      await expectLocalNetworkSharing('false', 'block');
+      await expectLocalNetworkSharing(false, 'block');
     };
 
     const disableLocalNetworkSharing = async () => {
       const lanSwitch = routes.vpnSettings.getLanSwitch();
-      if ((await lanSwitch.getAttribute('aria-checked')) === 'true') {
+      if (await lanSwitch.isChecked()) {
         await lanSwitch.click();
       }
       await expectLocalNetworkSharingDisabled();
