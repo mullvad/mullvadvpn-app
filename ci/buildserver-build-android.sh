@@ -15,8 +15,8 @@ LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
 ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
-SIGNING_CERTIFICATE_LINEAGE="$BUILD_DIR/ci/android-signing-config/SigningCertificateLineage"
-PROVIDER_ARG="$BUILD_DIR/ci/android-signing-config/provider-arg.cfg"
+SIGNING_CERTIFICATE_LINEAGE="$BUILD_DIR/ci/android/build-server/signing/SigningCertificateLineage"
+PROVIDER_ARG="$BUILD_DIR/ci/android/build-server/signing/provider-arg.cfg"
 KEY_ALIAS="Certificate for PIV Authentication"
 
 BRANCHES_TO_BUILD=("origin/main")
