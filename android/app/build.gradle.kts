@@ -351,7 +351,7 @@ tasks.register("printVersion") {
 }
 
 play {
-    System.getenv("PLAY_API_KEY")?.let { serviceAccountCredentials.set(file(it)) }
+    System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
     // Disable for all flavors by default. Only specific flavors should be enabled using
     // PlayConfigs.
     enabled = false
