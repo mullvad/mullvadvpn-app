@@ -21,7 +21,7 @@ mod imp {
             runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()),
         );
 
-        let response = proxy.relay_list(None, None).await;
+        let response = proxy.relay_list(None).await;
 
         let relay_list = match response {
             Ok(relay_list) => relay_list,
