@@ -857,21 +857,11 @@ impl RelaySelector {
 
         match predicate {
             Predicate::Singlehop(constraints) => {
-                let entry_criteria =
-                    Self::entry_criteria(constraints.clone(), shadowsocks_port_ranges);
+                let usable_as_exit =
+                    Self::usable_as_exit(constraints.general.clone(), custom_lists);
+                let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
 
-                let ownership = Criteria::new(move |relay| {
-                    matcher::filter_on_ownership(constraints.general.ownership.as_ref(), relay)
-                        .if_false(Reason::Ownership)
-                });
-                let providers = Criteria::new(move |relay| {
-                    matcher::filter_on_providers(constraints.general.providers.as_ref(), relay)
-                        .if_false(Reason::Providers)
-                });
-                let active =
-                    Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = Self::location_criteria(constraints.general.location, custom_lists);
-                vec![entry_criteria, active, location, ownership, providers]
+                vec![usable_as_entry, usable_as_exit]
             }
             Predicate::Autohop(constraints) => {
                 // This case is identical to `singlehop`, except that it does not generally care about obfuscation, DAITA, etc.
@@ -911,32 +901,15 @@ impl RelaySelector {
                 };
 
                 // Check criteria that apply to both exits and entries
-                let can_be_used_as_exit = {
-                    let ExitConstraints {
-                        location,
-                        providers,
-                        ownership,
-                    } = constraints.general.clone();
-                    let ownership = Criteria::new(move |relay| {
-                        matcher::filter_on_ownership(ownership.as_ref(), relay)
-                            .if_false(Reason::Ownership)
-                    });
-                    let providers = Criteria::new(move |relay| {
-                        matcher::filter_on_providers(providers.as_ref(), relay)
-                            .if_false(Reason::Providers)
-                    });
-                    let location = Self::location_criteria(location, custom_lists);
-
-                    ownership.and(providers).and(location)
-                };
+                let usable_as_exit =
+                    Self::usable_as_exit(constraints.general.clone(), custom_lists);
 
                 // Check criteria that apply specifically to entries
-                let can_be_used_as_entry =
-                    Self::entry_criteria(constraints, shadowsocks_port_ranges);
+                let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
 
-                let criteria = can_be_used_as_exit.and(
+                let criteria = usable_as_exit.and(
                     // The relay must also be a valid entry.
-                    can_be_used_as_entry.or(
+                    usable_as_entry.or(
                         // Else another entry must be found.
                         can_find_autohop_entry,
                     ),
@@ -949,7 +922,9 @@ impl RelaySelector {
                 // run `partition_relays` searching for the exit relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // entry relays.
-                let can_be_used_as_entry = {
+                // NOTE: We don't handle the case where there are zero exit relays here, you must
+                // call the function again with `Predicate::Exit` to find that out.
+                let doesnt_collide_with_exit = {
                     let exit_relay = self
                             // Compare with the equiv predicate for the `Predicate::Exit` case.
                             .partition_relays(Predicate::Singlehop(EntryConstraints { general: exit, ..Default::default()} ))
@@ -968,29 +943,11 @@ impl RelaySelector {
                     }
                 };
 
-                // Except for the `can_be_used_as_exit` condition, the remainder of the work is
+                // Except for the `usable_as_exit` condition, the remainder of the work is
                 // ~equiv to `Predicate::Singlehop`.
-                let criteria = Self::entry_criteria(entry.clone(), shadowsocks_port_ranges);
-                let ownership = Criteria::new(move |relay| {
-                    matcher::filter_on_ownership(entry.general.ownership.as_ref(), relay)
-                        .if_false(Reason::Ownership)
-                });
-                let providers = Criteria::new(move |relay| {
-                    matcher::filter_on_providers(entry.general.providers.as_ref(), relay)
-                        .if_false(Reason::Providers)
-                });
-
-                let active =
-                    Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = Self::location_criteria(entry.general.location, custom_lists);
-                vec![
-                    criteria,
-                    active,
-                    location,
-                    can_be_used_as_entry,
-                    ownership,
-                    providers,
-                ]
+                let usable_as_entry = Self::usable_as_entry(entry.clone(), shadowsocks_port_ranges);
+                let usable_as_exit = Self::usable_as_exit(entry.general, custom_lists);
+                vec![usable_as_entry, usable_as_exit, doesnt_collide_with_exit]
             }
             Predicate::Exit(MultihopConstraints { entry, exit }) => {
                 // If an entry is already selected, it should be rejected as a possible exit relay.
@@ -998,7 +955,7 @@ impl RelaySelector {
                 // run `partition_relays` searching for the entry relay. If the result yields one
                 // (and only one) specific relay, we know that it must be excluded from the list of
                 // exit relays.
-                let can_be_used_as_exit = {
+                let doesnt_collide_with_entry = {
                     let entry_relay = self
                         .partition_relays(Predicate::Singlehop(entry))
                         .matches
@@ -1016,35 +973,16 @@ impl RelaySelector {
                     }
                 };
 
-                // Here we *do not* have to consider any additional entry constraints, such as
-                // obfuscation, DAITA, etc.
-                let ExitConstraints {
-                    location,
-                    providers,
-                    ownership,
-                } = exit;
-
-                let active =
-                    Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
-                let location = Self::location_criteria(location, custom_lists);
-                let ownership = Criteria::new(move |relay| {
-                    matcher::filter_on_ownership(ownership.as_ref(), relay)
-                        .if_false(Reason::Ownership)
-                });
-                let providers = Criteria::new(move |relay| {
-                    matcher::filter_on_providers(providers.as_ref(), relay)
-                        .if_false(Reason::Providers)
-                });
-
-                vec![active, location, ownership, providers, can_be_used_as_exit]
+                let usable_as_exit = Self::usable_as_exit(exit, custom_lists);
+                vec![usable_as_exit, doesnt_collide_with_entry]
             }
         }
     }
 
-    /// All criteria that apply for specifically for entry relays.
+    /// Check that the relay satisfies the entry specific criteria. Note that this does not check exit constraints.
     ///
-    /// Here we have to consider extra entry constraints, such as DAITA, obfuscation etc.
-    fn entry_criteria(
+    /// Here we consider only entry specific constraints, i.e. DAITA, obfuscation and IP version.
+    fn usable_as_entry(
         constraints: EntryConstraints,
         shadowsocks_port_ranges: Vec<RangeInclusive<u16>>,
     ) -> Criteria<'static, WireguardRelay> {
@@ -1071,6 +1009,28 @@ impl RelaySelector {
             }
         });
         daita.and(obfuscation_ipversion_port)
+    }
+
+    /// Check that the relay satisfies the exit criteria.
+    fn usable_as_exit(
+        ExitConstraints {
+            location,
+            providers,
+            ownership,
+        }: ExitConstraints,
+        custom_lists: CustomListsSettings,
+    ) -> Criteria<'static, WireguardRelay> {
+        let ownership = Criteria::new(move |relay| {
+            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership)
+        });
+        let providers = Criteria::new(move |relay| {
+            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers)
+        });
+        let location = Self::location_criteria(location, custom_lists);
+        let active =
+            Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
+
+        ownership.and(providers).and(location).and(active)
     }
 
     fn location_criteria(
