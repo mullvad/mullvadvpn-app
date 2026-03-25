@@ -80,6 +80,9 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleClearAllRelayOverrides(() => {
       return this.daemonRpc.clearAllRelayOverrides();
     });
+    IpcMainEventChannel.settings.handleSetEnableRecents((enabled) => {
+      return this.daemonRpc.setEnableRecents(enabled);
+    });
     IpcMainEventChannel.settings.handleImportText((text) => {
       return this.daemonRpc.applyJsonSettings(text);
     });

@@ -120,7 +120,7 @@ export interface ISetRelayOverrides {
 
 export interface ISetRecents {
   type: 'SET_RECENTS';
-  recents: Recents;
+  recents?: Recents;
 }
 
 export type SettingsAction =
@@ -304,7 +304,7 @@ function updateRelayOverrides(relayOverrides: Array<RelayOverride>): ISetRelayOv
   };
 }
 
-function updateRecents(recents: Recents): ISetRecents {
+function updateRecents(recents?: Recents): ISetRecents {
   return {
     type: 'SET_RECENTS',
     recents,

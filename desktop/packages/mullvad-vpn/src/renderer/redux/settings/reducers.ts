@@ -92,7 +92,7 @@ export interface ISettingsReduxState {
   splitTunnelingSupported: boolean;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
-  recents: Recents;
+  recents?: Recents;
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
@@ -159,7 +159,7 @@ const initialState: ISettingsReduxState = {
     },
   },
   customLists: [],
-  recents: [],
+  recents: undefined,
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],

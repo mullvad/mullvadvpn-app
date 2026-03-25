@@ -16,4 +16,6 @@ export * from './scope-bar';
 export * from './scope-bar-item';
 export * from './space-pre-allocation-view';
 export * from './quic-filter-chip';
+export * from './header-menu';
+export * from './header-menu-icon-button';
 export * from './location-lists';

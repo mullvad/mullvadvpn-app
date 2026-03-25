@@ -455,25 +455,26 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   };
 }
 
-function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents {
+function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | undefined {
   if (!recents) {
-    return [];
+    return undefined;
   }
   return recents
     .getRecentsList()
     .map((recent) => {
-      if (recent.hasMultihop()) {
-        const entry = convertFromLocationConstraint(recent.getMultihop()?.getEntry());
-        const exit = convertFromLocationConstraint(recent.getMultihop()?.getExit());
+      const multihop = recent.getMultihop();
+      const singlehop = recent.getSinglehop();
+      if (multihop) {
+        const entry = convertFromLocationConstraint(multihop.getEntry());
+        const exit = convertFromLocationConstraint(multihop.getExit());
         return {
+          type: 'multihop',
           entry,
           exit,
         };
-      } else if (recent.hasSinglehop()) {
-        const entry = convertFromLocationConstraint(recent.getSinglehop());
-        return {
-          entry,
-        };
+      } else if (singlehop) {
+        const location = convertFromLocationConstraint(singlehop);
+        return location ? { type: 'singlehop', location } : undefined;
       } else {
         return undefined;
       }

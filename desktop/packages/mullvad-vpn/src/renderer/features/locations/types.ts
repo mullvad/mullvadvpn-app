@@ -50,3 +50,7 @@ export enum DisabledReason {
   exit,
   inactive,
 }
+
+export type RecentLocation = RecentSinglehopLocation | RecentMultihopLocation;
+export type RecentSinglehopLocation = { type: 'singlehop'; location: AnyLocation };
+export type RecentMultihopLocation = { type: 'multihop'; entry: AnyLocation; exit: AnyLocation };

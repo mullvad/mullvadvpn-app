@@ -1,12 +1,10 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { RoutePath } from '../../../../shared/routes';
 import { useDaitaDirectOnly, useDaitaEnabled } from '../../../features/daita/hooks';
 import { useActiveFilters } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import { useMultihop } from '../../../features/multihop/hooks';
-import { IconButton } from '../../../lib/components';
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { AppNavigationHeader } from '../../';
@@ -16,16 +14,18 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import {
   DisabledEntrySelection,
   FilterChips,
+  HeaderMenuIconButton,
   LocationLists,
   LocationSearchField,
   ScopeBarItem,
   SpacePreAllocationView,
 } from './components';
-import { ScrollPositionContextProvider } from './ScrollPositionContext';
-import { useScrollPositionContext } from './ScrollPositionContext';
+import { ScrollPositionContextProvider, useScrollPositionContext } from './ScrollPositionContext';
 import { StyledScopeBar } from './SelectLocationStyles';
-import { SelectLocationViewProvider } from './SelectLocationViewContext';
-import { useSelectLocationViewContext } from './SelectLocationViewContext';
+import {
+  SelectLocationViewProvider,
+  useSelectLocationViewContext,
+} from './SelectLocationViewContext';
 
 export function SelectLocationViewImpl() {
   const history = useHistory();
@@ -39,7 +39,6 @@ export function SelectLocationViewImpl() {
   const { isAnyFilterActive } = useActiveFilters(locationType);
 
   const onClose = useCallback(() => history.pop(), [history]);
-  const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
   const changeLocationType = useCallback(
     (locationType: LocationType) => {
@@ -64,12 +63,7 @@ export function SelectLocationViewImpl() {
               messages.pgettext('select-location-nav', 'Select location')
             }
             titleVisible>
-            <IconButton
-              variant="secondary"
-              onClick={onViewFilter}
-              aria-label={messages.gettext('Filter')}>
-              <IconButton.Icon icon="filter-circle" />
-            </IconButton>
+            <HeaderMenuIconButton />
           </AppNavigationHeader>
 
           <View.Container
@@ -93,13 +87,12 @@ export function SelectLocationViewImpl() {
                 {showDisabledEntrySelection ? (
                   <DisabledEntrySelection />
                 ) : (
-                  <View.Container
-                    // Set key to reset list when switching between entry and exit
-                    key={locationType === LocationType.entry ? 'entry' : 'exit'}
-                    horizontalMargin="medium"
-                    flexDirection="column"
-                    gap="large">
-                    <LocationLists type={locationType} />
+                  <View.Container horizontalMargin="medium" flexDirection="column">
+                    <LocationLists
+                      // Set key to reset list when switching between entry and exit
+                      key={locationType}
+                      type={locationType}
+                    />
                   </View.Container>
                 )}
               </SpacePreAllocationView>

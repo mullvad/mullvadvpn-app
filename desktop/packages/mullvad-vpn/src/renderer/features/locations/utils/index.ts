@@ -24,3 +24,6 @@ export * from './create-location-label';
 export * from './search-city-and-relays';
 export * from './search-country-and-cities';
 export * from './search-custom-list-and-locations';
+export * from './get-recent-multihop-entry-locations';
+export * from './get-recent-multihop-exit-locations';
+export * from './get-recent-singlehop-locations';
