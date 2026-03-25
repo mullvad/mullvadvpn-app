@@ -9,6 +9,8 @@ export function useEffectSetTriggerAttributes() {
     if (trigger) {
       trigger.setAttribute('aria-controls', popoverId);
       trigger.setAttribute('aria-expanded', `${open}`);
+      trigger.setAttribute('aria-haspopup', 'menu');
+      trigger.style.setProperty('anchor-name', `--${popoverId}`);
     }
   }, [popoverId, open, triggerRef]);
 }
