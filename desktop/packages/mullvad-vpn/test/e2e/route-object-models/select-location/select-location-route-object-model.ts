@@ -41,7 +41,8 @@ export class SelectLocationRouteObjectModel {
   }
 
   async gotoFilter() {
-    await this.selectors.filterButton().click();
+    await this.selectors.selectLocationMenuButton().click();
+    await this.selectors.filterMenuOption().click();
     await this.utils.expectRoute(RoutePath.filter);
   }
 }
