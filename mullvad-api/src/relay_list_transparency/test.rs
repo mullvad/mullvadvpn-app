@@ -1,46 +1,44 @@
 #[cfg(test)]
 mod sigsum_test {
-    use crate::relay_list_transparency::validate::{
-        validate_relay_list_content, validate_relay_list_signature,
-    };
+    use crate::relay_list_transparency::validate::validate_relay_list_envelope;
     use crate::relay_list_transparency::{
-        RelayListDigest, RelayListSignature, Sha256Bytes, validate,
+        RelayListDigest, RelayListEnvelope, Sha256Bytes, validate,
     };
     use sha2::{Digest, Sha256};
 
     #[test]
     fn test_validate_relay_list_signature() {
-        let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
+        let sig = RelayListEnvelope::parse(RELAY_LIST_SIGNATURE).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
-        let timestamp = validate_relay_list_signature(&sig, &pubkeys).unwrap();
+        let payload = validate_relay_list_envelope(&sig, &pubkeys).unwrap();
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = RelayListDigest::new(digest);
-        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
+        assert_eq!(payload.digest, digest_hex);
     }
 
     #[test]
     fn test_invalid_signature_can_parse_unverified_timestamp() {
         let sig =
-            RelayListSignature::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
+            RelayListEnvelope::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
-        let err = validate_relay_list_signature(&sig, &pubkeys).unwrap_err();
-        let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
+        let err = validate_relay_list_envelope(&sig, &pubkeys).unwrap_err();
+        let payload = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = RelayListDigest::new(digest);
-        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
+        assert_eq!(payload.digest, digest_hex);
     }
 
     #[test]
     fn test_invalid_pubkey_can_parse_unverified_timestamp() {
-        let sig = RelayListSignature::parse(RELAY_LIST_SIGNATURE).unwrap();
+        let sig = RelayListEnvelope::parse(RELAY_LIST_SIGNATURE).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS_INVALID, ':').unwrap();
-        let err = validate_relay_list_signature(&sig, &pubkeys).unwrap_err();
-        let timestamp = err.timestamp_parser.parse_without_verification().unwrap();
+        let err = validate_relay_list_envelope(&sig, &pubkeys).unwrap_err();
+        let payload = err.timestamp_parser.parse_without_verification().unwrap();
 
         let digest: Sha256Bytes = Sha256::digest(RELAY_LIST_CONTENT.as_bytes()).into();
         let digest_hex = RelayListDigest::new(digest);
-        validate_relay_list_content(&timestamp, &digest_hex).unwrap();
+        assert_eq!(payload.digest, digest_hex);
     }
 
     static PUBKEYS: &str = "35809994d285fe3dd50d49c384db49519412008c545cb6588c138a86ae4c3284:9e05c843f17ed7225df58fdfd6ddcd65251aa6db4ad8ea63bd2bf0326e30577d";
