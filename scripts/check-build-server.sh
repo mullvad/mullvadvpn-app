@@ -91,8 +91,9 @@ parse_args() {
 
 get_commits() {
     cd "$REPO_ROOT"
-    # Return full hashes - we'll truncate later when needed
-    git log --format="%H %ct" main --max-count="$COMMITS_TO_CHECK"
+    # Use --first-parent to only follow the main branch line
+    # This excludes commits from merged feature branches
+    git log --first-parent --format="%H %ct" main --max-count="$COMMITS_TO_CHECK"
 }
 
 get_commit_version() {
