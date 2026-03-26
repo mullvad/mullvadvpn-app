@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 SIGNING_CERTIFICATE_LINEAGE="$BUILD_DIR/ci/android/build-server/signing/SigningCertificateLineage"
-PROVIDER_ARG="$BUILD_DIR/ci/android/build-server/signing/provider-arg.cfg"
+PROVIDER_ARG="$BUILD_DIR/ci/android/build-server/signing/pkcs11_java.cfg"
 KEY_ALIAS="Certificate for PIV Authentication"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
