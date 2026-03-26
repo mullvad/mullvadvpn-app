@@ -18,7 +18,6 @@ class LocationNode: @unchecked Sendable {
     weak var parent: LocationNode?
     var children: [LocationNode]
     var showsChildren: Bool
-    var isHiddenFromSearch: Bool
     var isConnected: Bool
     var isSelected: Bool
     var isExcluded: Bool
@@ -33,7 +32,6 @@ class LocationNode: @unchecked Sendable {
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
-        isHiddenFromSearch: Bool = false,
         isConnected: Bool = false,
         isSelected: Bool = false,
         isExcluded: Bool = false,
@@ -46,7 +44,6 @@ class LocationNode: @unchecked Sendable {
         self.parent = parent
         self.children = children
         self.showsChildren = showsChildren
-        self.isHiddenFromSearch = isHiddenFromSearch
         self.isConnected = isConnected
         self.isSelected = isSelected
         self.isExcluded = isExcluded
@@ -64,7 +61,6 @@ class LocationNode: @unchecked Sendable {
             parent: parent,
             children: [],
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch,
             isConnected: isConnected,
             isSelected: false,  // explicity set to false since it's a different node
             isExcluded: isExcluded,
@@ -212,7 +208,6 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
-        isHiddenFromSearch: Bool = false,
         customList: CustomList
     ) {
         self.customList = customList
@@ -225,7 +220,6 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: children,
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch,
             isOverridden: false
         )
     }
@@ -241,7 +235,6 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: [],
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch,
             customList: customList,
         )
 
@@ -263,7 +256,6 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
         parent: LocationNode? = nil,
         children: [LocationNode] = [],
         showsChildren: Bool = false,
-        isHiddenFromSearch: Bool = false,
         locationInfo: [String]?,
         isIPOverriden: Bool = false
     ) {
@@ -277,7 +269,6 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
             parent: parent,
             children: children,
             showsChildren: showsChildren,
-            isHiddenFromSearch: isHiddenFromSearch,
             isOverridden: isIPOverriden
         )
     }
