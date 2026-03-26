@@ -37,32 +37,35 @@ impl Display for RelayListDigest {
     }
 }
 
-/// The relay list digest together with it's timestamp.
+/// The relay list digest together with its timestamp.
 #[derive(Debug, Clone, PartialEq, Eq, Default, Deserialize, Serialize)]
-pub struct TimestampedRelayListDigest {
+pub struct SigsumPayload {
+    /// The digest of the relay list.
     pub digest: RelayListDigest,
+
+    /// When the signature was signed.
     pub timestamp: DateTime<Utc>,
 }
 
-impl TimestampedRelayListDigest {
+impl SigsumPayload {
     pub fn new(digest: RelayListDigest, timestamp: DateTime<Utc>) -> Self {
-        TimestampedRelayListDigest { digest, timestamp }
+        SigsumPayload { digest, timestamp }
     }
 }
 
 /// The unparsed Sigsum signature and digest+timestamp for the relay list as returned by the API.
 #[derive(Debug)]
-pub struct RelayListSignature {
+pub struct RelayListEnvelope {
     /// This is the data that was signed by the sigsum signature. Note that this is *not* the
     /// relay list, but rather a metadata object in JSON that contains the hash of the relay list
     /// that corresponds to this signature and the timestamp of when it was signed.
-    pub unparsed_timestamp: String,
+    pub unparsed_payload: String,
 
-    /// The sigsum signature for the signed `unparsed_timestamp`.
-    pub unparsed_sigsum_signature: String,
+    /// The sigsum signature for the signed `unparsed_payload`.
+    pub unparsed_signature: String,
 }
 
-impl RelayListSignature {
+impl RelayListEnvelope {
     /// The API does not return JSON but instead a custom plain text format we need to parse
     /// it manually.
     /// The format is:
@@ -73,22 +76,22 @@ impl RelayListSignature {
     ///
     /// Note that the first newline after the JSON line is significant and part of the data that was
     /// signed by the sigsum signature.
-    pub fn parse(response: &str) -> Result<RelayListSignature, rest::Error> {
-        let (data, signature) = response
+    pub fn parse(response: &str) -> Result<RelayListEnvelope, rest::Error> {
+        let (unparsed_data, unparsed_signature) = response
             .split_once("\n\n")
             .map(|(data, signature)| (format!("{data}\n"), signature.to_owned()))
             .ok_or(rest::Error::SigsumDeserializeError)?;
 
-        Ok(RelayListSignature {
-            unparsed_timestamp: data,
-            unparsed_sigsum_signature: signature,
+        Ok(RelayListEnvelope {
+            unparsed_payload: unparsed_data,
+            unparsed_signature,
         })
     }
 }
 
 /// The unparsed relay list and content digest and timestamp.
 #[derive(Debug)]
-pub struct SigsumVerifiedPayload {
+pub struct SigsumVerifiedRelayList {
     /// The unparsed relay list JSON as raw bytes.
     pub content: Vec<u8>,
     /// The digest for the raw JSON bytes.
@@ -108,77 +111,75 @@ static TIMESTAMP_MAX_VALID_AGE: Duration = Duration::from_hours(24);
 /// * `latest_digest` - The latest digest that the app has successfully fetched.
 ///   If the digest we get from the API is the same as `latest_digest` we do not need to
 ///   download the relay list again. If `None` the relay list is fetched unconditionally.
-/// * `latest_timestamp` - The latest timestamp that the app has successfully fetched.
-///   This is used to verify that the next timestamp we get isn't too old.
 /// * `sigsum_trusted_pubkeys` - The sigsum pubkeys that should be used for verification.
 pub async fn download_and_verify_relay_list(
     proxy: &RelayListProxy,
-    latest_digest: Option<TimestampedRelayListDigest>,
+    current_digest: Option<SigsumPayload>,
     sigsum_trusted_pubkeys: &[SigsumPublicKey],
-) -> Result<Option<SigsumVerifiedPayload>, rest::Error> {
-    // Fetch relay list latest sigsum signature.
-    let relay_list_sig = proxy.relay_list_latest_timestamp().await?;
+) -> Result<Option<SigsumVerifiedRelayList>, rest::Error> {
+    // Fetch relay list latest sigsum envelope.
+    let envelope = proxy.relay_list_latest_envelope().await?;
 
-    // Parse the timestamp from the signature.
-    let timestamp =
-        match validate::validate_relay_list_signature(&relay_list_sig, sigsum_trusted_pubkeys) {
-            Ok(timestamp) => {
-                log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
-                timestamp
-            }
-            Err(e) => {
-                log::error!(
-                    "SIGSUM: Relay list sigsum signature validation failed: {}",
-                    e.source
-                );
-                log::debug!("SIGSUM: Attempting to parse unverified timestamp");
+    // Parse the payload from the envelope.
+    let payload = match validate::validate_relay_list_envelope(&envelope, sigsum_trusted_pubkeys) {
+        Ok(payload) => {
+            log::debug!("SIGSUM: Relay list sigsum signature validation succeeded");
+            payload
+        }
+        Err(e) => {
+            log::error!(
+                "SIGSUM: Relay list sigsum signature validation failed: {}",
+                e.source
+            );
+            log::debug!("SIGSUM: Attempting to parse unverified payload");
 
-                e.timestamp_parser
-                    .parse_without_verification()
-                    .inspect_err(|_| {
-                        log::error!(
-                        "SIGSUM: Failed to parse unverified timestamp; aborting relay list update"
+            e.timestamp_parser
+                .parse_without_verification()
+                .inspect_err(|_| {
+                    log::error!(
+                        "SIGSUM: Failed to parse unverified payload; aborting relay list update"
                     );
-                    })
-                    .inspect(|_| log::debug!("SIGSUM: Successfully parsed unverified timestamp"))
-                    .map_err(rest::Error::from)?
-            }
-        };
+                })
+                .inspect(|_| log::debug!("SIGSUM: Successfully parsed unverified payload"))
+                .map_err(rest::Error::from)?
+        }
+    };
 
     // Verify that the timestamp is not too old.
-    let new_timestamp = timestamp.timestamp;
+    let new_timestamp = payload.timestamp;
     if new_timestamp < (Utc::now() - TIMESTAMP_MAX_VALID_AGE) {
         log::error!("SIGSUM: Relay list timestamp is too old: {new_timestamp}",);
     }
 
-    if let Some(digest) = latest_digest {
+    if let Some(current) = current_digest {
         // Verify that the timestamp we got from the API is not older than the most recent timestamp
         // we have seen.
-        if new_timestamp < digest.timestamp {
+        if new_timestamp < current.timestamp {
             log::error!(
                 "SIGSUM: Relay list timestamp is older than current timestamp\n\
                 current {}, new: {new_timestamp}",
-                digest.timestamp,
+                current.timestamp,
             );
         }
 
         // If the digest has not changed we do not need to fetch the relay list.
-        if digest.digest == timestamp.digest {
-            log::debug!("SIGSUM: timestamp digest hasn't changed - will not fetch new relay list");
+        if current.digest == payload.digest {
+            log::debug!("SIGSUM: Payload digest hasn't changed - will not fetch new relay list");
             return Ok(None);
         }
     }
 
-    // Fetch the actual relay list given the timestamp digest.
-    let relay_list_response = proxy.relay_list_content(&timestamp.digest).await?;
+    // Fetch the actual relay list given the payload digest.
+    let relay_list_response = proxy.relay_list_content(&payload.digest).await?;
 
-    // Validate that the sigsum digest matches the relay list hash.
-    match validate::validate_relay_list_content(&timestamp, &relay_list_response.digest) {
-        Ok(_) => log::debug!("SIGSUM: Relay list sigsum data validation succeeded"),
-        Err(e) => log::error!("SIGSUM: Relay list sigsum data validation failed: {}", e),
+    // Validate that the fetched relay list digest matches the sigsum digest.
+    if relay_list_response.digest == payload.digest {
+        log::debug!("SIGSUM: Relay list sigsum data validation succeeded");
+    } else {
+        log::error!("SIGSUM: Fetched relay list digest does not equal sigsum digest");
     }
 
-    Ok(Some(SigsumVerifiedPayload {
+    Ok(Some(SigsumVerifiedRelayList {
         content: relay_list_response.content,
         digest: relay_list_response.digest,
         timestamp: new_timestamp,

@@ -5,7 +5,7 @@ use std::{
 
 use mullvad_api::{
     StatusCode,
-    relay_list_transparency::SigsumVerifiedPayload,
+    relay_list_transparency::SigsumVerifiedRelayList,
     rest::{self, Response},
 };
 
@@ -46,10 +46,10 @@ impl SwiftMullvadApiResponse {
     }
 
     pub fn with_sigsum_verified_body(
-        sigsum_payload: Option<SigsumVerifiedPayload>,
+        sigsum_payload: Option<SigsumVerifiedRelayList>,
     ) -> Result<Self, rest::Error> {
         let (body, body_size, sigsum_timestamp, sigsum_digest) = match sigsum_payload {
-            Some(SigsumVerifiedPayload {
+            Some(SigsumVerifiedRelayList {
                 content,
                 digest,
                 timestamp,
