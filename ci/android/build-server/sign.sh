@@ -8,18 +8,13 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
-SIGNING_CERTIFICATE_LINEAGE="$SCRIPT_DIR/signing/SigningCertificateLineage"
-PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
+PROVIDER_ARG="$BUILD_DIR/ci/android/build-server/signing/pkcs11_java.cfg"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "Needs to have set yubikey pin"
-    exit 1
-fi
-
-if [[ -z ${ANDROID_CREDENTIALS_DIR-} || ! -d "$ANDROID_CREDENTIALS_DIR" || -z "$(ls -A "$ANDROID_CREDENTIALS_DIR")" ]]; then
-    echo "Credentials directory is missing or empty"
     exit 1
 fi
 
@@ -39,37 +34,21 @@ function main {
 
 function sign_artifact {
     local file=$1
-    local rotate=${2:-false}
 
-    if $rotate; then
-        echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
-        --ks "$ANDROID_CREDENTIALS_DIR/app-keys.jks" \
-        --ks-pass "file:$ANDROID_CREDENTIALS_DIR/keystore.properties.new" \
-        --next-signer --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
-        --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
-        --lineage "$SIGNING_CERTIFICATE_LINEAGE" --rotation-min-sdk-version 28 --in "$file"
-    else
-        echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
-        --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
-        --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
-        --min-sdk-version 28 \
-        --in "$file"
-    fi
+    echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+    --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
+    --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
+    --min-sdk-version 26 \
+    --in "$file"
 }
 
 function sign_artifacts {
     dir="$1"
 
     pushd "$dir"
-    # Sign all apk files with the old and new key
-    for apk in MullvadVPN-*.apk; do
-        sign_artifact "$apk" true
-    done
-
-    # Sign all aab files with the upload key (new key)
-    for aab in MullvadVPN-*.aab
-    do
-        sign_artifact "$aab" false
+    # Sign all Mullvad apk and aab files
+    for apk in MullvadVPN-*.apk MullvadVPN-*.aab; do
+        sign_artifact "$apk"
     done
     popd
 }
