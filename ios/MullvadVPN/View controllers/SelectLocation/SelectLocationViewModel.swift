@@ -251,10 +251,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         switch multihopContext {
         case .entry:
             delegate
-                .showEditCustomListView(entryContext.locations, customList)
+                .showEditCustomListView(entryContext.customListAvailableLocations, customList)
         case .exit:
             delegate
-                .showEditCustomListView(exitContext.locations, customList)
+                .showEditCustomListView(exitContext.customListAvailableLocations, customList)
         }
     }
 
@@ -327,6 +327,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             exitLocationsDataSource
                 .reload(relaysCandidates.exitRelays.toLocationRelays())
             exitContext.locations = exitLocationsDataSource.nodes
+            exitContext.customListAvailableLocations = exitLocationsDataSource.nodes
             exitContext.availableRelayCount = relaysCandidates.exitRelays.count
 
             if let entryRelays = relaysCandidates.entryRelays {
@@ -334,6 +335,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     .reload(entryRelays.toLocationRelays())
                 entryContext.locations =
                     entryLocationsDataSource.nodes
+                entryContext.customListAvailableLocations = entryLocationsDataSource.nodes
                 entryContext.availableRelayCount = entryRelays.count
             }
         } else {
@@ -351,10 +353,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func search(searchText: String) {
-        exitLocationsDataSource.search(by: searchText)
-        exitCustomListsDataSource.search(by: searchText)
-        entryLocationsDataSource.search(by: searchText)
-        entryCustomListsDataSource.search(by: searchText)
+        exitContext.locations = exitLocationsDataSource.search(by: searchText)
+        exitContext.customLists = exitCustomListsDataSource.search(by: searchText)
+        entryContext.locations = entryLocationsDataSource.search(by: searchText)
+        entryContext.locations = entryCustomListsDataSource.search(by: searchText)
     }
 
     private func updateSelections() {
@@ -390,6 +392,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
         updateRecentsDataSources(entryRecentsDataSource, selectedEntryRelays)
         updateRecentsDataSources(exitRecentsDataSource, selectedExitRelays)
+
+        exitContext.selectedLocation =
+            [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode
+        entryContext.selectedLocation =
+            [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource].firstSelectedNode
     }
 
     func didFinish() {
@@ -423,6 +430,36 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             updateSelections()
             updateConnectedLocations(tunnelManager.tunnelStatus)
         }
+    }
+
+    private func updateRecents(
+        dataSource: LocationDataSourceProtocol,
+        selected: UserSelectedRelays
+    ) {
+        dataSource.setSelectedNode(selectedRelays: selected)
+    }
+
+    private func updateLocationDataSources(
+        dataSources: [LocationDataSourceProtocol],
+        selected: UserSelectedRelays,
+        excluded: UserSelectedRelays
+    ) {
+        if let dataSource = dataSources.first(where: { $0.node(by: selected) != nil }) {
+            dataSource.setSelectedNode(selectedRelays: selected)
+            dataSource.expandSelection()
+        }
+
+        guard isMultihopEnabled else { return }
+
+        dataSources.forEach {
+            $0.setExcludedNode(excludedSelection: excluded)
+        }
+    }
+
+    private func selectedNode(
+        from dataSources: [LocationDataSourceProtocol]
+    ) -> LocationNode? {
+        dataSources.firstSelectedNode
     }
 }
 
