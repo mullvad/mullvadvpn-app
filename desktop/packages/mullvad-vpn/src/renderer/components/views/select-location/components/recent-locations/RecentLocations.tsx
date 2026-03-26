@@ -2,8 +2,8 @@ import { messages } from '../../../../../../shared/gettext';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { SectionTitle } from '../../../../../lib/components/section-title';
 import { getLocationListItemMapProps } from '../../utils';
-import { CountryLocation } from '../country-location';
-import { CustomListLocation } from '../custom-list-location';
+import { RecentCustomListLocation } from '../recent-custom-list-location';
+import { RecentGeographicalLocation } from '../recent-geographical-location';
 import { useRecentLocations } from './hooks';
 
 export function RecentLocations() {
@@ -24,9 +24,9 @@ export function RecentLocations() {
         {recentLocations.map((location) => {
           const { key } = getLocationListItemMapProps(location);
           if (location.type === 'customList') {
-            return <CustomListLocation key={key} customList={location} />;
+            return <RecentCustomListLocation key={key} customList={location} />;
           } else {
-            return <CountryLocation key={key} location={location} />;
+            return <RecentGeographicalLocation key={key} location={location} />;
           }
         })}
       </FlexColumn>
