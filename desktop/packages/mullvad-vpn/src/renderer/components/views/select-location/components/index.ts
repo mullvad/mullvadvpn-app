@@ -19,3 +19,5 @@ export * from './quic-filter-chip';
 export * from './header-menu';
 export * from './header-menu-icon-button';
 export * from './location-lists';
+export * from './recent-custom-list-location';
+export * from './recent-geographical-location';
