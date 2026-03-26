@@ -119,11 +119,11 @@ function build_sign_and_publish_ref {
     # Sign all artifacts
     YUBIKEY_PIN=$YUBIKEY_PIN \
     ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
-    buildserver-sign-android.sh "$artifact_dir"
+    ./ci/buildserver-sign-android.sh "$artifact_dir"
 
     # Upload files to google play, this needs to be done after the artifacts have been signed
     ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
-    buildserver-upload-play.sh "$artifact_dir" "$version"
+    ./ci/buildserver-upload-play.sh "$artifact_dir" "$version"
 
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216

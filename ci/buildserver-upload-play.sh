@@ -40,10 +40,10 @@ function prepare {
     trap 'rc=$?; (( rc != 0 )) && rm -rf "$play_upload_dir"' EXIT
 
     if [[ "$version" != *"-dev-"* ]]; then
-            upload_google_play "publishPlayProdReleaseBundle" "MullvadVPN-$version.play.aab" "$play_upload_dir"
+            upload_google_play "publishPlayProdReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.aab" "$play_upload_dir"
         if [[ "$version" == *"-alpha"* ]]; then
-            upload_google_play "publishPlayDevmoleReleaseBundle" "MullvadVPN-$version.play.devmole.aab" "$play_upload_dir"
-            upload_google_play "publishPlayStagemoleReleaseBundle" "MullvadVPN-$version.play.stagemole.aab" "$play_upload_dir"
+            upload_google_play "publishPlayDevmoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.devmole.aab" "$play_upload_dir"
+            upload_google_play "publishPlayStagemoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.stagemole.aab" "$play_upload_dir"
         fi
     fi
 }
@@ -53,14 +53,12 @@ function upload_google_play {
     file=$2
     upload_dir=$3
 
-    rm -r "${upload_dir:?}"/*
+    rm -r "${upload_dir:?}/"* 2>/dev/null || true
     cp "$file" "$upload_dir/"
 
     PLAY_CREDENTIALS_PATH="$ANDROID_CREDENTIALS_DIR/play-api-key.json" \
-    ./building/container-run.sh android ./android/gradlew -p android "$task" --artifact-dir "$upload_dir"
+    ./building/container-run.sh android ./android/gradlew -p android "$task" --artifact-dir "../$upload_dir"
 }
-
-cd "$BUILD_DIR"
 
 # Run script
 main "$@"
