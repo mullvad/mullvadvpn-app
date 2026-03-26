@@ -239,7 +239,7 @@ function build {
         for_target_string=" for local target $HOST"
     fi
 
-    log_header "Checking libmnl and libftnl static libraries$for_target_string"
+    log_header "Checking libmnl and libnftnl static libraries$for_target_string"
 
     local clib_dir="${SCRIPT_DIR}/dist-assets/binaries/${current_target}"
     local libmnl_file="${clib_dir}/libmnl.a"

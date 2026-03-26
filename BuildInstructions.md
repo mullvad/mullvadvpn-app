@@ -238,11 +238,11 @@ You may have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
 
 ## Notes on building for RISC-V
 
-These instructions are for building, packaging and installing the Mullvad VPN daemon and CLI interface for use with RISC-V systems. It includes support for RVA22 and RVA23 profiles. For example, on Framework Laptop 13 with [DeepComputing RISC-V Mainboards](https://frame.work/marketplace/mainboards?search=risc-v) with Ubuntu.
+These instructions are for building, packaging and installing the Mullvad VPN daemon and CLI interface for use with RISC-V systems. It includes support for RVA22 and RVA23 profiles; for example, on Framework Laptop 13 with [DeepComputing RISC-V Mainboards](https://frame.work/marketplace/mainboards?search=risc-v) running Ubuntu.
 
 Build and package:
 ```bash
-./build.sh --gotatu --daemon-only --optimize
+./build.sh --gotatun --daemon-only --optimize
 ```
 
 Install on Debian/Ubuntu:
@@ -266,7 +266,7 @@ dpkg --add-architecture riscv64 && \
 ```
 
 Add target to Rust toolchain:
-```
+```bash
 rustup target add riscv64gc-unknown-linux-gnu
 ```
 
