@@ -2,13 +2,15 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
-import { AddLocationToCustomListDialog } from '../../../../../../../features/custom-lists/components';
 import { useCustomLists } from '../../../../../../../features/custom-lists/hooks';
+import {
+  GeographicalLocationMenu,
+  GeographicalLocationMenuButton,
+} from '../../../../../../../features/locations/components';
 import { type GeographicalLocation } from '../../../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../../../features/locations/utils';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
 import { Location } from '../../../location-list-item';
-import { AddLocationToCustomListButton } from './components';
 
 export type GeographicalLocationTrailingActionsProps = React.PropsWithChildren<{
   location: GeographicalLocation;
@@ -20,9 +22,11 @@ export function GeographicalLocationTrailingActions({
   const { customLists } = useCustomLists();
   const { expanded } = useAccordionContext();
 
-  const [addLocationToCustomListDialogOpen, setAddLocationToCustomListDialogOpen] =
-    React.useState(false);
-  const handleOpenDialog = React.useCallback(() => setAddLocationToCustomListDialogOpen(true), []);
+  const geographicalLocationButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [geographicalLocationMenuOpen, setGeographicalLocationMenuOpen] = React.useState(false);
+  const showGeographicalLocationMenu = React.useCallback(() => {
+    setGeographicalLocationMenuOpen(true);
+  }, []);
 
   const childLocations = getLocationChildren(location);
 
@@ -39,10 +43,15 @@ export function GeographicalLocationTrailingActions({
     <Location.Accordion.Header.TrailingActions>
       {showAddToCustomListButton && (
         <Location.Accordion.Header.TrailingActions.Action>
-          <AddLocationToCustomListButton location={location} onClick={handleOpenDialog} />
-          <AddLocationToCustomListDialog
-            open={addLocationToCustomListDialogOpen}
-            onOpenChange={setAddLocationToCustomListDialogOpen}
+          <GeographicalLocationMenuButton
+            ref={geographicalLocationButtonRef}
+            location={location}
+            onClick={showGeographicalLocationMenu}
+          />
+          <GeographicalLocationMenu
+            triggerRef={geographicalLocationButtonRef}
+            open={geographicalLocationMenuOpen}
+            onOpenChange={setGeographicalLocationMenuOpen}
             location={location}
           />
         </Location.Accordion.Header.TrailingActions.Action>
