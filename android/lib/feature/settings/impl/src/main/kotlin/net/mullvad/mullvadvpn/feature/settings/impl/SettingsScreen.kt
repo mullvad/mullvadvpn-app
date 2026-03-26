@@ -21,11 +21,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.common.compose.navigateToDetailIfNeeded
-import net.mullvad.mullvadvpn.core.NavKey2
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessNavKey
@@ -90,15 +90,7 @@ fun Settings(navigator: Navigator) {
         navigator.goBackUntil(SettingsNavKey, inclusive = true)
     }
 
-    navigator.navigateToDetailIfNeeded<SettingsNavKey>(DaitaNavKey())
-
-    fun navigateReplaceIfListDetail(key: NavKey2) {
-        if (navigator.screenIsListDetailTargetWidth) {
-            navigator.navigateReplaceTop(key)
-        } else {
-            navigator.navigate(key)
-        }
-    }
+    navigator.assureHasDetailPane<SettingsNavKey>(DaitaNavKey())
 
     SettingsScreen(
         state = state,
@@ -112,17 +104,20 @@ fun Settings(navigator: Navigator) {
                 }
             },
         onSplitTunnelingCellClick =
-            dropUnlessResumed { navigateReplaceIfListDetail(SplitTunnelingNavKey()) },
-        onAppInfoClick = dropUnlessResumed { navigateReplaceIfListDetail(AppInfoNavKey) },
-        onApiAccessClick = dropUnlessResumed { navigateReplaceIfListDetail(ApiAccessNavKey) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(SplitTunnelingNavKey()) },
+        onAppInfoClick = dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppInfoNavKey) },
+        onApiAccessClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ApiAccessNavKey) },
         onReportProblemCellClick =
-            dropUnlessResumed { navigateReplaceIfListDetail(ProblemReportNavKey) },
-        onMultihopClick = dropUnlessResumed { navigateReplaceIfListDetail(MultihopNavKey()) },
-        onDaitaClick = dropUnlessResumed { navigateReplaceIfListDetail(DaitaNavKey()) },
-        onBackClick = dropUnlessResumed { navigator.goBackUntil(SettingsNavKey, inclusive = true) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ProblemReportNavKey) },
+        onMultihopClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(MultihopNavKey()) },
+        onDaitaClick = dropUnlessResumed { navigator.navigateReplaceIfDetailPane(DaitaNavKey()) },
         onNotificationSettingsCellClick =
-            dropUnlessResumed { navigateReplaceIfListDetail(NotificationSettingsNavKey) },
-        onAppObfuscationClick = dropUnlessResumed { navigateReplaceIfListDetail(AppearanceNavKey) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(NotificationSettingsNavKey) },
+        onAppObfuscationClick =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppearanceNavKey) },
+        onBackClick = dropUnlessResumed { navigator.goBackUntil(SettingsNavKey, inclusive = true) },
     )
 }
 

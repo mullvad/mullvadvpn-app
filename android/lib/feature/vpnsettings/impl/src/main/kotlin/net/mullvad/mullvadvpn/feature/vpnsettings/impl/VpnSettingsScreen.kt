@@ -51,11 +51,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
 import net.mullvad.mullvadvpn.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
+import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.navigateToDetailIfNeeded
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
-import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
@@ -173,7 +173,7 @@ fun SharedTransitionScope.VpnSettings(
         navigator.goBackUntil(VpnSettingsNavKey(), inclusive = true)
     }
 
-    navigator.navigateToDetailIfNeeded<VpnSettingsNavKey>(AutoConnectNavKey)
+    navigator.assureHasDetailPane<VpnSettingsNavKey>(AutoConnectNavKey)
 
     resultStore.consumeResult<DnsNavResult>()?.let { result ->
         when (result) {
@@ -204,14 +204,6 @@ fun SharedTransitionScope.VpnSettings(
         }
     }
 
-    fun navigateReplaceIfListDetail(key: NavKey2) {
-        if (navigator.screenIsListDetailTargetWidth) {
-            navigator.navigateReplaceTop(key)
-        } else {
-            navigator.navigate(key)
-        }
-    }
-
     val scrollToFeature = navArgs.scrollToFeature
 
     VpnSettingsScreen(
@@ -228,7 +220,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoNavKey) },
         navigateToAutoConnectScreen =
-            dropUnlessResumed { navigateReplaceIfListDetail(AutoConnectNavKey) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AutoConnectNavKey) },
         navigateToCustomDnsInfo = dropUnlessResumed { navigator.navigate(CustomDnsInfoNavKey) },
         navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
         navigateToQuantumResistanceInfo =
@@ -236,7 +228,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
         navigateToServerIpOverrides =
-            dropUnlessResumed { navigateReplaceIfListDetail(ServerIpOverrideNavKey()) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleAllBlockers = vm::onToggleAllBlockers,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -252,8 +244,6 @@ fun SharedTransitionScope.VpnSettings(
                 navigator.navigate(DnsNavKey(index, address))
             },
         onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick =
-            dropUnlessResumed { navigator.goBackUntil(VpnSettingsNavKey(), inclusive = true) },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
@@ -263,7 +253,9 @@ fun SharedTransitionScope.VpnSettings(
         navigateToConnectOnDeviceOnStartUpInfo =
             dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoNavKey) },
         navigateToAntiCensorship =
-            dropUnlessResumed { navigateReplaceIfListDetail(AntiCensorshipNavKey()) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AntiCensorshipNavKey()) },
+        onBackClick =
+            dropUnlessResumed { navigator.goBackUntil(VpnSettingsNavKey(), inclusive = true) },
     )
 }
 

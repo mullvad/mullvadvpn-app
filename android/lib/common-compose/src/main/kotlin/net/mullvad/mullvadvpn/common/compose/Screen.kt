@@ -20,10 +20,18 @@ fun unlessIsDetail(block: @Composable () -> Unit) {
 // the list pane is already on the back stack, but the detail pane isn't so we need to push it.
 @SuppressLint("ComposableNaming")
 @Composable
-inline fun <reified T : NavKey2> Navigator.navigateToDetailIfNeeded(detailKey: NavKey2) {
+inline fun <reified T : NavKey2> Navigator.assureHasDetailPane(detailKey: NavKey2) {
     LaunchedEffect(detailKey) {
         if (screenIsListDetailTargetWidth && backStack.last() is T) {
             navigate(detailKey)
         }
+    }
+}
+
+fun Navigator.navigateReplaceIfDetailPane(key: NavKey2) {
+    if (screenIsListDetailTargetWidth) {
+        navigateReplaceTop(key)
+    } else {
+        navigate(key)
     }
 }
