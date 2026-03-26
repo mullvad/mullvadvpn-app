@@ -1,8 +1,6 @@
 use crate::SigsumPublicKey;
-use crate::relay_list_transparency::{RelayListDigest, RelayListSignature, Sha256Bytes};
-use chrono::{DateTime, Utc};
+use crate::relay_list_transparency::{RelayListEnvelope, Sha256Bytes, SigsumPayload};
 use hex::FromHexError;
-use serde::Deserialize;
 use sigsum::policy::BuiltInPolicy;
 use sigsum::{Hash, ParseAsciiError, PublicKey, SigsumSignature, VerifyError};
 
@@ -32,63 +30,40 @@ pub enum SigsumPublicKeyParseError {
     InvalidLength(#[from] std::array::TryFromSliceError),
 }
 
-/// The digest and timestamp data that is parsed from the `unparsed_timestamp` field in `RelayListSignature`.
-#[derive(Debug, Deserialize)]
-pub struct Timestamp {
-    /// The hash of the relay list.
-    pub digest: RelayListDigest,
-
-    /// When the signature was signed.
-    pub timestamp: DateTime<Utc>,
-}
-
-/// Validates the that the sigsum signature format is correct and that the signed data
-/// (the unparsed timestamp) is valid given our (hardcoded) policy.
-/// If the signature is valid, the `[Timestamp]` is parsed and returned.
+/// Validates the that the sigsum signature format is correct and that the signed payload
+/// (the unparsed digest + timestamp) is valid given our (hardcoded) policy.
+/// If the signature is valid, the [`SigsumPayload`] is parsed and returned.
 /// If the signature is invalid, an error struct is returned that exposes a method to parse
-/// the unverified timestamp. This is a temporary solution and should be removed once we go over
+/// the unverified data. This is a temporary solution and should be removed once we go over
 /// to failing hard on signature validation errors.
-pub(crate) fn validate_relay_list_signature(
-    sig: &RelayListSignature,
+pub(crate) fn validate_relay_list_envelope(
+    env: &RelayListEnvelope,
     trusted_pubkeys: &[SigsumPublicKey],
-) -> Result<Timestamp, SignatureVerificationFailedError> {
+) -> Result<SigsumPayload, SignatureVerificationFailedError> {
     static POLICY: &BuiltInPolicy = &sigsum::policy::SIGSUM_GENERIC_2025_1;
 
-    let sigsum_signature = SigsumSignature::from_ascii(&sig.unparsed_sigsum_signature)
-        .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
+    let sigsum_signature = SigsumSignature::from_ascii(&env.unparsed_signature)
+        .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
 
     sigsum::verify(
-        &Hash::new(sig.unparsed_timestamp.as_bytes()),
+        &Hash::new(env.unparsed_payload.as_bytes()),
         &sigsum_signature,
         trusted_pubkeys,
         POLICY,
     )
-    .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
+    .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
 
-    let timestamp = parse_timestamp(&sig.unparsed_timestamp)
-        .map_err(|e| SignatureVerificationFailedError::new(sig, SigsumError::from(e)))?;
+    let timestamp = parse_timestamp(&env.unparsed_payload)
+        .map_err(|e| SignatureVerificationFailedError::new(env, SigsumError::from(e)))?;
 
     Ok(timestamp)
 }
 
-/// Validates that the digest we get from the [`Timestamp`] matches
-/// the digest of the relay list content.
-pub(crate) fn validate_relay_list_content(
-    timestamp: &Timestamp,
-    content_digest: &RelayListDigest,
-) -> Result<(), SigsumError> {
-    if &timestamp.digest != content_digest {
-        Err(SigsumError::ContentDigestDoesNotMatchSigsumDigest)
-    } else {
-        Ok(())
-    }
-}
-
-fn parse_timestamp(unparsed_timestamp: &str) -> Result<Timestamp, serde_json::Error> {
+fn parse_timestamp(unparsed_timestamp: &str) -> Result<SigsumPayload, serde_json::Error> {
     serde_json::from_str(unparsed_timestamp)
 }
 
-/// Exposes a method to parse a [`Timestamp`] that failed signature validation.
+/// Exposes a method to parse a [`Payload`] that failed signature validation.
 /// Should be removed once we go over to failing hard on signature verification errors.
 #[derive(Debug, Clone)]
 pub struct NoVerificationTimestampParser {
@@ -105,7 +80,7 @@ impl NoVerificationTimestampParser {
     /// failed. It should only be used as long as we have the open fail policy in place.
     /// This function should be removed once we transition to rejecting relay list updates that
     /// fail sigsum verification.
-    pub fn parse_without_verification(&self) -> Result<Timestamp, serde_json::Error> {
+    pub fn parse_without_verification(&self) -> Result<SigsumPayload, serde_json::Error> {
         parse_timestamp(&self.unparsed_timestamp)
     }
 }
@@ -120,11 +95,11 @@ pub(crate) struct SignatureVerificationFailedError {
 }
 
 impl SignatureVerificationFailedError {
-    fn new(relay_list_signature: &RelayListSignature, source: SigsumError) -> Self {
+    fn new(relay_list_signature: &RelayListEnvelope, source: SigsumError) -> Self {
         Self {
             source,
             timestamp_parser: NoVerificationTimestampParser::new(
-                relay_list_signature.unparsed_timestamp.clone(),
+                relay_list_signature.unparsed_payload.clone(),
             ),
         }
     }
@@ -140,9 +115,6 @@ pub(crate) enum SigsumError {
 
     #[error("Invalid timestamp")]
     InvalidTimestamp(#[from] serde_json::Error),
-
-    #[error("Content digest does not match sigsum digest")]
-    ContentDigestDoesNotMatchSigsumDigest,
 }
 
 #[cfg(test)]
