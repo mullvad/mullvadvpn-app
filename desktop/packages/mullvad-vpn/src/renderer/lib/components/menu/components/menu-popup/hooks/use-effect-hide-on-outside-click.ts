@@ -3,7 +3,7 @@ import React from 'react';
 import { useMenuContext } from '../../../MenuContext';
 
 export function useEffectHideOnOutsideClick() {
-  const { popoverRef, triggerRef, onOpenChange } = useMenuContext();
+  const { popoverRef, onOpenChange } = useMenuContext();
 
   React.useEffect(() => {
     const handleClick = (e: PointerEvent) => {
@@ -18,10 +18,10 @@ export function useEffectHideOnOutsideClick() {
       }
     };
 
-    document.addEventListener('pointerdown', handleClick);
+    document.addEventListener('pointerup', handleClick);
 
     return () => {
-      document.removeEventListener('pointerdown', handleClick);
+      document.removeEventListener('pointerup', handleClick);
     };
-  }, [onOpenChange, popoverRef, triggerRef]);
+  }, [onOpenChange, popoverRef]);
 }
