@@ -31,7 +31,7 @@
   "appteam-android": [
     "android/**",
     "building/android-container-image.txt",
-    "ci/buildserver-build-android.sh",
+    "ci/android/**",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
