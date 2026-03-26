@@ -9,8 +9,8 @@ shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
-SIGNING_CERTIFICATE_LINEAGE="$SCRIPT_DIR/android/build-server/signing/SigningCertificateLineage"
-PROVIDER_ARG="$SCRIPT_DIR/android/build-server/signing/pkcs11_java.cfg"
+SIGNING_CERTIFICATE_LINEAGE="$SCRIPT_DIR/signing/SigningCertificateLineage"
+PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
