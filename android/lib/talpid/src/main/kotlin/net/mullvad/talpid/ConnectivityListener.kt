@@ -89,8 +89,9 @@ class ConnectivityListener(
         _mutableNetworkState.value = null
     }
 
-    private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
-        dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
+    private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> = dnsServers.filter {
+        it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER
+    }
 
     private fun RawNetworkState.toNetworkState(): NetworkState =
         NetworkState(

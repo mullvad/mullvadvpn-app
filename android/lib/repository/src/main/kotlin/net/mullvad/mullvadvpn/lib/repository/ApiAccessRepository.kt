@@ -75,10 +75,13 @@ class ApiAccessRepository(
         }
 
     fun apiAccessMethodSettingById(id: ApiAccessMethodId): Flow<ApiAccessMethodSetting> =
-        accessMethods.mapNotNull { it?.firstOrNull { accessMethod -> accessMethod.id == id } }
+        accessMethods.mapNotNull {
+            it?.firstOrNull { accessMethod -> accessMethod.id == id }
+        }
 
-    fun enabledApiAccessMethods(): Flow<List<ApiAccessMethodSetting>> =
-        accessMethods.mapNotNull { it?.filter { accessMethod -> accessMethod.enabled } }
+    fun enabledApiAccessMethods(): Flow<List<ApiAccessMethodSetting>> = accessMethods.mapNotNull {
+        it?.filter { accessMethod -> accessMethod.enabled }
+    }
 
     suspend fun setEnabledApiAccessMethod(id: ApiAccessMethodId, enabled: Boolean) = either {
         val accessMethod = getApiAccessMethodSettingById(id).bind()

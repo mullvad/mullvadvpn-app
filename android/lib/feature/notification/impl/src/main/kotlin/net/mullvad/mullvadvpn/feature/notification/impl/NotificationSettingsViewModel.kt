@@ -46,8 +46,7 @@ class NotificationSettingsViewModel(
         }
     }
 
-    fun openSystemNotificationsSettings() =
-        viewModelScope.launch {
-            _uiSideEffect.send(NotificationSettingsSideEffect.OpenSystemNotificationsSettings)
-        }
+    fun openSystemNotificationsSettings() = viewModelScope.launch {
+        _uiSideEffect.send(NotificationSettingsSideEffect.OpenSystemNotificationsSettings)
+    }
 }

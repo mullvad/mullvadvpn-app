@@ -52,106 +52,91 @@ class ServerIpOverridesScreenTest {
     }
 
     @Test
-    fun ensureOverridesInactiveIsDisplayed() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = ServerIpOverridesUiState(false).toLc())
+    fun ensureOverridesInactiveIsDisplayed() = composeExtension.use {
+        // Arrange
+        initScreen(state = ServerIpOverridesUiState(false).toLc())
 
-            // Assert
-            onNodeWithText("Overrides inactive").assertExists()
-        }
-
-    @Test
-    fun ensureOverridesActiveIsDisplayed() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = ServerIpOverridesUiState(true).toLc())
-
-            // Assert
-            onNodeWithText("Overrides active").assertExists()
-        }
+        // Assert
+        onNodeWithText("Overrides inactive").assertExists()
+    }
 
     @Test
-    fun ensureOverridesActiveShowsWarningOnImport() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = ServerIpOverridesUiState(true).toLc())
+    fun ensureOverridesActiveIsDisplayed() = composeExtension.use {
+        // Arrange
+        initScreen(state = ServerIpOverridesUiState(true).toLc())
 
-            // Act
-            onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-
-            // Assert
-            onNodeWithText(
-                    "Importing new overrides might replace some previously imported overrides."
-                )
-                .assertExists()
-        }
+        // Assert
+        onNodeWithText("Overrides active").assertExists()
+    }
 
     @Test
-    fun ensureInfoClickWorks() =
-        composeExtension.use {
-            // Arrange
-            val clickHandler: () -> Unit = mockk(relaxed = true)
-            initScreen(state = ServerIpOverridesUiState(false).toLc(), onInfoClick = clickHandler)
+    fun ensureOverridesActiveShowsWarningOnImport() = composeExtension.use {
+        // Arrange
+        initScreen(state = ServerIpOverridesUiState(true).toLc())
 
-            // Act
-            onNodeWithTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
 
-            // Assert
-            verify { clickHandler() }
-        }
-
-    @Test
-    fun ensureResetClickWorks() =
-        composeExtension.use {
-            // Arrange
-            val clickHandler: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = ServerIpOverridesUiState(true).toLc(),
-                onResetOverridesClick = clickHandler,
-            )
-
-            // Act
-            onNodeWithTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG).performClick()
-            onNodeWithTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG).performClick()
-
-            // Assert
-            verify { clickHandler() }
-        }
+        // Assert
+        onNodeWithText("Importing new overrides might replace some previously imported overrides.")
+            .assertExists()
+    }
 
     @Test
-    fun ensureImportByFileWorks() =
-        composeExtension.use {
-            // Arrange
-            val clickHandler: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = ServerIpOverridesUiState(false).toLc(),
-                onImportByFile = clickHandler,
-            )
+    fun ensureInfoClickWorks() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(state = ServerIpOverridesUiState(false).toLc(), onInfoClick = clickHandler)
 
-            // Act
-            onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-            onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG).performClick()
 
-            // Assert
-            verify { clickHandler() }
-        }
+        // Assert
+        verify { clickHandler() }
+    }
 
     @Test
-    fun ensureImportByText() =
-        composeExtension.use {
-            // Arrange
-            val clickHandler: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = ServerIpOverridesUiState(false).toLc(),
-                onImportByText = clickHandler,
-            )
+    fun ensureResetClickWorks() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state = ServerIpOverridesUiState(true).toLc(),
+            onResetOverridesClick = clickHandler,
+        )
 
-            // Act
-            onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-            onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG).performClick()
+        onNodeWithTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG).performClick()
 
-            // Assert
-            verify { clickHandler() }
-        }
+        // Assert
+        verify { clickHandler() }
+    }
+
+    @Test
+    fun ensureImportByFileWorks() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportByFile = clickHandler)
+
+        // Act
+        onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
+        onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG).performClick()
+
+        // Assert
+        verify { clickHandler() }
+    }
+
+    @Test
+    fun ensureImportByText() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportByText = clickHandler)
+
+        // Act
+        onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
+        onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG).performClick()
+
+        // Assert
+        verify { clickHandler() }
+    }
 }

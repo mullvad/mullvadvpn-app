@@ -55,32 +55,30 @@ class ApiAccessMethodDetailsViewModel(
             )
 
     fun setCurrentMethod() {
-        testingJob =
-            viewModelScope.launch {
-                either {
-                        testMethodById().bind()
-                        apiAccessRepository
-                            .setCurrentApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
-                            .bind()
-                    }
-                    .onLeft {
-                        _uiSideEffect.send(
-                            ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(
-                                testMethodFailed = it is TestApiAccessMethodError
-                            )
+        testingJob = viewModelScope.launch {
+            either {
+                    testMethodById().bind()
+                    apiAccessRepository
+                        .setCurrentApiAccessMethod(apiAccessMethodId = apiAccessMethodId)
+                        .bind()
+                }
+                .onLeft {
+                    _uiSideEffect.send(
+                        ApiAccessMethodDetailsSideEffect.UnableToSetCurrentMethod(
+                            testMethodFailed = it is TestApiAccessMethodError
                         )
-                    }
-            }
+                    )
+                }
+        }
     }
 
     fun testMethod() {
-        testingJob =
-            viewModelScope.launch {
-                val result = testMethodById()
-                _uiSideEffect.send(
-                    ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight())
-                )
-            }
+        testingJob = viewModelScope.launch {
+            val result = testMethodById()
+            _uiSideEffect.send(
+                ApiAccessMethodDetailsSideEffect.TestApiAccessMethodResult(result.isRight())
+            )
+        }
     }
 
     fun setEnableMethod(enable: Boolean) {

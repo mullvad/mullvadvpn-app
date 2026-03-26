@@ -54,8 +54,9 @@ class ProblemReportRepository(
 
     fun setEmail(email: String) = _problemReport.update { it.copy(email = email) }
 
-    fun setDescription(description: String) =
-        _problemReport.update { it.copy(description = description) }
+    fun setDescription(description: String) = _problemReport.update {
+        it.copy(description = description)
+    }
 
     suspend fun collectLogs(): Boolean =
         withContext(dispatcher) {

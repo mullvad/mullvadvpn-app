@@ -86,9 +86,7 @@ detekt {
     autoCorrect = true
     baseline = baselineFile
 
-    dependencies {
-        detektPlugins(project(":test:detekt"))
-    }
+    dependencies { detektPlugins(project(":test:detekt")) }
 }
 
 val detektExcludedPaths =

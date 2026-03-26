@@ -47,14 +47,13 @@ class ServerIpOverridesViewModel(
                 Lc.Loading(navArgs.isModal),
             )
 
-    fun importFile(uri: Uri) =
-        viewModelScope.launch {
-            // Read json from file
-            val inputStream = contentResolver.openInputStream(uri)!!
-            val json = InputStreamReader(inputStream, Charsets.UTF_8).readText()
+    fun importFile(uri: Uri) = viewModelScope.launch {
+        // Read json from file
+        val inputStream = contentResolver.openInputStream(uri)!!
+        val json = InputStreamReader(inputStream, Charsets.UTF_8).readText()
 
-            applySettingsPatch(json)
-        }
+        applySettingsPatch(json)
+    }
 
     fun importText(json: String) = viewModelScope.launch { applySettingsPatch(json) }
 

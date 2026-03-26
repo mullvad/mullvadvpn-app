@@ -47,61 +47,57 @@ class CustomListsScreenTest {
     }
 
     @Test
-    fun givenLoadingStateShouldShowLoadingSpinner() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = CustomListsUiState.Loading)
+    fun givenLoadingStateShouldShowLoadingSpinner() = composeExtension.use {
+        // Arrange
+        initScreen(state = CustomListsUiState.Loading)
 
-            // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
-        }
-
-    @Test
-    fun givenCustomListsShouldShowTheirNames() =
-        composeExtension.use {
-            // Arrange
-            val customLists = DUMMY_CUSTOM_LISTS
-            initScreen(state = CustomListsUiState.Content(customLists = customLists))
-
-            // Assert
-            onNodeWithText(customLists[0].name.value).assertExists()
-            onNodeWithText(customLists[1].name.value).assertExists()
-        }
+        // Assert
+        onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun whenNewListButtonIsClickedShouldCallAddCustomList() =
-        composeExtension.use {
-            // Arrange
-            val customLists = DUMMY_CUSTOM_LISTS
-            val mockedAddCustomList: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = CustomListsUiState.Content(customLists = customLists),
-                addCustomList = mockedAddCustomList,
-            )
+    fun givenCustomListsShouldShowTheirNames() = composeExtension.use {
+        // Arrange
+        val customLists = DUMMY_CUSTOM_LISTS
+        initScreen(state = CustomListsUiState.Content(customLists = customLists))
 
-            // Act
-            onNodeWithTag(NEW_LIST_BUTTON_TEST_TAG).performClick()
-
-            // Assert
-            verify { mockedAddCustomList() }
-        }
+        // Assert
+        onNodeWithText(customLists[0].name.value).assertExists()
+        onNodeWithText(customLists[1].name.value).assertExists()
+    }
 
     @Test
-    fun whenACustomListIsClickedShouldCallOpenCustomList() =
-        composeExtension.use {
-            // Arrange
-            val customLists = DUMMY_CUSTOM_LISTS
-            val clickedList = DUMMY_CUSTOM_LISTS[0]
-            val mockedOpenCustomList: (CustomList) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = CustomListsUiState.Content(customLists = customLists),
-                openCustomList = mockedOpenCustomList,
-            )
+    fun whenNewListButtonIsClickedShouldCallAddCustomList() = composeExtension.use {
+        // Arrange
+        val customLists = DUMMY_CUSTOM_LISTS
+        val mockedAddCustomList: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state = CustomListsUiState.Content(customLists = customLists),
+            addCustomList = mockedAddCustomList,
+        )
 
-            // Act
-            onNodeWithText(clickedList.name.value).performClick()
+        // Act
+        onNodeWithTag(NEW_LIST_BUTTON_TEST_TAG).performClick()
 
-            // Assert
-            verify { mockedOpenCustomList(clickedList) }
-        }
+        // Assert
+        verify { mockedAddCustomList() }
+    }
+
+    @Test
+    fun whenACustomListIsClickedShouldCallOpenCustomList() = composeExtension.use {
+        // Arrange
+        val customLists = DUMMY_CUSTOM_LISTS
+        val clickedList = DUMMY_CUSTOM_LISTS[0]
+        val mockedOpenCustomList: (CustomList) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state = CustomListsUiState.Content(customLists = customLists),
+            openCustomList = mockedOpenCustomList,
+        )
+
+        // Act
+        onNodeWithText(clickedList.name.value).performClick()
+
+        // Assert
+        verify { mockedOpenCustomList(clickedList) }
+    }
 }

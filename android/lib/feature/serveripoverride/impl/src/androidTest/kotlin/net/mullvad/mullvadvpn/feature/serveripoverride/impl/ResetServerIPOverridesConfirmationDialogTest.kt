@@ -40,32 +40,30 @@ class ResetServerIPOverridesConfirmationDialogTest {
     }
 
     @Test
-    fun ensureCancelClickWorks() =
-        composeExtension.use {
-            val clickHandler: () -> Unit = mockk(relaxed = true)
+    fun ensureCancelClickWorks() = composeExtension.use {
+        val clickHandler: () -> Unit = mockk(relaxed = true)
 
-            // Arrange
-            initDialog(onNavigateBack = clickHandler)
+        // Arrange
+        initDialog(onNavigateBack = clickHandler)
 
-            // Act
-            onNodeWithTag(RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG).performClick()
 
-            // Assert
-            verify { clickHandler() }
-        }
+        // Assert
+        verify { clickHandler() }
+    }
 
     @Test
-    fun ensureResetClickWorks() =
-        composeExtension.use {
-            val clickHandler: () -> Unit = mockk(relaxed = true)
+    fun ensureResetClickWorks() = composeExtension.use {
+        val clickHandler: () -> Unit = mockk(relaxed = true)
 
-            // Arrange
-            initDialog(onClearAllOverrides = clickHandler)
+        // Arrange
+        initDialog(onClearAllOverrides = clickHandler)
 
-            // Act
-            onNodeWithTag(RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG).performClick()
 
-            // Assert
-            verify { clickHandler() }
-        }
+        // Assert
+        verify { clickHandler() }
+    }
 }

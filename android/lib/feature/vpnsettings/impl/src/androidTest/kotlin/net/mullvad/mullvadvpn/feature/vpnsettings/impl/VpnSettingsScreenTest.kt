@@ -141,125 +141,120 @@ class VpnSettingsScreenTest {
     }
 
     @Test
-    fun testDefaultState() =
-        composeExtension.use {
-            // Arrange
-            initScreen()
+    fun testDefaultState() = composeExtension.use {
+        // Arrange
+        initScreen()
 
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
-            // Assert
-            apply {
-                onNodeWithText("MTU").assertExists()
-                onNodeWithText("Value: Default").assertExists()
-            }
+        // Assert
+        apply {
+            onNodeWithText("MTU").assertExists()
+            onNodeWithText("Value: Default").assertExists()
         }
+    }
 
     @Test
-    fun testMtuCustomValue() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!)
-                        .toLc()
-            )
+    fun testMtuCustomValue() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                createDefaultUiState(mtu = Mtu.fromString(VALID_DUMMY_MTU_VALUE).getOrNull()!!)
+                    .toLc()
+        )
 
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
-            // Assert
-            onNodeWithText("Value: $VALID_DUMMY_MTU_VALUE").assertExists()
-        }
+        // Assert
+        onNodeWithText("Value: $VALID_DUMMY_MTU_VALUE").assertExists()
+    }
 
     @Test
-    fun testCustomDnsAddressesAndAddButtonVisibleWhenCustomDnsEnabled() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            isCustomDnsEnabled = true,
-                            customDnsItems =
-                                listOf(
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS,
-                                        isLocal = false,
-                                        isIpv6 = false,
-                                    ),
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS_2,
-                                        isLocal = false,
-                                        isIpv6 = false,
-                                    ),
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS_3,
-                                        isLocal = false,
-                                        isIpv6 = false,
-                                    ),
+    fun testCustomDnsAddressesAndAddButtonVisibleWhenCustomDnsEnabled() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                createDefaultUiState(
+                        isCustomDnsEnabled = true,
+                        customDnsItems =
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = false,
+                                    isIpv6 = false,
                                 ),
-                        )
-                        .toLc()
-            )
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS_2,
+                                    isLocal = false,
+                                    isIpv6 = false,
+                                ),
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS_3,
+                                    isLocal = false,
+                                    isIpv6 = false,
+                                ),
+                            ),
+                    )
+                    .toLc()
+        )
 
-            // Assert
-            onNodeWithText(DUMMY_DNS_ADDRESS).assertExists()
-            onNodeWithText(DUMMY_DNS_ADDRESS_2).assertExists()
-            onNodeWithText(DUMMY_DNS_ADDRESS_3).assertExists()
-            onNodeWithText("Add a server").assertExists()
-        }
+        // Assert
+        onNodeWithText(DUMMY_DNS_ADDRESS).assertExists()
+        onNodeWithText(DUMMY_DNS_ADDRESS_2).assertExists()
+        onNodeWithText(DUMMY_DNS_ADDRESS_3).assertExists()
+        onNodeWithText("Add a server").assertExists()
+    }
 
     @Test
-    fun testCustomDnsAddressesAndAddButtonNotVisibleWhenCustomDnsDisabled() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            isCustomDnsEnabled = false,
-                            customDnsItems =
-                                listOf(
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS,
-                                        isLocal = false,
-                                        isIpv6 = false,
-                                    )
-                                ),
-                        )
-                        .toLc()
-            )
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
-            // Assert
-            onNodeWithText(DUMMY_DNS_ADDRESS).assertDoesNotExist()
-            onNodeWithText("Add a server").assertDoesNotExist()
-        }
+    fun testCustomDnsAddressesAndAddButtonNotVisibleWhenCustomDnsDisabled() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                createDefaultUiState(
+                        isCustomDnsEnabled = false,
+                        customDnsItems =
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = false,
+                                    isIpv6 = false,
+                                )
+                            ),
+                    )
+                    .toLc()
+        )
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        // Assert
+        onNodeWithText(DUMMY_DNS_ADDRESS).assertDoesNotExist()
+        onNodeWithText("Add a server").assertDoesNotExist()
+    }
 
     @Test
-    fun testLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressIsUsed() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            isCustomDnsEnabled = true,
-                            isLocalNetworkSharingEnabled = true,
-                            customDnsItems =
-                                listOf(
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS,
-                                        isLocal = true,
-                                        isIpv6 = false,
-                                    )
-                                ),
-                        )
-                        .toLc()
-            )
+    fun testLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressIsUsed() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                createDefaultUiState(
+                        isCustomDnsEnabled = true,
+                        isLocalNetworkSharingEnabled = true,
+                        customDnsItems =
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = true,
+                                    isIpv6 = false,
+                                )
+                            ),
+                    )
+                    .toLc()
+        )
 
-            // Assert
-            onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
+    }
 
     @Test
     fun testLanWarningNotShowedWhenLanTrafficDisabledAndLocalAddressIsNotUsed() =
@@ -310,140 +305,128 @@ class VpnSettingsScreenTest {
         }
 
     @Test
-    fun testLanWarningShowedWhenAllowLanEnabledAndLocalDnsAddressIsUsed() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            isCustomDnsEnabled = true,
-                            customDnsItems =
-                                listOf(
-                                    CustomDnsItem(
-                                        address = DUMMY_DNS_ADDRESS,
-                                        isLocal = true,
-                                        isIpv6 = false,
-                                    )
-                                ),
-                        )
-                        .toLc()
-            )
+    fun testLanWarningShowedWhenAllowLanEnabledAndLocalDnsAddressIsUsed() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                createDefaultUiState(
+                        isCustomDnsEnabled = true,
+                        customDnsItems =
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = true,
+                                    isIpv6 = false,
+                                )
+                            ),
+                    )
+                    .toLc()
+        )
 
-            // Assert
-            onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertExists()
-        }
-
-    @Test
-    fun testShowSelectedTunnelQuantumOption() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state = createDefaultUiState(quantumResistant = QuantumResistantState.On).toLc()
-            )
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
-
-            // Assert
-            onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG)
-                .assertExists()
-                .assert(hasAnyChild(hasTestTag(SWITCH_TEST_TAG).and(isOn())))
-        }
+        // Assert
+        onNodeWithContentDescription(LOCAL_DNS_SERVER_WARNING).assertExists()
+    }
 
     @Test
-    fun testSelectTunnelQuantumOption() =
-        composeExtension.use {
-            // Arrange
-            val mockSelectQuantumResistantSettingListener: (Boolean) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = createDefaultUiState(quantumResistant = QuantumResistantState.Off).toLc(),
-                onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
-            )
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+    fun testShowSelectedTunnelQuantumOption() = composeExtension.use {
+        // Arrange
+        initScreen(state = createDefaultUiState(quantumResistant = QuantumResistantState.On).toLc())
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
 
-            // Assert
-            onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG).performClick()
-            verify(exactly = 1) { mockSelectQuantumResistantSettingListener.invoke(true) }
-        }
+        // Assert
+        onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG)
+            .assertExists()
+            .assert(hasAnyChild(hasTestTag(SWITCH_TEST_TAG).and(isOn())))
+    }
+
+    @Test
+    fun testSelectTunnelQuantumOption() = composeExtension.use {
+        // Arrange
+        val mockSelectQuantumResistantSettingListener: (Boolean) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state = createDefaultUiState(quantumResistant = QuantumResistantState.Off).toLc(),
+            onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
+        )
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+
+        // Assert
+        onNodeWithTag(testTag = LAZY_LIST_QUANTUM_ITEM_TEST_TAG).performClick()
+        verify(exactly = 1) { mockSelectQuantumResistantSettingListener.invoke(true) }
+    }
 
     // Navigation Tests
 
     @Test
-    fun testMtuClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: (Mtu?) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = createDefaultUiState().toLc(),
-                navigateToMtuDialog = mockedClickHandler,
-            )
+    fun testMtuClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: (Mtu?) -> Unit = mockk(relaxed = true)
+        initScreen(state = createDefaultUiState().toLc(), navigateToMtuDialog = mockedClickHandler)
 
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
-            // Act
-            onNodeWithText("MTU").performClick()
+        // Act
+        onNodeWithText("MTU").performClick()
 
-            // Assert
-            verify { mockedClickHandler.invoke(null) }
-        }
+        // Assert
+        verify { mockedClickHandler.invoke(null) }
+    }
 
     @Test
-    fun testClickAddDns() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: (Int?, String?) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    createDefaultUiState(
-                            isCustomDnsEnabled = true,
-                            customDnsItems =
-                                listOf(CustomDnsItem("1.1.1.1", isLocal = false, isIpv6 = false)),
-                        )
-                        .toLc(),
-                navigateToDns = mockedClickHandler,
-            )
+    fun testClickAddDns() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: (Int?, String?) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                createDefaultUiState(
+                        isCustomDnsEnabled = true,
+                        customDnsItems =
+                            listOf(CustomDnsItem("1.1.1.1", isLocal = false, isIpv6 = false)),
+                    )
+                    .toLc(),
+            navigateToDns = mockedClickHandler,
+        )
 
-            // Act
-            onNodeWithText("Add a server").performClick()
+        // Act
+        onNodeWithText("Add a server").performClick()
 
-            // Assert
-            verify { mockedClickHandler.invoke(null, null) }
-        }
-
-    @Test
-    fun testShowTunnelQuantumInfo() =
-        composeExtension.use {
-            val mockedShowTunnelQuantumInfoClick: () -> Unit = mockk(relaxed = true)
-
-            // Arrange
-            initScreen(
-                state = createDefaultUiState().toLc(),
-                navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick,
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
-            onNodeWithContentDescriptionAndParentTag(
-                    "More information",
-                    LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
-                )
-                .performClick()
-
-            // Assert
-            verify(exactly = 1) { mockedShowTunnelQuantumInfoClick() }
-        }
+        // Assert
+        verify { mockedClickHandler.invoke(null, null) }
+    }
 
     @Test
-    fun ensureConnectOnStartIsShownWhenSystemVpnSettingsAvailableIsFalse() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = createDefaultUiState(systemVpnSettingsAvailable = false).toLc())
+    fun testShowTunnelQuantumInfo() = composeExtension.use {
+        val mockedShowTunnelQuantumInfoClick: () -> Unit = mockk(relaxed = true)
 
-            // Assert
-            onNodeWithText("Connect on device start-up").assertExists()
-        }
+        // Arrange
+        initScreen(
+            state = createDefaultUiState().toLc(),
+            navigateToQuantumResistanceInfo = mockedShowTunnelQuantumInfoClick,
+        )
+
+        // Act
+        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_TEST_TAG))
+        onNodeWithContentDescriptionAndParentTag(
+                "More information",
+                LAZY_LIST_QUANTUM_ITEM_TEST_TAG,
+            )
+            .performClick()
+
+        // Assert
+        verify(exactly = 1) { mockedShowTunnelQuantumInfoClick() }
+    }
+
+    @Test
+    fun ensureConnectOnStartIsShownWhenSystemVpnSettingsAvailableIsFalse() = composeExtension.use {
+        // Arrange
+        initScreen(state = createDefaultUiState(systemVpnSettingsAvailable = false).toLc())
+
+        // Assert
+        onNodeWithText("Connect on device start-up").assertExists()
+    }
 
     @Test
     fun whenClickingOnConnectOnStartShouldCallOnToggleAutoStartAndConnectOnBoot() =

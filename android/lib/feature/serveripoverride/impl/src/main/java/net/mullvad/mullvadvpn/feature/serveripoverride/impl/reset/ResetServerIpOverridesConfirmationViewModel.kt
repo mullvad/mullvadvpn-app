@@ -14,23 +14,22 @@ class ResetServerIpOverridesConfirmationViewModel(
     private val _uiSideEffect = Channel<ResetServerIpOverridesConfirmationUiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    fun clearAllOverrides() =
-        viewModelScope.launch {
-            relayOverridesRepository
-                .clearAllOverrides()
-                .fold(
-                    {
-                        _uiSideEffect.send(
-                            ResetServerIpOverridesConfirmationUiSideEffect.OverridesError(it)
-                        )
-                    },
-                    {
-                        _uiSideEffect.send(
-                            ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared
-                        )
-                    },
-                )
-        }
+    fun clearAllOverrides() = viewModelScope.launch {
+        relayOverridesRepository
+            .clearAllOverrides()
+            .fold(
+                {
+                    _uiSideEffect.send(
+                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesError(it)
+                    )
+                },
+                {
+                    _uiSideEffect.send(
+                        ResetServerIpOverridesConfirmationUiSideEffect.OverridesCleared
+                    )
+                },
+            )
+    }
 }
 
 sealed class ResetServerIpOverridesConfirmationUiSideEffect {

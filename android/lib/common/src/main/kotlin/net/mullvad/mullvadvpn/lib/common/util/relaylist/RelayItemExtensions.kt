@@ -54,14 +54,13 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
     }
 
 fun RelayItem.CustomList.filter(validHostnames: List<String>): RelayItem.CustomList {
-    val newLocations =
-        locations.mapNotNull {
-            when (it) {
-                is RelayItem.Location.Country -> it.filter(validHostnames)
-                is RelayItem.Location.City -> it.filter(validHostnames)
-                is RelayItem.Location.Relay -> it.filter(validHostnames)
-            }
+    val newLocations = locations.mapNotNull {
+        when (it) {
+            is RelayItem.Location.Country -> it.filter(validHostnames)
+            is RelayItem.Location.City -> it.filter(validHostnames)
+            is RelayItem.Location.Relay -> it.filter(validHostnames)
         }
+    }
     return copy(locations = newLocations)
 }
 

@@ -77,15 +77,14 @@ class CustomListLocationsViewModelTest {
     fun `when selected locations is not null and relay countries is not empty should return ui state content`() =
         runTest {
             // Arrange
-            val expectedList =
-                DUMMY_COUNTRIES.map {
-                    CheckableRelayListItem(
-                        item = it,
-                        hierarchy = it.toHierarchy(),
-                        checked = false,
-                        expanded = false,
-                    )
-                }
+            val expectedList = DUMMY_COUNTRIES.map {
+                CheckableRelayListItem(
+                    item = it,
+                    hierarchy = it.toHierarchy(),
+                    checked = false,
+                    expanded = false,
+                )
+            }
             val customListId = CustomListId("id")
             val expectedState =
                 CustomListLocationsUiState(

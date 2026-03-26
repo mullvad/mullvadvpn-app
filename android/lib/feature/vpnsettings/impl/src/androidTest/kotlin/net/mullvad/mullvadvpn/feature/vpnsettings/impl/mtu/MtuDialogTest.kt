@@ -48,82 +48,76 @@ class MtuDialogTest {
     }
 
     @Test
-    fun testMtuDialogWithDefaultValue() =
-        composeExtension.use {
-            // Arrange
-            initDialog()
+    fun testMtuDialogWithDefaultValue() = composeExtension.use {
+        // Arrange
+        initDialog()
 
-            // Assert
-            onNodeWithText(EMPTY_STRING).assertExists()
-        }
-
-    @Test
-    fun testMtuDialogWithEditValue() =
-        composeExtension.use {
-            // Arrange
-            initDialog(defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE))
-
-            // Assert
-            onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
-        }
+        // Assert
+        onNodeWithText(EMPTY_STRING).assertExists()
+    }
 
     @Test
-    fun testMtuDialogSubmitOfValidValue() =
-        composeExtension.use {
-            // Arrange
-            val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
-            initDialog(
-                defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
-                onSaveMtu = mockedSubmitHandler,
-            )
+    fun testMtuDialogWithEditValue() = composeExtension.use {
+        // Arrange
+        initDialog(defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE))
 
-            // Act
-            onNodeWithText("Submit").assertIsEnabled().performClick()
-
-            // Assert
-            verify { mockedSubmitHandler.invoke(VALID_DUMMY_MTU_VALUE) }
-        }
+        // Assert
+        onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
+    }
 
     @Test
-    fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() =
-        composeExtension.use {
-            // Arrange
-            initDialog(defaultState.copy(mtuInput = INVALID_DUMMY_MTU_VALUE, isValidInput = false))
+    fun testMtuDialogSubmitOfValidValue() = composeExtension.use {
+        // Arrange
+        val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
+        initDialog(
+            defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
+            onSaveMtu = mockedSubmitHandler,
+        )
 
-            // Assert
-            onNodeWithText("Submit").assertIsNotEnabled()
-        }
+        // Act
+        onNodeWithText("Submit").assertIsEnabled().performClick()
 
-    @Test
-    fun testMtuDialogResetClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
-                onResetMtu = mockedClickHandler,
-            )
-
-            // Act
-            onNodeWithText("Reset to default").performClick()
-
-            // Assert
-            verify { mockedClickHandler.invoke() }
-        }
+        // Assert
+        verify { mockedSubmitHandler.invoke(VALID_DUMMY_MTU_VALUE) }
+    }
 
     @Test
-    fun testMtuDialogCancelClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            initDialog(onDismiss = mockedClickHandler)
+    fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() = composeExtension.use {
+        // Arrange
+        initDialog(defaultState.copy(mtuInput = INVALID_DUMMY_MTU_VALUE, isValidInput = false))
 
-            // Assert
-            onNodeWithText("Cancel").performClick()
+        // Assert
+        onNodeWithText("Submit").assertIsNotEnabled()
+    }
 
-            // Assert
-            verify { mockedClickHandler.invoke() }
-        }
+    @Test
+    fun testMtuDialogResetClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
+            onResetMtu = mockedClickHandler,
+        )
+
+        // Act
+        onNodeWithText("Reset to default").performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testMtuDialogCancelClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        initDialog(onDismiss = mockedClickHandler)
+
+        // Assert
+        onNodeWithText("Cancel").performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
 
     companion object {
         private const val EMPTY_STRING = ""

@@ -40,12 +40,11 @@ class DaitaScreenTest {
     }
 
     @Test
-    fun givenLoadingStateShouldShowLoadingSpinner() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = Lc.Loading(true))
+    fun givenLoadingStateShouldShowLoadingSpinner() = composeExtension.use {
+        // Arrange
+        initScreen(state = Lc.Loading(true))
 
-            // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
-        }
+        // Assert
+        onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
+    }
 }

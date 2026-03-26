@@ -52,49 +52,47 @@ class SettingsScreenTest {
 
     @Test
     @OptIn(ExperimentalMaterial3Api::class)
-    fun testLoggedInState() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    SettingsUiState(
-                            appVersion = "",
-                            isLoggedIn = true,
-                            isSupportedVersion = true,
-                            isPlayBuild = false,
-                            multihopEnabled = false,
-                            isDaitaEnabled = false,
-                        )
-                        .toLc()
-            )
-            // Assert
-            onNodeWithText("VPN settings").assertExists()
-            onNodeWithText("Split tunneling").assertExists()
-            onNodeWithText("App info").assertExists()
-            onNodeWithText("API access").assertExists()
-        }
+    fun testLoggedInState() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                SettingsUiState(
+                        appVersion = "",
+                        isLoggedIn = true,
+                        isSupportedVersion = true,
+                        isPlayBuild = false,
+                        multihopEnabled = false,
+                        isDaitaEnabled = false,
+                    )
+                    .toLc()
+        )
+        // Assert
+        onNodeWithText("VPN settings").assertExists()
+        onNodeWithText("Split tunneling").assertExists()
+        onNodeWithText("App info").assertExists()
+        onNodeWithText("API access").assertExists()
+    }
 
     @Test
     @OptIn(ExperimentalMaterial3Api::class)
-    fun testLoggedOutState() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    SettingsUiState(
-                            appVersion = "",
-                            isLoggedIn = false,
-                            isSupportedVersion = true,
-                            isPlayBuild = false,
-                            multihopEnabled = false,
-                            isDaitaEnabled = false,
-                        )
-                        .toLc()
-            )
-            // Assert
-            onNodeWithText("VPN settings").assertDoesNotExist()
-            onNodeWithText("Split tunneling").assertDoesNotExist()
-            onNodeWithText("App info").assertExists()
-            onNodeWithText("API access").assertExists()
-        }
+    fun testLoggedOutState() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                SettingsUiState(
+                        appVersion = "",
+                        isLoggedIn = false,
+                        isSupportedVersion = true,
+                        isPlayBuild = false,
+                        multihopEnabled = false,
+                        isDaitaEnabled = false,
+                    )
+                    .toLc()
+        )
+        // Assert
+        onNodeWithText("VPN settings").assertDoesNotExist()
+        onNodeWithText("Split tunneling").assertDoesNotExist()
+        onNodeWithText("App info").assertExists()
+        onNodeWithText("API access").assertExists()
+    }
 }

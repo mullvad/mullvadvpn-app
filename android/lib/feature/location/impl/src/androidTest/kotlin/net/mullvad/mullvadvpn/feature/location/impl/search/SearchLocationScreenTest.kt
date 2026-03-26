@@ -89,78 +89,74 @@ class SearchLocationScreenTest {
     }
 
     @Test
-    fun testSearchInput() =
-        composeExtension.use {
-            // Arrange
-            val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    Lce.Content(
-                        SearchLocationUiState(
-                            searchTerm = "",
-                            relayListType = RelayListType.Single,
-                            filterChips = emptyList(),
-                            relayListItems = emptyList(),
-                            customLists = emptyList(),
-                        )
-                    ),
-                onSearchInputChanged = mockedSearchTermInput,
-            )
-            val mockSearchString = "SEARCH"
+    fun testSearchInput() = composeExtension.use {
+        // Arrange
+        val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                Lce.Content(
+                    SearchLocationUiState(
+                        searchTerm = "",
+                        relayListType = RelayListType.Single,
+                        filterChips = emptyList(),
+                        relayListItems = emptyList(),
+                        customLists = emptyList(),
+                    )
+                ),
+            onSearchInputChanged = mockedSearchTermInput,
+        )
+        val mockSearchString = "SEARCH"
 
-            // Act
-            onNodeWithText("Search for...").performTextInput(mockSearchString)
+        // Act
+        onNodeWithText("Search for...").performTextInput(mockSearchString)
 
-            // Assert
-            verify { mockedSearchTermInput.invoke(mockSearchString) }
-        }
+        // Assert
+        verify { mockedSearchTermInput.invoke(mockSearchString) }
+    }
 
     @Test
-    fun testSearchTermNotFound() =
-        composeExtension.use {
-            // Arrange
-            val mockSearchString = "SEARCH"
-            initScreen(
-                state =
-                    Lce.Content(
-                        SearchLocationUiState(
-                            searchTerm = mockSearchString,
-                            relayListType = RelayListType.Single,
-                            filterChips = emptyList(),
-                            relayListItems =
-                                listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
-                            customLists = emptyList(),
-                        )
+    fun testSearchTermNotFound() = composeExtension.use {
+        // Arrange
+        val mockSearchString = "SEARCH"
+        initScreen(
+            state =
+                Lce.Content(
+                    SearchLocationUiState(
+                        searchTerm = mockSearchString,
+                        relayListType = RelayListType.Single,
+                        filterChips = emptyList(),
+                        relayListItems = listOf(RelayListItem.LocationsEmptyText(mockSearchString)),
+                        customLists = emptyList(),
                     )
-            )
+                )
+        )
 
-            // Assert
-            onNodeWithText("No result for \"$mockSearchString\", please try a different search")
-                .assertExists()
-        }
+        // Assert
+        onNodeWithText("No result for \"$mockSearchString\", please try a different search")
+            .assertExists()
+    }
 
     @Test
-    fun givenNoCustomListsAndSearchIsActiveShouldNotShowCustomListHeader() =
-        composeExtension.use {
-            // Arrange
-            val mockSearchString = "SEARCH"
-            initScreen(
-                state =
-                    Lce.Content(
-                        SearchLocationUiState(
-                            searchTerm = mockSearchString,
-                            relayListType = RelayListType.Single,
-                            filterChips = emptyList(),
-                            relayListItems = emptyList(),
-                            customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
-                        )
+    fun givenNoCustomListsAndSearchIsActiveShouldNotShowCustomListHeader() = composeExtension.use {
+        // Arrange
+        val mockSearchString = "SEARCH"
+        initScreen(
+            state =
+                Lce.Content(
+                    SearchLocationUiState(
+                        searchTerm = mockSearchString,
+                        relayListType = RelayListType.Single,
+                        filterChips = emptyList(),
+                        relayListItems = emptyList(),
+                        customLists = DUMMY_RELAY_ITEM_CUSTOM_LISTS,
                     )
-            )
+                )
+        )
 
-            // Assert
-            onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertDoesNotExist()
-            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG).assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertDoesNotExist()
+        onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG).assertDoesNotExist()
+    }
 
     companion object {
         private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"︙\""
