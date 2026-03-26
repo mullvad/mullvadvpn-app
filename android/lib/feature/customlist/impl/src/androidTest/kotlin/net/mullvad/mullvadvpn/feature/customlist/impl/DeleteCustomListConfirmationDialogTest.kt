@@ -39,51 +39,48 @@ class DeleteCustomListConfirmationDialogTest {
     }
 
     @Test
-    fun givenNameShouldShowDeleteNameTitle() =
-        composeExtension.use {
-            // Arrange
-            val name = CustomListName.fromString("List should be deleted")
-            initDialog(state = DeleteCustomListUiState(name = name, deleteError = null))
+    fun givenNameShouldShowDeleteNameTitle() = composeExtension.use {
+        // Arrange
+        val name = CustomListName.fromString("List should be deleted")
+        initDialog(state = DeleteCustomListUiState(name = name, deleteError = null))
 
-            // Assert
-            onNodeWithText(DELETE_TITLE.format(name)).assertExists()
-        }
-
-    @Test
-    fun whenDeleteIsClickedShouldCallOnDelete() =
-        composeExtension.use {
-            // Arrange
-            val name = CustomListName.fromString("List should be deleted")
-            val mockedOnDelete: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                state = DeleteCustomListUiState(name = name, deleteError = null),
-                onDelete = mockedOnDelete,
-            )
-
-            // Act
-            onNodeWithText(DELETE_BUTTON_TEXT).performClick()
-
-            // Assert
-            verify { mockedOnDelete.invoke() }
-        }
+        // Assert
+        onNodeWithText(DELETE_TITLE.format(name)).assertExists()
+    }
 
     @Test
-    fun whenCancelIsClickedShouldCallOnBack() =
-        composeExtension.use {
-            // Arrange
-            val name = CustomListName.fromString("List should be deleted")
-            val mockedOnBack: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                state = DeleteCustomListUiState(name = name, deleteError = null),
-                onBack = mockedOnBack,
-            )
+    fun whenDeleteIsClickedShouldCallOnDelete() = composeExtension.use {
+        // Arrange
+        val name = CustomListName.fromString("List should be deleted")
+        val mockedOnDelete: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            state = DeleteCustomListUiState(name = name, deleteError = null),
+            onDelete = mockedOnDelete,
+        )
 
-            // Act
-            onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
+        // Act
+        onNodeWithText(DELETE_BUTTON_TEXT).performClick()
 
-            // Assert
-            verify { mockedOnBack.invoke() }
-        }
+        // Assert
+        verify { mockedOnDelete.invoke() }
+    }
+
+    @Test
+    fun whenCancelIsClickedShouldCallOnBack() = composeExtension.use {
+        // Arrange
+        val name = CustomListName.fromString("List should be deleted")
+        val mockedOnBack: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            state = DeleteCustomListUiState(name = name, deleteError = null),
+            onBack = mockedOnBack,
+        )
+
+        // Act
+        onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
+
+        // Assert
+        verify { mockedOnBack.invoke() }
+    }
 
     companion object {
         private const val DELETE_TITLE = "Delete \"%s\"?"

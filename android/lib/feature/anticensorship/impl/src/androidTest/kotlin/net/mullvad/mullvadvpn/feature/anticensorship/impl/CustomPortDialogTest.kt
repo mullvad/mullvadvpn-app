@@ -65,110 +65,103 @@ class CustomPortDialogTest {
     }
 
     @Test
-    fun testShowWireguardCustomPortDialogInvalidInt() =
-        composeExtension.use {
-            // Input a number to make sure that a too long number does not show and it does not
-            // crash the app
+    fun testShowWireguardCustomPortDialogInvalidInt() = composeExtension.use {
+        // Input a number to make sure that a too long number does not show and it does not
+        // crash the app
 
-            // Arrange
-            var input by mutableStateOf("")
-            initDialog(
-                title = "",
-                portInput = input,
-                isValidInput = false,
-                showResetToDefault = false,
-                onInputChanged = { input = it },
-            )
+        // Arrange
+        var input by mutableStateOf("")
+        initDialog(
+            title = "",
+            portInput = input,
+            isValidInput = false,
+            showResetToDefault = false,
+            onInputChanged = { input = it },
+        )
 
-            // Act
-            onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(INVALID_PORT_INPUT)
+        // Act
+        onNodeWithTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).performTextInput(INVALID_PORT_INPUT)
 
-            // Assert
-            onNode(hasTestTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).and(hasText(INVALID_PORT_INPUT)))
-                .assertDoesNotExist()
-        }
-
-    @Test
-    fun testEmptyInputResultsInSetPortButtonBeingDisabled() =
-        composeExtension.use {
-            // Arrange
-            initDialog(isValidInput = false)
-
-            // Assert
-            onNodeWithText("Set port").assertIsNotEnabled()
-        }
+        // Assert
+        onNode(hasTestTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).and(hasText(INVALID_PORT_INPUT)))
+            .assertDoesNotExist()
+    }
 
     @Test
-    fun testValidInputResultsInSetPortButtonBeingEnabled() =
-        composeExtension.use {
-            // Arrange
-            initDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
+    fun testEmptyInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
+        // Arrange
+        initDialog(isValidInput = false)
 
-            // Assert
-            onNodeWithText("Set port").assertIsEnabled()
-            onNodeWithText(VALID_CUSTOM_PORT).assertExists()
-        }
+        // Assert
+        onNodeWithText("Set port").assertIsNotEnabled()
+    }
 
     @Test
-    fun testInvalidInputResultsInSetPortButtonBeingDisabled() =
-        composeExtension.use {
-            // Arrange
-            initDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
+    fun testValidInputResultsInSetPortButtonBeingEnabled() = composeExtension.use {
+        // Arrange
+        initDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
 
-            // Assert
-            onNodeWithText("Set port").assertIsNotEnabled()
-        }
-
-    @Test
-    fun testDialogSubmitOfValidValue() =
-        composeExtension.use {
-            // Arrange
-            val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
-            initDialog(
-                portInput = VALID_CUSTOM_PORT,
-                isValidInput = true,
-                onSavePort = mockedSubmitHandler,
-            )
-
-            // Act
-            onNodeWithText("Set port").assertIsEnabled().performClick()
-
-            // Assert
-            verify { mockedSubmitHandler.invoke(VALID_CUSTOM_PORT) }
-        }
+        // Assert
+        onNodeWithText("Set port").assertIsEnabled()
+        onNodeWithText(VALID_CUSTOM_PORT).assertExists()
+    }
 
     @Test
-    fun testDialogResetClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                portInput = VALID_CUSTOM_PORT,
-                isValidInput = true,
-                showResetToDefault = true,
-                onResetPort = mockedClickHandler,
-            )
+    fun testInvalidInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
+        // Arrange
+        initDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
 
-            // Act
-            onNodeWithText("Remove custom port").performClick()
-
-            // Assert
-            verify { mockedClickHandler.invoke() }
-        }
+        // Assert
+        onNodeWithText("Set port").assertIsNotEnabled()
+    }
 
     @Test
-    fun testMtuDialogCancelClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            initDialog(onDismiss = mockedClickHandler)
+    fun testDialogSubmitOfValidValue() = composeExtension.use {
+        // Arrange
+        val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
+        initDialog(
+            portInput = VALID_CUSTOM_PORT,
+            isValidInput = true,
+            onSavePort = mockedSubmitHandler,
+        )
 
-            // Assert
-            onNodeWithText("Cancel").performClick()
+        // Act
+        onNodeWithText("Set port").assertIsEnabled().performClick()
 
-            // Assert
-            verify { mockedClickHandler.invoke() }
-        }
+        // Assert
+        verify { mockedSubmitHandler.invoke(VALID_CUSTOM_PORT) }
+    }
+
+    @Test
+    fun testDialogResetClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            portInput = VALID_CUSTOM_PORT,
+            isValidInput = true,
+            showResetToDefault = true,
+            onResetPort = mockedClickHandler,
+        )
+
+        // Act
+        onNodeWithText("Remove custom port").performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testMtuDialogCancelClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        initDialog(onDismiss = mockedClickHandler)
+
+        // Assert
+        onNodeWithText("Cancel").performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
 
     companion object {
         const val INVALID_PORT_INPUT = "21474836471"

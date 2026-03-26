@@ -62,172 +62,160 @@ class OutOfTimeUseCaseTest {
     }
 
     @Test
-    fun `no events should result in no expiry`() =
-        scope.runTest {
-            // Arrange
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test { assertEquals(null, awaitItem()) }
-        }
+    fun `no events should result in no expiry`() = scope.runTest {
+        // Arrange
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test { assertEquals(null, awaitItem()) }
+    }
 
     @Test
-    fun `tunnel is blocking because out of time should emit true`() =
-        scope.runTest {
-            // Arrange
-            val errorStateCause = ErrorStateCause.AuthFailed(AuthFailedError.ExpiredAccount)
-            val tunnelStateError = TunnelState.Error(ErrorState(errorStateCause, true))
+    fun `tunnel is blocking because out of time should emit true`() = scope.runTest {
+        // Arrange
+        val errorStateCause = ErrorStateCause.AuthFailed(AuthFailedError.ExpiredAccount)
+        val tunnelStateError = TunnelState.Error(ErrorState(errorStateCause, true))
 
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                assertEquals(null, awaitItem())
-                events.send(tunnelStateError)
-                assertEquals(true, awaitItem())
-            }
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            assertEquals(null, awaitItem())
+            events.send(tunnelStateError)
+            assertEquals(true, awaitItem())
         }
+    }
 
     @Test
-    fun `tunnel is connected should emit false`() =
-        scope.runTest {
-            // Arrange
-            val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusHours(24))
-            val tunnelStateChanges =
-                listOf(
-                    TunnelState.Disconnected(),
-                    TunnelState.Connected(mockk(), null, emptyList()),
-                    TunnelState.Connecting(null, null, emptyList()),
-                    TunnelState.Disconnecting(mockk()),
-                    TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
-                )
+    fun `tunnel is connected should emit false`() = scope.runTest {
+        // Arrange
+        val expiredAccountExpiry = AccountData.mock(ZonedDateTime.now().plusHours(24))
+        val tunnelStateChanges =
+            listOf(
+                TunnelState.Disconnected(),
+                TunnelState.Connected(mockk(), null, emptyList()),
+                TunnelState.Connecting(null, null, emptyList()),
+                TunnelState.Disconnecting(mockk()),
+                TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
+            )
 
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                assertEquals(null, awaitItem())
-                events.send(tunnelStateChanges.first())
-                expiry.emit(expiredAccountExpiry)
-                assertEquals(false, awaitItem())
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            assertEquals(null, awaitItem())
+            events.send(tunnelStateChanges.first())
+            expiry.emit(expiredAccountExpiry)
+            assertEquals(false, awaitItem())
 
-                tunnelStateChanges.forEach { events.send(it) }
+            tunnelStateChanges.forEach { events.send(it) }
 
-                // Should not emit again
-                expectNoEvents()
-            }
+            // Should not emit again
+            expectNoEvents()
         }
+    }
 
     @Test
-    fun `account expiry that has expired should emit true`() =
-        scope.runTest {
-            // Arrange
-            val expiredAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().minusDays(1))
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                assertEquals(null, awaitItem())
-                expiry.emit(expiredAccountExpiry)
-                assertEquals(true, awaitItem())
-            }
+    fun `account expiry that has expired should emit true`() = scope.runTest {
+        // Arrange
+        val expiredAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().minusDays(1))
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            assertEquals(null, awaitItem())
+            expiry.emit(expiredAccountExpiry)
+            assertEquals(true, awaitItem())
         }
+    }
 
     @Test
-    fun `account expiry that has not expired should emit false`() =
-        scope.runTest {
-            // Arrange
-            val notExpiredAccountExpiry =
-                AccountData.Companion.mock(ZonedDateTime.now().plusHours(24))
+    fun `account expiry that has not expired should emit false`() = scope.runTest {
+        // Arrange
+        val notExpiredAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().plusHours(24))
 
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                assertEquals(null, awaitItem())
-                expiry.emit(notExpiredAccountExpiry)
-                assertEquals(false, awaitItem())
-            }
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            assertEquals(null, awaitItem())
+            expiry.emit(notExpiredAccountExpiry)
+            assertEquals(false, awaitItem())
         }
+    }
 
     @Test
-    fun `account that expires without new expiry event should emit true`() =
-        scope.runTest {
-            // Arrange
-            val expiredAccountExpiry =
-                AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                // Initial event
-                assertEquals(null, awaitItem())
+    fun `account that expires without new expiry event should emit true`() = scope.runTest {
+        // Arrange
+        val expiredAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            // Initial event
+            assertEquals(null, awaitItem())
 
-                expiry.emit(expiredAccountExpiry)
-                assertEquals(false, awaitItem())
+            expiry.emit(expiredAccountExpiry)
+            assertEquals(false, awaitItem())
 
-                // After 50 seconds we should still not emitted out of time
-                advanceTimeBy(50.seconds)
-                expectNoEvents()
+            // After 50 seconds we should still not emitted out of time
+            advanceTimeBy(50.seconds)
+            expectNoEvents()
 
-                // After additional 51 seconds we should be out of time since account is now expired
-                advanceTimeBy(51.seconds)
-                assertEquals(true, expectMostRecentItem())
-            }
+            // After additional 51 seconds we should be out of time since account is now expired
+            advanceTimeBy(51.seconds)
+            assertEquals(true, expectMostRecentItem())
         }
+    }
 
     @Test
-    fun `account that is about to expire but is refilled should emit false`() =
-        scope.runTest {
-            // Arrange
-            val initialAccountExpiry =
-                AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry =
-                AccountData.Companion.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
+    fun `account that is about to expire but is refilled should emit false`() = scope.runTest {
+        // Arrange
+        val initialAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
+        val updatedExpiry =
+            AccountData.Companion.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
 
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                // Initial event
-                assertEquals(null, awaitItem())
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            // Initial event
+            assertEquals(null, awaitItem())
 
-                expiry.emit(initialAccountExpiry)
-                assertEquals(false, awaitItem())
-                advanceTimeBy(90.seconds)
-                expectNoEvents()
+            expiry.emit(initialAccountExpiry)
+            assertEquals(false, awaitItem())
+            advanceTimeBy(90.seconds)
+            expectNoEvents()
 
-                // User fills up with more time 10 seconds before expiry.
-                expiry.emit(updatedExpiry)
-                advanceTimeBy(29.days)
-                expectNoEvents()
+            // User fills up with more time 10 seconds before expiry.
+            expiry.emit(updatedExpiry)
+            advanceTimeBy(29.days)
+            expectNoEvents()
 
-                advanceTimeBy(2.days)
-                assertEquals(true, expectMostRecentItem())
-                expectNoEvents()
-            }
+            advanceTimeBy(2.days)
+            assertEquals(true, expectMostRecentItem())
+            expectNoEvents()
         }
+    }
 
     @Test
-    fun `expired account that is refilled should emit false`() =
-        scope.runTest {
-            // Arrange
-            val initialAccountExpiry =
-                AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
-            val updatedExpiry =
-                AccountData.Companion.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
-            // Act, Assert
-            outOfTimeUseCase.isOutOfTime.test {
-                // Initial event
-                assertEquals(null, awaitItem())
+    fun `expired account that is refilled should emit false`() = scope.runTest {
+        // Arrange
+        val initialAccountExpiry = AccountData.Companion.mock(ZonedDateTime.now().plusSeconds(100))
+        val updatedExpiry =
+            AccountData.Companion.mock(initialAccountExpiry.expiryDate.plusHours(30 * 24))
+        // Act, Assert
+        outOfTimeUseCase.isOutOfTime.test {
+            // Initial event
+            assertEquals(null, awaitItem())
 
-                expiry.emit(initialAccountExpiry)
-                assertEquals(false, awaitItem())
+            expiry.emit(initialAccountExpiry)
+            assertEquals(false, awaitItem())
 
-                // After 100 seconds we expire
-                advanceTimeBy(100.seconds)
-                assertEquals(true, expectMostRecentItem())
-                expectNoEvents()
+            // After 100 seconds we expire
+            advanceTimeBy(100.seconds)
+            assertEquals(true, expectMostRecentItem())
+            expectNoEvents()
 
-                // We then fill up our account and should no longer be out of time
-                expiry.emit(updatedExpiry)
-                assertEquals(false, awaitItem())
-                expectNoEvents()
+            // We then fill up our account and should no longer be out of time
+            expiry.emit(updatedExpiry)
+            assertEquals(false, awaitItem())
+            expectNoEvents()
 
-                // Advance the time to before the updated expiry
-                advanceTimeBy(29.days + 59.minutes)
-                expectNoEvents()
+            // Advance the time to before the updated expiry
+            advanceTimeBy(29.days + 59.minutes)
+            expectNoEvents()
 
-                // Advance the time to the updated expiry
-                advanceTimeBy(30.days + 2.minutes)
-                assertEquals(true, expectMostRecentItem())
-                expectNoEvents()
-            }
+            // Advance the time to the updated expiry
+            advanceTimeBy(30.days + 2.minutes)
+            assertEquals(true, expectMostRecentItem())
+            expectNoEvents()
         }
+    }
 }

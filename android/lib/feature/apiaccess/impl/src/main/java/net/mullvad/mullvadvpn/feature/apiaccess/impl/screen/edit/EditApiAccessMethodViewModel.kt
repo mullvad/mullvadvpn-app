@@ -98,25 +98,24 @@ class EditApiAccessMethodViewModel(
     }
 
     fun testMethod() {
-        testingJob =
-            viewModelScope.launch {
-                formData.value
-                    .parseConnectionFormData()
-                    .fold(
-                        { errors -> formData.update { it.updateWithErrors(errors) } },
-                        { customProxy ->
-                            isTestingApiAccessMethod.value = true
-                            val result =
-                                delayAtLeast(MINIMUM_LOADING_TIME_MILLIS) {
-                                    apiAccessRepository.testCustomApiAccessMethod(customProxy)
-                                }
-                            _uiSideEffect.send(
-                                EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
-                            )
-                            isTestingApiAccessMethod.value = false
-                        },
-                    )
-            }
+        testingJob = viewModelScope.launch {
+            formData.value
+                .parseConnectionFormData()
+                .fold(
+                    { errors -> formData.update { it.updateWithErrors(errors) } },
+                    { customProxy ->
+                        isTestingApiAccessMethod.value = true
+                        val result =
+                            delayAtLeast(MINIMUM_LOADING_TIME_MILLIS) {
+                                apiAccessRepository.testCustomApiAccessMethod(customProxy)
+                            }
+                        _uiSideEffect.send(
+                            EditApiAccessSideEffect.TestApiAccessMethodResult(result.isRight())
+                        )
+                        isTestingApiAccessMethod.value = false
+                    },
+                )
+        }
     }
 
     fun trySave() {

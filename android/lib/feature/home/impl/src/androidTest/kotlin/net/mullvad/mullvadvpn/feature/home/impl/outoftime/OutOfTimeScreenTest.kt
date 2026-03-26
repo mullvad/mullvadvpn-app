@@ -61,83 +61,75 @@ class OutOfTimeScreenTest {
     }
 
     @Test
-    fun testDisableSitePayment() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = OutOfTimeUiState(deviceName = ""))
+    fun testDisableSitePayment() = composeExtension.use {
+        // Arrange
+        initScreen(state = OutOfTimeUiState(deviceName = ""))
 
-            // Assert
-            onNodeWithText(
-                    "Either buy credit on our website or redeem a voucher.",
-                    substring = true,
-                )
-                .assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText("Either buy credit on our website or redeem a voucher.", substring = true)
+            .assertDoesNotExist()
+    }
 
     @Test
-    fun testOpenAccountView() =
-        composeExtension.use {
-            val mockClickListener: () -> Unit = mockk(relaxed = true)
+    fun testOpenAccountView() = composeExtension.use {
+        val mockClickListener: () -> Unit = mockk(relaxed = true)
 
-            // Arrange
-            initScreen(
-                state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
-                onAccountClick = mockClickListener,
-            )
+        // Arrange
+        initScreen(
+            state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+            onAccountClick = mockClickListener,
+        )
 
-            onNodeWithContentDescription(label = "Account").performClick()
+        onNodeWithContentDescription(label = "Account").performClick()
 
-            // Assert
-            verify(exactly = 1) { mockClickListener.invoke() }
-        }
-
-    @Test
-    fun testClickDisconnect() =
-        composeExtension.use {
-            // Arrange
-            val mockClickListener: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    OutOfTimeUiState(
-                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                        deviceName = "",
-                        showSitePayment = true,
-                    ),
-                onDisconnectClick = mockClickListener,
-            )
-
-            // Act
-            onNodeWithText("Disconnect").performClick()
-
-            // Assert
-            verify(exactly = 1) { mockClickListener.invoke() }
-        }
+        // Assert
+        verify(exactly = 1) { mockClickListener.invoke() }
+    }
 
     @Test
-    fun testShowPendingPaymentInfoDialog() =
-        composeExtension.use {
-            // Arrange
-            val mockOnPlayPaymentInfoClick: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state = OutOfTimeUiState(showSitePayment = true, verificationPending = true),
-                onPlayPaymentInfoClick = mockOnPlayPaymentInfoClick,
-            )
+    fun testClickDisconnect() = composeExtension.use {
+        // Arrange
+        val mockClickListener: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                OutOfTimeUiState(
+                    tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                    deviceName = "",
+                    showSitePayment = true,
+                ),
+            onDisconnectClick = mockClickListener,
+        )
 
-            // Act
-            onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
-            onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).assertExists()
+        // Act
+        onNodeWithText("Disconnect").performClick()
 
-            // Assert
-            verify(exactly = 1) { mockOnPlayPaymentInfoClick.invoke() }
-        }
+        // Assert
+        verify(exactly = 1) { mockClickListener.invoke() }
+    }
 
     @Test
-    fun testShowVerificationInProgress() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = OutOfTimeUiState(showSitePayment = true, verificationPending = true))
+    fun testShowPendingPaymentInfoDialog() = composeExtension.use {
+        // Arrange
+        val mockOnPlayPaymentInfoClick: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true),
+            onPlayPaymentInfoClick = mockOnPlayPaymentInfoClick,
+        )
 
-            // Assert
-            onNodeWithText("Google Play payment pending").assertExists()
-        }
+        // Act
+        onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
+        onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).assertExists()
+
+        // Assert
+        verify(exactly = 1) { mockOnPlayPaymentInfoClick.invoke() }
+    }
+
+    @Test
+    fun testShowVerificationInProgress() = composeExtension.use {
+        // Arrange
+        initScreen(state = OutOfTimeUiState(showSitePayment = true, verificationPending = true))
+
+        // Assert
+        onNodeWithText("Google Play payment pending").assertExists()
+    }
 }

@@ -39,34 +39,33 @@ class SelectPortScreenTest {
     }
 
     @Test
-    fun testSelectPresetAndCustomPort() =
-        composeExtension.use {
-            // Arrange
-            val onObfuscationPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
-            val navigateToCustomPortDialog: (Port?) -> Unit = mockk(relaxed = true)
+    fun testSelectPresetAndCustomPort() = composeExtension.use {
+        // Arrange
+        val onObfuscationPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
+        val navigateToCustomPortDialog: (Port?) -> Unit = mockk(relaxed = true)
 
-            initScreen(
-                state =
-                    SelectPortUiState(
-                            port = Constraint.Any,
-                            portType = PortType.Wireguard,
-                            customPortEnabled = true,
-                            presetPorts = listOf(Port(5555), Port(5556), Port(5557)),
-                            title = "WireGuard port",
-                        )
-                        .toLc(),
-                onObfuscationPortSelected = onObfuscationPortSelected,
-                navigateToCustomPortDialog = navigateToCustomPortDialog,
-            )
+        initScreen(
+            state =
+                SelectPortUiState(
+                        port = Constraint.Any,
+                        portType = PortType.Wireguard,
+                        customPortEnabled = true,
+                        presetPorts = listOf(Port(5555), Port(5556), Port(5557)),
+                        title = "WireGuard port",
+                    )
+                    .toLc(),
+            onObfuscationPortSelected = onObfuscationPortSelected,
+            navigateToCustomPortDialog = navigateToCustomPortDialog,
+        )
 
-            // Act
-            onNodeWithText("5555").assertExists().performClick()
+        // Act
+        onNodeWithText("5555").assertExists().performClick()
 
-            onNodeWithText("Custom").assertExists().performClick()
+        onNodeWithText("Custom").assertExists().performClick()
 
-            // Assert
-            coVerify(exactly = 1) { onObfuscationPortSelected.invoke(Constraint.Only(Port(5555))) }
+        // Assert
+        coVerify(exactly = 1) { onObfuscationPortSelected.invoke(Constraint.Only(Port(5555))) }
 
-            coVerify(exactly = 1) { navigateToCustomPortDialog.invoke(null) }
-        }
+        coVerify(exactly = 1) { navigateToCustomPortDialog.invoke(null) }
+    }
 }

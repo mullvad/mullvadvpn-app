@@ -39,12 +39,11 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
             File(OUTPUT_DIRECTORY).mkdirs()
         }
 
-        job =
-            coroutineScope.launch {
-                getInstrumentation()
-                    .uiAutomation
-                    .executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
-            }
+        job = coroutineScope.launch {
+            getInstrumentation()
+                .uiAutomation
+                .executeShellCommand("screenrecord $OUTPUT_DIRECTORY/$fileName")
+        }
     }
 
     private fun stopScreenRecord() {

@@ -109,31 +109,29 @@ class VpnSettingsViewModel(
         }
     }
 
-    fun onToggleCustomDns(enable: Boolean) =
-        viewModelScope.launch {
-            val settings = settingsRepository.settingsUpdates.value
-            if (settings == null) {
-                showGenericErrorToast()
-                return@launch
-            }
-
-            val hasDnsEntries = settings.customDnsAddresses().isNotEmpty()
-
-            if (hasDnsEntries) {
-                settingsRepository
-                    .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-                    .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
-            } else {
-                // If they enable custom DNS and has no current entries we show the dialog
-                // to add one.
-                viewModelScope.launch {
-                    _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog)
-                }
-            }
+    fun onToggleCustomDns(enable: Boolean) = viewModelScope.launch {
+        val settings = settingsRepository.settingsUpdates.value
+        if (settings == null) {
+            showGenericErrorToast()
+            return@launch
         }
 
-    fun onToggleContentBlockersExpand() =
-        _mutableIsContentBlockersExpanded.update { it.map { expand -> !expand } }
+        val hasDnsEntries = settings.customDnsAddresses().isNotEmpty()
+
+        if (hasDnsEntries) {
+            settingsRepository
+                .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+                .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
+        } else {
+            // If they enable custom DNS and has no current entries we show the dialog
+            // to add one.
+            viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog) }
+        }
+    }
+
+    fun onToggleContentBlockersExpand() = _mutableIsContentBlockersExpanded.update {
+        it.map { expand -> !expand }
+    }
 
     fun onToggleAllBlockers(isEnabled: Boolean) = updateContentBlockersAndNotify {
         DefaultDnsOptions(
@@ -226,13 +224,13 @@ class VpnSettingsViewModel(
 
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 
-    fun showApplySettingChangesWarningToast() =
-        viewModelScope.launch {
-            _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
-        }
+    fun showApplySettingChangesWarningToast() = viewModelScope.launch {
+        _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
+    }
 
-    fun showGenericErrorToast() =
-        viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
+    fun showGenericErrorToast() = viewModelScope.launch {
+        _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+    }
 
     companion object {
         private const val EMPTY_STRING = ""

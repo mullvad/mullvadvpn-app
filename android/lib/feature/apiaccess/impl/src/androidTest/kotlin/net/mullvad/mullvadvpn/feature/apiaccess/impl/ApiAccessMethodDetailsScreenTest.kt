@@ -48,49 +48,47 @@ class ApiAccessMethodDetailsScreenTest {
     }
 
     @Test
-    fun whenApiAccessMethodIsNotEditableShouldNotShowDeleteAndEdit() =
-        composeExtension.use {
-            // Arrange
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = true,
-                        isCurrentMethod = true,
-                        isTestingAccessMethod = false,
-                    )
-            )
+    fun whenApiAccessMethodIsNotEditableShouldNotShowDeleteAndEdit() = composeExtension.use {
+        // Arrange
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = true,
+                    isCurrentMethod = true,
+                    isTestingAccessMethod = false,
+                )
+        )
 
-            // Assert
-            onNodeWithTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).assertDoesNotExist()
-            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).assertDoesNotExist()
+        onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).assertDoesNotExist()
+    }
 
     @Test
-    fun whenApiAccessMethodIsNotDisableableShouldNotBeAbleDisable() =
-        composeExtension.use {
-            // Arrange
-            val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = false,
-                        isCurrentMethod = true,
-                        isTestingAccessMethod = false,
-                    ),
-                onEnableClicked = onEnableClicked,
-            )
+    fun whenApiAccessMethodIsNotDisableableShouldNotBeAbleDisable() = composeExtension.use {
+        // Arrange
+        val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = false,
+                    isCurrentMethod = true,
+                    isTestingAccessMethod = false,
+                ),
+            onEnableClicked = onEnableClicked,
+        )
 
-            // Act
-            onNodeWithText("Enable method").performClick()
+        // Act
+        onNodeWithText("Enable method").performClick()
 
-            // Assert
-            onNodeWithText("At least one method needs to be enabled").assertExists()
-            verify(exactly = 0) { onEnableClicked(any()) }
-        }
+        // Assert
+        onNodeWithText("At least one method needs to be enabled").assertExists()
+        verify(exactly = 0) { onEnableClicked(any()) }
+    }
 
     @Test
     fun whenClickingOnDeleteMethodShouldCallOnDeleteApiAccessMethodClicked() =
@@ -118,98 +116,94 @@ class ApiAccessMethodDetailsScreenTest {
         }
 
     @Test
-    fun whenClickingOnEditMethodShouldCallOnEditMethodClicked() =
-        composeExtension.use {
-            // Arrange
-            val onEditMethodClicked: () -> Unit = mockk(relaxed = true)
-            val apiAccessMethod = CUSTOM_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = false,
-                        isCurrentMethod = true,
-                        isTestingAccessMethod = false,
-                    ),
-                onEditMethodClicked = onEditMethodClicked,
-            )
+    fun whenClickingOnEditMethodShouldCallOnEditMethodClicked() = composeExtension.use {
+        // Arrange
+        val onEditMethodClicked: () -> Unit = mockk(relaxed = true)
+        val apiAccessMethod = CUSTOM_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = false,
+                    isCurrentMethod = true,
+                    isTestingAccessMethod = false,
+                ),
+            onEditMethodClicked = onEditMethodClicked,
+        )
 
-            // Act
-            onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON_TEST_TAG).performClick()
 
-            // Assert
-            verify(exactly = 1) { onEditMethodClicked() }
-        }
-
-    @Test
-    fun whenClickingOnEnableMethodShouldCallOnEnableClicked() =
-        composeExtension.use {
-            // Arrange
-            val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = true,
-                        isCurrentMethod = true,
-                        isTestingAccessMethod = false,
-                    ),
-                onEnableClicked = onEnableClicked,
-            )
-
-            // Act
-            onNodeWithText("Enable method").performClick()
-
-            // Assert
-            verify(exactly = 1) { onEnableClicked(false) }
-        }
+        // Assert
+        verify(exactly = 1) { onEditMethodClicked() }
+    }
 
     @Test
-    fun whenClickingOnTestMethodShouldCallOnTestMethodClicked() =
-        composeExtension.use {
-            // Arrange
-            val onTestMethodClicked: () -> Unit = mockk(relaxed = true)
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = true,
-                        isCurrentMethod = true,
-                        isTestingAccessMethod = false,
-                    ),
-                onTestMethodClicked = onTestMethodClicked,
-            )
+    fun whenClickingOnEnableMethodShouldCallOnEnableClicked() = composeExtension.use {
+        // Arrange
+        val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = true,
+                    isCurrentMethod = true,
+                    isTestingAccessMethod = false,
+                ),
+            onEnableClicked = onEnableClicked,
+        )
 
-            // Act
-            onNodeWithTag(API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG).performClick()
+        // Act
+        onNodeWithText("Enable method").performClick()
 
-            // Assert
-            verify(exactly = 1) { onTestMethodClicked() }
-        }
+        // Assert
+        verify(exactly = 1) { onEnableClicked(false) }
+    }
 
     @Test
-    fun whenClickingOnUseMethodShouldCallOnUseMethodClicked() =
-        composeExtension.use {
-            // Arrange
-            val onUseMethodClicked: () -> Unit = mockk(relaxed = true)
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state =
-                    ApiAccessMethodDetailsUiState.Content(
-                        apiAccessMethodSetting = apiAccessMethod,
-                        isDisableable = true,
-                        isCurrentMethod = false,
-                        isTestingAccessMethod = false,
-                    ),
-                onUseMethodClicked = onUseMethodClicked,
-            )
+    fun whenClickingOnTestMethodShouldCallOnTestMethodClicked() = composeExtension.use {
+        // Arrange
+        val onTestMethodClicked: () -> Unit = mockk(relaxed = true)
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = true,
+                    isCurrentMethod = true,
+                    isTestingAccessMethod = false,
+                ),
+            onTestMethodClicked = onTestMethodClicked,
+        )
 
-            // Act
-            onNodeWithTag(API_ACCESS_USE_METHOD_BUTTON_TEST_TAG).performClick()
+        // Act
+        onNodeWithTag(API_ACCESS_TEST_METHOD_BUTTON_TEST_TAG).performClick()
 
-            // Assert
-            verify(exactly = 1) { onUseMethodClicked() }
-        }
+        // Assert
+        verify(exactly = 1) { onTestMethodClicked() }
+    }
+
+    @Test
+    fun whenClickingOnUseMethodShouldCallOnUseMethodClicked() = composeExtension.use {
+        // Arrange
+        val onUseMethodClicked: () -> Unit = mockk(relaxed = true)
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state =
+                ApiAccessMethodDetailsUiState.Content(
+                    apiAccessMethodSetting = apiAccessMethod,
+                    isDisableable = true,
+                    isCurrentMethod = false,
+                    isTestingAccessMethod = false,
+                ),
+            onUseMethodClicked = onUseMethodClicked,
+        )
+
+        // Act
+        onNodeWithTag(API_ACCESS_USE_METHOD_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 1) { onUseMethodClicked() }
+    }
 }

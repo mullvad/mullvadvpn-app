@@ -43,6 +43,7 @@
             <trusting group="androidx.datastore"/>
             <trusting group="androidx.navigation3"/>
             <trusting group="androidx.test.uiautomator"/>
+            <trusting group="androidx.work"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
          </trusted-key>
          <trusted-key id="0F06FF86BEEAF4E71866EE5232EE5355A6BC6E42">
@@ -102,12 +103,14 @@
             <trusting group="org.apache.commons"/>
          </trusted-key>
          <trusted-key id="2E3A1AFFE42B5F53AF19F780BCF4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
+         <trusted-key id="2E92113263FC31C74CCBAAB20E91C2DE43B72BB1" group="org.ec4j.core"/>
          <trusted-key id="3051D45031E13516A6E8FAFF280D66A55F5316C5" group="org.bitbucket.b_c" name="jose4j" version="0.9.5"/>
          <trusted-key id="31BAE2E51D95E0F8AD9B7BCC40A3C4432BD7308C" group="com.googlecode.juniversalchardet" name="juniversalchardet" version="1.0.3"/>
          <trusted-key id="32118CF76C9EC5D918E54967CA80D1F0EB6CA4BA" group="org.codehaus.mojo"/>
          <trusted-key id="33FD4BFD33554634053D73C0C2148900BCD3C2AF">
             <trusting group="org.jetbrains" name="annotations" version="23.0.0"/>
             <trusting group="org.jetbrains.intellij.deps.kotlinx" name="kotlinx-coroutines-core-jvm" version="1.8.0-intellij-14"/>
+            <trusting group="org.jetbrains.runtime" name="jbr-api" version="1.5.0"/>
          </trusted-key>
          <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B" group="org.codehaus.groovy" name="groovy" version="3.0.22"/>
          <trusted-key id="350C5D75D04AA599CBAD22348D5059F2B1927A9A" group="com.lemonappdev" name="konsist" version="0.17.3"/>
@@ -117,6 +120,7 @@
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.23.0"/>
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.24.0"/>
             <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.25.0"/>
+            <trusting group="com.ncorti.ktfmt.gradle" name="plugin" version="0.26.0"/>
          </trusted-key>
          <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
@@ -141,6 +145,7 @@
             <trusting group="com.facebook" name="ktfmt" version="0.55"/>
             <trusting group="com.facebook" name="ktfmt" version="0.58"/>
             <trusting group="com.facebook" name="ktfmt" version="0.59"/>
+            <trusting group="com.facebook" name="ktfmt" version="0.62"/>
          </trusted-key>
          <trusted-key id="64B9B09F164AA0BF88742EB61188B69F6D6259CA">
             <trusting group="com.google.accompanist" name="accompanist-drawablepainter" version="0.37.3"/>

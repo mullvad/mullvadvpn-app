@@ -50,108 +50,101 @@ class EditCustomListNameDialogTest {
     }
 
     @Test
-    fun givenNoErrorShouldShowNoErrorMessage() =
-        composeExtension.use {
-            // Arrange
-            val state = EditCustomListNameUiState(error = null)
-            initDialog(state = state)
+    fun givenNoErrorShouldShowNoErrorMessage() = composeExtension.use {
+        // Arrange
+        val state = EditCustomListNameUiState(error = null)
+        initDialog(state = state)
 
-            // Assert
-            onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
-            onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
-        }
-
-    @Test
-    fun givenCustomListExistsShouldShowCustomListExitsErrorText() =
-        composeExtension.use {
-            // Arrange
-            val state =
-                EditCustomListNameUiState(
-                    error = RenameError(NameAlreadyExists(CustomListName.fromString("name")))
-                )
-            initDialog(state = state)
-
-            // Assert
-            onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
-            onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
+        onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
+    }
 
     @Test
-    fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() =
-        composeExtension.use {
-            // Arrange
-            val state =
-                EditCustomListNameUiState(
-                    error = RenameError(UnknownCustomListError(RuntimeException("")))
-                )
-            initDialog(state = state)
+    fun givenCustomListExistsShouldShowCustomListExitsErrorText() = composeExtension.use {
+        // Arrange
+        val state =
+            EditCustomListNameUiState(
+                error = RenameError(NameAlreadyExists(CustomListName.fromString("name")))
+            )
+        initDialog(state = state)
 
-            // Assert
-            onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
-            onNodeWithText(OTHER_ERROR_TEXT).assertExists()
-        }
-
-    @Test
-    fun whenCancelIsClickedShouldDismissDialog() =
-        composeExtension.use {
-            // Arrange
-            val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
-            val state = EditCustomListNameUiState()
-            initDialog(state = state, onDismiss = mockedOnDismiss)
-
-            // Act
-            onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
-
-            // Assert
-            verify { mockedOnDismiss.invoke() }
-        }
+        // Assert
+        onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
+        onNodeWithText(OTHER_ERROR_TEXT).assertDoesNotExist()
+    }
 
     @Test
-    fun givenEmptyTextInputWhenSaveIsClickedThenShouldNotCallUpdateName() =
-        composeExtension.use {
-            // Arrange
-            val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
-            val state = EditCustomListNameUiState()
-            initDialog(state = state, updateName = mockedUpdateName)
+    fun givenOtherCustomListErrorShouldShowAnErrorOccurredErrorText() = composeExtension.use {
+        // Arrange
+        val state =
+            EditCustomListNameUiState(
+                error = RenameError(UnknownCustomListError(RuntimeException("")))
+            )
+        initDialog(state = state)
 
-            // Act
-            onNodeWithText(SAVE_BUTTON_TEXT).performClick()
-
-            // Assert
-            verify(exactly = 0) { mockedUpdateName.invoke(any()) }
-        }
-
-    @Test
-    fun givenValidTextInputWhenSaveIsClickedThenShouldCallUpdateName() =
-        composeExtension.use {
-            // Arrange
-            val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
-            val inputText = "NEW NAME"
-            val state = EditCustomListNameUiState(name = inputText)
-            initDialog(state, updateName = mockedUpdateName)
-
-            // Act
-            onNodeWithText(SAVE_BUTTON_TEXT).performClick()
-
-            // Assert
-            verify { mockedUpdateName.invoke(inputText) }
-        }
+        // Assert
+        onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
+        onNodeWithText(OTHER_ERROR_TEXT).assertExists()
+    }
 
     @Test
-    fun whenInputIsChangedShouldCallOnInputChanged() =
-        composeExtension.use {
-            // Arrange
-            val mockedOnInputChanged: (String) -> Unit = mockk(relaxed = true)
-            val inputText = "NEW NAME"
-            val state = EditCustomListNameUiState()
-            initDialog(state, onInputChanged = mockedOnInputChanged)
+    fun whenCancelIsClickedShouldDismissDialog() = composeExtension.use {
+        // Arrange
+        val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
+        val state = EditCustomListNameUiState()
+        initDialog(state = state, onDismiss = mockedOnDismiss)
 
-            // Act
-            onNodeWithTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG).performTextInput(inputText)
+        // Act
+        onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
 
-            // Assert
-            verify { mockedOnInputChanged.invoke(inputText) }
-        }
+        // Assert
+        verify { mockedOnDismiss.invoke() }
+    }
+
+    @Test
+    fun givenEmptyTextInputWhenSaveIsClickedThenShouldNotCallUpdateName() = composeExtension.use {
+        // Arrange
+        val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
+        val state = EditCustomListNameUiState()
+        initDialog(state = state, updateName = mockedUpdateName)
+
+        // Act
+        onNodeWithText(SAVE_BUTTON_TEXT).performClick()
+
+        // Assert
+        verify(exactly = 0) { mockedUpdateName.invoke(any()) }
+    }
+
+    @Test
+    fun givenValidTextInputWhenSaveIsClickedThenShouldCallUpdateName() = composeExtension.use {
+        // Arrange
+        val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
+        val inputText = "NEW NAME"
+        val state = EditCustomListNameUiState(name = inputText)
+        initDialog(state, updateName = mockedUpdateName)
+
+        // Act
+        onNodeWithText(SAVE_BUTTON_TEXT).performClick()
+
+        // Assert
+        verify { mockedUpdateName.invoke(inputText) }
+    }
+
+    @Test
+    fun whenInputIsChangedShouldCallOnInputChanged() = composeExtension.use {
+        // Arrange
+        val mockedOnInputChanged: (String) -> Unit = mockk(relaxed = true)
+        val inputText = "NEW NAME"
+        val state = EditCustomListNameUiState()
+        initDialog(state, onInputChanged = mockedOnInputChanged)
+
+        // Act
+        onNodeWithTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG).performTextInput(inputText)
+
+        // Assert
+        verify { mockedOnInputChanged.invoke(inputText) }
+    }
 
     companion object {
         private const val NAME_EXIST_ERROR_TEXT = "Name is already taken."

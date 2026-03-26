@@ -88,12 +88,11 @@ class LoginViewModel(
                 LoginUiState.INITIAL,
             )
 
-    fun clearAccountHistory() =
-        viewModelScope.launch {
-            accountRepository.clearAccountHistory().onLeft {
-                _uiSideEffect.send(LoginUiSideEffect.GenericError)
-            }
+    fun clearAccountHistory() = viewModelScope.launch {
+        accountRepository.clearAccountHistory().onLeft {
+            _uiSideEffect.send(LoginUiSideEffect.GenericError)
         }
+    }
 
     fun onCreateAccountClick() {
         if (hasPreviouslyCreatedAccount()) {

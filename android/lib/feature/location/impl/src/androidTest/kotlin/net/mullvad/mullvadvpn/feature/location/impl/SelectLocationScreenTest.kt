@@ -140,263 +140,256 @@ class SelectLocationScreenTest {
     }
 
     @Test
-    fun testShowRelayListState() =
-        composeExtension.use {
-            // Arrange
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListType = RelayListType.Single,
-                            relayListItems =
-                                DUMMY_RELAY_COUNTRIES.map {
-                                    RelayListItem.GeoLocationItem(
-                                        item = it,
-                                        itemPosition = Position.Single,
-                                        hierarchy = Hierarchy.Parent,
-                                    )
-                                },
-                        )
+    fun testShowRelayListState() = composeExtension.use {
+        // Arrange
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListType = RelayListType.Single,
+                        relayListItems =
+                            DUMMY_RELAY_COUNTRIES.map {
+                                RelayListItem.GeoLocationItem(
+                                    item = it,
+                                    itemPosition = Position.Single,
+                                    hierarchy = Hierarchy.Parent,
+                                )
+                            },
                     )
                 )
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    )
             )
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                )
+        )
 
-            // Assert
-            onNodeWithText("Relay Country 1").assertExists()
-            onNodeWithText("Relay City 1").assertDoesNotExist()
-            onNodeWithText("Relay host 1").assertDoesNotExist()
-            onNodeWithText("Relay Country 2").assertExists()
-            onNodeWithText("Relay City 2").assertDoesNotExist()
-            onNodeWithText("Relay host 2").assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText("Relay Country 1").assertExists()
+        onNodeWithText("Relay City 1").assertDoesNotExist()
+        onNodeWithText("Relay host 1").assertDoesNotExist()
+        onNodeWithText("Relay Country 2").assertExists()
+        onNodeWithText("Relay City 2").assertDoesNotExist()
+        onNodeWithText("Relay host 2").assertDoesNotExist()
+    }
 
     @Test
-    fun customListFooterShouldShowEmptyTextWhenNoCustomList() =
-        composeExtension.use {
-            // Arrange
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.CustomListFooter(false)),
-                            relayListType = RelayListType.Single,
-                        )
+    fun customListFooterShouldShowEmptyTextWhenNoCustomList() = composeExtension.use {
+        // Arrange
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListItems = listOf(RelayListItem.CustomListFooter(false)),
+                        relayListType = RelayListType.Single,
                     )
                 )
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    )
             )
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                )
+        )
 
-            // Assert
-            onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertExists()
-        }
+        // Assert
+        onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertExists()
+    }
 
     @Test
-    fun whenCustomListIsClickedShouldCallOnSelectHop() =
-        composeExtension.use {
-            // Arrange
-            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.CustomListItem(customList)),
-                            relayListType = RelayListType.Single,
-                        )
+    fun whenCustomListIsClickedShouldCallOnSelectHop() = composeExtension.use {
+        // Arrange
+        val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListItems = listOf(RelayListItem.CustomListItem(customList)),
+                        relayListType = RelayListType.Single,
                     )
                 )
-            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    ),
-                onSelectHop = mockedOnSelectHop,
             )
+        val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                ),
+            onSelectHop = mockedOnSelectHop,
+        )
 
-            // Act
-            onNodeWithText(customList.name).performClick()
+        // Act
+        onNodeWithText(customList.name).performClick()
 
-            // Assert
-            verify { mockedOnSelectHop(customList) }
-        }
+        // Assert
+        verify { mockedOnSelectHop(customList) }
+    }
 
     @Test
-    fun whenRecentIsClickedShouldCallOnSelectHop() =
-        composeExtension.use {
-            // Arrange
-            val recent = DUMMY_RELAY_COUNTRIES[0]
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
-                            relayListType = RelayListType.Single,
-                        )
+    fun whenRecentIsClickedShouldCallOnSelectHop() = composeExtension.use {
+        // Arrange
+        val recent = DUMMY_RELAY_COUNTRIES[0]
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
+                        relayListType = RelayListType.Single,
                     )
                 )
-            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    ),
-                onSelectHop = mockedOnSelectHop,
             )
+        val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                ),
+            onSelectHop = mockedOnSelectHop,
+        )
 
-            // Act
-            onNodeWithText(recent.name).performClick()
+        // Act
+        onNodeWithText(recent.name).performClick()
 
-            // Assert
-            verify { mockedOnSelectHop(recent) }
-        }
+        // Assert
+        verify { mockedOnSelectHop(recent) }
+    }
 
     @Test
-    fun whenCustomListIsLongClickedShouldShowBottomSheet() =
-        composeExtension.use {
-            // Arrange
-            val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListItems =
-                                listOf(RelayListItem.CustomListItem(item = customList)),
-                            relayListType = RelayListType.Single,
-                        )
+    fun whenCustomListIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+        // Arrange
+        val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListItems = listOf(RelayListItem.CustomListItem(item = customList)),
+                        relayListType = RelayListType.Single,
                     )
                 )
-            every { bottomSheetViewModel.uiState } returns
-                MutableStateFlow(
-                    Lc.Content(
-                        LocationBottomSheetUiState.CustomList(
-                            item = customList,
-                            setAsExitState = SetAsState.HIDDEN,
-                            setAsEntryState = SetAsState.ENABLED,
-                            canDisableMultihop = false,
-                        )
-                    )
-                )
-            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    ),
-                onSelectHop = mockedOnSelectHop,
             )
+        every { bottomSheetViewModel.uiState } returns
+            MutableStateFlow(
+                Lc.Content(
+                    LocationBottomSheetUiState.CustomList(
+                        item = customList,
+                        setAsExitState = SetAsState.HIDDEN,
+                        setAsEntryState = SetAsState.ENABLED,
+                        canDisableMultihop = false,
+                    )
+                )
+            )
+        val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                ),
+            onSelectHop = mockedOnSelectHop,
+        )
 
-            // Act
-            onNodeWithText(customList.name).performLongClick()
+        // Act
+        onNodeWithText(customList.name).performLongClick()
 
-            // Assert
-            onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
-        }
+        // Assert
+        onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun whenLocationIsLongClickedShouldShowBottomSheet() =
-        composeExtension.use {
-            // Arrange
-            val relayItem = DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListItems =
-                                listOf(
-                                    RelayListItem.GeoLocationItem(
-                                        relayItem,
-                                        itemPosition = Position.Single,
-                                        hierarchy = Hierarchy.Parent,
-                                    )
-                                ),
-                            relayListType = RelayListType.Single,
-                        )
+    fun whenLocationIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+        // Arrange
+        val relayItem = DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListItems =
+                            listOf(
+                                RelayListItem.GeoLocationItem(
+                                    relayItem,
+                                    itemPosition = Position.Single,
+                                    hierarchy = Hierarchy.Parent,
+                                )
+                            ),
+                        relayListType = RelayListType.Single,
                     )
                 )
-            every { bottomSheetViewModel.uiState } returns
-                MutableStateFlow(
-                    Lc.Content(
-                        LocationBottomSheetUiState.Location(
-                            item = relayItem,
-                            customLists = emptyList(),
-                            setAsExitState = SetAsState.HIDDEN,
-                            setAsEntryState = SetAsState.ENABLED,
-                            canDisableMultihop = false,
-                        )
-                    )
-                )
-            val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = true,
-                            isFilterButtonEnabled = true,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    ),
-                onSelectHop = mockedOnSelectHop,
             )
+        every { bottomSheetViewModel.uiState } returns
+            MutableStateFlow(
+                Lc.Content(
+                    LocationBottomSheetUiState.Location(
+                        item = relayItem,
+                        customLists = emptyList(),
+                        setAsExitState = SetAsState.HIDDEN,
+                        setAsEntryState = SetAsState.ENABLED,
+                        canDisableMultihop = false,
+                    )
+                )
+            )
+        val mockedOnSelectHop: (RelayItem) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = true,
+                        isFilterButtonEnabled = true,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                ),
+            onSelectHop = mockedOnSelectHop,
+        )
 
-            // Act
-            onNodeWithText(relayItem.name).performLongClick()
+        // Act
+        onNodeWithText(relayItem.name).performLongClick()
 
-            // Assert
-            onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
-        }
+        // Assert
+        onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
+    }
 
     @Test
     fun whenOpeningScreenAndRecentsEnabledShouldScrollToTheSelectedRecent() {
@@ -488,43 +481,42 @@ class SelectLocationScreenTest {
     }
 
     @Test
-    fun whenRelayListIsEmptyShouldShowEmptyState() =
-        composeExtension.use {
-            // Arrange
-            every { listViewModel.uiState } returns
-                MutableStateFlow(
-                    Lce.Content(
-                        SelectLocationListUiState(
-                            relayListType = RelayListType.Single,
-                            relayListItems =
-                                createSimpleRelayListItemList(
-                                    recentItems = emptyList(),
-                                    customListItem = emptyList(),
-                                    locationItems = emptyList(),
-                                    selectedItem = null,
-                                ),
-                        )
+    fun whenRelayListIsEmptyShouldShowEmptyState() = composeExtension.use {
+        // Arrange
+        every { listViewModel.uiState } returns
+            MutableStateFlow(
+                Lce.Content(
+                    SelectLocationListUiState(
+                        relayListType = RelayListType.Single,
+                        relayListItems =
+                            createSimpleRelayListItemList(
+                                recentItems = emptyList(),
+                                customListItem = emptyList(),
+                                locationItems = emptyList(),
+                                selectedItem = null,
+                            ),
                     )
                 )
-            initScreen(
-                state =
-                    Lc.Content(
-                        SelectLocationUiState(
-                            filterChips = emptyList(),
-                            multihopListSelection = MultihopRelayListType.EXIT,
-                            isSearchButtonEnabled = false,
-                            isFilterButtonEnabled = false,
-                            isRecentsEnabled = true,
-                            hopSelection = HopSelection.Single(null),
-                            tunnelErrorStateCause = null,
-                        )
-                    )
             )
+        initScreen(
+            state =
+                Lc.Content(
+                    SelectLocationUiState(
+                        filterChips = emptyList(),
+                        multihopListSelection = MultihopRelayListType.EXIT,
+                        isSearchButtonEnabled = false,
+                        isFilterButtonEnabled = false,
+                        isRecentsEnabled = true,
+                        hopSelection = HopSelection.Single(null),
+                        tunnelErrorStateCause = null,
+                    )
+                )
+        )
 
-            // Assert
-            onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_FIRST_LINE).assertExists()
-            onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_SECOND_LINE).assertExists()
-        }
+        // Assert
+        onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_FIRST_LINE).assertExists()
+        onNodeWithText(RELAY_LOCATIONS_EMPTY_TEXT_SECOND_LINE).assertExists()
+    }
 
     companion object {
         private const val CUSTOM_LISTS_EMPTY_TEXT = "To create a custom list press the \"+\""

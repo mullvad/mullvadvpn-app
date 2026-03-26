@@ -63,66 +63,63 @@ class AccountScreenTest {
     }
 
     @Test
-    fun testDefaultState() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    AccountUiState(
-                        deviceName = DUMMY_DEVICE_NAME,
-                        accountNumber = DUMMY_ACCOUNT_NUMBER,
-                        accountExpiry = null,
-                        showLogoutLoading = false,
-                        verificationPending = false,
-                    )
-            )
+    fun testDefaultState() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                AccountUiState(
+                    deviceName = DUMMY_DEVICE_NAME,
+                    accountNumber = DUMMY_ACCOUNT_NUMBER,
+                    accountExpiry = null,
+                    showLogoutLoading = false,
+                    verificationPending = false,
+                )
+        )
 
-            // Assert
-            onNodeWithText("Log out").assertExists()
-        }
-
-    @Test
-    fun testLogoutClick() =
-        composeExtension.use {
-            // Arrange
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    AccountUiState(
-                        deviceName = DUMMY_DEVICE_NAME,
-                        accountNumber = DUMMY_ACCOUNT_NUMBER,
-                        accountExpiry = null,
-                        showLogoutLoading = false,
-                        verificationPending = false,
-                    ),
-                onLogoutClick = mockedClickHandler,
-            )
-
-            // Act
-            onNodeWithText("Log out").performClick()
-
-            // Assert
-            verify { mockedClickHandler.invoke() }
-        }
+        // Assert
+        onNodeWithText("Log out").assertExists()
+    }
 
     @Test
-    fun testShowVerificationInProgress() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    AccountUiState(
-                        deviceName = DUMMY_DEVICE_NAME,
-                        accountNumber = DUMMY_ACCOUNT_NUMBER,
-                        accountExpiry = null,
-                        showLogoutLoading = false,
-                        verificationPending = true,
-                    )
-            )
+    fun testLogoutClick() = composeExtension.use {
+        // Arrange
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                AccountUiState(
+                    deviceName = DUMMY_DEVICE_NAME,
+                    accountNumber = DUMMY_ACCOUNT_NUMBER,
+                    accountExpiry = null,
+                    showLogoutLoading = false,
+                    verificationPending = false,
+                ),
+            onLogoutClick = mockedClickHandler,
+        )
 
-            // Assert
-            onNodeWithText("Google Play payment pending").assertExists()
-        }
+        // Act
+        onNodeWithText("Log out").performClick()
+
+        // Assert
+        verify { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testShowVerificationInProgress() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                AccountUiState(
+                    deviceName = DUMMY_DEVICE_NAME,
+                    accountNumber = DUMMY_ACCOUNT_NUMBER,
+                    accountExpiry = null,
+                    showLogoutLoading = false,
+                    verificationPending = true,
+                )
+        )
+
+        // Assert
+        onNodeWithText("Google Play payment pending").assertExists()
+    }
 
     companion object {
         private const val DUMMY_DEVICE_NAME = "fake_name"

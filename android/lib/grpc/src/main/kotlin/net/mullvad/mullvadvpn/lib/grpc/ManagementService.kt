@@ -226,11 +226,13 @@ class ManagementService(
     private val _mutableRelayList = MutableStateFlow<RelayList?>(null)
     val relayList: Flow<RelayList> = _mutableRelayList.filterNotNull()
 
-    val relayCountries: Flow<List<RelayItem.Location.Country>> =
-        relayList.mapNotNull { it.countries }
+    val relayCountries: Flow<List<RelayItem.Location.Country>> = relayList.mapNotNull {
+        it.countries
+    }
 
-    val wireguardEndpointData: Flow<ModelWireguardEndpointData> =
-        relayList.mapNotNull { it.wireguardEndpointData }
+    val wireguardEndpointData: Flow<ModelWireguardEndpointData> = relayList.mapNotNull {
+        it.wireguardEndpointData
+    }
 
     private val _mutableCurrentAccessMethod = MutableStateFlow<ApiAccessMethodSetting?>(null)
     val currentAccessMethod: Flow<ApiAccessMethodSetting> =
@@ -508,15 +510,14 @@ class ManagementService(
     suspend fun addCustomDns(address: InetAddress): Either<SetDnsOptionsError, Int> =
         Either.catch {
                 val currentDnsOptions = getSettings().tunnelOptions.dnsOptions
-                val updatedDnsOptions =
-                    currentDnsOptions.copy {
-                        DnsOptions.customOptions.addresses set
-                            currentDnsOptions.customOptions.addresses + address
-                        // If it is the first address, then turn on Custom Dns
-                        DnsOptions.state set
-                            if (currentDnsOptions.customOptions.addresses.isEmpty()) DnsState.Custom
-                            else currentDnsOptions.state
-                    }
+                val updatedDnsOptions = currentDnsOptions.copy {
+                    DnsOptions.customOptions.addresses set
+                        currentDnsOptions.customOptions.addresses + address
+                    // If it is the first address, then turn on Custom Dns
+                    DnsOptions.state set
+                        if (currentDnsOptions.customOptions.addresses.isEmpty()) DnsState.Custom
+                        else currentDnsOptions.state
+                }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
             }
@@ -529,14 +530,13 @@ class ManagementService(
                 val mutableAddresses = currentDnsOptions.customOptions.addresses.toMutableList()
                 mutableAddresses.removeAt(index)
 
-                val updatedDnsOptions =
-                    currentDnsOptions.copy {
-                        DnsOptions.customOptions.addresses set mutableAddresses.toList()
-                        // If it is the last address, then turn off Custom Dns
-                        DnsOptions.state set
-                            if (mutableAddresses.isEmpty()) DnsState.Default
-                            else currentDnsOptions.state
-                    }
+                val updatedDnsOptions = currentDnsOptions.copy {
+                    DnsOptions.customOptions.addresses set mutableAddresses.toList()
+                    // If it is the last address, then turn off Custom Dns
+                    DnsOptions.state set
+                        if (mutableAddresses.isEmpty()) DnsState.Default
+                        else currentDnsOptions.state
+                }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
             }
             .onLeft { Logger.e("Delete custom dns error") }
@@ -656,18 +656,17 @@ class ManagementService(
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings
 
-                val updatedRelaySettings =
-                    currentRelaySettings.copy {
-                        inside(RelaySettings.relayConstraints) {
-                            RelayConstraints.location set Constraint.Only(exit)
-                            if (entry != null) {
-                                RelayConstraints.wireguardConstraints.entryLocation set
-                                    Constraint.Only(entry)
-                            }
-                            RelayConstraints.wireguardConstraints.isMultihopEnabled set
-                                isMultihopEnabled
+                val updatedRelaySettings = currentRelaySettings.copy {
+                    inside(RelaySettings.relayConstraints) {
+                        RelayConstraints.location set Constraint.Only(exit)
+                        if (entry != null) {
+                            RelayConstraints.wireguardConstraints.entryLocation set
+                                Constraint.Only(entry)
                         }
+                        RelayConstraints.wireguardConstraints.isMultihopEnabled set
+                            isMultihopEnabled
                     }
+                }
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())
             }
             .onLeft { Logger.e("Set relay multihop error") }
@@ -742,13 +741,12 @@ class ManagementService(
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
-                val updated =
-                    relaySettings.copy {
-                        inside(RelaySettings.relayConstraints) {
-                            RelayConstraints.providers set providersConstraint
-                            RelayConstraints.ownership set ownershipConstraint
-                        }
+                val updated = relaySettings.copy {
+                    inside(RelaySettings.relayConstraints) {
+                        RelayConstraints.providers set providersConstraint
+                        RelayConstraints.ownership set ownershipConstraint
                     }
+                }
                 grpc.setRelaySettings(updated.fromDomain())
             }
             .onLeft { Logger.e("Set ownership and providers error") }
@@ -953,13 +951,12 @@ class ManagementService(
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val currentRelaySettings = getSettings().relaySettings
-                val updatedRelaySettings =
-                    currentRelaySettings.copy {
-                        inside(RelaySettings.relayConstraints.wireguardConstraints) {
-                            WireguardConstraints.entryLocation set Constraint.Only(entryLocation)
-                            WireguardConstraints.isMultihopEnabled set isMultihopEnabled
-                        }
+                val updatedRelaySettings = currentRelaySettings.copy {
+                    inside(RelaySettings.relayConstraints.wireguardConstraints) {
+                        WireguardConstraints.entryLocation set Constraint.Only(entryLocation)
+                        WireguardConstraints.isMultihopEnabled set isMultihopEnabled
                     }
+                }
                 grpc.setRelaySettings(updatedRelaySettings.fromDomain())
             }
             .onLeft { Logger.e("Set multihop error") }

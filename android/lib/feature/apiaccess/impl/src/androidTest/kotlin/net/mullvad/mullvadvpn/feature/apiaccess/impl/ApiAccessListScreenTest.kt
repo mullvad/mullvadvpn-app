@@ -39,59 +39,53 @@ class ApiAccessListScreenTest {
     }
 
     @Test
-    fun shouldShowCurrentApiAccessName() =
-        composeExtension.use {
-            // Arrange
-            val currentApiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state = ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
-            )
+    fun shouldShowCurrentApiAccessName() = composeExtension.use {
+        // Arrange
+        val currentApiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(
+            state = ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
+        )
 
-            // Assert
-            onNodeWithText("Current: ${currentApiAccessMethod.name}").assertExists()
-        }
-
-    @Test
-    fun shouldShowApiAccessNameAndStatusInList() =
-        composeExtension.use {
-            // Arrange
-            val apiAccessMethod = DIRECT_ACCESS_METHOD
-            initScreen(
-                state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod))
-            )
-
-            // Assert
-            onNodeWithText(apiAccessMethod.name.value).assertExists()
-            onNodeWithText("On").assertExists()
-        }
+        // Assert
+        onNodeWithText("Current: ${currentApiAccessMethod.name}").assertExists()
+    }
 
     @Test
-    fun whenClickingOnAddMethodShouldCallOnAddMethodClicked() =
-        composeExtension.use {
-            // Arrange
-            val onAddMethodClick: () -> Unit = mockk(relaxed = true)
-            initScreen(state = ApiAccessListUiState(), onAddMethodClick = onAddMethodClick)
+    fun shouldShowApiAccessNameAndStatusInList() = composeExtension.use {
+        // Arrange
+        val apiAccessMethod = DIRECT_ACCESS_METHOD
+        initScreen(state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod)))
 
-            // Act
-            onNodeWithText("Add").performClick()
-
-            // Assert
-            verify { onAddMethodClick() }
-        }
+        // Assert
+        onNodeWithText(apiAccessMethod.name.value).assertExists()
+        onNodeWithText("On").assertExists()
+    }
 
     @Test
-    fun whenClickingOnInfoButtonShouldCallOnApiAccessInfoClick() =
-        composeExtension.use {
-            // Arrange
-            val onApiAccessInfoClick: () -> Unit = mockk(relaxed = true)
-            initScreen(state = ApiAccessListUiState(), onApiAccessInfoClick = onApiAccessInfoClick)
+    fun whenClickingOnAddMethodShouldCallOnAddMethodClicked() = composeExtension.use {
+        // Arrange
+        val onAddMethodClick: () -> Unit = mockk(relaxed = true)
+        initScreen(state = ApiAccessListUiState(), onAddMethodClick = onAddMethodClick)
 
-            // Act
-            onNodeWithTag(API_ACCESS_LIST_INFO_TEST_TAG).performClick()
+        // Act
+        onNodeWithText("Add").performClick()
 
-            // Assert
-            verify { onApiAccessInfoClick() }
-        }
+        // Assert
+        verify { onAddMethodClick() }
+    }
+
+    @Test
+    fun whenClickingOnInfoButtonShouldCallOnApiAccessInfoClick() = composeExtension.use {
+        // Arrange
+        val onApiAccessInfoClick: () -> Unit = mockk(relaxed = true)
+        initScreen(state = ApiAccessListUiState(), onApiAccessInfoClick = onApiAccessInfoClick)
+
+        // Act
+        onNodeWithTag(API_ACCESS_LIST_INFO_TEST_TAG).performClick()
+
+        // Assert
+        verify { onApiAccessInfoClick() }
+    }
 
     @Test
     fun whenClickingOnApiAccessMethodShouldCallOnApiAccessMethodClickWithCorrectAccessMethod() =

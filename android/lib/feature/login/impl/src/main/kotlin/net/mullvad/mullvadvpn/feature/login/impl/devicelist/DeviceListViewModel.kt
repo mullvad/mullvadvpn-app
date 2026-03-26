@@ -60,15 +60,14 @@ class DeviceListViewModel(
                 DeviceListUiState.Loading,
             )
 
-    fun fetchDevices() =
-        viewModelScope.launch {
-            error.value = null
-            loading.value = true
-            deviceRepository
-                .deviceList(accountNumber)
-                .fold({ error.value = it }, { deviceList.value = it })
-            loading.value = false
-        }
+    fun fetchDevices() = viewModelScope.launch {
+        error.value = null
+        loading.value = true
+        deviceRepository
+            .deviceList(accountNumber)
+            .fold({ error.value = it }, { deviceList.value = it })
+        loading.value = false
+    }
 
     fun removeDevice(deviceIdToRemove: DeviceId) =
         viewModelScope.launch(dispatcher) {
@@ -89,10 +88,9 @@ class DeviceListViewModel(
         loadingDevices.update { if (isLoading) it + deviceId else it - deviceId }
     }
 
-    fun continueToLogin() =
-        viewModelScope.launch {
-            _uiSideEffect.send(DeviceListSideEffect.NavigateToLogin(accountNumber = accountNumber))
-        }
+    fun continueToLogin() = viewModelScope.launch {
+        _uiSideEffect.send(DeviceListSideEffect.NavigateToLogin(accountNumber = accountNumber))
+    }
 
     private fun removeDeviceFromState(deviceId: DeviceId) {
         deviceList.update { devices -> devices.filter { item -> item.id != deviceId } }

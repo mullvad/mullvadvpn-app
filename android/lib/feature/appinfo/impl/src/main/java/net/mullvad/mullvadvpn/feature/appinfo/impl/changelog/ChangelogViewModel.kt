@@ -24,6 +24,7 @@ class ChangelogViewModel(
             )
         )
 
-    fun dismissChangelogNotification() =
-        viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }
+    fun dismissChangelogNotification() = viewModelScope.launch {
+        changelogRepository.setDismissNewChangelogNotification()
+    }
 }

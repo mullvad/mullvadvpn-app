@@ -48,15 +48,14 @@ data class DropRule(
                     blockAllExceptDestination = blockAllExceptDestination,
                 )
 
-            val ipv6Rules =
-                sourceIpv6.map {
-                    DropRule(
-                        source = it.split('%')[0], // remove link-local suffix
-                        destination = toIpv4,
-                        protocols = protocols,
-                        blockAllExceptDestination = blockAllExceptDestination,
-                    )
-                }
+            val ipv6Rules = sourceIpv6.map {
+                DropRule(
+                    source = it.split('%')[0], // remove link-local suffix
+                    destination = toIpv4,
+                    protocols = protocols,
+                    blockAllExceptDestination = blockAllExceptDestination,
+                )
+            }
 
             return ipv6Rules + ipv4Rule
         }

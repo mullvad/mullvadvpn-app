@@ -37,45 +37,42 @@ class DeviceRevokedScreenTest {
     }
 
     @Test
-    fun testUnblockWarningShowingWhenSecured() =
-        composeExtension.use {
-            // Arrange
-            val state = DeviceRevokedUiState.SECURED
+    fun testUnblockWarningShowingWhenSecured() = composeExtension.use {
+        // Arrange
+        val state = DeviceRevokedUiState.SECURED
 
-            // Act
-            initScreen(state)
+        // Act
+        initScreen(state)
 
-            // Assert
-            onNodeWithText(UNBLOCK_WARNING).assertExists()
-        }
-
-    @Test
-    fun testUnblockWarningNotShowingWhenNotSecured() =
-        composeExtension.use {
-            // Arrange
-            val state = DeviceRevokedUiState.UNSECURED
-
-            // Act
-            initScreen(state)
-
-            // Assert
-            onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText(UNBLOCK_WARNING).assertExists()
+    }
 
     @Test
-    fun testGoToLogin() =
-        composeExtension.use {
-            // Arrange
-            val state = DeviceRevokedUiState.UNSECURED
-            val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
-            initScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
+    fun testUnblockWarningNotShowingWhenNotSecured() = composeExtension.use {
+        // Arrange
+        val state = DeviceRevokedUiState.UNSECURED
 
-            // Act
-            onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
+        // Act
+        initScreen(state)
 
-            // Assert
-            verify { mockOnGoToLoginClicked.invoke() }
-        }
+        // Assert
+        onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
+    }
+
+    @Test
+    fun testGoToLogin() = composeExtension.use {
+        // Arrange
+        val state = DeviceRevokedUiState.UNSECURED
+        val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
+        initScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
+
+        // Act
+        onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()
+
+        // Assert
+        verify { mockOnGoToLoginClicked.invoke() }
+    }
 
     companion object {
         private const val GO_TO_LOGIN_BUTTON_TEXT = "Go to login"

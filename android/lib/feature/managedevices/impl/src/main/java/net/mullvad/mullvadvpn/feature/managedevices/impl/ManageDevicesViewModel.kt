@@ -55,14 +55,13 @@ class ManageDevicesViewModel(
                     loading -> Lce.Loading(Unit)
                     error != null -> Lce.Error(error)
                     else -> {
-                        val deviceItems =
-                            devices.map {
-                                ManageDevicesItemUiState(
-                                    it,
-                                    loadingDevices.contains(it.id),
-                                    isCurrentDevice = it.id == currentDeviceState.device.id,
-                                )
-                            }
+                        val deviceItems = devices.map {
+                            ManageDevicesItemUiState(
+                                it,
+                                loadingDevices.contains(it.id),
+                                isCurrentDevice = it.id == currentDeviceState.device.id,
+                            )
+                        }
                         Lce.Content(ManageDevicesUiState(deviceItems.sortedWith(deviceComparator)))
                     }
                 }
@@ -74,15 +73,14 @@ class ManageDevicesViewModel(
                 Lce.Loading(Unit),
             )
 
-    fun fetchDevices() =
-        viewModelScope.launch {
-            error.value = null
-            loading.value = true
-            deviceRepository
-                .deviceList(accountNumber)
-                .fold({ error.value = it }, { deviceList.value = it })
-            loading.value = false
-        }
+    fun fetchDevices() = viewModelScope.launch {
+        error.value = null
+        loading.value = true
+        deviceRepository
+            .deviceList(accountNumber)
+            .fold({ error.value = it }, { deviceList.value = it })
+        loading.value = false
+    }
 
     fun removeDevice(deviceIdToRemove: DeviceId) =
         viewModelScope.launch(dispatcher) {

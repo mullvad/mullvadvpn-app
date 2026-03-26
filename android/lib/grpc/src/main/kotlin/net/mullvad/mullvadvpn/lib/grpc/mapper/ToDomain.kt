@@ -129,41 +129,38 @@ private fun ManagementInterface.TunnelState.Disconnecting.toDomain(): TunnelStat
     TunnelState.Disconnecting(actionAfterDisconnect = afterDisconnect.toDomain())
 
 private fun ManagementInterface.TunnelState.Error.toDomain(): TunnelState.Error {
-    val otherAlwaysOnAppError =
-        errorState.let {
-            if (it.hasOtherAlwaysOnAppError()) {
-                ErrorStateCause.OtherAlwaysOnApp(it.otherAlwaysOnAppError.appName)
-            } else {
-                null
-            }
+    val otherAlwaysOnAppError = errorState.let {
+        if (it.hasOtherAlwaysOnAppError()) {
+            ErrorStateCause.OtherAlwaysOnApp(it.otherAlwaysOnAppError.appName)
+        } else {
+            null
         }
+    }
 
-    val invalidDnsServers =
-        errorState.let { error ->
-            if (error.hasInvalidDnsServersError()) {
-                ErrorStateCause.InvalidDnsServers(
-                    addresses =
-                        error.invalidDnsServersError.ipAddrsList.toList().map {
-                            InetAddress.getByName(it)
-                        }
-                )
-            } else {
-                null
-            }
+    val invalidDnsServers = errorState.let { error ->
+        if (error.hasInvalidDnsServersError()) {
+            ErrorStateCause.InvalidDnsServers(
+                addresses =
+                    error.invalidDnsServersError.ipAddrsList.toList().map {
+                        InetAddress.getByName(it)
+                    }
+            )
+        } else {
+            null
         }
+    }
 
-    val invalidIpv6Config =
-        errorState.let { error ->
-            if (error.hasInvalidIpv6ConfigError()) {
-                ErrorStateCause.InvalidIpv6Config(
-                    addresses = error.invalidIpv6ConfigError.addrsList,
-                    routes = error.invalidIpv6ConfigError.routesList,
-                    dnsServers = error.invalidIpv6ConfigError.dnsList,
-                )
-            } else {
-                null
-            }
+    val invalidIpv6Config = errorState.let { error ->
+        if (error.hasInvalidIpv6ConfigError()) {
+            ErrorStateCause.InvalidIpv6Config(
+                addresses = error.invalidIpv6ConfigError.addrsList,
+                routes = error.invalidIpv6ConfigError.routesList,
+                dnsServers = error.invalidIpv6ConfigError.dnsList,
+            )
+        } else {
+            null
         }
+    }
 
     return TunnelState.Error(
         errorState =
