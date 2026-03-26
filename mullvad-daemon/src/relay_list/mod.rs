@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::fs::File;
 
-use mullvad_api::relay_list_transparency::TimestampedRelayListDigest;
+use mullvad_api::relay_list_transparency::SigsumPayload;
 use mullvad_api::{
     CachedRelayList, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
@@ -79,7 +79,7 @@ pub(crate) struct RelayListUpdater {
     on_update: Box<dyn Fn(&RelayList) + Send + 'static>,
     last_check: SystemTime,
     api_availability: ApiAvailability,
-    digest: Option<TimestampedRelayListDigest>,
+    digest: Option<SigsumPayload>,
     // Keep tabs on the up-to-date relay list.
     // Use [RelayListUpdater::get_final_relay_list] when exposing the relay list to other parts of
     // the app.
@@ -216,12 +216,12 @@ impl RelayListUpdater {
     fn download_relay_list(
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
-        latest_digest: Option<TimestampedRelayListDigest>,
+        latest_digest: Option<SigsumPayload>,
     ) -> impl Future<Output = Result<Option<CachedRelayList>, mullvad_api::Error>> + use<> {
         async fn download(
             api_handle: ApiAvailability,
             proxy: RelayListProxy,
-            latest_digest: Option<TimestampedRelayListDigest>,
+            latest_digest: Option<SigsumPayload>,
         ) -> Result<Option<CachedRelayList>, mullvad_api::Error> {
             api_handle.wait_background().await?;
             Ok(proxy.relay_list(latest_digest).await?)

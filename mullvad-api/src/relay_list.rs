@@ -1,7 +1,7 @@
 //! A module dedicated to retrieving the relay list from the Mullvad API.
 
 use crate::{
-    relay_list_transparency::{self, SigsumVerifiedPayload},
+    relay_list_transparency::{self, SigsumVerifiedRelayList},
     rest,
 };
 
@@ -15,7 +15,7 @@ use talpid_types::net::wireguard;
 use vec1::Vec1;
 
 use crate::relay_list_transparency::{
-    RelayListDigest, RelayListSignature, Sha256Bytes, TimestampedRelayListDigest,
+    RelayListDigest, RelayListEnvelope, Sha256Bytes, SigsumPayload,
 };
 use sha2::{Digest, Sha256};
 use std::{
@@ -45,7 +45,7 @@ impl RelayListProxy {
     /// corrupted in some way.
     pub async fn relay_list(
         &self,
-        latest_digest: Option<TimestampedRelayListDigest>,
+        latest_digest: Option<SigsumPayload>,
     ) -> Result<Option<CachedRelayList>, rest::Error> {
         relay_list_transparency::download_and_verify_relay_list(
             self,
@@ -55,10 +55,7 @@ impl RelayListProxy {
         .await?
         .map(|verified| {
             let relay_list: ServerRelayList = serde_json::from_slice(&verified.content)?;
-            Ok(relay_list.cache(TimestampedRelayListDigest::new(
-                verified.digest,
-                verified.timestamp,
-            )))
+            Ok(relay_list.cache(SigsumPayload::new(verified.digest, verified.timestamp)))
         })
         .transpose()
     }
@@ -66,8 +63,8 @@ impl RelayListProxy {
     /// Fetch the relay list
     pub async fn relay_list_response(
         &self,
-        digest: Option<TimestampedRelayListDigest>,
-    ) -> Result<Option<SigsumVerifiedPayload>, rest::Error> {
+        digest: Option<SigsumPayload>,
+    ) -> Result<Option<SigsumVerifiedRelayList>, rest::Error> {
         relay_list_transparency::download_and_verify_relay_list(
             self,
             digest,
@@ -111,20 +108,20 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list sigsum timestamp
-    pub(crate) async fn relay_list_latest_timestamp(
+    pub(crate) async fn relay_list_latest_envelope(
         &self,
-    ) -> Result<RelayListSignature, rest::Error> {
+    ) -> Result<RelayListEnvelope, rest::Error> {
         let response = self.relay_list_timestamp_response().await?;
 
         let body = response.body().await.inspect_err(|_err| {
             log::error!("Failed to deserialize API response of relay list sigsum")
         })?;
 
-        let relay_list_sigsum = str::from_utf8(&body)
+        let envelope = str::from_utf8(&body)
             .map_err(|_| rest::Error::InvalidUtf8Error)
-            .and_then(RelayListSignature::parse)?;
+            .and_then(RelayListEnvelope::parse)?;
 
-        Ok(relay_list_sigsum)
+        Ok(envelope)
     }
 
     async fn relay_list_timestamp_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
@@ -169,12 +166,12 @@ pub struct CachedRelayList {
     /// The timestamp is when the relay list was signed. This is needed to check that the timestamp
     /// we get form the API is not older than this value.
     #[serde(default)]
-    digest: TimestampedRelayListDigest,
+    digest: SigsumPayload,
 }
 
 impl ServerRelayList {
     /// Associate this relay list with a specific [`RelayListDigest`].
-    const fn cache(self, digest: TimestampedRelayListDigest) -> CachedRelayList {
+    const fn cache(self, digest: SigsumPayload) -> CachedRelayList {
         CachedRelayList {
             relay_list: self,
             digest,
@@ -234,8 +231,8 @@ impl ServerRelayList {
 }
 
 impl CachedRelayList {
-    /// Read the [`TimestampedRelayListDigest`] of the cached relay list.
-    pub const fn digest(&self) -> &TimestampedRelayListDigest {
+    /// Read the [`SigsumPayload`] of the cached relay list.
+    pub const fn digest(&self) -> &SigsumPayload {
         &self.digest
     }
 
