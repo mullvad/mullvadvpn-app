@@ -110,7 +110,7 @@ in
           "185.217.116.129/32"
           # api-app.stagemole.eu
           "185.217.116.132/32"
-          # api-partners.stagemole.eu
+          # partner.stagemole.eu
           "185.217.116.131/32"
         ];
       }
