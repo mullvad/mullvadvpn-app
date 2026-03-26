@@ -5,9 +5,6 @@
 set -eu
 shopt -s nullglob
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
-
 if [[ -z ${ANDROID_CREDENTIALS_DIR-} || ! -d "$ANDROID_CREDENTIALS_DIR" || -z "$(ls -A "$ANDROID_CREDENTIALS_DIR")" ]]; then
     echo "Credentials directory is missing or empty"
     exit 1
