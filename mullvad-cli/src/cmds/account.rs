@@ -1,9 +1,13 @@
 use crate::BIN_NAME;
-use anyhow::{Result, anyhow};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::Subcommand;
+use futures::StreamExt;
 use itertools::Itertools;
-use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::{account::AccountNumber, device::DeviceState};
+use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
+use mullvad_types::{
+    account::AccountNumber,
+    device::{DeviceEventCause, DeviceState},
+};
 use std::io::{self, Write};
 
 const NOT_LOGGED_IN_MESSAGE: &str = "Not logged in on any account";
@@ -63,12 +67,21 @@ impl Account {
         let mut rpc = MullvadProxyClient::new().await?;
         match self {
             Account::Create => Self::create(&mut rpc).await,
-            Account::Login { account } => {
-                Self::login(
-                    &mut rpc,
-                    unwrap_or_from_stdin(account, "Enter an account number: ").await,
-                )
-                .await
+            Account::Login {
+                account: Some(account_number),
+            } => Self::login(&mut rpc, account_number).await,
+            Account::Login { account: None } => {
+                // Try to read account number from stdin, but also accept a different device to
+                // login via the provided QR code.
+                let _ = Self::qr_login(&mut rpc).await;
+                tokio::select! {
+                    _ = Self::await_login_event(&mut rpc) => {
+                        println!();
+                        println!("Successfully logged in via QR code");
+                        Ok(())
+                    }
+                    _ = tokio::task::spawn_blocking(|| from_stdin("Enter an account number:")) => Ok(()),
+                }
             }
             Account::Logout => Self::logout(&mut rpc).await,
             Account::Get { verbose } => Self::get(&mut rpc, verbose).await,
@@ -98,6 +111,29 @@ impl Account {
         rpc.logout_account(&format!("{BIN_NAME} logout")).await?;
         println!("Removed device from Mullvad account");
         Ok(())
+    }
+
+    /// Print a QR code for remote log in. This future lives indefinetly until aborted or daemon
+    /// event stream is closed.
+    async fn qr_login(rpc: &mut MullvadProxyClient) -> Result<()> {
+        // Output QR code for another device to scan.
+        let ticket = rpc.init_login().await?;
+        println!();
+        qr2term::print_qr(ticket.token).context("Failed to generate QR code for remote login")
+    }
+
+    /// This future lives indefinetly until aborted or daemon event stream is closed.
+    async fn await_login_event(rpc: &mut MullvadProxyClient) -> Result<()> {
+        // Wait for login event.
+        let mut event_stream = rpc.events_listen().await?;
+        while let Some(event) = event_stream.next().await {
+            if let DaemonEvent::Device(device_event) = event?
+                && let DeviceEventCause::LoggedIn = device_event.cause
+            {
+                return Ok(());
+            };
+        }
+        bail!("Event stream closed before receiving a logged in event");
     }
 
     async fn get(rpc: &mut MullvadProxyClient, verbose: bool) -> Result<()> {
@@ -219,16 +255,6 @@ async fn account_else_current(
             }
         }
     }
-}
-
-async fn unwrap_or_from_stdin(val: Option<String>, prompt_str: &'static str) -> String {
-    if let Some(val) = val {
-        return val;
-    }
-
-    tokio::task::spawn_blocking(|| from_stdin(prompt_str))
-        .await
-        .unwrap()
 }
 
 fn from_stdin(prompt_str: &'static str) -> String {
