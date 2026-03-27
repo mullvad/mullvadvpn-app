@@ -75,15 +75,18 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn init_login(&self, _: Request<()>) -> ServiceResult<types::Ticket> {
         // Initialize a login attempt.
-        let ticket = types::Ticket {
-            token: "docaaacarwhmusoqf362j3jpzrehzkw3bqamcp2mmbhn3fmag3mzzfjp4beahj2v7aezhojvfqi5wltr4vxymgzqnctryyup327ct7iy4s5noxy6aaa".to_string(),
-        };
-
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::InitLogin(tx))?;
+        let ticket = self.wait_for_result(rx).await?;
         Ok(Response::new(ticket))
     }
 
     async fn login(&self, ticket: Request<types::Ticket>) -> ServiceResult<()> {
-        todo!("login")
+        let ticket = ticket.into_inner();
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::Login(tx, ticket))?;
+        let () = self.wait_for_result(rx).await?;
+        Ok(Response::new(()))
     }
 
     // Control and get the tunnel state
