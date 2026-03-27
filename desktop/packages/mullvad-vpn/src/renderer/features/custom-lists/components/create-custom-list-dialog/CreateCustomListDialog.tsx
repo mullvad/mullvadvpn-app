@@ -76,7 +76,7 @@ function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
                   <TextField.Label color="whiteAlpha60">
                     {
                       // TRANSLATORS: Label for the input where the user can enter the name of a new custom list.
-                      messages.pgettext('custom-list-feature', 'Create custom list')
+                      messages.pgettext('custom-list-feature', 'Create list')
                     }
                   </TextField.Label>
                   <FlexColumn gap="small">
@@ -92,10 +92,7 @@ function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
                       {invalidReason
                         ? invalidReason
                         : // TRANSLATORS: Helper text under input for creating a custom list.
-                          messages.pgettext(
-                            'custom-list-feature',
-                            'Enter a name for the custom list',
-                          )}
+                          messages.pgettext('custom-list-feature', 'Enter a name for the list')}
                     </Dialog.Text>
                   </FlexColumn>
                 </Dialog.TextGroup>
