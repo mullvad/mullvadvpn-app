@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.app.widget
 
 enum class WidgetType(val className: String) {
-    SETTINGS(".widget.SettingsWidgetReceiver");
+    SETTINGS(".app.widget.SettingsWidgetReceiver");
 
     companion object {
         fun fromClass(className: String): WidgetType {
