@@ -13,7 +13,10 @@ import { CustomListGeographicalLocation } from '../custom-list-geographical-loca
 import { Location } from '../location-list-item';
 import { useLocationListsContext } from '../location-lists/LocationListsContext';
 import { CustomListTrailingActions } from './components';
-import { CustomListLocationProvider } from './CustomListLocationContext';
+import {
+  CustomListLocationProvider,
+  useCustomListLocationContext,
+} from './CustomListLocationContext';
 
 export type CustomListLocationProps = {
   customList: CustomListLocation;
@@ -27,9 +30,10 @@ const StyledLocationContainer = styled.div`
 function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomListLocationProps) {
   const [expanded, setExpanded] = useState(customList.expanded);
   const { handleSelect } = useLocationListsContext();
+  const { loading } = useCustomListLocationContext();
 
   const showEmptySubtitle = customList.locations.length === 0;
-  const disabled = customList.disabled || disabledProp;
+  const disabled = customList.disabled || disabledProp || loading;
 
   // Collapse accordion when all its children are removed
   useEffect(() => {
