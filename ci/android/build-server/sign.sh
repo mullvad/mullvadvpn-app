@@ -11,6 +11,7 @@ BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 PROVIDER_ARG="$BUILD_DIR/ci/android/build-server/signing/pkcs11_java.cfg"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
+MIN_SDK_VERSION="26"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "Needs to have set yubikey pin"
@@ -48,7 +49,7 @@ function sign_artifact {
     echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
-    --min-sdk-version 26 \
+    --min-sdk-version "$MIN_SDK_VERSION" \
     --in "$artifact"
 }
 
