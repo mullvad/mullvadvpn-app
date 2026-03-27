@@ -74,6 +74,8 @@ chrono = { workspace = true }
 clap = { workspace = true }
 either = "1.11"
 futures = { workspace = true }
+iroh = "0.97.0"
+iroh-tickets = "0.4.0"
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"
