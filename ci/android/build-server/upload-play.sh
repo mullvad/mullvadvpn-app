@@ -28,7 +28,7 @@ function main {
 
 # Upload bundle files to Google play.
 # It has to be done for one bundle at a time due to how the publish task works,
-# see the upload_bundle function.
+# see the upload_bundle function for more information.
 function upload_bundles {
     artifact_dir="$1"
     version="$2"
@@ -48,7 +48,7 @@ function upload_bundles {
 }
 
 # Due to to the publish task only being able to upload all files in a folder
-# we need to upload one bundle at a time by copying into a upload dir.
+# we need to upload one bundle at a time by copying into an upload dir.
 function upload_bundle {
     upload_dir=$1
     publish_task=$2
