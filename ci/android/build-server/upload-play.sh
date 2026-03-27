@@ -21,15 +21,17 @@ function main {
         exit 1
     fi
 
-    prepare "$1" "$2"
+    local artifact_dir="$1"
+    local version="$2"
+    prepare "$artifact_dir" "$version"
 }
 
 # Prepare files to be uploaded to Google play.
 # Due to to the upload task only being able to upload all files in a folder we need to copy
 # the file to a specific folder every time
 function prepare {
-    artifact_dir=$1
-    version=$2
+    artifact_dir="$1"
+    version="$2"
 
     local play_upload_dir="$artifact_dir/play_upload"
     mkdir -p "$play_upload_dir"
@@ -37,25 +39,24 @@ function prepare {
     trap 'rc=$?; (( rc != 0 )) && rm -rf "$play_upload_dir"' EXIT
 
     if [[ "$version" != *"-dev-"* ]]; then
-            upload_google_play "publishPlayProdReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.aab" "$play_upload_dir"
+            upload_bundle "$play_upload_dir" "publishPlayProdReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.aab" 
         if [[ "$version" == *"-alpha"* ]]; then
-            upload_google_play "publishPlayDevmoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.devmole.aab" "$play_upload_dir"
-            upload_google_play "publishPlayStagemoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.stagemole.aab" "$play_upload_dir"
+            upload_bundle "$play_upload_dir" "publishPlayDevmoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.devmole.aab"
+            upload_bundle "$play_upload_dir" "publishPlayStagemoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.stagemole.aab"
         fi
     fi
 }
 
-function upload_google_play {
-    task=$1
-    file=$2
-    upload_dir=$3
+function upload_bundle {
+    upload_dir=$1
+    publish_task=$2
+    bundle_file=$3
 
     rm -r "${upload_dir:?}/"* 2>/dev/null || true
-    cp "$file" "$upload_dir/"
+    cp "$bundle_file" "$upload_dir/"
 
     PLAY_CREDENTIALS_PATH="$ANDROID_CREDENTIALS_DIR/play-api-key.json" \
-    ./building/container-run.sh android ./android/gradlew -p android "$task" --artifact-dir "../$upload_dir"
+    ./building/container-run.sh android ./android/gradlew -p android "$publish_task" --artifact-dir "../$upload_dir"
 }
 
-# Run script
 main "$@"

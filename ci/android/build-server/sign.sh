@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-# Given a directory will sign all Mullvad apk and aab files in that directory.
-# APKs will be signed with both the old and the new key. AABs will only be signed by the new key.
+# Given a directory will sign all artifacts (apk and aab files) in that directory.
 # Requires a YUBIKEY PIN and credentials directory to be set up beforehand.
 
 set -eu
@@ -29,29 +28,28 @@ function main {
         exit 1
     fi
 
-    sign_artifacts "$1"
+    local artifact_dir="$1"
+    sign_artifacts "$artifact_dir"
+}
+
+function sign_artifacts {
+    local artifact_dir="$1"
+
+    pushd "$artifact_dir"
+    for artifact in MullvadVPN-*.apk MullvadVPN-*.aab; do
+        sign_artifact "$artifact"
+    done
+    popd
 }
 
 function sign_artifact {
-    local file=$1
+    local artifact="$1"
 
     echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
     --min-sdk-version 26 \
-    --in "$file"
+    --in "$artifact"
 }
 
-function sign_artifacts {
-    dir="$1"
-
-    pushd "$dir"
-    # Sign all Mullvad apk and aab files
-    for apk in MullvadVPN-*.apk MullvadVPN-*.aab; do
-        sign_artifact "$apk"
-    done
-    popd
-}
-
-# Run script
 main "$@"

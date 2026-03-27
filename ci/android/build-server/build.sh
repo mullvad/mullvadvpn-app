@@ -31,7 +31,12 @@ function upload {
     checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
+    # Move files for CDN upload by: buildserver-upload.sh
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+
+    # Upload files to google play.
+    ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
+    "$SCRIPT_DIR/upload-play.sh" "$(pwd)" "$version"
 }
 
 function run_in_linux_container {
@@ -119,10 +124,6 @@ function build_sign_and_publish_ref {
     # Sign all artifacts
     YUBIKEY_PIN=$YUBIKEY_PIN \
     "$SCRIPT_DIR/sign.sh" "$artifact_dir"
-
-    # Upload files to google play, this needs to be done after the artifacts have been signed
-    ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
-    ./ci/buildserver-upload-play.sh "$artifact_dir" "$version"
 
     (cd "$artifact_dir" && upload "$version") || return 1
     # shellcheck disable=SC2216
