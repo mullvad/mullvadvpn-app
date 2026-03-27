@@ -70,6 +70,22 @@ impl ManagementService for ManagementServiceImpl {
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
 
+    // Remote Login
+    //
+
+    async fn init_login(&self, _: Request<()>) -> ServiceResult<types::Ticket> {
+        // Initialize a login attempt.
+        let ticket = types::Ticket {
+            token: "docaaacarwhmusoqf362j3jpzrehzkw3bqamcp2mmbhn3fmag3mzzfjp4beahj2v7aezhojvfqi5wltr4vxymgzqnctryyup327ct7iy4s5noxy6aaa".to_string(),
+        };
+
+        Ok(Response::new(ticket))
+    }
+
+    async fn login(&self, ticket: Request<types::Ticket>) -> ServiceResult<()> {
+        todo!("login")
+    }
+
     // Control and get the tunnel state
     //
 

@@ -165,6 +165,17 @@ service ManagementService {
   // mark the migration as completed. This will cause GetMigrationEvent to return a null-value
   // indefintely.
   rpc ClearMigrationMessage(google.protobuf.Empty) returns (google.protobuf.Empty);
+
+  // Remote Login
+  rpc InitLogin(google.protobuf.Empty) returns (Ticket);
+  rpc Login(Ticket) returns (google.protobuf.Empty);
+}
+
+// Instead of making users copy and paste just a hash and then figure out where to find the data, tickets combine what you want with where to get it from. This gives iroh everything needed to establish a connection immediately. Tickets work well in QR codes, can be sent via messaging apps, or published to a coordination server. They’re particularly useful for short-lived sessions where both devices are online at the same time.
+//
+// Read more at https://docs.iroh.computer/concepts/tickets
+message Ticket {
+  string token = 1;
 }
 
 message AppUpgradeEvent {
