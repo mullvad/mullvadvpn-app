@@ -86,6 +86,7 @@ import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
 import net.mullvad.mullvadvpn.feature.login.api.CreateAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.login.api.DeviceListNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginAction
+import net.mullvad.mullvadvpn.feature.login.impl.qrcode.QRCodeImage
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
@@ -257,7 +258,10 @@ private fun LoginContent(
     onDeleteHistoryClick: () -> Unit,
     onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin)) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
             text = state.loginState.title(),
             style = MaterialTheme.typography.headlineLarge,
@@ -284,6 +288,12 @@ private fun LoginContent(
             modifier =
                 Modifier.testTag(LOGIN_BUTTON_TEST_TAG).padding(bottom = Dimens.mediumPadding),
         )
+
+        state.loginTicket?.let { ticket ->
+            Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+            QRCodeImage(text = ticket.value)
+            Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+        }
     }
 }
 

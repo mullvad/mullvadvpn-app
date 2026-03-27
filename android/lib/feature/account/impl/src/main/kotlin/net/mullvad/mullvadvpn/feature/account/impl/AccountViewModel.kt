@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import co.touchlab.kermit.Logger
 import java.time.ZonedDateTime
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -87,6 +88,15 @@ class AccountViewModel(
                     { _uiSideEffect.send(UiSideEffect.GenericError) },
                     { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
                 )
+        }
+    }
+
+    fun onQrCodeScanned(code: String) {
+        Logger.d("QR code scanned: $code")
+        viewModelScope.launch {
+            accountRepository.loginAnotherWithTicket(code).onLeft {
+                _uiSideEffect.send(UiSideEffect.GenericError)
+            }
         }
     }
 

@@ -22,4 +22,17 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
+
+    // CameraX core library
+    val camerax_version = "1.6.0"
+    implementation("androidx.camera:camera-core:${camerax_version}")
+    implementation("androidx.camera:camera-camera2:${camerax_version}")
+    implementation("androidx.camera:camera-lifecycle:${camerax_version}")
+    implementation("androidx.camera:camera-view:${camerax_version}")
+
+// ML Kit Barcode Scanning (Bundled version - does NOT require Play Services)
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0")
+    implementation("com.google.guava:guava:33.0.0-android")
 }

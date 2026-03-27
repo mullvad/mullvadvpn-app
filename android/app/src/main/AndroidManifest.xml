@@ -16,6 +16,9 @@
     <uses-permission
         android:name="android.permission.WAKE_LOCK"
         tools:node="remove" />
+    <!-- QR code stuff -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- end -->
     <uses-feature android:name="android.hardware.touchscreen"
                   android:required="false" />
     <uses-feature android:name="android.hardware.faketouch"

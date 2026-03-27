@@ -4,6 +4,7 @@
 # See Bump SDK or container image template in Linear for more details.
 compile-sdk = "36"
 build-tools = "36.1.0"
+zxing-core = "3.5.3"
 min-sdk = "28"
 target-sdk = "36"
 jvm-toolchain = "21"
@@ -129,6 +130,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+zxing = { module = "com.google.zxing:core", version.ref = "zxing-core" }
 detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }

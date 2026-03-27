@@ -83,9 +83,11 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
+import net.mullvad.mullvadvpn.lib.model.GetLoginTicketError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.LoginTicket
 import net.mullvad.mullvadvpn.lib.model.LogoutAccountError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
@@ -391,6 +393,23 @@ class ManagementService(
             }
             .mapEmpty()
 
+    suspend fun loginAnotherWithTicket(ticket: String): Either<LoginAccountError, Unit> =
+        Either.catch { grpc.login(ManagementInterface.Ticket.newBuilder().setToken(ticket).build()) }
+            .mapLeftStatus {
+                when (it.status.code) {
+                    Status.Code.UNAUTHENTICATED -> LoginAccountError.InvalidAccount
+                    Status.Code.RESOURCE_EXHAUSTED if it.status.isTooManyRequests() ->
+                        LoginAccountError.TooManyAttempts
+                    Status.Code.DEADLINE_EXCEEDED -> LoginAccountError.Timeout
+                    Status.Code.UNAVAILABLE -> LoginAccountError.ApiUnreachable
+                    else -> {
+                        Logger.e("Unknown login account error")
+                        LoginAccountError.Unknown(it)
+                    }
+                }
+            }
+            .mapEmpty()
+
     suspend fun deleteAccount(): Either<DeleteAccountError, Unit> =
         Either.catch { grpc.deleteAccount(Empty.getDefaultInstance()) }
             .onLeft { Logger.e("Delete account error") }
@@ -424,6 +443,14 @@ class ManagementService(
             }
             .onLeft { Logger.e("Get account history error") }
             .mapLeft(GetAccountHistoryError::Unknown)
+
+    suspend fun getLoginTicket(): Either<GetLoginTicketError, LoginTicket> =
+        Either.catch {
+            val ticket = grpc.initLogin(Empty.getDefaultInstance())
+            LoginTicket(ticket.token)
+        }
+            .onLeft { Logger.e("Get login ticket error") }
+            .mapLeft(GetLoginTicketError::Unknown)
 
     private suspend fun getInitialServiceState() {
         withContext(Dispatchers.IO) {
