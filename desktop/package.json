@@ -38,5 +38,10 @@
   "volta": {
     "node": "22.21.1",
     "npm": "11.1.0"
+  },
+  "overrides": {
+    "grpc_tools_node_protoc_ts": {
+      "handlebars": "^4.7.9"
+    }
   }
 }
