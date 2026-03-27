@@ -17,6 +17,7 @@ export const icons = {
   copy: 'icon-copy',
   'cross-circle': 'icon-cross-circle',
   cross: 'icon-cross',
+  edit: 'icon-edit',
   'edit-circle': 'icon-edit-circle',
   external: 'icon-external',
   filter: 'icon-filter',
@@ -36,4 +37,5 @@ export const icons = {
   'settings-filled': 'icon-settings-filled',
   'settings-partial': 'icon-settings-partial',
   show: 'icon-show',
+  trash: 'icon-trash',
 };
