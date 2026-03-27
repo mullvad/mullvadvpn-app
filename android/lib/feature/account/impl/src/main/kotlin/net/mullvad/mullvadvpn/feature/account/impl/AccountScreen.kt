@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Info
@@ -32,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -40,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import java.time.ZonedDateTime
@@ -51,6 +56,7 @@ import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
+import net.mullvad.mullvadvpn.feature.account.impl.scanqrcode.CameraXQrScanner
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
@@ -85,6 +91,7 @@ private fun PreviewAccountScreen(
             onCopyAccountNumber = {},
             onManageDevicesClick = {},
             onLogoutClick = {},
+            onQrCodeScanned = {},
             onPlayPaymentInfoClick = {},
             onBackClick = {},
             navigateToDeleteAccount = {},
@@ -130,6 +137,7 @@ fun Account(navigator: Navigator) {
                 }
             },
         onLogoutClick = vm::onLogoutClick,
+        onQrCodeScanned = vm::onQrCodeScanned,
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onPlayPaymentInfoClick =
             dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
@@ -148,6 +156,7 @@ fun AccountScreen(
     onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
+    onQrCodeScanned: (String) -> Unit,
     onBackClick: () -> Unit,
     navigateToDeleteAccount: () -> Unit,
     navigateToAddTime: () -> Unit,
@@ -194,6 +203,32 @@ fun AccountScreen(
                     verificationPending = state?.verificationPending == true,
                     onOpenPaymentScreen = navigateToAddTime,
                     onInfoClick = onPlayPaymentInfoClick,
+                )
+            }
+
+            var showQrCodeScanner by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.heightIn(min = Dimens.accountRowMinHeight),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                PrimaryTextButton(
+                    onClick = { showQrCodeScanner = true },
+                    text = "Log in another device",
+                    textDecoration = TextDecoration.Underline,
+                )
+            }
+
+            if (showQrCodeScanner) {
+                CameraXQrScanner(
+                    modifier =
+                        Modifier.size(300.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .align(Alignment.CenterHorizontally),
+                    onQrCodeScanned = {
+                        showQrCodeScanner = false
+                        onQrCodeScanned(it)
+                    },
                 )
             }
 

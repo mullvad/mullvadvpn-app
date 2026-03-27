@@ -101,6 +101,7 @@ import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
 import net.mullvad.mullvadvpn.feature.login.api.CreateAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.login.api.DeviceListNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginAction
+import net.mullvad.mullvadvpn.feature.login.impl.qrcode.QRCodeImage
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
@@ -298,6 +299,12 @@ private fun LoginScreen(
                 }
             }
             Spacer(modifier = Modifier.weight(BOTTOM_SPACER_WEIGHT))
+
+            state.loginTicket?.let { ticket ->
+                Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+                QRCodeImage(text = ticket.value)
+                Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+            }
         }
     }
 }
@@ -320,6 +327,45 @@ fun OrDivier() {
         )
     }
 }
+
+//@Composable
+//<<<<<<< HEAD
+//fun OrDivier() {
+//    Row(verticalAlignment = Alignment.CenterVertically) {
+//        HorizontalDivider(
+//            modifier = Modifier.weight(1f),
+//            color = MaterialTheme.colorScheme.onBackground,
+//        )
+//=======
+//private fun LoginContent(
+//    state: LoginUiState,
+//    onAccountNumberChange: (String) -> Unit,
+//    onLoginClick: (String) -> Unit,
+//    onDeleteHistoryClick: () -> Unit,
+//    onShowApiUnreachableDialog: (LoginUiStateError) -> Unit,
+//) {
+//    Column(
+//        modifier = Modifier.fillMaxWidth().padding(horizontal = Dimens.sideMargin),
+//        horizontalAlignment = Alignment.CenterHorizontally,
+//    ) {
+//>>>>>>> 071ebf1a4d (Add Android QR code gen and scan)
+//        Text(
+//            stringResource(R.string.divier_or),
+//            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
+//            color = MaterialTheme.colorScheme.onBackground,
+//        )
+//        HorizontalDivider(
+//            modifier = Modifier.weight(1f),
+//            color = MaterialTheme.colorScheme.onBackground,
+//        )
+//
+//        state.loginTicket?.let { ticket ->
+//            Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+//            QRCodeImage(text = ticket.value)
+//            Spacer(modifier = Modifier.size(Dimens.mediumPadding))
+//        }
+//    }
+//}
 
 @Composable
 @Suppress("LongMethod")

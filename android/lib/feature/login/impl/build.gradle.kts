@@ -18,4 +18,8 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
+
+
+    // QR
+    implementation(libs.zxing)
 }

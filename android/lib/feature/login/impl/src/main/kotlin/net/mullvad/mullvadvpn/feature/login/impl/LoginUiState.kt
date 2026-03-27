@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.feature.login.impl
 
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.LoginTicket
 
 data class LoginUiState(
     val accountNumberInput: String = "",
     val lastUsedAccount: AccountNumber? = null,
+    val loginTicket: LoginTicket? = null,
     val loginState: LoginState = LoginState.Idle(null),
 ) {
     val loginButtonEnabled = loginState is LoginState.Idle
