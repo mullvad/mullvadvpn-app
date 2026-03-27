@@ -52,10 +52,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountCompleteDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -63,7 +59,8 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountCompleteNavKey
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -93,23 +90,22 @@ private fun PreviewDeleteAccountConfirmation() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
+fun DeleteAccountConfirmation(navigator: Navigator) {
     val vm = koinViewModel<DeleteAccountConfirmationViewModel>()
     val uiState = vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     if (uiState.value.isLoading) {
         // Consume back
-        BackHandler() {}
+        BackHandler {}
     }
 
     val resources = LocalResources.current
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             DeleteAccountConfirmationUiSideEffect.NavigateToComplete ->
-                navigator.navigate(DeleteAccountCompleteDestination())
+                navigator.navigate(DeleteAccountCompleteNavKey)
 
             is DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed ->
                 snackbarHostState.showSnackbarImmediately(
@@ -122,7 +118,7 @@ fun DeleteAccountConfirmation(navigator: DestinationsNavigator) {
         snackbarHostState = snackbarHostState,
         deleteAccount = vm::deleteAccount,
         onAccountInputChanged = vm::onAccountInputChanged,
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 
@@ -174,6 +170,7 @@ private fun DeleteAccountConfirmationContent(
             modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew).imePadding(),
     ) {
         Text(
+            modifier = Modifier.fillMaxWidth(),
             text =
                 buildAnnotatedString {
                     append(annotatedStringResource(R.string.delete_account_warning))
@@ -189,9 +186,10 @@ private fun DeleteAccountConfirmationContent(
             style = MaterialTheme.typography.bodyLarge,
         )
         DaysLostWarning(state.daysLeft)
-        Spacer(modifier = Modifier.height(Dimens.largeSpacer))
+        Spacer(modifier = Modifier.height(Dimens.largePadding))
         Text(
-            stringResource(R.string.delete_account_confirmation_enter_account_number),
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(R.string.delete_account_confirmation_enter_account_number),
             style = MaterialTheme.typography.bodyLarge,
         )
         Spacer(modifier = Modifier.height(Dimens.mediumSpacer))
@@ -229,7 +227,10 @@ private fun AccountNumberInput(
 
     val transformation =
         remember(showPassword, showLastChar) {
-            accountNumberOutputTransformation(showPassword, if (showLastChar) 1 else 0)
+            accountNumberOutputTransformation(
+                showAccount = showPassword,
+                showLastX = if (showLastChar) 1 else 0,
+            )
         }
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -325,7 +326,15 @@ private fun DeleteAccountConfirmationBottomBar(
     onClickDeleteAccount: () -> Unit,
     onClickCancel: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(bottom = Dimens.screenBottomMargin)) {
+    Column(
+        modifier =
+            Modifier.padding(
+                start = Dimens.smallPadding,
+                end = Dimens.smallPadding,
+                bottom = Dimens.screenBottomMargin,
+            ),
+        verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
+    ) {
         NegativeButton(
             text = stringResource(R.string.delete_account),
             onClick = onClickDeleteAccount,

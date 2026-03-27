@@ -20,21 +20,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.apiaccess.destinations.ApiAccessListDestination
-import com.ramcosta.composedestinations.generated.appearance.destinations.AppearanceDestination
-import com.ramcosta.composedestinations.generated.appinfo.destinations.AppInfoDestination
-import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
-import com.ramcosta.composedestinations.generated.multihop.destinations.MultihopDestination
-import com.ramcosta.composedestinations.generated.notification.destinations.NotificationSettingsDestination
-import com.ramcosta.composedestinations.generated.problemreport.destinations.ReportProblemDestination
-import com.ramcosta.composedestinations.generated.splittunneling.destinations.SplitTunnelingDestination
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessNavKey
+import net.mullvad.mullvadvpn.feature.appearance.api.AppearanceNavKey
+import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
+import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
+import net.mullvad.mullvadvpn.feature.notification.api.NotificationSettingsNavKey
+import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
+import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -76,26 +73,24 @@ private fun PreviewSettingsScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<ExternalModuleGraph>(style = TopLevelTransition::class)
 @Composable
-fun Settings(navigator: DestinationsNavigator) {
+fun Settings(navigator: Navigator) {
     val vm = koinViewModel<SettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
     SettingsScreen(
         state = state,
-        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsDestination()) },
+        onVpnSettingCellClick = dropUnlessResumed { navigator.navigate(VpnSettingsNavKey()) },
         onSplitTunnelingCellClick =
-            dropUnlessResumed { navigator.navigate(SplitTunnelingDestination()) },
-        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoDestination) },
-        onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessListDestination) },
-        onReportProblemCellClick =
-            dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
-        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination()) },
-        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination()) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed { navigator.navigate(SplitTunnelingNavKey()) },
+        onAppInfoClick = dropUnlessResumed { navigator.navigate(AppInfoNavKey) },
+        onApiAccessClick = dropUnlessResumed { navigator.navigate(ApiAccessNavKey) },
+        onReportProblemCellClick = dropUnlessResumed { navigator.navigate(ProblemReportNavKey) },
+        onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopNavKey()) },
+        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaNavKey()) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
         onNotificationSettingsCellClick =
-            dropUnlessResumed { navigator.navigate(NotificationSettingsDestination()) },
-        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceDestination) },
+            dropUnlessResumed { navigator.navigate(NotificationSettingsNavKey) },
+        onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceNavKey) },
     )
 }
 

@@ -52,17 +52,19 @@ export function SelectLanguageView() {
                 <Listbox value={preferredLocale} onValueChange={setPreferredLocale}>
                   <Listbox.Options>
                     {locales.map(({ code, name }, idx) => (
-                      <Listbox.Option
+                      <Listbox.Options.Option
                         key={code}
                         level={1}
                         value={code}
                         position={idx === 0 ? 'first' : undefined}>
-                        <Listbox.Option.Trigger>
-                          <Listbox.Option.Item>
-                            <Listbox.Option.Label>{name}</Listbox.Option.Label>
-                          </Listbox.Option.Item>
-                        </Listbox.Option.Trigger>
-                      </Listbox.Option>
+                        <Listbox.Options.Option.Trigger>
+                          <Listbox.Options.Option.Item>
+                            <Listbox.Options.Option.Item.Label>
+                              {name}
+                            </Listbox.Options.Option.Item.Label>
+                          </Listbox.Options.Option.Item>
+                        </Listbox.Options.Option.Trigger>
+                      </Listbox.Options.Option>
                     ))}
                   </Listbox.Options>
                 </Listbox>

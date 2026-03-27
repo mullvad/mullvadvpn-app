@@ -180,6 +180,10 @@ impl GeographicLocationConstraint {
         matches!(self, GeographicLocationConstraint::Country(_))
     }
 
+    pub fn is_hostname(&self) -> bool {
+        self.get_hostname().is_some()
+    }
+
     pub fn get_hostname(&self) -> Option<&Hostname> {
         match self {
             GeographicLocationConstraint::Hostname(_, _, hostname) => Some(hostname),
@@ -188,7 +192,7 @@ impl GeographicLocationConstraint {
     }
 }
 
-impl Match<WireguardRelay> for GeographicLocationConstraint {
+impl Match<WireguardRelay> for &GeographicLocationConstraint {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             GeographicLocationConstraint::Country(country) => {
@@ -237,7 +241,14 @@ pub enum Ownership {
     Rented,
 }
 
-impl Match<WireguardRelay> for Ownership {
+impl Ownership {
+    /// Returns `true` if ownership is Mullvad.
+    pub const fn mullvad(self) -> bool {
+        matches!(self, Self::MullvadOwned)
+    }
+}
+
+impl Match<WireguardRelay> for &Ownership {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             Ownership::MullvadOwned => relay.owned,
@@ -287,16 +298,17 @@ pub struct Providers {
 pub struct NoProviders(());
 
 impl Providers {
+    /// Create a new `Providers` from an iterator.
+    /// Returns an error if the iterator is empty.
     pub fn new(
         providers: impl IntoIterator<Item = impl Into<Provider>>,
     ) -> Result<Providers, NoProviders> {
-        let providers = Providers {
-            providers: providers.into_iter().map(Into::into).collect(),
-        };
-        if providers.providers.is_empty() {
-            return Err(NoProviders(()));
+        let providers: HashSet<_> = providers.into_iter().map(Into::into).collect();
+        if !providers.is_empty() {
+            Ok(Providers { providers })
+        } else {
+            Err(NoProviders(()))
         }
-        Ok(providers)
     }
 
     pub fn into_vec(self) -> Vec<Provider> {
@@ -309,7 +321,7 @@ impl Providers {
     }
 }
 
-impl Match<WireguardRelay> for Providers {
+impl Match<WireguardRelay> for &Providers {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         self.providers.contains(&relay.provider)
     }

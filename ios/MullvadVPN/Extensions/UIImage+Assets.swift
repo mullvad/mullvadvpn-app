@@ -26,6 +26,10 @@ extension UIImage {
             UIImage(named: "IconSettings")!
         }
 
+        static var settingsPartial: UIImage {
+            UIImage(named: "IconSettingsPartial")!
+        }
+
         static var back: UIImage {
             UIImage(named: "IconBack")!
         }
@@ -113,5 +117,17 @@ extension UIImage {
 
     static var checkboxUnselected: UIImage {
         UIImage(named: "CheckboxUnselected")!
+    }
+
+    static var stateOnline: UIImage {
+        UIImage(named: "IconStateOnline")!
+    }
+
+    static var stateOffline: UIImage {
+        UIImage(named: "IconStateOffline")!
+    }
+
+    static var stateIssue: UIImage {
+        UIImage(named: "IconStateIssue")!
     }
 }

@@ -36,7 +36,6 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
-import net.mullvad.mullvadvpn.util.BackstackObserver
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
@@ -54,7 +53,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
-    private val backstackObserver by inject<BackstackObserver>()
 
     private var isReadyNextDraw: Boolean = false
 
@@ -76,7 +74,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        setContent { AppTheme { MullvadApp(backstackObserver, serviceConnectionManager) } }
+        setContent { AppTheme { MullvadApp(serviceConnectionManager) } }
 
         // This is to protect against tapjacking attacks
         // This is applied at an OS level since Android 12 so it is only required on older versions

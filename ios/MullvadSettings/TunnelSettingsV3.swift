@@ -34,7 +34,11 @@ public struct TunnelSettingsV3: Codable, Equatable, TunnelSettings {
             relayConstraints: relayConstraints,
             dnsSettings: dnsSettings,
             wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: .automatic
+            tunnelQuantumResistance: .on
         )
+    }
+
+    public var debugDescription: String {
+        "TunnelSettingsV3(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation))"
     }
 }

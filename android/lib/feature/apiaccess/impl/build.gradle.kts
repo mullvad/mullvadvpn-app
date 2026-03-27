@@ -7,14 +7,12 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.apiaccess.impl"
-    ksp { arg("compose-destinations.moduleName", "apiaccess") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.apiaccess.impl" }
 
 dependencies {
-    implementation(projects.lib.repository)
+    implementation(projects.lib.feature.apiaccess.api)
     implementation(projects.lib.navigation)
+    implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
@@ -29,8 +27,4 @@ dependencies {
         // https://github.com/gradle/gradle/issues/26367#issuecomment-2120830998
         exclude("commons-beanutils", "commons-beanutils")
     }
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 }

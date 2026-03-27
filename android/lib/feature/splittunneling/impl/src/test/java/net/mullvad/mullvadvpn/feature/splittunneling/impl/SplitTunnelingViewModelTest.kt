@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.splittunneling.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -202,9 +201,9 @@ class SplitTunnelingViewModelTest {
         every { mockedApplicationsProvider.apps() } returns appList
         testSubject =
             SplitTunnelingViewModel(
+                isModal = false,
                 mockedApplicationsProvider,
                 mockedSplitTunnelingRepository,
-                savedStateHandle = SplitTunnelingNavArgs().toSavedStateHandle(),
                 UnconfinedTestDispatcher(),
             )
     }

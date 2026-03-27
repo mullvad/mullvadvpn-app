@@ -32,8 +32,9 @@ if configuration == "Release" || configuration == "MockRelease" {
     }
 
     guard let wireguard = json["wireguard"] as? [String: Any],
-          let relays = wireguard["relays"] as? [[String: Any]],
-          !relays.isEmpty else {
+        let relays = wireguard["relays"] as? [[String: Any]],
+        !relays.isEmpty
+    else {
         fputs("Error: Relay file contains no WireGuard relays\n", stderr)
         exit(1)
     }

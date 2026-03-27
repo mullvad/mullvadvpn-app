@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Kontokredit udløber om få minutter</string>
     <string name="account_credit_has_expired">Du har ikke mere VPN-tid tilbage på denne konto.</string>
+    <string name="account_delete_placeholder">Indtast kontonummerets cifre</string>
+    <string name="account_deleted">Konto slettet</string>
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="connection_details_in">Ind</string>
     <string name="connection_details_out">Ud</string>
+    <string name="cont">Fortsæt</string>
     <string name="continue_login">Fortsæt med login</string>
     <string name="copied_logs_to_clipboard">Kopierede logfiler til udklipsholder</string>
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">30 dage blev føjet til din konto.</string>
     <string name="days_were_added_90">90 dage blev føjet til din konto.</string>
     <string name="delete">Slet</string>
+    <string name="delete_account">Slet konto</string>
+    <string name="delete_account_cant_be_undone">Sletning af din konto kan ikke fortrydes.</string>
+    <string name="delete_account_confirm_first_item"><b>Denne handling kan ikke fortrydes.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Du vil miste adgangen til denne konto på alle enheder.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Kontogendannelse er ikke mulig.</b></string>
+    <string name="delete_account_confirmation_check">Ved at markere dette felt accepterer jeg de risici, der er forbundet med at slette min konto</string>
+    <string name="delete_account_confirmation_enter_account_number">For at slette din Mullvad VPN-konto skal du indtaste dit kontonummer nedenfor.</string>
+    <string name="delete_account_error">Kunne ikke slette kontoen. Kontakt support</string>
+    <string name="delete_account_failed_loading_days">Kunne ikke vise antallet af resterende dage.</string>
+    <string name="delete_account_first_item">Du vil miste adgangen til denne konto på alle enheder.</string>
+    <string name="delete_account_forth_item">Kontogendannelse vil ikke være muligt.</string>
+    <string name="delete_account_info">Du er ved at slette din Mullvad VPN-konto.</string>
+    <string name="delete_account_info_part2">Sådan sletter du din konto:</string>
+    <string name="delete_account_loading_days">Du vil miste det resterende</string>
+    <string name="delete_account_number_must_match">Kontonummeret skal stemme overens</string>
+    <string name="delete_account_second_item">Eventuel resterende tid vil være ugyldig.</string>
+    <string name="delete_account_third_item">Der ydes ikke refusion.</string>
+    <string name="delete_account_unable_to_verify">Kan ikke bekræfte kontonummeret. Kontakt support</string>
+    <string name="delete_account_warning"><b>Advarsel:</b></string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>
     <string name="delete_list">Slet liste</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Se vores %1$s for at få flere oplysninger.</string>
     <string name="include_account_token_warning_title">Dette påvirker din anonymitet</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
+    <string name="invalid_ipv6_config">Ugyldig IPv6-konfiguration. Prøv at ændre VPN-indstillingerne.</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ip_version_v4_unavailable">IPv4 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\".</string>
     <string name="ip_version_v6_unavailable">IPv6 er ikke tilgængelig, prøv at ændre indstillingen \"Enhedens IP-version\".</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Ingen nylig valghistorik</string>
     <string name="none">Ingen</string>
     <string name="not_found">Ikke fundet</string>
+    <string name="notification_settings">Notifikationsindstillinger</string>
     <string name="number_of_providers">Udbydere: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Fra</string>

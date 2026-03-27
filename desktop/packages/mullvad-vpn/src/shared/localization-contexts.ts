@@ -38,4 +38,6 @@ export type LocalizationContexts =
   | 'app-info-view'
   | 'changelog-view'
   | 'app-upgrade-view'
-  | 'anti-censorship-view';
+  | 'anti-censorship-view'
+  | 'custom-list-feature'
+  | 'locations-feature';

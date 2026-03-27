@@ -71,34 +71,33 @@ class DeleteAccountConfirmationViewModel(
         }
     }
 
-    fun deleteAccount() =
-        viewModelScope.launch {
-            isLoading.value = true
+    fun deleteAccount() = viewModelScope.launch {
+        isLoading.value = true
 
-            val accountNumber = deviceRepository.deviceState.value?.accountNumber()
-            if (accountNumber == null) {
-                verificationError.value = VerifyAccountError.CouldNotFetchAccountNumber
-                isLoading.value = false
-                return@launch
-            }
-
-            if (accountInput.value != accountNumber.value) {
-                verificationError.value = VerifyAccountError.AccountDoesNotMatch
-                isLoading.value = false
-                return@launch
-            }
-
-            delayAtLeast(1.seconds) { accountRepository.deleteAccount() }
-                .fold(
-                    {
-                        _uiSideEffect.send(
-                            DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it)
-                        )
-                        isLoading.value = false
-                    },
-                    { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToComplete) },
-                )
+        val accountNumber = deviceRepository.deviceState.value?.accountNumber()
+        if (accountNumber == null) {
+            verificationError.value = VerifyAccountError.CouldNotFetchAccountNumber
+            isLoading.value = false
+            return@launch
         }
+
+        if (accountInput.value != accountNumber.value) {
+            verificationError.value = VerifyAccountError.AccountDoesNotMatch
+            isLoading.value = false
+            return@launch
+        }
+
+        delayAtLeast(1.seconds) { accountRepository.deleteAccount() }
+            .fold(
+                {
+                    _uiSideEffect.send(
+                        DeleteAccountConfirmationUiSideEffect.DeleteAccountFailed(it)
+                    )
+                    isLoading.value = false
+                },
+                { _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.NavigateToComplete) },
+            )
+    }
 
     fun onAccountInputChanged(input: String) {
         verificationError.value = null

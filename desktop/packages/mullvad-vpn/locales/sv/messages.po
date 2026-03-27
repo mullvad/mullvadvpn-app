@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2026-03-10 10:11\n"
+"PO-Revision-Date: 2026-03-20 09:19\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
@@ -2788,6 +2788,9 @@ msgstr "30 dagar har lagts till i ditt konto."
 msgid "90 days was added to your account."
 msgstr "90 dagar har lagts till i ditt konto."
 
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Det går inte att återställa kontot.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Obs!</b> Enbart några servrar har stöd för hela portintervallet."
 
@@ -2796,6 +2799,15 @@ msgstr "<b>Obs!</b> Appen stängs automatiskt och måste öppnas igen manuellt e
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Observera att dessa metoder inte förbättrar prestandan och kan komma att öka systemanvändningen och batteriförbrukningen.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Det går inte att ångra åtgärden.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Varning:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Du förlorar åtkomsten till kontot på alla enheter.</b>"
 
 msgid "API reachable, adding method..."
 msgstr "API kan nås, lägger till metod ..."
@@ -2806,8 +2818,17 @@ msgstr "API kan inte nås, spara metod ändå?"
 msgid "Account credit expires in a few minutes"
 msgstr "Kontokrediten slutar gälla om några minuter"
 
+msgid "Account deleted"
+msgstr "Kontot har tagits bort"
+
 msgid "Account number is too long, please enter a valid number"
 msgstr "Kontonumret är för långt, ange ett giltigt nummer"
+
+msgid "Account number must match"
+msgstr "Kontonumret måste stämma överens"
+
+msgid "Account recovery will not be possible."
+msgstr "Det går inte att återställa kontot."
 
 msgid "Account time reminders"
 msgstr "Påminnelser om kontotid"
@@ -2857,6 +2878,9 @@ msgstr "Alltid på-VPN har tilldelats en annan VPN"
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr "Android 16 har ett känt fel. Starta om din enhet och försök igen. Om du vill veta mer"
 
+msgid "Any remaining time will be null and void."
+msgstr "All återstående tid blir ogiltig."
+
 msgid "Appearance"
 msgstr "Utseende"
 
@@ -2899,6 +2923,9 @@ msgstr "Webbläsare"
 msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
 msgstr "Om du bifogar din kontotoken länkas den här rapporten till ditt konto, vilket hjälper oss att lösa problemet snabbare. Alla rapporter tas bort automatiskt efter ett tag."
 
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Genom att markera rutan godkänner jag riskerna med att ta bort mitt konto"
+
 msgid "Can't connect?"
 msgstr "Kan du inte ansluta?"
 
@@ -2923,6 +2950,9 @@ msgstr "Anslut till ett annat nätverk"
 msgid "Connecting..."
 msgstr "Ansluter ..."
 
+msgid "Continue"
+msgstr "Fortsätt"
+
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierade Mullvad-kontonummer till urklipp"
 
@@ -2931,6 +2961,9 @@ msgstr "Loggarna har kopierats till urklipp"
 
 msgid "Copy"
 msgstr "Kopiera"
+
+msgid "Could not display remaining days."
+msgstr "Det gick inte att visa återstående dagar."
 
 msgid "Create"
 msgstr "Skapa"
@@ -2956,11 +2989,20 @@ msgstr "DNS-inställningarna kanske inte börjar gälla direkt"
 msgid "Delete \"%s\"?"
 msgstr "Ta bort \"%s\"?"
 
+msgid "Delete account"
+msgstr "Ta bort konto"
+
 msgid "Delete method"
 msgstr "Radera metod"
 
 msgid "Delete method?"
 msgstr "Radera metod?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "Det går inte att ångra borttagningen av kontot."
+
+msgid "Deleting your account:"
+msgstr "Om du tar bort kontot inträffar följande:"
 
 msgid "Direct"
 msgstr "Direkt"
@@ -3028,6 +3070,9 @@ msgstr "Aktivera senaste"
 msgid "Enter MTU"
 msgstr "Ange MTU"
 
+msgid "Enter account number digits"
+msgstr "Ange siffrorna i kontonumret"
+
 msgid "Entry relay is the same as exit relay"
 msgstr "Ingångsrelä är samma som utgångsrelä"
 
@@ -3045,6 +3090,9 @@ msgstr "DET GICK INTE ATT ANSLUTA"
 
 msgid "Failed to apply patch"
 msgstr "Konfigurationsfilen kunde inte tillämpas"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Det går inte att ta bort kontot, kontakta supporten"
 
 msgid "Failed to load products, please try again"
 msgstr "Det gick inte att läsa in produkterna, försök igen"
@@ -3111,6 +3159,9 @@ msgstr "Produkterna i appen är inte tillgängliga. Se till att du har den senas
 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Inkludera min kontotoken för snabbare hjälp med betalnings- eller kontoproblem"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Ogiltig IPv6-konfiguration. Prova att ändra VPN-inställningarna."
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Värdet \"%1$s\" är ogiltigt eller saknas"
@@ -3202,6 +3253,9 @@ msgstr "Hittades inte"
 msgid "Notes"
 msgstr "Anteckningar"
 
+msgid "Notification settings"
+msgstr "Aviseringsinställningar"
+
 msgid "Open app details"
 msgstr "Öppna appinformation"
 
@@ -3252,6 +3306,9 @@ msgstr "Senaste har inaktiverats och historiken har rensats"
 
 msgid "Recursion limit"
 msgstr "Rekursionsgräns"
+
+msgid "Refunds will not be possible."
+msgstr "Det går inte att få återbetalningar."
 
 msgid "Remove %1$s from %2$s"
 msgstr "Ta bort %1$s från %2$s"
@@ -3331,6 +3388,9 @@ msgstr "Testar %s ..."
 msgid "Text"
 msgstr "Text"
 
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Tack för att du är en del av vår community.\\nFör ett fritt internet!"
+
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda."
 
@@ -3385,6 +3445,9 @@ msgstr "Om du vill lägga till platser i en lista kan du trycka på pennan eller
 msgid "To create a custom list press the \"+\""
 msgstr "Om du vill skapa en anpassad lista trycker du på \"+\""
 
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "Ange kontonumret nedan om du vill ta bort ditt Mullvad VPN-konto."
+
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
 msgstr "Appen genomför automatiska versionskontroller för att se till att du har den säkraste versionen och för att informera dig om problem med den nuvarande versionen. Appversionen och Android-systemversionen skickas till Mullvad-servrarna. Mullvad registrerar antalet använda appversioner och Android-versioner. Dessa data lagras aldrig och används inte på något sätt som kan identifiera dig."
 
@@ -3414,6 +3477,9 @@ msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN inn
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för <b>%s</b> innan du använder Mullvad VPN."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Det går inte att verifiera kontonumret, kontakta supporten"
 
 msgid "Unavailable"
 msgstr "Inte tillgänglig"
@@ -3499,11 +3565,20 @@ msgstr "WireGuard-port"
 msgid "Yes, log out device"
 msgstr "Ja, logga ut enheten"
 
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Du är på väg att ta bort Mullvad VPN-kontot."
+
 msgid "You can add more time via the account view or website to continue using the VPN."
 msgstr "Du kan lägga till mer tid via kontovyn eller webbplatsen för att fortsätta använda VPN."
 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Du kan lägga till mer tid via kontovyn för att fortsätta använda VPN."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Du förlorar åtkomsten till kontot på alla enheter."
+
+msgid "You will lose your remaining"
+msgstr "Du förlorar dina återstående"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" har skapats"
@@ -3560,4 +3635,9 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Kontokrediten slutar gälla om en timme"
 msgstr[1] "Kontokrediten slutar gälla om %d timmar"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Du förlorar din återstående dag."
+msgstr[1] "Du förlorar dina återstående %d dagar."
 

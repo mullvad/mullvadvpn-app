@@ -9,6 +9,7 @@ pub mod features;
 pub mod location;
 pub mod relay_constraints;
 pub mod relay_list;
+pub mod relay_selector;
 pub mod settings;
 pub mod states;
 pub mod version;

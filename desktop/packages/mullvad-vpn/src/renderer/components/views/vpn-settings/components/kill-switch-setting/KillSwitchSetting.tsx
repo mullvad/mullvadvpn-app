@@ -11,10 +11,10 @@ export function KillSwitchSetting(props: KillSwitchSettingProps) {
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
-        <SettingsListItem.Label>
+        <SettingsListItem.Item.Label>
           {messages.pgettext('vpn-settings-view', 'Kill switch')}
-        </SettingsListItem.Label>
-        <SettingsListItem.ActionGroup>
+        </SettingsListItem.Item.Label>
+        <SettingsListItem.Item.ActionGroup>
           <InfoButton>
             <ModalMessage>
               {messages.pgettext(
@@ -32,7 +32,7 @@ export function KillSwitchSetting(props: KillSwitchSettingProps) {
           <Switch checked disabled>
             <Switch.Input />
           </Switch>
-        </SettingsListItem.ActionGroup>
+        </SettingsListItem.Item.ActionGroup>
       </SettingsListItem.Item>
     </SettingsListItem>
   );

@@ -18,16 +18,16 @@ export function ShadowsocksOption() {
   const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
 
   return (
-    <SettingsListbox.SplitOption value={ObfuscationType.shadowsocks}>
-      <SettingsListbox.SplitOption.Item
+    <SettingsListbox.Options.SplitOption value={ObfuscationType.shadowsocks}>
+      <SettingsListbox.Options.SplitOption.Item
         aria-description={messages.pgettext(
           'accessibility',
           'Use the right arrow key to focus the settings button.',
         )}>
         <FlexColumn>
-          <SettingsListbox.SplitOption.Label>
+          <SettingsListbox.Options.SplitOption.Label>
             {messages.pgettext('wireguard-settings-view', 'Shadowsocks')}
-          </SettingsListbox.SplitOption.Label>
+          </SettingsListbox.Options.SplitOption.Label>
 
           <Text variant="labelTinySemiBold" color="whiteAlpha60">
             {sprintf(subLabelTemplate, {
@@ -35,12 +35,12 @@ export function ShadowsocksOption() {
             })}
           </Text>
         </FlexColumn>
-      </SettingsListbox.SplitOption.Item>
+      </SettingsListbox.Options.SplitOption.Item>
 
-      <SettingsListbox.SplitOption.NavigateButton
+      <SettingsListbox.Options.SplitOption.NavigateButton
         to={RoutePath.shadowsocks}
         aria-label={messages.pgettext('accessibility', 'Shadowsocks settings')}
       />
-    </SettingsListbox.SplitOption>
+    </SettingsListbox.Options.SplitOption>
   );
 }

@@ -58,240 +58,224 @@ class CustomListLocationsScreenTest {
     }
 
     @Test
-    fun givenLoadingStateShouldShowLoadingSpinner() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state = CustomListLocationsUiState(newList = false, content = Lce.Loading(Unit))
-            )
+    fun givenLoadingStateShouldShowLoadingSpinner() = composeExtension.use {
+        // Arrange
+        initScreen(state = CustomListLocationsUiState(newList = false, content = Lce.Loading(Unit)))
 
-            // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
-        }
+        // Assert
+        onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun givenNewListTrueShouldShowAddLocations() =
-        composeExtension.use {
-            // Arrange
-            val newList = true
-            initScreen(
-                state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
-            )
+    fun givenNewListTrueShouldShowAddLocations() = composeExtension.use {
+        // Arrange
+        val newList = true
+        initScreen(
+            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+        )
 
-            // Assert
-            onNodeWithText(ADD_LOCATIONS_TEXT).assertExists()
-        }
-
-    @Test
-    fun givenNewListFalseShouldShowEditLocations() =
-        composeExtension.use {
-            // Arrange
-            val newList = false
-            initScreen(
-                state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
-            )
-
-            // Assert
-            onNodeWithText(EDIT_LOCATIONS_TEXT).assertExists()
-        }
+        // Assert
+        onNodeWithText(ADD_LOCATIONS_TEXT).assertExists()
+    }
 
     @Test
-    fun givenListOfAvailableLocationsShouldShowThem() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    locations =
-                                        listOf(
-                                            CheckableRelayListItem(
-                                                DUMMY_RELAY_COUNTRIES[0],
-                                                checked = true,
-                                            ),
-                                            CheckableRelayListItem(
-                                                DUMMY_RELAY_COUNTRIES[1],
-                                                checked = false,
-                                            ),
+    fun givenNewListFalseShouldShowEditLocations() = composeExtension.use {
+        // Arrange
+        val newList = false
+        initScreen(
+            state = CustomListLocationsUiState(newList = newList, content = Lce.Loading(Unit))
+        )
+
+        // Assert
+        onNodeWithText(EDIT_LOCATIONS_TEXT).assertExists()
+    }
+
+    @Test
+    fun givenListOfAvailableLocationsShouldShowThem() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                locations =
+                                    listOf(
+                                        CheckableRelayListItem(
+                                            DUMMY_RELAY_COUNTRIES[0],
+                                            checked = true,
                                         ),
-                                    searchTerm = "",
-                                    saveEnabled = false,
-                                    hasUnsavedChanges = false,
-                                )
-                            ),
-                    )
-            )
-
-            // Assert
-            onNodeWithText("Relay Country 1").assertExists()
-            onNodeWithText("Relay Country 2").assertExists()
-        }
-
-    @Test
-    fun whenClickingOnRelayShouldCallOnSelectForThatRelay() =
-        composeExtension.use {
-            // Arrange
-            val selectedCountry = DUMMY_RELAY_COUNTRIES[0]
-            val mockedOnRelaySelectionClicked: (RelayItem, Boolean) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    locations =
-                                        listOf(
-                                            CheckableRelayListItem(selectedCountry, checked = true)
+                                        CheckableRelayListItem(
+                                            DUMMY_RELAY_COUNTRIES[1],
+                                            checked = false,
                                         ),
-                                    searchTerm = "",
-                                    saveEnabled = false,
-                                    hasUnsavedChanges = false,
-                                )
-                            ),
-                    ),
-                onRelaySelectionClick = mockedOnRelaySelectionClicked,
-            )
+                                    ),
+                                searchTerm = "",
+                                saveEnabled = false,
+                                hasUnsavedChanges = false,
+                            )
+                        ),
+                )
+        )
 
-            // Act
-            onNodeWithText(selectedCountry.name).performClick()
-
-            // Assert
-            verify { mockedOnRelaySelectionClicked(selectedCountry, false) }
-        }
+        // Assert
+        onNodeWithText("Relay Country 1").assertExists()
+        onNodeWithText("Relay Country 2").assertExists()
+    }
 
     @Test
-    fun whenSearchInputIsUpdatedShouldCallOnSearchTermInput() =
-        composeExtension.use {
-            // Arrange
-            val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    locations = emptyList(),
-                                    searchTerm = "",
-                                    saveEnabled = false,
-                                    hasUnsavedChanges = false,
-                                )
-                            ),
-                    ),
-                onSearchTermInput = mockedSearchTermInput,
-                // This is required to avoid a crash due to the keyboard trying to open at the same
-                // time as the test makes input
-                disableKeyboard = true,
-            )
-            val mockSearchString = "SEARCH"
+    fun whenClickingOnRelayShouldCallOnSelectForThatRelay() = composeExtension.use {
+        // Arrange
+        val selectedCountry = DUMMY_RELAY_COUNTRIES[0]
+        val mockedOnRelaySelectionClicked: (RelayItem, Boolean) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                locations =
+                                    listOf(CheckableRelayListItem(selectedCountry, checked = true)),
+                                searchTerm = "",
+                                saveEnabled = false,
+                                hasUnsavedChanges = false,
+                            )
+                        ),
+                ),
+            onRelaySelectionClick = mockedOnRelaySelectionClicked,
+        )
 
-            // Act
-            onNodeWithText(SEARCH_PLACEHOLDER).performTextInput(mockSearchString)
+        // Act
+        onNodeWithText(selectedCountry.name).performClick()
 
-            // Assert
-            verify { mockedSearchTermInput.invoke(mockSearchString) }
-        }
+        // Assert
+        verify { mockedOnRelaySelectionClicked(selectedCountry, false) }
+    }
 
     @Test
-    fun whenSearchResultNotFoundShouldShowSearchNotFoundText() =
-        composeExtension.use {
-            // Arrange
-            val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
-            val mockSearchString = "SEARCH"
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    searchTerm = mockSearchString,
-                                    saveEnabled = false,
-                                    hasUnsavedChanges = false,
-                                    locations = emptyList(),
-                                )
-                            ),
-                    ),
-                onSearchTermInput = mockedSearchTermInput,
-            )
+    fun whenSearchInputIsUpdatedShouldCallOnSearchTermInput() = composeExtension.use {
+        // Arrange
+        val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                locations = emptyList(),
+                                searchTerm = "",
+                                saveEnabled = false,
+                                hasUnsavedChanges = false,
+                            )
+                        ),
+                ),
+            onSearchTermInput = mockedSearchTermInput,
+            // This is required to avoid a crash due to the keyboard trying to open at the same
+            // time as the test makes input
+            disableKeyboard = true,
+        )
+        val mockSearchString = "SEARCH"
 
-            // Assert
-            onNodeWithText(EMPTY_SEARCH.format(mockSearchString)).assertExists()
-        }
+        // Act
+        onNodeWithText(SEARCH_PLACEHOLDER).performTextInput(mockSearchString)
 
-    @Test
-    fun whenRelayListIsEmptyShouldShowNoRelaysText() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state = CustomListLocationsUiState(newList = false, content = Lce.Error(Unit))
-            )
-
-            // Assert
-            onNodeWithText(NO_MATCHING_SERVERS_FOUNDS).assertExists()
-        }
+        // Assert
+        verify { mockedSearchTermInput.invoke(mockSearchString) }
+    }
 
     @Test
-    fun givenSaveIsEnabledWhenSaveClickedShouldCallOnSaveClick() =
-        composeExtension.use {
-            // Arrange
-            val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    locations = emptyList(),
-                                    saveEnabled = true,
-                                    hasUnsavedChanges = true,
-                                    searchTerm = "",
-                                )
-                            ),
-                    ),
-                onSaveClick = mockOnSaveClick,
-            )
+    fun whenSearchResultNotFoundShouldShowSearchNotFoundText() = composeExtension.use {
+        // Arrange
+        val mockedSearchTermInput: (String) -> Unit = mockk(relaxed = true)
+        val mockSearchString = "SEARCH"
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                searchTerm = mockSearchString,
+                                saveEnabled = false,
+                                hasUnsavedChanges = false,
+                                locations = emptyList(),
+                            )
+                        ),
+                ),
+            onSearchTermInput = mockedSearchTermInput,
+        )
 
-            // Act
-            onNodeWithTag(SAVE_BUTTON_TEST_TAG).performClick()
-
-            // Assert
-            verify { mockOnSaveClick() }
-        }
+        // Assert
+        onNodeWithText(EMPTY_SEARCH.format(mockSearchString)).assertExists()
+    }
 
     @Test
-    fun givenSaveIsDisabledWhenSaveClickedShouldNotCallOnSaveClick() =
-        composeExtension.use {
-            // Arrange
-            val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    CustomListLocationsUiState(
-                        newList = false,
-                        content =
-                            Lce.Content(
-                                CustomListLocationsData(
-                                    locations = emptyList(),
-                                    saveEnabled = false,
-                                    hasUnsavedChanges = false,
-                                    searchTerm = "",
-                                )
-                            ),
-                    ),
-                onSaveClick = mockOnSaveClick,
-            )
+    fun whenRelayListIsEmptyShouldShowNoRelaysText() = composeExtension.use {
+        // Arrange
+        initScreen(state = CustomListLocationsUiState(newList = false, content = Lce.Error(Unit)))
 
-            // Act
-            onNodeWithTag(SAVE_BUTTON_TEST_TAG).performClick()
+        // Assert
+        onNodeWithText(NO_MATCHING_SERVERS_FOUNDS).assertExists()
+    }
 
-            // Assert
-            verify(exactly = 0) { mockOnSaveClick() }
-        }
+    @Test
+    fun givenSaveIsEnabledWhenSaveClickedShouldCallOnSaveClick() = composeExtension.use {
+        // Arrange
+        val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                locations = emptyList(),
+                                saveEnabled = true,
+                                hasUnsavedChanges = true,
+                                searchTerm = "",
+                            )
+                        ),
+                ),
+            onSaveClick = mockOnSaveClick,
+        )
+
+        // Act
+        onNodeWithTag(SAVE_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify { mockOnSaveClick() }
+    }
+
+    @Test
+    fun givenSaveIsDisabledWhenSaveClickedShouldNotCallOnSaveClick() = composeExtension.use {
+        // Arrange
+        val mockOnSaveClick: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                CustomListLocationsUiState(
+                    newList = false,
+                    content =
+                        Lce.Content(
+                            CustomListLocationsData(
+                                locations = emptyList(),
+                                saveEnabled = false,
+                                hasUnsavedChanges = false,
+                                searchTerm = "",
+                            )
+                        ),
+                ),
+            onSaveClick = mockOnSaveClick,
+        )
+
+        // Act
+        onNodeWithTag(SAVE_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 0) { mockOnSaveClick() }
+    }
 
     companion object {
         const val ADD_LOCATIONS_TEXT = "Add locations"

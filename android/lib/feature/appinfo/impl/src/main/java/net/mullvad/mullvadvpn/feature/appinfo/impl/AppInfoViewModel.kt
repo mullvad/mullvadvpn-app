@@ -37,20 +37,19 @@ class AppInfoViewModel(
                 Lc.Loading(Unit),
             )
 
-    fun openAppListing() =
-        viewModelScope.launch {
-            val sideEffect =
-                if (isPlayBuild || isFdroidBuild) {
-                    AppInfoSideEffect.OpenUri(
-                        uri = resources.getString(R.string.market_uri, packageName).toUri(),
-                        errorMessage = resources.getString(R.string.uri_market_app_not_found),
-                    )
-                } else {
-                    AppInfoSideEffect.OpenUri(
-                        uri = resources.getString(R.string.download_url).toUri(),
-                        errorMessage = resources.getString(R.string.uri_browser_app_not_found),
-                    )
-                }
-            _uiSideEffect.send(sideEffect)
-        }
+    fun openAppListing() = viewModelScope.launch {
+        val sideEffect =
+            if (isPlayBuild || isFdroidBuild) {
+                AppInfoSideEffect.OpenUri(
+                    uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                    errorMessage = resources.getString(R.string.uri_market_app_not_found),
+                )
+            } else {
+                AppInfoSideEffect.OpenUri(
+                    uri = resources.getString(R.string.download_url).toUri(),
+                    errorMessage = resources.getString(R.string.uri_browser_app_not_found),
+                )
+            }
+        _uiSideEffect.send(sideEffect)
+    }
 }

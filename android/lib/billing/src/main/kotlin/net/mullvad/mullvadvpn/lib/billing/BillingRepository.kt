@@ -73,21 +73,20 @@ class BillingRepository(context: Context) {
 
     private val ensureConnectedMutex = Mutex()
 
-    private suspend fun ensureConnected() =
-        ensureConnectedMutex.withLock {
-            suspendCancellableCoroutine {
-                if (
-                    billingClient.isReady &&
-                        billingClient.connectionState == BillingClient.ConnectionState.CONNECTED
-                ) {
-                    if (it.isActive) {
-                        it.resume(Unit)
-                    }
-                } else {
-                    startConnection(it)
+    private suspend fun ensureConnected() = ensureConnectedMutex.withLock {
+        suspendCancellableCoroutine {
+            if (
+                billingClient.isReady &&
+                    billingClient.connectionState == BillingClient.ConnectionState.CONNECTED
+            ) {
+                if (it.isActive) {
+                    it.resume(Unit)
                 }
+            } else {
+                startConnection(it)
             }
         }
+    }
 
     private fun startConnection(continuation: CancellableContinuation<Unit>) {
         billingClient.startConnection(
@@ -171,13 +170,12 @@ class BillingRepository(context: Context) {
         return try {
             ensureConnected()
 
-            val productList =
-                productIds.map { productId ->
-                    Product.newBuilder()
-                        .setProductId(productId)
-                        .setProductType(BillingClient.ProductType.INAPP)
-                        .build()
-                }
+            val productList = productIds.map { productId ->
+                Product.newBuilder()
+                    .setProductId(productId)
+                    .setProductType(BillingClient.ProductType.INAPP)
+                    .build()
+            }
             val params = QueryProductDetailsParams.newBuilder()
             params.setProductList(productList)
 

@@ -1673,9 +1673,9 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 
 [[package]]
 name = "gotatun"
-version = "0.4.1"
+version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e852834d591d0a2011283fdf292236e36fe9c92d3dbbbd801049aa900ddd731"
+checksum = "bab3fc4a86ff8192b2f11b856ba2717ef3cf6833b4cb1d7d66c7ad0af5e2d61a"
 dependencies = [
  "aead",
  "base64",
@@ -2898,7 +2898,6 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "cbindgen",
  "chrono",
  "clap",
  "futures",
@@ -2909,7 +2908,6 @@ dependencies = [
  "ipnetwork",
  "libc",
  "log",
- "mockito",
  "mullvad-api-constants",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
@@ -2928,7 +2926,6 @@ dependencies = [
  "tokio-socks",
  "tower",
  "tracing-subscriber",
- "uuid",
  "vec1",
  "webpki-roots 1.0.4",
 ]
@@ -3067,6 +3064,7 @@ dependencies = [
  "mullvad-encrypted-dns-proxy",
  "mullvad-logging",
  "mullvad-types",
+ "shadowsocks",
  "talpid-future",
  "talpid-tunnel-config-client",
  "talpid-types",
@@ -3218,12 +3216,14 @@ dependencies = [
 name = "mullvad-relay-selector"
 version = "0.0.0"
 dependencies = [
+ "either",
  "ipnetwork",
  "itertools 0.14.0",
  "log",
  "mullvad-types",
  "proptest",
  "rand 0.9.2",
+ "serde_json",
  "talpid-types",
  "thiserror 2.0.18",
  "vec1",
@@ -4750,9 +4750,9 @@ dependencies = [
 
 [[package]]
 name = "rustls-webpki"
-version = "0.103.8"
+version = "0.103.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2ffdfa2f5286e2247234e03f680868ac2815974dc39e00ea15adc445d0aafe52"
+checksum = "df33b2b81ac578cabaf06b89b0631153a3f416b0a886e8a7a1707fb51abbd1ef"
 dependencies = [
  "ring",
  "rustls-pki-types",
@@ -5703,9 +5703,9 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
 name = "tipsy"
-version = "0.6.5"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "91456c51834a52defbaf5f9797f8791df0e2814aec790956669485dc8eab621c"
+checksum = "f0358649974c8e93f90d086ff3e0d4323b5d73b00ddbfbfdf514811df42709d7"
 dependencies = [
  "dirs",
  "futures-util",

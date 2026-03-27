@@ -7,10 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android {
-    namespace = "net.mullvad.mullvadvpn.feature.serveripoverride.impl"
-    ksp { arg("compose-destinations.moduleName", "serveripoverride") }
-}
+android { namespace = "net.mullvad.mullvadvpn.feature.serveripoverride.impl" }
 
 dependencies {
     implementation(projects.lib.repository)
@@ -19,8 +16,5 @@ dependencies {
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
-
-    // Destinations
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
+    implementation(projects.lib.feature.serveripoverride.api)
 }

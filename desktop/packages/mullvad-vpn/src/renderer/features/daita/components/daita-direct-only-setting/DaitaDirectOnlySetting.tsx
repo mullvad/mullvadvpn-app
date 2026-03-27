@@ -23,7 +23,7 @@ export function DaitaDirectOnlySetting() {
           <DaitaDirectOnlySwitch.Label>
             {messages.gettext('Direct only')}
           </DaitaDirectOnlySwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {sprintf(
@@ -39,7 +39,7 @@ export function DaitaDirectOnlySetting() {
               </ModalMessage>
             </InfoButton>
             <DaitaDirectOnlySwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </DaitaDirectOnlySwitch>
       </SettingsListItem.Item>
     </SettingsListItem>

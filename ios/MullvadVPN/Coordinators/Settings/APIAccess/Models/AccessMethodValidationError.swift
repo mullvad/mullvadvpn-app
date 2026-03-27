@@ -20,10 +20,10 @@ struct AccessMethodValidationError: LocalizedError, Equatable {
 }
 
 /// Access method field validation error.
-struct AccessMethodFieldValidationError: LocalizedError, Equatable {
+struct AccessMethodFieldValidationError: Error, Equatable {
     /// Validated field.
     enum Field: String, CustomStringConvertible, Equatable {
-        case name, server, port, username, password
+        case name, server, port, username, password, cipher
 
         var description: String {
             rawValue
@@ -52,6 +52,9 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
 
         /// The name input is too long.
         case nameTooLong
+
+        /// Invalid cipher, i.e no longer supported.
+        case invalidCipher
     }
 
     /// Kind of validation error.
@@ -73,9 +76,11 @@ struct AccessMethodFieldValidationError: LocalizedError, Equatable {
             NSLocalizedString("Please enter a valid remote server port.", comment: "")
         case .nameTooLong:
             String(
-                format: NSLocalizedString("Name should be no longer than %i characters.", comment: ""),
+                format: NSLocalizedString("Name should be no longer than %i characters", comment: ""),
                 NameInputFormatter.maxLength
             )
+        case .invalidCipher:
+            NSLocalizedString("Selected cipher no longer supported", comment: "")
         }
     }
 }

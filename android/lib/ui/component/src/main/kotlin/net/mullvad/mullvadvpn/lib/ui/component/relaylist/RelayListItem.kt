@@ -40,7 +40,7 @@ sealed interface RelayListItem {
         val itemPosition: Position
     }
 
-    data object CustomListHeader : RelayListItem {
+    data class CustomListHeader(val canEdit: Boolean) : RelayListItem {
         override val key = "custom_list_header"
         override val contentType = RelayListItemContentType.CUSTOM_LIST_HEADER
     }

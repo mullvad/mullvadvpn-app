@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.addtime.impl.isSuccess
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
@@ -31,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -130,7 +130,7 @@ class ConnectViewModel(
 
     init {
         viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().isSuccess()) {
+            if (paymentUseCase.verifyPurchases().getOrNull() == VerificationResult.Success) {
                 accountRepository.refreshAccountData()
             }
         }
@@ -196,32 +196,33 @@ class ConnectViewModel(
         }
     }
 
-    fun openAppListing() =
-        viewModelScope.launch {
-            val sideEffect =
-                if (isPlayBuild || isFdroidBuild) {
-                    UiSideEffect.OpenUri(
-                        uri = resources.getString(R.string.market_uri, packageName).toUri(),
-                        errorMessage = resources.getString(R.string.uri_market_app_not_found),
-                    )
-                } else {
-                    UiSideEffect.OpenUri(
-                        uri = resources.getString(R.string.download_url).toUri(),
-                        errorMessage = resources.getString(R.string.uri_browser_app_not_found),
-                    )
-                }
-            _uiSideEffect.send(sideEffect)
-        }
+    fun openAppListing() = viewModelScope.launch {
+        val sideEffect =
+            if (isPlayBuild || isFdroidBuild) {
+                UiSideEffect.OpenUri(
+                    uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                    errorMessage = resources.getString(R.string.uri_market_app_not_found),
+                )
+            } else {
+                UiSideEffect.OpenUri(
+                    uri = resources.getString(R.string.download_url).toUri(),
+                    errorMessage = resources.getString(R.string.uri_browser_app_not_found),
+                )
+            }
+        _uiSideEffect.send(sideEffect)
+    }
 
     fun dismissNewDeviceNotification() {
         newDeviceRepository.clearNewDeviceCreatedNotification()
     }
 
-    fun dismissAndroid16UpgradeWarning() =
-        viewModelScope.launch { userPreferencesRepository.setShowAndroid16ConnectWarning(false) }
+    fun dismissAndroid16UpgradeWarning() = viewModelScope.launch {
+        userPreferencesRepository.setShowAndroid16ConnectWarning(false)
+    }
 
-    fun dismissNewChangelogNotification() =
-        viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }
+    fun dismissNewChangelogNotification() = viewModelScope.launch {
+        changelogRepository.setDismissNewChangelogNotification()
+    }
 
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }

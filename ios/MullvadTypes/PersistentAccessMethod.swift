@@ -24,7 +24,7 @@ public struct PersistentAccessMethodStore: Codable {
 }
 
 /// Persistent access method model.
-public struct PersistentAccessMethod: Identifiable, Codable, Equatable, Sendable {
+public struct PersistentAccessMethod: Identifiable, Codable, Equatable, Sendable, CustomDebugStringConvertible {
     /// The unique identifier used for referencing the access method entry in a persistent store.
     public var id: UUID
 
@@ -36,6 +36,10 @@ public struct PersistentAccessMethod: Identifiable, Codable, Equatable, Sendable
 
     /// Proxy configuration.
     public var proxyConfiguration: PersistentProxyConfiguration
+
+    public var debugDescription: String {
+        "Access Method Name: \(name) with: \(proxyConfiguration)"
+    }
 
     public init(id: UUID, name: String, isEnabled: Bool, proxyConfiguration: PersistentProxyConfiguration) {
         self.id = id

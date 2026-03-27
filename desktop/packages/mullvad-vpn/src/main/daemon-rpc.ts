@@ -1,7 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
-import { types as grpcTypes } from 'management-interface';
+import * as grpcTypes from 'management-interface/management-interface/grpc-types';
 
 import {
   AccessMethodExistsError,

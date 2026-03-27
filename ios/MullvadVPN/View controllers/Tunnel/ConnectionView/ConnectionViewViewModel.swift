@@ -130,25 +130,28 @@ extension ConnectionViewViewModel {
     }
 
     var localizedAccessibilityLabelForSecureLabel: LocalizedStringKey {
+        let localizedLocations = { (tunnelInfo: SelectedRelays) in
+            let country = NSLocalizedString(tunnelInfo.exit.location.country, comment: "")
+            let city = NSLocalizedString(tunnelInfo.exit.location.city, comment: "")
+            return "\(city), \(country)"
+        }
+
         switch tunnelStatus.state {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
-            localizedTitleForSecureLabel
+            return localizedTitleForSecureLabel
         case let .connected(tunnelInfo, _, _):
-            LocalizedStringKey(
-                "Connected to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
-            )
+            let location = localizedLocations(tunnelInfo)
+            return LocalizedStringKey("Connected to \(location)")
         case let .connecting(tunnelInfo, _, _):
             if let tunnelInfo {
-                LocalizedStringKey(
-                    "Connecting to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
-                )
+                let location = localizedLocations(tunnelInfo)
+                return LocalizedStringKey("Connecting to \(location)")
             } else {
-                localizedTitleForSecureLabel
+                return localizedTitleForSecureLabel
             }
         case let .reconnecting(tunnelInfo, _, _), let .negotiatingEphemeralPeer(tunnelInfo, _, _, _):
-            LocalizedStringKey(
-                "Reconnecting to \([tunnelInfo.exit.location.city,tunnelInfo.exit.location.country].joined(separator: ", "))"
-            )
+            let location = localizedLocations(tunnelInfo)
+            return LocalizedStringKey("Reconnecting to \(location)")
         }
     }
 

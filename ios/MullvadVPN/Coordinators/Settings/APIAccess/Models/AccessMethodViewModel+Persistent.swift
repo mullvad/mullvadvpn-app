@@ -14,20 +14,24 @@ import Network
 extension AccessMethodViewModel {
     /// Validate view model. Throws on failure.
     ///
+    /// - Parameters:
+    ///     - shadowsocksCiphers: Supported Shadowsocks ciphers.
     /// - Throws: an instance of ``AccessMethodValidationError``.
-    func validate() throws {
-        _ = try intoPersistentAccessMethod()
+    func validate(shadowsocksCiphers: [String] = []) throws {
+        _ = try intoPersistentAccessMethod(shadowsocksCiphers: shadowsocksCiphers)
     }
 
     /// Transform view model into persistent model that can be used with ``AccessMethodRepository``.
     ///
+    /// - Parameters:
+    ///     - shadowsocksCiphers: Supported Shadowsocks ciphers.
     /// - Throws: an instance of ``AccessMethodValidationError``.
     /// - Returns: an instance of ``PersistentAccessMethod``.
-    func intoPersistentAccessMethod() throws -> PersistentAccessMethod {
+    func intoPersistentAccessMethod(shadowsocksCiphers: [String]) throws -> PersistentAccessMethod {
         let configuration: PersistentProxyConfiguration
 
         do {
-            configuration = try intoPersistentProxyConfiguration()
+            configuration = try intoPersistentProxyConfiguration(shadowsocksCiphers: shadowsocksCiphers)
         } catch let error as AccessMethodValidationError {
             var fieldErrors = error.fieldErrors
 
@@ -50,9 +54,11 @@ extension AccessMethodViewModel {
 
     /// Transform view model's proxy configuration into persistent configuration that can be used with ``AccessMethodRepository``.
     ///
+    /// - Parameters:
+    ///     - shadowsocksCiphers: Supported Shadowsocks ciphers.
     /// - Throws: an instance of ``AccessMethodValidationError``.
     /// - Returns: an instance of ``PersistentProxyConfiguration``.
-    func intoPersistentProxyConfiguration() throws -> PersistentProxyConfiguration {
+    func intoPersistentProxyConfiguration(shadowsocksCiphers: [String]) throws -> PersistentProxyConfiguration {
         switch method {
         case .direct:
             .direct
@@ -63,7 +69,7 @@ extension AccessMethodViewModel {
         case .socks5:
             try socks.intoPersistentProxyConfiguration()
         case .shadowsocks:
-            try shadowsocks.intoPersistentProxyConfiguration()
+            try shadowsocks.intoPersistentProxyConfiguration(shadowsocksCiphers: shadowsocksCiphers)
         }
     }
 
@@ -151,14 +157,16 @@ extension AccessMethodViewModel.Socks {
 extension AccessMethodViewModel.Shadowsocks {
     /// Transform shadowsocks view model into persistent proxy configuration that can be used with ``AccessMethodRepository``.
     ///
+    /// - Parameters:
+    ///     - shadowsocksCiphers: Supported Shadowsocks ciphers.
     /// - Throws: an instance of ``AccessMethodValidationError``.
     /// - Returns: an instance of ``PersistentProxyConfiguration``.
-    func intoPersistentProxyConfiguration() throws -> PersistentProxyConfiguration {
+    func intoPersistentProxyConfiguration(shadowsocksCiphers: [String]) throws -> PersistentProxyConfiguration {
         var draftConfiguration = PersistentProxyConfiguration.ShadowsocksConfiguration(
             server: .ipv4(.loopback),
             port: 0,
             password: "",
-            cipher: .default
+            cipher: ""
         )
 
         let context: AccessMethodFieldValidationError.Context = .shadowsocks
@@ -187,7 +195,12 @@ extension AccessMethodViewModel.Shadowsocks {
         }
 
         draftConfiguration.password = password
-        draftConfiguration.cipher = cipher
+
+        if shadowsocksCiphers.contains(cipher) {
+            draftConfiguration.cipher = cipher
+        } else {
+            fieldErrors.append(AccessMethodFieldValidationError(kind: .invalidCipher, field: .cipher, context: context))
+        }
 
         if fieldErrors.isEmpty {
             return .shadowsocks(draftConfiguration)

@@ -21,7 +21,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
               messages.pgettext('vpn-settings-view', 'In-tunnel IPv6')
             }
           </EnableIpv6Switch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {messages.pgettext(
@@ -38,11 +38,11 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
             </InfoButton>
 
             <EnableIpv6Switch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </EnableIpv6Switch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {
             // TRANSLATORS: Description of in-tunnel IPv6 setting.
             messages.pgettext(
@@ -50,7 +50,7 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
               'Enable to allow IPv6 traffic through the tunnel.',
             )
           }
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

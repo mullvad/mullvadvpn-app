@@ -29,7 +29,8 @@ fun CheckboxConfirmation(
 ) {
     Column(
         modifier =
-            Modifier.animateContentSize()
+            modifier
+                .animateContentSize()
                 .border(
                     width = Dp.Hairline,
                     color = MaterialTheme.colorScheme.primary,
@@ -47,8 +48,7 @@ fun CheckboxConfirmation(
     ) {
         Row(
             modifier =
-                modifier
-                    .defaultMinSize(minHeight = ListTokens.listItemMinHeight)
+                Modifier.defaultMinSize(minHeight = ListTokens.listItemMinHeight)
                     .fillMaxWidth()
                     .clickable(onClick = { onCheckedChange(!checked) }),
             verticalAlignment = Alignment.CenterVertically,

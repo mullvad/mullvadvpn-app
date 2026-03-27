@@ -62,148 +62,142 @@ class EditApiAccessMethodScreenTest {
     }
 
     @Test
-    fun whenInEditModeAddButtonShouldSaySave() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = true,
-                        formData = EditApiAccessFormData.empty(),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    )
-            )
+    fun whenInEditModeAddButtonShouldSaySave() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = true,
+                    formData = EditApiAccessFormData.empty(),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                )
+        )
 
-            // Assert
-            onNodeWithText("Save").assertExists()
-        }
-
-    @Test
-    fun whenNotInEditModeAddButtonShouldSayAdd() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData = EditApiAccessFormData.empty(),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    )
-            )
-
-            // Assert
-            onNodeWithText("Add").assertExists()
-        }
+        // Assert
+        onNodeWithText("Save").assertExists()
+    }
 
     @Test
-    fun whenNameInputHasErrorShouldShowError() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData =
-                            EditApiAccessFormData(
-                                name = "",
-                                nameError = InvalidDataError.NameError.Required,
-                                serverIp = "",
-                                username = "",
-                                password = "",
-                                port = "",
-                            ),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    )
-            )
+    fun whenNotInEditModeAddButtonShouldSayAdd() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData = EditApiAccessFormData.empty(),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                )
+        )
 
-            // Assert
-            onNodeWithText("This field is required").assertExists()
-        }
+        // Assert
+        onNodeWithText("Add").assertExists()
+    }
 
     @Test
-    fun whenServerInputIsNotIpAddressShouldShowError() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData =
-                            EditApiAccessFormData(
-                                name = "",
-                                serverIp = "123",
-                                serverIpError = InvalidDataError.ServerIpError.Invalid,
-                                username = "",
-                                password = "",
-                                port = "",
-                            ),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    )
-            )
+    fun whenNameInputHasErrorShouldShowError() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData =
+                        EditApiAccessFormData(
+                            name = "",
+                            nameError = InvalidDataError.NameError.Required,
+                            serverIp = "",
+                            username = "",
+                            password = "",
+                            port = "",
+                        ),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                )
+        )
 
-            // Assert
-            onNodeWithText("Please enter a valid IPv4 or IPv6 address").assertExists()
-        }
-
-    @Test
-    fun whenPortInputIsNotWithinRangeShouldShowError() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData =
-                            EditApiAccessFormData(
-                                name = "",
-                                serverIp = "",
-                                username = "",
-                                password = "",
-                                port = "1111111111",
-                                portError =
-                                    InvalidDataError.PortError.Invalid(
-                                        ParsePortError.OutOfRange(1111111111)
-                                    ),
-                            ),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    )
-            )
-
-            // Assert
-            onNodeWithText("Please enter a valid remote server port").assertExists()
-        }
+        // Assert
+        onNodeWithText("This field is required").assertExists()
+    }
 
     @Test
-    fun whenNameInputChangesShouldCallOnNameChanged() =
-        composeExtension.use {
-            // Arrange
-            val onNameChanged: (String) -> Unit = mockk(relaxed = true)
-            val mockInput = "Name"
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData = EditApiAccessFormData.empty(),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    ),
-                onNameChanged = onNameChanged,
-                // This is required to avoid a crash due to the keyboard trying to open at the same
-                // time as the test makes input
-                disableKeyboard = true,
-            )
+    fun whenServerInputIsNotIpAddressShouldShowError() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData =
+                        EditApiAccessFormData(
+                            name = "",
+                            serverIp = "123",
+                            serverIpError = InvalidDataError.ServerIpError.Invalid,
+                            username = "",
+                            password = "",
+                            port = "",
+                        ),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                )
+        )
 
-            // Act
-            onNodeWithTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG).performTextInput(mockInput)
+        // Assert
+        onNodeWithText("Please enter a valid IPv4 or IPv6 address").assertExists()
+    }
 
-            // Assert
-            verify(exactly = 1) { onNameChanged(mockInput) }
-        }
+    @Test
+    fun whenPortInputIsNotWithinRangeShouldShowError() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData =
+                        EditApiAccessFormData(
+                            name = "",
+                            serverIp = "",
+                            username = "",
+                            password = "",
+                            port = "1111111111",
+                            portError =
+                                InvalidDataError.PortError.Invalid(
+                                    ParsePortError.OutOfRange(1111111111)
+                                ),
+                        ),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                )
+        )
+
+        // Assert
+        onNodeWithText("Please enter a valid remote server port").assertExists()
+    }
+
+    @Test
+    fun whenNameInputChangesShouldCallOnNameChanged() = composeExtension.use {
+        // Arrange
+        val onNameChanged: (String) -> Unit = mockk(relaxed = true)
+        val mockInput = "Name"
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData = EditApiAccessFormData.empty(),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                ),
+            onNameChanged = onNameChanged,
+            // This is required to avoid a crash due to the keyboard trying to open at the same
+            // time as the test makes input
+            disableKeyboard = true,
+        )
+
+        // Act
+        onNodeWithTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG).performTextInput(mockInput)
+
+        // Assert
+        verify(exactly = 1) { onNameChanged(mockInput) }
+    }
 
     @Test
     fun whenSocks5IsSelectedAndAuthenticationIsEnabledShouldShowUsernameAndPassword() =
@@ -234,48 +228,46 @@ class EditApiAccessMethodScreenTest {
         }
 
     @Test
-    fun whenClickingOnTestMethodButtonShouldCallOnTestMethod() =
-        composeExtension.use {
-            // Arrange
-            val onTestMethod: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData = EditApiAccessFormData.empty(),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    ),
-                onTestMethod = onTestMethod,
-            )
+    fun whenClickingOnTestMethodButtonShouldCallOnTestMethod() = composeExtension.use {
+        // Arrange
+        val onTestMethod: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData = EditApiAccessFormData.empty(),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                ),
+            onTestMethod = onTestMethod,
+        )
 
-            // Act
-            onNodeWithText("Test method").performClick()
+        // Act
+        onNodeWithText("Test method").performClick()
 
-            // Assert
-            verify(exactly = 1) { onTestMethod() }
-        }
+        // Assert
+        verify(exactly = 1) { onTestMethod() }
+    }
 
     @Test
-    fun whenClickingOnAddMethodButtonShouldCallOnAddMethod() =
-        composeExtension.use {
-            // Arrange
-            val onAddMethod: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    EditApiAccessMethodUiState.Content(
-                        editMode = false,
-                        formData = EditApiAccessFormData.empty(),
-                        hasChanges = false,
-                        isTestingApiAccessMethod = false,
-                    ),
-                onAddMethod = onAddMethod,
-            )
+    fun whenClickingOnAddMethodButtonShouldCallOnAddMethod() = composeExtension.use {
+        // Arrange
+        val onAddMethod: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                EditApiAccessMethodUiState.Content(
+                    editMode = false,
+                    formData = EditApiAccessFormData.empty(),
+                    hasChanges = false,
+                    isTestingApiAccessMethod = false,
+                ),
+            onAddMethod = onAddMethod,
+        )
 
-            // Act
-            onNodeWithText("Add").performClick()
+        // Act
+        onNodeWithText("Add").performClick()
 
-            // Assert
-            verify(exactly = 1) { onAddMethod() }
-        }
+        // Assert
+        verify(exactly = 1) { onAddMethod() }
+    }
 }

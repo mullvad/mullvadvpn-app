@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Il credito dell\'account scadrà tra pochi minuti</string>
     <string name="account_credit_has_expired">Hai esaurito il tempo VPN su questo account.</string>
+    <string name="account_delete_placeholder">Inserisci le cifre del numero di account</string>
+    <string name="account_deleted">Account eliminato</string>
     <string name="account_number">Numero di account</string>
     <string name="account_time_notification_channel_description">Mostra promemoria quando il tempo dell\'account sta per scadere</string>
     <string name="account_time_notification_channel_name">Promemoria temporali per l\'account</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Connessione al servizio del sistema Mullvad...</string>
     <string name="connection_details_in">Ricezione</string>
     <string name="connection_details_out">Invio</string>
+    <string name="cont">Continua</string>
     <string name="continue_login">Continua con il login</string>
     <string name="copied_logs_to_clipboard">Log copiati negli appunti</string>
     <string name="copied_mullvad_account_number">Numero account di Mullvad copiato negli appunti</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">30 giorni aggiunti al tuo account.</string>
     <string name="days_were_added_90">90 giorni aggiunti al tuo account.</string>
     <string name="delete">Elimina</string>
+    <string name="delete_account">Elimina account</string>
+    <string name="delete_account_cant_be_undone">L\'eliminazione dell\'account è irreversibile.</string>
+    <string name="delete_account_confirm_first_item"><b>Questa azione è irreversibile.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Perderai l\'accesso a questo account su tutti i dispositivi.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Non sarà possibile recuperare l\'account.</b></string>
+    <string name="delete_account_confirmation_check">Selezionando questa casella, accetto i rischi connessi all\'eliminazione del mio account</string>
+    <string name="delete_account_confirmation_enter_account_number">Per eliminare il tuo account Mullvad VPN, inserisci il tuo numero di account qui sotto.</string>
+    <string name="delete_account_error">Impossibile eliminare l\'account, contatta l\'assistenza</string>
+    <string name="delete_account_failed_loading_days">Impossibile visualizzare i giorni rimanenti.</string>
+    <string name="delete_account_first_item">Perderai l\'accesso a questo account su tutti i dispositivi.</string>
+    <string name="delete_account_forth_item">Non sarà possibile recuperare l\'account.</string>
+    <string name="delete_account_info">Stai per eliminare il tuo account Mullvad VPN.</string>
+    <string name="delete_account_info_part2">Eliminando il tuo account:</string>
+    <string name="delete_account_loading_days">Perderai il tempo rimanente</string>
+    <string name="delete_account_number_must_match">Il numero dell\'account deve corrispondere</string>
+    <string name="delete_account_second_item">Il tempo rimanente sarà invalidato e annullato.</string>
+    <string name="delete_account_third_item">Non sarà possibile ottenere rimborsi.</string>
+    <string name="delete_account_unable_to_verify">Impossibile verificare il numero di account, contatta l\'assistenza</string>
+    <string name="delete_account_warning"><b>Attenzione:</b></string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
     <string name="delete_list">Elimina elenco</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Per i dettagli, consulta la nostra %1$s.</string>
     <string name="include_account_token_warning_title">Questo ha un impatto sul tuo anonimato</string>
     <string name="invalid_dns_servers">Gli indirizzi del server DNS personalizzato %1$s non sono validi</string>
+    <string name="invalid_ipv6_config">Configurazione IPv6 non valida, prova a modificare le impostazioni VPN.</string>
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
     <string name="ip_version_v4_unavailable">IPv4 non disponibile, prova a cambiare l\'impostazione \"Versione IP dispositivo\".</string>
     <string name="ip_version_v6_unavailable">IPv6 non disponibile, prova a cambiare l\'impostazione \"Versione IP dispositivo\".</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Nessuna cronologia di selezioni recente</string>
     <string name="none">Niente</string>
     <string name="not_found">Non trovato</string>
+    <string name="notification_settings">Impostazioni di notifica</string>
     <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Off</string>

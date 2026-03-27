@@ -63,121 +63,112 @@ class WelcomeScreenTest {
     }
 
     @Test
-    fun testDefaultState() =
-        composeExtension.use {
-            // Arrange
-            initScreen()
+    fun testDefaultState() = composeExtension.use {
+        // Arrange
+        initScreen()
 
-            // Assert
-            onNodeWithText("Congrats!").assertExists()
-            onNodeWithText("Here’s your account number. Save it!").assertExists()
-        }
-
-    @Test
-    fun testDisableSitePayment() =
-        composeExtension.use {
-            // Arrange
-            initScreen()
-
-            // Assert
-            onNodeWithText(
-                    "Either buy credit on our website or redeem a voucher.",
-                    substring = true,
-                )
-                .assertDoesNotExist()
-        }
+        // Assert
+        onNodeWithText("Congrats!").assertExists()
+        onNodeWithText("Here’s your account number. Save it!").assertExists()
+    }
 
     @Test
-    fun testShowAccountNumber() =
-        composeExtension.use {
-            // Arrange
-            val rawAccountNumber = AccountNumber("1111222233334444")
-            val expectedAccountNumber = "1111 2222 3333 4444"
-            initScreen(
-                state =
-                    WelcomeUiState(
-                            tunnelState = TunnelState.Disconnected(),
-                            accountNumber = rawAccountNumber,
-                            deviceName = null,
-                            showSitePayment = false,
-                            verificationPending = false,
-                        )
-                        .toLc()
-            )
+    fun testDisableSitePayment() = composeExtension.use {
+        // Arrange
+        initScreen()
 
-            // Assert
-            onNodeWithText(expectedAccountNumber).assertExists()
-        }
+        // Assert
+        onNodeWithText("Either buy credit on our website or redeem a voucher.", substring = true)
+            .assertDoesNotExist()
+    }
 
     @Test
-    fun testShowPendingPaymentInfoDialog() =
-        composeExtension.use {
-            // Arrange
-            val mockShowPendingInfo = mockk<() -> Unit>(relaxed = true)
-            initScreen(
-                state =
-                    WelcomeUiState(
-                            tunnelState = TunnelState.Disconnected(),
-                            accountNumber = null,
-                            deviceName = null,
-                            showSitePayment = false,
-                            verificationPending = true,
-                        )
-                        .toLc(),
-                onPlayPaymentInfoClick = mockShowPendingInfo,
-            )
+    fun testShowAccountNumber() = composeExtension.use {
+        // Arrange
+        val rawAccountNumber = AccountNumber("1111222233334444")
+        val expectedAccountNumber = "1111 2222 3333 4444"
+        initScreen(
+            state =
+                WelcomeUiState(
+                        tunnelState = TunnelState.Disconnected(),
+                        accountNumber = rawAccountNumber,
+                        deviceName = null,
+                        showSitePayment = false,
+                        verificationPending = false,
+                    )
+                    .toLc()
+        )
 
-            // Act
-            onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
-
-            // Assert
-            verify(exactly = 1) { mockShowPendingInfo() }
-        }
+        // Assert
+        onNodeWithText(expectedAccountNumber).assertExists()
+    }
 
     @Test
-    fun testShowVerificationInProgress() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    WelcomeUiState(
-                            tunnelState = TunnelState.Disconnected(),
-                            accountNumber = null,
-                            deviceName = null,
-                            showSitePayment = false,
-                            verificationPending = true,
-                        )
-                        .toLc()
-            )
+    fun testShowPendingPaymentInfoDialog() = composeExtension.use {
+        // Arrange
+        val mockShowPendingInfo = mockk<() -> Unit>(relaxed = true)
+        initScreen(
+            state =
+                WelcomeUiState(
+                        tunnelState = TunnelState.Disconnected(),
+                        accountNumber = null,
+                        deviceName = null,
+                        showSitePayment = false,
+                        verificationPending = true,
+                    )
+                    .toLc(),
+            onPlayPaymentInfoClick = mockShowPendingInfo,
+        )
 
-            // Assert
-            onNodeWithText("Google Play payment pending").assertExists()
-        }
+        // Act
+        onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 1) { mockShowPendingInfo() }
+    }
 
     @Test
-    fun testOnDisconnectClick() =
-        composeExtension.use {
-            // Arrange
-            val clickHandler: () -> Unit = mockk(relaxed = true)
-            val tunnelState: TunnelState = mockk(relaxed = true)
-            every { tunnelState.isSecured() } returns true
-            initScreen(
-                state =
-                    WelcomeUiState(
-                            tunnelState = tunnelState,
-                            accountNumber = null,
-                            deviceName = null,
-                            showSitePayment = false,
-                            verificationPending = false,
-                        )
-                        .toLc(),
-                onDisconnectClick = clickHandler,
-            )
+    fun testShowVerificationInProgress() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                WelcomeUiState(
+                        tunnelState = TunnelState.Disconnected(),
+                        accountNumber = null,
+                        deviceName = null,
+                        showSitePayment = false,
+                        verificationPending = true,
+                    )
+                    .toLc()
+        )
 
-            // Act
-            onNodeWithText("Disconnect").performClick()
+        // Assert
+        onNodeWithText("Google Play payment pending").assertExists()
+    }
 
-            // Assert
-            verify { clickHandler() }
-        }
+    @Test
+    fun testOnDisconnectClick() = composeExtension.use {
+        // Arrange
+        val clickHandler: () -> Unit = mockk(relaxed = true)
+        val tunnelState: TunnelState = mockk(relaxed = true)
+        every { tunnelState.isSecured() } returns true
+        initScreen(
+            state =
+                WelcomeUiState(
+                        tunnelState = tunnelState,
+                        accountNumber = null,
+                        deviceName = null,
+                        showSitePayment = false,
+                        verificationPending = false,
+                    )
+                    .toLc(),
+            onDisconnectClick = clickHandler,
+        )
+
+        // Act
+        onNodeWithText("Disconnect").performClick()
+
+        // Assert
+        verify { clickHandler() }
+    }
 }

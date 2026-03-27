@@ -20,7 +20,7 @@ fun createSimpleRelayListItemList(
             add(RelayListItem.RecentListItem(item = it, isSelected = it.id == selectedItem))
         }
     }
-    add(RelayListItem.CustomListHeader)
+    add(RelayListItem.CustomListHeader(customListItem.isNotEmpty()))
     if (customListItem.isNotEmpty()) {
         customListItem.forEach {
             add(RelayListItem.CustomListItem(it, isSelected = it.id == selectedItem))

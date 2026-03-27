@@ -4,16 +4,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodConfirmedNavResult
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.NegativeConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -21,28 +20,25 @@ private fun PreviewDeleteApiAccessMethodConfirmationDialog() {
     AppTheme { DeleteApiAccessMethodConfirmationDialog(state = DeleteApiAccessMethodUiState(null)) }
 }
 
-data class DeleteApiAccessMethodNavArgs(val apiAccessMethodId: ApiAccessMethodId)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = DeleteApiAccessMethodNavArgs::class,
-)
-fun DeleteApiAccessMethodConfirmation(navigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<DeleteApiAccessMethodConfirmationViewModel>()
+fun DeleteApiAccessMethodConfirmation(apiAccessMethodId: ApiAccessMethodId, navigator: Navigator) {
+    val viewModel =
+        koinViewModel<DeleteApiAccessMethodConfirmationViewModel> {
+            parametersOf(apiAccessMethodId)
+        }
     val state = viewModel.uiState.collectAsStateWithLifecycle()
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is DeleteApiAccessMethodConfirmationSideEffect.Deleted ->
-                navigator.navigateBack(result = true)
+                navigator.goBack(result = DeleteApiAccessMethodConfirmedNavResult)
         }
     }
 
     DeleteApiAccessMethodConfirmationDialog(
         state = state.value,
         onDelete = viewModel::deleteApiAccessMethod,
-        onBack = navigator::navigateBack,
+        onBack = navigator::goBack,
     )
 }
 

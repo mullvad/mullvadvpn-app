@@ -21,4 +21,7 @@
     <plurals name="account_credit_expires_in_hours">
         <item quantity="other">계정 크레딧이 %1$d시간 후에 만료됩니다.</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="other">남은 %1$d일이 상실됩니다.</item>
+    </plurals>
 </resources>

@@ -26,21 +26,19 @@ class ChangelogScreenTest {
     }
 
     @Test
-    fun testShowChangeLogWhenNeeded() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    ChangelogUiState(changes = listOf(CHANGELOG_ITEM), version = CHANGELOG_VERSION),
-                onBackClick = {},
-            )
+    fun testShowChangeLogWhenNeeded() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state = ChangelogUiState(changes = listOf(CHANGELOG_ITEM), version = CHANGELOG_VERSION),
+            onBackClick = {},
+        )
 
-            // Check changelog version shown
-            onNodeWithText(CHANGELOG_VERSION).assertExists()
+        // Check changelog version shown
+        onNodeWithText(CHANGELOG_VERSION).assertExists()
 
-            // Check changelog content showed within dialog
-            onNodeWithText(CHANGELOG_ITEM).assertExists()
-        }
+        // Check changelog content showed within dialog
+        onNodeWithText(CHANGELOG_ITEM).assertExists()
+    }
 
     companion object {
         private const val CHANGELOG_ITEM = "Changelog item"

@@ -190,7 +190,7 @@ private fun createCustomListSection(
     customLists: List<RelayItem.CustomList>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
-    add(RelayListItem.CustomListHeader)
+    add(RelayListItem.CustomListHeader(canEdit = customLists.isNotEmpty()))
     val customListItems =
         createCustomListRelayItems(
             customLists = customLists,
@@ -211,7 +211,7 @@ private fun createCustomListSectionSearching(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     if (customLists.isNotEmpty()) {
-        add(RelayListItem.CustomListHeader)
+        add(RelayListItem.CustomListHeader(false))
         val customListItems =
             createCustomListRelayItems(
                 customLists = customLists,
@@ -230,49 +230,48 @@ private fun createCustomListRelayItems(
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     isExpanded: (String) -> Boolean,
-): List<RelayListItem> =
-    customLists.flatMap { customList ->
-        // It is possible for an custom list to be expanded without children if the children were
-        // removed after the item was expanded. In those cases we should treat the item as
-        // collapsed.
-        val expanded = isExpanded(customList.id.expandKey()) && customList.hasChildren
-        buildList {
-            add(
-                RelayListItem.CustomListItem(
-                    item = customList,
-                    isSelected = selectedByThisEntryExitList == customList.id,
-                    state =
-                        customList.createState(
-                            relayListType = relayListType,
-                            selectedByOtherId = selectedByOtherEntryExitList,
-                        ),
-                    expanded = expanded,
-                    itemPosition =
-                        if (expanded) {
-                            Position.Top
-                        } else {
-                            Position.Single
-                        },
-                )
+): List<RelayListItem> = customLists.flatMap { customList ->
+    // It is possible for an custom list to be expanded without children if the children were
+    // removed after the item was expanded. In those cases we should treat the item as
+    // collapsed.
+    val expanded = isExpanded(customList.id.expandKey()) && customList.hasChildren
+    buildList {
+        add(
+            RelayListItem.CustomListItem(
+                item = customList,
+                isSelected = selectedByThisEntryExitList == customList.id,
+                state =
+                    customList.createState(
+                        relayListType = relayListType,
+                        selectedByOtherId = selectedByOtherEntryExitList,
+                    ),
+                expanded = expanded,
+                itemPosition =
+                    if (expanded) {
+                        Position.Top
+                    } else {
+                        Position.Single
+                    },
             )
+        )
 
-            if (expanded) {
-                addAll(
-                    customList.locations.flatMapIndexed { index, item ->
-                        createCustomListEntry(
-                            parent = customList,
-                            item = item,
-                            relayListType = relayListType,
-                            selectedByOtherEntryExitList = selectedByOtherEntryExitList,
-                            hierarchy = Hierarchy.Child1,
-                            isExpanded = isExpanded,
-                            isLast = index == customList.locations.lastIndex,
-                        )
-                    }
-                )
-            }
+        if (expanded) {
+            addAll(
+                customList.locations.flatMapIndexed { index, item ->
+                    createCustomListEntry(
+                        parent = customList,
+                        item = item,
+                        relayListType = relayListType,
+                        selectedByOtherEntryExitList = selectedByOtherEntryExitList,
+                        hierarchy = Hierarchy.Child1,
+                        isExpanded = isExpanded,
+                        isLast = index == customList.locations.lastIndex,
+                    )
+                }
+            )
         }
     }
+}
 
 private fun createLocationSection(
     selectedByThisEntryExitList: RelayItemId?,

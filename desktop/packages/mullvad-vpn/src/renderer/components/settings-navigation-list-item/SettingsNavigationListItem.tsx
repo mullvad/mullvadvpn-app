@@ -14,20 +14,14 @@ function SettingsNavigationListItem({ to, children, ...props }: SettingsNavigati
 
   return (
     <SettingsListItem {...props}>
-      <SettingsListItem.Trigger onClick={navigate}>
-        <SettingsListItem.Item>{children}</SettingsListItem.Item>
-      </SettingsListItem.Trigger>
+      <SettingsListItem.Trigger onClick={navigate}>{children}</SettingsListItem.Trigger>
     </SettingsListItem>
   );
 }
 
 const SettingsNavigationListItemNamespace = Object.assign(SettingsNavigationListItem, {
-  Label: SettingsListItem.Label,
-  Group: SettingsListItem.Group,
-  ActionGroup: SettingsListItem.ActionGroup,
-  Text: SettingsListItem.Text,
+  Item: SettingsListItem.Item,
   Footer: SettingsListItem.Footer,
-  Icon: SettingsListItem.Icon,
 });
 
 export { SettingsNavigationListItemNamespace as SettingsNavigationListItem };

@@ -24,6 +24,8 @@ pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
+pub use types::{RelaySelectorService, RelaySelectorServiceClient, RelaySelectorServiceServer};
+
 #[cfg(unix)]
 use std::sync::LazyLock;
 #[cfg(unix)]
@@ -132,20 +134,27 @@ impl From<tonic::Status> for Error {
 
 #[cfg(not(target_os = "android"))]
 #[deprecated(note = "Prefer MullvadProxyClient")]
-pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
+pub async fn new_management_service_client() -> Result<ManagementServiceClient, Error> {
+    grpc_transport_channel()
+        .await
+        .map(ManagementServiceClient::new)
+}
+
+/// Create a [Channel] for communication between any of the available gRPC clients (e.g.
+/// [ManagementServiceClient]) and the management interface gRPC service.
+#[cfg(not(target_os = "android"))]
+pub(crate) async fn grpc_transport_channel() -> Result<Channel, Error> {
     use futures::TryFutureExt;
 
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
     // The URI will be ignored
-    let channel = Endpoint::from_static("lttp://[::]:50051")
+    Endpoint::from_static("lttp://[::]:50051")
         .connect_with_connector(service_fn(move |_: Uri| {
             IpcEndpoint::connect(ipc_path.clone()).map_ok(hyper_util::rt::tokio::TokioIo::new)
         }))
         .await
-        .map_err(Error::GrpcTransportError)?;
-
-    Ok(ManagementServiceClient::new(channel))
+        .map_err(Error::GrpcTransportError)
 }
 
 #[cfg(not(target_os = "android"))]
@@ -153,45 +162,62 @@ pub use client::MullvadProxyClient;
 
 pub type ServerJoinHandle = tokio::task::JoinHandle<()>;
 
-pub fn spawn_rpc_server<T: ManagementService, F: Future<Output = ()> + Send + 'static>(
-    service: T,
-    abort_rx: F,
+pub fn spawn_rpc_server(
+    management_service: impl ManagementService,
+    relay_selector_service: impl RelaySelectorService,
+    abort_rx: impl Future<Output = ()> + Send + 'static,
     rpc_socket_path: PathBuf,
 ) -> std::result::Result<ServerJoinHandle, Error> {
-    use futures::stream::TryStreamExt;
-    use tipsy::SecurityAttributes;
+    use futures::TryStreamExt;
 
-    let endpoint = IpcEndpoint::new(rpc_socket_path.clone(), tipsy::OnConflict::Error)
+    let endpoint = create_endpoint(rpc_socket_path)?;
+
+    // Extract the path first, since `incoming()` takes ownership.
+    // Note: `endpoint.clone()` is not safe to use due to a use-after-free in `tipsy`.
+    // See https://github.com/aschey/tipsy/issues/50.
+    #[cfg(unix)]
+    let endpoint_path = endpoint.path().to_owned();
+
+    let incoming = endpoint
+        .incoming()
         .map_err(Error::StartServerError)?
-        .security_attributes(
-            SecurityAttributes::allow_everyone_create()
-                .map_err(Error::SecurityAttributes)?
-                .mode(0o766)
-                .map_err(Error::SecurityAttributes)?,
-        );
-    let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
+        .map_ok(StreamBox);
 
     #[cfg(unix)]
-    if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
+    if let Some(group_name) = MULLVAD_MANAGEMENT_SOCKET_GROUP.as_ref() {
         let group = nix::unistd::Group::from_name(group_name)
             .map_err(Error::ObtainGidError)?
             .ok_or(Error::NoGidError)?;
-        nix::unistd::chown(&rpc_socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
-        fs::set_permissions(rpc_socket_path, PermissionsExt::from_mode(0o760))
+        nix::unistd::chown(&endpoint_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(&endpoint_path, PermissionsExt::from_mode(0o760))
             .map_err(Error::PermissionsError)?;
     }
 
-    Ok(tokio::spawn(async move {
-        if let Err(execution_error) = Server::builder()
-            .add_service(ManagementServiceServer::new(service))
-            .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
-            .await
-            .map_err(Error::GrpcTransportError)
-        {
+    let grpc_server = Server::builder()
+        .add_service(ManagementServiceServer::new(management_service))
+        .add_service(RelaySelectorServiceServer::new(relay_selector_service))
+        .serve_with_incoming_shutdown(incoming, abort_rx);
+
+    let server_task = tokio::spawn(async move {
+        if let Err(execution_error) = grpc_server.await.map_err(Error::GrpcTransportError) {
             log::error!("Management server panic: {execution_error}");
         }
         log::trace!("gRPC server is shutting down");
-    }))
+    });
+
+    Ok(server_task)
+}
+
+fn create_endpoint(rpc_socket_path: PathBuf) -> Result<IpcEndpoint, Error> {
+    let endpoint = IpcEndpoint::new(rpc_socket_path, tipsy::OnConflict::Error)
+        .map_err(Error::StartServerError)?;
+    let endpoint = endpoint.security_attributes(
+        tipsy::SecurityAttributes::allow_everyone_create()
+            .map_err(Error::SecurityAttributes)?
+            .mode(0o766)
+            .map_err(Error::SecurityAttributes)?,
+    );
+    Ok(endpoint)
 }
 
 #[derive(Debug)]

@@ -15,9 +15,9 @@ export function BlockTrackersSetting(props: BlockTrackersSettingProps) {
               messages.pgettext('vpn-settings-view', 'Trackers')
             }
           </BlockTrackersSwitch.Label>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <BlockTrackersSwitch.Input />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </BlockTrackersSwitch>
       </ListItem.Item>
     </ListItem>

@@ -15,9 +15,9 @@ export function BlockAdsSetting(props: BlockAdsSettingProps) {
               messages.pgettext('vpn-settings-view', 'Ads')
             }
           </BlockAdsSwitch.Label>
-          <ListItem.ActionGroup>
+          <ListItem.Item.ActionGroup>
             <BlockAdsSwitch.Input />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </BlockAdsSwitch>
       </ListItem.Item>
     </ListItem>

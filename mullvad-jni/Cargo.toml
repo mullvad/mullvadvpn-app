@@ -24,7 +24,6 @@ tokio = { workspace = true, features = ["rt"] }
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override", "mullvad-daemon/api-override"]
-wireguard-go = ["mullvad-daemon/wireguard-go"]
 
 [lints]
 workspace = true

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useProviders } from '../../../../features/location/hooks';
+import { useProviders } from '../../../../features/locations/hooks';
 import { useRelaySettingsUpdater } from '../../../../lib/constraint-updater';
 import { useHistory } from '../../../../lib/history';
 import { useFilterViewContext } from '../FilterViewContext';

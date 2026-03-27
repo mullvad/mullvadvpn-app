@@ -37,6 +37,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -68,30 +69,30 @@ import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.customlist.destinations.CreateCustomListDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListLocationsDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.CustomListsDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.DeleteCustomListDestination
-import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListNameDestination
-import com.ramcosta.composedestinations.generated.daita.destinations.DaitaDestination
-import com.ramcosta.composedestinations.generated.filter.destinations.FilterDestination
-import com.ramcosta.composedestinations.generated.location.destinations.SearchLocationDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultRecipient
-import com.ramcosta.composedestinations.result.onResult
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.animation.TopLevelTransition
+import net.mullvad.mullvadvpn.core.LocalResultStore
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.CustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
+import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
+import net.mullvad.mullvadvpn.feature.filter.api.FilterNavKey
+import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavKey
+import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavResult
+import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheets
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.OnCustomListNavResult
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -162,33 +163,20 @@ private fun PreviewSelectLocationScreen(
 }
 
 @SuppressLint("CheckResult")
-@Destination<ExternalModuleGraph>(style = TopLevelTransition::class)
 @Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
-fun SelectLocation(
-    navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<Boolean>,
-    createCustomListDialogResultRecipient:
-        ResultRecipient<
-            CreateCustomListDestination,
-            CustomListActionResultData.Success.CreatedWithLocations,
-        >,
-    editCustomListNameDialogResultRecipient:
-        ResultRecipient<EditCustomListNameDestination, CustomListActionResultData.Success.Renamed>,
-    deleteCustomListDialogResultRecipient:
-        ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
-    updateCustomListResultRecipient:
-        ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>,
-    searchSelectedLocationResultRecipient: ResultRecipient<SearchLocationDestination, RelayListType>,
-) {
+fun SelectLocation(navigator: Navigator) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
 
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
+    val resultStore = LocalResultStore.current
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
-            SelectLocationSideEffect.CloseScreen -> backNavigator.navigateBack(result = true)
+            SelectLocationSideEffect.CloseScreen ->
+                navigator.goBack(result = SelectLocationNavResult(true))
             is SelectLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -265,30 +253,41 @@ fun SelectLocation(
         }
     }
 
-    createCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction,
-    )
+    @Composable
+    fun ShowResultSnackbar(result: CustomListActionResultData) {
+        LaunchedEffect(result) {
+            snackbarHostState.showResultSnackbar(
+                resources = resources,
+                result = result,
+                onUndo = vm::performAction,
+            )
+        }
+    }
 
-    editCustomListNameDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction,
-    )
+    resultStore.consumeResult<CreateCustomListNavResult>()?.let { result ->
+        ShowResultSnackbar(result.value)
+    }
 
-    deleteCustomListDialogResultRecipient.OnCustomListNavResult(
-        snackbarHostState,
-        vm::performAction,
-    )
+    resultStore.consumeResult<EditCustomListNavResult>()?.let { result ->
+        ShowResultSnackbar(result.value)
+    }
 
-    updateCustomListResultRecipient.OnCustomListNavResult(snackbarHostState, vm::performAction)
+    resultStore.consumeResult<DeleteCustomListNavResult>()?.let { result ->
+        ShowResultSnackbar(result.value)
+    }
 
-    searchSelectedLocationResultRecipient.onResult { result ->
-        when (result) {
-            RelayListType.Single -> backNavigator.navigateBack(result = true)
+    resultStore.consumeResult<UpdateCustomListNavResult>()?.let { result ->
+        ShowResultSnackbar(result.value)
+    }
+
+    resultStore.consumeResult<SearchLocationNavResult>()?.let { result ->
+        when (val type = result.relayListType) {
+            RelayListType.Single -> navigator.goBack(result = SelectLocationNavResult(true))
             is RelayListType.Multihop ->
-                when (result.multihopRelayListType) {
+                when (type.multihopRelayListType) {
                     MultihopRelayListType.ENTRY -> vm.selectRelayList(MultihopRelayListType.EXIT)
-                    MultihopRelayListType.EXIT -> backNavigator.navigateBack(result = true)
+                    MultihopRelayListType.EXIT ->
+                        navigator.goBack(result = SelectLocationNavResult(true))
                 }
         }
     }
@@ -300,15 +299,15 @@ fun SelectLocation(
         onModifyMultihop = vm::modifyMultihop,
         onSearchClick =
             dropUnlessResumed { relayListType ->
-                navigator.navigate(SearchLocationDestination(relayListType))
+                navigator.navigate(SearchLocationNavKey(relayListType))
             },
-        onBackClick = dropUnlessResumed { backNavigator.navigateBack() },
-        onFilterClick = dropUnlessResumed { navigator.navigate(FilterDestination) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
+        onFilterClick = dropUnlessResumed { navigator.navigate(FilterNavKey) },
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
-                navigator.navigate(CreateCustomListDestination(locationCode = relayItem?.id))
+                navigator.navigate(CreateCustomListNavKey(locationCode = relayItem?.id))
             },
-        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListsDestination()) },
+        onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onAddLocationToList = vm::addLocationToList,
@@ -316,7 +315,7 @@ fun SelectLocation(
         onEditCustomListName =
             dropUnlessResumed { customList: RelayItem.CustomList ->
                 navigator.navigate(
-                    EditCustomListNameDestination(
+                    EditCustomListNameNavKey(
                         customListId = customList.id,
                         initialName = customList.customList.name,
                     )
@@ -324,14 +323,12 @@ fun SelectLocation(
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    CustomListLocationsDestination(customListId = customList.id, newList = false)
-                )
+                navigator.navigate(EditCustomListNavKey(customListId = customList.id))
             },
         onDeleteCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
                 navigator.navigate(
-                    DeleteCustomListDestination(
+                    DeleteCustomListNavKey(
                         customListId = customList.id,
                         name = customList.customList.name,
                     )
@@ -339,8 +336,7 @@ fun SelectLocation(
             },
         onSelectRelayList = vm::selectRelayList,
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
-        openDaitaSettings =
-            dropUnlessResumed { navigator.navigate(DaitaDestination(isModal = true)) },
+        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaNavKey(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,

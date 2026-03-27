@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.anticensorship.impl.customport
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.anticensorship.destinations.CustomPortDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -15,15 +13,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.inAnyOf
 import net.mullvad.mullvadvpn.lib.model.Port
 
 class CustomPortDialogViewModel(
-    savedStateHandle: SavedStateHandle,
+    private val navArgs: CustomPortNavKey,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = CustomPortDestination.argsFrom(savedStateHandle).navArg
 
     private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString() ?: "")
     private val _isValidPort = MutableStateFlow(_portInput.value.isValidPort())

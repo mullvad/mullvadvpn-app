@@ -35,7 +35,7 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
+        tunnelQuantumResistance: TunnelQuantumResistance = .on,
         tunnelMultihopState: MultihopStateV2 = .never,
         daita: DAITASettings = DAITASettings(),
         includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings()
@@ -71,5 +71,9 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
 
     public func upgradeToNextVersion() -> any TunnelSettings {
         self
+    }
+
+    public var debugDescription: String {
+        "TunnelSettingsV8(relayConstraints: \(self.relayConstraints), dnsSettings: \(self.dnsSettings), wireGuardObfuscation: \(self.wireGuardObfuscation), tunnelQuantumResistance: \(self.tunnelQuantumResistance), tunnelMultihopState: \(self.tunnelMultihopState), daita: \(self.daita), includeAllNetworks: \(self.includeAllNetworks.debugDescription))"
     }
 }

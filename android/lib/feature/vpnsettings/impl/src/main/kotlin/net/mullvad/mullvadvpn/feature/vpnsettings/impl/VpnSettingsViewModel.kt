@@ -1,13 +1,11 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.None
 import arrow.core.Option
 import arrow.core.Some
 import co.touchlab.kermit.Logger
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.VpnSettingsDestination
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
@@ -24,6 +22,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -57,14 +56,13 @@ sealed interface VpnSettingsSideEffect {
 
 @Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
+    private val navArgs: VpnSettingsNavKey,
     private val settingsRepository: SettingsRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = VpnSettingsDestination.argsFrom(savedStateHandle)
     private val _mutableIsContentBlockersExpanded = MutableStateFlow<Option<Boolean>>(None)
 
     private val _uiSideEffect = Channel<VpnSettingsSideEffect>()
@@ -111,31 +109,29 @@ class VpnSettingsViewModel(
         }
     }
 
-    fun onToggleCustomDns(enable: Boolean) =
-        viewModelScope.launch {
-            val settings = settingsRepository.settingsUpdates.value
-            if (settings == null) {
-                showGenericErrorToast()
-                return@launch
-            }
-
-            val hasDnsEntries = settings.customDnsAddresses().isNotEmpty()
-
-            if (hasDnsEntries) {
-                settingsRepository
-                    .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-                    .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
-            } else {
-                // If they enable custom DNS and has no current entries we show the dialog
-                // to add one.
-                viewModelScope.launch {
-                    _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog)
-                }
-            }
+    fun onToggleCustomDns(enable: Boolean) = viewModelScope.launch {
+        val settings = settingsRepository.settingsUpdates.value
+        if (settings == null) {
+            showGenericErrorToast()
+            return@launch
         }
 
-    fun onToggleContentBlockersExpand() =
-        _mutableIsContentBlockersExpanded.update { it.map { expand -> !expand } }
+        val hasDnsEntries = settings.customDnsAddresses().isNotEmpty()
+
+        if (hasDnsEntries) {
+            settingsRepository
+                .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
+                .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
+        } else {
+            // If they enable custom DNS and has no current entries we show the dialog
+            // to add one.
+            viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.NavigateToDnsDialog) }
+        }
+    }
+
+    fun onToggleContentBlockersExpand() = _mutableIsContentBlockersExpanded.update {
+        it.map { expand -> !expand }
+    }
 
     fun onToggleAllBlockers(isEnabled: Boolean) = updateContentBlockersAndNotify {
         DefaultDnsOptions(
@@ -228,13 +224,13 @@ class VpnSettingsViewModel(
 
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 
-    fun showApplySettingChangesWarningToast() =
-        viewModelScope.launch {
-            _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
-        }
+    fun showApplySettingChangesWarningToast() = viewModelScope.launch {
+        _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.ApplySettingsWarning)
+    }
 
-    fun showGenericErrorToast() =
-        viewModelScope.launch { _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError) }
+    fun showGenericErrorToast() = viewModelScope.launch {
+        _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+    }
 
     companion object {
         private const val EMPTY_STRING = ""

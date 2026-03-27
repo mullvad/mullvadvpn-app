@@ -89,6 +89,7 @@ class LoginViewController: UIViewController, RootContainment {
     private let interactor: LoginInteractor
 
     var didFinishLogin: ((LoginAction, Error?) -> EndLoginAction)?
+    var navigateToAccessMethods: (() -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -200,6 +201,16 @@ class LoginViewController: UIViewController, RootContainment {
         loginState = .default
         updateKeyboardToolbar()
         updateLastUsedAccount()
+    }
+
+    func showInvalidAccessMethodView(_ show: Bool) {
+        if show {
+            contentView.showInvalidAccessMethodView { [weak self] in
+                self?.navigateToAccessMethods?()
+            }
+        } else {
+            contentView.removeInvalidAccessMethodView()
+        }
     }
 
     // MARK: - UITextField notifications

@@ -15,19 +15,23 @@ export function LanguageListItem(props: LanguageListItemProps) {
 
   return (
     <SettingsNavigationListItem to={RoutePath.selectLanguage} {...props}>
-      <SettingsNavigationListItem.Group gap="small">
-        <Image source="icon-language" />
-        <SettingsNavigationListItem.Label>
-          {
-            // TRANSLATORS: Navigation button to the 'Language' settings view
-            messages.pgettext('user-interface-settings-view', 'Language')
-          }
-        </SettingsNavigationListItem.Label>
-      </SettingsNavigationListItem.Group>
-      <SettingsNavigationListItem.ActionGroup>
-        <SettingsNavigationListItem.Text>{localeDisplayName}</SettingsNavigationListItem.Text>
-        <SettingsNavigationListItem.Icon icon="chevron-right" />
-      </SettingsNavigationListItem.ActionGroup>
+      <SettingsNavigationListItem.Item>
+        <SettingsNavigationListItem.Item.Group gap="small">
+          <Image source="icon-language" />
+          <SettingsNavigationListItem.Item.Label>
+            {
+              // TRANSLATORS: Navigation button to the 'Language' settings view
+              messages.pgettext('user-interface-settings-view', 'Language')
+            }
+          </SettingsNavigationListItem.Item.Label>
+        </SettingsNavigationListItem.Item.Group>
+        <SettingsNavigationListItem.Item.ActionGroup>
+          <SettingsNavigationListItem.Item.Text>
+            {localeDisplayName}
+          </SettingsNavigationListItem.Item.Text>
+          <SettingsNavigationListItem.Item.Icon icon="chevron-right" />
+        </SettingsNavigationListItem.Item.ActionGroup>
+      </SettingsNavigationListItem.Item>
     </SettingsNavigationListItem>
   );
 }

@@ -1,6 +1,6 @@
 import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { DaemonStatus, IChangelog } from '../../../shared/ipc-types';
-import { LocationType } from '../../components/select-location/select-location-types';
+import { LocationType } from '../../features/locations/types';
 
 export interface IUpdateLocaleAction {
   type: 'UPDATE_LOCALE';

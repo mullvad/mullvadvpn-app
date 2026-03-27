@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.anticensorship.impl
 
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
-import com.ramcosta.composedestinations.generated.anticensorship.navargs.toSavedStateHandle
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -50,8 +49,8 @@ class AntiCensorshipSettingsViewModelTest {
 
         viewModel =
             AntiCensorshipSettingsViewModel(
+                isModal = false,
                 settingsRepository = mockSettingsRepository,
-                savedStateHandle = AntiCensorshipSettingsNavArgs().toSavedStateHandle(),
             )
     }
 

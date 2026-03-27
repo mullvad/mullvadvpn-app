@@ -6,7 +6,6 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 @preconcurrency import MullvadLogging
 import MullvadSettings
 
@@ -14,8 +13,10 @@ final class LoginInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let logger = Logger(label: "LoginInteractor")
     private var tunnelObserver: TunnelObserver?
+
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
     var suggestPreferredAccountNumber: (@Sendable (String) -> Void)?
+
     var hasLastAccountNumber: Bool {
         getLastUsedAccount() != nil
     }

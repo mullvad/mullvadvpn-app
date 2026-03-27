@@ -3,12 +3,11 @@ package net.mullvad.mullvadvpn.feature.apiaccess.impl
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.apiaccess.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodNavArgs
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodSideEffect
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodUiState
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodViewModel
@@ -215,14 +214,13 @@ class SaveApiAccessMethodViewModelTest {
     ) {
         saveApiAccessMethodViewModel =
             SaveApiAccessMethodViewModel(
+                navArgs =
+                    SaveApiAccessMethodNavKey(
+                        id = apiAccessMethodId,
+                        name = apiAccessMethodName,
+                        customProxy = customProxy,
+                    ),
                 apiAccessRepository = mockApiAccessRepository,
-                savedStateHandle =
-                    SaveApiAccessMethodNavArgs(
-                            id = apiAccessMethodId,
-                            name = apiAccessMethodName,
-                            customProxy = customProxy,
-                        )
-                        .toSavedStateHandle(),
             )
     }
 }

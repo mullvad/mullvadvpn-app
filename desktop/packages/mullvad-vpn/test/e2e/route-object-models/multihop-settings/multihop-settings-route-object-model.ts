@@ -18,11 +18,11 @@ export class MultihopSettingsRouteObjectModel {
     return this.selectors.enableMultihopSwitch();
   }
 
-  async setEnableMultihopSwitch(enabled: boolean) {
+  async setEnableMultihopSwitch(enable: boolean) {
     const enableMultihopSwitch = this.selectors.enableMultihopSwitch();
-    const ariaChecked = await enableMultihopSwitch.getAttribute('aria-checked');
+    const checked = await enableMultihopSwitch.isChecked();
 
-    if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
+    if ((enable && !checked) || (!enable && checked)) {
       await enableMultihopSwitch.click();
     }
   }

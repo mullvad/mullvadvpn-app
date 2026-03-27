@@ -4,8 +4,8 @@ import { SettingsListbox } from '../../../../../../settings-listbox';
 
 export function LwoOption() {
   return (
-    <SettingsListbox.BaseOption value={ObfuscationType.lwo}>
+    <SettingsListbox.Options.BaseOption value={ObfuscationType.lwo}>
       {strings.lwo}
-    </SettingsListbox.BaseOption>
+    </SettingsListbox.Options.BaseOption>
   );
 }

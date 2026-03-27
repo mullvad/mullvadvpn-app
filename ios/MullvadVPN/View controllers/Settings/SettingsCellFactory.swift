@@ -13,12 +13,14 @@ import UIKit
 final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: SettingsViewModel
+    var breadcrumbs: Set<Breadcrumb>
     private let interactor: SettingsInteractor
     private var contentSizeCategory = UIApplication.shared.preferredContentSizeCategory
 
-    init(tableView: UITableView, interactor: SettingsInteractor) {
+    init(tableView: UITableView, interactor: SettingsInteractor, breadcrumbs: Set<Breadcrumb>) {
         self.tableView = tableView
         self.interactor = interactor
+        self.breadcrumbs = breadcrumbs
 
         viewModel = SettingsViewModel(from: interactor.tunnelSettings)
 
@@ -58,6 +60,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .vpnSettings }
 
         case .changelog:
             guard let cell = cell as? SettingsCell else { return }
@@ -65,6 +68,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .changelog }
 
         case .problemReport:
             guard let cell = cell as? SettingsCell else { return }
@@ -73,6 +77,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .problemReport }
 
         case .faq:
             guard let cell = cell as? SettingsCell else { return }
@@ -81,6 +86,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .faq }
 
         case .apiAccess:
             guard let cell = cell as? SettingsCell else { return }
@@ -88,6 +94,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.detailTitleLabel.text = nil
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .apiAccess }
 
         case .daita:
             guard let cell = cell as? SettingsCell else { return }
@@ -101,6 +108,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .daita }
 
         case .multihop:
             guard let cell = cell as? SettingsCell else { return }
@@ -114,22 +122,24 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .multihop }
 
         case .language:
             guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString("Language", comment: "")
-
             cell.detailTitleLabel.text = viewModel.currentLanguage
-
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .language }
 
         case .notificationSettings:
             guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString("Notifications", comment: "")
             cell.detailTitleLabel.text = nil
+            cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .notificationSettings }
 
         case .includeAllNetworks:
             guard let cell = cell as? SettingsCell else { return }
@@ -143,6 +153,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
+            cell.breadcrumb = breadcrumbs.first { $0.navigationRoute == .includeAllNetworks }
         }
     }
 

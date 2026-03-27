@@ -31,10 +31,12 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
+# If only the daemon should be built and packaged separately (.deb and .rpm).
+DAEMON_ONLY="false"
 # Use gotatun instead of wireguard-go.
 GOTATUN="false"
-# Enable GotaTun by default on macOS.
-if [[ "$(uname -s)" == "Darwin" ]]; then
+# Enable GotaTun by default on macOS and Linux.
+if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == "Linux" ]]; then
     GOTATUN="true"
 fi
 
@@ -51,6 +53,7 @@ while [[ "$#" -gt 0 ]]; do
             UNIVERSAL="true"
             ;;
         --gotatun) GOTATUN="true";;
+        --daemon-only) DAEMON_ONLY="true";;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -382,23 +385,88 @@ fi
 log_info "Updating relays.json..."
 cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
+function build_daemon_packages {
+    local pkg_success=0
 
-log_header "Installing JavaScript dependencies"
+    for specified_target in "${TARGETS[@]:-""}"; do
+        local current_target=${specified_target:-"$HOST"}
+        local arch="${current_target%%-*}"
 
-pushd desktop
-npm ci --no-audit --no-fund
+        local pkg_args=(-p mullvad-daemon)
+        if [[ -n "$specified_target" ]]; then
+            pkg_args+=(--target "$specified_target")
+        fi
 
-pushd packages/mullvad-vpn
+        local deb_arch="${arch}"
+        local rpm_arch="${arch}"
 
-log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+        case $arch in
+            x86_64) deb_arch="amd64";;
+            aarch64) deb_arch="arm64";;
+        esac
 
-case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
-    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
-    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
-esac
-popd
-popd
+        local deb_name="mullvad-vpn-daemon_${PRODUCT_VERSION}_${deb_arch}.deb"
+        local rpm_name="mullvad-vpn-daemon_${PRODUCT_VERSION}_${rpm_arch}.rpm"
+        local deb_file="dist/${deb_name}"
+        local rpm_file="dist/${rpm_name}"
+
+        if cargo deb --help &> /dev/null ; then
+            log_info "Packaging Debian (*.deb) package for ${arch}..."
+            if cargo deb "${pkg_args[@]}" \
+                     --deb-version "${PRODUCT_VERSION}" --no-build \
+                     -o "${deb_file}" > /dev/null ; then
+                log_info "Packaged $deb_file"
+                pkg_success=1
+            fi
+        else
+            log_error "Unable to package Debian package."
+            log_error "Please run \"cargo install cargo-deb\" to complete."
+        fi
+
+        if cargo generate-rpm --help &> /dev/null ; then
+            log_info "Packaging Fedora (*.rpm) package for ${arch}..."
+            if cargo generate-rpm "${pkg_args[@]}" \
+                     -s "version = \"${PRODUCT_VERSION}\"" \
+                     -o "${rpm_file}" ; then
+                log_info "Packaged $rpm_file"
+                pkg_success=1
+            fi
+        else
+            log_error "Unable to package Fedora package."
+            log_error "Please run \"cargo install cargo-generate-rpm\" to complete."
+        fi
+    done
+
+    if [ $pkg_success -eq 0 ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+if [[ "$DAEMON_ONLY" == "false" ]]; then
+
+    log_header "Installing JavaScript dependencies"
+
+    pushd desktop
+    npm ci --no-audit --no-fund
+
+    pushd packages/mullvad-vpn
+
+    log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
+
+    case "$(uname -s)" in
+        Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
+        Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
+        MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
+    esac
+    popd
+    popd
+else
+    log_header "Packing Mullvad VPN daemon-only packages $PRODUCT_VERSION"
+
+    build_daemon_packages
+fi
 
 # When signing is enabled, we check that the working directory is clean before building,
 # further up. Now verify that this is still true. The build process should never make the

@@ -33,95 +33,90 @@ class SaveApiAccessMethodDialogTest {
     }
 
     @Test
-    fun whenTestingInProgressShouldShowSpinnerWithCancelButton() =
-        composeExtension.use {
-            // Arrange
-            initDialog(
-                state =
-                    SaveApiAccessMethodUiState(
-                        testingState = TestApiAccessMethodState.Testing,
-                        isSaving = false,
-                    )
-            )
+    fun whenTestingInProgressShouldShowSpinnerWithCancelButton() = composeExtension.use {
+        // Arrange
+        initDialog(
+            state =
+                SaveApiAccessMethodUiState(
+                    testingState = TestApiAccessMethodState.Testing,
+                    isSaving = false,
+                )
+        )
 
-            // Assert
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG).assertExists()
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
-        }
-
-    @Test
-    fun whenTestingFailedShouldShowSaveAndCancelButton() =
-        composeExtension.use {
-            // Arrange
-            initDialog(
-                state =
-                    SaveApiAccessMethodUiState(
-                        testingState = TestApiAccessMethodState.Result.Failure,
-                        isSaving = false,
-                    )
-            )
-
-            // Assert
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG).assertExists()
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
-        }
+        // Assert
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_LOADING_SPINNER_TEST_TAG).assertExists()
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun whenTestingSuccessfulAndSavingShouldShowDisabledCancelButton() =
-        composeExtension.use {
-            // Arrange
-            initDialog(
-                state =
-                    SaveApiAccessMethodUiState(
-                        testingState = TestApiAccessMethodState.Result.Successful,
-                        isSaving = true,
-                    )
-            )
+    fun whenTestingFailedShouldShowSaveAndCancelButton() = composeExtension.use {
+        // Arrange
+        initDialog(
+            state =
+                SaveApiAccessMethodUiState(
+                    testingState = TestApiAccessMethodState.Result.Failure,
+                    isSaving = false,
+                )
+        )
 
-            // Assert
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertIsNotEnabled()
-        }
-
-    @Test
-    fun whenTestingInProgressAndClickingCancelShouldCallOnCancel() =
-        composeExtension.use {
-            // Arrange
-            val onCancelClick: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                state =
-                    SaveApiAccessMethodUiState(
-                        testingState = TestApiAccessMethodState.Testing,
-                        isSaving = false,
-                    ),
-                onCancel = onCancelClick,
-            )
-
-            // Act
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).performClick()
-
-            // Assert
-            verify { onCancelClick() }
-        }
+        // Assert
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG).assertExists()
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun whenTestingFailedAndClickingSaveShouldCallOnSave() =
-        composeExtension.use {
-            // Arrange
-            val onSaveClick: () -> Unit = mockk(relaxed = true)
-            initDialog(
-                state =
-                    SaveApiAccessMethodUiState(
-                        testingState = TestApiAccessMethodState.Result.Failure,
-                        isSaving = false,
-                    ),
-                onSave = onSaveClick,
-            )
+    fun whenTestingSuccessfulAndSavingShouldShowDisabledCancelButton() = composeExtension.use {
+        // Arrange
+        initDialog(
+            state =
+                SaveApiAccessMethodUiState(
+                    testingState = TestApiAccessMethodState.Result.Successful,
+                    isSaving = true,
+                )
+        )
 
-            // Act
-            onNodeWithTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG).performClick()
+        // Assert
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertExists()
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).assertIsNotEnabled()
+    }
 
-            // Assert
-            verify { onSaveClick() }
-        }
+    @Test
+    fun whenTestingInProgressAndClickingCancelShouldCallOnCancel() = composeExtension.use {
+        // Arrange
+        val onCancelClick: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            state =
+                SaveApiAccessMethodUiState(
+                    testingState = TestApiAccessMethodState.Testing,
+                    isSaving = false,
+                ),
+            onCancel = onCancelClick,
+        )
+
+        // Act
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_CANCEL_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify { onCancelClick() }
+    }
+
+    @Test
+    fun whenTestingFailedAndClickingSaveShouldCallOnSave() = composeExtension.use {
+        // Arrange
+        val onSaveClick: () -> Unit = mockk(relaxed = true)
+        initDialog(
+            state =
+                SaveApiAccessMethodUiState(
+                    testingState = TestApiAccessMethodState.Result.Failure,
+                    isSaving = false,
+                ),
+            onSave = onSaveClick,
+        )
+
+        // Act
+        onNodeWithTag(SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG).performClick()
+
+        // Assert
+        verify { onSaveClick() }
+    }
 }

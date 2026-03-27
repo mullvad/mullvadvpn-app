@@ -24,10 +24,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import net.mullvad.mullvadvpn.core.animation.DefaultTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavResult
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -41,12 +39,11 @@ private fun PreviewImportOverridesByText() {
     AppTheme { ImportOverridesByTextScreen(onNavigateBack = {}, onImportClicked = {}) }
 }
 
-@Destination<ExternalModuleGraph>(style = DefaultTransition::class)
 @Composable
-fun ImportOverridesByText(resultNavigator: ResultBackNavigator<String>) {
+fun ImportOverridesByText(navigator: Navigator) {
     ImportOverridesByTextScreen(
-        onNavigateBack = dropUnlessResumed { resultNavigator.navigateBack() },
-        onImportClicked = { resultNavigator.navigateBack(result = it) },
+        onNavigateBack = dropUnlessResumed { navigator.goBack() },
+        onImportClicked = { text -> navigator.goBack(result = ImportOverrideByTextNavResult(text)) },
     )
 }
 

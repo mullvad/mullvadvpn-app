@@ -198,7 +198,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
       {...props}>
       <SettingsAccordion.Container>
         <SettingsAccordion.Header position={position}>
-          <SettingsAccordion.HeaderItem>
+          <SettingsAccordion.Header.Item>
             <Switch
               checked={dns.state === 'custom' || inputVisible}
               onCheckedChange={setCustomDnsEnabled}
@@ -207,11 +207,11 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
               <Switch.Label>
                 {messages.pgettext('vpn-settings-view', 'Use custom DNS server')}
               </Switch.Label>
-              <SettingsAccordion.HeaderActionGroup>
+              <SettingsAccordion.Header.Item.ActionGroup>
                 <Switch.Input ref={switchRef} />
-              </SettingsAccordion.HeaderActionGroup>
+              </SettingsAccordion.Header.Item.ActionGroup>
             </Switch>
-          </SettingsAccordion.HeaderItem>
+          </SettingsAccordion.Header.Item>
         </SettingsAccordion.Header>
 
         <SettingsAccordion.Content>
@@ -263,7 +263,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
         </SettingsAccordion.Content>
 
         <SettingsListItem.Footer>
-          <SettingsListItem.FooterText id={descriptionId}>
+          <SettingsListItem.Footer.Text id={descriptionId}>
             {featureAvailable
               ? messages.pgettext('vpn-settings-view', 'Enable to add at least one DNS server.')
               : formatHtml(
@@ -276,7 +276,7 @@ export function CustomDnsSettings({ position, ...props }: CustomDnsSettingsProps
                     'Disable all <b>DNS content blockers</b> above to activate this setting.',
                   ),
                 )}
-          </SettingsListItem.FooterText>
+          </SettingsListItem.Footer.Text>
         </SettingsListItem.Footer>
 
         <ConfirmationDialog

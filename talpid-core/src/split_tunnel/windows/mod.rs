@@ -324,7 +324,12 @@ struct InitializedSplitTunnelState {
 }
 
 enum Request {
-    SetPaths(Vec<OsString>),
+    SetPaths {
+        /// Original (DOS) paths for bookkeeping and the path monitor.
+        paths: Vec<OsString>,
+        /// Pre-resolved device paths for the driver IOCTL.
+        device_paths: Vec<OsString>,
+    },
     RegisterIps(InterfaceAddresses),
     Stop,
 }
@@ -645,14 +650,15 @@ impl InitializedSplitTunnelState {
 
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
-                    Request::SetPaths(paths) => {
+                    Request::SetPaths {
+                        paths,
+                        device_paths,
+                    } => {
                         let mut monitored_paths_guard = monitored_paths.lock().unwrap();
 
-                        let result = if !paths.is_empty() {
-                            handle.set_config(&paths).map_err(Error::SetConfiguration)
-                        } else {
-                            handle.clear_config().map_err(Error::SetConfiguration)
-                        };
+                        let result = handle
+                            .set_config_resolved(&device_paths)
+                            .map_err(Error::SetConfiguration);
 
                         if result.is_ok() {
                             if let Err(error) = path_monitor.set_paths(&paths) {
@@ -784,12 +790,15 @@ impl InitializedSplitTunnelState {
 
     /// Set a list of applications to exclude from the tunnel.
     fn set_paths_sync<T: AsRef<OsStr>>(&mut self, paths: &[T]) -> Result<(), Error> {
-        self.send_request(Request::SetPaths(
-            paths
-                .iter()
-                .map(|path| path.as_ref().to_os_string())
-                .collect(),
-        ))
+        let paths: Vec<OsString> = paths
+            .iter()
+            .map(|path| path.as_ref().to_os_string())
+            .collect();
+        let device_paths = driver::resolve_paths(&paths).map_err(Error::SetConfiguration)?;
+        self.send_request(Request::SetPaths {
+            paths,
+            device_paths,
+        })
     }
 
     /// Set a list of applications to exclude from the tunnel.
@@ -806,15 +815,18 @@ impl InitializedSplitTunnelState {
             return;
         }
         let (response_tx, response_rx) = sync_mpsc::channel();
-        let request = Request::SetPaths(
-            paths
-                .iter()
-                .map(|path| path.as_ref().to_os_string())
-                .collect(),
-        );
+        let paths: Vec<OsString> = paths
+            .iter()
+            .map(|path| path.as_ref().to_os_string())
+            .collect();
         let request_tx = self.request_tx.clone();
 
         let wait_task = move || {
+            let device_paths = driver::resolve_paths(&paths).map_err(Error::SetConfiguration)?;
+            let request = Request::SetPaths {
+                paths,
+                device_paths,
+            };
             request_tx
                 .send((request, response_tx))
                 .map_err(|_| Error::SplitTunnelDown)?;

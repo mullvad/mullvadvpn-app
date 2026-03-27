@@ -20,7 +20,7 @@ on your platform please submit an issue or a pull request.
     ```
 
 - You need Node.js and npm. You can find the exact versions in the `volta` section of
-  `desktop/package.json`. The toolchain is managed by volta.
+  `desktop/package.json`. The toolchain is managed by volta. This is optional if using `--daemon-only`.
 
   - Linux
 
@@ -37,7 +37,7 @@ on your platform please submit an issue or a pull request.
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
 - Install Go (ideally version `1.21`) by following the [official instructions](https://golang.org/doc/install).
-  Newer versions may work too.
+  Newer versions may work too. This is optional if using `--gotatun`.
 
 - Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
@@ -45,7 +45,7 @@ on your platform please submit an issue or a pull request.
   and they have to be put in `%PATH`. An additional package might also be required depending on
   Linux distro:
   - `protobuf-devel` on Fedora.
-  - `libprotobuf-dev` on Debian/Ubuntu.
+  - `libprotobuf-dev` and `protobuf-compiler` on Debian/Ubuntu.
 
 - **`bash` must be installed and available in PATH on all platforms**. This is required for building
   the desktop app:
@@ -53,6 +53,10 @@ on your platform please submit an issue or a pull request.
   - Linux: Bash is typically installed by default, otherwise refer to your distribution for instructions on how to install it.
   - macOS: The default installed version (3.2.5) is not supported. Install a newer version via Homebrew: `brew install bash`
   - Windows: Install [Git for Windows] which includes Git Bash and other required unix utilities.
+
+- Install `podman`: https://podman.io/
+  - Used to generate gRPC bindings for the Electron app.
+
 
 [Git for Windows]: https://git-scm.com/download/win
 
@@ -71,7 +75,7 @@ sudo apt install rpm
 
 ```bash
 # For building the daemon
-sudo dnf install dbus-devel
+sudo dnf install gcc dbus-devel
 # For building the installer
 sudo dnf install rpm-build
 ```
@@ -178,15 +182,6 @@ In addition to the above requirements:
   The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
   that that script assumes that you're running VS 2022 Community.
 
-- `grpc-tools` currently doesn't include ARM builds. The x64 binaries must be installed to build
-  the Electron app:
-
-  ```
-  pushd desktop/packages/mullvad-vpn
-  npm install --target_arch=x64 grpc-tools
-  popd
-  ```
-
 ## macOS
 
 The host has to have the following installed:
@@ -206,6 +201,11 @@ produce a smaller installer and installed binaries:
 This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
 
 Building this requires at least 1GB of memory.
+
+## Notes on options
+
+- `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
+- `--gotatun` - This will build with the `gotatun` Rust library instead the `wireguard-go-rs` Go library.
 
 ## Notes on targeting ARM64
 
@@ -234,39 +234,7 @@ TARGETS="aarch64-pc-windows-msvc" ./build.sh
 
 ## Notes on building on ARM64 Linux hosts
 
-Due to inability to build the management interface proto files on ARM64 (see
-[this](https://github.com/grpc/grpc-node/issues/1497) issue), building on ARM64 must be done in
-2 stages:
-
-1. Build management interface proto files on another platform than arm64 Linux
-2. Use the built proto files during the main build by setting the
-   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path the proto files
-
-To build the management interface proto files there is a script (execute it on another platform than
-ARM64 Linux):
-
-```bash
-cd desktop
-npm ci -w mullvad-vpn
-npm run -w mullvad-vpn build-proto
-```
-
-After that copy the files from the following directories into a single directory:
-```
-desktop/packages/mullvad-vpn/src/main/management_interface/
-desktop/packages/mullvad-vpn/build/src/main/management_interface/
-```
-Set the value of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main
-build.
-
-When all is done, run the main build. Assuming that you copied the proto files into
-`/tmp/management_interface_proto` directory, the build command will look as follows:
-
-```bash
-MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
-```
-
-On Linux, you may also have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
+You may have to specify `USE_SYSTEM_FPM=true` to generate the deb/rpm packages.
 
 # Building and running mullvad-daemon
 

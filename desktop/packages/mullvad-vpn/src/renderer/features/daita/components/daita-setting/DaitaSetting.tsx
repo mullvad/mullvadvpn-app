@@ -16,9 +16,9 @@ export function DaitaSetting() {
       <SettingsListItem.Item>
         <DaitaSwitch descriptionId={descriptionId}>
           <DaitaSwitch.Label>{messages.gettext('Enable')}</DaitaSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <DaitaSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </DaitaSwitch>
       </SettingsListItem.Item>
     </SettingsListItem>

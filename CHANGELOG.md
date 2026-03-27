@@ -22,23 +22,39 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+
+#### Linux
+- Add `--daemon-only` build option for deb and rpm packages for CLI usage.
+
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
   has available relays, and falls back to Sweden otherwise.
-- Update GotaTun from version `0.2.0` to `0.4.0`. This improves compliance with the
+- `mullvad-daemon` now defaults to `ERROR` log level when `-v` is not specified.
+  `mullvad-daemon -vv` is used in system services to maintain previous `DEBUG` log level.
+- Update GotaTun from version `0.2.0` to `0.4.1`. This improves compliance with the
   WireGuard spec by implementing padding to multiples of 16 bytes, fixes a minor
   vulnerability when generating peer indices, and fixes another when registering incoming
   decoy packets for DAITA.
 - Disable SNI for Mullvad API traffic. This prevents DPI based on domain name when obfuscation is
   disabled.
+- Redact other users' home paths in logs.
 
 #### macOS
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
+
+### Fixed
+#### Windows
+- Fix regression in 2026.1 that could cause split tunneling to become unavailable.
 
 ### Security
 #### macOS
 - Mitigate multiple local privilege escalation attacks from admin user to root in the `preinstall`
   and `postinstall` scripts.
+
+
+## [2026.1] - 2026-03-13
+This release is identical to 2026.1-beta2.
 
 
 ## [2026.1-beta2] - 2026-03-11

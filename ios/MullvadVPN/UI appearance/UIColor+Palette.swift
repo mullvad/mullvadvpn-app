@@ -113,7 +113,7 @@ extension UIColor {
     }
 
     enum TableSection {
-        static let headerTextColor = UIColor(white: 1.0, alpha: 0.8)
+        static let headerTextColor = UIColor(white: 1.0, alpha: 0.6)
         static let footerTextColor = UIColor(white: 1.0, alpha: 0.6)
     }
 

@@ -114,7 +114,6 @@ import net.mullvad.mullvadvpn.receiver.AutoStartVpnBootCompletedReceiver
 import net.mullvad.mullvadvpn.screen.privacy.PrivacyDisclaimerViewModel
 import net.mullvad.mullvadvpn.screen.splash.SplashViewModel
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.util.BackstackObserver
 import org.apache.commons.validator.routines.InetAddressValidator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -127,7 +126,9 @@ val uiModule = module {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
 
-    viewModel { SplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
+    viewModel { params ->
+        SplitTunnelingViewModel(isModal = params.get(), get(), get(), Dispatchers.Default)
+    }
 
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
@@ -182,7 +183,7 @@ val uiModule = module {
     single { CustomListActionUseCase(get(), get()) }
     single { SelectedLocationTitleUseCase(get(), get()) }
     single { ProviderToOwnershipsUseCase(get()) }
-    single { FilterCustomListsRelayItemUseCase(get(), get(), get()) }
+    single { FilterCustomListsRelayItemUseCase(get(), get()) }
     single { CustomListsRelayItemUseCase(get(), get()) }
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get(), get()) }
@@ -257,7 +258,7 @@ val uiModule = module {
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }
     viewModel { DeleteAccountConfirmationViewModel(get(), get()) }
-    viewModel { ChangelogViewModel(get(), get(), get()) }
+    viewModel { params -> ChangelogViewModel(navArgs = params.get(), get(), get()) }
     viewModel {
         AppInfoViewModel(
             appVersionInfoRepository = get(),
@@ -287,12 +288,14 @@ val uiModule = module {
             packageName = get(named(SELF_PACKAGE_NAME)),
         )
     }
-    viewModel { DeviceListViewModel(get(), get()) }
-    viewModel { ManageDevicesViewModel(get(), Dispatchers.IO, get()) }
+    viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
+    viewModel { params ->
+        ManageDevicesViewModel(accountNumber = params.get(), get(), Dispatchers.IO)
+    }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
-    viewModel { MtuDialogViewModel(get(), get()) }
-    viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
-    viewModel { CustomPortDialogViewModel(get()) }
+    viewModel { params -> MtuDialogViewModel(navArgs = params.get(), get()) }
+    viewModel { params -> DnsDialogViewModel(navArgs = params.get(), get(), get(), get(), get()) }
+    viewModel { params -> CustomPortDialogViewModel(navArgs = params.get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
@@ -314,8 +317,8 @@ val uiModule = module {
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
-    viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
-    viewModel { AntiCensorshipSettingsViewModel(get(), get()) }
+    viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
+    viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
         ReportProblemViewModel(
@@ -328,26 +331,33 @@ val uiModule = module {
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { FilterViewModel(get(), get()) }
-    viewModel { CreateCustomListDialogViewModel(get(), get()) }
-    viewModel { CustomListLocationsViewModel(get(), get(), get(), get()) }
-    viewModel { EditCustomListViewModel(get(), get()) }
-    viewModel { EditCustomListNameDialogViewModel(get(), get()) }
+    viewModel { params ->
+        CreateCustomListDialogViewModel(locationCode = params.getOrNull(), get())
+    }
+    viewModel { params ->
+        CustomListLocationsViewModel(navArgs = params.get(), get(), get(), get())
+    }
+    viewModel { params -> EditCustomListViewModel(customListId = params.get(), get()) }
+    viewModel { params -> EditCustomListNameDialogViewModel(navArgs = params.get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
-    viewModel { DeleteCustomListConfirmationViewModel(get(), get()) }
-    viewModel { ServerIpOverridesViewModel(get(), get(), get()) }
+    viewModel { params -> DeleteCustomListConfirmationViewModel(navArgs = params.get(), get()) }
+    viewModel { params -> ServerIpOverridesViewModel(navArgs = params.get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }
-    viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
-    viewModel { SaveApiAccessMethodViewModel(get(), get()) }
-    viewModel { ApiAccessMethodDetailsViewModel(get(), get()) }
-    viewModel { DeleteApiAccessMethodConfirmationViewModel(get(), get()) }
-    viewModel { SelectPortViewModel(get(), get(), get(), get()) }
-    viewModel { CustomPortDialogViewModel(get()) }
-    viewModel { MultihopViewModel(get(), get()) }
+    viewModel { params ->
+        EditApiAccessMethodViewModel(apiAccessMethodId = params.getOrNull(), get(), get())
+    }
+    viewModel { params -> SaveApiAccessMethodViewModel(navArgs = params.get(), get()) }
+    viewModel { params -> ApiAccessMethodDetailsViewModel(apiAccessMethodId = params.get(), get()) }
+    viewModel { params ->
+        DeleteApiAccessMethodConfirmationViewModel(apiAccessMethodId = params.get(), get())
+    }
+    viewModel { params -> SelectPortViewModel(navArgs = params.get(), get(), get(), get()) }
+    viewModel { params -> MultihopViewModel(isModal = params.get(), get()) }
     viewModel { NotificationSettingsViewModel(get()) }
-    viewModel {
+    viewModel { params ->
         SearchLocationViewModel(
-            get(),
+            relayListType = params.get(),
             get(),
             get(),
             get(),
@@ -374,10 +384,9 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
-    viewModel { DaitaViewModel(get(), get()) }
+    viewModel { params -> DaitaViewModel(isModal = params.get(), get()) }
     viewModel {
         AddTimeViewModel(
             paymentUseCase = get(),
@@ -386,11 +395,11 @@ val uiModule = module {
             isPlayBuild = IS_PLAY_BUILD,
         )
     }
-    viewModel {
+    viewModel { params ->
         ApiUnreachableViewModel(
+            navArgs = params.get(),
             apiAccessRepository = get(),
             supportEmailUseCase = get(),
-            savedStateHandle = get(),
         )
     }
     viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
@@ -409,10 +418,8 @@ val uiModule = module {
     viewModel { AppearanceViewModel(get()) }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
 
-    single { BackstackObserver() }
-
     // This view model must be single so we correctly attach lifecycle and share it with activity
-    single { MullvadAppViewModel(get(), get(), get()) }
+    single { MullvadAppViewModel(get(), get()) }
 }
 
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"

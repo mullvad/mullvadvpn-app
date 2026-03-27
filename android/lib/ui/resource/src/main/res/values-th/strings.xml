@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที</string>
     <string name="account_credit_has_expired">คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว</string>
+    <string name="account_delete_placeholder">ป้อนหมายเลขบัญชี</string>
+    <string name="account_deleted">ลบบัญชีเสร็จแล้ว</string>
     <string name="account_number">หมายเลขบัญชี</string>
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="connection_details_in">เข้า</string>
     <string name="connection_details_out">ออก</string>
+    <string name="cont">ดำเนินการต่อ</string>
     <string name="continue_login">เข้าสู่ระบบต่อ</string>
     <string name="copied_logs_to_clipboard">คัดลอกบันทึกล็อกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_mullvad_account_number">คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ดแล้ว</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="days_were_added_90">เพิ่ม 90 วันในบัญชีของคุณแล้ว</string>
     <string name="delete">ลบ</string>
+    <string name="delete_account">ลบบัญชี</string>
+    <string name="delete_account_cant_be_undone">การลบบัญชีไม่สามารถย้อนกลับได้</string>
+    <string name="delete_account_confirm_first_item"><b>การดำเนินการนี้ไม่สามารถย้อนกลับได้</b></string>
+    <string name="delete_account_confirm_second_item"><b>คุณจะสูญเสียการเข้าถึงบัญชีนี้บนทุกอุปกรณ์</b></string>
+    <string name="delete_account_confirm_third_item"><b>ไม่สามารถกู้คืนบัญชีได้</b></string>
+    <string name="delete_account_confirmation_check">การทำเครื่องหมายในช่องนี้ถือว่าฉันยอมรับความเสี่ยงที่เกี่ยวข้องกับการลบบัญชี</string>
+    <string name="delete_account_confirmation_enter_account_number">หากต้องการลบบัญชี Mullvad VPN โปรดกรอกหมายเลขบัญชีของคุณด้านล่าง</string>
+    <string name="delete_account_error">ลบบัญชีไม่สำเร็จ โปรดติดต่อฝ่ายสนับสนุน</string>
+    <string name="delete_account_failed_loading_days">ไม่สามารถแสดงจำนวนวันที่เหลือได้</string>
+    <string name="delete_account_first_item">คุณจะสูญเสียการเข้าถึงบัญชีนี้บนทุกอุปกรณ์</string>
+    <string name="delete_account_forth_item">จะไม่สามารถกู้คืนบัญชีได้</string>
+    <string name="delete_account_info">คุณกำลังจะทำการลบบัญชี Mullvad VPN ของคุณ</string>
+    <string name="delete_account_info_part2">กำลังลบบัญชีของคุณ:</string>
+    <string name="delete_account_loading_days">คุณจะสูญเสียจำนวนวันที่เหลืออยู่</string>
+    <string name="delete_account_number_must_match">หมายเลขบัญชีต้องตรงกัน</string>
+    <string name="delete_account_second_item">เวลาการใช้งานที่เหลืออยู่ทั้งหมดจะถือเป็นโมฆะ</string>
+    <string name="delete_account_third_item">ไม่สามารถขอคืนเงินได้</string>
+    <string name="delete_account_unable_to_verify">ไม่สามารถยืนยันหมายเลขบัญชีได้ โปรดติดต่อฝ่ายสนับสนุน</string>
+    <string name="delete_account_warning"><b>คำเตือน:</b></string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
     <string name="delete_list">ลบรายการ</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">สำหรับรายละเอียดเพิ่มเติม โปรดดูที่ %1$s ของเรา</string>
     <string name="include_account_token_warning_title">สิ่งนี้ส่งผลต่อความไม่เปิดเผยตัวตนของคุณ</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS ที่กำหนดเอง %1$s ไม่ถูกต้อง</string>
+    <string name="invalid_ipv6_config">การตั้งค่า IPv6 ไม่ถูกต้อง โปรดลองเปลี่ยนการตั้งค่า VPN</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="ip_version_v4_unavailable">IPv4 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
     <string name="ip_version_v6_unavailable">IPv6 ไม่พร้อมใช้งาน โปรดลองเปลี่ยนการตั้งค่า \"เวอร์ชัน IP อุปกรณ์\"</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">ไม่มีประวัติการเลือกล่าสุด</string>
     <string name="none">ไม่มี</string>
     <string name="not_found">ไม่พบ</string>
+    <string name="notification_settings">การตั้งค่าการแจ้งเตือน</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">ปิด</string>

@@ -12,15 +12,15 @@ export function ChangelogListItem(props: ChangelogListItemProps) {
     <ListItem {...props}>
       <ListItem.Trigger onClick={pushChangelog}>
         <ListItem.Item>
-          <ListItem.Label>
+          <ListItem.Item.Label>
             {
               // TRANSLATORS: Label for changelog list item.
               messages.pgettext('app-info-view', 'What’s new')
             }
-          </ListItem.Label>
-          <ListItem.ActionGroup>
+          </ListItem.Item.Label>
+          <ListItem.Item.ActionGroup>
             <Icon icon="chevron-right" />
-          </ListItem.ActionGroup>
+          </ListItem.Item.ActionGroup>
         </ListItem.Item>
       </ListItem.Trigger>
     </ListItem>

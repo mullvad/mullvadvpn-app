@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/android-audit.yml
       - .github/workflows/code-owner-approval.yml
+      - .github/workflows/code-owner-ownerless.yml
       - .github/workflows/unicop.yml
       - .github/workflows/verify-locked-down-signatures.yml
       - .github/CODEOWNERS

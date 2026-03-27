@@ -44,7 +44,10 @@ fun LazyListScope.relayListContent(
     onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    customListHeader: @Composable (LazyItemScope.() -> Unit) = {},
+    customListHeader:
+        @Composable
+        (LazyItemScope.(listItem: RelayListItem.CustomListHeader) -> Unit) =
+        {},
     locationHeader: @Composable (LazyItemScope.() -> Unit) = { RelayLocationHeader() },
 ) {
     items(
@@ -54,7 +57,7 @@ fun LazyListScope.relayListContent(
         itemContent = { listItem: RelayListItem ->
             Column(modifier = Modifier.animateItem()) {
                 when (listItem) {
-                    RelayListItem.CustomListHeader -> customListHeader()
+                    is RelayListItem.CustomListHeader -> customListHeader(listItem)
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem = listItem,

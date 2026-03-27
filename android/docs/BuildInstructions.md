@@ -82,7 +82,7 @@ Linux distro:
 - Install the JDK
 
   ```bash
-  sudo apt install zip openjdk-17-jdk
+  sudo apt install zip openjdk-21-jdk
   ```
 
 - Install the SDK and NDK

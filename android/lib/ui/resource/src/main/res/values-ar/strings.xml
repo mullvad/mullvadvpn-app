@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">سينتهي رصيد الحساب خلال دقائق قليلة</string>
     <string name="account_credit_has_expired">لم يتبقَّ لديك أي وقت لاستخدام شبكة VPN على هذا الحساب.</string>
+    <string name="account_delete_placeholder">أدخل رقم الحساب بالأرقام</string>
+    <string name="account_deleted">تم حذف الحساب</string>
     <string name="account_number">رقم الحساب</string>
     <string name="account_time_notification_channel_description">يظهر تذكيرات عندما يكون وقت الحساب على وشك الانتهاء</string>
     <string name="account_time_notification_channel_name">تذكيرات بوقت الحساب</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">جارٍ الاتصال بخدمة نظام Mullvad...</string>
     <string name="connection_details_in">داخل</string>
     <string name="connection_details_out">خارج</string>
+    <string name="cont">استمرار</string>
     <string name="continue_login">المتابعة بتسجيل الدخول</string>
     <string name="copied_logs_to_clipboard">تم نسخ السجلات إلى الحافظة</string>
     <string name="copied_mullvad_account_number">تم نسخ رقم حساب Mullvad إلى الحافظة</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">تمت إضافة 30 يومًا إلى حسابك.</string>
     <string name="days_were_added_90">تمت إضافة 90 يومًا إلى حسابك.</string>
     <string name="delete">حذف</string>
+    <string name="delete_account">حذف الحساب</string>
+    <string name="delete_account_cant_be_undone">لا يمكن التراجع عن حذف حسابك.</string>
+    <string name="delete_account_confirm_first_item"><b>لا يمكن التراجع عن هذا الإجراء.</b></string>
+    <string name="delete_account_confirm_second_item"><b>سوف تفقد صلاحية الوصول إلى هذا الحساب على جميع الأجهزة.</b></string>
+    <string name="delete_account_confirm_third_item"><b>لن يكون من الممكن استرداد الحساب.</b></string>
+    <string name="delete_account_confirmation_check">باختيار هذه الخانة، أوافق على تحمل المخاطر المتعلقة بحذف حسابي</string>
+    <string name="delete_account_confirmation_enter_account_number">لحذف حسابك على Mullvad VPN، يرجى إدخال رقم الحساب أدناه.</string>
+    <string name="delete_account_error">فشل حذف الحساب، يرجى الاتصال بالدعم</string>
+    <string name="delete_account_failed_loading_days">تعذر عرض الأيام المتبقية.</string>
+    <string name="delete_account_first_item">سوف تفقد صلاحية الوصول إلى هذا الحساب على جميع الأجهزة.</string>
+    <string name="delete_account_forth_item">لن يكون من الممكن استرداد الحساب.</string>
+    <string name="delete_account_info">أنت على وشك حذف حساب Mullvad VPN.</string>
+    <string name="delete_account_info_part2">حذف حسابك:</string>
+    <string name="delete_account_loading_days">ستفقد المتبقي</string>
+    <string name="delete_account_number_must_match">يجب أن يكون رقم الحساب مطابقًا</string>
+    <string name="delete_account_second_item">سيتم إلغاء أي وقت متبقٍ ولن يعتد به.</string>
+    <string name="delete_account_third_item">لن يكون من الممكن استرداد الأموال.</string>
+    <string name="delete_account_unable_to_verify">تعذر التحقق من رقم الحساب، يرجى الاتصال بالدعم</string>
+    <string name="delete_account_warning"><b>تحذير:</b></string>
     <string name="delete_custom_list_confirmation_description">هل تريد حذف \"%1$s\"؟</string>
     <string name="delete_custom_list_message">تم حذف \"%1$s\"</string>
     <string name="delete_list">حذف القائمة</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">للحصول على التفاصيل، يُرجى الاطلاع على %1$s لدينا.</string>
     <string name="include_account_token_warning_title">يؤثر ذلك على إخفاء هويتك</string>
     <string name="invalid_dns_servers">عناوين خادم DNS المُخصَّصة %1$s غير صالحة</string>
+    <string name="invalid_ipv6_config">تكوين IPv6 غير صالح، يرجى تجربة تغيير إعدادات VPN.</string>
     <string name="invalid_voucher">رمز القسيمة غير صالح.</string>
     <string name="ip_version_v4_unavailable">IPv4 غير متاح، يُرجى محاولة تغيير إعداد \"نسخة عنوان IP للجهاز\".</string>
     <string name="ip_version_v6_unavailable">IPv6 غير متاح، يُرجى محاولة تغيير إعداد \"نسخة عنوان IP للجهاز\".</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">لا يوجد سجل اختيارات حديث</string>
     <string name="none">لا يوجد</string>
     <string name="not_found">غير موجود</string>
+    <string name="notification_settings">إعدادات الإشعارات</string>
     <string name="number_of_providers">موفرو الخدمات: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">إيقاف</string>

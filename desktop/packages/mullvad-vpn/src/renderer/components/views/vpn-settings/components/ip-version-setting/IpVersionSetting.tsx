@@ -38,14 +38,14 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
   return (
     <SettingsListbox value={ipVersion} onValueChange={setIpVersion} {...props}>
       <SettingsListbox.Header>
-        <SettingsListbox.HeaderItem>
-          <SettingsListbox.Label>
+        <SettingsListbox.Header.Item>
+          <SettingsListbox.Header.Item.Label>
             {
               // TRANSLATORS: Title for device IP version setting.
               messages.pgettext('wireguard-settings-view', 'Device IP version')
             }
-          </SettingsListbox.Label>
-          <SettingsListbox.ActionGroup>
+          </SettingsListbox.Header.Item.Label>
+          <SettingsListbox.Header.Item.ActionGroup>
             <InfoButton>
               <ModalMessage>
                 {
@@ -68,19 +68,19 @@ export function IpVersionSetting(props: IpVersionSettingProps) {
                 }
               </ModalMessage>
             </InfoButton>
-          </SettingsListbox.ActionGroup>
-        </SettingsListbox.HeaderItem>
+          </SettingsListbox.Header.Item.ActionGroup>
+        </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
-        <SettingsListbox.BaseOption value={null}>
+        <SettingsListbox.Options.BaseOption value={null}>
           {messages.gettext('Automatic')}
-        </SettingsListbox.BaseOption>
-        <SettingsListbox.BaseOption value={'ipv4'}>
+        </SettingsListbox.Options.BaseOption>
+        <SettingsListbox.Options.BaseOption value={'ipv4'}>
           {messages.gettext('IPv4')}
-        </SettingsListbox.BaseOption>
-        <SettingsListbox.BaseOption value={'ipv6'}>
+        </SettingsListbox.Options.BaseOption>
+        <SettingsListbox.Options.BaseOption value={'ipv6'}>
           {messages.gettext('IPv6')}
-        </SettingsListbox.BaseOption>
+        </SettingsListbox.Options.BaseOption>
       </SettingsListbox.Options>
     </SettingsListbox>
   );

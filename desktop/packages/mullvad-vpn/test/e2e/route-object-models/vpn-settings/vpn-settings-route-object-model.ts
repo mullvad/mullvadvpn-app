@@ -25,11 +25,11 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
     return this.selectors.autoConnectSwitch();
   }
 
-  async setAutoConnectSwitch(enabled: boolean) {
+  async setAutoConnectSwitch(enable: boolean) {
     const autoConnectSwitch = this.getAutoConnectSwitch();
-    const ariaChecked = await autoConnectSwitch.getAttribute('aria-checked');
+    const checked = await autoConnectSwitch.isChecked();
 
-    if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
+    if ((enable && !checked) || (!enable && checked)) {
       await autoConnectSwitch.click();
     }
   }
@@ -38,10 +38,10 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
     return this.selectors.launchAppOnStartupSwitch();
   }
 
-  async setLaunchAppOnStartupSwitch(enabled: boolean) {
+  async setLaunchAppOnStartupSwitch(enable: boolean) {
     const launchAppOnStartupSwitch = this.getLaunchAppOnStartupSwitch();
-    const ariaChecked = await launchAppOnStartupSwitch.getAttribute('aria-checked');
-    if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
+    const checked = await launchAppOnStartupSwitch.isChecked();
+    if ((enable && !checked) || (!enable && checked)) {
       await launchAppOnStartupSwitch.click();
     }
   }
@@ -52,9 +52,9 @@ export class VpnSettingsRouteObjectModel extends NavigationObjectModel {
 
   async setLanSwitch(enabled: boolean) {
     const lanSwitch = this.getLanSwitch();
-    const ariaChecked = await lanSwitch.getAttribute('aria-checked');
+    const checked = await lanSwitch.isChecked();
 
-    if ((enabled && ariaChecked === 'false') || (!enabled && ariaChecked === 'true')) {
+    if ((enabled && !checked) || (!enabled && checked)) {
       await lanSwitch.click();
     }
   }

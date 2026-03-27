@@ -28,4 +28,8 @@
         <item quantity="one">O crédito da conta expira dentro de uma hora</item>
         <item quantity="other">O crédito da conta expira dentro de %1$d horas</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Irá perder o dia restante.</item>
+        <item quantity="other">Irá perder os %1$d dias restantes.</item>
+    </plurals>
 </resources>

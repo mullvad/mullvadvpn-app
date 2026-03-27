@@ -2,15 +2,14 @@ package net.mullvad.mullvadvpn.feature.customlist.impl
 
 import app.cash.turbine.test
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.customlist.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.delete.DeleteCustomListConfirmationSideEffect
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
-import net.mullvad.mullvadvpn.feature.customlist.impl.screen.delete.DeleteCustomListNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
@@ -51,12 +50,11 @@ class DeleteCustomListConfirmationViewModelTest {
 
     private fun createViewModel() =
         DeleteCustomListConfirmationViewModel(
+            navArgs =
+                DeleteCustomListNavKey(
+                    customListId = CustomListId("1"),
+                    name = CustomListName.fromString("asdf"),
+                ),
             customListActionUseCase = mockCustomListActionUseCase,
-            savedStateHandle =
-                DeleteCustomListNavArgs(
-                        customListId = CustomListId("1"),
-                        name = CustomListName.fromString("asdf"),
-                    )
-                    .toSavedStateHandle(),
         )
 }

@@ -39,117 +39,110 @@ class FilterScreenTest {
     }
 
     @Test
-    fun testDefaultState() =
-        composeExtension.use {
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
-                    )
-            )
-            onNodeWithText("Ownership").assertExists()
-            onNodeWithText("Providers").assertExists()
-        }
+    fun testDefaultState() = composeExtension.use {
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Any,
+                    selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                )
+        )
+        onNodeWithText("Ownership").assertExists()
+        onNodeWithText("Providers").assertExists()
+    }
 
     @Test
-    fun testIsAnyCellShowing() =
-        composeExtension.use {
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
-                    )
-            )
-            onNodeWithText("Ownership").performClick()
-            onNodeWithText("Any").assertExists()
-        }
+    fun testIsAnyCellShowing() = composeExtension.use {
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Any,
+                    selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                )
+        )
+        onNodeWithText("Ownership").performClick()
+        onNodeWithText("Any").assertExists()
+    }
 
     @Test
-    fun testIsMullvadCellShowing() =
-        composeExtension.use {
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
-                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
-                    )
-            )
-            onNodeWithText("Ownership").performClick()
-            onNodeWithText("Mullvad owned only").assertExists()
-        }
+    fun testIsMullvadCellShowing() = composeExtension.use {
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
+                    selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                )
+        )
+        onNodeWithText("Ownership").performClick()
+        onNodeWithText("Mullvad owned only").assertExists()
+    }
 
     @Test
-    fun testIsRentedCellShowing() =
-        composeExtension.use {
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Only(Ownership.Rented),
-                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
-                    )
-            )
-            onNodeWithText("Ownership").performClick()
-            onNodeWithText("Rented only").assertExists()
-        }
+    fun testIsRentedCellShowing() = composeExtension.use {
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Only(Ownership.Rented),
+                    selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                )
+        )
+        onNodeWithText("Ownership").performClick()
+        onNodeWithText("Rented only").assertExists()
+    }
 
     @Test
-    fun testShowProviders() =
-        composeExtension.use {
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
-                    )
-            )
+    fun testShowProviders() = composeExtension.use {
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Any,
+                    selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
+                )
+        )
 
-            onNodeWithText("Providers").performClick()
-            onNodeWithText("Creanova").assertExists()
-            onNodeWithText("100TB").assertExists()
-        }
-
-    @Test
-    fun testApplyButtonClick() =
-        composeExtension.use {
-            val mockClickListener: () -> Unit = mockk(relaxed = true)
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(setOf(ProviderId("31173"))),
-                    ),
-                onApplyClick = mockClickListener,
-            )
-            onNodeWithText("Apply").performClick()
-            verify { mockClickListener() }
-        }
+        onNodeWithText("Providers").performClick()
+        onNodeWithText("Creanova").assertExists()
+        onNodeWithText("100TB").assertExists()
+    }
 
     @Test
-    fun ensureSelectedProviderIsShowEvenThoughItIsNotInAllProviders() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    FilterUiState(
-                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),
-                    )
-            )
+    fun testApplyButtonClick() = composeExtension.use {
+        val mockClickListener: () -> Unit = mockk(relaxed = true)
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Any,
+                    selectedProviders = Constraint.Only(setOf(ProviderId("31173"))),
+                ),
+            onApplyClick = mockClickListener,
+        )
+        onNodeWithText("Apply").performClick()
+        verify { mockClickListener() }
+    }
 
-            // Act
-            onNodeWithText("Providers").performClick()
-            // Asset
-            onNodeWithText("1RemovedProvider (removed)").assertExists()
-        }
+    @Test
+    fun ensureSelectedProviderIsShowEvenThoughItIsNotInAllProviders() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                FilterUiState(
+                    providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                    selectedOwnership = Constraint.Any,
+                    selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),
+                )
+        )
+
+        // Act
+        onNodeWithText("Providers").performClick()
+        // Asset
+        onNodeWithText("1RemovedProvider (removed)").assertExists()
+    }
 
     companion object {
         private val DUMMY_RELAY_ALL_PROVIDERS =

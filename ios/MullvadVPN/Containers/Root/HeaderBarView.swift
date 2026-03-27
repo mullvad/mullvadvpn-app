@@ -61,6 +61,13 @@ class HeaderBarView: UIView {
         return layer
     }()
 
+    private let breadcrumbImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.widthAnchor.constraint(equalToConstant: 18).isActive = true
+        imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
+        return imageView
+    }()
+
     let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
@@ -101,6 +108,27 @@ class HeaderBarView: UIView {
     var isDeviceInfoHidden = false {
         didSet {
             deviceInfoHolder.arrangedSubviews.forEach { $0.isHidden = isDeviceInfoHidden }
+        }
+    }
+
+    var breadcrumb: Breadcrumb? {
+        didSet {
+            let iconColor = UIColor.HeaderBar.buttonColor
+
+            if let breadcrumb {
+                breadcrumbImageView.image = breadcrumb.icon
+                breadcrumbImageView.isHidden = false
+                settingsButton.setBackgroundImage(
+                    .Buttons.settingsPartial.withTintColor(iconColor, renderingMode: .alwaysOriginal),
+                    for: .normal
+                )
+            } else {
+                breadcrumbImageView.isHidden = true
+                settingsButton.setBackgroundImage(
+                    .Buttons.settings.withTintColor(iconColor, renderingMode: .alwaysOriginal),
+                    for: .normal
+                )
+            }
         }
     }
 
@@ -157,6 +185,10 @@ class HeaderBarView: UIView {
         var buttonContainerTrailingAdjustment: CGFloat = 0
         if let buttonImageWidth = settingsButton.currentImage?.size.width {
             buttonContainerTrailingAdjustment = max((UIMetrics.Button.barButtonSize - buttonImageWidth) / 2, 0)
+        }
+
+        settingsButton.addConstrainedSubviews([breadcrumbImageView]) {
+            breadcrumbImageView.pinEdgesToSuperview(.init([.top(-3), .trailing(-3)]))
         }
 
         [deviceNameLabel, timeLeftLabel].forEach { deviceInfoHolder.addArrangedSubview($0) }

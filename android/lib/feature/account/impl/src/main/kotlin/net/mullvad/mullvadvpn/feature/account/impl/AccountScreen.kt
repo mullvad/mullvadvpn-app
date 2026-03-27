@@ -41,15 +41,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavController
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.addtime.destinations.VerificationPendingDestination
-import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountDestination
-import com.ramcosta.composedestinations.generated.login.destinations.LoginDestination
-import com.ramcosta.composedestinations.generated.managedevices.destinations.ManageDevicesDestination
-import com.ramcosta.composedestinations.generated.redeemvoucher.destinations.RedeemVoucherDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
@@ -57,8 +48,13 @@ import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
-import net.mullvad.mullvadvpn.core.animation.AccountTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
+import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountNavKey
+import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
+import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesNavKey
+import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -93,9 +89,8 @@ private fun PreviewAccountScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<ExternalModuleGraph>(style = AccountTransition::class)
 @Composable
-fun Account(navController: NavController, navigator: DestinationsNavigator) {
+fun Account(navigator: Navigator) {
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -109,10 +104,7 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
-                navController.navigate(LoginDestination.baseRoute) {
-                    launchSingleTop = true
-                    popUpTo("main") { inclusive = true }
-                }
+                navigator.navigate(LoginNavKey(), clearBackStack = true)
             }
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
@@ -129,17 +121,16 @@ fun Account(navController: NavController, navigator: DestinationsNavigator) {
         onManageDevicesClick =
             dropUnlessResumed {
                 state.contentOrNull()?.accountNumber?.let {
-                    navigator.navigate(ManageDevicesDestination(it))
+                    navigator.navigate(ManageDevicesNavKey(it))
                 }
             },
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherDestination) },
+        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingDestination) },
-        navigateToDeleteAccount =
-            dropUnlessResumed { navigator.navigate(DeleteAccountDestination) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
+        navigateToDeleteAccount = dropUnlessResumed { navigator.navigate(DeleteAccountNavKey) },
     )
 }
 

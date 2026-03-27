@@ -35,7 +35,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
-        tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
+        tunnelQuantumResistance: TunnelQuantumResistance = .on,
         tunnelMultihopState: MultihopStateV1 = .off,
         daita: DAITASettings = DAITASettings(),
         includeAllNetworks: IncludeAllNetworksSettings = IncludeAllNetworksSettings()
@@ -80,5 +80,9 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
             includeAllNetworks: IncludeAllNetworksSettings()
         )
 
+    }
+
+    public var debugDescription: String {
+        "TunnelSettingsV7(relayConstraints: \(relayConstraints), dnsSettings: \(dnsSettings), wireGuardObfuscation: \(wireGuardObfuscation), tunnelQuantumResistance: \(tunnelQuantumResistance), tunnelMultihopState: \(tunnelMultihopState), daita: \(daita), includeAllNetworks: \(includeAllNetworks.debugDescription))"
     }
 }

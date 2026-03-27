@@ -8,24 +8,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.impl.component.CustomListNameTextField
-import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.usecase.customlists.RenameError
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -40,24 +37,14 @@ private fun PreviewEditCustomListNameDialog() {
     }
 }
 
-data class EditCustomListNameNavArgs(
-    val customListId: CustomListId,
-    val initialName: CustomListName,
-)
-
 @Composable
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = EditCustomListNameNavArgs::class,
-)
-fun EditCustomListName(
-    backNavigator: ResultBackNavigator<CustomListActionResultData.Success.Renamed>
-) {
-    val vm: EditCustomListNameDialogViewModel = koinViewModel()
+fun EditCustomListName(navArgs: EditCustomListNameNavKey, navigator: Navigator) {
+    val vm: EditCustomListNameDialogViewModel = koinViewModel { parametersOf(navArgs) }
+
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is EditCustomListNameDialogSideEffect.ReturnWithResult -> {
-                backNavigator.navigateBack(result = sideEffect.result)
+                navigator.goBack(result = EditCustomListNavResult(sideEffect.result))
             }
         }
     }
@@ -67,7 +54,7 @@ fun EditCustomListName(
         state = state,
         updateName = vm::updateCustomListName,
         onInputChanged = vm::onNameChanged,
-        onDismiss = dropUnlessResumed { backNavigator.navigateBack() },
+        onDismiss = dropUnlessResumed { navigator.goBack() },
     )
 }
 

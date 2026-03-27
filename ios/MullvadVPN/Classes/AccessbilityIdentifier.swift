@@ -257,12 +257,14 @@ public enum AccessibilityIdentifier: Equatable {
     case localNetworkSharingSwitch
 
     // Quantum resistance
-    case quantumResistanceAutomatic
     case quantumResistanceOff
     case quantumResistanceOn
 
     // Multihop
     case multihopSwitch
+    case multihopAlways
+    case multihopNever
+    case multihopWhenNeeded
 
     // WireGuard obfuscation settings
     case wireGuardObfuscationUdpOverTcpTable

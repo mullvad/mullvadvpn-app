@@ -72,91 +72,82 @@ class AntiCensorshipSettingsScreenTest {
     }
 
     @Test
-    fun testDefaultState() =
-        composeExtension.use {
-            // Arrange
-            initScreen()
+    fun testDefaultState() = composeExtension.use {
+        // Arrange
+        initScreen()
 
-            // Assert
-            onNodeWithText("WireGuard port").assertExists()
-            onNodeWithText("LWO").assertExists()
-            onNodeWithText("QUIC").assertExists()
-            onNodeWithText("WireGuard port").assertExists()
-            onNodeWithText("Shadowsocks").assertExists()
-            onNodeWithText("UDP-over-TCP").assertExists()
-            onNodeWithText("Automatic").assertExists()
-            onNodeWithText("None").assertExists()
-        }
-
-    @Test
-    fun testWireguardPortShouldBeDisplayed() =
-        composeExtension.use {
-            // Arrange
-            initScreen(
-                state =
-                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc()
-            )
-
-            // Act
-            onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
-
-            // Assert
-            onNode(
-                    hasText("Port: 53") and
-                        hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
-                )
-                .assertExists()
-        }
+        // Assert
+        onNodeWithText("WireGuard port").assertExists()
+        onNodeWithText("LWO").assertExists()
+        onNodeWithText("QUIC").assertExists()
+        onNodeWithText("WireGuard port").assertExists()
+        onNodeWithText("Shadowsocks").assertExists()
+        onNodeWithText("UDP-over-TCP").assertExists()
+        onNodeWithText("Automatic").assertExists()
+        onNodeWithText("None").assertExists()
+    }
 
     @Test
-    fun testSelectWireguardPortShouldCallOnSelectObfuscationMode() =
-        composeExtension.use {
-            // Arrange
-            val mockSelectObfuscationMode: (ObfuscationMode) -> Unit = mockk(relaxed = true)
+    fun testWireguardPortShouldBeDisplayed() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc()
+        )
 
-            initScreen(
-                state =
-                    createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc(),
-                onSelectObfuscationMode = mockSelectObfuscationMode,
+        // Act
+        onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
+
+        // Assert
+        onNode(
+                hasText("Port: 53") and
+                    hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
             )
-
-            onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
-
-            // Act
-            onNodeWithTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG).performClick()
-
-            // Assert
-            verify(exactly = 1) { mockSelectObfuscationMode.invoke(ObfuscationMode.WireguardPort) }
-        }
+            .assertExists()
+    }
 
     @Test
-    fun testShowUdp2TcpCustomPortDialog() =
-        composeExtension.use {
-            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+    fun testSelectWireguardPortShouldCallOnSelectObfuscationMode() = composeExtension.use {
+        // Arrange
+        val mockSelectObfuscationMode: (ObfuscationMode) -> Unit = mockk(relaxed = true)
 
-            // Arrange
-            initScreen(
-                createDefaultUiState(selectedUdp2TcpObfuscationPort = Constraint.Only(Port(53)))
-                    .toLc(),
-                navigateToUdp2TcpSettings = mockedClickHandler,
+        initScreen(
+            state = createDefaultUiState(selectedWireguardPort = Constraint.Only(Port(53))).toLc(),
+            onSelectObfuscationMode = mockSelectObfuscationMode,
+        )
+
+        onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG))
+
+        // Act
+        onNodeWithTag(WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG).performClick()
+
+        // Assert
+        verify(exactly = 1) { mockSelectObfuscationMode.invoke(ObfuscationMode.WireguardPort) }
+    }
+
+    @Test
+    fun testShowUdp2TcpCustomPortDialog() = composeExtension.use {
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+
+        // Arrange
+        initScreen(
+            createDefaultUiState(selectedUdp2TcpObfuscationPort = Constraint.Only(Port(53))).toLc(),
+            navigateToUdp2TcpSettings = mockedClickHandler,
+        )
+
+        onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
+
+        onNode(
+                hasTestTag(BUTTON_ARROW_RIGHT_TEST_TAG) and
+                    hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)),
+                useUnmergedTree = true,
             )
+            .assertExists()
+            .performClick()
 
-            onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
-                .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
-
-            onNode(
-                    hasTestTag(BUTTON_ARROW_RIGHT_TEST_TAG) and
-                        hasAnyAncestor(
-                            hasTestTag(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)
-                        ),
-                    useUnmergedTree = true,
-                )
-                .assertExists()
-                .performClick()
-
-            // Assert
-            verify(exactly = 1) { mockedClickHandler.invoke() }
-        }
+        // Assert
+        verify(exactly = 1) { mockedClickHandler.invoke() }
+    }
 }

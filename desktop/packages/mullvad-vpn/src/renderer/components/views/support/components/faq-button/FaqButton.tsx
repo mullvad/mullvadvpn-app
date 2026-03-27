@@ -18,15 +18,15 @@ export function FaqButton() {
         onClick={openFaq}
         aria-description={messages.pgettext('accessibility', 'Opens externally')}>
         <ListItem.Item>
-          <ListItem.Label>
+          <ListItem.Item.Label>
             {
               // TRANSLATORS: Link to the webpage
               messages.pgettext('support-view', 'FAQs & Guides')
             }
-          </ListItem.Label>
-          <ListItem.ActionGroup>
-            <ListItem.Icon icon="external" />
-          </ListItem.ActionGroup>
+          </ListItem.Item.Label>
+          <ListItem.Item.ActionGroup>
+            <ListItem.Item.Icon icon="external" />
+          </ListItem.Item.ActionGroup>
         </ListItem.Item>
       </ListItem.Trigger>
     </ListItem>

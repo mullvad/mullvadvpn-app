@@ -16,6 +16,7 @@ on:
       - '!ci/**'
       - 'ci/cargo-ci.sh'
       - '!clippy.toml'
+      - "!code-owners.json"
       - '!deny.toml'
       - '!docs/**'
       - '!graphics/**'

@@ -21,12 +21,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
@@ -55,9 +52,8 @@ private fun PreviewNotificationSettingsScreen(
 }
 
 @OptIn(ExperimentalSharedTransitionApi::class)
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun NotificationSettings(navigator: DestinationsNavigator) {
+fun NotificationSettings(navigator: Navigator) {
     val vm = koinViewModel<NotificationSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
@@ -72,7 +68,7 @@ fun NotificationSettings(navigator: DestinationsNavigator) {
 
     NotificationSettingsScreen(
         state = state,
-        onBackClick = { navigator.navigateUp() },
+        onBackClick = { navigator.goBack() },
         onToggleLocationInNotifications = vm::onToggleLocationInNotifications,
         onOpenSystemNotificationsSettings = vm::openSystemNotificationsSettings,
     )

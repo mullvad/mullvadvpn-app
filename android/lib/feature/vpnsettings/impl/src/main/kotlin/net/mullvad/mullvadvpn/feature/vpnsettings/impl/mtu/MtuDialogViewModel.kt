@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.vpnsettings.destinations.MtuDestination
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -15,16 +13,16 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class MtuDialogViewModel(
+    private val navArgs: MtuNavKey,
     private val repository: SettingsRepository,
-    savedStateHandle: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
-    private val navArgs = MtuDestination.argsFrom(savedStateHandle)
 
     private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
     private val _isValidMtu = MutableStateFlow(Mtu.fromString(_mtuInput.value).isRight())

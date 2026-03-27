@@ -368,7 +368,7 @@ fn get_service_info() -> ServiceInfo {
         start_type: ServiceStartType::AutoStart,
         error_control: ServiceErrorControl::Normal,
         executable_path: env::current_exe().unwrap(),
-        launch_arguments: vec![OsString::from("--run-as-service"), OsString::from("-v")],
+        launch_arguments: vec![OsString::from("--run-as-service"), OsString::from("-vv")],
         dependencies: vec![
             // Base Filter Engine
             ServiceDependency::Service(OsString::from("BFE")),

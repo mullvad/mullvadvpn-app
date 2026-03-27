@@ -27,11 +27,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.generated.deleteaccount.destinations.DeleteAccountConfirmationDestination
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
@@ -49,13 +46,12 @@ private fun PreviewDeleteAccount() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun DeleteAccount(navigator: DestinationsNavigator) {
+fun DeleteAccount(navigator: Navigator) {
     DeleteAccount(
         navigateToConfirmAccountDeletion =
-            dropUnlessResumed { navigator.navigate(DeleteAccountConfirmationDestination) },
-        onBackClick = dropUnlessResumed { navigator.navigateUp() },
+            dropUnlessResumed { navigator.navigate(DeleteAccountConfirmationNavKey) },
+        onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
 
@@ -117,7 +113,7 @@ internal fun CantBeUndoneText() {
 private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
     Column(
         Modifier.windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Bottom))
-            .padding(horizontal = Dimens.sideMargin, vertical = Dimens.screenBottomMargin),
+            .padding(horizontal = Dimens.sideMarginNew, vertical = Dimens.screenBottomMargin),
         verticalArrangement = Arrangement.spacedBy(Dimens.mediumSpacer),
     ) {
         var confirmed by rememberSaveable { mutableStateOf(false) }
@@ -127,6 +123,7 @@ private fun DeleteAccountBottomBar(onClickContinue: () -> Unit) {
             onCheckedChange = { confirmed = it },
         )
         PrimaryButton(
+            modifier = Modifier.padding(horizontal = Dimens.smallPadding),
             onClick = {
                 onClickContinue()
                 // Clear it so they have to check it again if navigating back

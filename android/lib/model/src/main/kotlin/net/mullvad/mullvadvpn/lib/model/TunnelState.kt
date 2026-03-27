@@ -39,6 +39,7 @@ sealed class TunnelState {
         when (this) {
             is Connected,
             is Connecting -> true
+            is Disconnecting -> actionAfterDisconnect == ActionAfterDisconnect.Reconnect
             else -> false
         }
 

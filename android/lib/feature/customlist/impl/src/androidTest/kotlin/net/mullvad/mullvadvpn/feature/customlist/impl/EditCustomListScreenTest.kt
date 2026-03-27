@@ -51,131 +51,124 @@ class EditCustomListScreenTest {
     }
 
     @Test
-    fun givenLoadingStateShouldShowLoadingSpinner() =
-        composeExtension.use {
-            // Arrange
-            initScreen()
+    fun givenLoadingStateShouldShowLoadingSpinner() = composeExtension.use {
+        // Arrange
+        initScreen()
 
-            // Assert
-            onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
-        }
-
-    @Test
-    fun givenNotFoundStateShouldShowNotFound() =
-        composeExtension.use {
-            // Arrange
-            initScreen(state = EditCustomListUiState.NotFound)
-
-            // Assert
-            onNodeWithText(NOT_FOUND_TEXT).assertExists()
-        }
+        // Assert
+        onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR_TEST_TAG).assertExists()
+    }
 
     @Test
-    fun givenContentStateShouldShowNameFromState() =
-        composeExtension.use {
-            // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
+    fun givenNotFoundStateShouldShowNotFound() = composeExtension.use {
+        // Arrange
+        initScreen(state = EditCustomListUiState.NotFound)
 
-            initScreen(
-                state =
-                    EditCustomListUiState.Content(
-                        id = customList.id,
-                        name = customList.name,
-                        locations = customList.locations,
-                    )
-            )
-
-            // Assert
-            onNodeWithText(customList.name.value).assertExists()
-        }
+        // Assert
+        onNodeWithText(NOT_FOUND_TEXT).assertExists()
+    }
 
     @Test
-    fun givenContentStateShouldShowNumberOfLocationsFromState() =
-        composeExtension.use {
-            // Arrange
-            val customList = DUMMY_CUSTOM_LISTS[0]
-            initScreen(
-                state =
-                    EditCustomListUiState.Content(
-                        id = customList.id,
-                        name = customList.name,
-                        locations = customList.locations,
-                    )
-            )
+    fun givenContentStateShouldShowNameFromState() = composeExtension.use {
+        // Arrange
+        val customList = DUMMY_CUSTOM_LISTS[0]
 
-            // Assert
-            onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).assertExists()
-        }
+        initScreen(
+            state =
+                EditCustomListUiState.Content(
+                    id = customList.id,
+                    name = customList.name,
+                    locations = customList.locations,
+                )
+        )
 
-    @Test
-    fun whenClickingOnDeleteDropdownShouldCallOnDeleteList() =
-        composeExtension.use {
-            // Arrange
-            val mockedOnDelete: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
-            val customList = DUMMY_CUSTOM_LISTS[0]
-            initScreen(
-                state =
-                    EditCustomListUiState.Content(
-                        id = customList.id,
-                        name = customList.name,
-                        locations = customList.locations,
-                    ),
-                onDeleteList = mockedOnDelete,
-            )
-
-            // Act
-            onNodeWithTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).performClick()
-            onNodeWithTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG).performClick()
-
-            // Assert
-            verify { mockedOnDelete(customList.id, customList.name) }
-        }
+        // Assert
+        onNodeWithText(customList.name.value).assertExists()
+    }
 
     @Test
-    fun whenClickingOnNameCellShouldCallOnNameClicked() =
-        composeExtension.use {
-            // Arrange
-            val mockedOnNameClicked: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
-            val customList = DUMMY_CUSTOM_LISTS[0]
-            initScreen(
-                state =
-                    EditCustomListUiState.Content(
-                        id = customList.id,
-                        name = customList.name,
-                        locations = customList.locations,
-                    ),
-                onNameClicked = mockedOnNameClicked,
-            )
+    fun givenContentStateShouldShowNumberOfLocationsFromState() = composeExtension.use {
+        // Arrange
+        val customList = DUMMY_CUSTOM_LISTS[0]
+        initScreen(
+            state =
+                EditCustomListUiState.Content(
+                    id = customList.id,
+                    name = customList.name,
+                    locations = customList.locations,
+                )
+        )
 
-            // Act
-            onNodeWithText(customList.name.value).performClick()
-
-            // Assert
-            verify { mockedOnNameClicked(customList.id, customList.name) }
-        }
+        // Assert
+        onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).assertExists()
+    }
 
     @Test
-    fun whenClickingOnLocationCellShouldCallOnLocationsClicked() =
-        composeExtension.use {
-            // Arrange
-            val mockedOnLocationsClicked: (CustomListId) -> Unit = mockk(relaxed = true)
-            val customList = DUMMY_CUSTOM_LISTS[0]
-            initScreen(
-                state =
-                    EditCustomListUiState.Content(
-                        id = customList.id,
-                        name = customList.name,
-                        locations = customList.locations,
-                    ),
-                onLocationsClicked = mockedOnLocationsClicked,
-            )
+    fun whenClickingOnDeleteDropdownShouldCallOnDeleteList() = composeExtension.use {
+        // Arrange
+        val mockedOnDelete: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
+        val customList = DUMMY_CUSTOM_LISTS[0]
+        initScreen(
+            state =
+                EditCustomListUiState.Content(
+                    id = customList.id,
+                    name = customList.name,
+                    locations = customList.locations,
+                ),
+            onDeleteList = mockedOnDelete,
+        )
 
-            // Act
-            onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).performClick()
+        // Act
+        onNodeWithTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).performClick()
+        onNodeWithTag(DELETE_DROPDOWN_MENU_ITEM_TEST_TAG).performClick()
 
-            // Assert
-            verify { mockedOnLocationsClicked(customList.id) }
-        }
+        // Assert
+        verify { mockedOnDelete(customList.id, customList.name) }
+    }
+
+    @Test
+    fun whenClickingOnNameCellShouldCallOnNameClicked() = composeExtension.use {
+        // Arrange
+        val mockedOnNameClicked: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
+        val customList = DUMMY_CUSTOM_LISTS[0]
+        initScreen(
+            state =
+                EditCustomListUiState.Content(
+                    id = customList.id,
+                    name = customList.name,
+                    locations = customList.locations,
+                ),
+            onNameClicked = mockedOnNameClicked,
+        )
+
+        // Act
+        onNodeWithText(customList.name.value).performClick()
+
+        // Assert
+        verify { mockedOnNameClicked(customList.id, customList.name) }
+    }
+
+    @Test
+    fun whenClickingOnLocationCellShouldCallOnLocationsClicked() = composeExtension.use {
+        // Arrange
+        val mockedOnLocationsClicked: (CustomListId) -> Unit = mockk(relaxed = true)
+        val customList = DUMMY_CUSTOM_LISTS[0]
+        initScreen(
+            state =
+                EditCustomListUiState.Content(
+                    id = customList.id,
+                    name = customList.name,
+                    locations = customList.locations,
+                ),
+            onLocationsClicked = mockedOnLocationsClicked,
+        )
+
+        // Act
+        onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).performClick()
+
+        // Assert
+        verify { mockedOnLocationsClicked(customList.id) }
+    }
 
     companion object {
         const val NOT_FOUND_TEXT = "Not found"

@@ -95,6 +95,9 @@ class MethodSettingsViewController: UITableViewController {
 
         inputValidationErrors.removeAll()
         contentValidationErrors.removeAll()
+
+        // Run validation to inform users of errors (only applicable when editing an existing configuration).
+        onTest()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -112,7 +115,7 @@ class MethodSettingsViewController: UITableViewController {
             return UITableView.automaticDimension
         case .validationError:
             return contentValidationErrors.isEmpty
-                ? 44.0
+                ? 0
                 : UITableView.automaticDimension
         case .testingStatus:
             return UITableView.automaticDimension
@@ -127,9 +130,10 @@ class MethodSettingsViewController: UITableViewController {
         var contentConfiguration = ListCellContentConfiguration(
             textProperties:
                 ListCellContentConfiguration
-                .TextProperties(color: .TableSection.headerTextColor)
+                .TextProperties(color: .TableSection.headerTextColor),
+            directionalLayoutMargins: NSDirectionalEdgeInsets(UIMetrics.SettingsRowView.footerLayoutMargins)
         )
-        contentConfiguration.text = sectionIdentifier.sectionName
+        contentConfiguration.text = sectionIdentifier.sectionName?.localizedUppercase
 
         return contentConfiguration.makeContentView()
     }
@@ -137,9 +141,13 @@ class MethodSettingsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
         switch sectionIdentifier {
-        case .protocol, .cancelTest, .testingStatus, .validationError:
+        case .name:
+            return 16
+        case .protocol, .cancelTest, .validationError:
             return 0
-        case .proxyConfiguration, .name:
+        case .testingStatus:
+            return 24
+        case .proxyConfiguration:
             return UITableView.automaticDimension
         }
     }
@@ -152,9 +160,9 @@ class MethodSettingsViewController: UITableViewController {
         guard let sectionIdentifier = dataSource?.snapshot().sectionIdentifiers[section] else { return 0 }
 
         switch sectionIdentifier {
-        case .name, .protocol, .cancelTest:
-            return 24.0
-        case .proxyConfiguration, .validationError, .testingStatus:
+        case .name, .protocol, .testingStatus:
+            return 24
+        case .cancelTest, .proxyConfiguration, .validationError:
             return 0
         }
     }
@@ -265,7 +273,7 @@ class MethodSettingsViewController: UITableViewController {
     }
 
     private func validateContent() {
-        let validationResult = Result { try subject.value.validate() }
+        let validationResult = Result { try subject.value.validate(shadowsocksCiphers: interactor.shadowsocksCiphers) }
         let validationError = validationResult.error as? AccessMethodValidationError
 
         // Only look for format errors for test (save validation).
@@ -281,7 +289,8 @@ class MethodSettingsViewController: UITableViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + transitionDelay.timeInterval) { [weak self] in
             guard
                 let self,
-                let accessMethod = try? subject.value.intoPersistentAccessMethod()
+                let accessMethod = try? subject.value.intoPersistentAccessMethod(
+                    shadowsocksCiphers: interactor.shadowsocksCiphers)
             else { return }
 
             delegate?.accessMethodDidSave(accessMethod)

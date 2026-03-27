@@ -7,12 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.EmptyResultBackNavigator
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
-import net.mullvad.mullvadvpn.lib.ui.component.dialog.Confirmed
+import net.mullvad.mullvadvpn.core.EmptyNavigator
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmedNavResult
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialog
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoConfirmationDialogTitleType
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
@@ -20,18 +17,17 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 @Preview
 @Composable
 private fun PreviewDaitaDirectOnlyConfirmationDialog() {
-    AppTheme { DaitaDirectOnlyConfirmation(EmptyResultBackNavigator()) }
+    AppTheme { DaitaDirectOnlyConfirmation(EmptyNavigator) }
 }
 
-@Destination<ExternalModuleGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Confirmed>) {
+fun DaitaDirectOnlyConfirmation(navigator: Navigator) {
     InfoConfirmationDialog(
         onResult = {
             if (it != null) {
-                navigator.navigateBack(it)
+                navigator.goBack(result = DaitaDirectOnlyConfirmedNavResult)
             } else {
-                navigator.navigateBack()
+                navigator.goBack()
             }
         },
         titleType = InfoConfirmationDialogTitleType.IconOnly,

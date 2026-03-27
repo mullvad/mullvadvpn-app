@@ -309,7 +309,6 @@ cargo {
     val isReleaseBuild = isReleaseBuild()
     val generateDebugSymbolsForReleaseBuilds =
         getBooleanProperty("mullvad.app.build.cargo.generateDebugSymbolsForReleaseBuilds")
-    val enableGotaTun = getBooleanProperty("mullvad.app.build.gotatun.enable")
     val enableApiOverride = !isReleaseBuild || appVersion.isDev || appVersion.isAlpha
     module = repoRootPath
     libname = "mullvad-jni"
@@ -328,9 +327,6 @@ cargo {
             buildList {
                     if (enableApiOverride) {
                         add("api-override")
-                    }
-                    if (!enableGotaTun) {
-                        add("wireguard-go")
                     }
                 }
                 .toTypedArray()
@@ -368,9 +364,11 @@ androidComponents {
 }
 
 tasks.register("printVersion") {
+    val versionCode = project.android.defaultConfig.versionCode
+    val versionName = project.android.defaultConfig.versionName
     doLast {
-        println("versionCode=${project.android.defaultConfig.versionCode}")
-        println("versionName=${project.android.defaultConfig.versionName}")
+        println("versionCode=$versionCode")
+        println("versionName=$versionName")
     }
 }
 
@@ -395,26 +393,36 @@ dependencies {
     implementation(projects.lib.feature.account.impl)
     implementation(projects.lib.feature.addtime.impl)
     implementation(projects.lib.feature.anticensorship.impl)
+    implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.apiaccess.impl)
+    implementation(projects.lib.feature.apiaccess.api)
     implementation(projects.lib.feature.appinfo.impl)
+    implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.appearance.impl)
     implementation(projects.lib.feature.autoconnect.impl)
     implementation(projects.lib.feature.customlist.impl)
+    implementation(projects.lib.feature.customlist.api)
     implementation(projects.lib.feature.daita.impl)
     implementation(projects.lib.feature.deleteaccount.impl)
+    implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.filter.impl)
     implementation(projects.lib.feature.home.impl)
+    implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.location.impl)
     implementation(projects.lib.feature.login.impl)
+    implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.notification.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.serveripoverride.impl)
+    implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.settings.impl)
+    implementation(projects.lib.feature.settings.api)
     implementation(projects.lib.feature.splittunneling.impl)
     implementation(projects.lib.feature.vpnsettings.impl)
+    implementation(projects.lib.feature.vpnsettings.api)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
     implementation(projects.lib.pushNotification)
@@ -432,6 +440,7 @@ dependencies {
     implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
     implementation(libs.androidx.profileinstaller)
+    implementation(libs.androidx.navigation3.ui)
 
     // Baseline profile
     baselineProfile(projects.test.baselineprofile)
@@ -475,8 +484,6 @@ dependencies {
     implementation(libs.compose.icons.extended)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.util)
-    implementation(libs.compose.destinations)
-    ksp(libs.compose.destinations.ksp)
 
     implementation(libs.kermit)
     implementation(libs.koin)

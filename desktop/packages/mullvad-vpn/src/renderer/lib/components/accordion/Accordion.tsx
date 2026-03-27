@@ -1,16 +1,7 @@
 import React from 'react';
 
-import { ListItem } from '../list-item';
 import { AccordionProvider } from './AccordionContext';
-import {
-  AccordionContainer,
-  AccordionContent,
-  AccordionHeader,
-  AccordionHeaderItem,
-  AccordionIcon,
-  AccordionTitle,
-  AccordionTrigger,
-} from './components';
+import { AccordionContainer, AccordionContent, AccordionHeader } from './components';
 
 export type AccordionProps = React.PropsWithChildren<{
   expanded?: boolean;
@@ -39,13 +30,8 @@ function Accordion({
 
 const AccordionNamespace = Object.assign(Accordion, {
   Container: AccordionContainer,
-  Trigger: AccordionTrigger,
   Header: AccordionHeader,
-  HeaderItem: AccordionHeaderItem,
-  HeaderActionGroup: ListItem.ActionGroup,
   Content: AccordionContent,
-  Title: AccordionTitle,
-  Icon: AccordionIcon,
 });
 
 export { AccordionNamespace as Accordion };

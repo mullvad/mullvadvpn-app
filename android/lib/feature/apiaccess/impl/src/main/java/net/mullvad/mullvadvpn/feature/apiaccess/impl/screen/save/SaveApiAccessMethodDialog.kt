@@ -14,14 +14,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.result.ResultBackNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavKey
+import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavResult
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -30,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_API_ACCESS_METHOD_LOADING_SPINNER_
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_API_ACCESS_METHOD_SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
@@ -40,35 +37,21 @@ private fun PreviewSaveApiAccessMethodDialog(
     AppTheme { SaveApiAccessMethodDialog(state = state, onCancel = {}, onSave = {}) }
 }
 
-data class SaveApiAccessMethodNavArgs(
-    val id: ApiAccessMethodId?,
-    val name: ApiAccessMethodName,
-    val customProxy: ApiAccessMethod.CustomProxy,
-)
-
-@Destination<ExternalModuleGraph>(
-    style = DestinationStyle.Dialog::class,
-    navArgs = SaveApiAccessMethodNavArgs::class,
-)
 @Composable
-fun SaveApiAccessMethod(backNavigator: ResultBackNavigator<Boolean>) {
-    val viewModel = koinViewModel<SaveApiAccessMethodViewModel>()
+fun SaveApiAccessMethod(navArgs: SaveApiAccessMethodNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<SaveApiAccessMethodViewModel> { parametersOf(navArgs) }
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             SaveApiAccessMethodSideEffect.CouldNotSaveApiAccessMethod ->
-                backNavigator.navigateBack(result = false)
+                navigator.goBack(SaveApiAccessMethodNavResult(false))
             SaveApiAccessMethodSideEffect.SuccessfullyCreatedApiMethod ->
-                backNavigator.navigateBack(result = true)
+                navigator.goBack(SaveApiAccessMethodNavResult(true))
         }
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    SaveApiAccessMethodDialog(
-        state = state,
-        onCancel = backNavigator::navigateBack,
-        onSave = viewModel::save,
-    )
+    SaveApiAccessMethodDialog(state = state, onCancel = navigator::goBack, onSave = viewModel::save)
 }
 
 @Composable

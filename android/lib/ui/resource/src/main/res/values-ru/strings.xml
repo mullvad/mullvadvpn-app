@@ -2,6 +2,8 @@
 <resources>
     <string name="account_credit_expires_in_a_few_minutes">Баланс учетной записи закончится через несколько минут</string>
     <string name="account_credit_has_expired">На этой учетной записи времени VPN не осталось.</string>
+    <string name="account_delete_placeholder">Введите номер учетной записи</string>
+    <string name="account_deleted">Учетная запись удалена</string>
     <string name="account_number">Номер учетной записи</string>
     <string name="account_time_notification_channel_description">Показывает уведомления, когда время на учетной записи скоро закончится</string>
     <string name="account_time_notification_channel_name">Напоминания о времени на учетной записи</string>
@@ -101,6 +103,7 @@
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
     <string name="connection_details_out">Выход</string>
+    <string name="cont">Продолжить</string>
     <string name="continue_login">Войти</string>
     <string name="copied_logs_to_clipboard">Журналы скопированы в буфер обмена</string>
     <string name="copied_mullvad_account_number">Номер учетной записи Mullvad скопирован в буфер обмена</string>
@@ -143,6 +146,25 @@
     <string name="days_were_added_30">На учетную запись добавлено 30 дней.</string>
     <string name="days_were_added_90">На вашу учетную запись добавлено 90 дней.</string>
     <string name="delete">Удалить</string>
+    <string name="delete_account">Удалить учетную запись</string>
+    <string name="delete_account_cant_be_undone">После удаления учетной записи вы не сможете вернуть ее.</string>
+    <string name="delete_account_confirm_first_item"><b>Это действие нельзя отменить.</b></string>
+    <string name="delete_account_confirm_second_item"><b>Вы потеряете доступ к этой учетной записи на всех устройствах.</b></string>
+    <string name="delete_account_confirm_third_item"><b>Восстановить учетную запись будет невозможно.</b></string>
+    <string name="delete_account_confirmation_check">Отмечая этот флажок, я принимаю риски, связанные с удалением учетной записи</string>
+    <string name="delete_account_confirmation_enter_account_number">Чтобы удалить учетную запись Mullvad VPN, укажите номер учетной записи ниже.</string>
+    <string name="delete_account_error">Не удалось удалить учетную запись, обратитесь в службу поддержки</string>
+    <string name="delete_account_failed_loading_days">Не удалось отобразить количество оставшихся дней.</string>
+    <string name="delete_account_first_item">Вы потеряете доступ к этой учетной записи на всех устройствах.</string>
+    <string name="delete_account_forth_item">Восстановить учетную запись будет невозможно.</string>
+    <string name="delete_account_info">Вы собираетесь удалить учетную запись Mullvad VPN.</string>
+    <string name="delete_account_info_part2">При удалении учетной записи:</string>
+    <string name="delete_account_loading_days">Вы потеряете оставшееся время:</string>
+    <string name="delete_account_number_must_match">Номер учетной записи должен совпадать</string>
+    <string name="delete_account_second_item">Всё оставшееся время будет аннулировано.</string>
+    <string name="delete_account_third_item">Вы не сможете получить возмещение средств.</string>
+    <string name="delete_account_unable_to_verify">Не удалось проверить номер учетной записи, обратитесь в службу поддержки</string>
+    <string name="delete_account_warning"><b>Предупреждение:</b></string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>
     <string name="delete_list">Удалить список</string>
@@ -239,6 +261,7 @@
     <string name="include_account_token_warning_message_second">Подробнее смотрите здесь: %1$s.</string>
     <string name="include_account_token_warning_title">Это влияет на вашу анонимность</string>
     <string name="invalid_dns_servers">Недопустимые пользовательские адреса DNS-серверов %1$s</string>
+    <string name="invalid_ipv6_config">Недействительная конфигурация IPv6. Попробуйте изменить настройки VPN.</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ip_version_v4_unavailable">Протокол IPv4 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
     <string name="ip_version_v6_unavailable">Протокол IPv6 недоступен, попробуйте изменить настройку «Версия IP на устройстве».</string>
@@ -315,6 +338,7 @@
     <string name="no_recent_selection">Нет истории недавнего выбора</string>
     <string name="none">Нет</string>
     <string name="not_found">Не найдено</string>
+    <string name="notification_settings">Настройки уведомлений</string>
     <string name="number_of_providers">провайдеры: %1$d</string>
     <string name="number_parentheses">(%1$d)</string>
     <string name="off">Выкл.</string>

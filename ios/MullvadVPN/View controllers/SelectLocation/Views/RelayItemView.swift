@@ -81,7 +81,7 @@ struct RelayItemView: View {
     func locationStatusIndicator() -> some View {
         Group {
             if !location.isActive {
-                Image.mullvadRedDot
+                Image.mullvadIconStateOffline
             } else if location.isSelected {
                 Image.mullvadIconTick
                     .foregroundStyle(Color.mullvadSuccessColor)

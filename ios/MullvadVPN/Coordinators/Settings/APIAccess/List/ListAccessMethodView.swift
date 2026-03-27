@@ -17,6 +17,7 @@ protocol ListAccessViewModel: ObservableObject {
     func addNewMethod()
     func methodSelected(_ method: ListAccessMethodItem)
     func showAbout()
+    func cipherIsValid(for item: ListAccessMethodItem) -> Bool
 }
 
 struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewModel {
@@ -64,17 +65,12 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                         default:
                             nil
                         }
-                    let state =
-                        viewModel.itemInUse?.id == item.id
-                        ? NSLocalizedString("In use", comment: "")
-                        : (!item.isEnabled
-                            ? NSLocalizedString("Off", comment: "")
-                            : nil)
+
                     MullvadListNavigationItemView(
                         item: MullvadListNavigationItem(
                             id: item.id,
                             title: item.name,
-                            state: state,
+                            state: getState(for: item),
                             detail: item.detail,
                             accessibilityIdentifier: accessibilityId
                         ) {
@@ -91,6 +87,18 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
         }
         .background(Color.mullvadBackground)
     }
+
+    func getState(for item: ListAccessMethodItem) -> MullvadListNavigationItem.State? {
+        if viewModel.cipherIsValid(for: item) {
+            viewModel.itemInUse?.id == item.id
+                ? .inUse
+                : (!item.isEnabled
+                    ? .off
+                    : nil)
+        } else {
+            .warning("Unsupported cipher")
+        }
+    }
 }
 
 #Preview {
@@ -98,8 +106,11 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
         ListAccessMethodView(
             viewModel: ListAccessViewModelBridge(
                 interactor: ListAccessMethodInteractor(
-                    repository: AccessMethodRepository()
-                ), delegate: nil
+                    repository: AccessMethodRepository(
+                        shadowsocksCiphers: []
+                    )
+                ),
+                delegate: nil
             )
         )
         .navigationTitle("API Access")

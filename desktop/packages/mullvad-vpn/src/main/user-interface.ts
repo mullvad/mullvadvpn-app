@@ -285,7 +285,7 @@ export default class UserInterface implements WindowControllerDelegate {
       show: false,
       frame: unpinnedWindow,
       webPreferences: {
-        preload: path.join(import.meta.dirname, 'preload.js'),
+        preload: path.join(import.meta.dirname, 'preload.cjs'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,

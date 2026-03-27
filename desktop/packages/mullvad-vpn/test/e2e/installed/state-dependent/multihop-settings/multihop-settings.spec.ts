@@ -31,13 +31,13 @@ test.describe('Multihop settings', () => {
     await routes.multihopSettings.setEnableMultihopSwitch(false);
     const multihopSwitch = routes.multihopSettings.getEnableMultihopSwitch();
 
-    await expect(multihopSwitch).toHaveAttribute('aria-checked', 'false');
+    await expect(multihopSwitch).not.toBeChecked();
   });
 
   test('Should enable multihop when clicking switch', async () => {
     await routes.multihopSettings.setEnableMultihopSwitch(true);
     const multihopSwitch = routes.multihopSettings.getEnableMultihopSwitch();
 
-    await expect(multihopSwitch).toHaveAttribute('aria-checked', 'true');
+    await expect(multihopSwitch).toBeChecked();
   });
 });

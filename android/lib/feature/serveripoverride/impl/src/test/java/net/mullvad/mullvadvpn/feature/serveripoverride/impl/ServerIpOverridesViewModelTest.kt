@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.serveripoverride.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -20,6 +19,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
@@ -47,9 +47,9 @@ class ServerIpOverridesViewModelTest {
 
         viewModel =
             ServerIpOverridesViewModel(
+                navArgs = ServerIpOverrideNavKey(isModal = false),
                 relayOverridesRepository = mockRelayOverridesRepository,
                 contentResolver = mockContentResolver,
-                savedStateHandle = ServerIpOverridesNavArgs().toSavedStateHandle(),
             )
     }
 

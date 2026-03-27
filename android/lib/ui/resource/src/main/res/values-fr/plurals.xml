@@ -28,4 +28,8 @@
         <item quantity="one">Les crédits du compte expirent dans une heure</item>
         <item quantity="other">Les crédits du compte expirent dans %1$d heures</item>
     </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Vous perdrez votre jour restant.</item>
+        <item quantity="other">Vous perdrez vous %1$d jours restants.</item>
+    </plurals>
 </resources>

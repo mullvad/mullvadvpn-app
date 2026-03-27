@@ -40,13 +40,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import com.ramcosta.composedestinations.annotation.Destination
-import com.ramcosta.composedestinations.annotation.ExternalModuleGraph
-import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.core.animation.SlideInFromRightTransition
+import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
@@ -69,12 +66,11 @@ private fun PreviewViewLogsScreen(
     AppTheme { ViewLogsScreen(state = state, onBackClick = {}) }
 }
 
-@Destination<ExternalModuleGraph>(style = SlideInFromRightTransition::class)
 @Composable
-fun ViewLogs(navigator: DestinationsNavigator) {
+fun ViewLogs(navigator: Navigator) {
     val vm = koinViewModel<ViewLogsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
-    ViewLogsScreen(state = state, onBackClick = dropUnlessResumed { navigator.navigateUp() })
+    ViewLogsScreen(state = state, onBackClick = dropUnlessResumed { navigator.goBack() })
 }
 
 @Composable

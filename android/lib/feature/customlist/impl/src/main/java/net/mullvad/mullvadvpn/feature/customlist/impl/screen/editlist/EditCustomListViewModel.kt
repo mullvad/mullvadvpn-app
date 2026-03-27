@@ -1,9 +1,7 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlist
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ramcosta.composedestinations.generated.customlist.destinations.EditCustomListDestination
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.map
@@ -13,11 +11,9 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 
 class EditCustomListViewModel(
+    private val customListId: CustomListId,
     customListsRepository: CustomListsRepository,
-    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
-    private val customListId: CustomListId =
-        EditCustomListDestination.argsFrom(savedStateHandle).customListId
 
     val uiState =
         customListsRepository.customLists

@@ -3,13 +3,11 @@ package net.mullvad.mullvadvpn.feature.apiaccess.impl
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
-import com.ramcosta.composedestinations.generated.apiaccess.navargs.toSavedStateHandle
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.delete.DeleteApiAccessMethodConfirmationSideEffect
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.delete.DeleteApiAccessMethodConfirmationViewModel
-import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.delete.DeleteApiAccessMethodNavArgs
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
@@ -33,10 +31,8 @@ class DeleteApiAccessMethodConfirmationViewModelTest {
 
         deleteApiAccessMethodConfirmationViewModel =
             DeleteApiAccessMethodConfirmationViewModel(
+                apiAccessMethodId = apiAccessMethodId,
                 apiAccessRepository = mockApiAccessRepository,
-                savedStateHandle =
-                    DeleteApiAccessMethodNavArgs(apiAccessMethodId = apiAccessMethodId)
-                        .toSavedStateHandle(),
             )
     }
 

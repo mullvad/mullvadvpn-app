@@ -16,18 +16,18 @@ export function AutoConnectSetting(props: AutoConnectSettingProps) {
           <AutoConnectSwitch.Label>
             {messages.pgettext('vpn-settings-view', 'Auto-connect')}
           </AutoConnectSwitch.Label>
-          <SettingsListItem.ActionGroup>
+          <SettingsListItem.Item.ActionGroup>
             <AutoConnectSwitch.Input />
-          </SettingsListItem.ActionGroup>
+          </SettingsListItem.Item.ActionGroup>
         </AutoConnectSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.FooterText id={descriptionId}>
+        <SettingsListItem.Footer.Text id={descriptionId}>
           {messages.pgettext(
             'vpn-settings-view',
             'Automatically connect to a server when the app launches.',
           )}
-        </SettingsListItem.FooterText>
+        </SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );

@@ -104,6 +104,9 @@ msgstr ""
 msgid "CONNECTING..."
 msgstr ""
 
+msgid "Create"
+msgstr ""
+
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr ""
@@ -315,12 +318,43 @@ msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr ""
 
+#. This is an accessibility label for a button that adds a location to a custom list.
+#. Available placeholders:
+#. %(location)s - The name of the location being added to the list.
+#. %(listName)s - The name of the custom list the location will be added to.
+msgctxt "accessibility"
+msgid "Add %(location)s to %(listName)s"
+msgstr ""
+
+#. Accessibility label for button to add a location to a custom list.
+#. The placeholder is replaced with the name of the location.
+msgctxt "accessibility"
+msgid "Add %(locationName)s to custom list"
+msgstr ""
+
+#. This is an accessibility label for a button that opens a dialog to create a new custom list.
+msgctxt "accessibility"
+msgid "Add a new custom list"
+msgstr ""
+
+#. Accessibility description for button clearing the ownership filter.
+msgctxt "accessibility"
+msgid "Clear ownership filter"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "Close notification"
 msgstr ""
 
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
+msgstr ""
+
+#. Accessibility label for a button that connects to a location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect to %(location)s"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe a button
@@ -332,6 +366,18 @@ msgstr ""
 #. Accessibility label for a carousel that explains the DAITA feature to the user.
 msgctxt "accessibility"
 msgid "DAITA information carousel"
+msgstr ""
+
+#. Accessibility label for button to delete a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Delete custom list %(listName)s"
+msgstr ""
+
+#. Accessibility label for button to edit a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Edit custom list %(listName)s"
 msgstr ""
 
 msgctxt "accessibility"
@@ -423,6 +469,13 @@ msgstr ""
 #. Accessibility label for a button that navigates to the previous slide in a carousel.
 msgctxt "accessibility"
 msgid "Previous slide"
+msgstr ""
+
+#. Accessibility label for button to remove a location from a custom list.
+#. The first placeholder is replaced with the name of the location.
+#. The second placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Remove %(location)s from %(customList)s"
 msgstr ""
 
 #. Button action description provided to accessibility tools such as screen
@@ -1050,6 +1103,54 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr ""
 
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "custom-list-feature"
+msgid "Add %(locationType)s to list"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "City"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Country"
+msgstr ""
+
+#. Label for the input where the user can enter the name of a new custom list.
+msgctxt "custom-list-feature"
+msgid "Create custom list"
+msgstr ""
+
+#. Confirmation message shown when the user tries to delete a custom list.
+#. Asks the user if they are sure they want to delete the list.
+#. Available placeholder:
+#. %(list)s - The name of the custom list that is about to be deleted.
+msgctxt "custom-list-feature"
+msgid "Do you want to delete the list %(list)s?"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Edit list name"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Enter a name for the custom list"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Enter a new name for the custom list"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "List names must be unique"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Relay"
+msgstr ""
+
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1211,10 +1312,6 @@ msgid "Rented only"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "\"%(lockdownModeSettingName)s\" is enabled."
-msgstr ""
-
-msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr ""
 
@@ -1223,6 +1320,10 @@ msgstr ""
 #. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1296,12 +1397,6 @@ msgstr ""
 #. - %(appUpgradeDownloadProgressValue)s: The download progress value.
 msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
-msgstr ""
-
-#. Label for the in-app banner when the app encountered an error
-#. and will block network traffic until the error is resolved.
-msgctxt "in-app-notifications"
-msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
@@ -1488,6 +1583,23 @@ msgstr ""
 #. Message in launch view when the mullvad service cannot be contacted.
 msgctxt "launch-view"
 msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr ""
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "locations-feature"
+msgid "%(location)s (%(info)s)"
+msgstr ""
+
+msgctxt "locations-feature"
+msgid "Entry"
+msgstr ""
+
+msgctxt "locations-feature"
+msgid "Exit"
 msgstr ""
 
 #. This is a warning message shown when the app is blocking the users
@@ -1691,8 +1803,9 @@ msgstr ""
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
+#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
 msgstr ""
 
 #. Label for notification when IPv4 is not available.
@@ -1847,48 +1960,29 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
 
+#. Message shown when the user has no custom lists.
+#. Instructs the user how to create a custom list.
 msgctxt "select-location-view"
-msgid "(Added)"
-msgstr ""
-
-#. This is used for appending information about a location.
-#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
-#. Available placeholders:
-#. %(location)s - Translated location name
-#. %(info)s - Information about the location
-msgctxt "select-location-view"
-msgid "%(location)s (%(info)s)"
-msgstr ""
-
-#. This is a label shown above a list of options.
-#. Available placeholder:
-#. %(locationType) - Could be either "Country", "City" and "Relay"
-msgctxt "select-location-view"
-msgid "Add <b>%(locationType)s</b> to list"
+msgid "Add a custom list by clicking the “+” icon"
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "All locations"
 msgstr ""
 
+#. Message shown in the custom list section when the user has at least one custom list.
+#. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "City"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Country"
+msgid "Click “+“ on a location to add it to a list"
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr ""
 
+#. Label for custom lists that don't have any locations added to them yet.
 msgctxt "select-location-view"
-msgid "Do you want to delete the list <b>%(list)s</b>?"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Edit list name"
+msgid "Empty"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -1901,14 +1995,6 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Filtered:"
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "List names must be unique."
-msgstr ""
-
-msgctxt "select-location-view"
-msgid "Name is already taken."
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
@@ -1927,11 +2013,15 @@ msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Relay"
+msgid "Setting: %(settingName)s"
 msgstr ""
 
+#. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
+#. Available placeholders:
+#. %(visibleRelays)s: The number of relays currently shown
+#. %(totalRelays)s: The total number of relays
 msgctxt "select-location-view"
-msgid "Setting: %(settingName)s"
+msgid "Showing %(visibleRelays)s of %(totalRelays)s"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2279,6 +2369,10 @@ msgid "If these steps do not work please send a problem report."
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "If you have installed another VPN then try to uninstall that."
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr ""
 
@@ -2292,10 +2386,6 @@ msgstr ""
 
 msgctxt "troubleshoot"
 msgid "This might be caused by an outdated kernel."
-msgstr ""
-
-msgctxt "troubleshoot"
-msgid "Try reconnecting."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -2315,7 +2405,7 @@ msgid "Try to uninstall VMware."
 msgstr ""
 
 msgctxt "troubleshoot"
-msgid "Unable to communicate with Mullvad kernel driver."
+msgid "Unable to communicate with the split tunnel driver."
 msgstr ""
 
 msgctxt "troubleshoot"
@@ -2955,9 +3045,6 @@ msgstr ""
 msgid "Could not display remaining days."
 msgstr ""
 
-msgid "Create"
-msgstr ""
-
 msgid "Create new list"
 msgstr ""
 
@@ -3195,6 +3282,9 @@ msgstr ""
 msgid "Multihop is enabled"
 msgstr ""
 
+msgid "Name is already taken."
+msgstr ""
+
 msgid "Name was changed to %s"
 msgstr ""
 
@@ -3298,9 +3388,6 @@ msgid "Recursion limit"
 msgstr ""
 
 msgid "Refunds will not be possible."
-msgstr ""
-
-msgid "Remove %1$s from %2$s"
 msgstr ""
 
 msgid "Remove %s?"
