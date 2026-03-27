@@ -29,7 +29,10 @@ export const useCreateCustomListDialogContext = (): CreateCustomListDialogContex
 };
 
 type CreateCustomListDialogProviderProps = React.PropsWithChildren<
-  Pick<CreateCustomListDialogProps, 'open' | 'onOpenChange' | 'loading' | 'onLoadingChange'>
+  Pick<
+    CreateCustomListDialogProps,
+    'open' | 'onOpenChange' | 'loading' | 'onLoadingChange' | 'location'
+  >
 >;
 
 export function CreateCustomListDialogProvider({

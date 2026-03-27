@@ -4,6 +4,7 @@ import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../lib/components/flex-column';
 import { TextField } from '../../../../lib/components/text-field';
+import type { GeographicalLocation } from '../../../locations/types';
 import {
   CreateCustomListDialogProvider,
   useCreateCustomListDialogContext,
@@ -15,6 +16,7 @@ import {
 } from './hooks';
 
 export type CreateCustomListDialogProps = Omit<DialogProps, 'children'> & {
+  location?: GeographicalLocation;
   loading?: boolean;
   onLoadingChange?: (loading: boolean) => void;
 };
@@ -119,6 +121,7 @@ export function CreateCustomListDialog({
   onOpenChange,
   loading,
   onLoadingChange,
+  location,
   ...props
 }: CreateCustomListDialogProps) {
   return (
@@ -126,7 +129,8 @@ export function CreateCustomListDialog({
       open={open}
       onOpenChange={onOpenChange}
       loading={loading}
-      onLoadingChange={onLoadingChange}>
+      onLoadingChange={onLoadingChange}
+      location={location}>
       <CreateCustomListDialogImpl {...props} />
     </CreateCustomListDialogProvider>
   );
