@@ -2,13 +2,13 @@ import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
-import { RemoveLocationFromCustomListButton } from '../../../../../features/custom-lists/components';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { ListItemProps } from '../../../../../lib/components/list-item';
 import { getLocationListItemMapProps } from '../../utils';
 import { Location } from '../location-list-item';
+import { CustomListGeographicalLocationTrailingActions } from './custom-list-geographical-location-trailing-actions';
 import {
   CustomListGeographicalLocationProvider,
   useCustomListGeographicalLocationContext,
@@ -20,19 +20,15 @@ export type CustomListGeographicalLocationProps = Pick<ListItemProps, 'level' | 
 };
 
 function CustomListGeographicalLocationImpl({
-  location,
-  level,
-  disabled,
+  disabled: disabledProp,
   position,
-}: CustomListGeographicalLocationProps) {
-  const { loading, setLoading } = useCustomListGeographicalLocationContext();
+}: Omit<CustomListGeographicalLocationProps, 'location' | 'level'>) {
+  const { loading, location, level } = useCustomListGeographicalLocationContext();
   const [expanded, setExpanded] = useState(location.expanded);
 
   const locationChildren = getLocationChildren(location);
   const showChildren = locationChildren.length > 0 && expanded;
-  // Show remove from custom list button if location is top level item in a custom list.
-  const showRemoveFromCustomListButton = level === 1;
-  const showAccordionTrigger = locationChildren.length > 0;
+  const disabled = disabledProp || location.disabled || loading;
 
   useEffect(() => {
     setExpanded(location.expanded);
@@ -59,10 +55,7 @@ function CustomListGeographicalLocationImpl({
 
   return (
     <Location selected={location.selected}>
-      <Location.Accordion
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        disabled={location.disabled || disabled}>
+      <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
         <Location.Accordion.Header level={level} position={position}>
           <Location.Accordion.Header.Trigger
             onClick={handleClick}
@@ -81,32 +74,8 @@ function CustomListGeographicalLocationImpl({
               </Location.Accordion.Header.Item.Title>
             </Location.Accordion.Header.Item>
           </Location.Accordion.Header.Trigger>
-          <Location.Accordion.Header.TrailingActions>
-            {showRemoveFromCustomListButton && (
-              <Location.Accordion.Header.TrailingActions.Action>
-                <RemoveLocationFromCustomListButton
-                  location={location}
-                  loading={loading}
-                  onLoadingChange={setLoading}
-                />
-              </Location.Accordion.Header.TrailingActions.Action>
-            )}
-            {showAccordionTrigger && (
-              <Location.Accordion.Trigger
-                aria-label={sprintf(
-                  expanded
-                    ? messages.pgettext('accessibility', 'Collapse %(location)s')
-                    : messages.pgettext('accessibility', 'Expand %(location)s'),
-                  { location: location.label },
-                )}>
-                <Location.Accordion.Header.TrailingActions.Action>
-                  <Location.Accordion.Header.TrailingActions.Action.Icon
-                    icon={expanded ? 'chevron-up' : 'chevron-down'}
-                  />
-                </Location.Accordion.Header.TrailingActions.Action>
-              </Location.Accordion.Trigger>
-            )}
-          </Location.Accordion.Header.TrailingActions>
+
+          <CustomListGeographicalLocationTrailingActions />
         </Location.Accordion.Header>
         <Location.Accordion.Content>
           <AnimatedList>{showChildren ? children : null}</AnimatedList>
@@ -116,9 +85,13 @@ function CustomListGeographicalLocationImpl({
   );
 }
 
-export function CustomListGeographicalLocation({ ...props }: CustomListGeographicalLocationProps) {
+export function CustomListGeographicalLocation({
+  location,
+  level,
+  ...props
+}: CustomListGeographicalLocationProps) {
   return (
-    <CustomListGeographicalLocationProvider>
+    <CustomListGeographicalLocationProvider location={location} level={level}>
       <CustomListGeographicalLocationImpl {...props} />
     </CustomListGeographicalLocationProvider>
   );
