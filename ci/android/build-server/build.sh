@@ -24,19 +24,16 @@ if [[ -z ${YUBIKEY_PIN-} ]]; then
     export YUBIKEY_PIN
 fi
 
-function upload {
+# Move files for CDN upload by: buildserver-upload.sh
+function prepare_for_cdn_upload {
     version=$1
 
     files=( * )
     checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
-    # Move files for CDN upload by: buildserver-upload.sh
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 
-    # Upload files to google play.
-    PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
-    "$SCRIPT_DIR/upload-play.sh" "$(pwd)" "$version"
 }
 
 function run_in_linux_container {
@@ -124,7 +121,10 @@ function build_sign_and_publish_ref {
     YUBIKEY_PIN=$YUBIKEY_PIN \
     "$SCRIPT_DIR/sign.sh" "$artifact_dir"
 
-    (cd "$artifact_dir" && upload "$version") || return 1
+    PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
+    "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version"
+
+    (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
 

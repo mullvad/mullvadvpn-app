@@ -14,7 +14,7 @@ KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="26"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
-    echo "Needs to have set yubikey pin"
+    echo "YUBIKEY_PIN pin must be set."
     exit 1
 fi
 
@@ -37,20 +37,20 @@ function sign_artifacts {
     local artifact_dir="$1"
 
     pushd "$artifact_dir"
-    for artifact in MullvadVPN-*.apk MullvadVPN-*.aab; do
-        sign_artifact "$artifact"
+    for artifact_file in MullvadVPN-*.apk MullvadVPN-*.aab; do
+        sign_artifact "$artifact_file"
     done
     popd
 }
 
 function sign_artifact {
-    local artifact="$1"
+    local artifact_file="$1"
 
     echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
     --min-sdk-version "$MIN_SDK_VERSION" \
-    --in "$artifact"
+    --in "$artifact_file"
 }
 
 main "$@"
