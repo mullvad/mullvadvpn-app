@@ -52,7 +52,9 @@ import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewMo
 import net.mullvad.mullvadvpn.feature.redeemvoucher.impl.VoucherDialogViewModel
 import net.mullvad.mullvadvpn.feature.serveripoverride.impl.ServerIpOverridesViewModel
 import net.mullvad.mullvadvpn.feature.serveripoverride.impl.reset.ResetServerIpOverridesConfirmationViewModel
+import net.mullvad.mullvadvpn.feature.settings.impl.FaqRemoteViewModel
 import net.mullvad.mullvadvpn.feature.settings.impl.SettingsViewModel
+import net.mullvad.mullvadvpn.feature.settings.impl.server.Server
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
@@ -255,6 +257,8 @@ val uiModule = module {
 
     single { RelayListScrollConnection() }
 
+    single { Server(androidContext()) }
+
     // View models
     viewModel { AccountViewModel(get(), get(), get()) }
     viewModel { DeleteAccountConfirmationViewModel(get(), get()) }
@@ -417,6 +421,7 @@ val uiModule = module {
     }
     viewModel { AppearanceViewModel(get()) }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { FaqRemoteViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

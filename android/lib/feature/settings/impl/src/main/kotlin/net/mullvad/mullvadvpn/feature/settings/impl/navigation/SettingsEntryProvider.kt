@@ -9,4 +9,6 @@ import net.mullvad.mullvadvpn.feature.settings.impl.Settings
 
 fun EntryProviderScope<NavKey2>.settingsEntry(navigator: Navigator) {
     entry<SettingsNavKey>(metadata = topLevelTransition()) { Settings(navigator = navigator) }
+
+    faqRemoteEntry(navigator)
 }

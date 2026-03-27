@@ -25,4 +25,11 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(libs.protobuf.kotlin.lite)
+    implementation(libs.jsoup)
+    implementation(libs.remote.compose.creation.compose)
+    implementation(libs.remote.compose.player.core)
+    implementation(libs.remote.compose.player.compose)
+    implementation(libs.remote.compose.core)
+    implementation(libs.remote.compose.creation.core)
+    implementation(libs.remote.compose.creation.android)
 }

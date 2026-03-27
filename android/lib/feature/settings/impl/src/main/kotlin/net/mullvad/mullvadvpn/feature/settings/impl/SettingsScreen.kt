@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.notification.api.NotificationSettingsNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
+import net.mullvad.mullvadvpn.feature.settings.api.FaqRemoteNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -68,6 +69,8 @@ private fun PreviewSettingsScreen(
             onDaitaClick = {},
             onBackClick = {},
             onNotificationSettingsCellClick = {},
+            onAppObfuscationClick = {},
+            onFaqClick = {}
         )
     }
 }
@@ -91,6 +94,7 @@ fun Settings(navigator: Navigator) {
         onNotificationSettingsCellClick =
             dropUnlessResumed { navigator.navigate(NotificationSettingsNavKey) },
         onAppObfuscationClick = dropUnlessResumed { navigator.navigate(AppearanceNavKey) },
+        onFaqClick = dropUnlessResumed { navigator.navigate(FaqRemoteNavKey) }
     )
 }
 
@@ -106,7 +110,8 @@ fun SettingsScreen(
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
-    onAppObfuscationClick: () -> Unit = {},
+    onAppObfuscationClick: () -> Unit,
+    onFaqClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
@@ -135,6 +140,7 @@ fun SettingsScreen(
                         onDaitaClick = onDaitaClick,
                         onNotificationSettingsCellClick = onNotificationSettingsCellClick,
                         onAppObfuscationClick = onAppObfuscationClick,
+                        onFaqClick = onFaqClick,
                     )
                 }
             }
@@ -152,7 +158,8 @@ private fun LazyListScope.content(
     onMultihopClick: () -> Unit,
     onDaitaClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
-    onAppObfuscationClick: () -> Unit = {},
+    onAppObfuscationClick: () -> Unit,
+    onFaqClick: () -> Unit,
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -208,7 +215,9 @@ private fun LazyListScope.content(
 
     itemWithDivider { ReportProblem(onReportProblemCellClick) }
 
-    if (!state.isPlayBuild) {
+    if (state.isPlayBuild) {
+        itemWithDivider { RemoteFaq(onClick = onFaqClick) }
+    } else {
         itemWithDivider { FaqAndGuides() }
     }
 
@@ -255,6 +264,16 @@ private fun FaqAndGuides() {
     ExternalLinkListItem(
         title = faqGuideLabel,
         onClick = openFaqAndGuides,
+        position = Position.Middle,
+    )
+}
+
+@Composable
+private fun RemoteFaq(onClick: () -> Unit) {
+    val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
+    NavigationListItem(
+        title = faqGuideLabel,
+        onClick = onClick,
         position = Position.Middle,
     )
 }

@@ -4,7 +4,7 @@
 # See Bump SDK or container image template in Linear for more details.
 compile-sdk = "36"
 build-tools = "36.1.0"
-min-sdk = "28"
+min-sdk = "30"
 target-sdk = "36"
 jvm-toolchain = "21"
 ndk = "27.3.13750724"
@@ -75,6 +75,10 @@ turbine = "1.2.1"
 annotation-jvm = "1.9.1"
 junit-version = "4.13.2"
 material = "1.13.0"
+remote-compose = "1.0.0-alpha07"
+jsoup = "1.22.1"
+remote-creation-compose = "1.0.0-alpha06"
+remote-player-compose = "1.0.0-alpha06"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -135,6 +139,7 @@ grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-ko
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
 grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "junit" }
@@ -173,6 +178,14 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 play-services-location = { module = "com.google.android.gms:play-services-location", version.ref = "play-services-location" }
 protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
+remote-compose-core = { module = "androidx.compose.remote:remote-core", version.ref = "remote-compose" }
+remote-compose-creation = { module = "androidx.compose.remote:remote-creation", version.ref = "remote-compose" }
+remote-compose-creation-core = { module = "androidx.compose.remote:remote-creation-core", version.ref = "remote-compose" }
+remote-compose-creation-android = { module = "androidx.compose.remote:remote-creation-android", version.ref = "remote-compose" }
+remote-compose-creation-compose = { module = "androidx.compose.remote:remote-creation-compose", version.ref = "remote-compose" }
+remote-compose-player-core = { module = "androidx.compose.remote:remote-player-core", version.ref = "remote-compose" }
+remote-compose-player-compose = { module = "androidx.compose.remote:remote-player-compose", version.ref = "remote-compose" }
+remote-compose-tooling-preview = { module = "androidx.compose.remote:remote-tooling-preview", version.ref = "remote-compose" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 junit = { group = "junit", name = "junit", version.ref = "junit-version" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
