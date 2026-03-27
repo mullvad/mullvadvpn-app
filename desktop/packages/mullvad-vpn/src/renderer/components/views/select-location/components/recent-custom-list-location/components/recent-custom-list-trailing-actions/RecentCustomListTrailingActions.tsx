@@ -17,8 +17,8 @@ export function RecentCustomListTrailingActions({ customList }: CustomListTraili
 
   const customListMenuButtonRef = React.useRef<HTMLButtonElement>(null);
   const [customListMenuOpen, setCustomMenuOpen] = React.useState(false);
-  const showCustomListMenu = React.useCallback(() => {
-    setCustomMenuOpen(true);
+  const toggleCustomListMenu = React.useCallback(() => {
+    setCustomMenuOpen((prev) => !prev);
   }, []);
 
   return (
@@ -27,7 +27,7 @@ export function RecentCustomListTrailingActions({ customList }: CustomListTraili
         <CustomListMenuButton
           ref={customListMenuButtonRef}
           customList={customList}
-          onClick={showCustomListMenu}
+          onClick={toggleCustomListMenu}
         />
         <CustomListMenu
           triggerRef={customListMenuButtonRef}

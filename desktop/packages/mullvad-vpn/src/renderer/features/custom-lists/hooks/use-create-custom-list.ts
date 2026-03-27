@@ -1,5 +1,6 @@
 import React from 'react';
 
+import type { RelayLocationGeographical } from '../../../../shared/daemon-rpc-types';
 import log from '../../../../shared/logging';
 import { useAppContext } from '../../../context';
 
@@ -7,11 +8,11 @@ export function useCreateCustomList() {
   const { createCustomList: contextCreateCustomList } = useAppContext();
 
   const createCustomList = React.useCallback(
-    async (name: string) => {
+    async (name: string, locations: RelayLocationGeographical[] = []) => {
       try {
         const result = await contextCreateCustomList({
           name,
-          locations: [],
+          locations,
         });
         if (result) {
           return {
