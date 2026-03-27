@@ -176,7 +176,7 @@ msgstr ""
 msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
-msgid "Filter"
+msgid "Filters"
 msgstr ""
 
 #. Button label for system settings.
@@ -210,6 +210,9 @@ msgid "Multihop"
 msgstr ""
 
 msgid "Name"
+msgstr ""
+
+msgid "New list"
 msgstr ""
 
 msgid "Next"
@@ -259,6 +262,9 @@ msgstr ""
 
 #. Button label in confirmation dialog that confirms a remove action.
 msgid "Remove"
+msgstr ""
+
+msgid "Remove from list"
 msgstr ""
 
 msgid "Required"
@@ -459,6 +465,25 @@ msgstr ""
 #. Accessibility label for a button that navigates to the next slide in a carousel.
 msgctxt "accessibility"
 msgid "Next slide"
+msgstr ""
+
+#. Accessibility label for button to open a custom list menu.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Open menu for %(listName)s"
+msgstr ""
+
+#. Accessibility label for button to open a location menu.
+#. The placeholder is replaced with the name of the location.
+#. Accessibility label for button to edit a geographical location.
+#. The placeholder is replaced with the name of the geographical location.
+msgctxt "accessibility"
+msgid "Open menu for %(locationName)s"
+msgstr ""
+
+#. Label for button opening select location menu.
+msgctxt "accessibility"
+msgid "Open select location menu"
 msgstr ""
 
 #. Accessibility label for the button that opens the browser to buy credit.
@@ -1103,6 +1128,27 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr ""
 
+#. Label for disabled menu option when a location has already been added to a custom list.
+#. Available placeholders:
+#. %(customList)s - The name of the custom list the location has been added to.
+msgctxt "custom-list-feature"
+msgid "%(customList)s (Added)"
+msgstr ""
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationName)s - The name of the location being added to the list.
+msgctxt "custom-list-feature"
+msgid "Add %(locationName)s to list"
+msgstr ""
+
+#. Label for button to create a new custom list with a specific location.
+#. Available placeholder:
+#. %(locationName)s - The name of the location being added to the list.
+msgctxt "custom-list-feature"
+msgid "Add %(locationName)s to new list"
+msgstr ""
+
 #. This is a label shown above a list of options.
 #. Available placeholder:
 #. %(locationType) - Could be either "Country", "City" and "Relay"
@@ -1120,7 +1166,12 @@ msgstr ""
 
 #. Label for the input where the user can enter the name of a new custom list.
 msgctxt "custom-list-feature"
-msgid "Create custom list"
+msgid "Create list"
+msgstr ""
+
+#. Label for the option to delete a custom list in a menu.
+msgctxt "custom-list-feature"
+msgid "Delete"
 msgstr ""
 
 #. Confirmation message shown when the user tries to delete a custom list.
@@ -1135,12 +1186,17 @@ msgctxt "custom-list-feature"
 msgid "Edit list name"
 msgstr ""
 
+#. Label for the option to edit a custom list in a menu.
 msgctxt "custom-list-feature"
-msgid "Enter a name for the custom list"
+msgid "Edit name"
 msgstr ""
 
 msgctxt "custom-list-feature"
-msgid "Enter a new name for the custom list"
+msgid "Enter a name for the list"
+msgstr ""
+
+msgctxt "custom-list-feature"
+msgid "Enter a new name for the list"
 msgstr ""
 
 msgctxt "custom-list-feature"
@@ -1595,6 +1651,10 @@ msgid "%(location)s (%(info)s)"
 msgstr ""
 
 msgctxt "locations-feature"
+msgid "Disabling recents will also clear history."
+msgstr ""
+
+msgctxt "locations-feature"
 msgid "Entry"
 msgstr ""
 
@@ -1980,9 +2040,17 @@ msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "Disable recents"
+msgstr ""
+
 #. Label for custom lists that don't have any locations added to them yet.
 msgctxt "select-location-view"
 msgid "Empty"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Enable recents"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -1995,6 +2063,11 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Filtered:"
+msgstr ""
+
+#. Message shown when the user has no recent locations.
+msgctxt "select-location-view"
+msgid "No recent selection history"
 msgstr ""
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
@@ -2010,6 +2083,11 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
+msgstr ""
+
+#. Title for section showing recently used locations.
+msgctxt "select-location-view"
+msgid "Recents"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -3090,9 +3168,6 @@ msgstr ""
 msgid "Disable multihop"
 msgstr ""
 
-msgid "Disable recents"
-msgstr ""
-
 msgid "Discard"
 msgstr ""
 
@@ -3123,9 +3198,6 @@ msgstr ""
 msgid "Edit locations"
 msgstr ""
 
-msgid "Edit name"
-msgstr ""
-
 msgid "Enable %1$s"
 msgstr ""
 
@@ -3139,9 +3211,6 @@ msgid "Enable method"
 msgstr ""
 
 msgid "Enable multihop"
-msgstr ""
-
-msgid "Enable recents"
 msgstr ""
 
 msgid "Enter MTU"
@@ -3291,9 +3360,6 @@ msgstr ""
 msgid "Navigate"
 msgstr ""
 
-msgid "New list"
-msgstr ""
-
 msgid "No Android app store installed, could not open link"
 msgstr ""
 
@@ -3319,9 +3385,6 @@ msgid "No internet connection"
 msgstr ""
 
 msgid "No matching servers found."
-msgstr ""
-
-msgid "No recent selection history"
 msgstr ""
 
 msgid "No result for \"%s\", please try a different search"
@@ -3376,9 +3439,6 @@ msgid "Privacy"
 msgstr ""
 
 msgid "Privacy policy"
-msgstr ""
-
-msgid "Recents"
 msgstr ""
 
 msgid "Recents disabled and history cleared"
