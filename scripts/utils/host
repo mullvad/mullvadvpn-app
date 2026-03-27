@@ -6,6 +6,9 @@
 case "$(uname -s)" in
   Linux*)
     arch="$(uname -m)"
+    if [[ ("${arch}" == "riscv64") ]]; then
+        arch="riscv64gc"
+    fi
     HOST="${arch}-unknown-linux-gnu"
     ;;
   Darwin*)
