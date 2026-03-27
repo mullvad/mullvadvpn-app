@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
+import net.mullvad.mullvadvpn.lib.model.LoginTicket
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 class AccountRepository(
@@ -37,9 +38,13 @@ class AccountRepository(
 
     private val _mutableAccountHistory: MutableStateFlow<AccountNumber?> = MutableStateFlow(null)
 
+    private val _mutableLoginTicket: MutableStateFlow<LoginTicket?> = MutableStateFlow(null)
+
     val isNewAccount: StateFlow<Boolean> = _isNewAccount
 
     val accountHistory: StateFlow<AccountNumber?> = _mutableAccountHistory
+
+    val loginTicket: StateFlow<LoginTicket?> = _mutableLoginTicket
 
     val accountData: StateFlow<AccountData?> =
         merge(
@@ -69,10 +74,19 @@ class AccountRepository(
     suspend fun logout() =
         managementService.logoutAccount().onRight { _isNewAccount.update { false } }
 
+    suspend fun loginAnotherWithTicket(ticket: String) =
+        managementService.loginAnotherWithTicket(ticket)
+
     suspend fun fetchAccountHistory(): AccountNumber? =
         managementService
             .getAccountHistory()
             .onRight { _mutableAccountHistory.value = it }
+            .getOrNull()
+
+    suspend fun fetchLoginTicket(): LoginTicket? =
+        managementService
+            .getLoginTicket()
+            .onRight { _mutableLoginTicket.value = it }
             .getOrNull()
 
     suspend fun clearAccountHistory(): Either<ClearAccountHistoryError, Unit> =

@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
@@ -28,10 +29,12 @@ import net.mullvad.mullvadvpn.lib.common.util.getOrDefault
 import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.CreateAccountError
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
 import net.mullvad.mullvadvpn.lib.pushnotification.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
+import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 
@@ -53,12 +56,24 @@ sealed interface LoginUiSideEffect {
 
 class LoginViewModel(
     private val accountRepository: AccountRepository,
+    private val deviceRepository: DeviceRepository,
     private val newDeviceRepository: NewDeviceRepository,
     private val internetAvailableUseCase: InternetAvailableUseCase,
     private val scheduleNotificationAlarmUseCase: ScheduleNotificationAlarmUseCase,
     private val accountExpiryNotificationProvider: AccountExpiryNotificationProvider,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            deviceRepository.deviceState.collectLatest { state ->
+                if (state is DeviceState.LoggedIn) {
+                    _uiSideEffect.send(LoginUiSideEffect.NavigateToConnect)
+                }
+            }
+        }
+    }
+
     private val _loginState = MutableStateFlow(LoginUiState.INITIAL.loginState)
     private val _loginInput = MutableStateFlow(LoginUiState.INITIAL.accountNumberInput)
 
@@ -66,11 +81,19 @@ class LoginViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val _uiState =
-        combine(_loginInput, accountRepository.accountHistory, _loginState) {
-            loginInput,
-            historyAccountNumber,
-            loginState ->
-            LoginUiState(loginInput, historyAccountNumber, loginState)
+        combine(
+            _loginInput,
+            accountRepository.accountHistory,
+            accountRepository.loginTicket,
+            _loginState,
+        ) { loginInput, historyAccountNumber, loginTicket, loginState ->
+
+            LoginUiState(
+                accountNumberInput = loginInput,
+                lastUsedAccount = historyAccountNumber,
+                loginTicket = loginTicket,
+                loginState = loginState,
+            )
         }
 
     val uiState: StateFlow<LoginUiState> =
@@ -78,6 +101,7 @@ class LoginViewModel(
             .onStart {
                 viewModelScope.launch {
                     accountRepository.fetchAccountHistory()
+                    accountRepository.fetchLoginTicket()
                     accountExpiryNotificationProvider.cancelNotification()
                     scheduleNotificationAlarmUseCase(accountExpiry = null)
                 }
