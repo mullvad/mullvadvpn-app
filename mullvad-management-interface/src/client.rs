@@ -99,6 +99,11 @@ impl MullvadProxyClient {
         Self(client)
     }
 
+    pub async fn init_login(&mut self) -> Result<types::Ticket> {
+        let ticket = self.0.init_login(()).await?.into_inner();
+        Ok(ticket)
+    }
+
     pub async fn connect_tunnel(&mut self) -> Result<bool> {
         Ok(self.0.connect_tunnel(()).await?.into_inner())
     }
