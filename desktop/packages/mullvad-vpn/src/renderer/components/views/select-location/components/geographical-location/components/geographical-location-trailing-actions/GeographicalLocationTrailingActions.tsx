@@ -24,8 +24,8 @@ export function GeographicalLocationTrailingActions({
 
   const geographicalLocationButtonRef = React.useRef<HTMLButtonElement>(null);
   const [geographicalLocationMenuOpen, setGeographicalLocationMenuOpen] = React.useState(false);
-  const showGeographicalLocationMenu = React.useCallback(() => {
-    setGeographicalLocationMenuOpen(true);
+  const toggleGeographicalLocationMenu = React.useCallback(() => {
+    setGeographicalLocationMenuOpen((prev) => !prev);
   }, []);
 
   const childLocations = getLocationChildren(location);
@@ -46,7 +46,7 @@ export function GeographicalLocationTrailingActions({
           <GeographicalLocationMenuButton
             ref={geographicalLocationButtonRef}
             location={location}
-            onClick={showGeographicalLocationMenu}
+            onClick={toggleGeographicalLocationMenu}
           />
           <GeographicalLocationMenu
             triggerRef={geographicalLocationButtonRef}

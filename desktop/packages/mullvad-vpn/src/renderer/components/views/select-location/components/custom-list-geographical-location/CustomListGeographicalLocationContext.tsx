@@ -1,5 +1,7 @@
 import React from 'react';
 
+import type { CustomListGeographicalLocationProps } from './CustomListGeographicalLocation';
+
 type CustomListGeographicalLocationContextProps = Omit<
   CustomListGeographicalLocationProviderProps,
   'children'
@@ -23,7 +25,8 @@ export const useCustomListGeographicalLocationContext =
     return context;
   };
 
-type CustomListGeographicalLocationProviderProps = React.PropsWithChildren;
+type CustomListGeographicalLocationProviderProps = React.PropsWithChildren &
+  Pick<CustomListGeographicalLocationProps, 'location' | 'level'>;
 
 export function CustomListGeographicalLocationProvider({
   children,
