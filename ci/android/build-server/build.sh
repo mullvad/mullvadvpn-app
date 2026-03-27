@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
-PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android//play-api-key.json"
+PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
