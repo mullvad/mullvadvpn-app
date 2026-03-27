@@ -37,7 +37,7 @@ pub const SILENCED_CRATES: &[&str] = &[
 ];
 
 /// Crates that are silenced one level below the configured level
-pub const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp", "gotatun"];
+pub const SLIGHTLY_SILENCED_CRATES: &[&str] = &["nftnl", "udp_over_tcp", "gotatun", "iroh"];
 
 /// Returns the effective log level for a given target (crate/module name).
 ///

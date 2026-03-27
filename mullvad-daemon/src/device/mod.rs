@@ -341,6 +341,13 @@ impl AccountManagerHandle {
         self.send_command(AccountManagerCommand::GetData).await
     }
 
+    /// Return account data if currently logged in to a valid account.
+    pub async fn account_number(&self) -> Result<AccountNumber, Error> {
+        let private_device = self.data().await?;
+        let private_device = private_device.device().ok_or(Error::InvalidAccount)?;
+        Ok(private_device.account_number.clone())
+    }
+
     pub async fn data_after_login(&self) -> Result<PrivateDeviceState, Error> {
         self.send_command(AccountManagerCommand::GetDataAfterLogin)
             .await

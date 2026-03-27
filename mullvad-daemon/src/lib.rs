@@ -15,6 +15,7 @@ pub mod exception_logging;
 mod geoip;
 mod leak_checker;
 pub mod logging;
+mod login;
 #[cfg(target_os = "macos")]
 mod macos;
 pub mod management_interface;
@@ -47,6 +48,7 @@ use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
+use mullvad_management_interface::types::Ticket;
 use mullvad_relay_selector::{Config, RelaySelector};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
@@ -240,6 +242,12 @@ pub enum Error {
 
 /// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
+    // Remove login
+    // TODO: This should only be callable when logged out.
+    Login(oneshot::Sender<()>, Ticket),
+    // TODO: This should only be callable when logged in.
+    InitLogin(oneshot::Sender<Ticket>),
+
     /// Set target state. Does nothing if the daemon already has the state that is being set.
     SetTargetState(oneshot::Sender<bool>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
@@ -1488,6 +1496,76 @@ impl Daemon {
         }
 
         match command {
+            Login(tx, ticket) => {
+                // Parse the iroh ticket.
+                let ticket = ticket.token;
+                let ticket = match ticket.parse() {
+                    Ok(ticket) => ticket,
+                    Err(parse_error) => {
+                        log::error!("Failed to parse iroh endpoint ticket {ticket}: {parse_error}");
+                        return;
+                    }
+                };
+                // Send the account number to the peer.
+                let account = match self.account_manager.account_number().await {
+                    Ok(account_number) => account_number,
+                    Err(err) => {
+                        log::error!(
+                            "Can not log in another device due to not being logged in to a valid account"
+                        );
+                        log::error!("{err}");
+                        return;
+                    }
+                };
+                log::trace!("Connecting to peer to send over the account number");
+                // TODO: Blocking IO?
+                // TODO: This might time out.
+                tokio::spawn(login::login(ticket, account));
+                let _ = tx.send(());
+            }
+            InitLogin(tx) => {
+                // Generate a ticket and start listening for incoming peer connection. Be ready to
+                // issue an actual logic event.
+                // TODO: Blocking IO?
+                let (ticket, pending_remote_login) = match login::init_login().await {
+                    Ok(init_login) => init_login,
+                    Err(init_remote_login_error) => {
+                        log::error!(
+                            "Failed to initialie remote login attempt: {init_remote_login_error}"
+                        );
+                        return;
+                    }
+                };
+                // Upon (eventually) receiving an account number, it should be forwarded to the
+                // daemon as a regular login request.
+                let daemon_command_sender: DaemonEventSender<DaemonCommand> =
+                    self.tx.to_specialized_sender();
+                // TODO: Blocking IO?
+                // TODO: If the daemon is logged in by any other mean, we should make sure to cancel
+                // this pending login task.
+                tokio::spawn(async move {
+                    let account_number = match pending_remote_login.await {
+                        Ok(account_number) => account_number,
+                        Err(listen_for_account_number_err) => {
+                            log::error!(
+                                "Failed while listening for a remote peer to send us an account token: {listen_for_account_number_err}"
+                            );
+                            return;
+                        }
+                    };
+                    log::trace!("Logging in from received account number {account_number}");
+                    let (tx, rx) = oneshot::channel();
+                    let _ = daemon_command_sender.send(LoginAccount(tx, account_number));
+                    let _ = rx.await;
+                    log::info!("Done with remote login flow! 🎉");
+                });
+                // Serialize ticket and propagate it for clients to share with each other.
+                let ticket = Ticket {
+                    token: ticket.to_string(),
+                };
+                let _ = tx.send(ticket);
+            }
+
             SetTargetState(tx, state) => self.on_set_target_state(tx, state).await,
             Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
