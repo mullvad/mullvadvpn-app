@@ -96,3 +96,15 @@ reason = "No impact on this app since it does not use HttpRequestEncoder"
 id = "CVE-2024-29371"  # GHSA-3677-xxcr-wjqv
 ignoreUntil = 2026-05-01
 reason = "Denial-of-Service condition is not relevant."
+
+# Netty: HTTP Request Smuggling via Chunked Extension Quoted-String Parsing
+[[IgnoredVulns]]
+id = "CVE-2026-33870"  # GHSA-pwqr-wmgm-9rr8
+ignoreUntil = 2026-05-01
+reason = "The app does not use netty for external http communication"
+
+# Netty HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass
+[[IgnoredVulns]]
+id = "CVE-2026-33871"  # GHSA-w9fj-cfpg-grvv
+ignoreUntil = 2026-05-01
+reason = "The app does not use netty for external http communication"
