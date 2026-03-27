@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
-ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
+PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android//play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
@@ -35,7 +35,7 @@ function upload {
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 
     # Upload files to google play.
-    ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
+    PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$(pwd)" "$version"
 }
 
@@ -46,10 +46,9 @@ function run_in_linux_container {
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
-    ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
-        CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
-        CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        ./building/containerized-build.sh android --app-bundle || return 1
+    CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
+    CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
+    ./building/containerized-build.sh android --app-bundle || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }

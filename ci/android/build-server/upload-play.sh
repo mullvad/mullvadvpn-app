@@ -5,14 +5,16 @@
 set -eu
 shopt -s nullglob
 
-if [[ -z ${ANDROID_CREDENTIALS_DIR-} || ! -d "$ANDROID_CREDENTIALS_DIR" || -z "$(ls -A "$ANDROID_CREDENTIALS_DIR")" ]]; then
-    echo "Credentials directory is missing or empty"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [[ -z ${PLAY_CREDENTIALS_PATH-} ]]; then
+    echo "PLAY_CREDENTIALS_PATH must be set"
     exit 1
 fi
 
 function main {
     if [[ $# -eq 0 || $# -eq 1 ]]; then
-        echo "Please specify a folder and a version"
+        echo "Please specify a artifact directory and version"
         exit 1
     fi
 
@@ -23,6 +25,12 @@ function main {
 
     local artifact_dir="$1"
     local version="$2"
+
+    if [[ ! -d "$artifact_dir" || -z "$(ls -A "$artifact_dir")" ]]; then
+        echo "Missing or empty artifact directory"
+        exit 1
+    fi
+
     upload_bundles "$artifact_dir" "$version"
 }
 
@@ -57,8 +65,8 @@ function upload_bundle {
     rm -r "${upload_dir:?}/"* 2>/dev/null || true
     cp "$bundle_file" "$upload_dir/"
 
-    PLAY_CREDENTIALS_PATH="$ANDROID_CREDENTIALS_DIR/play-api-key.json" \
-    ./building/container-run.sh android ./android/gradlew -p android "$publish_task" --artifact-dir "../$upload_dir"
+    PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
+    "$SCRIPT_DIR/../../../building/container-run.sh" android ./android/gradlew -p android "$publish_task" --artifact-dir "../$upload_dir"
 }
 
 main "$@"
