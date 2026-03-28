@@ -19,7 +19,7 @@ export function LocationLists(props: LocationsListsProps) {
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
 
-  const showRecentLocations = hasVisibleRecentLocations;
+  const showRecentLocations = hasVisibleRecentLocations && !hasSearched;
   const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
   const showCountryLocations = !hasSearched || hasSearchedLocations;
   const showNoSearchResult =
