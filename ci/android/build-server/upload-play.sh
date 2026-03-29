@@ -66,7 +66,7 @@ function upload_bundle {
     cp "$bundle_file" "$upload_dir/"
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
-    "$SCRIPT_DIR/../../../building/container-run.sh" android ./android/gradlew -p android "$publish_task" --artifact-dir "../$upload_dir"
+    "$SCRIPT_DIR/mullvadvpn-app/building/container-run.sh" android ./android/gradlew -p android "$publish_task" --artifact-dir "../$upload_dir"
 }
 
 main "$@"
