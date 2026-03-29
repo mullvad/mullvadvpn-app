@@ -1,0 +1,77 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
+"X-Crowdin-Language: uk\n"
+"X-Crowdin-File: google_play.pot\n"
+"X-Crowdin-File-ID: 1296\n"
+"Project-Id-Version: mullvad-app\n"
+"Language-Team: Ukrainian\n"
+"Language: uk_UA\n"
+"PO-Revision-Date: 2026-03-29 21:54\n"
+
+msgid "Mullvad VPN – a service, for a monthly fee, that helps keep your online activity, identity, and location private."
+msgstr "Mullvad VPN — це сервіс, який за щомісячну плату допомагає зберігати інформацію про вашу онлайн-активність, особу й місцезнаходження приватними."
+
+msgid "GET STARTED"
+msgstr "З ЧОГО ПОЧАТИ"
+
+msgid "1. Install the app."
+msgstr "1. Встановіть застосунок."
+
+msgid "2 .Create an account."
+msgstr "2. Створіть обліковий запис."
+
+msgid "3. Add time to your account via in-app purchases or vouchers."
+msgstr "3. Додайте час до свого облікового запису шляхом купівлі в застосунку або за допомогою ваучера."
+
+msgid "If you are not pleased with our service we have a refund policy and offer support via support@mullvadvpn.net."
+msgstr "Якщо вам не сподобався наш сервіс, у нас діє політика повернення коштів. Також ви можете отримати підтримку, написавши на адресу ел. пошти support@mullvadvpn.net."
+
+msgid "ANONYMOUS ACCOUNTS – NO ACTIVITY LOGS"
+msgstr "АНОНІМНІ ОБЛІКОВІ ЗАПИСИ — БЕЗ ЖУРНАЛІВ АКТИВНОСТІ"
+
+msgid "Creating an account requires no personal info - not even an email address."
+msgstr "При створенні облікового запису непотрібно вказувати персональні дані — навіть адресу електронної пошти."
+
+msgid "We keep no activity logs."
+msgstr "Ми не зберігаємо журнали активності."
+
+msgid "Bypass geographical restrictions with our global network of VPN servers."
+msgstr "Обходьте географічні обмеження завдяки нашій глобальній мережі VPN-серверів."
+
+msgid "Our app uses WireGuard, a superior VPN protocol that connects fast and doesn’t drain your battery."
+msgstr "Наш застосунок використовує WireGuard — сучасний VPN-протокол, який забезпечує швидке з’єднання та не розряджає батарею."
+
+msgid "HOW DOES MULLVAD VPN WORK?"
+msgstr "ЯК ПРАЦЮЄ MULLVAD VPN?"
+
+msgid "With Mullvad VPN, your traffic travels through an encrypted tunnel to one of our VPN servers and then onward to the website you are visiting. In this way, websites will only see our server’s identity instead of yours. Same goes for your ISP (internet service provider); they’ll see that you’re connected to Mullvad, but not your activity."
+msgstr "З Mullvad VPN ваш трафік проходить через зашифрований тунель до одного з наших VPN-серверів, а потім — до вебсайту, який ви відвідуєте. Таким чином вебсайти бачать лише дані нашого сервера та не бачать ваші. Те саме стосується вашого інтернет-провайдера (ISP): він бачитиме, що ви підключені до Mullvad, але не вашу активність."
+
+msgid "It also means that all the third-party actors with technology integrated into the various websites you visit can’t sniff out your IP address and use it to track you from one site to another."
+msgstr "Це також означає, що всі сторонні сервіси з технологіями, інтегрованими у різні вебсайти, які ви відвідуєте, не зможуть визначити вашу IP-адресу та використовувати її для відстеження ваших дій на вебсайтах."
+
+msgid "Using a trustworthy VPN is a great first step to reclaim your privacy online. In combination with Mullvad Browser you make sure to block third-party cookies and other tracking technologies."
+msgstr "Використання надійного VPN — це чудовий перший крок до відновлення вашої приватності в інтернеті. У поєднанні з Mullvad Browser ви також блокуєте сторонні файли cookie та інші технології відстеження."
+
+msgid "FREE THE INTERNET FROM MASS SURVEILLANCE AND DATA COLLECTION"
+msgstr "ПРОТИДІЙТЕ МАСОВОМУ СТЕЖЕННЮ ТА ЗБОРУ ДАНИХ"
+
+msgid "A free and open society is a society where people have the right to privacy. That’s why we fight for a free internet."
+msgstr "Вільне й відкрите суспільство — це суспільство, у якому люди мають право на приватність. Саме тому ми боремося за вільний інтернет."
+
+msgid "Free from mass surveillance and censorship. Free from big data markets where your personal information is up for sale. Free from authorities mass monitoring every click you make. Free from an infrastructure mapping your whole life. Mullvad VPN and Mullvad Browser is our contribution to the fight."
+msgstr "Вільний від масового стеження та цензури. Вільний від ринків великих даних, де ваші персональні дані виставляються на продаж. Вільний від масового контролю з боку органів влади за кожним вашим натисканням. Вільний від інфраструктури, що відстежує все ваше життя. Mullvad VPN і Mullvad Browser — наш внесок у цю боротьбу."
+
+msgid "TELEMETRY AND CRASH REPORTS"
+msgstr "ТЕЛЕМЕТРІЯ ТА ЗВІТИ ПРО ЗБОЇ"
+
+msgid "The app collects a very minimal amount of telemetry, and it does not in any way tie it to an account number, IP or other identifiable information. Account numbers are used for authentication. App logs are never sent automatically but are rather explicitly sent by the user. App version checks are performed every 24 hours to tell the app if there are any upgrades available and if the currently running version is still supported."
+msgstr "Застосунок збирає дуже мінімальний обсяг телеметрії та жодним чином не пов’язує її з номером облікового запису, IP-адресою чи іншою інформацією, що дозволяє ідентифікувати вашу особу. Номери облікових записів використовуються для автентифікації. Журнали застосунку ніколи не надсилаються автоматично, а лише за явної дії з боку користувача. Кожні 24 години виконується перевірка версії застосунку, щоб визначити, чи доступні оновлення та чи поточна версія все ще підтримується."
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Якщо використовується функція роздільного тунелювання, застосунок запитує в системи список усіх установлених застосунків. Цей список доступний лише в поданні роздільного тунелювання і ніколи не надсилається з пристрою."
+

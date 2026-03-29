@@ -1,0 +1,3671 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3));\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
+"X-Crowdin-Language: uk\n"
+"X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
+"Project-Id-Version: mullvad-app\n"
+"Language-Team: Ukrainian\n"
+"Language: uk_UA\n"
+"PO-Revision-Date: 2026-03-29 21:54\n"
+
+msgid "%(amount)d more..."
+msgstr "Ще %(amount)d…"
+
+msgid "%(duration)s was added, account paid until %(expiry)s."
+msgstr "Додано: %(duration)s, обліковий запис оплачено до %(expiry)s."
+
+#. The label for the WireGuard port option.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgid "%(wireguard)s port"
+msgstr "Порт %(wireguard)s"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "%d день"
+msgstr[1] "%d дні"
+msgstr[2] "%d днів"
+msgstr[3] "%d дня"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "Залишився %d день"
+msgstr[1] "Залишилося %d дні"
+msgstr[2] "Залишилося %d днів"
+msgstr[3] "Залишилося %d дня"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "%d місяць"
+msgstr[1] "%d місяці"
+msgstr[2] "%d місяців"
+msgstr[3] "%d місяця"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "Залишився %d місяць"
+msgstr[1] "Залишилося %d місяці"
+msgstr[2] "Залишилося %d місяців"
+msgstr[3] "Залишилося %d місяця"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "%d рік"
+msgstr[1] "%d роки"
+msgstr[2] "%d років"
+msgstr[3] "%d року"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "Залишився %d рік"
+msgstr[1] "Залишилося %d роки"
+msgstr[2] "Залишилося %d років"
+msgstr[3] "Залишилося %d року"
+
+msgid "Account paid until %(expiry)s."
+msgstr "Обліковий запис оплачено до %(expiry)s."
+
+msgid "Account settings"
+msgstr "Налаштування облікового запису"
+
+msgid "Add"
+msgstr "Додати"
+
+msgid "Any"
+msgstr "Усі"
+
+msgid "Apply"
+msgstr "Застосувати"
+
+msgid "Automatic"
+msgstr "Автоматично"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "BLOCKED CONNECTION"
+msgstr "ПІДКЛЮЧЕННЯ ЗАБЛОКОВАНО"
+
+msgid "Blocking internet"
+msgstr "Інтернет заблоковано"
+
+msgid "Buy credit"
+msgstr "Поповнити баланс"
+
+msgid "Buy more credit"
+msgstr "Поповнити баланс"
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Cipher"
+msgstr "Шифр"
+
+msgid "Clear"
+msgstr "Видалити"
+
+msgid "Close"
+msgstr "Закрити"
+
+msgid "Connect"
+msgstr "Підключити"
+
+msgid "Connected"
+msgstr "Підключено"
+
+msgid "CONNECTED"
+msgstr "ПІДКЛЮЧЕНО"
+
+msgid "Connecting"
+msgstr "Підключення"
+
+msgid "CONNECTING..."
+msgstr "ПІДКЛЮЧЕННЯ..."
+
+#. Creating a secure connection that isn't breakable by quantum computers.
+msgid "CREATING QUANTUM SECURE CONNECTION"
+msgstr "СТВОРЕННЯ КВАНТОВО-СТІЙКОГО ПІДКЛЮЧЕННЯ"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "СТВОРЕННЯ БЕЗПЕЧНОГО ПІДКЛЮЧЕННЯ"
+
+msgid "Custom"
+msgstr "Користувацький"
+
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "Користувацький DNS"
+
+msgid "Default"
+msgstr "За замовчуванням"
+
+msgid "Delete"
+msgstr "Видалити"
+
+msgid "Delete list"
+msgstr "Видалити список"
+
+msgid "Direct only"
+msgstr "Лише напряму"
+
+msgid "Disable"
+msgstr "Вимкнути"
+
+msgid "Disconnect"
+msgstr "Відключити"
+
+msgid "Disconnect & quit"
+msgstr "Відключити й вийти"
+
+msgid "Disconnected"
+msgstr "Відключено"
+
+msgid "DISCONNECTED"
+msgstr "ВІДКЛЮЧЕНО"
+
+msgid "Disconnecting"
+msgstr "Відключення"
+
+msgid "DISCONNECTING..."
+msgstr "ВІДКЛЮЧЕННЯ..."
+
+msgid "Edit"
+msgstr "Редагувати"
+
+msgid "Enable"
+msgstr "Увімкнути"
+
+msgid "Enable anyway"
+msgstr "Усе одно увімкнути"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "Увімкнути «Лише напряму»"
+
+#. Error message shown trying to login but the app fails
+#. to fetch the list of registered devices.
+msgid "Failed to fetch list of devices"
+msgstr "Не вдалось отримати список пристроїв"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "НЕ ВДАЛОСЯ СТВОРИТИ БЕЗПЕЧНЕ ПІДКЛЮЧЕННЯ"
+
+msgid "Filter"
+msgstr "Фільтр"
+
+#. Button label for system settings.
+msgid "Go to System Settings"
+msgstr "Перейти до налаштувань системи"
+
+msgid "Got it!"
+msgstr "Зрозуміло!"
+
+msgid "Import"
+msgstr "Імпортувати"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv6"
+msgstr "IPv6"
+
+msgid "Learn more"
+msgstr "Докладніше"
+
+msgid "less than a day"
+msgstr "менше ніж 1 день"
+
+msgid "less than a day left"
+msgstr "залишилося менше ніж 1 день"
+
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "Подвійний VPN"
+
+msgid "Name"
+msgstr "Ім’я"
+
+msgid "Next"
+msgstr "Далі"
+
+msgid "No matching servers found"
+msgstr "Не знайдено відповідних серверів"
+
+msgid "No result for <b>%(searchTerm)s</b>."
+msgstr "За запитом <b>%(searchTerm)s</b> нічого не знайдено."
+
+msgid "None"
+msgstr "Немає"
+
+msgid "Off"
+msgstr "Вимк."
+
+msgid "On"
+msgstr "Увімк."
+
+msgid "Open URL"
+msgstr "Відкрити URL"
+
+msgid "Optional"
+msgstr "Необов’язково"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Port"
+msgstr "Порт"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "Квантова стійкість"
+
+#. The connection is secure and isn't breakable by quantum computers.
+msgid "QUANTUM SECURE CONNECTION"
+msgstr "КВАНТОВО-СТІЙКЕ ПІДКЛЮЧЕННЯ"
+
+msgid "Quit"
+msgstr "Вийти"
+
+msgid "Reconnect"
+msgstr "Перепідключити"
+
+#. Button label in confirmation dialog that confirms a remove action.
+msgid "Remove"
+msgstr "Вилучити"
+
+msgid "Required"
+msgstr "Обов’язково"
+
+msgid "Save"
+msgstr "Зберегти"
+
+msgid "Search for..."
+msgstr "Пошук…"
+
+#. Placeholder text for search field in select location view
+msgid "Search locations or servers"
+msgstr "Пошук розташувань або серверів"
+
+msgid "SECURE CONNECTION"
+msgstr "БЕЗПЕЧНЕ ПІДКЛЮЧЕННЯ"
+
+msgid "Settings"
+msgstr "Налаштування"
+
+msgid "System default"
+msgstr "Системне значення за замовчуванням"
+
+msgid "Test"
+msgstr "Перевірити"
+
+msgid "Troubleshoot"
+msgstr "Усунення неполадок"
+
+msgid "Try a different search."
+msgstr "Спробуйте інший запит."
+
+msgid "Type"
+msgstr "Тип"
+
+msgid "Unblock"
+msgstr "Розблокувати"
+
+msgid "UNSECURED CONNECTION"
+msgstr "НЕЗАХИЩЕНЕ З’ЄДНАННЯ"
+
+msgid "Use"
+msgstr "Використати"
+
+msgid "Username"
+msgstr "Ім’я користувача"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s, подання завантажено"
+
+#. Text for screen readers to describe the WireGuard port settings navigation button.
+#. Available placeholders:
+#. %(wireguard)s - will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "%(wireguard)s port settings"
+msgstr "Налаштування порту %(wireguard)s"
+
+msgctxt "accessibility"
+msgid "Close notification"
+msgstr "Закрити сповіщення"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "Згорнути %(location)s"
+
+#. Provided to accessibility tools such as screenreaders to describe a button
+#. which copies the account number to the clipboard.
+msgctxt "accessibility"
+msgid "Copy account number"
+msgstr "Копіювати номер облікового запису"
+
+#. Accessibility label for a carousel that explains the DAITA feature to the user.
+msgctxt "accessibility"
+msgid "DAITA information carousel"
+msgstr "Карусель з інформацією про DAITA"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "Розгорнути %(location)s"
+
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
+msgctxt "accessibility"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Забути номер облікового запису %(accountNumber)s"
+
+#. Accessibility label for link to VPN settings where
+#. the user can change WireGuard port.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "accessibility"
+msgid "Go to anti-censorship settings to change %(wireGuard)s port"
+msgstr "Щоб змінити порт %(wireGuard)s, перейдіть у налаштування обходу цензури"
+
+#. Accessibility label for link to app upgrade view.
+msgctxt "accessibility"
+msgid "Go to app update page"
+msgstr "Перейти на сторінку оновлення застосунку"
+
+#. Accessibility label for carousel indicators that allow navigation between slides.
+#. Available placeholders:
+#. %(index)s - Will be replaced with the slide index number.
+msgctxt "accessibility"
+msgid "Go to slide %(index)s"
+msgstr "Перейти до слайда %(index)s"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which obscures the account number.
+msgctxt "accessibility"
+msgid "Hide account number"
+msgstr "Приховати номер облікового запису"
+
+#. Alt text for an illustration showing VPN traffic with DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic with DAITA enabled"
+msgstr "Ілюстрація VPN-трафіку з увімкненою функцією DAITA"
+
+#. Alt text for an illustration showing VPN traffic without DAITA.
+msgctxt "accessibility"
+msgid "Illustration showing VPN traffic without DAITA"
+msgstr "Ілюстрація VPN-трафіку без функції DAITA"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "Увійти"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Увійти з номером облікового запису %(accountNumber)s"
+
+msgctxt "accessibility"
+msgid "More information"
+msgstr "Докладніше"
+
+#. Accessibility label for link to go to download page.
+msgctxt "accessibility"
+msgid "New version available, click here to go to download page, opens externally"
+msgstr "Доступна нова версія. Натисніть тут, щоб перейти на сторінку завантаження (відкривається в браузері)"
+
+msgctxt "accessibility"
+msgid "New version available, click here to go to update view"
+msgstr "Доступна нова версія. Натисніть тут, щоб переглянути оновлення"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "Доступна нова версія. Натисніть тут, щоб переглянути журнал змін"
+
+#. Accessibility label for a button that navigates to the next slide in a carousel.
+msgctxt "accessibility"
+msgid "Next slide"
+msgstr "Наступний слайд"
+
+#. Accessibility label for the button that opens the browser to buy credit.
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "Відкрити в браузері"
+
+#. Accessibility label for a button that navigates to the previous slide in a carousel.
+msgctxt "accessibility"
+msgid "Previous slide"
+msgstr "Попередній слайд"
+
+#. Button action description provided to accessibility tools such as screen
+#. readers.
+#. Available placeholders:
+#. %(deviceName)s - The device name to remove.
+msgctxt "accessibility"
+msgid "Remove device named %(deviceName)s"
+msgstr "Вилучити пристрій «%(deviceName)s»"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "Вилучити елемент"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "Виберіть розташування. Поточне розташування: %(location)s"
+
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Налаштування Shadowsocks"
+
+#. Provided to accessibility tools such as screenreaders to describe
+#. the button which unobscures the account number.
+msgctxt "accessibility"
+msgid "Show account number"
+msgstr "Показати номер облікового запису"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "Налаштування UDP-over-TCP"
+
+msgctxt "accessibility"
+msgid "Use the right arrow key to focus the settings button."
+msgstr "Натисніть клавішу зі стрілкою праворуч, щоб перейти до кнопки налаштувань."
+
+#. Title label in navigation bar
+msgctxt "account-view"
+msgid "Account"
+msgstr "Обліковий запис"
+
+msgctxt "account-view"
+msgid "Account number"
+msgstr "Номер облікового запису"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "Зараз недоступно"
+
+#. Button label for logging out.
+msgctxt "account-view"
+msgid "Log out"
+msgstr "Вийти"
+
+#. Link text in the account view to navigate to the manage devices view.
+msgctxt "account-view"
+msgid "Manage devices"
+msgstr "Керування пристроями"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "ЗАКІНЧИВСЯ ЧАС"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "Оплачено до"
+
+#. Page title for anti censorship settings view
+msgctxt "anti-censorship-view"
+msgid "Anti-censorship"
+msgstr "Обхід цензури"
+
+#. The title for the obfuscation method selector.
+msgctxt "anti-censorship-view"
+msgid "Method"
+msgstr "Метод"
+
+#. Second paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "Please note that these methods do not improve performance, and may increase system utilization and battery consumption."
+msgstr "Зауважте, що ці методи не покращують продуктивності й можуть збільшити навантаження на систему та споживання заряду батареї."
+
+#. First paragraph of description text in anti-censorship view
+msgctxt "anti-censorship-view"
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When \"Automatic\" is selected, the app will attempt all methods until one works."
+msgstr "Ці методи можуть бути корисними в ситуаціях, коли у вас заблоковано доступ до Mullvad. Якщо вибрано «Автоматично», застосунок намагатиметься використовувати всі методи, доки один із них не спрацює."
+
+msgctxt "api-access-methods-view"
+msgid "Add method"
+msgstr "Додавання методу"
+
+msgctxt "api-access-methods-view"
+msgid "Adding a new API access method also tests it."
+msgstr "Під час додавання нового методу доступу до API також виконується його перевірка."
+
+msgctxt "api-access-methods-view"
+msgid "API reachable"
+msgstr "Є доступ до API"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, adding method…"
+msgstr "Є доступ до API, додаємо метод…"
+
+msgctxt "api-access-methods-view"
+msgid "API reachable, saving method…"
+msgstr "Є доступ до API, зберігаємо метод…"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable"
+msgstr "Немає доступу до API"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, add anyway?"
+msgstr "Немає доступу до API, усе одно додати?"
+
+msgctxt "api-access-methods-view"
+msgid "API unreachable, save anyway?"
+msgstr "Немає доступу до API, усе одно зберегти?"
+
+msgctxt "api-access-methods-view"
+msgid "Authentication"
+msgstr "Автентифікація"
+
+#. %(save)s - Will be replaced with the translation for the word "Save".
+msgctxt "api-access-methods-view"
+msgid "Clicking “%(save)s” changes the in use method."
+msgstr "Натиснувши «%(save)s», ви зміните метод, що використовується."
+
+msgctxt "api-access-methods-view"
+msgid "Delete %(name)s?"
+msgstr "Видалити метод «%(name)s»?"
+
+msgctxt "api-access-methods-view"
+msgid "Edit method"
+msgstr "Редагування методу"
+
+msgctxt "api-access-methods-view"
+msgid "Editing an API access method also tests it."
+msgstr "Під час редагування нового методу доступу до API також виконується його перевірка."
+
+msgctxt "api-access-methods-view"
+msgid "Enter IP"
+msgstr "Введіть IP-адресу"
+
+msgctxt "api-access-methods-view"
+msgid "Enter name"
+msgstr "Введіть ім’я"
+
+msgctxt "api-access-methods-view"
+msgid "Enter port"
+msgstr "Введіть порт"
+
+msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Якщо ви не підключені до нашого VPN, то метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або CloudFlare."
+
+msgctxt "api-access-methods-view"
+msgid "In use"
+msgstr "Використовується"
+
+msgctxt "api-access-methods-view"
+msgid "Local SOCKS5 server"
+msgstr "Локальний сервер SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Manage and add custom methods to access the Mullvad API."
+msgstr "Додавайте користувацькі методи доступу до API Mullvad і керуйте ними."
+
+msgctxt "api-access-methods-view"
+msgid "On some networks, where various types of censorship are being used, the API servers might not be directly reachable."
+msgstr "У деяких мережах, де використовують різні типи цензури, може не бути прямого доступу до серверів API."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid IPv4 or IPv6 address."
+msgstr "Введіть дійсну адресу IPv4 або IPv6."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid localhost port."
+msgstr "Введіть дійсний порт localhost."
+
+msgctxt "api-access-methods-view"
+msgid "Please enter a valid remote server port."
+msgstr "Введіть дійсний порт віддаленого сервера."
+
+msgctxt "api-access-methods-view"
+msgid "Please select a name for the access method not already in use."
+msgstr "Введіть ім’я методу доступу, яке ще не використовується."
+
+msgctxt "api-access-methods-view"
+msgid "Remote Server"
+msgstr "Віддалений сервер"
+
+msgctxt "api-access-methods-view"
+msgid "Server"
+msgstr "Сервер"
+
+msgctxt "api-access-methods-view"
+msgid "Server details"
+msgstr "Відомості про сервер"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 local"
+msgstr "Локальний SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "SOCKS5 remote"
+msgstr "Віддалений SOCKS5"
+
+msgctxt "api-access-methods-view"
+msgid "Testing method..."
+msgstr "Перевіряємо метод…"
+
+msgctxt "api-access-methods-view"
+msgid "Testing..."
+msgstr "Перевіряється…"
+
+msgctxt "api-access-methods-view"
+msgid "The API could not be reached using the %(name)s method."
+msgstr "Не вдалось отримати доступ до API за допомогою методу «%(name)s»."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
+msgstr "Застосунку потрібні дані віддаленого сервера, на який ваш локальний сервер SOCKS5 переспрямовуватиме трафік."
+
+msgctxt "api-access-methods-view"
+msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
+msgstr "Застосунку потрібне з’єднання з API-сервером Mullvad, щоб ввійти в обліковий запис, отримати список серверів і виконати інші критично важливі дії."
+
+msgctxt "api-access-methods-view"
+msgid "The in use API access method will change."
+msgstr "Буде змінено метод доступу до API."
+
+msgctxt "api-access-methods-view"
+msgid "The TCP port where your local SOCKS5 server is listening."
+msgstr "TCP-порт, на якому працює ваш локальний сервер SOCKS5."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
+msgstr "Це може бути корисно, якщо API піддається цензурі, а сервери-мости Mullvad — ні."
+
+msgctxt "api-access-methods-view"
+msgid "This can be useful when you are not affected by censorship."
+msgstr "Це може бути корисно, якщо цензура відсутня."
+
+msgctxt "api-access-methods-view"
+msgid "This feature allows you to circumvent that censorship by adding custom ways to access the API via proxies and similar methods."
+msgstr "Ця функція дає змогу обійти таку цензуру, додаючи власні способи доступу до API через проксі-сервери й подібні методи."
+
+msgctxt "api-access-methods-view"
+msgid "This is needed so our app can allow that traffic in the firewall."
+msgstr "Це потрібно, щоб наш застосунок міг дозволити цей трафік у брандмауері."
+
+msgctxt "api-access-methods-view"
+msgid "Transport protocol"
+msgstr "Транспортний протокол"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
+msgstr "Під час використання методу «Напряму» застосунок напряму підключається до API-сервера Mullvad без використання проміжних проксі-серверів."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+msgstr "Під час використання методу «Проксі через зашифрований DNS» застосунок взаємодіятиме з API Mullvad через адресу проксі-сервера. Він отримує адресу із сервера DNS over HTTPS (DoH), а потім використовує її для доступу до наших API-серверів."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
+msgstr "Під час використання методу «Мости Mullvad» застосунок взаємодіє з API-сервером Mullvad через сервер-міст Mullvad. Для цього надісланий трафік проходить обфускацію за допомогою Shadowsocks."
+
+#. Title of the app info view.
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "Інформація про застосунок"
+
+#. Description for version list item when app is out of sync.
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Застосунок не синхронізовано. Закрийте його й перезапустіть."
+
+#. Label for switch to toggle beta program.
+msgctxt "app-info-view"
+msgid "Beta program"
+msgstr "Бета-програма"
+
+msgctxt "app-info-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "Увімкніть, щоб отримувати сповіщення про нові бета-версії застосунку."
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "Ця опція недоступна в бета-версії."
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr "Доступне оновлення"
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr "Версія"
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
+msgstr "Що нового"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion is within a few seconds.
+msgctxt "app-upgrade-view"
+msgid "A few seconds remaining..."
+msgstr "Залишилося кілька секунд…"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in minutes.
+#. Available placeholders:
+#. %(minutes)s - Will be replaced with remaining minutes until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(minutes)s minutes remaining..."
+msgstr "Залишилося приблизно %(minutes)s хв…"
+
+#. Status text displayed below a progress bar when the update is being downloaded
+#. with the estimated time of completion represented in seconds.
+#. Available placeholders:
+#. %(second)s - Will be replaced with remaining seconds until download is complete
+msgctxt "app-upgrade-view"
+msgid "About %(seconds)s seconds remaining..."
+msgstr "Залишилося приблизно %(seconds)s с…"
+
+#. Label displayed when an error occurred due to the connection being blocked
+msgctxt "app-upgrade-view"
+msgid "Connection blocked. Try changing server or other settings."
+msgstr "Підключення заблоковано. Спробуйте змінити сервер або інші параметри."
+
+#. Label displayed when an error occurred due to the installer failing to start
+#. and the suggested resolution is to download the update again.
+msgctxt "app-upgrade-view"
+msgid "Could not open installer, please try again or send a problem report."
+msgstr "Не вдалося відкрити інсталятор. Повторіть спробу або надішліть звіт про проблему."
+
+#. Button text to download and install an update
+msgctxt "app-upgrade-view"
+msgid "Download & install"
+msgstr "Завантажити й інсталювати"
+
+#. Status text displayed below a progress bar when the download of an update is complete
+msgctxt "app-upgrade-view"
+msgid "Download complete!"
+msgstr "Завантаження завершено!"
+
+#. Status text displayed below a progress bar when the download of an update fails
+msgctxt "app-upgrade-view"
+msgid "Download failed"
+msgstr "Помилка завантаження"
+
+#. Label displayed when an error occurred due to the download failing
+msgctxt "app-upgrade-view"
+msgid "Download failed, please check your connection/firewall and try again, or send a problem report."
+msgstr "Не вдалося завантажити. Перевірте підключення до Інтернету або брандмауер і спробуйте ще раз або надішліть звіт про проблему."
+
+#. Status text displayed below a progress bar when the download of an update has been paused
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Download paused"
+msgstr "Завантаження призупинено"
+
+#. Label displayed above a progress bar informing the user which server
+#. the update is downloading from
+msgctxt "app-upgrade-view"
+msgid "Downloading from: %(server)s"
+msgstr "Завантаження з: %(server)s"
+
+#. Label displayed above a progress bar when a download is in progress
+msgctxt "app-upgrade-view"
+msgid "Downloading..."
+msgstr "Завантаження..."
+
+#. Link shown to optionally manually download the update
+#. due to repeated errors in the upgrade process.
+msgctxt "app-upgrade-view"
+msgid "Having problems? Try downloading the app from our website"
+msgstr "Виникли проблеми? Спробуйте завантажити застосунок із нашого вебсайту"
+
+#. Button text to install an update
+msgctxt "app-upgrade-view"
+msgid "Install update"
+msgstr "Інсталювати оновлення"
+
+#. Label displayed when an error occurred within the installer
+msgctxt "app-upgrade-view"
+msgid "Installer quit unexpectedly, please try again or send a problem report."
+msgstr "Інсталятор неочікувано припинив роботу. Повторіть спробу або надішліть звіт про проблему."
+
+#. Info about which directory the app update will be downloaded to
+msgctxt "app-upgrade-view"
+msgid "Installer will be downloaded to <b>%(cacheDir)s</b>."
+msgstr "Інсталятор буде завантажено сюди: <b>%(cacheDir)s</b>."
+
+msgctxt "app-upgrade-view"
+msgid "Latest version: %(version)s"
+msgstr "Остання версія: %(version)s"
+
+#. Text displayed when there are no updates for this platform in the next app version
+msgctxt "app-upgrade-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "У цій версії для цієї платформи немає оновлень або змін."
+
+#. Button text to pause the download of an update
+msgctxt "app-upgrade-view"
+msgid "Pause"
+msgstr "Призупинити"
+
+#. Button text to report a problem
+msgctxt "app-upgrade-view"
+msgid "Report a problem"
+msgstr "Повідомити про проблему"
+
+#. Button text to resume updating
+msgctxt "app-upgrade-view"
+msgid "Resume"
+msgstr "Відновити"
+
+#. Button text to try again
+msgctxt "app-upgrade-view"
+msgid "Retry"
+msgstr "Повторити"
+
+#. Button text to try download again
+msgctxt "app-upgrade-view"
+msgid "Retry download"
+msgstr "Повторити завантаження"
+
+#. Status text displayed below a progress bar when the download of an update is starting
+msgctxt "app-upgrade-view"
+msgid "Starting download..."
+msgstr "Починається завантаження…"
+
+#. Button text to when starting the installer for an update
+msgctxt "app-upgrade-view"
+msgid "Starting installer..."
+msgstr "Запуск інсталятора…"
+
+#. Label displayed when an unknown error occurred
+msgctxt "app-upgrade-view"
+msgid "Unknown error occurred. Please try again or send a problem report."
+msgstr "Сталася невідома помилка. Повторіть спробу або надішліть звіт про проблему."
+
+#. Title in navigation bar
+#. Main title for the update available view
+msgctxt "app-upgrade-view"
+msgid "Update available"
+msgstr "Доступне оновлення"
+
+#. Label displayed when an error occurred due to the installer failed verification
+msgctxt "app-upgrade-view"
+msgid "Verification failed, please try again or send a problem report."
+msgstr "Помилка перевірки. Повторіть спробу або надішліть звіт про проблему."
+
+#. Label displayed above a progress bar when the update is verified successfully
+msgctxt "app-upgrade-view"
+msgid "Verification successful!"
+msgstr "Перевірку виконано!"
+
+#. Label displayed above a progress bar when the update is being verified
+msgctxt "app-upgrade-view"
+msgid "Verifying installer..."
+msgstr "Перевірка інсталятора…"
+
+#. Heading which shows the version of the app which can be upgraded to.
+#. Available placeholders:
+#. %(version)s - The new version of the app.
+msgctxt "app-upgrade-view"
+msgid "Version %(version)s"
+msgstr "Версія %(version)s"
+
+#. The user has the latest version of the app and does not need to be update
+msgctxt "app-upgrade-view"
+msgid "You are using the latest version"
+msgstr "У вас остання версія"
+
+msgctxt "auth-failure"
+msgid "Blocking internet: account is out of time"
+msgstr "Інтернет заблоковано: закінчився час"
+
+msgctxt "auth-failure"
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "Забагато одночасних підключень для облікового запису. Від’єднайте інший пристрій або спробуйте ще раз пізніше."
+
+msgctxt "auth-failure"
+msgid "Unable to authenticate account. Please send a problem report."
+msgstr "Не вдалося виконати автентифікацію облікового запису. Надішліть звіт про проблему."
+
+msgctxt "auth-failure"
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "Ви ввійшли з недійсним номером облікового запису. Вийдіть і спробуйте ще раз."
+
+#. Text displayed when there are no updates for this platform in the app version
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "У цій версії для цієї платформи немає оновлень або змін."
+
+#. Heading for the view of the changes and updates in the
+#. current version compared to the old version.
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "Що нового"
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+#. This is used as a feature indicator to show that DAITA is enabled through
+#. multihop.
+#. Available placeholders:
+#. %(DAITA)s - Is a non-translatable feature "DAITA"
+msgctxt "connect-view"
+msgid "%(DAITA)s: Multihop"
+msgstr "%(DAITA)s: подвійний VPN"
+
+msgctxt "connect-view"
+msgid "Active features"
+msgstr "Активні функції"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "Вітаємо!"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "Відомості про підключення"
+
+#. Button label for disconnecting from the VPN.
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "Відключити"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "Поповніть баланс на вебсайті або використайте ваучер."
+
+msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Введіть код ваучера"
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr "Запустіть застосунок і поверніть собі конфіденційність в Інтернеті."
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "Ось номер вашого облікового запису. Збережіть його!"
+
+#. Button label for opening privacy information link.
+msgctxt "connect-view"
+msgid "Learn about privacy"
+msgstr "Більше про конфіденційність"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "Закінчився час"
+
+#. Button label for navigating to the voucher redemption view.
+msgctxt "connect-view"
+msgid "Redeem voucher"
+msgstr "Використати ваучер"
+
+msgctxt "connect-view"
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "Зверніть увагу: вимкнення цієї опції пропускатиме мережевий трафік, коли VPN відключено, доки ви не увімкнете її знову в «Додаткових налаштуваннях»."
+
+#. Button label for starting the app.
+msgctxt "connect-view"
+msgid "Start using the app"
+msgstr "Запустити застосунок"
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr "Час додано"
+
+msgctxt "connect-view"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "Щоб додати час, вам доведеться відключитись і підключитися до Інтернету через незахищене з’єднання."
+
+msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr "Щоб і надалі захищати свою конфіденційність, відвідайте наш вебсайт і дізнайтеся про інші звички й інструменти, що допоможуть у цьому."
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "Щоб почати користуватися застосунком, додайте час на баланс облікового запису."
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
+msgstr "Ваучер використано"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "На балансі облікового запису не залишилося часу для використання VPN."
+
+msgctxt "connect-view"
+msgid "You need to disable \"Lockdown mode\" in order to access the Internet to add time."
+msgstr "Вимкніть «Режим блокування», щоб зайти в Інтернет і додати час."
+
+msgctxt "connect-view"
+msgid "You’re all set!"
+msgstr "Готово!"
+
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(entry)s - the entry relay hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(entry)s"
+msgstr "%(relay)s через %(entry)s"
+
+msgctxt "connection-info"
+msgid "In"
+msgstr "Вхід"
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr "Вихід"
+
+#. Button for continuing login process.
+msgctxt "device-management"
+msgid "Continue with login"
+msgstr "Увійти"
+
+#. Label informing the user when a device was created.
+#. Available placeholders:
+#. %(createdDate)s - The creation date of the device.
+msgctxt "device-management"
+msgid "Created: %(createdDate)s"
+msgstr "Створено: %(createdDate)s"
+
+#. Label indicating that this device is the current device.
+msgctxt "device-management"
+msgid "Current device"
+msgstr "Поточний пристрій"
+
+msgctxt "device-management"
+msgid "Device is inactive"
+msgstr "Пристрій неактивний"
+
+msgctxt "device-management"
+msgid "Device name"
+msgstr "Ім’я пристрою"
+
+#. A label that will display the newly created device name to inform the user
+#. about it.
+#. Available placeholders:
+#. %(deviceName)s - The name of the current device
+msgctxt "device-management"
+msgid "Device name: %(deviceName)s"
+msgstr "Ім’я пристрою: %(deviceName)s"
+
+msgctxt "device-management"
+msgid "Failed to remove device"
+msgstr "Помилка вилучення пристрою"
+
+#. Button label for navigating to login.
+msgctxt "device-management"
+msgid "Go to login"
+msgstr "Увійти"
+
+msgctxt "device-management"
+msgid "Going to login will unblock the Internet on this device."
+msgstr "Вхід в обліковий запис розблокує Інтернет на цьому пристрої."
+
+msgctxt "device-management"
+msgid "If you log out, the device and the device name is removed. When you log back in again, the device will get a new name."
+msgstr "Якщо ви вийдете з облікового запису, пристрій і його ім’я будуть видалені. Після повторного входу пристрій отримає нове ім’я."
+
+#. Title label in navigation bar for the manage devices view.
+#. Title text in the manage devices view
+msgctxt "device-management"
+msgid "Manage devices"
+msgstr "Керування пристроями"
+
+msgctxt "device-management"
+msgid "Please log out of at least one by removing it from the list below. You can find the corresponding device name under the device’s Account settings."
+msgstr "Вийдіть хоча б з одного пристрою, вилучивши його зі списку нижче. Ім’я відповідного пристрою можна знайти в налаштуваннях облікового запису пристрою."
+
+#. Button label for confirming removing a device.
+msgctxt "device-management"
+msgid "Remove"
+msgstr "Вилучити"
+
+#. Text displayed above button which logs out another device.
+#. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(deviceName)s - The name of the device to log out.
+msgctxt "device-management"
+msgid "Remove <em>%(deviceName)s?</em>"
+msgstr "Вилучити <em>%(deviceName)s?</em>"
+
+#. Page title informing user that enough devices has been removed to continue
+#. login process.
+msgctxt "device-management"
+msgid "Super!"
+msgstr "Чудово!"
+
+msgctxt "device-management"
+msgid "The device will be removed from the list and logged out."
+msgstr "Ви вийдете з облікового запису на цьому пристрої, і його буде вилучено зі списку."
+
+msgctxt "device-management"
+msgid "This is the name assigned to the device. Each device logged in on a Mullvad account gets a unique name that helps you identify it when you manage your devices in the app or on the website."
+msgstr "Це ім’я, присвоєне пристрою. Кожен пристрій, з якого виконано вхід в обліковий запис Mullvad, має унікальне ім’я, що допомагає ідентифікувати його під час керування пристроями в застосунку або на вебсайті."
+
+msgctxt "device-management"
+msgid "Time left: %(timeLeft)s"
+msgstr "Залишилося часу: %(timeLeft)s"
+
+#. Page title informing user that the login failed due to too many registered
+#. devices on account.
+msgctxt "device-management"
+msgid "Too many devices"
+msgstr "Забагато пристроїв"
+
+#. Button text to retry fetching devices.
+msgctxt "device-management"
+msgid "Try again"
+msgstr "Повторити"
+
+#. Subtitle text in the manage devices view, explaining
+#. devices and what they can do in the manage devices view.
+msgctxt "device-management"
+msgid "View and manage all your logged in devices. You can have up to 5 devices on one account at a time. Each device gets a name when logged in to help you tell them apart easily."
+msgstr "Переглядайте пристрої, на яких виконано вхід у ваш обліковий запис, і керуйте ними. Їх одночасно може бути до 5. Кожному пристрою під час входу надається ім’я, щоб їх було легше розрізняти."
+
+msgctxt "device-management"
+msgid "You can have up to 5 devices logged in on one Mullvad account."
+msgstr "Ви одночасно можете ввійти у свій обліковий запис Mullvad на 5 пристроях."
+
+msgctxt "device-management"
+msgid "You can now continue logging in on this device."
+msgstr "Тепер можна ввійти в обліковий запис на цьому пристрої."
+
+msgctxt "device-management"
+msgid "You have removed this device. To connect again, you will need to log back in."
+msgstr "Ви вилучили цей пристрій. Щоб підключитися знову, потрібно ввійти в обліковий запис."
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "Щось пішло не так. Зв’яжіться з нами за адресою %(email)s"
+
+#. Title label in navigation bar
+msgctxt "filter-nav"
+msgid "Filter"
+msgstr "Фільтр"
+
+msgctxt "filter-view"
+msgid "All providers"
+msgstr "Усі провайдери"
+
+msgctxt "filter-view"
+msgid "Mullvad owned only"
+msgstr "Лише у власності Mullvad"
+
+msgctxt "filter-view"
+msgid "Owned"
+msgstr "Власні"
+
+msgctxt "filter-view"
+msgid "Ownership"
+msgstr "Власність"
+
+msgctxt "filter-view"
+msgid "Providers"
+msgstr "Провайдери"
+
+msgctxt "filter-view"
+msgid "Rented"
+msgstr "Орендовані"
+
+msgctxt "filter-view"
+msgid "Rented only"
+msgstr "Лише орендовані"
+
+msgctxt "in-app-notifications"
+msgid "\"%(lockdownModeSettingName)s\" is enabled."
+msgstr "Увімкнено опцію «%(lockdownModeSettingName)s»."
+
+msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s. Поповніть баланс."
+
+#. Notification subtitle when the app upgrade is ready to install.
+#. Available placeholders:
+#. - %(suggestedUpgradeVersion)s: Upgrade version to be installed.
+msgctxt "in-app-notifications"
+msgid "%(suggestedUpgradeVersion)s is ready to be installed."
+msgstr "%(suggestedUpgradeVersion)s: готово до інсталяції."
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "ЗАКІНЧУЄТЬСЯ БАЛАНС ОБЛІКОВОГО ЗАПИСУ"
+
+msgctxt "in-app-notifications"
+msgid "APP IS OUT OF SYNC"
+msgstr "ЗАСТОСУНОК НЕ СИНХРОНІЗОВАНО"
+
+msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr "ДОСТУПНА БЕТА-ВЕРСІЯ"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "ІНТЕРНЕТ ЗАБЛОКОВАНО"
+
+#. Notification subtitle when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "Click here to install update."
+msgstr "Натисніть тут, щоб установити оновлення."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "Click here to retry"
+msgstr "Натисніть тут, щоб повторити спробу"
+
+#. Notification subtitle when the download of the installer failed
+#. and the user can try downloading again.
+msgctxt "in-app-notifications"
+msgid "Click here to retry download"
+msgstr "Натисніть тут, щоб ще раз спробувати завантажити"
+
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "Натисніть тут, щоб дізнатися, що нового."
+
+#. Link text to go to the app upgrade view
+msgctxt "in-app-notifications"
+msgid "Click here to update"
+msgstr "Натисніть тут, щоб оновити"
+
+#. Notification subtitle when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "Could not download installer."
+msgstr "Не вдалося завантажити інсталятор."
+
+#. Generic notification subtitle when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "Could not upgrade the app."
+msgstr "Не вдалось оновити застосунок."
+
+#. Notification title when app upgrade is verifying the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD COMPLETE! VERIFYING..."
+msgstr "ЗАВАНТАЖЕННЯ ЗАВЕРШЕНО! ПЕРЕВІРЯЄМО…"
+
+#. Notification title when the installer download failed.
+msgctxt "in-app-notifications"
+msgid "DOWNLOAD FAILED"
+msgstr "ПОМИЛКА ЗАВАНТАЖЕННЯ"
+
+#. Generic notification title when app upgrade is downloading the installer.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE..."
+msgstr "ЗАВАНТАЖЕННЯ ОНОВЛЕННЯ…"
+
+#. Notification title when the app upgrade is in progress.
+#. Available placeholders:
+#. - %(appUpgradeDownloadProgressValue)s: The download progress value.
+msgctxt "in-app-notifications"
+msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
+msgstr "ЗАВАНТАЖЕННЯ ОНОВЛЕННЯ... %(appUpgradeDownloadProgressValue)s%%"
+
+#. Label for the in-app banner when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "in-app-notifications"
+msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
+msgstr "Не вдається запустити %(splitTunneling)s. <a>Надішліть звіт про проблему.</a> Щоб розблокувати мережевий трафік, вимкніть роздільне тунелювання."
+
+#. The in-app banner displayed to the user when the app update is available.
+msgctxt "in-app-notifications"
+msgid "Install the latest app version to stay up to date."
+msgstr "Установіть останню версію, щоб нічого не пропустити."
+
+#. Notification title when the installer failed.
+msgctxt "in-app-notifications"
+msgid "INSTALLER FAILED"
+msgstr "ПОМИЛКА ІНСТАЛЯТОРА"
+
+msgctxt "in-app-notifications"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "МОЖЛИВИЙ ВИТІК МЕРЕЖЕВОГО ТРАФІКУ"
+
+msgctxt "in-app-notifications"
+msgid "NEW DEVICE CREATED"
+msgstr "СТВОРЕНО НОВИЙ ПРИСТРІЙ"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "УСТАНОВЛЕНО НОВУ ВЕРСІЮ"
+
+msgctxt "in-app-notifications"
+msgid "Please quit and restart the app."
+msgstr "Вийдіть і перезапустіть застосунок."
+
+#. Notification title when the app upgrade is ready to install.
+msgctxt "in-app-notifications"
+msgid "READY TO INSTALL UPDATE"
+msgstr "ОНОВЛЕННЯ ГОТОВЕ ДО ВСТАНОВЛЕННЯ"
+
+#. Accessibility label for the button to retry download of the installer.
+msgctxt "in-app-notifications"
+msgid "Retry download of the installer"
+msgstr "Повторити спробу завантаження інсталятора"
+
+#. Accessibility label for the button to retry the installation.
+msgctxt "in-app-notifications"
+msgid "Retry installation"
+msgstr "Повторити спробу встановлення"
+
+#. Button label to send a problem report.
+msgctxt "in-app-notifications"
+msgid "Send problem report"
+msgstr "Надіслати звіт про проблему"
+
+#. Notification subtitle when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "The installer could not be verified."
+msgstr "Не вдалося перевірити інсталятор."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not complete successfully."
+msgstr "Інсталятор не завершив роботу."
+
+#. Notification subtitle when the installer failed.
+msgctxt "in-app-notifications"
+msgid "The installer did not start successfully."
+msgstr "Не вдалося запустити інсталятор."
+
+#. Notification subtitle indicating the user is using an unsupported port for WireGuard.
+#. Available placeholders:
+#. %(wireGuard)s - Will be replaced with WireGuard
+msgctxt "in-app-notifications"
+msgid "The selected %(wireGuard)s port is not supported, please <a>change it under VPN settings.</a>"
+msgstr "Вибраний порт %(wireGuard)s не підтримується, <a>змініть його в налаштуваннях VPN.</a>"
+
+#. Notification text when a new device has been created.
+#. Available placeholders:
+#. - %(deviceName)s: Name of created device.
+msgctxt "in-app-notifications"
+msgid "This device is now named <em>%(deviceName)s</em>. See more under <a>Manage devices</a> in Account."
+msgstr "Пристрою присвоєно ім’я <em>%(deviceName)s</em>. Докладніше в розділі <a>«Керування пристроями»</a>."
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
+msgstr "Спробуйте нашу найновішу бета-версію (%(version)s)."
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "НЕПІДТРИМУВАНА ВЕРСІЯ"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "ДОСТУПНЕ ОНОВЛЕННЯ"
+
+#. Generic notification title when the app upgrade failed.
+msgctxt "in-app-notifications"
+msgid "UPDATE FAILED"
+msgstr "ПОМИЛКА ОНОВЛЕННЯ"
+
+#. Notification title when app upgrade is ready for the user to launch the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! INSTALLER READY!"
+msgstr "ПЕРЕВІРКУ ПРОЙДЕНО! ІНСТАЛЯТОР ГОТОВИЙ!"
+
+#. Notification title when app upgrade is launching the installer.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION COMPLETE! LAUNCHING INSTALLER..."
+msgstr "ПЕРЕВІРКУ ПРОЙДЕНО! ЗАПУСК ІНСТАЛЯТОРА…"
+
+#. Notification title when the installer verification failed.
+msgctxt "in-app-notifications"
+msgid "VERIFICATION FAILED"
+msgstr "ПОМИЛКА ПЕРЕВІРКИ"
+
+#. Status text app is trying to connect to the system service.
+msgctxt "launch-view"
+msgid "Connecting to Mullvad system service..."
+msgstr "Підключення до системного сервісу Mullvad…"
+
+#. Button label for opening dialog with troubleshooting details.
+msgctxt "launch-view"
+msgid "Details"
+msgstr "Відомості"
+
+#. List item in troubleshooting modal advising user disable third party antivirus.
+msgctxt "launch-view"
+msgid "Disabling third party antivirus software"
+msgstr "Вимкнути сторонні антивірусні програми"
+
+#. Status text shown when app fails to start.
+msgctxt "launch-view"
+msgid "Failed to start the app, please try again or click “Details” for more info"
+msgstr "Помилка запуску застосунку. Повторіть спробу або натисніть «Відомості», щоб дізнатися більше"
+
+#. Message in troubleshooting modal advising user to send a problem report if the steps do not work.
+msgctxt "launch-view"
+msgid "If these steps do not work please send a problem report."
+msgstr "Якщо це не допоможе, надішліть звіт про проблему."
+
+#. Message in launch view when the background process permissions have been revoked.
+msgctxt "launch-view"
+msgid "Permission for the Mullvad VPN service has been revoked. Please go to System Settings and allow Mullvad VPN under the “Allow in the Background” setting."
+msgstr "Дозвіл для сервісу Mullvad VPN відкликано. Перейдіть у налаштування системи й увімкніть параметр «Дозволити у фоновому режимі» для Mullvad VPN."
+
+#. List item in troubleshooting modal advising user to reinstall the app.
+msgctxt "launch-view"
+msgid "Reinstalling the app"
+msgstr "Перевстановити застосунок"
+
+#. List item in troubleshooting modal advising user to restart background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process"
+msgstr "Перезапустити фоновий процес Mullvad"
+
+#. List item in troubleshooting modal instructing user how to restart the background process.
+msgctxt "launch-view"
+msgid "Restarting the Mullvad background process by clicking \"Back\", then \"Try again\""
+msgstr "Перезапустити фоновий процес Mullvad, натиснувши «Назад», а потім — «Повторити»"
+
+#. List item in troubleshooting modal advising user to restart their computer.
+msgctxt "launch-view"
+msgid "Restarting your computer"
+msgstr "Перезапустити комп’ютер"
+
+#. Button label for sending a problem report.
+msgctxt "launch-view"
+msgid "Send problem report"
+msgstr "Надіслати звіт про проблему"
+
+#. Status text shown when app is starting.
+msgctxt "launch-view"
+msgid "Starting up...."
+msgstr "Запуск…"
+
+#. Message in troubleshooting modal when the background process failed to start.
+msgctxt "launch-view"
+msgid "The Mullvad background process failed to start. The background process is responsible for the security, kill switch, and the VPN tunnel. Please try:"
+msgstr "Не вдалося запустити фоновий процес Mullvad. Фоновий процес відповідає за безпеку, аварійний вимикач і VPN-тунель. Спробуйте виконати такі дії:"
+
+#. Button label for trying to restart the daemon again.
+msgctxt "launch-view"
+msgid "Try again"
+msgstr "Повторити"
+
+#. Message in launch view when the mullvad service cannot be contacted.
+msgctxt "launch-view"
+msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
+msgstr "Не вдалося зв’язатись із системною службою Mullvad. Імовірно, ваше підключення не захищене. Усуньте неполадки або надішліть звіт про проблему, натиснувши «Докладніше»."
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+#. Available placeholder:
+#. %(lockdownModeSettingName)s - The translation of "Lockdown mode"
+msgctxt "login-view"
+msgid "<b>%(lockdownModeSettingName)s</b> is enabled. Disable it to unblock your connection."
+msgstr "Увімкнено опцію <b>%(lockdownModeSettingName)s</b>. Щоб розблокувати з’єднання, вимкніть її."
+
+msgctxt "login-view"
+msgid "Account created"
+msgstr "Обліковий запис створено"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "Перевірка номера облікового запису"
+
+#. Text in button that allows user to create a new account.
+msgctxt "login-view"
+msgid "Create a new account"
+msgstr "Створити обліковий запис"
+
+#. Button which confirms the action to create a new account.
+msgctxt "login-view"
+msgid "Create new account"
+msgstr "Створити обліковий запис"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "Створення облікового запису…"
+
+#. Text that asks the user if they really want to create a new account.
+msgctxt "login-view"
+msgid "Do you want to create a new account?"
+msgstr "Створити новий обліковий запис?"
+
+#. Text that asks the user if they really want to remove the saved account.
+msgctxt "login-view"
+msgid "Do you want to remove the saved account number?"
+msgstr "Вилучити збережений номер облікового запису?"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "Введіть номер облікового запису"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "Помилка"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "Не вдалося створити обліковий запис"
+
+msgctxt "login-view"
+msgid "Finishing upgrade."
+msgstr "Завершення оновлення."
+
+#. Error message shown above login input when trying to login with a
+#. non-existent account number.
+msgctxt "login-view"
+msgid "Invalid account number"
+msgstr "Недійсний номер облікового запису"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "Виконано вхід"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "Виконується вхід…"
+
+#. Label for the login button.
+msgctxt "login-view"
+msgid "Login"
+msgstr "Вхід"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "Помилка входу"
+
+#. Text shown between two horizontal lines above the "create account" button.
+#. In this context it is used to separate the users alternative of logging in
+#. or creating a new account, "Login or Create a new account".
+msgctxt "login-view"
+msgid "Or"
+msgstr "Або"
+
+#. This is a warning message shown when the app is blocking the users
+#. internet connection while logged out.
+msgctxt "login-view"
+msgid "Our kill switch is currently blocking your connection."
+msgstr "Аварійний вимикач блокує з’єднання."
+
+msgctxt "login-view"
+msgid "Please wait"
+msgstr "Зачекайте"
+
+#. Text that informs the user about the consequences of clearing the saved
+#. account number.
+msgctxt "login-view"
+msgid "Removing the saved account number from this device cannot be undone."
+msgstr "Вилучення збереженого номера облікового запису з пристрою не можна скасувати."
+
+#. Error message shown above login input when trying to login to an account
+#. with too many registered devices.
+msgctxt "login-view"
+msgid "Too many devices"
+msgstr "Забагато пристроїв"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "Невідома помилка…"
+
+msgctxt "login-view"
+msgid "Upgrading..."
+msgstr "Оновлення…"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "Дійсний номер облікового запису"
+
+#. Text that informs the users about consequences of creating a new account.
+msgctxt "login-view"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "У вас уже є збережений номер облікового запису. Після створення нового його буде видалено. Цю дію не можна скасувати."
+
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "API access"
+msgstr "Доступ до API"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "Баланс облікового запису закінчується за %(duration)s. Поповніть баланс."
+
+msgctxt "notifications"
+msgid "Account is out of time"
+msgstr "В обліковому записі завершився час"
+
+msgctxt "notifications"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Застосунок не синхронізовано. Закрийте його й перезапустіть."
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
+msgstr "Доступне оновлення бета-версії. Спробуйте найновішу версію (%(version)s)."
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Купити ще"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "Підключено"
+
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "Підключено до: %(location)s"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "Підключення"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "Підключення до: %(location)s"
+
+msgctxt "notifications"
+msgid "Connection might be unsecured. App lost contact with system service, please troubleshoot."
+msgstr "Можливо, підключення не захищене. Застосунок втратив зв’язок із системною службою, усуньте неполадки."
+
+msgctxt "notifications"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "Не вдалося налаштувати IPv6. Вимкніть його в застосунку або увімкніть на пристрої."
+
+msgctxt "notifications"
+msgid "Disconnected and unsecure"
+msgstr "Відключено й не захищено"
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling."
+msgstr "Не вдалося ввімкнути роздільне тунелювання."
+
+msgctxt "notifications"
+msgid "Failed to enable split tunneling. Please try reconnecting or disable split tunneling."
+msgstr "Не вдалося ввімкнути роздільне тунелювання. Спробуйте перепідключитися або вимкніть роздільне тунелювання."
+
+#. Label for the system notification when the app encountered an error
+#. and will block network traffic until the error is resolved.
+msgctxt "notifications"
+msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
+msgstr "Не вдається запустити %(splitTunneling)s. Надішліть звіт про проблему. Щоб розблокувати мережевий трафік, вимкніть роздільне тунелювання."
+
+#. Label for notification when IPv4 is not available.
+msgctxt "notifications"
+msgid "IPv4 is not available, please try changing Device IP version setting."
+msgstr "Протокол IPv4 недоступний, спробуйте змінити налаштування версії IP на пристрої."
+
+#. Label for notification when IPv6 is not available.
+msgctxt "notifications"
+msgid "IPv6 is not available, please try changing Device IP version setting."
+msgstr "Протокол IPv6 недоступний, спробуйте змінити налаштування версії IP на пристрої."
+
+msgctxt "notifications"
+msgid "Lockdown mode active, connection blocked"
+msgstr "Режим блокування активний, з’єднання заблоковано"
+
+msgctxt "notifications"
+msgid "No servers match your settings, try changing server or other settings."
+msgstr "Жоден сервер не відповідає налаштуванням, спробуйте змінити сервер чи налаштування."
+
+#. A link in the in-app banner to encourage the user to update the app.
+#. The in-app banner is is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Please click here to update now"
+msgstr "Натисніть тут, щоб оновити зараз"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "Перепідключення"
+
+msgctxt "notifications"
+msgid "The apps excluded with %(splitTunneling)s might not work properly right now."
+msgstr "Застосунки, виключені за допомогою функції «%(splitTunneling)s», можуть зараз працювати неправильно."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules."
+msgstr "Не вдалося застосувати правила брандмауера."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try temporarily disabling any third-party antivirus or security software."
+msgstr "Не вдалося застосувати правила брандмауера. Спробуйте тимчасово вимкнути сторонній антивірус або захисне ПЗ."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "Не вдалося застосувати правила брандмауера. Спробуйте оновити ядро."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or send a problem report."
+msgstr "Не вдалося заблокувати весь мережевий трафік. Усуньте неполадки або надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try temporarily disabling any third-party antivirus or security software or send a problem report."
+msgstr "Не вдалося заблокувати весь мережевий трафік. Спробуйте тимчасово вимкнути сторонній антивірус або захисне ПЗ чи надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or send a problem report."
+msgstr "Не вдалося заблокувати весь мережевий трафік. Спробуйте оновити ядро або надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report."
+msgstr "Не вдалося встановити зв’язок із драйвером ядра Mullvad. Спробуйте перепідключитися або надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "Не вдається перетворити адресу хоста користувацького тунелю на IP. Змініть налаштування та спробуйте знову."
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please send a problem report."
+msgstr "Не вдалося встановити системний DNS-сервер. Надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please send a problem report."
+msgstr "Не вдалося запустити тунельне з’єднання. Надішліть звіт про проблему."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. This could be because of conflicts with VMware, please troubleshoot."
+msgstr "Не вдалося запустити тунельне з’єднання. Це може бути через конфлікти з VMware, усуньте неполадки."
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "Доступне оновлення. Установіть останню версію, щоб нічого не пропустити"
+
+msgctxt "notifications"
+msgid "Upgrade"
+msgstr "Оновити"
+
+msgctxt "notifications"
+msgid "Your device is offline. The tunnel will automatically connect once your device is back online."
+msgstr "Ваш пристрій офлайн. Тунель автоматично підключиться, щойно він знову буде онлайн."
+
+#. The in-app banner which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version."
+msgstr "Ваша конфіденційність може бути під загрозою через непідтримувану версію застосунку."
+
+#. The system notification which is displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "Ваша конфіденційність може бути під загрозою через цю непідтримувану версію застосунку. Оновіть її."
+
+#. Cancel button label for voucher redemption.
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "Скасувати"
+
+#. Input field label for voucher code.
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "Введіть код ваучера"
+
+#. Button label for redeeming a voucher.
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "Використати ваучер"
+
+msgctxt "redeem-voucher-view"
+msgid "An error occurred."
+msgstr "Сталася помилка."
+
+msgctxt "redeem-voucher-view"
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "Схоже, ви ввели номер облікового запису замість коду ваучера. Якщо хочете змінити активний обліковий запис, спочатку вийдіть із профілю."
+
+#. Button label for voucher redemption.
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "Використати"
+
+msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
+msgstr "Ваучер перевіряється…"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "Код ваучера вже використано."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "Недійсний код ваучера."
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "Ваучер використано."
+
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "Вибір мови"
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "Вибір розташування"
+
+msgctxt "select-location-view"
+msgid "(Added)"
+msgstr "(додано)"
+
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "select-location-view"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "select-location-view"
+msgid "Add <b>%(locationType)s</b> to list"
+msgstr "<b>%(locationType)s</b> — додати до списку"
+
+msgctxt "select-location-view"
+msgid "All locations"
+msgstr "Усі розташування"
+
+msgctxt "select-location-view"
+msgid "City"
+msgstr "Місто"
+
+msgctxt "select-location-view"
+msgid "Country"
+msgstr "Країна"
+
+msgctxt "select-location-view"
+msgid "Custom lists"
+msgstr "Користувацькі списки"
+
+msgctxt "select-location-view"
+msgid "Do you want to delete the list <b>%(list)s</b>?"
+msgstr "Справді видалити список <b>%(list)s</b>?"
+
+msgctxt "select-location-view"
+msgid "Edit list name"
+msgstr "Редагувати назву списку"
+
+msgctxt "select-location-view"
+msgid "Entry"
+msgstr "Вхід"
+
+msgctxt "select-location-view"
+msgid "Exit"
+msgstr "Вихід"
+
+msgctxt "select-location-view"
+msgid "Filtered:"
+msgstr "Відфільтровано:"
+
+msgctxt "select-location-view"
+msgid "List names must be unique."
+msgstr "Назви списків мають бути унікальними."
+
+msgctxt "select-location-view"
+msgid "Name is already taken."
+msgstr "Назва вже використовується."
+
+#. Label for indicator that shows that obfuscation is being used as a filter.
+#. Available placeholders:
+#. %(obfuscation)s - type of obfuscation in use
+msgctxt "select-location-view"
+msgid "Obfuscation: %(obfuscation)s"
+msgstr "Обфускація: %(obfuscation)s"
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "Відкрити налаштування %(daita)s"
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
+msgstr "Провайдери: %(numberOfProviders)d"
+
+msgctxt "select-location-view"
+msgid "Relay"
+msgstr "Ретранслятор"
+
+msgctxt "select-location-view"
+msgid "Setting: %(settingName)s"
+msgstr "Налаштування: %(settingName)s"
+
+msgctxt "select-location-view"
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr "Сервер входу для функції «%(multihop)s» зараз перевизначено функцією %(daita)s. Щоб вибрати сервер входу, спочатку ввімкніть «%(directOnly)s» або вимкніть «%(daita)s» у налаштуваннях."
+
+msgctxt "settings-import"
+msgid "Clear all overrides"
+msgstr "Видалити всі перевизначення"
+
+msgctxt "settings-import"
+msgid "Clear all overrides?"
+msgstr "Видалити всі перевизначення?"
+
+msgctxt "settings-import"
+msgid "Clearing the imported overrides changes the server IPs, in the Select location view, back to default."
+msgstr "Видалення імпортованих перевизначень змінює IP-адреси серверів у розділі «Вибір розташування» до значень за замовчуванням."
+
+msgctxt "settings-import"
+msgid "If you are having issues connecting to VPN servers, please contact support."
+msgstr "У разі проблем із підключенням до серверів VPN зверніться до служби підтримки."
+
+msgctxt "settings-import"
+msgid "Import file"
+msgstr "Імпортувати файл"
+
+msgctxt "settings-import"
+msgid "Import files or text with new IP addresses for the servers in the Select location view."
+msgstr "Імпорт файлів або тексту з новими IP-адресами для серверів у розділі «Вибір розташування»."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was successful, overrides are now active."
+msgstr "Файл %(fileName)s імпортовано, перевизначення активні."
+
+msgctxt "settings-import"
+msgid "Import of file %(fileName)s was unsuccessful, please try again."
+msgstr "Не вдалось імпортувати файл %(fileName)s, повторіть спробу."
+
+msgctxt "settings-import"
+msgid "Import of text was successful, overrides are now active."
+msgstr "Текст імпортовано, перевизначення активні."
+
+msgctxt "settings-import"
+msgid "Import of text was unsuccessful, please try again."
+msgstr "Не вдалось імпортувати текст, повторіть спробу."
+
+msgctxt "settings-import"
+msgid "IMPORT SUCCESSFUL"
+msgstr "ІМПОРТОВАНО"
+
+#. Title label in navigation bar
+msgctxt "settings-import"
+msgid "Import via text"
+msgstr "Імпортувати через текст"
+
+msgctxt "settings-import"
+msgid "NO OVERRIDES IMPORTED"
+msgstr "ПЕРЕВИЗНАЧЕННЯ НЕ ІМПОРТОВАНО"
+
+msgctxt "settings-import"
+msgid "On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked."
+msgstr "У деяких мережах, де використовуються різні типи цензури, IP-адреси наших серверів інколи блокуються."
+
+msgctxt "settings-import"
+msgid "OVERRIDES ACTIVE"
+msgstr "ПЕРЕВИЗНАЧЕННЯ АКТИВНІ"
+
+#. Title label in navigation bar. This is for a feature that lets
+#. users import server IP settings.
+msgctxt "settings-import"
+msgid "Server IP override"
+msgstr "Перевизначення IP-адреси сервера"
+
+msgctxt "settings-import"
+msgid "To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view."
+msgstr "Щоб обійти це, ви можете імпортувати файл або текст, наданий нашою службою підтримки, з новими IP-адресами, які перевизначать адреси серверів за замовчуванням у розділі «Вибір розташування»."
+
+#. Navigation button to the 'API access methods' view
+msgctxt "settings-view"
+msgid "API access"
+msgstr "Доступ до API"
+
+#. Navigation button to the 'App info' view
+msgctxt "settings-view"
+msgid "App info"
+msgstr "Інформація про застосунок"
+
+msgctxt "settings-view"
+msgid "Multihop"
+msgstr "Подвійний VPN"
+
+#. Title label in navigation bar
+msgctxt "settings-view"
+msgid "Settings"
+msgstr "Налаштування"
+
+#. Navigation button to the 'Support' view
+msgctxt "settings-view"
+msgid "Support"
+msgstr "Підтримка"
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
+msgstr "Доступне оновлення"
+
+#. Navigation button to the 'User interface settings' view
+msgctxt "settings-view"
+msgid "User interface settings"
+msgstr "Налаштування інтерфейсу"
+
+#. Navigation button to the 'VPN settings' view
+msgctxt "settings-view"
+msgid "VPN settings"
+msgstr "Налаштування VPN"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "Застосунок %(applicationName)s є проблемним і не може бути виключений із VPN-тунелю."
+
+#. Information about split tunneling not being supported on the system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "%(splitTunneling)s is not supported by your system."
+msgstr "%(splitTunneling)s не підтримується вашою системою."
+
+msgctxt "split-tunneling-view"
+msgid "Add"
+msgstr "Додати"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "Усі застосунки"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "Виберіть застосунки, які ви хочете виключити з VPN-тунелю."
+
+#. Link for learning more
+msgctxt "split-tunneling-view"
+msgid "Click here to learn more"
+msgstr "Натисніть тут, щоб дізнатися більше"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Клацніть на застосунку, щоб запустити його. Його трафік обходитиме VPN-тунель, доки ви його не закриєте."
+
+msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr "Увімкнено «Повний доступ до диска», а проблеми не зникли?"
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "Виключені застосунки"
+
+#. Button label for browsing applications with split tunneling.
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "Знайти інший застосунок"
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Якщо застосунок уже запущено, закрийте %(applicationName)s і лише після цього запускайте його звідси. Інакше його не можна буде виключити з VPN-тунелю."
+
+#. Button label for launching an application with split tunneling.
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Запустити"
+
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr "Відкрити налаштування системи"
+
+#. This error message is shown if the user tries to launch a Linux desktop
+#. entry file that doesn't contain the required 'Exec' value.
+msgctxt "split-tunneling-view"
+msgid "Please send a problem report."
+msgstr "Надішліть звіт про проблему."
+
+#. This error message is shown if the user tries to launch an app that
+#. doesn't exist.
+#. This error message is shown if an application fails during startup.
+msgctxt "split-tunneling-view"
+msgid "Please try again or send a problem report."
+msgstr "Спробуйте ще раз або надішліть звіт про проблему."
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
+msgstr "Перезапустити сервіс Mullvad"
+
+#. Information about split tunneling being unavailable due to
+#. missing support in the user's operating system.
+#. Available placeholders:
+#. %(splitTunneling)s - will be replaced with Split tunneling
+msgctxt "split-tunneling-view"
+msgid "To use %(splitTunneling)s, please update to a Linux kernel version that supports cgroup v2."
+msgstr "Щоб використовувати %(splitTunneling)s, оновіть ядро Linux до версії, що підтримує cgroup v2."
+
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Для використання роздільного тунелювання ввімкніть «Повний доступ до диска» для Mullvad VPN у системних налаштуваннях macOS."
+
+#. Error message showed in a dialog when an application fails to launch.
+msgctxt "split-tunneling-view"
+msgid "Unable to launch selection. %(detailedErrorMessage)s"
+msgstr "Не вдалося запустити вибір. %(detailedErrorMessage)s"
+
+#. Button label for continuing problem report submission with an outdated app version.
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "Усе одно продовжити"
+
+#. Button text to edit the message after a failed attempt to send the problem report.
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "Редагувати повідомлення"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "Помилка надсилання"
+
+#. Link to the webpage
+msgctxt "support-view"
+msgid "FAQs & Guides"
+msgstr "Поширені запитання і посібники"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you at %(email)s"
+msgstr "За потреби ми зв’яжемося з вами за адресою %(email)s"
+
+msgctxt "support-view"
+msgid "If you exit the form and try again later, the information you already entered will still be here."
+msgstr "Якщо ви вийдете з форми й повернетеся пізніше, введена інформація збережеться."
+
+#. Title label in navigation bar
+#. Navigation button to the 'Report a problem' help view
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "Повідомити про проблему"
+
+#. Button label for sending the problem report.
+msgctxt "support-view"
+msgid "Send"
+msgstr "Надіслати"
+
+#. Button label for sending the problem report without an email address.
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "Усе одно надіслати"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "Надсилання…"
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "Надіслано"
+
+#. Title label in navigation bar
+msgctxt "support-view"
+msgid "Support"
+msgstr "Підтримка"
+
+msgctxt "support-view"
+msgid "Thanks!"
+msgstr "Дякуємо!"
+
+msgctxt "support-view"
+msgid "To assist you better, please write in English or Swedish and include which country you are connecting from."
+msgstr "Щоб ми могли швидше надати допомогу, напишіть нам англійською або шведською та вкажіть країну, з якої ви підключаєтесь."
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "Щоб допомога була ефективнішою, до цього повідомлення буде прикріплено файл журналу застосунку. Ваші дані залишаться захищеними й конфіденційними, оскільки вони анонімізуються і надсилаються зашифрованим каналом."
+
+#. Button label for retrying problem report submission after a failure.
+msgctxt "support-view"
+msgid "Try again"
+msgstr "Повторити"
+
+#. Button label for updating the app to the latest version.
+msgctxt "support-view"
+msgid "Update app"
+msgstr "Оновити застосунок"
+
+#. Button label for opening app logs.
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "Переглянути журнали"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "Ми розглянемо цю проблему."
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "Ви збираєтеся надіслати звіт про проблему, не залишивши контактних даних. Якщо ви хочете отримати відповідь, введіть адресу електронної пошти."
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "Ви використовуєте стару версію застосунку. Перш ніж надсилати звіт, оновіть застосунок і перевірте, чи проблема не зникла."
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "Ваша адреса ел. пошти (необов’язково)"
+
+msgctxt "tray-icon-context-menu"
+msgid "Disconnected from system service"
+msgstr "Відключено від системної служби"
+
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "Відкрити %(mullvadVpn)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "%(city)s, %(country)s"
+msgstr "%(city)s, %(country)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connected. %(location)s"
+msgstr "Підключено. %(location)s"
+
+msgctxt "tray-icon-tooltip"
+msgid "Connecting. %(location)s"
+msgstr "Підключення. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "Вимкнути роздільне тунелювання"
+
+msgctxt "troubleshoot"
+msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Увімкніть «Повний доступ до диска» для Mullvad VPN у системних налаштуваннях macOS."
+
+msgctxt "troubleshoot"
+msgid "Failed to enable split tunneling. This is because the app is missing system permissions. What you can do:"
+msgstr "Не вдалося ввімкнути роздільне тунелювання: застосунку бракує системних дозволів. Що можна зробити:"
+
+msgctxt "troubleshoot"
+msgid "If these steps do not work please send a problem report."
+msgstr "Якщо це не допоможе, надішліть звіт про проблему."
+
+msgctxt "troubleshoot"
+msgid "Make sure you have NF tables support."
+msgstr "Переконайтесь, що у вас підтримується Nftables."
+
+msgctxt "troubleshoot"
+msgid "Open system settings"
+msgstr "Відкрити налаштування системи"
+
+msgctxt "troubleshoot"
+msgid "This error can happen when something other than Mullvad is actively updating the DNS."
+msgstr "Ця помилка може статись, коли сторонній застосунок (не Mullvad) активно оновлює DNS."
+
+msgctxt "troubleshoot"
+msgid "This might be caused by an outdated kernel."
+msgstr "Причиною може бути застаріле ядро."
+
+msgctxt "troubleshoot"
+msgid "Try reconnecting."
+msgstr "Спробуйте перепідключитись."
+
+msgctxt "troubleshoot"
+msgid "Try restarting your device."
+msgstr "Спробуйте перезапустити пристрій."
+
+msgctxt "troubleshoot"
+msgid "Try to reinstall VMware."
+msgstr "Спробуйте перевстановити VMware."
+
+msgctxt "troubleshoot"
+msgid "Try to turn Wi-Fi Calling off in the FaceTime app settings and restart the Mac."
+msgstr "Спробуйте вимкнути Wi-Fi-виклики в налаштуваннях застосунку FaceTime і перезапустити Mac."
+
+msgctxt "troubleshoot"
+msgid "Try to uninstall VMware."
+msgstr "Спробуйте видалити VMware."
+
+msgctxt "troubleshoot"
+msgid "Unable to communicate with Mullvad kernel driver."
+msgstr "Не вдалося зв’язатися з драйвером ядра Mullvad."
+
+msgctxt "troubleshoot"
+msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
+msgstr "Не вдалося запустити тунельне підключення через збій під час створення тунельного пристрою. Часто причиною є конфлікти з VMware Bridge Protocol."
+
+msgctxt "troubleshoot"
+msgid "Uninstall or disable other DNS, networking and ads/website blocking apps."
+msgstr "Видаліть або вимкніть інші DNS, мережеві застосунки й блокувальники реклами й сайтів."
+
+msgctxt "troubleshoot"
+msgid "Update your kernel."
+msgstr "Оновіть ядро."
+
+msgctxt "tunnel-control"
+msgid "Connect"
+msgstr "Підключити"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "Змінити розташування"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map"
+msgstr "Анімувати карту"
+
+msgctxt "user-interface-settings-view"
+msgid "Animate map movements."
+msgstr "Анімувати переміщення карти."
+
+msgctxt "user-interface-settings-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "Увімкнути або вимкнути системні сповіщення. Критичні сповіщення завжди показуватимуться."
+
+msgctxt "user-interface-settings-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "Дозволяє переміщувати застосунок як незакріплене вікно."
+
+#. Navigation button to the 'Language' settings view
+msgctxt "user-interface-settings-view"
+msgid "Language"
+msgstr "Мова"
+
+msgctxt "user-interface-settings-view"
+msgid "Monochromatic tray icon"
+msgstr "Чорно-білий значок в області сповіщень"
+
+msgctxt "user-interface-settings-view"
+msgid "Notifications"
+msgstr "Сповіщення"
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "Під час запуску застосунку показувати лише значок в області сповіщень."
+
+msgctxt "user-interface-settings-view"
+msgid "Start minimized"
+msgstr "Запускати згорнутим"
+
+msgctxt "user-interface-settings-view"
+msgid "Unpin app from taskbar"
+msgstr "Відкріпити застосунок від панелі задач"
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "Чорно-білий значок в області сповіщень замість кольорового."
+
+#. Title label in navigation bar
+msgctxt "user-interface-settings-view"
+msgid "User interface settings"
+msgstr "Налаштування інтерфейсу"
+
+msgctxt "vpn-settings-view"
+msgid "Add a server"
+msgstr "Додати сервер"
+
+#. Button label to add a private IP DNS server despite warning.
+msgctxt "vpn-settings-view"
+msgid "Add anyway"
+msgstr "Усе одно додати"
+
+#. Label for settings that enables ad blocking.
+msgctxt "vpn-settings-view"
+msgid "Ads"
+msgstr "Реклама"
+
+#. Label for settings that enables block of adult content.
+msgctxt "vpn-settings-view"
+msgid "Adult content"
+msgstr "Контент для дорослих"
+
+#. Label for list item that navigates to anti-censorship
+#. settings view.
+msgctxt "vpn-settings-view"
+msgid "Anti-censorship"
+msgstr "Обхід цензури"
+
+msgctxt "vpn-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "Увага: якщо ви активуєте цю опцію, доступ до Інтернету буде можливий лише через Mullvad VPN."
+
+msgctxt "vpn-settings-view"
+msgid "Attention: this setting cannot be used in combination with <b>%(customDnsFeatureName)s</b>"
+msgstr "Увага: цей параметр і параметр <b>%(customDnsFeatureName)s</b> не можна використовувати разом"
+
+msgctxt "vpn-settings-view"
+msgid "Auto-connect"
+msgstr "Автопідключення"
+
+msgctxt "vpn-settings-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "Автоматично підключатися до сервера, коли запускається застосунок."
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "<b></b>" will appear bold.
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "vpn-settings-view"
+msgid "Disable \"%(customDnsFeatureName)s\" below to activate these settings."
+msgstr "Вимкніть параметр «%(customDnsFeatureName)s», щоб активувати ці налаштування."
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled.
+#. Available placeholders:
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "vpn-settings-view"
+msgid "Disable all <b>DNS content blockers</b> above to activate this setting."
+msgstr "Вимкніть всі <b>DNS-блокувальники контенту</b>, щоб активувати цей параметр."
+
+msgctxt "vpn-settings-view"
+msgid "DNS content blockers"
+msgstr "DNS-блокувальники контенту"
+
+msgctxt "vpn-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "Щоб додати хоча б один DNS-сервер, увімкніть цей параметр."
+
+#. Description of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "Enable to allow IPv6 traffic through the tunnel."
+msgstr "Щоб дозволити передачу IPv6-трафіку через тунель, увімкніть цей параметр."
+
+msgctxt "vpn-settings-view"
+msgid "Enter IP"
+msgstr "Введіть IP-адресу"
+
+#. Label for settings that enables block of gamling related websites.
+msgctxt "vpn-settings-view"
+msgid "Gambling"
+msgstr "Азартні ігри"
+
+#. Title of in-tunnel IPv6 setting.
+msgctxt "vpn-settings-view"
+msgid "In-tunnel IPv6"
+msgstr "IPv6 у тунелі"
+
+msgctxt "vpn-settings-view"
+msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
+msgstr "IPv4 завжди ввімкнено. Більшість сайтів і застосунків використовують саме цей протокол. Не рекомендуємо вмикати IPv6 крім випадків, коли ви точно знаєте, що він вам потрібен."
+
+#. A complimentary description for the setting Device IP version,
+#. explaining why the user might want to configure the setting.
+msgctxt "vpn-settings-view"
+msgid "It can be useful when you are aware of problems caused by a certain IP version."
+msgstr "Може бути корисно, коли ви знаєте про проблеми, спричинені певною версією IP."
+
+msgctxt "vpn-settings-view"
+msgid "It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:"
+msgstr "Це досягається завдяки дозволу мережевої взаємодії поза тунелем із локальними мультикастовими й широкомовними діапазонами, а також із цими діапазонами приватних IP-адрес:"
+
+msgctxt "vpn-settings-view"
+msgid "Kill switch"
+msgstr "Аварійний вимикач"
+
+msgctxt "vpn-settings-view"
+msgid "Launch app on start-up"
+msgstr "Автозапуск під час завантаження системи"
+
+msgctxt "vpn-settings-view"
+msgid "Local network sharing"
+msgstr "Обмін даними в локальній мережі"
+
+msgctxt "vpn-settings-view"
+msgid "Lockdown mode"
+msgstr "Режим блокування"
+
+#. Label for settings that enables malware blocking.
+msgctxt "vpn-settings-view"
+msgid "Malware"
+msgstr "Шкідливе ПЗ"
+
+msgctxt "vpn-settings-view"
+msgid "Server IP override"
+msgstr "Перевизначення IP-адреси сервера"
+
+#. Label for settings that enables block of social media.
+msgctxt "vpn-settings-view"
+msgid "Social media"
+msgstr "Соцмережі"
+
+msgctxt "vpn-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "Аварійний вимикач, вбудований у застосунок, завжди увімкнений. Цей параметр додатково блокує Інтернет у разі натискання на «Відключити» або «Вийти»."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents."
+msgstr "Різниця між аварійним вимикачем і режимом блокування полягає в тому, що аварійний вимикач запобігає витокам у разі автоматичного перепідключення тунелю, збоїв ПЗ й інших подібних ситуацій."
+
+msgctxt "vpn-settings-view"
+msgid "The difference between the Kill Switch and Lockdown Mode is that the Kill Switch will prevent any leaks from happening during automatic tunnel reconnects, software crashes and similar accidents. With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "Різниця між аварійним вимикачем і режимом блокування полягає в тому, що аварійний вимикач запобігає витокам у разі автоматичного перепідключення тунелю, збоїв ПЗ й інших подібних ситуацій. Якщо у вас активовано режим блокування, ви маєте бути підключені до сервера Mullvad VPN, щоб отримати доступ до Інтернету. Ручне відключення або вихід із застосунку заблокує з’єднання."
+
+msgctxt "vpn-settings-view"
+msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
+msgstr "DNS-сервер, який ви додаєте, є приватною IP-адресою. Переконайтеся, що ваші мережеві інтерфейси налаштовані для його використання."
+
+msgctxt "vpn-settings-view"
+msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
+msgstr "Ця вбудована функція запобігає витоку вашого трафіку за межі VPN-тунелю в разі раптового збою мережі або помилки тунелю. Вона робить це, блокуючи трафік до відновлення підключення."
+
+msgctxt "vpn-settings-view"
+msgid "This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc."
+msgstr "Функція забезпечує доступ до інших пристроїв у локальній мережі, наприклад для обміну файлами, друку, потокового передавання тощо."
+
+#. A description for the setting Device IP version,
+#. explaining how the user can configure the setting.
+msgctxt "vpn-settings-view"
+msgid "This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server."
+msgstr "Ця функція дає змогу вибирати протокол, який використовується, — лише IPv4, лише IPv6 — або дозволити застосунку автоматично визначати найкращий варіант під час підключення до сервера."
+
+msgctxt "vpn-settings-view"
+msgid "This might cause issues on certain websites, services, and apps."
+msgstr "Це може викликати проблеми під час використання певних вебсайтів, сервісів або застосунків."
+
+#. Label for settings that enables tracker blocking.
+msgctxt "vpn-settings-view"
+msgid "Trackers"
+msgstr "Трекери"
+
+msgctxt "vpn-settings-view"
+msgid "Use custom DNS server"
+msgstr "Використовувати користувацький DNS-сервер"
+
+#. Title label in navigation bar
+msgctxt "vpn-settings-view"
+msgid "VPN settings"
+msgstr "Налаштування VPN"
+
+msgctxt "vpn-settings-view"
+msgid "Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection."
+msgstr "Увага: блокувальник шкідливого ПЗ не є антивірусом і не повинен сприйматися як такий — це лише додатковий рівень захисту."
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Коли ця функція ввімкнена, пристрій припиняє зв’язок із певними доменами або вебсайтами, які поширюють рекламу, шкідливі програми, трекери тощо."
+
+msgctxt "vpn-settings-view"
+msgid "When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services."
+msgstr "Коли ця функція ввімкнена, IPv6 може використовуватися разом з IPv4 у VPN-тунелі для зв’язку з інтернет-сервісами."
+
+msgctxt "vpn-settings-view"
+msgid "With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection."
+msgstr "Якщо у вас активовано режим блокування, ви маєте бути підключені до сервера Mullvad VPN, щоб отримати доступ до Інтернету. Ручне відключення або вихід із застосунку заблокує з’єднання."
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s) приховує патерни в зашифрованому VPN-трафіку."
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "Для цього %(daita)s додає мережевий шум й уніфікує розмір усіх пакетів."
+
+msgctxt "wireguard-settings-view"
+msgid "%(wireguard)s port"
+msgstr "Порт %(wireguard)s"
+
+#. Page title for WireGuard port view
+msgctxt "wireguard-settings-view"
+msgid "%(wireGuard)s port"
+msgstr "Порт %(wireGuard)s"
+
+msgctxt "wireguard-settings-view"
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Увага: це збільшує мережевий трафік і негативно впливає на швидкість, збільшує затримки й зменшує час роботи батареї. Використовуйте обережно в разі обмежених тарифних планів."
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "Після ввімкнення параметра «%(directOnly)s» вам потрібно вручну вибрати сервер із підтримкою %(daita)s. До вибору сумісного сервера в розділі «Вибір розташування» ви можете бути заблоковані."
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "За допомогою складних алгоритмів ШІ можна аналізувати вхідний і вихідний трафік пакетів даних вашого пристрою (навіть якщо трафік зашифровано)."
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "Скасувати"
+
+#. Title for device IP version setting.
+msgctxt "wireguard-settings-view"
+msgid "Device IP version"
+msgstr "Версія IP на пристрої"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "У разі моніторингу цих пакетів даних %(daita)s значно ускладнює визначення того, які вебсайти ви відвідуєте або з ким спілкуєтеся."
+
+msgctxt "wireguard-settings-view"
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption."
+msgstr "Це досягається шляхом виконання додаткового обміну ключами з використанням квантово-стійкого алгоритму та інтеграції його результату в стандартне шифрування WireGuard."
+
+#. The title for the WireGuard MTU setting. MTU stands for Maximum
+#. Transmission Unit and controls the maximum size of packets sent over
+#. the VPN tunnel.
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "Подвійний VPN"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop is being used to enable DAITA for your selected location"
+msgstr "Подвійний VPN використовується, щоб увімкнути DAITA для вибраного розташування"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "Подвійний VPN спрямовує ваш трафік з одного сервера WireGuard на інший, що ускладнює відстеження. Це збільшує затримку, але підвищує анонімність в Інтернеті."
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "Не всі наші сервери підтримують %(daita)s. Щоб отримати доступ в Інтернет, вам, імовірно, доведеться вибрати нове розташування після ввімкнення цієї функції."
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "Не всі наші сервери підтримують %(daita)s. Тому ми автоматично використовуємо подвійний VPN, щоб функція %(daita)s працювала з будь-яким сервером."
+
+#. The title for the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr "Порт"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "Порт: %(port)s"
+
+#. The title for the WireGuard quantum resistance selector. This setting
+#. makes the cryptography resistant to the future abilities of quantum
+#. computers.
+msgctxt "wireguard-settings-view"
+msgid "Quantum-resistant tunnel"
+msgstr "Квантово-стійкий тунель"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(wireguard)s - Will be replaced with the string "WireGuard"
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
+msgstr "Установіть значення MTU для %(wireguard)s. Допустимий діапазон: %(min)d–%(max)d."
+
+msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "В автоматичному режимі порт у випадковому порядку вибирається з допустимих діапазонів, зазначених нижче."
+
+msgctxt "wireguard-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Користувацький порт може мати будь-яке значення в межах дійсних діапазонів: %(portRanges)s."
+
+msgctxt "wireguard-settings-view"
+msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
+msgstr "Ця функція робить тунель WireGuard стійким до потенційних атак із використанням квантових комп’ютерів."
+
+msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "Допустимий діапазон: %(min)s–%(max)s"
+
+msgctxt "wireguard-settings-view"
+msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
+msgstr "TCP-порт, до якого повинен підключатися протокол обфускації UDP-over-TCP на VPN-сервері."
+
+msgid "%1$s more..."
+msgstr "Ще %1$s…"
+
+msgid "%1$s was added to \"%2$s\""
+msgstr "Розташування %1$s додано до списку «%2$s»"
+
+msgid "%1$s was removed from \"%2$s\""
+msgstr "Розташування %1$s вилучено зі списку «%2$s»"
+
+msgid "%1$s, %2$s, %3$s"
+msgstr "%1$s, %2$s, %3$s"
+
+msgid "%s (Entry)"
+msgstr "%s (вхід)"
+
+msgid "%s (Exit)"
+msgstr "%s (вихід)"
+
+msgid "%s (added)"
+msgstr "%s (додано)"
+
+msgid "%s (removed)"
+msgstr "%s (вилучено)"
+
+msgid "%s is already selected as entry relay"
+msgstr "%s уже вибрано як вхідний ретранслятор"
+
+msgid "%s is already selected as exit relay"
+msgstr "%s уже вибрано як вихідний ретранслятор"
+
+msgid "%s is unavailable"
+msgstr "%s недоступно"
+
+msgid "%s settings."
+msgstr "Налаштування %s."
+
+msgid "%s was added to your account."
+msgstr "На баланс облікового запису додано: %s."
+
+msgid "(%d)"
+msgstr "(%d)"
+
+msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
+msgstr "1. Після натискання кнопки «До налаштувань VPN» нижче натисніть значок шестерні поруч із пунктом Mullvad VPN."
+
+msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
+msgstr "2. Щоб увімкнути автопідключення, натисніть перемикач поруч із пунктом «Завжди увімкнений VPN»."
+
+msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Щоб увімкнути режим блокування, натисніть перемикач поряд із пунктом «Блокувати з’єднання без VPN».<br /><br /><b>Увага: цей параметр блокує застосунки, до яких застосовано роздільне тунелювання, і функцію «Обмін даними в локальній мережі».</b>"
+
+msgid "30 days was added to your account."
+msgstr "На баланс облікового запису додано 30 днів."
+
+msgid "90 days was added to your account."
+msgstr "На баланс облікового запису додано 90 днів."
+
+msgid "<b>Account recovery will not be possible.</b>"
+msgstr "<b>Відновлення облікового запису буде неможливим.</b>"
+
+msgid "<b>Attention:</b> Only some servers support the full port range."
+msgstr "<b>Увага:</b> повний діапазон портів підтримують лише деякі сервери."
+
+msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr "<b>Увага:</b> після вибору нового значка й назви застосунок автоматично закриється і повинен бути ввімкнений вручну. Це не вплине на ваше VPN-з’єднання."
+
+msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
+msgstr "<b>Зауважте, що ці методи не покращують продуктивності й можуть збільшити навантаження на систему та споживання заряду батареї.</b>"
+
+msgid "<b>This action cannot be undone.</b>"
+msgstr "<b>Цю дію не можна скасувати.</b>"
+
+msgid "<b>Warning:</b>"
+msgstr "<b>Увага:</b>"
+
+msgid "<b>You will lose access to this account on all devices.</b>"
+msgstr "<b>Ви втратите доступ до цього облікового запису на всіх пристроях.</b>"
+
+msgid "API reachable, adding method..."
+msgstr "Є доступ до API, додаємо метод…"
+
+msgid "API unreachable, save method anyway?"
+msgstr "Немає доступу до API. Усе одно зберегти метод?"
+
+msgid "Account credit expires in a few minutes"
+msgstr "Баланс облікового запису закінчується за кілька хвилин"
+
+msgid "Account deleted"
+msgstr "Обліковий запис видалено"
+
+msgid "Account number is too long, please enter a valid number"
+msgstr "Задовгий номер облікового запису, введіть дійсний номер"
+
+msgid "Account number must match"
+msgstr "Номер облікового запису має збігатись"
+
+msgid "Account recovery will not be possible."
+msgstr "Відновлення облікового запису буде неможливим."
+
+msgid "Account time reminders"
+msgstr "Нагадування про час, який залишився"
+
+msgid "Add 30 days time (%s)"
+msgstr "Додати 30 днів (%s)"
+
+msgid "Add 90 days time (%s)"
+msgstr "Додати 90 днів (%s)"
+
+msgid "Add DNS server"
+msgstr "Додати DNS-сервер"
+
+msgid "Add locations"
+msgstr "Додати розташування"
+
+msgid "Add time"
+msgstr "Додати час"
+
+msgid "Add to list"
+msgstr "Додати до списку"
+
+msgid "Adding method..."
+msgstr "Додавання методу..."
+
+msgid "After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet."
+msgstr "Після оновлення VPN-застосунку на Android 16 на деяких пристроях VPN-застосунки можуть перестати отримувати доступ до Інтернету."
+
+msgid "Agree and continue"
+msgstr "Погодитись і продовжити"
+
+msgid "All"
+msgstr "Усі"
+
+msgid "All applications"
+msgstr "Усі застосунки"
+
+msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
+msgstr "Усі перевизначення буде скинуто, а IP-адреси серверів у розділі «Вибір розташування» повернуться до значень за замовчуванням."
+
+msgid "Always-on VPN assigned to %s"
+msgstr "Опція «Завжди увімкнений VPN» призначена для %s"
+
+msgid "Always-on VPN assigned to other VPN"
+msgstr "Опція «Завжди увімкнений VPN» призначена іншому VPN"
+
+msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
+msgstr "В Android 16 є відома проблема. Перезапустіть пристрій і спробуйте ще раз. Щоб дізнатися більше,"
+
+msgid "Any remaining time will be null and void."
+msgstr "Час, що залишився, буде анульовано."
+
+msgid "Appearance"
+msgstr "Зовнішній вигляд"
+
+msgid "Applying changes..."
+msgstr "Зміни застосовуються…"
+
+msgid "Are you sure you want to log <b>%s</b> out?"
+msgstr "Справді вийти з профілю на пристрої <b>%s</b>?"
+
+msgid "At least one method needs to be enabled"
+msgstr "Потрібно ввімкнути щонайменше один метод"
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr "Увага: якщо ввімкнено функцію «Блокувати з’єднання без VPN», обмін даними в локальній мережі не працюватиме."
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "Увага: якщо ввімкнено функцію «Блокувати з’єднання без VPN», застосунки, до яких застосовано роздільне тунелювання, не працюватимуть. Пам’ятайте, що роздільне тунелювання несе ризик для конфіденційності."
+
+msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
+msgstr "Увага: цей параметр не можна використовувати з опцією «Використовувати користувацький DNS-сервер»."
+
+msgid "Auto-connect & Lockdown mode"
+msgstr "Автопідключення і режим блокування"
+
+msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr "В налаштуваннях системи Android автопідключення називається «Завжди увімкнений VPN». Ця функція підтримує постійне з’єднання з VPN-тунелем і автоматично відновлює підключення після перезавантаження."
+
+msgid "Automatically connect on device start-up."
+msgstr "Автоматичне підключення під час запуску пристрою."
+
+msgid "Blocking internet (device offline)"
+msgstr "Інтернет заблоковано (пристрій офлайн)"
+
+msgid "Blocking..."
+msgstr "Блокування…"
+
+msgid "Browser"
+msgstr "Браузер"
+
+msgid "By attaching your account token it links this report to your account, which helps us resolve your issue quicker. All reports are automatically deleted after a period of time."
+msgstr "Якщо ви прикріпите токен свого облікового запису, цей звіт буде прив’язано до вашого облікового запису і ми зможемо швидше розв’язати вашу проблему. Усі звіти автоматично видаляються через деякий час."
+
+msgid "By checking this box I agree to the risks involved with deleting my account"
+msgstr "Поставивши прапорець, я приймаю ризики пов’язані з видаленням облікового запису"
+
+msgid "Can't connect?"
+msgstr "Не можете підключитися?"
+
+msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
+msgstr "Змініть назву й значок застосунку Mullvad VPN на своєму пристрої Android. Це не вплине на значок сповіщень, пов’язаних із Mullvad VPN."
+
+msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
+msgstr "Зміни в налаштуваннях, пов’язаних із DNS, можуть не набрати чинності одразу через кешовані результати."
+
+msgid "Clear input"
+msgstr "Очистити поле введення"
+
+msgid "Collapse"
+msgstr "Згорнути"
+
+msgid "Connect on device start-up"
+msgstr "Підключатися під час запуску пристрою"
+
+msgid "Connect to a different network"
+msgstr "Підключитися до іншої мережі"
+
+msgid "Connecting..."
+msgstr "Підключення..."
+
+msgid "Continue"
+msgstr "Продовжити"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "Номер облікового запису Mullvad скопійовано в буфер обміну"
+
+msgid "Copied logs to clipboard"
+msgstr "Журнали скопійовано в буфер обміну"
+
+msgid "Copy"
+msgstr "Копіювати"
+
+msgid "Could not display remaining days."
+msgstr "Не вдалося показати, скільки днів залишилось."
+
+msgid "Create"
+msgstr "Створити"
+
+msgid "Create new list"
+msgstr "Створення нового списку"
+
+msgid "Creating account failed"
+msgstr "Не вдалося створити обліковий запис"
+
+msgid "Critical error (your attention is required)"
+msgstr "Критична помилка (потрібна ваша увага)"
+
+msgid "Current: %s"
+msgstr "Поточний: %s"
+
+msgid "Custom DNS server addresses %1$s are invalid"
+msgstr "Недійсні адреси користувацького DNS-сервера %1$s"
+
+msgid "DNS settings might not go into effect immediately"
+msgstr "Налаштування DNS можуть не зразу набути чинності"
+
+msgid "Delete \"%s\"?"
+msgstr "Видалити «%s»?"
+
+msgid "Delete account"
+msgstr "Видалити обл. запис"
+
+msgid "Delete method"
+msgstr "Видалити метод"
+
+msgid "Delete method?"
+msgstr "Видалити метод?"
+
+msgid "Deleting your account cannot be undone."
+msgstr "Видалення облікового запису не можна скасувати."
+
+msgid "Deleting your account:"
+msgstr "Якщо ви видалите обліковий запис:"
+
+msgid "Direct"
+msgstr "Напряму"
+
+msgid "Disable all \"%s\" above to activate this setting."
+msgstr "Вимкніть усі %s вище, щоб активувати цей параметр."
+
+msgid "Disable multihop"
+msgstr "Вимкнути подвійний VPN"
+
+msgid "Disable recents"
+msgstr "Вимкнути нещодавні"
+
+msgid "Discard"
+msgstr "Скинути"
+
+msgid "Discard changes?"
+msgstr "Скинути зміни?"
+
+msgid "Disconnected (No VPN permission)"
+msgstr "Відключено (немає дозволу для VPN)"
+
+msgid "Disconnecting..."
+msgstr "Відключення..."
+
+msgid "Dismiss"
+msgstr "Закрити"
+
+msgid "Don’t have an account number?"
+msgstr "Немає номера облікового запису?"
+
+msgid "Edit custom lists"
+msgstr "Редагування користувацьких списків"
+
+msgid "Edit list"
+msgstr "Редагування списку"
+
+msgid "Edit lists"
+msgstr "Редагувати списки"
+
+msgid "Edit locations"
+msgstr "Редагувати розташування"
+
+msgid "Edit name"
+msgstr "Редагувати ім’я"
+
+msgid "Enable %1$s"
+msgstr "Увімкнути режим «%1$s»"
+
+msgid "Enable all & retry"
+msgstr "Увімкнути все й повторити"
+
+msgid "Enable all access methods in the app"
+msgstr "Увімкнути всі методи доступу в застосунку"
+
+msgid "Enable method"
+msgstr "Увімкнути метод"
+
+msgid "Enable multihop"
+msgstr "Увімкнути подвійний VPN"
+
+msgid "Enable recents"
+msgstr "Увімкнути нещодавні"
+
+msgid "Enter MTU"
+msgstr "Введіть MTU"
+
+msgid "Enter account number digits"
+msgstr "Введіть номер облікового запису"
+
+msgid "Entry relay is the same as exit relay"
+msgstr "Вхідний ретранслятор збігається з вихідним"
+
+msgid "Excluded applications"
+msgstr "Виключені застосунки"
+
+msgid "Expand"
+msgstr "Розгорнути"
+
+msgid "External link"
+msgstr "Зовнішнє посилання"
+
+msgid "FAILED TO CONNECT"
+msgstr "ПОМИЛКА ПІДКЛЮЧЕННЯ"
+
+msgid "Failed to apply patch"
+msgstr "Не вдалося застосувати патч"
+
+msgid "Failed to delete account, please contact support"
+msgstr "Не вдалося видалити обліковий запис, зверніться до служби підтримки"
+
+msgid "Failed to load products, please try again"
+msgstr "Не вдалося завантажити продукти, спробуйте ще раз"
+
+msgid "Failed to set to current - API not reachable"
+msgstr "Не вдалося встановити як поточний метод: немає доступу до API"
+
+msgid "Failed to set to current - Unknown reason"
+msgstr "Не вдалося встановити як поточний метод: невідома причина"
+
+msgid "File"
+msgstr "Файл"
+
+msgid "For details, please see our %s."
+msgstr "Більше інформації тут: %s."
+
+msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr "Щоб VPN автоматично підключався під час запуску пристрою, застосунку потрібні дозволи на використання VPN. Щоб надати їх, натисніть «Підключити» на карті, а потім — «OK» (за потреби). Також переконайтеся, що застосунок установлено у внутрішній пам’яті пристрою — це можна побачити у відомостях про застосунок у налаштуваннях системи."
+
+msgid "Go to VPN settings"
+msgstr "До налаштувань VPN"
+
+msgid "Going to login will unblock the internet on this device."
+msgstr "Вхід у профіль розблокує Інтернет на цьому пристрої."
+
+msgid "Google Play payment pending"
+msgstr "Очікується оплата в Google Play"
+
+msgid "Google Play payment pending, this might take some time"
+msgstr "Очікується оплата в Google Play. Це може зайняти якийсь час"
+
+msgid "Google Play unavailable"
+msgstr "Google Play недоступний"
+
+msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
+msgstr "Протокол IPv4 недоступний, спробуйте змінити «Налаштування версії IP» на пристрої."
+
+msgid "IPv6 is not available, please try changing \"Device IP version\" setting."
+msgstr "Протокол IPv6 недоступний, спробуйте змінити «Налаштування версії IP» на пристрої."
+
+msgid "Icon and title"
+msgstr "Значок і назва"
+
+msgid "If the icon and title is still not changed after the app has closed, please try restarting the device."
+msgstr "Якщо значок і назва не зміняться після закриття застосунку, спробуйте перезапустити пристрій."
+
+msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
+msgstr "Якщо використовується функція роздільного тунелювання, застосунок запитує в системи список усіх установлених застосунків. Цей список доступний лише в поданні роздільного тунелювання і ніколи не надсилається з пристрою."
+
+msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
+msgstr "Якщо запропоновані дії не спрацювали, надішліть електронний лист службі підтримки, натиснувши кнопку нижче. Журнали будуть автоматично додані й анонімізовані."
+
+msgid "Import new overrides by"
+msgstr "Імпорт нових перевизначень:"
+
+msgid "Import successful, overrides active"
+msgstr "Імпорт виконано, перевизначення активні"
+
+msgid "Importing new overrides might replace some previously imported overrides."
+msgstr "Імпорт нових перевизначень може замінити перевизначення, які імпортувалися раніше."
+
+msgid "In-app products unavailable, please make sure you have the latest version of Google Play."
+msgstr "Покупки в застосунку недоступні. Перевірте, чи встановлено останню версію Google Play."
+
+msgid "Include my account token for faster help with payment or account related issues"
+msgstr "Додати токен мого облікового запису, щоб прискорити вирішення проблем з оплатою чи обліковим записом"
+
+msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr "Помилка конфігурації IPv6, спробуйте змінити налаштування VPN."
+
+msgid "Invalid or missing value \"%1$s\""
+msgstr "Недопустиме або відсутнє значення «%1$s»"
+
+msgid "It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established."
+msgstr "Це досягається шляхом виконання додаткового обміну ключами з використанням квантово-стійкого алгоритму й інтеграції його результату в стандартне шифрування WireGuard. Цей додатковий крок використовує приблизно 500 КіБ трафіку щоразу, коли створюється новий тунель."
+
+msgid "Less than a day left on this account"
+msgstr "На балансі облікового запису залишилося менше ніж один день"
+
+msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
+msgstr "Дозволяє вибирати застосунки, які повинні отримувати доступ до Інтернету напряму без використання VPN-тунелю."
+
+msgid "List name"
+msgstr "Ім’я списку"
+
+msgid "Loading products"
+msgstr "Завантаження продуктів"
+
+msgid "Locations"
+msgstr "Розташування"
+
+msgid "Locations were changed for \"%s\""
+msgstr "Розташування змінено для «%s»"
+
+msgid "Log in"
+msgstr "Увійти"
+
+msgid "Makes sure the device is always on the VPN tunnel."
+msgstr "Підтримує постійне підключення пристрою до VPN-тунелю."
+
+msgid "More actions"
+msgstr "Додаткові дії"
+
+msgid "Mullvad services unavailable"
+msgstr "Сервіси Mullvad недоступні"
+
+msgid "Multihop is disabled"
+msgstr "Подвійний VPN вимкнено"
+
+msgid "Multihop is enabled"
+msgstr "Подвійний VPN увімкнено"
+
+msgid "Name was changed to %s"
+msgstr "Ім’я змінено на %s"
+
+msgid "Navigate"
+msgstr "Перейти"
+
+msgid "New list"
+msgstr "Новий список"
+
+msgid "No Android app store installed, could not open link"
+msgstr "Не вдалося відкрити посилання: магазин застосунків Android не встановлено"
+
+msgid "No browser app installed, could not open link"
+msgstr "Не вдалося відкрити посилання: браузер не встановлено"
+
+msgid "No changelog was added for this version"
+msgstr "Для цієї версії не додано журналу змін"
+
+msgid "No custom lists available"
+msgstr "Немає користувацьких списків"
+
+msgid "No email app available on the device"
+msgstr "На пристрої немає застосунку для роботи з ел. поштою"
+
+msgid "No entry server match your settings, try changing server or other settings."
+msgstr "Жоден сервер входу не відповідає налаштуванням, спробуйте змінити сервер чи інші параметри."
+
+msgid "No exit server match your settings, try changing server or other settings."
+msgstr "Жоден сервер виходу не відповідає налаштуванням, спробуйте змінити сервер чи інші параметри."
+
+msgid "No internet connection"
+msgstr "Немає підключення до Інтернету"
+
+msgid "No matching servers found."
+msgstr "Не знайдено відповідних серверів."
+
+msgid "No recent selection history"
+msgstr "Немає нещодавньої історії вибору"
+
+msgid "No result for \"%s\", please try a different search"
+msgstr "За запитом «%s» нічого не знайдено, спробуйте інший запит"
+
+msgid "Not found"
+msgstr "Не знайдено"
+
+msgid "Notes"
+msgstr "Примітки"
+
+msgid "Notification settings"
+msgstr "Налаштування сповіщень"
+
+msgid "Open app details"
+msgstr "Відкрити відомості про застосунок"
+
+msgid "Overrides active"
+msgstr "Перевизначення активні"
+
+msgid "Overrides cleared"
+msgstr "Перевизначення видалені"
+
+msgid "Overrides inactive"
+msgstr "Перевизначення неактивні"
+
+msgid "Password (optional)"
+msgstr "Пароль (необов’язково)"
+
+msgid "Paste or write overrides to be imported"
+msgstr "Вставте або напишіть перевизначення для імпорту"
+
+msgid "Patch not matching specification"
+msgstr "Патч не відповідає специфікації"
+
+msgid "Please enter a valid IPv4 or IPv6 address"
+msgstr "Введіть дійсну адресу IPv4 або IPv6"
+
+msgid "Please enter a valid remote server port"
+msgstr "Введіть дійсний порт віддаленого сервера"
+
+msgid "Please press connect to request VPN permission"
+msgstr "Щоб запросити дозвіл для VPN, натисніть «Підключити»"
+
+msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
+msgstr "Перезавантажте пристрій і спробуйте підключитися ще раз. Якщо це не допоможе, напишіть листа шведською або англійською на адресу %s."
+
+msgid "Please try changing your filters."
+msgstr "Спробуйте змінити фільтри."
+
+msgid "Privacy"
+msgstr "Конфіденційність"
+
+msgid "Privacy policy"
+msgstr "Політика конфіденційності"
+
+msgid "Recents"
+msgstr "Нещодавні"
+
+msgid "Recents disabled and history cleared"
+msgstr "Нещодавні вимкнено, історію очищено"
+
+msgid "Recursion limit"
+msgstr "Ліміт рекурсії"
+
+msgid "Refunds will not be possible."
+msgstr "Ви не зможете повернути кошти."
+
+msgid "Remove %1$s from %2$s"
+msgstr "Вилучити розташування %1$s зі списку «%2$s»"
+
+msgid "Remove %s?"
+msgstr "Вилучити %s?"
+
+msgid "Remove custom port"
+msgstr "Вилучити користувацький порт"
+
+msgid "Reset"
+msgstr "Скинути"
+
+msgid "Reset all overrides"
+msgstr "Скинути всі перевизначення"
+
+msgid "Reset overrides"
+msgstr "Скинути перевизначення"
+
+msgid "Reset to default"
+msgstr "Скинути до значень за замовчуванням"
+
+msgid "Restart your device"
+msgstr "Перезавантажити пристрій"
+
+msgid "Search"
+msgstr "Пошук"
+
+msgid "Send email"
+msgstr "Надіслати лист"
+
+msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
+msgstr "Установіть значення MTU для WireGuard. Допустимий діапазон: %1$d–%2$d."
+
+msgid "Set as multihop entry"
+msgstr "Установити як вхід для подвійного VPN"
+
+msgid "Set as multihop entry (incompatible)"
+msgstr "Установити як вхід для подвійного VPN (несумісно)"
+
+msgid "Set as multihop exit"
+msgstr "Установити як вихід для подвійного VPN"
+
+msgid "Set as multihop exit (incompatible)"
+msgstr "Установити як вихід для подвійного VPN (несумісно)"
+
+msgid "Set port"
+msgstr "Установити порт"
+
+msgid "Share…"
+msgstr "Поділитися…"
+
+msgid "Show location in notification"
+msgstr "Показувати розташування в сповіщенні"
+
+msgid "Show system apps"
+msgstr "Показувати системні застосунки"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Показує поточний стан VPN-тунелю"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "Показує нагадування, коли час в обліковому записі закінчується"
+
+msgid "Submit"
+msgstr "Надіслати"
+
+msgid "TCP"
+msgstr "TCP"
+
+msgid "Test method"
+msgstr "Перевірити метод"
+
+msgid "Testing %s..."
+msgstr "Перевіряється метод «%s»…"
+
+msgid "Text"
+msgstr "Текст"
+
+msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
+msgstr "Дякуємо, що ви є частиною нашої спільноти.\\nУсі мають право на конфіденційність!"
+
+msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr "Налаштування автопідключення та режиму блокування можна знайти в системних налаштуваннях Android. Скористайтеся цією інструкцією, щоб увімкнути один або обидва параметри."
+
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr "DNS-сервер для IPv6 не працюватиме, якщо IPv6 не ввімкнено в налаштуваннях VPN."
+
+msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "У системних налаштуваннях Android режим блокування називається «Блокувати з’єднання без VPN». Він допомагає мінімізувати витоки, хоча має деякі обмеження, про які ви можете прочитати"
+
+msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr "«Поточний» метод — це метод, який застосунок використовує для доступу до API."
+
+msgid "The app is blocking internet, please disconnect first"
+msgstr "Застосунок блокує Інтернет, спочатку відключіться"
+
+msgid "The app was unable to create an account due to not being able to reach the Mullvad API."
+msgstr "Застосунку не вдалося створити обліковий запис через відсутність доступу до API Mullvad."
+
+msgid "The app was unable to login due to not being able to reach the Mullvad API."
+msgstr "Не вдалося виконати вхід в застосунок через відсутність доступу до API Mullvad."
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr "Локальний DNS-сервер не працюватиме, якщо в налаштуваннях VPN не ввімкнено «Обмін даними в локальній мережі»."
+
+msgid "The selected %s port is not supported, please change it under"
+msgstr "Вибраний порт %s не підтримується, змініть його в"
+
+msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
+msgstr "Ці методи можуть бути корисними в ситуаціях, коли у вас заблоковано доступ до Mullvad. Якщо вибрано «Автоматично», застосунок намагатиметься використовувати всі методи, доки один із них не спрацює."
+
+msgid "This address has already been entered."
+msgstr "Цю адресу вже введено."
+
+msgid "This field is required"
+msgstr "Це обов’язкове поле"
+
+msgid "This impacts your anonymity"
+msgstr "Це впливає на вашу анонімність"
+
+msgid "This is already set as current"
+msgstr "Цей метод уже встановлено як поточний"
+
+msgid "This might be due to censorship or network issues. Please try to:"
+msgstr "Причиною може бути цензура або проблеми з мережею. Спробуйте зробити таке:"
+
+msgid "Time added"
+msgstr "Час додано"
+
+msgid "To add locations to a list, press the pen or long press on a country, city, or server."
+msgstr "Для додавання розташувань у список натисніть значок олівця або натисніть й утримуйте країну, місто чи сервер."
+
+msgid "To create a custom list press the \"+\""
+msgstr "Щоб створити користувацький список, натисніть «+»"
+
+msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr "Щоб видалити свій обліковий запис Mullvad VPN, введіть номер облікового запису нижче."
+
+msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
+msgstr "Щоб переконатися, що у вас установлена найбезпечніша версія, і повідомляти про будь-які проблеми з поточною версією, застосунок автоматично перевіряє версії. Для цього дані про версію застосунку та версію Android надсилаються на сервери Mullvad. Mullvad веде підрахунок кількості використаних версій застосунку та Android. Ці дані ніколи не зберігаються і не використовуються в спосіб, що дозволяє ідентифікувати вашу особу."
+
+msgid "Toggle VPN"
+msgstr "Вимк./увімк. VPN"
+
+msgid "Too many attempts, please try again later"
+msgstr "Забагато спроб, спробуйте ще раз пізніше"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
+msgstr "Не вдалося застосувати правила брандмауера. Усуньте неполадки або надішліть звіт про проблему."
+
+msgid "Unable to parse patch"
+msgstr "Не вдалося проаналізувати патч"
+
+msgid "Unable to reach API"
+msgstr "Не вдалося підключитися до API"
+
+msgid "Unable to reach API, %s"
+msgstr "Не вдалося підключитися до API, %s"
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
+msgstr "Не вдалося запустити тунельне з’єднання. Вимкніть опцію «Завжди увімкнений VPN» перед використанням Mullvad VPN."
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
+msgstr "Не вдалося запустити тунельне з’єднання. Вимкніть опцію «Завжди увімкнений VPN» для <b>%s</b> перед використанням Mullvad VPN."
+
+msgid "Unable to verify account number, please contact support"
+msgstr "Не вдалося перевірити номер облікового запису, зверніться до служби підтримки"
+
+msgid "Unavailable"
+msgstr "Недоступно"
+
+msgid "Undo"
+msgstr "Скасувати"
+
+msgid "Unknown or prohibited key \"%1$s\""
+msgstr "Невідомий або заборонений ключ «%1$s»"
+
+msgid "Update DNS server"
+msgstr "Оновити DNS-сервер"
+
+msgid "Update list name"
+msgstr "Оновити назву списку"
+
+msgid "Update server list"
+msgstr "Оновити список серверів"
+
+msgid "Updating server list in the background..."
+msgstr "Фонове оновлення списку серверів…"
+
+msgid "Use method"
+msgstr "Використати метод"
+
+msgid "VPN Settings not available on device"
+msgstr "Налаштування VPN недоступні на пристрої"
+
+msgid "VPN permission error"
+msgstr "Помилка дозволу для VPN"
+
+msgid "VPN permission was denied"
+msgstr "Дозвіл на VPN відхилено"
+
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
+msgstr "Дозвіл на VPN відхилено або в іншому застосунку увімкнено опцію «Завжди увімкнений VPN»"
+
+msgid "VPN tunnel status"
+msgstr "Стан VPN-тунелю"
+
+msgid "Valid range for all servers: %s"
+msgstr "Допустимий діапазон для всіх серверів: %s"
+
+msgid "Valid ranges: %s"
+msgstr "Допустимі діапазони: %s"
+
+msgid "Value: %s"
+msgstr "Значення: %s"
+
+msgid "Verifying API method..."
+msgstr "Перевіряється метод API…"
+
+msgid "Verifying purchase"
+msgstr "Покупка перевіряється"
+
+msgid "Verifying purchase..."
+msgstr "Покупка перевіряється…"
+
+msgid "Verifying voucher…"
+msgstr "Ваучер перевіряється…"
+
+msgid "Warning"
+msgstr "Попередження"
+
+msgid "We are still verifying your purchase, this might take some time. Your time will be added if the verification is successful."
+msgstr "Ми досі перевіряємо вашу покупку, це може зайняти певний час. Щойно перевірку буде успішно завершено, час буде додано."
+
+msgid "We were unable to start the payment process, please make sure you have the latest version of Google Play."
+msgstr "Нам не вдалося запустити процес оплати — переконайтесь, що у вас установлена остання версія Google Play."
+
+msgid "We were unable to start the payment process, please try again later."
+msgstr "Нам не вдалося запустити процес оплати, повторіть спробу пізніше."
+
+msgid "Weather"
+msgstr "Погода"
+
+msgid "Welcome, this device is now called <b>%s</b>."
+msgstr "Ласкаво просимо! Цей пристрій тепер називається <b>«%s»</b>."
+
+msgid "WireGuard port"
+msgstr "Порт WireGuard"
+
+msgid "Yes, log out device"
+msgstr "Так, вийти з профілю на пристрої"
+
+msgid "You are about to delete your Mullvad VPN account."
+msgstr "Ви збираєтеся видалити обліковий запис Mullvad VPN."
+
+msgid "You can add more time via the account view or website to continue using the VPN."
+msgstr "Щоб продовжити використовувати VPN, додайте час у розділі «Обліковий запис» або на вебсайті."
+
+msgid "You can add more time via the account view to continue using the VPN."
+msgstr "Щоб продовжити використовувати VPN, додайте час у розділі «Обліковий запис»."
+
+msgid "You will lose access to this account on all devices."
+msgstr "Ви втратите доступ до цього облікового запису на всіх пристроях."
+
+msgid "You will lose your remaining"
+msgstr "Ви втратите час, що залишився"
+
+msgid "\"%s\" was created"
+msgstr "Створено «%s»"
+
+msgid "\"%s\" was deleted"
+msgstr "Видалено «%s»"
+
+msgid "click here"
+msgstr "натисніть тут"
+
+msgid "here"
+msgstr "тут"
+
+msgid "less than one day"
+msgstr "менше ніж 1 день"
+
+msgid "privacy policy"
+msgstr "політика конфіденційності"
+
+msgid "read more here"
+msgstr "докладніше тут"
+
+msgid "%d day"
+msgid_plural "%d days"
+msgstr[0] "%d день"
+msgstr[1] "%d дні"
+msgstr[2] "%d днів"
+msgstr[3] "%d дня"
+
+msgid "%d location"
+msgid_plural "%d locations"
+msgstr[0] "%d розташування"
+msgstr[1] "%d розташування"
+msgstr[2] "%d розташувань"
+msgstr[3] "%d розташування"
+
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] "%d місяць"
+msgstr[1] "%d місяці"
+msgstr[2] "%d місяців"
+msgstr[3] "%d місяця"
+
+msgid "1 day left on this account"
+msgid_plural "%d days left on this account"
+msgstr[0] "На балансі облікового запису залишився %d день"
+msgstr[1] "На балансі облікового запису залишилося %d дні"
+msgstr[2] "На балансі облікового запису залишилося %d днів"
+msgstr[3] "На балансі облікового запису залишилося %d дня"
+
+msgid "1 year left on this account"
+msgid_plural "%d years left on this account"
+msgstr[0] "На балансі облікового запису залишився %d рік"
+msgstr[1] "На балансі облікового запису залишилося %d роки"
+msgstr[2] "На балансі облікового запису залишилося %d років"
+msgstr[3] "На балансі облікового запису залишилося %d року"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "Баланс облікового запису закінчується за %d день"
+msgstr[1] "Баланс облікового запису закінчується за %d дні"
+msgstr[2] "Баланс облікового запису закінчується за %d днів"
+msgstr[3] "Баланс облікового запису закінчується за %d дня"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "Баланс облікового запису закінчується за %d годину"
+msgstr[1] "Баланс облікового запису закінчується за %d години"
+msgstr[2] "Баланс облікового запису закінчується за %d годин"
+msgstr[3] "Баланс облікового запису закінчується за %d години"
+
+msgid "You will lose your remaining day."
+msgid_plural "You will lose your remaining %d days."
+msgstr[0] "Ви втратите %d день, що залишився."
+msgstr[1] "Ви втратите %d дні, що залишились."
+msgstr[2] "Ви втратите %d днів, що залишились."
+msgstr[3] "Ви втратите %d дня, що залишились."
+
