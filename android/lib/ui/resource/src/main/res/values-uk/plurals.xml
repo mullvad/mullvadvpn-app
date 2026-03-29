@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="days">
+        <item quantity="one">%1$d день</item>
+        <item quantity="few">%1$d дні</item>
+        <item quantity="many">%1$d днів</item>
+        <item quantity="other">%1$d дня</item>
+    </plurals>
+    <plurals name="number_of_locations">
+        <item quantity="one">%1$d розташування</item>
+        <item quantity="few">%1$d розташування</item>
+        <item quantity="many">%1$d розташувань</item>
+        <item quantity="other">%1$d розташування</item>
+    </plurals>
+    <plurals name="months">
+        <item quantity="one">%1$d місяць</item>
+        <item quantity="few">%1$d місяці</item>
+        <item quantity="many">%1$d місяців</item>
+        <item quantity="other">%1$d місяця</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">На балансі облікового запису залишився %1$d день</item>
+        <item quantity="few">На балансі облікового запису залишилося %1$d дні</item>
+        <item quantity="many">На балансі облікового запису залишилося %1$d днів</item>
+        <item quantity="other">На балансі облікового запису залишилося %1$d дня</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">На балансі облікового запису залишився %1$d рік</item>
+        <item quantity="few">На балансі облікового запису залишилося %1$d роки</item>
+        <item quantity="many">На балансі облікового запису залишилося %1$d років</item>
+        <item quantity="other">На балансі облікового запису залишилося %1$d року</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Баланс облікового запису закінчується за %1$d день</item>
+        <item quantity="few">Баланс облікового запису закінчується за %1$d дні</item>
+        <item quantity="many">Баланс облікового запису закінчується за %1$d днів</item>
+        <item quantity="other">Баланс облікового запису закінчується за %1$d дня</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Баланс облікового запису закінчується за %1$d годину</item>
+        <item quantity="few">Баланс облікового запису закінчується за %1$d години</item>
+        <item quantity="many">Баланс облікового запису закінчується за %1$d годин</item>
+        <item quantity="other">Баланс облікового запису закінчується за %1$d години</item>
+    </plurals>
+    <plurals name="delete_account_days_left_warning">
+        <item quantity="one">Ви втратите %1$d день, що залишився.</item>
+        <item quantity="few">Ви втратите %1$d дні, що залишились.</item>
+        <item quantity="many">Ви втратите %1$d днів, що залишились.</item>
+        <item quantity="other">Ви втратите %1$d дня, що залишились.</item>
+    </plurals>
+</resources>
