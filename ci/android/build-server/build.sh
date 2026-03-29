@@ -122,7 +122,7 @@ function build_sign_and_publish_ref {
     "$SCRIPT_DIR/sign.sh" "$artifact_dir"
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
-    "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version"
+    "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
     (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
     # shellcheck disable=SC2216
