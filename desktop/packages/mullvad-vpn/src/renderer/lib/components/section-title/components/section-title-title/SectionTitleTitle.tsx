@@ -1,7 +1,9 @@
 import { Text, TextProps } from '../../../text';
 
-export type SectionTitleTitleProps = TextProps;
+export type SectionTitleTitleProps<T extends React.ElementType = 'span'> = TextProps<T>;
 
-export function SectionTitleTitle(props: SectionTitleTitleProps) {
+export function SectionTitleTitle<T extends React.ElementType = 'span'>(
+  props: SectionTitleTitleProps<T>,
+) {
   return <Text variant="labelTinySemiBold" {...props} />;
 }
