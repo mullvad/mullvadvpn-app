@@ -65,6 +65,8 @@ class TunnelCoordinator: Coordinator, Presenting {
                 self?.showFeatureSetting?(.ipOverrides)
             case .includeAllNetworks, .localNetworkSharing:
                 self?.showFeatureSetting?(.includeAllNetworks)
+            case .ipVersion:
+                self?.showFeatureSetting?(.vpnSettings(.ipVersion))
             }
         }
     }

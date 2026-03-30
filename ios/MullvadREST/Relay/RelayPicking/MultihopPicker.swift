@@ -92,6 +92,7 @@ struct MultihopPicker: RelayPicking {
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
         applyObfuscation: Bool,
+        forceV4Address: Bool = false,
     ) throws -> SelectedRelay {
         let filteredCandidates = candidates.filter { relayWithLocation in
             relayWithLocation.relay.hostname != relay.hostname
@@ -101,6 +102,7 @@ struct MultihopPicker: RelayPicking {
             from: filteredCandidates,
             closeTo: location,
             applyObfuscation: applyObfuscation,
+            forceV4: forceV4Address,
         )
     }
 }

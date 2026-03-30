@@ -42,8 +42,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///   ephemeral key.
     /// - Returns: The endpoint (possibly modified) with obfuscation applied.
     ///
-    /// Note: Obfuscation currently only supports IPv4. If the endpoint uses IPv6,
-    /// obfuscation is skipped and the endpoint is returned as-is with obfuscation disabled.
+    /// Note: LWO obfuscation only supports IPv4 for its local proxy, so the loopback
+    /// endpoint always uses IPv4 localhost when LWO is active.
     public func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: PublicKey) -> ProtocolObfuscationResult {
         remotePort = endpoint.socketAddress.port
 
@@ -81,12 +81,13 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         obfuscator.start()
         tunnelObfuscator = obfuscator
 
+        // LWO always binds its local proxy to IPv4 localhost, so always use IPv4 loopback for it.
         let localAddress: AnyIPEndpoint =
-            switch endpoint.socketAddress {
-            case .ipv4:
-                .ipv4(IPv4Endpoint(ip: .loopback, port: obfuscator.localUdpPort))
-            case .ipv6:
+            switch (endpoint.socketAddress, obfuscationProtocol) {
+            case (.ipv6, _) where !obfuscationProtocol.isLwo:
                 .ipv6(IPv6Endpoint(ip: .loopback, port: obfuscator.localUdpPort))
+            default:
+                .ipv4(IPv4Endpoint(ip: .loopback, port: obfuscator.localUdpPort))
             }
 
         // Return endpoint with loopback address pointing to local obfuscation proxy

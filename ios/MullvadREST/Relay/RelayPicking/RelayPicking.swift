@@ -24,6 +24,7 @@ extension RelayPicking {
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
         applyObfuscation: Bool,
+        forceV4: Bool = false,
     ) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
@@ -32,13 +33,15 @@ extension RelayPicking {
                 ? obfuscation.port
                 : tunnelSettings.relayConstraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
+            ipVersion: tunnelSettings.ipVersion,
             closeTo: location
         )
 
         // Resolve the socket address based on IP version preference
-        let socketAddress = resolveSocketAddress(
+        let socketAddress = try resolveSocketAddress(
             match: match,
             applyObfuscation: applyObfuscation,
+            forceV4: forceV4,
         )
 
         // Convert WireGuardObfuscationState to ObfuscationMethod
@@ -52,7 +55,7 @@ extension RelayPicking {
             ipv4Gateway: match.endpoint.ipv4Gateway,
             ipv6Gateway: match.endpoint.ipv6Gateway,
             publicKey: match.endpoint.publicKey,
-            obfuscation: obfuscationMethod
+            obfuscation: obfuscationMethod,
         )
 
         return SelectedRelay(
@@ -65,10 +68,31 @@ extension RelayPicking {
     }
 
     /// Resolves a single socket address based on IP version preference and obfuscation settings.
+    /// Throws an error if IPv6 is required but no IPv6 endpoint is available.
     private func resolveSocketAddress(
         match: RelaySelectorMatch,
         applyObfuscation: Bool,
-    ) -> AnyIPEndpoint {
+        forceV4: Bool,
+    ) throws -> AnyIPEndpoint {
+        // Try IPv6 first if preferred and available
+        if tunnelSettings.ipVersion.isIPv6, !forceV4 {
+            guard let ipv6Relay = match.endpoint.ipv6Relay else {
+                throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
+            }
+
+            let ipv6Address: IPv6Address
+            if applyObfuscation {
+                guard let obfuscatedIpv6 = applyObfuscatedIpV6Addresses(match: match) else {
+                    throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
+                }
+                ipv6Address = obfuscatedIpv6
+            } else {
+                ipv6Address = ipv6Relay.ip
+            }
+            return .ipv6(IPv6Endpoint(ip: ipv6Address, port: ipv6Relay.port))
+        }
+
+        // Fall back to IPv4
         let ipv4Address =
             if applyObfuscation {
                 applyObfuscatedIpAddresses(match: match)
@@ -122,9 +146,27 @@ extension RelayPicking {
         }
     }
 
+    private func applyObfuscatedIpV6Addresses(match: RelaySelectorMatch) -> IPv6Address? {
+        switch obfuscation.method {
+        case .shadowsocks:
+            applyShadowsocksIpv6Address(in: match)
+        case .quic:
+            applyQuicIpv6Address(in: match)
+        case .off, .automatic, .on, .udpOverTcp, .lwo:
+            match.endpoint.ipv6Relay?.ip
+        }
+    }
+
     private func applyQuicIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
         let defaultIpv4Address = match.endpoint.ipv4Relay.ip
         return match.relay.features?.quic?.addrIn.compactMap({ IPv4Address($0) }).randomElement() ?? defaultIpv4Address
+    }
+
+    private func applyQuicIpv6Address(in match: RelaySelectorMatch) -> IPv6Address? {
+        let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
+        return match.relay.features?.quic?.addrIn
+            .compactMap({ IPv6Address($0) })
+            .randomElement() ?? defaultIpv6Address
     }
 
     private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
@@ -142,6 +184,19 @@ extension RelayPicking {
             // Safe to unwrap since array is never empty.
             (extraAddresses + [defaultIpv4Address]).randomElement().unsafelyUnwrapped
         }
+    }
+
+    private func applyShadowsocksIpv6Address(in match: RelaySelectorMatch) -> IPv6Address? {
+        let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
+        let extraAddresses = match.relay.shadowsocksExtraAddrIn?.compactMap({ IPv6Address($0) }) ?? []
+
+        guard let port = match.endpoint.ipv6Relay?.port else {
+            return extraAddresses.randomElement()
+        }
+        if !extraAddresses.isEmpty {
+            return extraAddresses.randomElement()!
+        }
+        return defaultIpv6Address
     }
 
     private func shadowsocksPortIsWithinRange(_ port: UInt16) -> Bool {
