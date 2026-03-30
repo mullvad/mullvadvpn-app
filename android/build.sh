@@ -17,8 +17,8 @@ while [ -n "${1:-""}" ]; do
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
     elif [[ "${1:-""}" == "--fdroid" ]]; then
         GRADLE_BUILD_TYPE="fdroid"
-        GRADLE_TASKS+=(createOssProdFdroidDistApk)
-        BUNDLE_TASKS+=(createOssProdFdroidDistBundle)
+        GRADLE_TASKS=(createOssProdFdroidDistApk)
+        BUNDLE_TASKS=(createOssProdFdroidDistBundle)
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
     fi

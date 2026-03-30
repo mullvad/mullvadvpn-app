@@ -97,12 +97,11 @@ function build_sign_and_publish_ref {
     local artifact_dir="dist/$version"
     mkdir -p "$artifact_dir"
 
-    echo "Building Android app"
-    local arguments=("--app-bundle")
-    if [[ "$version" != *"-alpha"* && "$version" != *"-dev-"* && "$version" != *"-beta"* ]]; then
-        arguments+=("--fdroid")
-    fi    
-    artifact_dir=$artifact_dir build "$@" || return 1
+    echo "Building Android app with bundle"
+    artifact_dir=$artifact_dir build --app-bundle || return 1
+
+    echo "Building Android app with fdroid"
+    artifact_dir=$artifact_dir build --fdroid || return 1
 
     # If there is a tag for this commit then we append that to the produced artifacts
     # A version suffix should only be created if there is a tag for this commit and it is not a release build
