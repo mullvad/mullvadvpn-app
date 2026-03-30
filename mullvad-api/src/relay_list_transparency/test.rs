@@ -18,10 +18,8 @@ mod sigsum_test {
 
     #[test]
     fn test_invalid_signature_can_parse_unverified_timestamp() {
-        // The API will return this if it couldn't generate a valid sigsum signature.
-        let no_sig = "{\"digest\":\"8836b8b33efaec686aeb417e2fac35078e286f9383156be9ee2042ca1f14b677\",\"timestamp\":\"2026-03-25T13:13:23+00:00\"}\n\nNO SIGNATURE";
-
-        let sig = RelayListEnvelope::parse(no_sig).unwrap();
+        let sig =
+            RelayListEnvelope::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
         let err = validate_relay_list_envelope(&sig, &pubkeys).unwrap_err();
         let payload = err.timestamp_parser.parse_without_verification().unwrap();
@@ -33,8 +31,10 @@ mod sigsum_test {
 
     #[test]
     fn test_missing_signature_can_parse_unverified_timestamp() {
-        let sig =
-            RelayListEnvelope::parse(&format!("{RELAY_LIST_SIGNATURE}bad-signature")).unwrap();
+        // The API will return this if it couldn't generate a valid sigsum signature.
+        let no_sig = "{\"digest\":\"8836b8b33efaec686aeb417e2fac35078e286f9383156be9ee2042ca1f14b677\",\"timestamp\":\"2026-03-25T13:13:23+00:00\"}\n\nNO SIGNATURE";
+
+        let sig = RelayListEnvelope::parse(no_sig).unwrap();
         let pubkeys = validate::parse_pubkeys(PUBKEYS, ':').unwrap();
         let err = validate_relay_list_envelope(&sig, &pubkeys).unwrap_err();
         let payload = err.timestamp_parser.parse_without_verification().unwrap();
