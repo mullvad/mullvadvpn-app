@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add Ukrainian as a new language in the app
+
 ### Changed
 - Drop support for Android 8/8.1 (Android 9/API level 28 or later is now required).
 
