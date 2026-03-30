@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Changed
 - Drop support for Android 8/8.1 (Android 9/API level 28 or later is now required).
+- Show a two-column layout with a list and detail pane on the settings and
+  VPN settings screens if the screen is wide enough (e.g. TV or tablet in landscape).
 
 
 ## [android/2026.3] - 2026-03-23
