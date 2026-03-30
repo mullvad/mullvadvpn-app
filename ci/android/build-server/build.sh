@@ -17,6 +17,14 @@ PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
+SPECIFIC_REF=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --ref) SPECIFIC_REF="$2"; shift 2 ;;
+        *) echo "Unknown argument: $1"; exit 1 ;;
+    esac
+done
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     read -rsp "YUBIKEY_PIN = " YUBIKEY_PIN
@@ -143,6 +151,11 @@ while true; do
     git tag | xargs git tag -d > /dev/null
 
     git fetch --prune --tags 2> /dev/null || continue
+
+    if [[ -n "$SPECIFIC_REF" ]]; then
+        build_sign_and_publish_ref "$SPECIFIC_REF" || echo "Failed to build $SPECIFIC_REF"
+        exit 0
+    fi
 
     # Only build android/* tags.
     # Tags can't include spaces so SC2207 isn't a problem here
