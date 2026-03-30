@@ -1,4 +1,4 @@
-import { LocationAccordion } from './components';
+import { LocationAccordion, LocationListItem } from './components';
 import { LocationProvider } from './LocationContext';
 
 export type LocationProps = React.PropsWithChildren<{
@@ -16,6 +16,7 @@ function Location({ root, selected, children, ...props }: LocationProps) {
 
 const LocationNamespace = Object.assign(Location, {
   Accordion: LocationAccordion,
+  ListItem: LocationListItem,
 });
 
 export { LocationNamespace as Location };
