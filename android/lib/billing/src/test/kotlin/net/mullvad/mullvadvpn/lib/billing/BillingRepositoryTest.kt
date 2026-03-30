@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -153,7 +154,7 @@ class BillingRepositoryTest {
             // Arrange
             val mockProductBillingResult: BillingResult = mockk()
             val mockBillingResult: BillingResult = mockk()
-            val transactionId = "MOCK22"
+            val obfuscatedAccountId = PlayExternalObfuscatedAccountId("MOCK22")
             val mockProductDetails: ProductDetails = mockk(relaxed = true)
             val mockActivityProvider: () -> Activity = mockk()
             every { mockBillingResult.responseCode } returns BillingResponseCode.OK
@@ -169,7 +170,7 @@ class BillingRepositoryTest {
             val result =
                 billingRepository.startPurchaseFlow(
                     mockProductDetails,
-                    transactionId,
+                    obfuscatedAccountId,
                     mockActivityProvider,
                 )
 
@@ -182,7 +183,7 @@ class BillingRepositoryTest {
         runTest {
             // Arrange
             val mockBillingResult: BillingResult = mockk()
-            val transactionId = "MOCK22"
+            val transactionId = PlayExternalObfuscatedAccountId("MOCK22")
             val mockProductDetails: ProductDetails = mockk(relaxed = true)
             val mockActivityProvider: () -> Activity = mockk()
             every { mockBillingResult.responseCode } returns BillingResponseCode.BILLING_UNAVAILABLE
@@ -208,7 +209,7 @@ class BillingRepositoryTest {
     @Test
     fun `starting purchase flow with empty transaction id should return error`() = runTest {
         // Arrange
-        val transactionId = ""
+        val transactionId = PlayExternalObfuscatedAccountId("")
         val mockProductDetails: ProductDetails = mockk(relaxed = true)
         val mockActivityProvider: () -> Activity = mockk()
         every { mockBillingClient.isReady } returns true

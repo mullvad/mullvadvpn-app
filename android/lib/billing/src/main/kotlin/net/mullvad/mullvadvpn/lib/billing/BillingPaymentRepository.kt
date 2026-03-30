@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentStatus
 import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
+import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
@@ -83,7 +84,7 @@ class BillingPaymentRepository(
 
         // Get transaction id
         emit(PurchaseResult.FetchingObfuscationId)
-        val obfuscatedId: PlayPurchasePaymentToken =
+        val obfuscatedId: PlayExternalObfuscatedAccountId =
             initializePurchase()
                 .fold(
                     {
@@ -96,7 +97,7 @@ class BillingPaymentRepository(
         val result =
             billingRepository.startPurchaseFlow(
                 productDetails = productDetails,
-                obfuscatedId = obfuscatedId.value,
+                obfuscatedId = obfuscatedId,
                 activityProvider = activityProvider,
             )
 
@@ -126,7 +127,7 @@ class BillingPaymentRepository(
                 } else {
                     emit(PurchaseResult.VerificationStarted)
                     emit(
-                        verifyPurchase(event.purchases.first())
+                        verifyPurchase(purchase)
                             .fold(
                                 { PurchaseResult.Error.VerificationError(null) },
                                 { productId -> PurchaseResult.Completed.Success(productId) },
@@ -160,7 +161,7 @@ class BillingPaymentRepository(
             if (it.value.isNotEmpty()) {
                 it.right()
             } else {
-                Logger.e("PlayPurchasePaymentToken is empty")
+                Logger.e("Obfuscated account id is empty")
                 PlayPurchaseInitError.OtherError.left()
             }
         }
@@ -171,6 +172,10 @@ class BillingPaymentRepository(
         either {
                 ensure(purchase.products.isNotEmpty()) {
                     Logger.e("Purchase has no products")
+                    PlayPurchaseVerifyError.OtherError
+                }
+                ensure(purchase.accountIdentifiers?.obfuscatedAccountId != null) {
+                    Logger.e("Purchase is missing obfuscatedAccountId")
                     PlayPurchaseVerifyError.OtherError
                 }
                 ensure(purchase.purchaseToken.isNotEmpty()) {

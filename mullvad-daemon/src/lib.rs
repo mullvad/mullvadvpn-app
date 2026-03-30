@@ -49,7 +49,7 @@ use mullvad_api::{
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{Config, RelaySelector};
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
 use mullvad_types::settings::SplitApp;
 #[cfg(daita)]
@@ -418,7 +418,7 @@ pub enum DaemonCommand {
     BypassSocket(RawFd, oneshot::Sender<()>),
     /// Initialize a google play purchase through the API.
     #[cfg(target_os = "android")]
-    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken, Error>),
+    InitPlayPurchase(ResponseTx<PlayExternalObfuscatedAccountId, Error>),
     /// Verify that a google play payment was successful through the API.
     #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<(), Error>, PlayPurchase),
@@ -3392,7 +3392,7 @@ impl Daemon {
     }
 
     #[cfg(target_os = "android")]
-    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayPurchasePaymentToken, Error>) {
+    fn on_init_play_purchase(&mut self, tx: ResponseTx<PlayExternalObfuscatedAccountId, Error>) {
         let manager = self.account_manager.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
