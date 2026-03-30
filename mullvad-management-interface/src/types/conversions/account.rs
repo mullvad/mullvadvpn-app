@@ -2,7 +2,7 @@ use crate::types;
 use chrono::DateTime;
 use mullvad_types::account::{AccountData, VoucherSubmission};
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken, PlayExternalObfuscatedAccountId};
 
 use super::FromProtobufTypeError;
 
@@ -90,5 +90,12 @@ impl TryFrom<types::PlayPurchase> for PlayPurchase {
 impl From<PlayPurchasePaymentToken> for types::PlayPurchasePaymentToken {
     fn from(token: PlayPurchasePaymentToken) -> Self {
         Self { token }
+    }
+}
+
+#[cfg(target_os = "android")]
+impl From<PlayExternalObfuscatedAccountId> for types::PlayExternalObfuscatedAccountId {
+    fn from(id: PlayExternalObfuscatedAccountId) -> Self {
+        Self { id }
     }
 }

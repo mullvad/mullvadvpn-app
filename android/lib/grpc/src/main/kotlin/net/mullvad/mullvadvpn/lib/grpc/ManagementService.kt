@@ -93,9 +93,9 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.lib.model.PlayObfuscatedExternalAccountId
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
-import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.Providers
@@ -796,7 +796,8 @@ class ManagementService(
                 }
             }
 
-    suspend fun initializePlayPurchase(): Either<PlayPurchaseInitError, PlayPurchasePaymentToken> =
+    suspend fun initializePlayPurchase():
+        Either<PlayPurchaseInitError, PlayObfuscatedExternalAccountId> =
         Either.catch { grpc.initPlayPurchase(Empty.getDefaultInstance()).toDomain() }
             .onLeft { Logger.e("Initialize play purchase error") }
             .mapLeft { PlayPurchaseInitError.OtherError }

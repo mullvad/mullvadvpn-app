@@ -28,6 +28,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
+import net.mullvad.mullvadvpn.lib.model.PlayObfuscatedExternalAccountId
 
 class BillingRepository(context: Context) {
 
@@ -118,13 +119,13 @@ class BillingRepository(context: Context) {
 
     suspend fun startPurchaseFlow(
         productDetails: ProductDetails,
-        obfuscatedId: String,
+        obfuscatedId: PlayObfuscatedExternalAccountId,
         activityProvider: () -> Activity,
     ): BillingResult {
         return try {
             ensureConnected()
 
-            if (obfuscatedId.isEmpty()) {
+            if (obfuscatedId.value.isEmpty()) {
                 Logger.e("Obfuscated id is empty")
                 return BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build()
             }
@@ -139,7 +140,7 @@ class BillingRepository(context: Context) {
             val billingFlowParams =
                 BillingFlowParams.newBuilder()
                     .setProductDetailsParamsList(productDetailsParamsList)
-                    .setObfuscatedAccountId(obfuscatedId)
+                    .setObfuscatedAccountId(obfuscatedId.value)
                     .build()
 
             val activity = activityProvider()

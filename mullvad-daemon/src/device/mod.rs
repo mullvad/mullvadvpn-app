@@ -30,6 +30,7 @@ use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
+use mullvad_types::account::PlayExternalObfuscatedAccountId;
 
 mod api;
 mod service;
@@ -304,7 +305,7 @@ enum AccountManagerCommand {
     ValidateDevice(ResponseTx<()>),
     SubmitVoucher(String, ResponseTx<VoucherSubmission>),
     #[cfg(target_os = "android")]
-    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken>),
+    InitPlayPurchase(ResponseTx<PlayExternalObfuscatedAccountId>),
     #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<()>, PlayPurchase),
     CheckExpiry(ResponseTx<DateTime<Utc>>),
@@ -368,7 +369,7 @@ impl AccountManagerHandle {
     }
 
     #[cfg(target_os = "android")]
-    pub async fn init_play_purchase(&self) -> Result<PlayPurchasePaymentToken, Error> {
+    pub async fn init_play_purchase(&self) -> Result<PlayExternalObfuscatedAccountId, Error> {
         self.send_command(AccountManagerCommand::InitPlayPurchase)
             .await
     }

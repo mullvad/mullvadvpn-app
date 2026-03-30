@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
+import net.mullvad.mullvadvpn.lib.model.PlayObfuscatedExternalAccountId
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -670,8 +670,8 @@ internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSett
         excludedApps = appsList.map { AppId(it) }.toSet(),
     )
 
-internal fun ManagementInterface.PlayPurchasePaymentToken.toDomain(): PlayPurchasePaymentToken =
-    PlayPurchasePaymentToken(value = token)
+internal fun ManagementInterface.PlayExternalObfuscatedAccountId.toDomain():
+    PlayObfuscatedExternalAccountId = PlayObfuscatedExternalAccountId(value = id)
 
 internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAccessMethodSetting> =
     buildList {

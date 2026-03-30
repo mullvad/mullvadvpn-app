@@ -5,7 +5,7 @@ use futures::channel::mpsc;
 use hyper::body::Incoming;
 use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+use mullvad_types::account::{PlayPurchase, PlayExternalObfuscatedAccountId };
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;
@@ -642,7 +642,7 @@ impl AccountsProxy {
     pub fn init_play_purchase(
         &mut self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<PlayPurchasePaymentToken, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<PlayExternalObfuscatedAccountId, rest::Error>> + use<> {
         #[derive(serde::Deserialize)]
         struct PlayPurchaseInitResponse {
             obfuscated_id: String,
