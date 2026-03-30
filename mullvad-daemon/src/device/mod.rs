@@ -6,7 +6,9 @@ use futures::{
 
 use mullvad_api::rest;
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
+use mullvad_types::account::{
+    PlayExternalObfuscatedAccountId, PlayPurchase, PlayPurchasePaymentToken,
+};
 use mullvad_types::{
     account::{AccountNumber, VoucherSubmission},
     device::{
@@ -304,7 +306,7 @@ enum AccountManagerCommand {
     ValidateDevice(ResponseTx<()>),
     SubmitVoucher(String, ResponseTx<VoucherSubmission>),
     #[cfg(target_os = "android")]
-    InitPlayPurchase(ResponseTx<PlayPurchasePaymentToken>),
+    InitPlayPurchase(ResponseTx<PlayExternalObfuscatedAccountId>),
     #[cfg(target_os = "android")]
     VerifyPlayPurchase(ResponseTx<()>, PlayPurchase),
     CheckExpiry(ResponseTx<DateTime<Utc>>),
@@ -368,7 +370,7 @@ impl AccountManagerHandle {
     }
 
     #[cfg(target_os = "android")]
-    pub async fn init_play_purchase(&self) -> Result<PlayPurchasePaymentToken, Error> {
+    pub async fn init_play_purchase(&self) -> Result<PlayExternalObfuscatedAccountId, Error> {
         self.send_command(AccountManagerCommand::InitPlayPurchase)
             .await
     }

@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.billing
 import app.cash.turbine.test
 import arrow.core.left
 import arrow.core.right
+import com.android.billingclient.api.AccountIdentifiers
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
@@ -19,8 +20,8 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentProduct
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
+import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
-import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseVerifyError
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -197,7 +198,7 @@ class BillingPaymentRepositoryTest {
             coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
                 mockProductDetailsResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchasePaymentToken("").right()
+                PlayExternalObfuscatedAccountId("").right()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -233,7 +234,7 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchasePaymentToken("MOCK").right()
+                PlayExternalObfuscatedAccountId("MOCK").right()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -257,7 +258,7 @@ class BillingPaymentRepositoryTest {
         every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
         coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
             mockProductDetailsResult
-        val mockObfuscatedId = "MOCK-ID"
+        val mockObfuscatedId = PlayExternalObfuscatedAccountId("MOCK-ID")
         val mockBillingResult: BillingResult = mockk()
         every { mockBillingResult.responseCode } returns BillingResponseCode.OK
         coEvery {
@@ -268,7 +269,7 @@ class BillingPaymentRepositoryTest {
             )
         } returns mockBillingResult
         coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchasePaymentToken(mockObfuscatedId).right()
+            mockObfuscatedId.right()
 
         // Act, Assert
         paymentRepository.purchaseProduct(mockProductId, mockk()).test {
@@ -298,10 +299,13 @@ class BillingPaymentRepositoryTest {
             val mockPurchaseToken = "TOKEN"
             val mockBillingPurchase: Purchase = mockk()
             val mockBillingResult: BillingResult = mockk()
+            val mockAccountIdentifiers: AccountIdentifiers = mockk()
             every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
             every { mockBillingResult.responseCode } returns BillingResponseCode.OK
             every { mockBillingPurchase.products } returns listOf(mockProductId.value)
             every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
+            every { mockBillingPurchase.accountIdentifiers } returns mockAccountIdentifiers
+            every { mockAccountIdentifiers.obfuscatedAccountId } returns "Something"
             coEvery {
                 mockBillingRepository.startPurchaseFlow(
                     productDetails = any(),
@@ -310,7 +314,7 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchasePaymentToken("MOCK-ID").right()
+                PlayExternalObfuscatedAccountId("MOCK-ID").right()
             coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns
                 PlayPurchaseVerifyError.OtherError.left()
 
@@ -341,10 +345,13 @@ class BillingPaymentRepositoryTest {
         val mockPurchaseToken = "TOKEN"
         val mockBillingPurchase: Purchase = mockk()
         val mockBillingResult: BillingResult = mockk()
+        val mockAccountIdentifiers: AccountIdentifiers = mockk()
         every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
         every { mockBillingResult.responseCode } returns BillingResponseCode.OK
         every { mockBillingPurchase.products } returns listOf(mockProductId.value)
         every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
+        every { mockBillingPurchase.accountIdentifiers } returns mockAccountIdentifiers
+        every { mockAccountIdentifiers.obfuscatedAccountId } returns "Something"
         coEvery {
             mockBillingRepository.startPurchaseFlow(
                 productDetails = any(),
@@ -353,7 +360,7 @@ class BillingPaymentRepositoryTest {
             )
         } returns mockBillingResult
         coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-            PlayPurchasePaymentToken("MOCK").right()
+            PlayExternalObfuscatedAccountId("MOCK").right()
         coEvery { mockPlayPurchaseRepository.verifyPlayPurchase(any()) } returns Unit.right()
 
         // Act, Assert
@@ -395,7 +402,7 @@ class BillingPaymentRepositoryTest {
                 )
             } returns mockBillingResult
             coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
-                PlayPurchasePaymentToken("MOCK").right()
+                PlayExternalObfuscatedAccountId("MOCK").right()
 
             // Act, Assert
             paymentRepository.purchaseProduct(mockProductId, mockk()).test {
