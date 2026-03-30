@@ -22,7 +22,9 @@ fn main() -> anyhow::Result<()> {
 
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     match target_os()? {
-        Os::Windows if host_os() == Os::Windows => build_windows_dynamic_lib(&out_dir)?,
+        Os::Windows if host_os() == Os::Windows && target_os()? == Os::Windows => {
+            build_windows_dynamic_lib(&out_dir)?
+        }
         _ => (),
     }
 
