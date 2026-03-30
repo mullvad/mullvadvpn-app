@@ -20,37 +20,23 @@ fi
 
 function main {
     if [[ $# -eq 0 ]]; then
-        echo "Please specify which folder to sign files in"
+        echo "Please specify which files to sign"
         exit 1
     fi
 
-    if [[ $# -gt 1 ]]; then
-        echo "Too many arguments"
-        exit 1
-    fi
-
-    local artifact_dir="$1"
-    sign_artifacts "$artifact_dir"
-}
-
-function sign_artifacts {
-    local artifact_dir="$1"
-
-    pushd "$artifact_dir"
-    for artifact_file in MullvadVPN-*.apk MullvadVPN-*.aab; do
+    for artifact_file in "$@"; do
         sign_artifact "$artifact_file"
     done
-    popd
 }
 
 function sign_artifact {
     local artifact_file="$1"
 
-    echo "$YUBIKEY_PIN" | $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+    $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
     --min-sdk-version "$MIN_SDK_VERSION" \
-    --in "$artifact_file"
+    --in "$artifact_file" <<< "$YUBIKEY_PIN"
 }
 
 main "$@"

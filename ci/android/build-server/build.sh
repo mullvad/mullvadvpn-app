@@ -119,7 +119,8 @@ function build_sign_and_publish_ref {
 
     # Sign all artifacts
     YUBIKEY_PIN=$YUBIKEY_PIN \
-    "$SCRIPT_DIR/sign.sh" "$artifact_dir"
+    "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.apk "$artifact_dir"/MullvadVPN-*.aab \
+    || return 1
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
