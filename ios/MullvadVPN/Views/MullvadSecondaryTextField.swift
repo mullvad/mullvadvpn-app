@@ -20,6 +20,8 @@ struct MullvadSecondaryTextField: View {
                         isEnabled ? .MullvadTextField.inputPlaceholder : .MullvadTextField.textDisabled
                     )
             )
+            .autocorrectionDisabled()
+            .textInputAutocapitalization(.never)
             .focused($isFocused)
             if !text.isEmpty && isEnabled {
                 Button {
