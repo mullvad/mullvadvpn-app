@@ -22,7 +22,9 @@ fn main() -> anyhow::Result<()> {
 
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     match target_os()? {
-        Os::Windows if !is_cross_compiling()? => build_windows_dynamic_lib(&out_dir)?,
+        Os::Windows if host_os() == Os::Windows && target_os()? == Os::Windows => {
+            build_windows_dynamic_lib(&out_dir)?
+        }
         _ => (),
     }
 
@@ -136,11 +138,6 @@ fn build_windows_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
     println!("cargo::rustc-link-lib=dylib=libwg");
 
     Ok(())
-}
-
-/// Return whether compiling for an architecture or OS other than the host
-fn is_cross_compiling() -> anyhow::Result<bool> {
-    Ok(host_os() != target_os()? || host_arch() != target_arch()?)
 }
 
 // Build dynamically library for maybenot
