@@ -212,4 +212,14 @@ where
         }
         self.0.parse_ref(cmd, arg, value).map(Constraint::Only)
     }
+
+    fn possible_values(
+        &self,
+    ) -> Option<Box<dyn Iterator<Item = clap::builder::PossibleValue> + '_>> {
+        let any_value = std::iter::once(clap::builder::PossibleValue::new("any"));
+        Some(match self.0.possible_values() {
+            Some(inner) => Box::new(any_value.chain(inner)),
+            None => Box::new(any_value),
+        })
+    }
 }

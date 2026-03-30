@@ -8,6 +8,7 @@ license.workspace = true
 
 [dependencies]
 base64 = "0.22.0"
+clap = { workspace = true, optional = true }
 ipnetwork = { workspace = true, features = ["serde"] }
 log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

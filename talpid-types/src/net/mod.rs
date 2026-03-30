@@ -354,9 +354,12 @@ impl fmt::Display for AllowedTunnelTraffic {
 /// IP protocol version.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum IpVersion {
     #[default]
+    #[cfg_attr(feature = "clap", value(name = "ipv4", alias = "v4"))]
     V4,
+    #[cfg_attr(feature = "clap", value(name = "ipv6", alias = "v6"))]
     V6,
 }
 
@@ -387,6 +390,15 @@ impl FromStr for IpVersion {
             "v6" | "ipv6" => Ok(IpVersion::V6),
             _ => Err(IpVersionParseError),
         }
+    }
+}
+
+#[cfg(feature = "clap")]
+impl clap::builder::ValueParserFactory for IpVersion {
+    type Parser = clap::builder::EnumValueParser<IpVersion>;
+
+    fn value_parser() -> Self::Parser {
+        clap::builder::EnumValueParser::new()
     }
 }
 

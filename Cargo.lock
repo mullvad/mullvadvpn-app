@@ -5485,6 +5485,7 @@ name = "talpid-types"
 version = "0.0.0"
 dependencies = [
  "base64",
+ "clap",
  "insta",
  "ipnetwork",
  "jnix",

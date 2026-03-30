@@ -29,7 +29,7 @@ mullvad-version = { path = "../mullvad-version" }
 natord = "1.0.9"
 serde = { workspace = true }
 serde_json = { workspace = true }
-talpid-types = { path = "../talpid-types" }
+talpid-types = { path = "../talpid-types", features = ["clap"] }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
 
