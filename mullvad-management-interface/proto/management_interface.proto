@@ -117,7 +117,7 @@ service ManagementService {
   rpc GetExcludedProcesses(google.protobuf.Empty) returns (ExcludedProcessList) {}
 
   // Play payment (Android)
-  rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayPurchasePaymentToken) {}
+  rpc InitPlayPurchase(google.protobuf.Empty) returns (PlayExternalObfuscatedAccountId) {}
   rpc VerifyPlayPurchase(PlayPurchase) returns (google.protobuf.Empty) {}
 
   // Check whether the app needs TCC approval for split tunneling (macOS)
@@ -845,6 +845,8 @@ message LeakInfo {
   /// Format: The name of the leaky interface.
   string interface = 2;
 }
+
+message PlayExternalObfuscatedAccountId { string id = 1; }
 
 message PlayPurchase {
   string product_id = 1;

@@ -10,8 +10,11 @@ pub type AccessToken = String;
 /// Account identifier (not used for authentication).
 pub type AccountId = String;
 
-/// The payment token returned by initiating a google play purchase.
+/// The external obfuscated id returned by initiating a google play purchase.
 /// In the API this is called the `obfuscated_id`.
+#[cfg(target_os = "android")]
+pub type PlayExternalObfuscatedAccountId = String;
+
 #[cfg(target_os = "android")]
 pub type PlayPurchasePaymentToken = String;
 

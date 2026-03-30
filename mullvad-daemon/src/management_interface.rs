@@ -1079,19 +1079,19 @@ impl ManagementService for ManagementServiceImpl {
     async fn init_play_purchase(
         &self,
         _request: Request<()>,
-    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+    ) -> ServiceResult<types::PlayExternalObfuscatedAccountId> {
         log::debug!("init_play_purchase");
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::InitPlayPurchase(tx))?;
 
-        let payment_token = self
+        let external_obufscated_account_id = self
             .wait_for_result(rx)
             .await?
-            .map(types::PlayPurchasePaymentToken::from)
+            .map(types::PlayExternalObfuscatedAccountId::from)
             .map_err(map_daemon_error)?;
 
-        Ok(Response::new(payment_token))
+        Ok(Response::new(external_obufscated_account_id))
     }
 
     /// On non-Android platforms, the return value will be useless.
@@ -1099,10 +1099,10 @@ impl ManagementService for ManagementServiceImpl {
     async fn init_play_purchase(
         &self,
         _: Request<()>,
-    ) -> ServiceResult<types::PlayPurchasePaymentToken> {
+    ) -> ServiceResult<types::PlayExternalObfuscatedAccountId> {
         log::error!("Called `init_play_purchase` on non-Android platform");
-        Ok(Response::new(types::PlayPurchasePaymentToken {
-            token: String::default(),
+        Ok(Response::new(types::PlayExternalObfuscatedAccountId {
+            id: String::default(),
         }))
     }
 
