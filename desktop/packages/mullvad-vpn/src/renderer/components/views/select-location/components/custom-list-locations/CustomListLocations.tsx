@@ -1,3 +1,4 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -22,14 +23,15 @@ const StyledAnimatedList = styled(AnimatedList)`
 function CustomListLocationsImpl() {
   const { addingCustomList } = useCustomListLocationsContext();
   const { customListLocations } = useSelectLocationViewContext();
+  const titleId = React.useId();
 
   const hasCustomLists = useHasCustomLists();
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
   const showAddLocationToCustomListText = hasCustomLists;
 
   return (
-    <FlexColumn gap="tiny">
-      <CustomListsSectionTitle />
+    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+      <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
         <StyledAnimatedList>
           {customListLocations.map((customList) => {

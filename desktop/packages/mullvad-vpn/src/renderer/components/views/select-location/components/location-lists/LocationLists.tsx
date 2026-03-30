@@ -1,12 +1,13 @@
+import { useRecents } from '../../../../../features/locations/hooks';
 import type { LocationType } from '../../../../../features/locations/types';
-import { Accordion } from '../../../../../lib/components/accordion';
+import { Expandable } from '../../../../../lib/components/expandable';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { useHasCustomLists } from '../../hooks';
 import { CountryLocations } from '../country-locations';
 import { CustomListLocations } from '../custom-list-locations';
 import { NoSearchResult } from '../no-search-result';
 import { RecentLocations } from '../recent-locations';
-import { useHasSearched, useHasSearchedLocations, useHasVisibleRecentLocations } from './hooks';
+import { useHasSearched, useHasSearchedLocations } from './hooks';
 import { LocationListsProvider } from './LocationListsContext';
 
 export type LocationsListsProps = React.PropsWithChildren & {
@@ -14,12 +15,12 @@ export type LocationsListsProps = React.PropsWithChildren & {
 };
 
 export function LocationLists(props: LocationsListsProps) {
+  const { recents } = useRecents();
   const hasSearched = useHasSearched();
-  const hasVisibleRecentLocations = useHasVisibleRecentLocations();
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
 
-  const showRecentLocations = hasVisibleRecentLocations && !hasSearched;
+  const showRecentLocations = !hasSearched && recents !== undefined;
   const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
   const showCountryLocations = !hasSearched || hasSearchedLocations;
   const showNoSearchResult =
@@ -27,11 +28,11 @@ export function LocationLists(props: LocationsListsProps) {
 
   return (
     <LocationListsProvider {...props}>
-      <Accordion expanded={showRecentLocations}>
-        <Accordion.Content>
+      <Expandable expanded={showRecentLocations}>
+        <Expandable.Content>
           <RecentLocations />
-        </Accordion.Content>
-      </Accordion>
+        </Expandable.Content>
+      </Expandable>
       <FlexColumn gap="large">
         {showCustomListLocationLists && <CustomListLocations />}
         {showCountryLocations && <CountryLocations />}
