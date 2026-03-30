@@ -30524,126 +30524,126 @@
         }
       }
     },
-    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." : {
+    "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." : {
       "localizations" : {
         "da" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hvis du ikke er tilsluttet vores VPN, vil den krypterede DNS-proxy bruge din egen ikke-VPN IP,-adresse når du opretter forbindelse. DoH-serverne hostes af en af følgende udbydere: Quad9 eller CloudFlare."
+            "value" : "Hvis du ikke er tilsluttet vores VPN, vil den krypterede DNS-proxy bruge din egen ikke-VPN IP,-adresse når du opretter forbindelse. DoH-serverne hostes af en af følgende udbydere: Quad9 eller Cloudflare."
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder CloudFlare."
+            "value" : "Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder Cloudflare."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Si no está conectado a nuestra VPN, el proxy DNS cifrado utilizará su propia IP no VPN al conectarse. Los servidores de DoH están alojados en uno de los siguientes proveedores: Quad9 o CloudFlare."
+            "value" : "Si no está conectado a nuestra VPN, el proxy DNS cifrado utilizará su propia IP no VPN al conectarse. Los servidores de DoH están alojados en uno de los siguientes proveedores: Quad9 o Cloudflare."
           }
         },
         "fi" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare."
+            "value" : "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai Cloudflare."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Si vous n'êtes pas connecté à notre VPN, le proxy DNS chiffré utilisera votre propre IP non VPN lors de la connexion. Les serveurs DoH sont hébergés par l'un des fournisseurs suivants : Quad 9 ou CloudFlare."
+            "value" : "Si vous n'êtes pas connecté à notre VPN, le proxy DNS chiffré utilisera votre propre IP non VPN lors de la connexion. Les serveurs DoH sont hébergés par l'un des fournisseurs suivants : Quad 9 ou Cloudflare."
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o CloudFlare."
+            "value" : "Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o Cloudflare."
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudFlareのいずれかによってホストされます。"
+            "value" : "当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudflareのいずれかによってホストされます。"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다."
+            "value" : "당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, Cloudflare 등의 제공업체에서 호스팅합니다."
           }
         },
         "my" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။"
+            "value" : "အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် Cloudflare ။"
           }
         },
         "nb" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hvis du ikke er koblet til VPN-tjenesten vår, vil den krypterte DNS-proxyen bruke din egen ikke-VPN-IP når du kobler til. En av følgende leverandører er vert for DoH-serverne: Quad9 eller CloudFlare."
+            "value" : "Hvis du ikke er koblet til VPN-tjenesten vår, vil den krypterte DNS-proxyen bruke din egen ikke-VPN-IP når du kobler til. En av følgende leverandører er vert for DoH-serverne: Quad9 eller Cloudflare."
           }
         },
         "nl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of CloudFlare."
+            "value" : "Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of Cloudflare."
           }
         },
         "pl" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Jeśli nie masz połączenia z naszą siecią VPN, szyfrowany serwer proxy DNS użyje Twojego własnego adresu IP bez VPN podczas łączenia. Serwery DoH są hostowane przez jednego z następujących dostawców: Quad 9 lub CloudFlare."
+            "value" : "Jeśli nie masz połączenia z naszą siecią VPN, szyfrowany serwer proxy DNS użyje Twojego własnego adresu IP bez VPN podczas łączenia. Serwery DoH są hostowane przez jednego z następujących dostawców: Quad 9 lub Cloudflare."
           }
         },
         "pt" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Se não estiver ligado à nossa VPN, o proxy DNS encriptado utiliza o seu próprio IP e não a VPN ao estabelecer a ligação. Os servidores DoH são alojados por um dos seguintes fornecedores: Quad9 ou CloudFlare."
+            "value" : "Se não estiver ligado à nossa VPN, o proxy DNS encriptado utiliza o seu próprio IP e não a VPN ao estabelecer a ligação. Os servidores DoH são alojados por um dos seguintes fornecedores: Quad9 ou Cloudflare."
           }
         },
         "ru" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare."
+            "value" : "Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или Cloudflare."
           }
         },
         "sv" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller CloudFlare."
+            "value" : "Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller Cloudflare."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare"
+            "value" : "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ Cloudflare"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "VPN'imize bağlı değilseniz Şifreli DNS proxy'si bağlanırken VPN dışı IP'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya CloudFlare."
+            "value" : "VPN'imize bağlı değilseniz Şifreli DNS proxy'si bağlanırken VPN dışı IP'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya Cloudflare."
           }
         },
         "uk" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Якщо ви не підключені до нашого VPN, метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або CloudFlare."
+            "value" : "Якщо ви не підключені до нашого VPN, метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або Cloudflare."
           }
         },
         "zh-Hans" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 CloudFlare。"
+            "value" : "如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 Cloudflare。"
           }
         },
         "zh-Hant" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。"
+            "value" : "如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 Cloudflare。"
           }
         }
       }

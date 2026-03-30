@@ -1262,9 +1262,9 @@
         <target state="final">如果您在连接到 VPN 服务器时遇到问题，请联系支持团队。</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 CloudFlare。</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad9 或 Cloudflare。</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">

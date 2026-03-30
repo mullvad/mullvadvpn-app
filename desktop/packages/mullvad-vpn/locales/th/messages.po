@@ -580,8 +580,8 @@ msgid "Enter port"
 msgstr "ป้อนพอร์ต"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
-msgstr "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare."
+msgstr "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ Cloudflare"
 
 msgctxt "api-access-methods-view"
 msgid "In use"

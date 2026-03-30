@@ -1262,9 +1262,9 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">VPN sunucularına bağlanırken sorun yaşıyorsanız lütfen destek ekibiyle iletişime geçin.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">VPN'imize bağlı değilseniz Şifreli DNS proxy'si bağlanırken VPN dışı IP'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya CloudFlare.</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">VPN'imize bağlı değilseniz Şifreli DNS proxy'si bağlanırken VPN dışı IP'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya Cloudflare.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">

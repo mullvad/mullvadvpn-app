@@ -586,8 +586,8 @@ msgid "Enter port"
 msgstr "Anna portti"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
-msgstr "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare."
+msgstr "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai Cloudflare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"

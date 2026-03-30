@@ -1260,9 +1260,9 @@
         <target state="final">VPN ဆာဗာများကို ချိတ်ဆက်ရာတွင် ပြဿနာများရှိနေပါက အကူအညီပေးရေးအဖွဲ့ကို ဆက်သွယ်ပါ။</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် Cloudflare ။</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
