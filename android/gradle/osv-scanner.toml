@@ -101,6 +101,7 @@ reason = "Denial-of-Service condition is not relevant."
 [[IgnoredVulns]]
 id = "CVE-2026-33870"  # GHSA-pwqr-wmgm-9rr8
 ignoreUntil = 2026-05-01
+<<<<<<< Updated upstream
 reason = "The app does not use netty for external http communication"
 
 # Netty HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass
@@ -108,3 +109,13 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-33871"  # GHSA-w9fj-cfpg-grvv
 ignoreUntil = 2026-05-01
 reason = "The app does not use netty for external http communication"
+||||||| Stash base
+=======
+reason = "No impact since we use UDS for local communication only."
+
+# Netty: HTTP/2 CONTINUATION Frame Flood DoS via Zero-Byte Frame Bypass
+[[IgnoredVulns]]
+id = "CVE-2026-33871"  # GHSA-w9fj-cfpg-grvv
+ignoreUntil = 2026-05-01
+reason = "Denial-of-Service condition is not relevant."
+>>>>>>> Stashed changes
