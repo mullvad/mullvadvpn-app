@@ -1,3 +1,4 @@
+import React from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
@@ -11,13 +12,14 @@ import { useRelayCount } from './hooks';
 export function CountryLocations() {
   const { countryLocations } = useSelectLocationViewContext();
   const { visibleRelays, totalRelays } = useRelayCount();
+  const titleId = React.useId();
 
   const showFilterText = visibleRelays !== totalRelays;
 
   return (
-    <FlexColumn gap="tiny">
+    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
       <SectionTitle>
-        <SectionTitle.Title>
+        <SectionTitle.Title as="h3" id={titleId}>
           {messages.pgettext('select-location-view', 'All locations')}
         </SectionTitle.Title>
         <SectionTitle.Divider />

@@ -37,38 +37,34 @@ function RecentCustomListLocationImpl({
   return (
     <StyledLocationContainer>
       <Location root selected={customList.selected}>
-        <Location.Accordion expanded disabled={disabled}>
-          <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.Trigger
-              onClick={handleClick}
-              aria-label={sprintf(
-                // TRANSLATORS: Accessibility label for a button that connects to a location.
-                // TRANSLATORS: Available placeholders:
-                // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
-                messages.pgettext('accessibility', 'Connect to %(location)s'),
-                {
-                  location: customList.label,
-                },
-              )}>
-              <Location.Accordion.Header.Item>
-                <FlexColumn>
-                  <Location.Accordion.Header.Item.Title>
-                    {customList.label}
-                  </Location.Accordion.Header.Item.Title>
-                  {showEmptySubtitle && (
-                    <FootnoteMiniSemiBold color="whiteAlpha60">
-                      {
-                        // TRANSLATORS: Label for custom lists that don't have any locations added to them yet.
-                        messages.pgettext('select-location-view', 'Empty')
-                      }
-                    </FootnoteMiniSemiBold>
-                  )}
-                </FlexColumn>
-              </Location.Accordion.Header.Item>
-            </Location.Accordion.Header.Trigger>
-            <RecentCustomListTrailingActions customList={customList} />
-          </Location.Accordion.Header>
-        </Location.Accordion>
+        <Location.ListItem disabled={disabled} level={0}>
+          <Location.ListItem.Trigger
+            onClick={handleClick}
+            aria-label={sprintf(
+              // TRANSLATORS: Accessibility label for a button that connects to a location.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(location)s - The name of the location that will be connected to when the button is clicked.
+              messages.pgettext('accessibility', 'Connect to %(location)s'),
+              {
+                location: customList.label,
+              },
+            )}>
+            <Location.ListItem.Item>
+              <FlexColumn>
+                <Location.ListItem.Item.Label>{customList.label}</Location.ListItem.Item.Label>
+                {showEmptySubtitle && (
+                  <FootnoteMiniSemiBold color="whiteAlpha60">
+                    {
+                      // TRANSLATORS: Label for custom lists that don't have any locations added to them yet.
+                      messages.pgettext('select-location-view', 'Empty')
+                    }
+                  </FootnoteMiniSemiBold>
+                )}
+              </FlexColumn>
+            </Location.ListItem.Item>
+          </Location.ListItem.Trigger>
+          <RecentCustomListTrailingActions customList={customList} />
+        </Location.ListItem>
       </Location>
     </StyledLocationContainer>
   );
