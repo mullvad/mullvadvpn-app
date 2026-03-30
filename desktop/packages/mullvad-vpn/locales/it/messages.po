@@ -586,8 +586,8 @@ msgid "Enter port"
 msgstr "Inserisci porta"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
-msgstr "Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o CloudFlare."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare."
+msgstr "Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o Cloudflare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"

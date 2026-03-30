@@ -217,7 +217,7 @@
     <string name="enable_multihop">Увімкнути подвійний VPN</string>
     <string name="enable_recents">Увімкнути нещодавні</string>
     <string name="encrypted_dns_proxy_info_message_part1">Під час використання методу «Проксі через зашифрований DNS» застосунок взаємодіятиме з API Mullvad через адресу проксі-сервера. Він отримує адресу із сервера DNS over HTTPS (DoH), а потім використовує її для доступу до наших API-серверів.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Якщо ви не підключені до нашого VPN, то метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або CloudFlare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Якщо ви не підключені до нашого VPN, то метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або Cloudflare.</string>
     <string name="enter_value_placeholder">Введіть MTU</string>
     <string name="enter_voucher_code">Введіть код ваучера</string>
     <string name="entry">Вхід</string>

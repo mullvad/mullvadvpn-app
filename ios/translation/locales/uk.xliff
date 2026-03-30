@@ -1260,9 +1260,9 @@
         <target state="final">У разі проблем із підключенням до серверів VPN зверніться до служби підтримки.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">Якщо ви не підключені до нашого VPN, метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або CloudFlare.</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">Якщо ви не підключені до нашого VPN, метод «Проксі через зашифрований DNS» використовуватиме вашу власну IP-адресу без VPN під час підключення. Сервери DoH розміщені в одного з таких провайдерів: Quad9 або Cloudflare.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">

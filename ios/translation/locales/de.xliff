@@ -1260,9 +1260,9 @@
         <target state="final">Wenn Sie Probleme mit der Verbindung zu VPN-Servern haben, wenden Sie sich bitte an den Support.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder CloudFlare.</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder Cloudflare.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
