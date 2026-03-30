@@ -1220,9 +1220,9 @@
         <target state="final">VPN 서버 연결에 문제가 있는 경우 지원 팀에 문의하세요.</target>
         <note/>
       </trans-unit>
-      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare." xml:space="preserve" approved="yes">
-        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</source>
-        <target state="final">당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다.</target>
+      <trans-unit id="If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare." xml:space="preserve" approved="yes">
+        <source>If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</source>
+        <target state="final">당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, Cloudflare 등의 제공업체에서 호스팅합니다.</target>
         <note/>
       </trans-unit>
       <trans-unit id="If you disconnect now, you won’t be able to secure your connection until the device is online." xml:space="preserve" approved="yes">
