@@ -6,6 +6,9 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PLAY_UPLOAD_DIR=""
+
+trap '[[ -n "${PLAY_UPLOAD_DIR:-}" ]] && rm -rf "$PLAY_UPLOAD_DIR"' EXIT
 
 if [[ -z ${PLAY_CREDENTIALS_PATH-} ]]; then
     echo "PLAY_CREDENTIALS_PATH must be set"
@@ -41,16 +44,14 @@ function upload_bundles {
     artifact_dir="$1"
     version="$2"
 
-    local play_upload_dir="$artifact_dir/play_upload"
-    mkdir -p "$play_upload_dir"
-
-    trap 'rc=$?; (( rc != 0 )) && rm -rf "$play_upload_dir"' EXIT
+    PLAY_UPLOAD_DIR="$artifact_dir/play_upload"
+    mkdir -p "$PLAY_UPLOAD_DIR"
 
     if [[ "$version" != *"-dev-"* ]]; then
-            upload_bundle "$play_upload_dir" "publishPlayProdReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.aab" 
+            upload_bundle "$PLAY_UPLOAD_DIR" "publishPlayProdReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.aab" 
         if [[ "$version" == *"-alpha"* ]]; then
-            upload_bundle "$play_upload_dir" "publishPlayDevmoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.devmole.aab"
-            upload_bundle "$play_upload_dir" "publishPlayStagemoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.stagemole.aab"
+            upload_bundle "$PLAY_UPLOAD_DIR" "publishPlayDevmoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.devmole.aab"
+            upload_bundle "$PLAY_UPLOAD_DIR" "publishPlayStagemoleReleaseBundle" "$artifact_dir/MullvadVPN-$version.play.stagemole.aab"
         fi
     fi
 }
