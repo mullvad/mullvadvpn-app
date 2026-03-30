@@ -41,7 +41,6 @@ function prepare_for_cdn_upload {
     sha256sum "${files[@]}" > "$checksums_path"
 
     mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
-
 }
 
 function run_in_linux_container {
@@ -127,7 +126,7 @@ function build_sign_and_publish_ref {
 
     # Sign all artifacts
     YUBIKEY_PIN=$YUBIKEY_PIN \
-    "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.apk "$artifact_dir"/MullvadVPN-*.aab \
+    "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
     || return 1
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
