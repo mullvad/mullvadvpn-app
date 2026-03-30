@@ -30,7 +30,7 @@ export function useMapRecentsToLocations(
 
   const cityLocations = countryLocations.flatMap((country) => country.cities);
 
-  const recentEntryLocations = getRecentLocations(
+  const recentLocations = getRecentLocations(
     recents,
     customListLocations,
     countryLocations,
@@ -38,7 +38,7 @@ export function useMapRecentsToLocations(
     relayLocations,
   );
 
-  return recentEntryLocations;
+  return recentLocations;
 }
 
 function getRecentLocations(
