@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
 import net.mullvad.mullvadvpn.common.compose.createUriHook
 import net.mullvad.mullvadvpn.common.compose.isTv
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailConfirmedNavResult
@@ -136,7 +137,7 @@ private fun ReportProblemScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.report_a_problem),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier ->
         // Show sending states
         if (state.sendingState != null) {

@@ -285,7 +285,14 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
             onChangelogClick =
                 dropUnlessResumed { navigator.navigate(ChangelogNavKey(isModal = true)) },
             onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
-            onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
+            onSettingsClick =
+                dropUnlessResumed {
+                    if (navigator.screenIsListDetailTargetWidth) {
+                        navigator.navigate(SettingsNavKey, DaitaNavKey())
+                    } else {
+                        navigator.navigate(SettingsNavKey)
+                    }
+                },
             onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
             onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
             onNavigateToFeature =

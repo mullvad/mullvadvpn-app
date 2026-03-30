@@ -3,6 +3,7 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl
 
 import android.content.res.Resources
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -50,7 +51,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
 import net.mullvad.mullvadvpn.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
+import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -162,9 +165,15 @@ fun SharedTransitionScope.VpnSettings(
     navigator: Navigator,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val vm = koinViewModel<VpnSettingsViewModel>() { parametersOf(navArgs) }
+    val vm = koinViewModel<VpnSettingsViewModel> { parametersOf(navArgs) }
     val state by vm.uiState.collectAsStateWithLifecycle()
     val resultStore = LocalResultStore.current
+
+    BackHandler(enabled = navigator.screenIsListDetailTargetWidth) {
+        navigator.goBackUntil(VpnSettingsNavKey(), inclusive = true)
+    }
+
+    navigator.assureHasDetailPane<VpnSettingsNavKey>(AutoConnectNavKey)
 
     resultStore.consumeResult<DnsNavResult>()?.let { result ->
         when (result) {
@@ -210,7 +219,8 @@ fun SharedTransitionScope.VpnSettings(
         snackbarHostState = snackbarHostState,
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoNavKey) },
-        navigateToAutoConnectScreen = dropUnlessResumed { navigator.navigate(AutoConnectNavKey) },
+        navigateToAutoConnectScreen =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AutoConnectNavKey) },
         navigateToCustomDnsInfo = dropUnlessResumed { navigator.navigate(CustomDnsInfoNavKey) },
         navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
         navigateToQuantumResistanceInfo =
@@ -218,7 +228,7 @@ fun SharedTransitionScope.VpnSettings(
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
         navigateToServerIpOverrides =
-            dropUnlessResumed { navigator.navigate(ServerIpOverrideNavKey()) },
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
         onToggleAllBlockers = vm::onToggleAllBlockers,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
@@ -234,7 +244,6 @@ fun SharedTransitionScope.VpnSettings(
                 navigator.navigate(DnsNavKey(index, address))
             },
         onToggleDnsClick = vm::onToggleCustomDns,
-        onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
@@ -243,7 +252,10 @@ fun SharedTransitionScope.VpnSettings(
         navigateToDeviceIpInfo = dropUnlessResumed { navigator.navigate(DeviceIpInfoNavKey) },
         navigateToConnectOnDeviceOnStartUpInfo =
             dropUnlessResumed { navigator.navigate(ConnectOnStartupInfoNavKey) },
-        navigateToAntiCensorship = dropUnlessResumed { navigator.navigate(AntiCensorshipNavKey()) },
+        navigateToAntiCensorship =
+            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AntiCensorshipNavKey()) },
+        onBackClick =
+            dropUnlessResumed { navigator.goBackUntil(VpnSettingsNavKey(), inclusive = true) },
     )
 }
 

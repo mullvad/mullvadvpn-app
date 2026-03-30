@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.isTv
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscation
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -101,7 +102,7 @@ fun AppearanceScreen(
     ScaffoldWithMediumTopBar(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.appearance),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier, lazyGridState: LazyGridState ->
         LazyVerticalGrid(
             state = lazyGridState,

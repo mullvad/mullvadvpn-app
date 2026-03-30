@@ -10,9 +10,11 @@ plugins {
 android { namespace = "net.mullvad.mullvadvpn.feature.settings.impl" }
 
 dependencies {
+    implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.apiaccess.api)
     implementation(projects.lib.feature.appearance.api)
     implementation(projects.lib.feature.appinfo.api)
+    implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.multihop.api)
     implementation(projects.lib.feature.notification.api)

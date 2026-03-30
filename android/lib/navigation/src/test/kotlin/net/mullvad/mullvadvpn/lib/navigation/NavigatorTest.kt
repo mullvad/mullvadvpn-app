@@ -110,6 +110,7 @@ class NavigatorTestTest {
         return Navigator(
             state = NavigationState(backStack.toMutableStateList()),
             resultStore = ResultStore(),
+            screenIsListDetailTargetWidth = false,
         )
     }
 }
