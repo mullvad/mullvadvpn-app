@@ -32,7 +32,6 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init --depth=1 windows
-          git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Rust toolchain
         run: rustup override set stable

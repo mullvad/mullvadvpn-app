@@ -177,7 +177,6 @@ api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
-wireguard-go = ["talpid-core/wireguard-go"]
 
 [lints]
 workspace = true

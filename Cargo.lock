@@ -2743,17 +2743,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "maybenot-ffi"
-version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b2682b6da446844fad3c7ced24be8c66853efefa4674a48072cfd6b45e4fb0d"
-dependencies = [
- "maybenot",
- "rand 0.9.2",
- "rand_chacha 0.9.0",
-]
-
-[[package]]
 name = "md-5"
 version = "0.10.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5547,7 +5536,6 @@ dependencies = [
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.61.2",
- "wireguard-go-rs",
  "zerocopy",
 ]
 
@@ -7226,19 +7214,6 @@ dependencies = [
  "thiserror 2.0.18",
  "windows-sys 0.61.2",
  "winreg 0.55.0",
-]
-
-[[package]]
-name = "wireguard-go-rs"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "log",
- "maybenot-ffi",
- "talpid-types",
- "thiserror 2.0.18",
- "windows-sys 0.61.2",
- "zeroize",
 ]
 
 [[package]]

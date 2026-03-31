@@ -19,8 +19,7 @@
     "test/**",
     "tunnel-obfuscation/**",
     "windows/**",
-    "windows-installer/**",
-    "wireguard-go-rs/**"
+    "windows-installer/**"
   ],
   "appteam-ios": [
     ".github/workflows/ios*",
