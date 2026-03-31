@@ -27,6 +27,12 @@ if [[ -d "$INSTALL_DIR/Mullvad VPN.localized" ]]; then
     echo "Found '$INSTALL_DIR/Mullvad VPN.localized' unexpectedly. Aborting."
     exit 1
 fi
+# Check if Mullvad VPN.app is owned by root. If not, non-root users may potentially overwrite
+# application bundle contents, replace binaries etc., opening up the possibility of an LPE.
+if [[ "$(stat -f %u "$INSTALL_DIR/Mullvad VPN.app")" -ne 0 ]]; then
+    echo "Unexpected owner for '$INSTALL_DIR/Mullvad VPN.app' (not root). Aborting"
+    exit 1
+fi
 
 # NOTE: This path must be kept in sync with the path defined
 # in mullvad-daemon/src/macos_launch_daemon.rs and preinstall
