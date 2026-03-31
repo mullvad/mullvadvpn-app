@@ -1053,6 +1053,11 @@ pub enum TunnelError {
     #[error("Failed to set config of WireGuard tunnel")]
     SetConfigError,
 
+    /// Failed to duplicate tunnel file descriptor for wireguard-go
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "android"))]
+    #[error("Failed to duplicate tunnel file descriptor for wireguard-go")]
+    FdDuplicationError(#[source] nix::Error),
+
     /// Failed to set up a tunnel device
     #[error("Failed to setup a tunnel device")]
     SetupTunnelDevice(#[source] tun_provider::Error),
