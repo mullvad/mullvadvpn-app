@@ -2,7 +2,9 @@ use crate::types;
 use chrono::DateTime;
 use mullvad_types::account::{AccountData, VoucherSubmission};
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken, PlayExternalObfuscatedAccountId};
+use mullvad_types::account::{
+    PlayExternalObfuscatedAccountId, PlayPurchase, PlayPurchasePaymentToken,
+};
 
 use super::FromProtobufTypeError;
 

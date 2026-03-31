@@ -5,7 +5,7 @@ use futures::channel::mpsc;
 use hyper::body::Incoming;
 use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayExternalObfuscatedAccountId };
+use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::{collections::BTreeMap, future::Future, io, net::SocketAddr, path::Path, sync::Arc};
 use talpid_types::ErrorExt;

@@ -6,7 +6,9 @@ use futures::{
 
 use mullvad_api::rest;
 #[cfg(target_os = "android")]
-use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken, PlayExternalObfuscatedAccountId};
+use mullvad_types::account::{
+    PlayExternalObfuscatedAccountId, PlayPurchase, PlayPurchasePaymentToken,
+};
 use mullvad_types::{
     account::{AccountNumber, VoucherSubmission},
     device::{
