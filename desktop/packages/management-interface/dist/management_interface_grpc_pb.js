@@ -316,6 +316,17 @@ function deserialize_mullvad_daemon_management_interface_ObfuscationSettings(buf
   return management_interface_pb.ObfuscationSettings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId(arg) {
+  if (!(arg instanceof management_interface_pb.PlayExternalObfuscatedAccountId)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayExternalObfuscatedAccountId');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId(buffer_arg) {
+  return management_interface_pb.PlayExternalObfuscatedAccountId.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_PlayPurchase(arg) {
   if (!(arg instanceof management_interface_pb.PlayPurchase)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayPurchase');
@@ -325,17 +336,6 @@ function serialize_mullvad_daemon_management_interface_PlayPurchase(arg) {
 
 function deserialize_mullvad_daemon_management_interface_PlayPurchase(buffer_arg) {
   return management_interface_pb.PlayPurchase.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_mullvad_daemon_management_interface_PlayPurchasePaymentToken(arg) {
-  if (!(arg instanceof management_interface_pb.PlayPurchasePaymentToken)) {
-    throw new Error('Expected argument of type mullvad_daemon.management_interface.PlayPurchasePaymentToken');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_mullvad_daemon_management_interface_PlayPurchasePaymentToken(buffer_arg) {
-  return management_interface_pb.PlayPurchasePaymentToken.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_mullvad_daemon_management_interface_PublicKey(arg) {
@@ -1279,11 +1279,11 @@ initPlayPurchase: {
     requestStream: false,
     responseStream: false,
     requestType: google_protobuf_empty_pb.Empty,
-    responseType: management_interface_pb.PlayPurchasePaymentToken,
+    responseType: management_interface_pb.PlayExternalObfuscatedAccountId,
     requestSerialize: serialize_google_protobuf_Empty,
     requestDeserialize: deserialize_google_protobuf_Empty,
-    responseSerialize: serialize_mullvad_daemon_management_interface_PlayPurchasePaymentToken,
-    responseDeserialize: deserialize_mullvad_daemon_management_interface_PlayPurchasePaymentToken,
+    responseSerialize: serialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_PlayExternalObfuscatedAccountId,
   },
   verifyPlayPurchase: {
     path: '/mullvad_daemon.management_interface.ManagementService/VerifyPlayPurchase',

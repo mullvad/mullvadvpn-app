@@ -3225,6 +3225,26 @@ export namespace LeakInfo {
     }
 }
 
+export class PlayExternalObfuscatedAccountId extends jspb.Message { 
+    getId(): string;
+    setId(value: string): PlayExternalObfuscatedAccountId;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): PlayExternalObfuscatedAccountId.AsObject;
+    static toObject(includeInstance: boolean, msg: PlayExternalObfuscatedAccountId): PlayExternalObfuscatedAccountId.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: PlayExternalObfuscatedAccountId, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): PlayExternalObfuscatedAccountId;
+    static deserializeBinaryFromReader(message: PlayExternalObfuscatedAccountId, reader: jspb.BinaryReader): PlayExternalObfuscatedAccountId;
+}
+
+export namespace PlayExternalObfuscatedAccountId {
+    export type AsObject = {
+        id: string,
+    }
+}
+
 export class PlayPurchase extends jspb.Message { 
     getProductId(): string;
     setProductId(value: string): PlayPurchase;

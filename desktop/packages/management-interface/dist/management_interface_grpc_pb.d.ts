@@ -752,14 +752,14 @@ interface IManagementServiceService_IGetExcludedProcesses extends grpc.MethodDef
     responseSerialize: grpc.serialize<management_interface_pb.ExcludedProcessList>;
     responseDeserialize: grpc.deserialize<management_interface_pb.ExcludedProcessList>;
 }
-interface IManagementServiceService_IInitPlayPurchase extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.PlayPurchasePaymentToken> {
+interface IManagementServiceService_IInitPlayPurchase extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.PlayExternalObfuscatedAccountId> {
     path: "/mullvad_daemon.management_interface.ManagementService/InitPlayPurchase";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.PlayPurchasePaymentToken>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.PlayPurchasePaymentToken>;
+    responseSerialize: grpc.serialize<management_interface_pb.PlayExternalObfuscatedAccountId>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.PlayExternalObfuscatedAccountId>;
 }
 interface IManagementServiceService_IVerifyPlayPurchase extends grpc.MethodDefinition<management_interface_pb.PlayPurchase, google_protobuf_empty_pb.Empty> {
     path: "/mullvad_daemon.management_interface.ManagementService/VerifyPlayPurchase";
@@ -990,7 +990,7 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     setSplitTunnelState: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
     clearSplitTunnelApps: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
     getExcludedProcesses: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.ExcludedProcessList>;
-    initPlayPurchase: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.PlayPurchasePaymentToken>;
+    initPlayPurchase: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.PlayExternalObfuscatedAccountId>;
     verifyPlayPurchase: grpc.handleUnaryCall<management_interface_pb.PlayPurchase, google_protobuf_empty_pb.Empty>;
     needFullDiskPermissions: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.BoolValue>;
     checkVolumes: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_empty_pb.Empty>;
@@ -1225,9 +1225,9 @@ export interface IManagementServiceClient {
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
-    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
+    initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
+    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
+    initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
     verifyPlayPurchase(request: management_interface_pb.PlayPurchase, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
@@ -1495,9 +1495,9 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
     public getExcludedProcesses(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.ExcludedProcessList) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
-    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayPurchasePaymentToken) => void): grpc.ClientUnaryCall;
+    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
+    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
+    public initPlayPurchase(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PlayExternalObfuscatedAccountId) => void): grpc.ClientUnaryCall;
     public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public verifyPlayPurchase(request: management_interface_pb.PlayPurchase, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
