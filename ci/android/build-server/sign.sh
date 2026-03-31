@@ -10,7 +10,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
-MIN_SDK_VERSION="26"
+MIN_SDK_VERSION="28"
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "YUBIKEY_PIN pin must be set."

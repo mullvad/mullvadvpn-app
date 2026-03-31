@@ -8,7 +8,7 @@ shopt -s nullglob
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PLAY_UPLOAD_DIR=""
 
-trap '[[ -n "${PLAY_UPLOAD_DIR:-}" ]] && rm -rf "$PLAY_UPLOAD_DIR"' EXIT
+trap '[[ -n "${PLAY_UPLOAD_DIR:-}" && "$PLAY_UPLOAD_DIR" == *"/play_upload"* ]] && rm -rf "$PLAY_UPLOAD_DIR"' EXIT
 
 if [[ -z ${PLAY_CREDENTIALS_PATH-} ]]; then
     echo "PLAY_CREDENTIALS_PATH must be set"
