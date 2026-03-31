@@ -8,7 +8,6 @@
     "ci/linux-repository-builder/**",
     "ci/publish-app-to-repositories.sh",
     "desktop/**",
-    "!desktop/packages/mullvad-vpn/locales",
     "installer-downloader/**",
     "mullvad-*/**",
     "!mullvad-ios/**",
@@ -38,7 +37,6 @@
     "ci/keys/**",
     "ci/verify-locked-down-signatures.sh",
     "code-owners.json",
-    "desktop/packages/mullvad-vpn/locales/**",
     ".github/CODEOWNERS",
     ".github/workflows/code-owner-*",
     ".github/workflows/verify-locked-down-signatures.yml"
