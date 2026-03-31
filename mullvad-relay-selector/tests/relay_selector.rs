@@ -1449,6 +1449,14 @@ fn include_in_country_with_few_relays() -> Result<(), Error> {
 mod partition_relays {
     //! Tests covering the [RelaySelector::partition_relays] algorithm.
     //!
+    //! # Snapshot tests
+    //! The snapshot files live in `tests/snapshots/`. To review and accept changes after
+    //! intentionally modifying the algorithm, run:
+    //!
+    //! ```text
+    //! cargo insta review -p mullvad-relay-selector
+    //! ```
+    //!
     //! This is partly a port of pre-existing tests to prevent regressions in the relay selection logic.
     //! The long term goal is to completely remove all old tests, but they will have to remain until
     //! the relay selector internals have been refactored to use the new partition_relays algorithm.
@@ -2065,6 +2073,47 @@ mod partition_relays {
         assert_eq!(reasons.as_slice(), &[Reason::Location]);
     }
 
+    /// Test that the autohop predicate discards inactive relays.
+    #[test]
+    fn test_autohop_inactive() {
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_location("country", "city");
+        relay_list.add_relay("inactive").active = false;
+        relay_list.add_relay("active");
+        let relay_selector = RelaySelector::from(relay_list);
+        let results = relay_selector.partition_relays(Predicate::Autohop(EntryConstraints {
+            general: ExitConstraints {
+                location: Constraint::Only(LocationConstraint::Location(
+                    GeographicLocationConstraint::Hostname(
+                        "country".into(),
+                        "city".into(),
+                        "inactive".into(),
+                    ),
+                )),
+                ..Default::default()
+            },
+            ..Default::default()
+        }));
+        assert!(
+            results
+                .discards
+                .iter()
+                .find(|d| &d.0.hostname == "inactive")
+                .unwrap()
+                .1
+                == vec![Reason::Inactive]
+        );
+        assert!(
+            results
+                .discards
+                .iter()
+                .find(|d| &d.0.hostname == "active")
+                .unwrap()
+                .1
+                == vec![Reason::Location]
+        );
+    }
+
     /// Test some multihop scenarios:
     /// - First scenario:
     ///     - Selecting one entry city with exactly one mathcing relay will remove it from the list of exit relays.
@@ -2133,6 +2182,168 @@ mod partition_relays {
             assert!(!matched.daita(), "{matched:#?}");
             let discarded = discards.pop().unwrap();
             assert!(discarded.0.daita(), "{discarded:#?}");
+        }
+    }
+
+    mod snapshots {
+        //! Snapshot tests for [`super::super::RelaySelector::partition_relays`].
+        //!
+        //! Each test covers one filtering scenario and produces a dedicated snapshot file in
+        //! `tests/snapshots/`. The snapshots use the checked-in `relays.json` relay list so they
+        //! reflect real production relay diversity: mixed ownership, multiple providers, relays
+        //! with/without DAITA, QUIC, LWO, shadowsocks extra addresses, etc.
+        //!
+        //! The snapshots will be large, but that is intentional — any algorithmic change will
+        //! produce a clear, reviewable diff across the full relay population.
+        //!
+        //! To review and accept changes after intentionally modifying the algorithm, run:
+        //!
+        //! ```text
+        //! cargo insta review -p mullvad-relay-selector
+        //! ```
+
+        use std::collections::BTreeMap;
+
+        use super::*;
+
+        /// Converts [`RelayPartitions`] into a sorted `hostname -> status` map for snapshotting.
+        ///
+        /// Each relay is represented as a single line, e.g.:
+        ///   `al-tia-wg-003: Discarded(Daita)`
+        ///   `se-got-wg-101: Match`
+        fn snapshot(predicate: Predicate) -> BTreeMap<String, String> {
+            let RelayPartitions { matches, discards } =
+                relay_selector().partition_relays(predicate);
+            let mut map = BTreeMap::new();
+            for relay in matches {
+                map.insert(relay.inner.hostname, "Match".to_string());
+            }
+            for (relay, reasons) in discards {
+                let reasons = reasons
+                    .into_iter()
+                    .map(|r| format!("{r:?}"))
+                    .sorted()
+                    .join(" ");
+                map.insert(relay.inner.hostname, format!("Discarded({reasons})"));
+            }
+            map
+        }
+
+        // --- Singlehop ---
+
+        #[test]
+        fn singlehop_default() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default()
+            )));
+        }
+
+        #[test]
+        fn singlehop_daita() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().daita(true)
+            )));
+        }
+
+        #[test]
+        fn singlehop_ipv6() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().ip_version(IpVersion::V6)
+            )));
+        }
+
+        #[test]
+        fn singlehop_mullvad_owned() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().ownership(Ownership::MullvadOwned)
+            )));
+        }
+
+        #[test]
+        fn singlehop_quic() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().obfuscation(ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Quic,
+                    ..Default::default()
+                })
+            )));
+        }
+
+        #[test]
+        fn singlehop_lwo() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().obfuscation(ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Lwo,
+                    ..Default::default()
+                })
+            )));
+        }
+
+        #[test]
+        fn singlehop_shadowsocks_any_port() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Singlehop(
+                EntryConstraints::default().obfuscation(ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                    ..Default::default()
+                })
+            )));
+        }
+
+        // --- Autohop ---
+        // Autohop: DAITA relay is accepted directly; non-DAITA relays are only accepted if an
+        // alternate DAITA entry can be found globally.
+
+        #[test]
+        fn autohop_default() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Autohop(EntryConstraints::default())));
+        }
+
+        #[test]
+        fn autohop_daita() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Autohop(
+                EntryConstraints::default().daita(true)
+            )));
+        }
+
+        // --- Entry (multihop) ---
+        // Shows which relays are eligible as the *entry* hop.
+
+        #[test]
+        fn entry_default() {
+            insta::assert_yaml_snapshot!(snapshot(
+                Predicate::Entry(MultihopConstraints::default())
+            ));
+        }
+
+        #[test]
+        fn entry_daita_entry() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Entry(
+                MultihopConstraints::default().entry(EntryConstraints::default().daita(true))
+            )));
+        }
+
+        #[test]
+        fn entry_mullvad_owned_entry() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Entry(
+                MultihopConstraints::default()
+                    .entry(EntryConstraints::default().ownership(Ownership::MullvadOwned))
+            )));
+        }
+
+        // --- Exit (multihop) ---
+        // Shows which relays are eligible as the *exit* hop.
+
+        #[test]
+        fn exit_default() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Exit(MultihopConstraints::default())));
+        }
+
+        #[test]
+        fn exit_mullvad_owned_exit() {
+            insta::assert_yaml_snapshot!(snapshot(Predicate::Exit(
+                MultihopConstraints::default()
+                    .exit(ExitConstraints::default().ownership(Ownership::MullvadOwned))
+            )));
         }
     }
 }

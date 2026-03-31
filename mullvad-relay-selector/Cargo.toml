@@ -17,6 +17,7 @@ talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 
 [dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
 proptest = { workspace = true }
 serde_json = { workspace = true }
 vec1 = { workspace = true }
