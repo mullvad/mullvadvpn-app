@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import SwiftUI
 
 struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
