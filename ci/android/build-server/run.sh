@@ -13,12 +13,27 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
-ANDROID_CREDENTIALS_DIR="$SCRIPT_DIR/credentials-android"
+PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
+SPECIFIC_REF=""
 
-function upload {
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --ref) SPECIFIC_REF="$2"; shift 2 ;;
+        *) echo "Unknown argument: $1"; exit 1 ;;
+    esac
+done
+
+if [[ -z ${YUBIKEY_PIN-} ]]; then
+    read -rsp "YUBIKEY_PIN = " YUBIKEY_PIN
+    echo ""
+    export YUBIKEY_PIN
+fi
+
+# Move files for CDN upload by: buildserver-upload.sh
+function prepare_for_cdn_upload {
     version=$1
 
     files=( * )
@@ -35,10 +50,9 @@ function run_in_linux_container {
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
-    ANDROID_CREDENTIALS_DIR=$ANDROID_CREDENTIALS_DIR \
-        CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
-        CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        ./building/containerized-build.sh android --app-bundle --enable-play-publishing || return 1
+    CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
+    CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
+    ./building/containerized-build.sh android --app-bundle || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }
@@ -67,7 +81,7 @@ function checkout_ref {
     git clean -df
 }
 
-function build_ref {
+function build_sign_and_publish_ref {
     ref=$1
     tag=${2:-""}
 
@@ -110,7 +124,15 @@ function build_ref {
         version="$version$version_suffix"
     fi
 
-    (cd "$artifact_dir" && upload "$version") || return 1
+    # Sign all artifacts
+    YUBIKEY_PIN=$YUBIKEY_PIN \
+    "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
+    || return 1
+
+    PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
+    "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
+
+    (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
 
@@ -129,17 +151,22 @@ while true; do
 
     git fetch --prune --tags 2> /dev/null || continue
 
+    if [[ -n "$SPECIFIC_REF" ]]; then
+        build_sign_and_publish_ref "$SPECIFIC_REF" || echo "Failed to build $SPECIFIC_REF"
+        exit 0
+    fi
+
     # Only build android/* tags.
     # Tags can't include spaces so SC2207 isn't a problem here
     # shellcheck disable=SC2207
     tags=( $(git tag | grep "$TAG_PATTERN_TO_BUILD") )
 
     for tag in "${tags[@]}"; do
-        build_ref "refs/tags/$tag" "$tag" || echo "Failed to build tag $tag"
+        build_sign_and_publish_ref "refs/tags/$tag" "$tag" || echo "Failed to build tag $tag"
     done
 
     for branch in "${BRANCHES_TO_BUILD[@]}"; do
-        build_ref "refs/remotes/$branch" || echo "Failed to build branch $tag"
+        build_sign_and_publish_ref "refs/remotes/$branch" || echo "Failed to build branch $branch"
     done
 
     sleep 240
