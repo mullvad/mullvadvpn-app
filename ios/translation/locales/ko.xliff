@@ -880,8 +880,8 @@
         <target state="final">더블린</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">해당 기능은 iOS 제한으로 인해 기본적으로 활성화되지 않았습니다. 당사의 다른 앱들은 기본적으로 VPN을 통해 모든 트래픽을 터널링합니다.</target>
         <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>
