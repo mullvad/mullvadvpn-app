@@ -33,8 +33,6 @@ NOTARIZE="false"
 UNIVERSAL="false"
 # If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
-# Use gotatun instead of wireguard-go.
-GOTATUN="true"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -48,7 +46,6 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --gotatun) GOTATUN="true";;
         --daemon-only) DAEMON_ONLY="true";;
         *)
             log_error "Unknown parameter: $1"
@@ -257,9 +254,6 @@ function build {
     fi
 
     local cargo_features=()
-    if [[ "$GOTATUN" == "false" ]]; then
-        cargo_features+=(--features wireguard-go)
-    fi
 
     local cargo_crates_to_build=(
         -p mullvad-daemon --bin mullvad-daemon
@@ -300,13 +294,6 @@ function build {
             mullvad-problem-report.exe
             mullvad-setup.exe
         )
-        if [[ "$GOTATUN" == "false" ]]; then
-            BINARIES+=(
-                libwg.dll
-                maybenot_ffi.dll
-            )
-            NPM_PACK_ARGS+=(--wggo)
-        fi
     fi
 
     if [[ -n $specified_target ]]; then

@@ -36,9 +36,6 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- Install Go (ideally version `1.21`) by following the [official instructions](https://golang.org/doc/install).
-  Newer versions may work too. This is optional if using `--gotatun`.
-
 - Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
   binaries are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases)
@@ -205,7 +202,6 @@ Building this requires at least 1GB of memory.
 ## Notes on options
 
 - `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
-- `--gotatun` - This will build with the `gotatun` Rust library instead the `wireguard-go-rs` Go library.
 
 ## Notes on targeting ARM64
 

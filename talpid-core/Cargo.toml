@@ -103,7 +103,6 @@ features = [
 [features]
 cgroup2 = []
 multihop-pcap = ["talpid-wireguard/multihop-pcap"]
-wireguard-go = ["talpid-wireguard/wireguard-go"]
 
 [lints]
 workspace = true
