@@ -36,7 +36,11 @@ fi
 function prepare_for_cdn_upload {
     version=$1
 
-    files=( * )
+    # Only include files. Skip subdirectories.
+    files=()
+    for f in *; do
+        [[ -f "$f" ]] && files+=("$f")
+    done
     checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
