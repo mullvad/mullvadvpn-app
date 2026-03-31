@@ -345,10 +345,13 @@ class BillingPaymentRepositoryTest {
         val mockPurchaseToken = "TOKEN"
         val mockBillingPurchase: Purchase = mockk()
         val mockBillingResult: BillingResult = mockk()
+        val mockAccountIdentifiers: AccountIdentifiers = mockk()
         every { mockBillingPurchase.purchaseState } returns Purchase.PurchaseState.PURCHASED
         every { mockBillingResult.responseCode } returns BillingResponseCode.OK
         every { mockBillingPurchase.products } returns listOf(mockProductId.value)
         every { mockBillingPurchase.purchaseToken } returns mockPurchaseToken
+        every { mockBillingPurchase.accountIdentifiers } returns mockAccountIdentifiers
+        every { mockAccountIdentifiers.obfuscatedAccountId } returns "Something"
         coEvery {
             mockBillingRepository.startPurchaseFlow(
                 productDetails = any(),
