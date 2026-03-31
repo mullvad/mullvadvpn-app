@@ -880,8 +880,8 @@
         <target state="final">Dublin</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">Devido a limitações do iOS, esta opção não está ativada por predefinição. As nossas outras aplicações encaminham todo o tráfego pela VPN por predefinição.</target>
         <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>
@@ -2399,7 +2399,7 @@ Pretende remover o número de conta guardado?</target>
       </trans-unit>
       <trans-unit id="Tap here to go to AppStore" xml:space="preserve" approved="yes">
         <source>Tap here to go to AppStore</source>
-        <target state="final">Toque aqui para ir para a AppStore</target>
+        <target state="final">Toque aqui para ir para a App Store</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">

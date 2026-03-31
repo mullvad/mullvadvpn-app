@@ -880,8 +880,8 @@
         <target state="final">ဒါဘလင်</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">iOS ကန့်သတ်ချက်များကြောင့် ပုံသေအနေဖြင့် မဖွင့်ထားပါ။ ပုံသေအားဖြင့် ကျွန်ုပ်တို့၏ အခြားအက်ပ်များသည် ဒေတာကူးလူးမှုကို VPN မှတစ်ဆင့် ပေးပို့ပါသည်။</target>
         <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>
@@ -2354,7 +2354,7 @@ Do you want to remove the saved account number?</source>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTED_TO" xml:space="preserve" approved="yes">
         <source>Tunnel connected to %1$@, %2$@</source>
-        <target state="final">Tunnel ကို %1$@ ၊ %2$@ နှင့် ချိတ်ထားသည်</target>
+        <target state="final">Tunnel ကို %1$@ ၊ %2$@ သို့ ချိတ်ထားသည်</target>
         <note>VoiceOver announcement when connected to a relay</note>
       </trans-unit>
       <trans-unit id="TUNNEL_STATE_CONNECTING" xml:space="preserve" approved="yes">

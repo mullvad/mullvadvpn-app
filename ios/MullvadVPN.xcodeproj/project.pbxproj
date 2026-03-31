@@ -34,9 +34,7 @@
 		01C981EA2F43C3410002D284 /* BlockedStateReason+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */; };
 		01C981EB2F45D5C20002D284 /* TunnelControlPageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */; };
 		01D13C212F11130500EC63DE /* RustLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01D13C202F11130500EC63DE /* RustLogging.swift */; };
-		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		01FFF9582F0469FC00BDAF45 /* IPVersionSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */; };
-		01FFF9592F0469FC00BDAF45 /* TunnelSettingsV8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFF9572F0469FC00BDAF45 /* TunnelSettingsV8.swift */; };
 		01FFF95F2F0BE13900BDAF45 /* SelectedEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFF95E2F0BE13900BDAF45 /* SelectedEndpoint.swift */; };
 		01FFF9612F0BE14E00BDAF45 /* ObfuscationMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01FFF9602F0BE14E00BDAF45 /* ObfuscationMethod.swift */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
@@ -1720,8 +1718,7 @@
 		01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPageTests.swift; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
-		01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IPVersionSettings.swift; path = MullvadSettings/IPVersionSettings.swift; sourceTree = "<group>"; };
-		01FFF9572F0469FC00BDAF45 /* TunnelSettingsV8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TunnelSettingsV8.swift; path = MullvadSettings/TunnelSettingsV8.swift; sourceTree = "<group>"; };
+		01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPVersionSettings.swift; sourceTree = "<group>"; };
 		01FFF95E2F0BE13900BDAF45 /* SelectedEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedEndpoint.swift; sourceTree = "<group>"; };
 		01FFF9602F0BE14E00BDAF45 /* ObfuscationMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethod.swift; sourceTree = "<group>"; };
 		062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTDefaults.swift; sourceTree = "<group>"; };
@@ -3919,6 +3916,7 @@
 				7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */,
 				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
 				7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */,
+				01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
@@ -4073,8 +4071,6 @@
 				589A454A28DDF59B00565204 /* Shared */,
 				7A83C3FC2A55B39500DFB83A /* TestPlans */,
 				58695A9E2A4ADA9200328DB3 /* TunnelObfuscationTests */,
-				01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */,
-				01FFF9572F0469FC00BDAF45 /* TunnelSettingsV8.swift */,
 			);
 			sourceTree = "<group>";
 		};
