@@ -880,8 +880,8 @@
         <target state="final">ดับลิน</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">ฟีเจอร์นี้จึงไม่ได้เปิดใช้งานเป็นค่าเริ่มต้น เนื่องจากข้อจำกัดของ iOS ในขณะที่แอปอื่นๆ ของเราจะส่งการรับส่งข้อมูลทั้งหมดผ่านอุโมงค์ VPN โดยอัตโนมัติ</target>
         <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>

@@ -15,7 +15,7 @@ struct SettingsViewModel {
 
     var currentLanguage: String {
         let currentLanguage = ApplicationLanguage.currentLanguage
-        return "\(currentLanguage.flagEmoji) \(currentLanguage.displayName)"
+        return currentLanguage.displayName
     }
 
     init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {

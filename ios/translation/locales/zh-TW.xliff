@@ -880,8 +880,8 @@
         <target state="final">都柏林</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">由於 iOS 的限制，這項功能預設不會啟用。我們其他應用程式預設透過 VPN 傳輸所有流量。</target>
         <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
       </trans-unit>
@@ -1487,7 +1487,7 @@
       </trans-unit>
       <trans-unit id="Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection." xml:space="preserve" approved="yes">
         <source>Locations can be selected directly or expanded. When a city or country is selected, all compatible servers in that location will be candidates for any given tunnel connection.</source>
-        <target state="final">可以直接選取位置，也可以展開位置。選取城市或國家/地區後，該位置內所有相容伺服器都可能成為任何給定通道連線的候選伺服器。</target>
+        <target state="final">可直接選取位置，也可展開清單項目。選取城市或國家/地區後，該位置中所有相容的伺服器都可能成為該次通道連線的候選伺服器。</target>
         <note from="auto-generated">A description below the list of available locations, explaining how users can interact with them.</note>
       </trans-unit>
       <trans-unit id="Log out" xml:space="preserve" approved="yes">
