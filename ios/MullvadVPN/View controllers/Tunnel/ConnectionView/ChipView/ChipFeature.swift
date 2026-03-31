@@ -14,6 +14,11 @@ protocol ChipFeature: Identifiable {
     var id: FeatureType { get }
     var isEnabled: Bool { get }
     var name: String { get }
+    var icon: Image? { get }
+}
+
+extension ChipFeature {
+    var icon: Image? { nil }
 }
 
 enum FeatureType {
@@ -39,9 +44,7 @@ struct DaitaFeature: ChipFeature {
     var name: String {
         // When multihop is enabled via DAITA without being explicitly enabled
         // by the user, display combined indicator instead.
-        state.isMultihop && !settings.tunnelMultihopState.isUserSelected
-            ? "\(NSLocalizedString("DAITA", comment: "")): \(NSLocalizedString("Multihop", comment: ""))"
-            : NSLocalizedString("DAITA", comment: "")
+        NSLocalizedString("DAITA", comment: "")
     }
 }
 
@@ -64,13 +67,17 @@ struct MultihopFeature: ChipFeature {
     let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
-        // Multihop indicator should only be visible when user has explicitly turned on
-        // multihop, not when using multihop via DAITA.
-        state.isMultihop && settings.tunnelMultihopState.isUserSelected
+        state.isMultihop
     }
 
     var name: String {
         NSLocalizedString("Multihop", comment: "")
+    }
+
+    var icon: Image? {
+        // Smart Location icon should only be visible when multihop has been
+        // automatically activated, and not explicitly selected by the user
+        settings.tunnelMultihopState.isUserSelected ? nil : Image("IconSmartLocation")
     }
 }
 
