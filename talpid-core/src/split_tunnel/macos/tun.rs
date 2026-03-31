@@ -30,7 +30,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::broadcast,
 };
-use tun::Device;
+use tun05::Device;
 
 /// IP address used by the ST utun
 const ST_IFACE_IPV4: Ipv4Addr = Ipv4Addr::new(10, 123, 123, 123);
@@ -43,7 +43,7 @@ const DEFAULT_BUFFER_SIZE: c_uint = 16 * 1024 * 1024;
 pub enum Error {
     /// Failed to create split tunnel utun
     #[error("Failed to create split tunnel interface")]
-    CreateSplitTunnelInterface(#[source] tun::Error),
+    CreateSplitTunnelInterface(#[source] tun05::Error),
     /// Failed to set IPv6 address on tunnel interface
     #[error("Failed to set IPv6 address on tunnel interface")]
     AddIpv6Address(#[source] io::Error),
@@ -110,7 +110,7 @@ pub struct SplitTunnelHandle {
     /// A sender that gracefully stops the other tasks (`ingress_task`, and `egress_task`)
     abort_tx: broadcast::Sender<()>,
     /// Task that handles incoming packets. On completion, it returns a handle for the ST utun
-    ingress_task: tokio::task::JoinHandle<tun::AsyncDevice>,
+    ingress_task: tokio::task::JoinHandle<tun05::AsyncDevice>,
     /// Task that handles outgoing packets. On completion, it returns a handle for the pktap, as
     /// well as the function used to classify packets
     egress_task: tokio::task::JoinHandle<Result<EgressResult, Error>>,
@@ -189,11 +189,11 @@ pub async fn create_split_tunnel(
 }
 
 /// Create a utun device for split tunneling, and configure its IP addresses.
-async fn create_utun() -> Result<tun::AsyncDevice, Error> {
-    let mut tun_config = tun::configure();
+async fn create_utun() -> Result<tun05::AsyncDevice, Error> {
+    let mut tun_config = tun05::configure();
     tun_config.address(ST_IFACE_IPV4).up();
     let tun_device =
-        tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
+        tun05::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
     let tun_name = tun_device.get_ref().name().to_owned();
     add_ipv6_address(&tun_name, ST_IFACE_IPV6).await?;
     Ok(tun_device)
@@ -225,7 +225,7 @@ type ClassifyFn = Box<dyn Fn(&PktapPacket) -> RoutingDecision + Send>;
 /// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
 /// Only the IP header and payload are.
 fn redirect_packets(
-    st_tun_device: tun::AsyncDevice,
+    st_tun_device: tun05::AsyncDevice,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
     route_manager: RouteManagerHandle,
@@ -251,7 +251,7 @@ fn redirect_packets(
 /// `classify` receives an Ethernet frame. The Ethernet header is not valid at this point, however.
 /// Only the IP header and payload are.
 fn redirect_packets_for_pktap_stream(
-    st_tun_device: tun::AsyncDevice,
+    st_tun_device: tun05::AsyncDevice,
     pktap_stream: PktapStream,
     default_interface: DefaultInterface,
     vpn_interface: Option<VpnInterface>,
@@ -273,7 +273,7 @@ fn redirect_packets_for_pktap_stream(
     let (abort_tx, abort_rx) = broadcast::channel(1);
     let abort_read_rx = abort_tx.subscribe();
 
-    let ingress_task: tokio::task::JoinHandle<tun::AsyncDevice> = tokio::spawn(run_ingress_task(
+    let ingress_task: tokio::task::JoinHandle<tun05::AsyncDevice> = tokio::spawn(run_ingress_task(
         st_tun_device,
         default_stream,
         read_buffer_size,
@@ -385,13 +385,13 @@ fn open_default_bpf(
 
 /// Read incoming packets on the default interface and send them back to the ST utun.
 async fn run_ingress_task(
-    st_tun_device: tun::AsyncDevice,
+    st_tun_device: tun05::AsyncDevice,
     mut default_read: bpf::BpfStream,
     read_buffer_size: usize,
     vpn_interface: Option<VpnInterface>,
     mut abort_rx: broadcast::Receiver<()>,
     mut abort_read_rx: broadcast::Receiver<()>,
-) -> tun::AsyncDevice {
+) -> tun05::AsyncDevice {
     let mut read_buffer = vec![0u8; read_buffer_size];
     log::trace!("Default BPF reader buffer size: {:?}", read_buffer.len());
 
@@ -628,7 +628,7 @@ fn classify_and_send(
 }
 
 async fn handle_incoming_data(
-    tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
+    tun_writer: &mut tokio::io::WriteHalf<tun05::AsyncDevice>,
     payload: &mut [u8],
     vpn_v4: Option<Ipv4Addr>,
     vpn_v6: Option<Ipv6Addr>,
@@ -668,7 +668,7 @@ async fn handle_incoming_data(
 }
 
 async fn handle_incoming_data_v4(
-    tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
+    tun_writer: &mut tokio::io::WriteHalf<tun05::AsyncDevice>,
     mut ip: MutableIpv4Packet<'_>,
     vpn_addr: Ipv4Addr,
 ) {
@@ -694,7 +694,7 @@ async fn handle_incoming_data_v4(
 }
 
 async fn handle_incoming_data_v6(
-    tun_writer: &mut tokio::io::WriteHalf<tun::AsyncDevice>,
+    tun_writer: &mut tokio::io::WriteHalf<tun05::AsyncDevice>,
     mut ip: MutableIpv6Packet<'_>,
     vpn_addr: Ipv6Addr,
 ) {

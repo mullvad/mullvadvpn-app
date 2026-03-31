@@ -1,9 +1,4 @@
-use std::{
-    borrow::Cow,
-    ffi::CString,
-    net::{Ipv4Addr, Ipv6Addr},
-};
-use talpid_types::net::wireguard::PeerConfig;
+use std::net::{Ipv4Addr, Ipv6Addr};
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
 /// Name to use for the tunnel device
@@ -119,32 +114,6 @@ impl Config {
         Ok(config)
     }
 
-    /// Returns a CString with the appropriate config for WireGuard-go
-    // TODO: Consider outputting both overriding and additive configs
-    pub fn to_userspace_format(&self) -> CString {
-        let private_key = &self.tunnel.private_key;
-        let peers = self.peers();
-        // the order of insertion matters, public key entry denotes a new peer entry
-        let mut wg_conf = WgConfigBuffer::new();
-        wg_conf
-            .add::<&[u8]>("private_key", private_key.to_bytes().as_ref())
-            .add("listen_port", "0");
-
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = self.fwmark {
-            wg_conf.add("fwmark", fwmark.to_string().as_str());
-        }
-
-        wg_conf.add("replace_peers", "true");
-
-        for peer in peers {
-            write_peer_to_config(&mut wg_conf, peer)
-        }
-
-        let bytes = wg_conf.into_config();
-        CString::new(bytes).expect("null bytes inside config")
-    }
-
     /// Return whether the config connects to an exit peer from another remote peer.
     pub fn is_multihop(&self) -> bool {
         self.exit_peer.is_some()
@@ -181,72 +150,6 @@ impl Config {
         self.peers()
             .flat_map(|peer| peer.allowed_ips.iter())
             .cloned()
-    }
-}
-
-enum ConfValue<'a> {
-    String(&'a str),
-    Bytes(&'a [u8]),
-}
-
-impl<'a> From<&'a str> for ConfValue<'a> {
-    fn from(s: &'a str) -> ConfValue<'a> {
-        ConfValue::String(s)
-    }
-}
-
-impl<'a> From<&'a [u8]> for ConfValue<'a> {
-    fn from(s: &'a [u8]) -> ConfValue<'a> {
-        ConfValue::Bytes(s)
-    }
-}
-
-impl<'a> ConfValue<'a> {
-    fn to_bytes(&self) -> Cow<'a, [u8]> {
-        match self {
-            ConfValue::String(s) => s.as_bytes().into(),
-            ConfValue::Bytes(bytes) => Cow::Owned(hex::encode(bytes).into_bytes()),
-        }
-    }
-}
-
-struct WgConfigBuffer {
-    buf: Vec<u8>,
-}
-
-impl WgConfigBuffer {
-    pub fn new() -> WgConfigBuffer {
-        WgConfigBuffer { buf: Vec::new() }
-    }
-
-    pub fn add<'a, C: Into<ConfValue<'a>> + 'a>(&mut self, key: &str, value: C) -> &mut Self {
-        self.buf.extend(key.as_bytes());
-        self.buf.extend(b"=");
-        self.buf.extend(value.into().to_bytes().as_ref());
-        self.buf.extend(b"\n");
-        self
-    }
-
-    pub fn into_config(mut self) -> Vec<u8> {
-        self.buf.push(b'\n');
-        self.buf
-    }
-}
-
-fn write_peer_to_config(wg_conf: &mut WgConfigBuffer, peer: &PeerConfig) {
-    wg_conf
-        .add::<&[u8]>("public_key", peer.public_key.as_bytes().as_ref())
-        .add("endpoint", peer.endpoint.to_string().as_str())
-        .add("replace_allowed_ips", "true");
-    if let Some(ref psk) = peer.psk {
-        wg_conf.add::<&[u8]>("preshared_key", psk.as_bytes().as_ref());
-    }
-    for addr in &peer.allowed_ips {
-        wg_conf.add("allowed_ip", addr.to_string().as_str());
-    }
-    #[cfg(daita)]
-    if peer.constant_packet_size {
-        wg_conf.add("constant_packet_size", "true");
     }
 }
 

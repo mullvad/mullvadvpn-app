@@ -60,7 +60,7 @@ impl TunnelParameters {
             || self.options.userspace
             || self.options.daita
             // Always prefer GotaTun for multihop on Windows
-            || (cfg!(target_os = "windows") && cfg!(not(feature = "wireguard-go")) && self.connection.exit_peer.is_some())
+            || (cfg!(target_os = "windows") && self.connection.exit_peer.is_some())
     }
 }
 
