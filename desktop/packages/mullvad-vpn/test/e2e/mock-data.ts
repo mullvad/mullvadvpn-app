@@ -1,4 +1,9 @@
-import { IRelayList, IWireguardEndpointData } from '../../src/shared/daemon-rpc-types';
+import {
+  type CustomLists,
+  IRelayList,
+  IWireguardEndpointData,
+  type Recents,
+} from '../../src/shared/daemon-rpc-types';
 
 const wireguardEndpointData: IWireguardEndpointData = {
   portRanges: [],
@@ -29,7 +34,7 @@ const relayList: IRelayList = {
               lwo: true,
             },
             {
-              hostname: 'mullvad-wireguard-23',
+              hostname: 'mullvad-wireguard-2',
               provider: 'mullvad',
               ipv4AddrIn: '10.0.0.2',
               includeInCountry: true,
@@ -70,10 +75,49 @@ const relayList: IRelayList = {
         },
       ],
     },
+    {
+      name: 'Denmark',
+      code: 'dk',
+      cities: [],
+    },
   ],
 };
+
+const customLists: CustomLists = [
+  {
+    id: 'custom-list-1',
+    name: 'Custom List 1',
+    locations: [],
+  },
+];
+
+const recents: Recents = [
+  {
+    type: 'singlehop',
+    location: {
+      country: relayList.countries[0].code,
+    },
+  },
+  {
+    type: 'singlehop',
+    location: {
+      customList: customLists[0].id,
+    },
+  },
+  {
+    type: 'multihop',
+    entry: {
+      country: relayList.countries[0].code,
+    },
+    exit: {
+      country: relayList.countries[0].code,
+    },
+  },
+];
 
 export const mockData = {
   relayList,
   wireguardEndpointData,
+  customLists,
+  recents,
 };
