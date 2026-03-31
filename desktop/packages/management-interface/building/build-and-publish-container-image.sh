@@ -18,7 +18,7 @@ source "$ROOT_DIR/scripts/utils/log"
 
 tag="$(git rev-parse --short HEAD)"
 container_name="mullvadvpn-app-build-node-grpc-bindings"
-containerfile_path="$SCRIPT_DIR/Dockerfile"
+containerfile_path="$SCRIPT_DIR/Dockerfile" # TODO: Conditionally use Dockerfile.arm64
 container_context_dir="$DESKTOP_DIR"
 full_container_name="$REGISTRY_HOST/$REGISTRY_ORG/$container_name"
 
