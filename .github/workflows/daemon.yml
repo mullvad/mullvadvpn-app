@@ -80,7 +80,6 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       # The container image already has rustup and the pinned version of Rust
       - name: Install Rust toolchain

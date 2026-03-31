@@ -121,12 +121,6 @@ cd mullvadvpn-app
 git submodule update --init
 ```
 
-On Android, Windows, Linux and macOS you also want to checkout the wireguard-go submodule:
-```bash
-git submodule update --init wireguard-go-rs/libwg/wireguard-go
-```
-Further details on why this is necessary can be found in the [wireguard-go-rs crate](./wireguard-go-rs/README.md).
-
 We sign every merge commit to the `main` branch as well as our release tags.
 If you would like to verify your checkout, you can find our developer keys on
 [Mullvad's Open Source page].
