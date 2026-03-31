@@ -404,7 +404,11 @@ impl WireguardMonitor {
     ///   being ready to serve traffic.
     /// - No routes are configured on android.
     #[cfg(target_os = "android")]
-    pub fn start(params: &TunnelParameters, args: TunnelArgs<'_>) -> Result<WireguardMonitor> {
+    pub fn start(
+        params: &TunnelParameters,
+        args: TunnelArgs<'_>,
+        _log_path: Option<&Path>,
+    ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
