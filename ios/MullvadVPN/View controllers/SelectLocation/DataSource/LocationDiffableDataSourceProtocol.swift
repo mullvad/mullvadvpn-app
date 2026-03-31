@@ -147,7 +147,7 @@ extension LocationDiffableDataSourceProtocol {
     ) -> [LocationCellViewModel] {
         var viewModels = [LocationCellViewModel]()
 
-        for childNode in node.children where !childNode.isHiddenFromSearch {
+        for childNode in node.children {
             viewModels.append(
                 LocationCellViewModel(
                     section: section,
