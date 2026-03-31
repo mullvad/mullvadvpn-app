@@ -34,11 +34,7 @@ UNIVERSAL="false"
 # If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
 # Use gotatun instead of wireguard-go.
-GOTATUN="false"
-# Enable GotaTun by default on macOS and Linux.
-if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == "Linux" ]]; then
-    GOTATUN="true"
-fi
+GOTATUN="true"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
