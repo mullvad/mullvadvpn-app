@@ -147,8 +147,9 @@ enum UIMetrics {
     }
 
     enum FeatureIndicators {
-        static let chipViewHorisontalPadding: CGFloat = 8
+        static let chipViewHorizontalPadding: CGFloat = 8
         static let chipViewTrailingMargin: CGFloat = 6
+        static let chipViewIconTextSpacing: CGFloat = 2
     }
 }
 

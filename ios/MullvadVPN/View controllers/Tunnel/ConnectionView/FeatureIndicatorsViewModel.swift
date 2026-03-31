@@ -57,7 +57,7 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         return
             features
             .filter { $0.isEnabled }
-            .map { ChipModel(id: $0.id, name: $0.name) }
+            .map { ChipModel(id: $0.id, name: $0.name, icon: $0.icon) }
     }
 
     func onPressed(item: ChipModel) {

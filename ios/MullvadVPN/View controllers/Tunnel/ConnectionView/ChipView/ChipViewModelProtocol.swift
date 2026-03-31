@@ -27,7 +27,7 @@ extension ChipViewModelProtocol {
             let textWidth = chip.name.width(using: .preferredFont(forTextStyle: .subheadline))
             let chipWidth =
                 textWidth
-                + UIMetrics.FeatureIndicators.chipViewHorisontalPadding * 2
+                + UIMetrics.FeatureIndicators.chipViewHorizontalPadding * 2
                 + UIMetrics.FeatureIndicators.chipViewTrailingMargin
             let isLastChip = index == chips.count - 1
 
