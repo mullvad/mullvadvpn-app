@@ -41,6 +41,10 @@ pub enum Error {
     #[error("Failed to install split tunnel driver")]
     InstallService(#[source] windows_service::Error),
 
+    /// Failed to update service configuration
+    #[error("Failed to update service configuration")]
+    UpdateServiceConfig(#[source] windows_service::Error),
+
     /// Failed to start ST service
     #[error("Timed out waiting on service to start")]
     StartTimeout,
@@ -78,6 +82,13 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         }
     };
 
+    // Ensure the service is configured correctly and points to the correct driver.
+    // This is a best effort. If the service is already running, things may fail later.
+    // We cannot restart it since old versions risk BSODing.
+    service
+        .change_config(&driver_service_info(&expected_syspath))
+        .map_err(Error::UpdateServiceConfig)?;
+
     start_and_wait_for_service(&service)
 }
 
@@ -114,10 +125,8 @@ fn stop_service(service: &Service) -> Result<(), Error> {
     wait_for_status(service, ServiceState::Stopped)
 }
 
-fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
-    log::debug!("Installing split tunnel driver");
-
-    let service_info = ServiceInfo {
+fn driver_service_info(syspath: &Path) -> ServiceInfo {
+    ServiceInfo {
         name: SPLIT_TUNNEL_SERVICE.into(),
         display_name: SPLIT_TUNNEL_DISPLAY_NAME.into(),
         service_type: ServiceType::KERNEL_DRIVER,
@@ -128,11 +137,15 @@ fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
         dependencies: vec![],
         account_name: None,
         account_password: None,
-    };
+    }
+}
+
+fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
+    log::debug!("Installing split tunnel driver");
 
     let service = scm
         .create_service(
-            &service_info,
+            &driver_service_info(syspath),
             ServiceAccess::START | ServiceAccess::QUERY_STATUS,
         )
         .map_err(Error::InstallService)?;
