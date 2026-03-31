@@ -7,13 +7,20 @@
 
 set -eu
 
-CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-IMAGE_HASH="4c6c9f0924"
-IMAGE_NAME="ghcr.io/mullvad/mullvadvpn-app-build-node-grpc-bindings:$IMAGE_HASH"
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROTO_DIR="$( cd "$SCRIPT_DIR/../../../../mullvad-management-interface/proto" && pwd )"
 OUT_DIR="$SCRIPT_DIR/../dist"
+
+# exports "$arch".
+source "$SCRIPT_DIR/../../../../scripts/utils/host"
+
+CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+case $arch in
+    x86_64) HOST="4c6c9f0924";;
+    aarch64) HOST="2f68664b71";; #TODO: Fill in with actual has from buildserver build.
+esac
+IMAGE_NAME="ghcr.io/mullvad/mullvadvpn-app-build-node-grpc-bindings:$IMAGE_HASH"
+
 
 set -x
 exec "$CONTAINER_RUNNER" run --rm -it \
