@@ -43,9 +43,6 @@ echo "Removing fish shell completion symlink ..."
 sudo rm -f "/opt/homebrew/share/fish/vendor_completions.d/mullvad.fish"
 sudo rm -f "/usr/local/share/fish/vendor_completions.d/mullvad.fish"
 
-echo "Removing daemon binary from PrivilegedHelperTools ..."
-sudo rm -f "/Library/PrivilegedHelperTools/net.mullvad.daemon"
-
 echo "Removing CLI symlinks from /usr/local/bin/ ..."
 sudo rm -f /usr/local/bin/mullvad /usr/local/bin/mullvad-problem-report
 
