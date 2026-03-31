@@ -50,9 +50,11 @@ function run_in_linux_container {
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
+    local build_flag=$1
+    
     CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-    ./building/containerized-build.sh android "$@" || return 1
+    ./building/containerized-build.sh android "$build_flag" || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }
