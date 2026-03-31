@@ -145,6 +145,7 @@ pub struct WireguardMonitor {
 #[cfg(not(target_os = "android"))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
+    return true;
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false)
