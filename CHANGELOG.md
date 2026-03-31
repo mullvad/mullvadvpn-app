@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
+- GotaTun is now used as the userspace WireGuard implementation on all desktop platforms.
+  It replaces wireguard-go.
 
 ### Changed
 - Optimize LWO performance when using GotaTun. This gives a 1.5 to 3 times speedup in our
