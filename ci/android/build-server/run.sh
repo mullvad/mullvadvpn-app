@@ -44,7 +44,7 @@ function prepare_for_cdn_upload {
     checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
 
-    mv "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+    cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 }
 
 function run_in_linux_container {
@@ -133,14 +133,15 @@ function build_sign_and_publish_ref {
     "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
     || return 1
 
+    (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
+
+    touch "$LAST_BUILT_DIR/$current_hash"
+
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
-    (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
-
-    touch "$LAST_BUILT_DIR/$current_hash"
 
     echo ""
     echo "Successfully finished building $version at $(date)"
