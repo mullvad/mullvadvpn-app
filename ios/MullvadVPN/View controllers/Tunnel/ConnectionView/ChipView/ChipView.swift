@@ -17,31 +17,45 @@ struct ChipView: View {
         Button {
             onPress?()
         } label: {
-            Text(item.name)
-                .font(.subheadline)
-                .lineLimit(1)
-                .foregroundStyle(UIColor.primaryTextColor.color)
-                .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorisontalPadding)
-                .padding(.vertical, 4)
+            HStack(spacing: UIMetrics.FeatureIndicators.chipViewIconTextSpacing) {
+                if let icon = item.icon {
+                    icon
+                        .foregroundStyle(UIColor.primaryTextColor.color)
+                }
+                Text(item.name)
+                    .font(.subheadline)
+                    .lineLimit(1)
+                    .foregroundStyle(UIColor.primaryTextColor.color)
+                    .padding(.vertical, 4)
+            }
+            .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorizontalPadding)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    UIColor.primaryColor.color,
+                    lineWidth: borderWidth
+                )
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(
-                            UIColor.primaryColor.color,
-                            lineWidth: borderWidth
-                        )
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(UIColor.secondaryColor.color)
-                        )
-                        .padding(borderWidth)
+                        .fill(UIColor.secondaryColor.color)
                 )
-        }
+                .padding(borderWidth)
+        )
     }
 }
 
-#Preview {
+#Preview("Text only") {
     ZStack {
         ChipView(item: ChipModel(id: .daita, name: "Example")) {}
+    }
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(UIColor.secondaryColor.color)
+}
+
+#Preview("Text + icon") {
+    ZStack {
+        ChipView(item: ChipModel(id: .daita, name: "Example", icon: Image("IconSmartLocation"))) {}
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(UIColor.secondaryColor.color)
