@@ -42,7 +42,6 @@ class RecentListDataSource: LocationDataSourceProtocol {
                     parent: copiedNode.parent,
                     children: copiedNode.children,
                     showsChildren: false,  // Recents shouldn't be expandable
-                    isHiddenFromSearch: true,  // Recents shouldn't be searchable
                     locationInfo: allLocationNode?.pathToRoot())  // Store relay location info (country, city)
 
             }
