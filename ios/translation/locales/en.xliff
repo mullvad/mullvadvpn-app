@@ -15,6 +15,11 @@
         <target state="new">%@</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="new">%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
         <target state="new">%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</target>
@@ -50,6 +55,11 @@
         <target state="new">%@ was added to your account.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="%@ “%@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="new">%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
+      </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve">
         <source>%1$@, %2$@</source>
         <target state="new">%1$@, %2$@</target>
@@ -84,6 +94,11 @@
         <source>API access</source>
         <target state="new">API access</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="API access methods" xml:space="preserve">
+        <source>API access methods</source>
+        <target state="new">API access methods</target>
+        <note from="auto-generated">Text for a button that navigates to a view showing all API access methods.</note>
       </trans-unit>
       <trans-unit id="API reachable" xml:space="preserve">
         <source>API reachable</source>
@@ -145,6 +160,11 @@
         <target state="new">Account number</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Account time reminders" xml:space="preserve">
+        <source>Account time reminders</source>
+        <target state="new">Account time reminders</target>
+        <note from="auto-generated">Accessibility identifier for the switch that controls account time reminders.</note>
+      </trans-unit>
       <trans-unit id="Active features" xml:space="preserve">
         <source>Active features</source>
         <target state="new">Active features</target>
@@ -200,6 +220,11 @@
         <target state="new">Adult content</target>
         <note/>
       </trans-unit>
+      <trans-unit id="After updating, you will have to enable “%@” manually again." xml:space="preserve">
+        <source>After updating, you will have to enable “%@” manually again.</source>
+        <target state="new">After updating, you will have to enable “%@” manually again.</target>
+        <note from="auto-generated">A note that appears below the option to disable IAN in the alert. The argument is the string “Force all apps”.</note>
+      </trans-unit>
       <trans-unit id="Agree and continue" xml:space="preserve">
         <source>Agree and continue</source>
         <target state="new">Agree and continue</target>
@@ -223,6 +248,11 @@
       <trans-unit id="All providers" xml:space="preserve">
         <source>All providers</source>
         <target state="new">All providers</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Always connect via an entry server. The location can either be set manually or automatically in the &quot;Select location&quot; view." xml:space="preserve">
+        <source>Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</source>
+        <target state="new">Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Amsterdam" xml:space="preserve">
@@ -273,6 +303,11 @@
       <trans-unit id="Atlanta, GA" xml:space="preserve">
         <source>Atlanta, GA</source>
         <target state="new">Atlanta, GA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="new">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
@@ -439,6 +474,11 @@
         <source>CONNECTING...</source>
         <target state="new">CONNECTING...</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve">
+        <source>CUSTOM API ACCESS METHOD IS INVALID</source>
+        <target state="new">CUSTOM API ACCESS METHOD IS INVALID</target>
+        <note from="auto-generated">Title of an in-app notification that informs the user that the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Calgary" xml:space="preserve">
         <source>Calgary</source>
@@ -650,6 +690,11 @@
         <target state="new">Custom</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Custom API access method is invalid" xml:space="preserve">
+        <source>Custom API access method is invalid</source>
+        <target state="new">Custom API access method is invalid</target>
+        <note from="auto-generated">A message displayed when the custom API access method is invalid.</note>
+      </trans-unit>
       <trans-unit id="Custom DNS" xml:space="preserve">
         <source>Custom DNS</source>
         <target state="new">Custom DNS</target>
@@ -805,6 +850,16 @@
         <target state="new">Disable recents</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Disable “%@”" xml:space="preserve">
+        <source>Disable “%@”</source>
+        <target state="new">Disable “%@”</target>
+        <note from="auto-generated">Button title in an in-app notification alert that allows The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="Disabling" xml:space="preserve">
+        <source>Disabling</source>
+        <target state="new">Disabling</target>
+        <note from="auto-generated">The first argument is the action to be performed ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
+      </trans-unit>
       <trans-unit id="Disabling recents will also clear history." xml:space="preserve">
         <source>Disabling recents will also clear history.</source>
         <target state="new">Disabling recents will also clear history.</target>
@@ -850,10 +905,10 @@
         <target state="new">Dublin</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve">
-        <source>Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
-        <target state="new">Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via the VPN by default.</target>
-        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+      <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve">
+        <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
+        <target state="new">Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</target>
+        <note from="auto-generated">Explanation of why the "Include all networks" feature is not enabled by default in the Mullvad VPN app.</note>
       </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve">
         <source>Dusseldorf</source>
@@ -924,6 +979,11 @@
         <source>Enable recents</source>
         <target state="new">Enable recents</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Enabling" xml:space="preserve">
+        <source>Enabling</source>
+        <target state="new">Enabling</target>
+        <note from="auto-generated">The first argument is a verb ("Enabling" or "Disabling"). The argument is the name of the feature ("Include All Networks" or "Local Network Sharing").</note>
       </trans-unit>
       <trans-unit id="Enter IP" xml:space="preserve">
         <source>Enter IP</source>
@@ -1165,6 +1225,21 @@
         <target state="new">IMPORT SUCCESSFUL</target>
         <note/>
       </trans-unit>
+      <trans-unit id="IP version" xml:space="preserve">
+        <source>IP version</source>
+        <target state="new">IP version</target>
+        <note from="auto-generated">Name of the section that allows the user to select whether to use IPv4 or IPv6.</note>
+      </trans-unit>
+      <trans-unit id="IPv4" xml:space="preserve">
+        <source>IPv4</source>
+        <target state="new">IPv4</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="IPv6" xml:space="preserve">
+        <source>IPv6</source>
+        <target state="new">IPv6</target>
+        <note from="auto-generated">Name of the feature that toggles IPv6 support.</note>
+      </trans-unit>
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
         <target state="new">If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</target>
@@ -1195,6 +1270,11 @@
         <target state="new">If you disconnect now, you won’t be able to secure your connection until the device is online.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="If you do not wish to disable “%@“, you can disconnect from the VPN instead." xml:space="preserve">
+        <source>If you do not wish to disable “%@“, you can disconnect from the VPN instead.</source>
+        <target state="new">If you do not wish to disable “%@“, you can disconnect from the VPN instead.</target>
+        <note from="auto-generated">Text in an alert presented to a user when a new app version is available, The argument is the string “Force all apps”.</note>
+      </trans-unit>
       <trans-unit id="If you exit the form and try again later, the information you already entered will still be here." xml:space="preserve">
         <source>If you exit the form and try again later, the information you already entered will still be here.</source>
         <target state="new">If you exit the form and try again later, the information you already entered will still be here.</target>
@@ -1213,6 +1293,11 @@
       <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
         <target state="new">If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" xml:space="preserve">
+        <source>If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</source>
+        <target state="new">If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve">
@@ -1320,6 +1405,11 @@
         <target state="new">Istanbul</target>
         <note/>
       </trans-unit>
+      <trans-unit id="It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:" xml:space="preserve">
+        <source>It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</source>
+        <target state="new">It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</target>
+        <note from="auto-generated">Additional information about how the local network sharing feature works.</note>
+      </trans-unit>
       <trans-unit id="It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established." xml:space="preserve">
         <source>It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</source>
         <target state="new">It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</target>
@@ -1363,6 +1453,11 @@
       <trans-unit id="Kyiv" xml:space="preserve">
         <source>Kyiv</source>
         <target state="new">Kyiv</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="LWO" xml:space="preserve">
+        <source>LWO</source>
+        <target state="new">LWO</target>
         <note/>
       </trans-unit>
       <trans-unit id="Lagos" xml:space="preserve">
@@ -1419,6 +1514,11 @@
         <source>Ljubljana</source>
         <target state="new">Ljubljana</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Local Network Sharing" xml:space="preserve">
+        <source>Local Network Sharing</source>
+        <target state="new">Local Network Sharing</target>
+        <note from="auto-generated">The name of the feature that will be disabled when "Disabling Local Network Sharing" is selected.</note>
       </trans-unit>
       <trans-unit id="Local network sharing" xml:space="preserve">
         <source>Local network sharing</source>
@@ -1530,6 +1630,11 @@
         <target state="new">Melbourne</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Method settings" xml:space="preserve">
+        <source>Method settings</source>
+        <target state="new">Method settings</target>
+        <note from="auto-generated">Title of a view controller that allows the user to configure the settings of a specific access method.</note>
+      </trans-unit>
       <trans-unit id="Mexico" xml:space="preserve">
         <source>Mexico</source>
         <target state="new">Mexico</target>
@@ -1543,6 +1648,11 @@
       <trans-unit id="Milan" xml:space="preserve">
         <source>Milan</source>
         <target state="new">Milan</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Mode" xml:space="preserve">
+        <source>Mode</source>
+        <target state="new">Mode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Montreal" xml:space="preserve">
@@ -1605,6 +1715,11 @@
         <target state="new">Name is already taken.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve">
+        <source>Name should be no longer than %i characters</source>
+        <target state="new">Name should be no longer than %i characters</target>
+        <note from="auto-generated">Error message displayed when a user inputs a name that is too long. The argument is the maximum number of characters allowed in a name.</note>
+      </trans-unit>
       <trans-unit id="Name should be no longer than %i characters." xml:space="preserve">
         <source>Name should be no longer than %i characters.</source>
         <target state="new">Name should be no longer than %i characters.</target>
@@ -1654,6 +1769,11 @@
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
         <target state="new">No DAITA compatible servers match your location settings. Try changing location.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="No longer supported" xml:space="preserve">
+        <source>No longer supported</source>
+        <target state="new">No longer supported</target>
+        <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve">
         <source>No matching servers found.</source>
@@ -1850,6 +1970,11 @@
         <target state="new">Phoenix, AZ</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve">
+        <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
+        <target state="new">Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</target>
+        <note>Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
+      </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
         <target state="new">Please enter a valid IPv4 or IPv6 address.</target>
@@ -1869,6 +1994,16 @@
         <source>Please swipe through and read all information in order to activate this feature</source>
         <target state="new">Please swipe through and read all information in order to activate this feature</target>
         <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
+      </trans-unit>
+      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve">
+        <source>Please update it or enable a different one to be able to reach the API using this method.</source>
+        <target state="new">Please update it or enable a different one to be able to reach the API using this method.</target>
+        <note from="auto-generated">A description of what to do if the custom API access method is invalid.</note>
+      </trans-unit>
+      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve">
+        <source>Please update it or enable a different one to be able to reach the API.</source>
+        <target state="new">Please update it or enable a different one to be able to reach the API.</target>
+        <note from="auto-generated">Text displayed in the body of the in-app notification when the user has an invalid custom API access method.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve">
         <source>Poland</source>
@@ -2086,6 +2221,11 @@ Do you want to remove the saved account number?</target>
         <source>Selected</source>
         <target state="new">Selected</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Selected cipher no longer supported" xml:space="preserve">
+        <source>Selected cipher no longer supported</source>
+        <target state="new">Selected cipher no longer supported</target>
+        <note from="auto-generated">Error message displayed when a selected cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve">
         <source>Send</source>
@@ -2342,6 +2482,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Tap here to go to AppStore</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
+      <trans-unit id="Tap to view API access methods" xml:space="preserve">
+        <source>Tap to view API access methods</source>
+        <target state="new">Tap to view API access methods</target>
+        <note from="auto-generated">Action title for the in-app notification that informs the user to tap to view API access methods.</note>
+      </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve">
         <source>Tel Aviv</source>
         <target state="new">Tel Aviv</target>
@@ -2427,6 +2572,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">The selected WireGuard port is not supported, please change it under **VPN settings**.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="The selected obfuscation port is not supported, please change it under **VPN settings**." xml:space="preserve">
+        <source>The selected obfuscation port is not supported, please change it under **VPN settings**.</source>
+        <target state="new">The selected obfuscation port is not supported, please change it under **VPN settings**.</target>
+        <note from="auto-generated">Description of an in-app notification that appears when the selected obfuscation port is not supported.</note>
+      </trans-unit>
       <trans-unit id="The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out." xml:space="preserve">
         <source>The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</source>
         <target state="new">The version of settings stored on device is unrecognized.Settings will be reset to defaults and the device will be logged out.</target>
@@ -2486,6 +2636,16 @@ Do you want to remove the saved account number?</target>
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="new">This might cause issues on certain websites, services, and apps.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve">
+        <source>This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</source>
+        <target state="new">This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</target>
+        <note from="auto-generated">Description of a setting in the VPN settings screen that allows the user to choose between IPv4 and IPv6 connections.</note>
+      </trans-unit>
+      <trans-unit id="This will also disable “%@“." xml:space="preserve">
+        <source>This will also disable “%@“.</source>
+        <target state="new">This will also disable “%@“.</target>
+        <note from="auto-generated">A description of an action that will be taken when a user disables the "Include all networks" feature, including the action that will be taken with the "Local Network Sharing" feature. The argument is the string “Local Network Sharing”.</note>
       </trans-unit>
       <trans-unit id="Time left: %@" xml:space="preserve">
         <source>Time left: %@</source>
@@ -2647,6 +2807,11 @@ Do you want to remove the saved account number?</target>
         <target state="new">Update available</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
+      <trans-unit id="Update server list" xml:space="preserve">
+        <source>Update server list</source>
+        <target state="new">Update server list</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve">
         <source>Use custom DNS server</source>
         <target state="new">Use custom DNS server</target>
@@ -2676,6 +2841,11 @@ Do you want to remove the saved account number?</target>
         <source>Valid range: %1$d - %2$d</source>
         <target state="new">Valid range: %1$d - %2$d</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Valid ranges: %@" xml:space="preserve">
+        <source>Valid ranges: %@</source>
+        <target state="new">Valid ranges: %@</target>
+        <note from="auto-generated">A string describing the valid port ranges for LWO obfuscation. The argument is the string “”.</note>
       </trans-unit>
       <trans-unit id="Vancouver" xml:space="preserve">
         <source>Vancouver</source>
@@ -2792,6 +2962,16 @@ Do you want to remove the saved account number?</target>
         <target state="new">With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Would you like to continue to %@ “%@”?" xml:space="preserve">
+        <source>Would you like to continue to %1$@ “%2$@”?</source>
+        <target state="new">Would you like to continue to %1$@ “%2$@”?</target>
+        <note from="auto-generated">The message in an alert that asks the user whether they want to continue with enabling or disabling a feature. The first argument is a verb ("enable" or "disable"). The second argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="Would you like to continue?" xml:space="preserve">
+        <source>Would you like to continue?</source>
+        <target state="new">Would you like to continue?</target>
+        <note from="auto-generated">Question asked when a user is prompted to continue an action that requires restarting the VPN connection.</note>
+      </trans-unit>
       <trans-unit id="Yes, continue" xml:space="preserve">
         <source>Yes, continue</source>
         <target state="new">Yes, continue</target>
@@ -2836,6 +3016,11 @@ Do you want to remove the saved account number?</target>
         <source>You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</source>
         <target state="new">You can use the "restore purchases" function to check for any in-app payments made via Apple services. If there is a payment that has not been credited, it will add the time to the currently logged in Mullvad account.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating." xml:space="preserve">
+        <source>You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</source>
+        <target state="new">You currently have notifications disabled. This means that we cannot send you a notification when an update is available so that you can disable this feature or disconnect before updating.</target>
+        <note from="auto-generated">First paragraph of an alert that appears when the user is prompted to reconsider enabling notifications.</note>
       </trans-unit>
       <trans-unit id="You have %@ left on this account." xml:space="preserve">
         <source>You have %@ left on this account.</source>
@@ -2930,6 +3115,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <target state="new">Zurich</target>
         <note/>
       </trans-unit>
+      <trans-unit id="disable" xml:space="preserve">
+        <source>disable</source>
+        <target state="new">disable</target>
+        <note from="auto-generated">The first argument is a verb ("enable" or "disable"). The argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="enable" xml:space="preserve">
+        <source>enable</source>
+        <target state="new">enable</target>
+        <note from="auto-generated">The action to perform when continuing.</note>
+      </trans-unit>
       <trans-unit id="privacy policy" xml:space="preserve">
         <source>privacy policy</source>
         <target state="new">privacy policy</target>
@@ -2939,6 +3134,16 @@ We strongly believe in retaining as little data as possible because we want you 
         <source>value</source>
         <target state="new">value</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN." xml:space="preserve">
+        <source>“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN.</source>
+        <target state="new">“%@“ is enabled, please disable it before updating or you will lose network connectivity. This will briefly expose your traffic as you reconnect to the VPN.</target>
+        <note from="auto-generated">A message in an in-app notification alert that explains the purpose of the alert and gives an option to disable a feature that might cause a user to lose network connectivity when an app update is available. The first argument The argument is the string “Force all apps”.</note>
+      </trans-unit>
+      <trans-unit id="“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity." xml:space="preserve">
+        <source>“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</source>
+        <target state="new">“%@” is enabled, please disable it or disconnect before updating or you will lose network connectivity.</target>
+        <note from="auto-generated">A warning banner at the top of the screen that appears when the user has enabled "Force all apps" in Settings. The argument is the string “Force all apps”.</note>
       </trans-unit>
     </body>
   </file>
@@ -3018,6 +3223,11 @@ We strongly believe in retaining as little data as possible because we want you 
       <trans-unit id="Disable “%@” or disconnect before updating in order not to lose network connectivity." xml:space="preserve">
         <source>Disable “%@” or disconnect before updating in order not to lose network connectivity.</source>
         <target state="new">Disable “%@” or disconnect before updating in order not to lose network connectivity.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Force all apps" xml:space="preserve">
+        <source>Force all apps</source>
+        <target state="new">Force all apps</target>
         <note/>
       </trans-unit>
       <trans-unit id="Update available" xml:space="preserve">

@@ -150,8 +150,7 @@ extension IncludeAllNetworksSettingsView {
                             comment: ""
                         ),
                         NSLocalizedString(
-                            "Due to iOS limitations, this not enabled by default. Our other apps tunnel all traffic via "
-                                + "the VPN by default.",
+                            "Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.",
                             comment: ""
                         ),
                     ].joinedParagraphs(),
