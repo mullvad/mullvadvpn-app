@@ -183,7 +183,6 @@ cgroup2 = ["talpid-core/cgroup2"]
 default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
-wireguard-go = ["talpid-core/wireguard-go"]
 
 [lints]
 workspace = true
