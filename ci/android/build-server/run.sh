@@ -17,16 +17,27 @@ PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
 TAG_PATTERN_TO_BUILD="^android/"
+
 SPECIFIC_REF=""
+ENABLE_GPG_VERIFICATION="true"
+ENABLE_SIGNING="true"
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --ref) SPECIFIC_REF="$2"; shift 2 ;;
+        --no-verify) ENABLE_GPG_VERIFICATION="false"; shift ;;
+        --no-sign) ENABLE_SIGNING="false"; shift ;;
+        --upload-dir) UPLOAD_DIR="$2"; shift 2 ;;
         *) echo "Unknown argument: $1"; exit 1 ;;
     esac
 done
 
-if [[ -z ${YUBIKEY_PIN-} ]]; then
+if [[ ! -d "$UPLOAD_DIR" ]]; then
+    echo "Upload directory does not exist: $UPLOAD_DIR"
+    exit 1
+fi
+
+if [[ "$ENABLE_SIGNING" == "true" && -z ${YUBIKEY_PIN-} ]]; then
     read -rsp "YUBIKEY_PIN = " YUBIKEY_PIN
     echo ""
     export YUBIKEY_PIN
@@ -65,16 +76,20 @@ function build {
 # Returns an error code if the commit/tag at `ref` is not properly signed.
 function checkout_ref {
     ref=$1
-    if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
-        echo "!!!"
-        echo "[#] $ref is a tag, but it failed GPG verification!"
-        echo "!!!"
-        return 1
-    elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
-        echo "!!!"
-        echo "[#] $ref is a branch, but it failed GPG verification!"
-        echo "!!!"
-        return 1
+    if [[ "$ENABLE_GPG_VERIFICATION" == "true" ]]; then
+        if [[ $ref == "refs/tags/"* ]] && ! git verify-tag "$ref"; then
+            echo "!!!"
+            echo "[#] $ref is a tag, but it failed GPG verification!"
+            echo "!!!"
+            return 1
+        elif [[ $ref == "refs/remotes/"* ]] && ! git verify-commit "$current_hash"; then
+            echo "!!!"
+            echo "[#] $ref is a branch, but it failed GPG verification!"
+            echo "!!!"
+            return 1
+        fi
+    else
+        echo "WARNING: GPG verification skipped for $ref"
     fi
 
     # Clean our working dir and check out the code we want to build
@@ -129,9 +144,13 @@ function build_sign_and_publish_ref {
     fi
 
     # Sign all artifacts
-    YUBIKEY_PIN=$YUBIKEY_PIN \
-    "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
-    || return 1
+    if [[ "$ENABLE_SIGNING" == "true" ]]; then
+        YUBIKEY_PIN=$YUBIKEY_PIN \
+        "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
+        || return 1
+    else
+        echo "WARNING: Signing skipped for $version"
+    fi
 
     (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
 
