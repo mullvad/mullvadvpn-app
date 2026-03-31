@@ -1,12 +1,9 @@
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
-import java.io.FileInputStream
-import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 import utilities.BuildTypes
 import utilities.FlavorDimensions
 import utilities.Flavors
-import utilities.SigningConfigs
 import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
@@ -38,14 +35,6 @@ val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
 val changelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
-
-val credentialsPath = "${rootProject.projectDir}/credentials"
-val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
-val keystoreProperties = Properties()
-
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
-}
 
 val appVersion = appVersionProvider.get()
 
@@ -98,20 +87,9 @@ android {
         generateLocaleConfig = false
     }
 
-    if (keystorePropertiesFile.exists()) {
-        signingConfigs {
-            create(SigningConfigs.RELEASE) {
-                storeFile = file("$credentialsPath/app-keys.jks")
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-            }
-        }
-    }
-
     buildTypes {
         getByName(BuildTypes.RELEASE) {
-            signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
+            signingConfig = null
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -373,7 +351,7 @@ tasks.register("printVersion") {
 }
 
 play {
-    serviceAccountCredentials.set(file("$credentialsPath/play-api-key.json"))
+    System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
     // Disable for all flavors by default. Only specific flavors should be enabled using
     // PlayConfigs.
     enabled = false
