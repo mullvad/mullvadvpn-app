@@ -30,6 +30,7 @@ extension SearchableLocationDataSource {
         guard !text.isEmpty else {
             return nodes
         }
+        resetExpandedState()
         let results =
             nodes
             .compactMap { searchTree($0, searchText: text) }
@@ -103,6 +104,12 @@ extension SearchableLocationDataSource {
         }
 
         return []
+    }
+
+    private func resetExpandedState() {
+        nodes.forEachNode { node in
+            node.forEachDescendant { $0.showsChildren = false }
+        }
     }
 }
 

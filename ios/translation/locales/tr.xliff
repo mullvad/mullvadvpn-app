@@ -97,6 +97,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">API erişimi</target>
         <note/>
       </trans-unit>
+      <trans-unit id="API access methods" xml:space="preserve">
+        <source>API access methods</source>
+        <target state="needs-translation">API access methods</target>
+        <note from="auto-generated">Text for a button that navigates to a view showing all API access methods.</note>
+      </trans-unit>
       <trans-unit id="API reachable" xml:space="preserve" approved="yes">
         <source>API reachable</source>
         <target state="final">Erişilebilir API</target>
@@ -247,6 +252,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">Tüm hizmet sağlayıcılar</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Always connect via an entry server. The location can either be set manually or automatically in the &quot;Select location&quot; view." xml:space="preserve">
+        <source>Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</source>
+        <target state="needs-translation">Always connect via an entry server. The location can either be set manually or automatically in the "Select location" view.</target>
+        <note/>
+      </trans-unit>
       <trans-unit id="Amsterdam" xml:space="preserve" approved="yes">
         <source>Amsterdam</source>
         <target state="final">Amsterdam</target>
@@ -295,6 +305,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Atlanta, GA" xml:space="preserve" approved="yes">
         <source>Atlanta, GA</source>
         <target state="final">Atlanta, GA</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the entry server that is being automatically selected." xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the entry server that is being automatically selected.</source>
+        <target state="needs-translation">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
         <note/>
       </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve" approved="yes">
@@ -461,6 +476,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>CONNECTING...</source>
         <target state="final">BAĞLANIYOR...</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="CUSTOM API ACCESS METHOD IS INVALID" xml:space="preserve">
+        <source>CUSTOM API ACCESS METHOD IS INVALID</source>
+        <target state="needs-translation">CUSTOM API ACCESS METHOD IS INVALID</target>
+        <note from="auto-generated">Title of an in-app notification that informs the user that the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Calgary" xml:space="preserve" approved="yes">
         <source>Calgary</source>
@@ -671,6 +691,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>Custom</source>
         <target state="final">Özel</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Custom API access method is invalid" xml:space="preserve">
+        <source>Custom API access method is invalid</source>
+        <target state="needs-translation">Custom API access method is invalid</target>
+        <note from="auto-generated">A message displayed when the custom API access method is invalid.</note>
       </trans-unit>
       <trans-unit id="Custom DNS" xml:space="preserve" approved="yes">
         <source>Custom DNS</source>
@@ -885,7 +910,7 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default." xml:space="preserve" approved="yes">
         <source>Due to iOS limitations, this is not enabled by default. Our other apps tunnel all traffic via the VPN by default.</source>
         <target state="final">iOS sınırlamaları nedeniyle bu özellik varsayılan olarak etkin değildir. Diğer uygulamalarımızda ise tüm trafik standart olarak VPN üzerinden yönlendirilir.</target>
-        <note from="auto-generated">Explanation of why the "Use Include All Networks" feature is not enabled by default in the IAN settings view.</note>
+        <note from="auto-generated">Explanation of why the "Include all networks" feature is not enabled by default in the Mullvad VPN app.</note>
       </trans-unit>
       <trans-unit id="Dusseldorf" xml:space="preserve" approved="yes">
         <source>Dusseldorf</source>
@@ -1202,6 +1227,21 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">İÇE AKTARMA BAŞARILI</target>
         <note/>
       </trans-unit>
+      <trans-unit id="IP version" xml:space="preserve" approved="yes">
+        <source>IP version</source>
+        <target state="final">IP sürümü</target>
+        <note from="auto-generated">Name of the section that allows the user to select whether to use IPv4 or IPv6.</note>
+      </trans-unit>
+      <trans-unit id="IPv4" xml:space="preserve" approved="yes">
+        <source>IPv4</source>
+        <target state="final">IPv4</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="IPv6" xml:space="preserve" approved="yes">
+        <source>IPv6</source>
+        <target state="final">IPv6</target>
+        <note from="auto-generated">Name of the feature that toggles IPv6 support.</note>
+      </trans-unit>
       <trans-unit id="If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating." xml:space="preserve" approved="yes">
         <source>If an observer monitors these data packets, %@ makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.</source>
         <target state="final">Bir gözlemci bu veri paketlerini izliyorsa, %@ ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</target>
@@ -1255,6 +1295,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email." xml:space="preserve" approved="yes">
         <source>If you still experience issues you can email our support directly at **%@**. Please attach your app log to your email.</source>
         <target state="final">Hâlâ sorun yaşıyorsanız doğrudan **%@** adresinden destek ekibimize e-posta gönderebilirsiniz. Lütfen uygulama günlüğünüzü e-postanıza ekleyin.</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol" xml:space="preserve">
+        <source>If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</source>
+        <target state="needs-translation">If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %@ symbol</target>
         <note/>
       </trans-unit>
       <trans-unit id="Import" xml:space="preserve" approved="yes">
@@ -1587,6 +1632,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">Melbourne</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Method settings" xml:space="preserve">
+        <source>Method settings</source>
+        <target state="needs-translation">Method settings</target>
+        <note from="auto-generated">Title of a view controller that allows the user to configure the settings of a specific access method.</note>
+      </trans-unit>
       <trans-unit id="Mexico" xml:space="preserve" approved="yes">
         <source>Mexico</source>
         <target state="final">Meksika</target>
@@ -1600,6 +1650,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Milan" xml:space="preserve" approved="yes">
         <source>Milan</source>
         <target state="final">Milano</target>
+        <note/>
+      </trans-unit>
+      <trans-unit id="Mode" xml:space="preserve">
+        <source>Mode</source>
+        <target state="needs-translation">Mode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Montreal" xml:space="preserve" approved="yes">
@@ -1662,6 +1717,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <target state="final">İsim zaten kullanılıyor.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Name should be no longer than %i characters" xml:space="preserve">
+        <source>Name should be no longer than %i characters</source>
+        <target state="needs-review-translation" state-qualifier="leveraged-tm">Ad, en fazla %i karakter olmalıdır</target>
+        <note from="auto-generated">Error message displayed when a user inputs a name that is too long. The argument is the maximum number of characters allowed in a name.</note>
+      </trans-unit>
       <trans-unit id="Name should be no longer than %i characters." xml:space="preserve" approved="yes">
         <source>Name should be no longer than %i characters.</source>
         <target state="final">Ad, en fazla %i karakter olmalıdır.</target>
@@ -1711,6 +1771,11 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>No DAITA compatible servers match your location settings. Try changing location.</source>
         <target state="final">Konum ayarlarınızla eşleşen DAITA uyumlu sunucu bulunamadı. Konumunuzu değiştirmeyi deneyin.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="No longer supported" xml:space="preserve">
+        <source>No longer supported</source>
+        <target state="needs-translation">No longer supported</target>
+        <note from="auto-generated">Text displayed in a list item when a shadowsocks cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="No matching servers found." xml:space="preserve" approved="yes">
         <source>No matching servers found.</source>
@@ -1910,7 +1975,7 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
       <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve" approved="yes">
         <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
         <target state="final">Ağ bağlantınızı kaybetmemek için lütfen bildirimleri etkinleştirin. Yine de devam etmek istiyor musunuz?</target>
-        <note from="auto-generated">Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
+        <note>Message in a system alert that asks the user if they want to continue despite having disabled notifications.</note>
       </trans-unit>
       <trans-unit id="Please enter a valid IPv4 or IPv6 address." xml:space="preserve" approved="yes">
         <source>Please enter a valid IPv4 or IPv6 address.</source>
@@ -1931,6 +1996,16 @@ Bunu önlemek için devam etmeden önce Uçak Modu’nu manuel olarak etkinleşt
         <source>Please swipe through and read all information in order to activate this feature</source>
         <target state="final">Bu özelliği etkinleştirmek için lütfen kaydırarak tüm bilgileri okuyun</target>
         <note from="auto-generated">A message encouraging users to read through all the information before activating a feature.</note>
+      </trans-unit>
+      <trans-unit id="Please update it or enable a different one to be able to reach the API using this method." xml:space="preserve">
+        <source>Please update it or enable a different one to be able to reach the API using this method.</source>
+        <target state="needs-translation">Please update it or enable a different one to be able to reach the API using this method.</target>
+        <note from="auto-generated">A description of what to do if the custom API access method is invalid.</note>
+      </trans-unit>
+      <trans-unit id="Please update it or enable a different one to be able to reach the API." xml:space="preserve">
+        <source>Please update it or enable a different one to be able to reach the API.</source>
+        <target state="needs-translation">Please update it or enable a different one to be able to reach the API.</target>
+        <note from="auto-generated">Text displayed in the body of the in-app notification when the user has an invalid custom API access method.</note>
       </trans-unit>
       <trans-unit id="Poland" xml:space="preserve" approved="yes">
         <source>Poland</source>
@@ -2148,6 +2223,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <source>Selected</source>
         <target state="final">Seçili</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Selected cipher no longer supported" xml:space="preserve">
+        <source>Selected cipher no longer supported</source>
+        <target state="needs-translation">Selected cipher no longer supported</target>
+        <note from="auto-generated">Error message displayed when a selected cipher is no longer supported.</note>
       </trans-unit>
       <trans-unit id="Send" xml:space="preserve" approved="yes">
         <source>Send</source>
@@ -2404,6 +2484,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <target state="final">App Store'a gitmek için dokunun</target>
         <note from="auto-generated">Text that can be tapped in an in-app notification to navigate to the AppStore.</note>
       </trans-unit>
+      <trans-unit id="Tap to view API access methods" xml:space="preserve">
+        <source>Tap to view API access methods</source>
+        <target state="needs-translation">Tap to view API access methods</target>
+        <note from="auto-generated">Action title for the in-app notification that informs the user to tap to view API access methods.</note>
+      </trans-unit>
       <trans-unit id="Tel Aviv" xml:space="preserve" approved="yes">
         <source>Tel Aviv</source>
         <target state="final">Tel Aviv</target>
@@ -2553,6 +2638,11 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <source>This might cause issues on certain websites, services, and apps.</source>
         <target state="final">Bu, belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir.</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4." xml:space="preserve">
+        <source>This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</source>
+        <target state="needs-translation">This setting controls whether the app connects to VPN servers using IPv4 or IPv6.Automatic setting allows app to choose between both, but currently app will only use IPv4.</target>
+        <note from="auto-generated">Description of a setting in the VPN settings screen that allows the user to choose between IPv4 and IPv6 connections.</note>
       </trans-unit>
       <trans-unit id="This will also disable “%@“." xml:space="preserve" approved="yes">
         <source>This will also disable “%@“.</source>
@@ -2719,9 +2809,9 @@ Kayıtlı hesap numarasını kaldırmak istiyor musunuz?</target>
         <target state="final">Güncelleme mevcut</target>
         <note from="auto-generated">Title of an in-app notification that alerts the user that a new app version is available.</note>
       </trans-unit>
-      <trans-unit id="Update relay list" xml:space="preserve" approved="yes">
-        <source>Update relay list</source>
-        <target state="final">Aktarıcı listesini güncelle</target>
+      <trans-unit id="Update server list" xml:space="preserve" approved="yes">
+        <source>Update server list</source>
+        <target state="final">Sunucu listesini güncelle</target>
         <note/>
       </trans-unit>
       <trans-unit id="Use custom DNS server" xml:space="preserve" approved="yes">
