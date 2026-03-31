@@ -5,19 +5,17 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
     @State var alert: MullvadAlert?
+    private let topAnchor = "topAnchor"
     let onScrollVisibilityChange: (Bool) -> Void
 
     var isShowingCustomListsSection: Bool {
         viewModel.searchText.isEmpty
             || (!viewModel.searchText.isEmpty
-                && !context.customLists
-                    .filter {
-                        !$0.isHiddenFromSearch
-                    }.isEmpty)
+                && !context.customLists.isEmpty)
     }
 
     var isShowingAllLocationsSection: Bool {
-        !context.locations.filter({ !$0.isHiddenFromSearch }).isEmpty
+        !context.locations.isEmpty
     }
 
     var isShowingRecentsSection: Bool {
@@ -28,8 +26,13 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         ScrollViewReader { scrollProxy in
             // All items in the list are arranged in a flat hierarchy
             List {
+                EmptyView()
+                    .frame(height: 0)
+                    .id(topAnchor)
+
                 Group {
-                    Color.clear.frame(height: 0)
+                    Color.clear
+                        .frame(height: 0)
                         .onAppear {
                             onScrollVisibilityChange(true)
                         }
@@ -80,6 +83,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             }
             .onChange(of: viewModel.isRecentsEnabled) {
                 scrollToCurrentSelection(scrollProxy)
+            }
+            .onChange(of: viewModel.searchText) { oldValue, newValue in
+                guard oldValue.isEmpty && !newValue.isEmpty else { return }
+                scrollProxy.scrollTo(topAnchor, anchor: .center)
             }
         }
         .mullvadInputAlert(item: $newCustomListAlert)
@@ -140,8 +147,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 MullvadListSectionHeader(title: "Custom lists")
                 Button {
                     viewModel.showAddCustomListView(
-                        locations: context
-                            .locations)
+                        locations: context.customListAvailableLocations)
                 } label: {
                     Image.mullvadIconAdd
                         .padding(.horizontal, 10)
@@ -151,7 +157,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 if !context.customLists.isEmpty {
                     Button {
                         viewModel.showEditCustomListView(
-                            locations: context.locations
+                            locations: context.customListAvailableLocations
                         )
                     } label: {
                         Image.mullvadIconEdit
