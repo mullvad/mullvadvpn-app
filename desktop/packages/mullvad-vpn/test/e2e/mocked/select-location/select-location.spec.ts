@@ -3,14 +3,18 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import { colorTokens } from '../../../../src/renderer/lib/foundations';
-import { ObfuscationType, Ownership } from '../../../../src/shared/daemon-rpc-types';
+import {
+  type ISettings,
+  ObfuscationType,
+  Ownership,
+} from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { mockData } from '../../mock-data';
 import { RoutesObjectModel } from '../../route-object-models';
 import { MockedTestUtils, startMockedApp } from '../mocked-utils';
 import { createHelpers, SelectLocationHelpers } from './helpers';
 
-const { relayList } = mockData;
+const { relayList, customLists, recents } = mockData;
 
 let page: Page;
 let util: MockedTestUtils;
@@ -56,8 +60,8 @@ test.describe('Select location', () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
-      const sweden = page.getByText('Sweden');
-      await expect(sweden).toBeVisible();
+      const locations = routes.selectLocation.getLocationsInAllLocations();
+      expect(await locations.count()).toBeGreaterThan(0);
     });
 
     test('App should show exit selection', async () => {
@@ -65,8 +69,8 @@ test.describe('Select location', () => {
       await exitButton.click();
       await expect(exitButton).toHaveCSS('background-color', colorTokens.green);
 
-      const sweden = page.getByText('Sweden');
-      await expect(sweden).toBeVisible();
+      const locations = routes.selectLocation.getLocationsInAllLocations();
+      expect(await locations.count()).toBeGreaterThan(0);
     });
 
     test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
@@ -79,8 +83,8 @@ test.describe('Select location', () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
-      const sweden = page.getByText('Sweden');
-      await expect(sweden).not.toBeVisible();
+      const locations = routes.selectLocation.getLocationsInAllLocations();
+      await expect(locations).toHaveCount(0);
     });
 
     test('App should show entry selection when daita is enabled with direct only', async () => {
@@ -93,8 +97,8 @@ test.describe('Select location', () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
 
-      const sweden = page.getByText('Sweden');
-      await expect(sweden).toBeVisible();
+      const locations = routes.selectLocation.getLocationsInAllLocations();
+      expect(await locations.count()).toBeGreaterThan(0);
     });
 
     test('Should show only wireguard servers in entry list', async () => {
@@ -171,6 +175,157 @@ test.describe('Select location', () => {
       const exitRelayButton = routes.selectLocation.getRelaysMatching([exitRelay.hostname]);
       await exitRelayButton.click();
       await util.expectRoute(RoutePath.main);
+    });
+  });
+
+  test.describe('Recents', () => {
+    let initialSettings: ISettings = getDefaultSettings();
+
+    test.beforeEach(async () => {
+      const settings = await helpers.mockRecents(recents);
+      initialSettings = await helpers.mockCustomLists(customLists, settings);
+    });
+
+    test('Should show empty recent section when enabled and no recents', async () => {
+      await helpers.mockRecents([]);
+
+      const recentSection = routes.selectLocation.getRecentsSection();
+      await expect(recentSection).toBeVisible();
+
+      const recentLocations = routes.selectLocation.getLocationsInLocator(recentSection);
+      await expect(recentLocations).toHaveCount(0);
+    });
+
+    test('Should not show recents section when recents is disabled', async () => {
+      await helpers.mockRecents(undefined);
+
+      const recentSection = routes.selectLocation.getRecentsSection();
+      await expect(recentSection).toBeHidden();
+    });
+
+    test('Should show geographical locations in recents section', async () => {
+      const singlehopRecents = recents.filter(
+        (recent) => recent.type === 'singlehop' && !recent.location.customList,
+      );
+      await helpers.mockRecents(singlehopRecents);
+
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      await expect(recentLocations).toHaveCount(singlehopRecents.length);
+    });
+
+    test('Should show custom lists in recents section', async () => {
+      const customListRecents = recents.filter(
+        (recent) => recent.type === 'singlehop' && recent.location.customList,
+      );
+      const settings = await helpers.mockRecents(customListRecents);
+      await helpers.mockCustomLists(customLists, settings);
+
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      await expect(recentLocations).toHaveCount(customListRecents.length);
+    });
+
+    test('Should show recents section when recents is enabled and using singlehop', async () => {
+      const singlehopRecent = recents.find((recent) => recent.type === 'singlehop');
+      if (!singlehopRecent) {
+        throw new Error('No singlehop recent found in mocked data');
+      }
+
+      await helpers.updateMockSettings(
+        {
+          multihop: false,
+        },
+        initialSettings,
+      );
+
+      const singlehopRecents = recents.filter((recent) => recent.type === 'singlehop');
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      await expect(recentLocations).toHaveCount(singlehopRecents.length);
+    });
+
+    test('Should show recents section when recents is enabled and using multihop', async () => {
+      const multihopRecent = recents.find((recent) => recent.type === 'multihop');
+      if (!multihopRecent) {
+        throw new Error('No multihop recent found in mocked data');
+      }
+
+      await helpers.updateMockSettings(
+        {
+          multihop: true,
+        },
+        initialSettings,
+      );
+
+      const multihopRecents = recents.filter((recent) => recent.type === 'multihop');
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+
+      await expect(recentLocations).toHaveCount(multihopRecents.length);
+
+      await routes.selectLocation.getEntryButton().click();
+
+      await expect(recentLocations).toHaveCount(multihopRecents.length);
+    });
+
+    test('Should be able to add recent geographical location to custom list', async () => {
+      const singlehopRecent = recents.find((recent) => recent.type === 'singlehop');
+      if (!singlehopRecent) {
+        throw new Error('No singlehop recent found in mocked data');
+      }
+      const settings = await helpers.mockCustomLists(customLists, initialSettings);
+
+      await helpers.updateMockSettings(
+        {
+          multihop: false,
+        },
+        settings,
+      );
+
+      const recentLocations = routes.selectLocation.getLocationsInRecents();
+      const firstRecent = recentLocations.first();
+      const firstRecentName = await firstRecent.innerText();
+
+      await routes.selectLocation.getRecentMenuButton(firstRecentName).click();
+
+      const customListName = customLists[0].name;
+      const addToCustomListButton = routes.selectLocation.getAddToCustomListButton(
+        firstRecentName,
+        customListName,
+      );
+      await expect(addToCustomListButton).toBeVisible();
+
+      const addToNewCustomListButton =
+        routes.selectLocation.getAddToNewCustomListButton(firstRecentName);
+      await expect(addToNewCustomListButton).toBeVisible();
+
+      await page.locator('body').click(); // Click outside to close menu
+      await expect(addToCustomListButton).not.toBeVisible();
+    });
+
+    test('Should be able to edit or delete recent custom list', async () => {
+      const recentCustomList = recents.find(
+        (recent) => recent.type === 'singlehop' && recent.location.customList,
+      );
+      if (!recentCustomList) {
+        throw new Error('No recent custom list found in mocked data');
+      }
+      const settings = await helpers.mockCustomLists(customLists, initialSettings);
+
+      await helpers.updateMockSettings(
+        {
+          multihop: false,
+        },
+        settings,
+      );
+
+      const customListName = customLists[0].name;
+      await routes.selectLocation.getRecentMenuButton(customListName).click();
+      const editCustomListButton = routes.selectLocation.getEditCustomListButton();
+      await expect(editCustomListButton).toBeVisible();
+
+      const deleteCustomListButton = routes.selectLocation.getDeleteCustomListButton();
+      await expect(deleteCustomListButton).toBeVisible();
+
+      await page.locator('body').click(); // Click outside to close menu
+      await expect(deleteCustomListButton).not.toBeVisible();
     });
   });
 
