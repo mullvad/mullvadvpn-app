@@ -174,7 +174,7 @@ class BillingPaymentRepository(
                     Logger.e("Purchase has no products")
                     PlayPurchaseVerifyError.OtherError
                 }
-                ensure(purchase.accountIdentifiers?.obfuscatedAccountId == null) {
+                ensure(purchase.accountIdentifiers?.obfuscatedAccountId != null) {
                     Logger.e("Purchase is missing obfuscatedAccountId")
                     PlayPurchaseVerifyError.OtherError
                 }
