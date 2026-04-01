@@ -295,6 +295,8 @@ pub enum DaemonCommand {
     SetAutoConnect(ResponseTx<(), settings::Error>, bool),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
+    /// Set if userspace WireGuard should be forced.
+    SetUserspaceWireguard(ResponseTx<(), settings::Error>, bool),
     /// Set if recents should be enabled
     SetEnableRecents(ResponseTx<(), settings::Error>, bool),
     /// Set whether to enable PQ PSK exchange in the tunnel
@@ -1515,6 +1517,9 @@ impl Daemon {
             }
             SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
+            SetUserspaceWireguard(tx, userspace) => {
+                self.on_set_userspace_wireguard(tx, userspace).await
+            }
             SetEnableRecents(tx, enable_recents) => {
                 self.on_set_enable_recents(tx, enable_recents).await
             }
@@ -2665,6 +2670,32 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
+            }
+        }
+    }
+
+    async fn on_set_userspace_wireguard(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        userspace: bool,
+    ) {
+        match self
+            .settings
+            .update(|settings| settings.tunnel_options.wireguard.userspace = userspace)
+            .await
+        {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "set_userspace_wireguard response");
+                if settings_changed {
+                    log::info!(
+                        "Initiating tunnel restart because the userspace WireGuard setting changed"
+                    );
+                    self.reconnect_tunnel();
+                }
+            }
+            Err(e) => {
+                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_userspace_wireguard response");
             }
         }
     }

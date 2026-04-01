@@ -287,6 +287,11 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    pub async fn set_userspace_wireguard(&mut self, state: bool) -> Result<()> {
+        self.0.set_userspace_wireguard(state).await?;
+        Ok(())
+    }
+
     pub async fn set_quantum_resistant_tunnel(
         &mut self,
         state: QuantumResistantState,
