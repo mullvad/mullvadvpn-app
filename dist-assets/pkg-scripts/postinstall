@@ -49,7 +49,7 @@ DAEMON_PLIST=$(cat <<-EOM
                 <key>ProgramArguments</key>
                 <array>
                         <string>$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-daemon</string>
-                        <string>-v</string>
+                        <string>-vv</string>
                 </array>
 
                 <key>UserName</key>
