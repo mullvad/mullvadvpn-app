@@ -45,7 +45,7 @@ public struct EphemeralPeerRelayConfiguration: Equatable, CustomDebugStringConve
     }
 
     public var debugDescription: String {
-        "{ relay : \(relay.debugDescription), post quantum: \(configuration.debugDescription) }"
+        "{ relay: \(relay.debugDescription), post quantum: \(configuration.debugDescription) }"
     }
 }
 
@@ -68,12 +68,12 @@ public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertibl
     }
 
     public var debugDescription: String {
-        var string = "{ private key : \(privateKey),"
+        var string = "{ private key: \(privateKey),"
         string +=
             preSharedKey.flatMap {
                 "preShared key: \($0), "
             } ?? ""
-        string += ", allowedIPs: \(allowedIPs) }"
+        string += " allowedIPs: \(allowedIPs) }"
         return string
     }
 }
