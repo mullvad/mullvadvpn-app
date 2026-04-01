@@ -1158,7 +1158,6 @@
 		F97C38E32DEEDC28006DCB08 /* MullvadListActionItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E22DEEDC28006DCB08 /* MullvadListActionItemView.swift */; };
 		F97C38E52DEEDFD6006DCB08 /* Image+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */; };
 		F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */; };
-		F99E32432E7AA202004A7EFE /* MultihopContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99E32412E7AA109004A7EFE /* MultihopContext.swift */; };
 		F9C579BD2E8E9AEE00C90C50 /* DaitaWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */; };
 		F9C579C22E8FB55600C90C50 /* LocationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C12E8FB55600C90C50 /* LocationSection.swift */; };
 		F9C579C42E8FE08600C90C50 /* LocationListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C579C32E8FE08600C90C50 /* LocationListItem.swift */; };

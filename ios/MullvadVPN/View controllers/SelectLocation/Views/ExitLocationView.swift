@@ -85,8 +85,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 scrollToCurrentSelection(scrollProxy)
             }
             .onChange(of: viewModel.searchText) { oldValue, newValue in
-                guard oldValue.isEmpty && !newValue.isEmpty else { return }
-                scrollProxy.scrollTo(topAnchor, anchor: .center)
+                if oldValue.isEmpty && !newValue.isEmpty {
+                    scrollProxy.scrollTo(topAnchor, anchor: .center)
+                } else if newValue.isEmpty {
+                    scrollToCurrentSelection(scrollProxy)
+                }
             }
         }
         .mullvadInputAlert(item: $newCustomListAlert)
