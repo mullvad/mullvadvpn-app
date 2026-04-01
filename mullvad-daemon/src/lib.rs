@@ -47,7 +47,7 @@ use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+use mullvad_relay_selector::{Config, RelaySelector};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -738,7 +738,7 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            let initial_selector_config = SelectorConfig::from_settings(&settings);
+            let initial_selector_config = Config::from_settings(&settings);
             RelaySelector::new(
                 initial_selector_config,
                 initial_relay_list.clone(),
@@ -990,7 +990,7 @@ impl Daemon {
         let settings_relay_selector = relay_selector.clone();
         settings.register_change_listener(move |settings| {
             // Notify relay selector of changes to the settings/selector config
-            settings_relay_selector.set_config(SelectorConfig::from_settings(settings));
+            settings_relay_selector.set_config(Config::from_settings(settings));
         });
 
         #[cfg(not(target_os = "android"))]

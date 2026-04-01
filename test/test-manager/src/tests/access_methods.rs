@@ -7,7 +7,7 @@
 //! These tests rely on working proxies to exist *somewhere* for all tested protocols.
 //! If the proxies themselves are bad/not running, this test will fail due to issues
 //! that are out of the test manager's control.
-use anyhow::{Context, anyhow, ensure};
+use anyhow::{anyhow, ensure, Context};
 
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::relay_list::RelayList;
@@ -26,7 +26,7 @@ async fn test_access_method_shadowsocks(
     _rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    use mullvad_relay_selector::{RelaySelector, SelectorConfig};
+    use mullvad_relay_selector::{Config, RelaySelector};
     log::info!("Testing Shadowsocks access method");
     // Set up all the parameters needed to create a custom Shadowsocks access method.
     //
@@ -34,7 +34,7 @@ async fn test_access_method_shadowsocks(
     // select a bridge server to derive all the needed parameters.
     let bridge_list = mullvad_client.get_bridges().await.unwrap();
     let relay_selector =
-        RelaySelector::new(SelectorConfig::default(), RelayList::default(), bridge_list);
+        RelaySelector::new(Config::default(), RelayList::default(), bridge_list);
     let access_method = relay_selector
         .get_bridge_forced()
         .context("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.")?;

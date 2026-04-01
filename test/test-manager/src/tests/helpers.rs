@@ -13,7 +13,7 @@ use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
-    GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+    GetRelay, RelaySelector, Config, WireguardConfig,
     query::{RelayQuery, WireguardRelayQuery},
 };
 use mullvad_types::{
@@ -809,7 +809,7 @@ pub fn get_daemon_relay_selector(
     bridge_list: mullvad_types::relay_list::BridgeList,
 ) -> RelaySelector {
     RelaySelector::new(
-        SelectorConfig::from_settings(settings),
+        Config::from_settings(settings),
         relay_list,
         bridge_list,
     )
