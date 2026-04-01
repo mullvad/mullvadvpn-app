@@ -158,13 +158,11 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.options.daita;
-        let userspace_multihop = userspace_wireguard;
-
+        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg();
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
-        let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_multihop);
+        let tunnel_mtu = calculate_tunnel_mtu(route_mtu, params, userspace_wireguard);
 
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
