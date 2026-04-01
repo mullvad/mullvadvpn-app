@@ -233,6 +233,8 @@ pub struct TunnelOptions {
     /// Configure DAITA
     #[cfg(daita)]
     pub daita: DaitaSettings,
+    /// Use userspace WireGuard.
+    pub userspace: bool,
     /// Interval used for automatic key rotation
     pub rotation_interval: Option<RotationInterval>,
 }
@@ -245,6 +247,7 @@ impl Default for TunnelOptions {
             quantum_resistant: QuantumResistantState::default(),
             #[cfg(daita)]
             daita: DaitaSettings::default(),
+            userspace: false,
             rotation_interval: None,
         }
     }
@@ -257,6 +260,7 @@ impl TunnelOptions {
             quantum_resistant: self.quantum_resistant.enabled(),
             #[cfg(daita)]
             daita: self.daita.enabled,
+            userspace: self.userspace,
         }
     }
 }

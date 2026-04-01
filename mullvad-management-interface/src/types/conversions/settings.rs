@@ -242,6 +242,8 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     .ok_or(FromProtobufTypeError::InvalidArgument(
                         "missing daita settings",
                     ))?,
+                // TODO: Add the userspace option to protobuf.
+                userspace: false,
             },
             generic: net::GenericTunnelOptions {
                 enable_ipv6: options.enable_ipv6,
