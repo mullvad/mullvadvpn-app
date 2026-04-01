@@ -63,6 +63,24 @@ public struct StoredRelays: Codable, Equatable {
         case etag, rawData, updatedAt
     }
 
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        etag = try container.decodeIfPresent(String.self, forKey: .etag)
+        rawData = try container.decode(Data.self, forKey: .rawData)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        // Eagerly deserialize relay data so the result is cached before
+        // this value reaches the actor's cooperative thread. The
+        // DeserializationCache.get() NSLock + JSON parsing would otherwise
+        // block a cooperative thread during relay selection.
+        let result = Result {
+            try REST.Coding.makeJSONDecoder().decode(
+                REST.ServerRelaysResponse.self,
+                from: rawData
+            )
+        }.map { CachedRelays(etag: etag, relays: $0, updatedAt: updatedAt) }
+        cache.set(result)
+    }
+
     // MARK: - Equatable
 
     public static func == (lhs: StoredRelays, rhs: StoredRelays) -> Bool {
