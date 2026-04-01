@@ -2238,6 +2238,8 @@ export class TunnelOptions extends jspb.Message {
     clearDnsOptions(): void;
     getDnsOptions(): DnsOptions | undefined;
     setDnsOptions(value?: DnsOptions): TunnelOptions;
+    getUserspace(): boolean;
+    setUserspace(value: boolean): TunnelOptions;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): TunnelOptions.AsObject;
@@ -2257,6 +2259,7 @@ export namespace TunnelOptions {
         daita?: DaitaSettings.AsObject,
         enableIpv6: boolean,
         dnsOptions?: DnsOptions.AsObject,
+        userspace: boolean,
     }
 }
 

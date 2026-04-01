@@ -17429,7 +17429,8 @@ proto.mullvad_daemon.management_interface.TunnelOptions.toObject = function(incl
     quantumResistant: (f = msg.getQuantumResistant()) && proto.mullvad_daemon.management_interface.QuantumResistantState.toObject(includeInstance, f),
     daita: (f = msg.getDaita()) && proto.mullvad_daemon.management_interface.DaitaSettings.toObject(includeInstance, f),
     enableIpv6: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-    dnsOptions: (f = msg.getDnsOptions()) && proto.mullvad_daemon.management_interface.DnsOptions.toObject(includeInstance, f)
+    dnsOptions: (f = msg.getDnsOptions()) && proto.mullvad_daemon.management_interface.DnsOptions.toObject(includeInstance, f),
+    userspace: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -17493,6 +17494,10 @@ proto.mullvad_daemon.management_interface.TunnelOptions.deserializeBinaryFromRea
       var value = new proto.mullvad_daemon.management_interface.DnsOptions;
       reader.readMessage(value,proto.mullvad_daemon.management_interface.DnsOptions.deserializeBinaryFromReader);
       msg.setDnsOptions(value);
+      break;
+    case 7:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setUserspace(value);
       break;
     default:
       reader.skipField();
@@ -17567,6 +17572,13 @@ proto.mullvad_daemon.management_interface.TunnelOptions.serializeBinaryToWriter 
       6,
       f,
       proto.mullvad_daemon.management_interface.DnsOptions.serializeBinaryToWriter
+    );
+  }
+  f = message.getUserspace();
+  if (f) {
+    writer.writeBool(
+      7,
+      f
     );
   }
 };
@@ -17771,6 +17783,24 @@ proto.mullvad_daemon.management_interface.TunnelOptions.prototype.clearDnsOption
  */
 proto.mullvad_daemon.management_interface.TunnelOptions.prototype.hasDnsOptions = function() {
   return jspb.Message.getField(this, 6) != null;
+};
+
+
+/**
+ * optional bool userspace = 7;
+ * @return {boolean}
+ */
+proto.mullvad_daemon.management_interface.TunnelOptions.prototype.getUserspace = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.mullvad_daemon.management_interface.TunnelOptions} returns this
+ */
+proto.mullvad_daemon.management_interface.TunnelOptions.prototype.setUserspace = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 
