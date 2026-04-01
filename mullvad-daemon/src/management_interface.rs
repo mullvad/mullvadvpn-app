@@ -321,6 +321,15 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    async fn set_userspace_wireguard(&self, request: Request<bool>) -> ServiceResult<()> {
+        let userspace = request.into_inner();
+        log::debug!("set_userspace_wireguard({})", userspace);
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetUserspaceWireguard(tx, userspace))?;
+        self.wait_for_result(rx).await??;
+        Ok(Response::new(()))
+    }
+
     async fn set_quantum_resistant_tunnel(
         &self,
         request: Request<types::QuantumResistantState>,

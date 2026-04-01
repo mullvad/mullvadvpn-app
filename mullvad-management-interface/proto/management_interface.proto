@@ -54,6 +54,7 @@ service ManagementService {
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
   rpc ClearAllRelayOverrides(google.protobuf.Empty) returns (google.protobuf.Empty) {}
   rpc SetEnableRecents(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  rpc SetUserspaceWireguard(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 
   // Account management
   rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -628,6 +629,9 @@ message TunnelOptions {
   bool enable_ipv6 = 5;
 
   DnsOptions dns_options = 6;
+  // Force userspace WireGuard.
+  // This option does not apply to Android or macOS.
+  bool userspace = 7;
 }
 
 message DefaultDnsOptions {

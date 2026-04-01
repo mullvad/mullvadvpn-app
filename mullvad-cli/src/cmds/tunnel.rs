@@ -54,6 +54,9 @@ pub enum TunnelOptions {
     /// Enable or disable IPv6 in the tunnel
     #[clap(arg_required_else_help = true)]
     Ipv6 { state: BooleanOption },
+
+    /// Use userspace WireGuard.
+    Userspace { state: BooleanOption },
 }
 
 impl Tunnel {
@@ -174,6 +177,10 @@ impl Tunnel {
             TunnelOptions::Ipv6 { state } => {
                 rpc.set_enable_ipv6(*state).await?;
                 println!("IPv6: {state}");
+            }
+            TunnelOptions::Userspace { state } => {
+                rpc.set_userspace_wireguard(*state).await?;
+                println!("Userspace WireGuard: {state}");
             }
         }
 

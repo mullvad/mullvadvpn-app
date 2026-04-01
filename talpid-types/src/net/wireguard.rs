@@ -53,6 +53,11 @@ impl TunnelParameters {
     pub fn get_exit_hop_endpoint(&self) -> Option<Endpoint> {
         self.connection.get_exit_endpoint()
     }
+
+    /// Whether to use userspace WireGuard.
+    pub fn use_userspace_wg(&self) -> bool {
+        self.options.userspace || self.options.daita
+    }
 }
 
 /// Connection-specific configuration in [`TunnelParameters`].
@@ -124,6 +129,8 @@ pub struct TunnelOptions {
     /// Enable DAITA during tunnel config
     #[cfg(daita)]
     pub daita: bool,
+    /// Use userspace WireGuard.
+    pub userspace: bool,
 }
 
 /// Wireguard x25519 private key
