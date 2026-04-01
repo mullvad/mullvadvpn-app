@@ -392,21 +392,7 @@ impl RelaySelector {
         retry_attempt: usize,
         runtime_ip_availability: IpAvailability,
     ) -> Result<GetRelay, Error> {
-        let config_guard = self.config.lock().unwrap();
-        let config = SpecializedSelectorConfig::from(&*config_guard);
-        match config {
-            SpecializedSelectorConfig::Custom(custom_config) => {
-                Ok(GetRelay::Custom(custom_config.clone()))
-            }
-            SpecializedSelectorConfig::Normal(_normal_config) => {
-                drop(config_guard);
-                self.get_relay_with_custom_params(
-                    retry_attempt,
-                    &RETRY_ORDER,
-                    runtime_ip_availability,
-                )
-            }
-        }
+        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_ip_availability)
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints defined by
