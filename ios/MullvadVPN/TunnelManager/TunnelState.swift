@@ -93,43 +93,43 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     var description: String {
         switch self {
         case .pendingReconnect:
-            "pending reconnect after disconnect"
+            ".pendingReconnect after disconnect"
         case let .connecting(tunnelRelays, isPostQuantum, isDaita):
             if let tunnelRelays {
                 """
-                connecting \(isPostQuantum ? "(PQ)" : ""), \
+                .connecting \(isPostQuantum ? "(PQ)" : ""), \
                 daita: \(isDaita), \
-                to \(tunnelRelays.exit.debugDescription)\
+                to: \(tunnelRelays.exit.debugDescription)\
                 \(tunnelRelays.entry.flatMap { " via \($0.debugDescription)" } ?? "")
                 """
             } else {
-                "connecting \(isPostQuantum ? "(PQ)" : ""), fetching relay"
+                ".connecting \(isPostQuantum ? "(PQ)" : ""), fetching relay"
             }
         case let .connected(tunnelRelays, isPostQuantum, isDaita):
             """
-            connected \(isPostQuantum ? "(PQ) " : ""), \
+            .connected \(isPostQuantum ? "(PQ)" : ""), \
             daita: \(isDaita), \
-            to \(tunnelRelays.exit.debugDescription)\
+            to: \(tunnelRelays.exit.debugDescription)\
             \(tunnelRelays.entry.flatMap { " via \($0.debugDescription)" } ?? "")
             """
         case let .disconnecting(actionAfterDisconnect):
-            "disconnecting and then \(actionAfterDisconnect)"
+            ".disconnecting and then \(actionAfterDisconnect)"
         case .disconnected:
-            "disconnected"
+            ".disconnected"
         case let .reconnecting(tunnelRelays, isPostQuantum, isDaita):
             """
-            reconnecting \(isPostQuantum ? "(PQ) " : ""), \
+            .reconnecting \(isPostQuantum ? "(PQ)" : ""), \
             daita: \(isDaita), \
-            to \(tunnelRelays.exit.debugDescription)\
+            to: \(tunnelRelays.exit.debugDescription)\
             \(tunnelRelays.entry.flatMap { " via \($0.debugDescription)" } ?? "")
             """
         case .waitingForConnectivity:
-            "waiting for connectivity"
+            ".waitingForConnectivity"
         case let .error(blockedStateReason):
-            "error state: \(blockedStateReason)"
+            ".error, state: \(blockedStateReason)"
         case let .negotiatingEphemeralPeer(tunnelRelays, _, isPostQuantum, isDaita):
             """
-            negotiating key with exit relay: \(tunnelRelays.exit.debugDescription)\
+            .negotiatingEphemeralPeer with: \(tunnelRelays.exit.debugDescription)\
             \(tunnelRelays.entry.flatMap { " via \($0.debugDescription)" } ?? ""), \
             isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
             """
