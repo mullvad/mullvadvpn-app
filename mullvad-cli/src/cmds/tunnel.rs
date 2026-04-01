@@ -55,7 +55,7 @@ pub enum TunnelOptions {
     #[clap(arg_required_else_help = true)]
     Ipv6 { state: BooleanOption },
 
-    /// Use userspace WireGuard (GotaTun).
+    /// Use userspace WireGuard.
     Userspace { state: BooleanOption },
 }
 
