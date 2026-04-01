@@ -36,7 +36,7 @@ final class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate, @uncheck
             /// which would not appear in the list of valid host names in the root certificate.
             /// The same goes for direct connections to the API, the host would be the IP address of the endpoint.
             /// Certificates, cannot be signed for IP addresses, in such case, specify that the host name is `defaultAPIHostname`
-            var hostName = challenge.protectionSpace.host
+            let hostName = challenge.protectionSpace.host
             // this used to check for the current endpoint in the address cache as well, though this has been deprecated.
 
             if verifyServerTrust(serverTrust, for: hostName) {

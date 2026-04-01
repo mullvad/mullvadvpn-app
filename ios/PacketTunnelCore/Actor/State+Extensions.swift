@@ -191,9 +191,9 @@ extension State.KeyPolicy: Equatable {
 extension BlockedStateReason {
     /**
      Returns true if the tunnel should attempt to restart periodically to recover from error that does not require explicit restart to be initiated by user.
-    
+
      Common scenarios when tunnel will attempt to restart itself periodically:
-    
+
      - Keychain and filesystem are locked on boot until user unlocks device in the very first time.
      - App update that requires settings schema migration. Packet tunnel will be automatically restarted after update but it would not be able to read settings until
        user opens the app which performs migration.

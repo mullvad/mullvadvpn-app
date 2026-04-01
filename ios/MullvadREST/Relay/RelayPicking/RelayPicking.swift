@@ -190,7 +190,7 @@ extension RelayPicking {
         let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
         let extraAddresses = match.relay.shadowsocksExtraAddrIn?.compactMap({ IPv6Address($0) }) ?? []
 
-        guard let port = match.endpoint.ipv6Relay?.port else {
+        guard match.endpoint.ipv6Relay?.port != nil else {
             return extraAddresses.randomElement()
         }
         if !extraAddresses.isEmpty {

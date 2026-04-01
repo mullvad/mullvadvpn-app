@@ -27,7 +27,7 @@ final class PacketTunnelActorTests: XCTestCase {
 
     /**
      Test a happy path start sequence.
-    
+
      As actor should transition through the following states: .initial → .connecting → .connected
      */
     func testStartGoesToConnectedInSequence() async throws {
@@ -224,7 +224,7 @@ final class PacketTunnelActorTests: XCTestCase {
     /**
      Test start sequence when reading settings yields an error indicating that device is locked.
      This is common when network extenesion starts on boot with iOS.
-    
+
      1. The first attempt to read settings yields an error indicating that device is locked.
      2. An actor should set up a task to reconnect the tunnel periodically.
      3. The issue goes away on the second attempt to read settings.

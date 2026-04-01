@@ -69,7 +69,7 @@ actor LogFileOutputStreamTests {
          "header\nold\nold\nold"
                     ^
                     Half point of the file
-        
+
          Writing the word "new" goes over the file size limit (20),
          so the file will get truncated to its half point.
          In order to keep a nice UX for reading log, the stream will move the internal file cursor to after the next "\n"

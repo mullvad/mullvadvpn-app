@@ -30,7 +30,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     /**
      Navigation container.
-    
+
      Used as a container for horizontal flows (TOS, Login, Revoked, Out-of-time).
      */
     private let navigationContainer = RootContainerViewController()
