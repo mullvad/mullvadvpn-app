@@ -78,16 +78,17 @@ pub static RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
 
 #[derive(Clone)]
 pub struct RelaySelector {
-    config: Arc<Mutex<SelectorConfig>>,
+    config: Arc<Mutex<Config>>,
     // Relays are updated very infrequently, but might conceivably be accessed by multiple readers at
     // the same time.
     relays: Arc<RwLock<RelayList>>,
     bridges: Arc<RwLock<BridgeList>>,
 }
 
-// TODO: Rename to simply `Config`
+/// Relay selector configuration. This datastructure keeps the relay selector in sync with
+/// mullvad-daemon.
 #[derive(Clone)]
-pub struct SelectorConfig {
+pub struct Config {
     // Normal relay settings
     pub relay_settings: RelaySettings,
     pub additional_constraints: AdditionalWireguardConstraints,
@@ -96,7 +97,7 @@ pub struct SelectorConfig {
     pub obfuscation_settings: ObfuscationSettings,
 }
 
-impl SelectorConfig {
+impl Config {
     pub fn from_settings(settings: &Settings) -> Self {
         let additional_constraints = AdditionalWireguardConstraints {
             #[cfg(daita)]
@@ -140,33 +141,33 @@ pub struct AdditionalWireguardConstraints {
     pub quantum_resistant: QuantumResistantState,
 }
 
-/// This enum exists to separate the two types of [`SelectorConfig`] that exists.
+/// This enum exists to separate the two types of [`Config`] that exists.
 ///
-/// The first one is a "regular" config, where [`SelectorConfig::relay_settings`] is
+/// The first one is a "regular" config, where [`Config::relay_settings`] is
 /// [`RelaySettings::Normal`]. This is the most common variant, and there exists a
 /// mapping from this variant to [`RelayQueryBuilder`]. Being able to implement
-/// `From<NormalSelectorConfig> for RelayQueryBuilder` was the main motivator for introducing these
-/// seemingly useless derivatives of [`SelectorConfig`].
+/// `From<NormalConfig> for RelayQueryBuilder` was the main motivator for introducing these
+/// seemingly useless derivatives of [`Config`].
 ///
-/// The second one is a custom config, where [`SelectorConfig::relay_settings`] is
+/// The second one is a custom config, where [`Config::relay_settings`] is
 /// [`RelaySettings::CustomTunnelEndpoint`]. For this variant, the endpoint where the client should
 /// connect to is already specified inside of the variant, so in practice the relay selector becomes
 /// superfluous. Also, there exists no mapping to [`RelayQueryBuilder`].
 ///
 /// [`RelayQueryBuilder`]: query::builder::RelayQueryBuilder
 #[derive(Debug, Clone)]
-enum SpecializedSelectorConfig<'a> {
-    // This variant implements `From<NormalSelectorConfig> for RelayQuery`
-    Normal(NormalSelectorConfig<'a>),
+enum SpecializedConfig<'a> {
+    // This variant implements `From<NormalConfig> for RelayQuery`
+    Normal(NormalConfig<'a>),
     // This variant does not
     Custom(&'a CustomTunnelEndpoint),
 }
 
-/// A special-cased variant of [`SelectorConfig`].
+/// A special-cased variant of [`Config`].
 ///
-/// For context, see [`SpecializedSelectorConfig`].
+/// For context, see [`SpecializedConfig`].
 #[derive(Debug, Clone)]
-struct NormalSelectorConfig<'a> {
+struct NormalConfig<'a> {
     user_preferences: &'a RelayConstraints,
     additional_preferences: &'a AdditionalWireguardConstraints,
     custom_lists: &'a CustomListsSettings,
@@ -203,10 +204,10 @@ impl From<(ObfuscatorConfig, WireguardRelay)> for SelectedObfuscator {
     }
 }
 
-impl Default for SelectorConfig {
+impl Default for Config {
     fn default() -> Self {
         let default_settings = Settings::default();
-        SelectorConfig {
+        Config {
             relay_settings: default_settings.relay_settings,
             additional_constraints: AdditionalWireguardConstraints::default(),
             obfuscation_settings: default_settings.obfuscation_settings,
@@ -219,10 +220,9 @@ impl TryFrom<Settings> for RelayQuery {
     type Error = crate::Error;
 
     fn try_from(value: Settings) -> Result<Self, Self::Error> {
-        let selector_config = SelectorConfig::from_settings(&value);
-        let specialized_selector_config = SpecializedSelectorConfig::from(&selector_config);
-        let SpecializedSelectorConfig::Normal(normal_selector_config) = specialized_selector_config
-        else {
+        let selector_config = Config::from_settings(&value);
+        let specialized_selector_config = SpecializedConfig::from(&selector_config);
+        let SpecializedConfig::Normal(normal_selector_config) = specialized_selector_config else {
             return Err(Error::InvalidConstraints);
         };
 
@@ -230,30 +230,28 @@ impl TryFrom<Settings> for RelayQuery {
     }
 }
 
-impl<'a> From<&'a SelectorConfig> for SpecializedSelectorConfig<'a> {
-    fn from(value: &'a SelectorConfig) -> SpecializedSelectorConfig<'a> {
+impl<'a> From<&'a Config> for SpecializedConfig<'a> {
+    fn from(value: &'a Config) -> SpecializedConfig<'a> {
         match &value.relay_settings {
             RelaySettings::CustomTunnelEndpoint(custom_tunnel_endpoint) => {
-                SpecializedSelectorConfig::Custom(custom_tunnel_endpoint)
+                SpecializedConfig::Custom(custom_tunnel_endpoint)
             }
-            RelaySettings::Normal(user_preferences) => {
-                SpecializedSelectorConfig::Normal(NormalSelectorConfig {
-                    user_preferences,
-                    additional_preferences: &value.additional_constraints,
-                    obfuscation_settings: &value.obfuscation_settings,
-                    custom_lists: &value.custom_lists,
-                })
-            }
+            RelaySettings::Normal(user_preferences) => SpecializedConfig::Normal(NormalConfig {
+                user_preferences,
+                additional_preferences: &value.additional_constraints,
+                obfuscation_settings: &value.obfuscation_settings,
+                custom_lists: &value.custom_lists,
+            }),
         }
     }
 }
 
 // TODO: Implement From instead
-impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
+impl<'a> TryFrom<NormalConfig<'a>> for RelayQuery {
     type Error = crate::Error;
 
     /// Map user settings to [`RelayQuery`].
-    fn try_from(value: NormalSelectorConfig<'a>) -> Result<Self, Self::Error> {
+    fn try_from(value: NormalConfig<'a>) -> Result<Self, Self::Error> {
         /// Map the Wireguard-specific bits of `value` to [`WireguardRelayQuery`]
         fn wireguard_constraints(
             wireguard_constraints: WireguardConstraints,
@@ -303,7 +301,7 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
 
 impl RelaySelector {
     /// Create a new `RelaySelector` from a set of relays and bridges.
-    pub fn new(config: SelectorConfig, relays: RelayList, bridges: BridgeList) -> Self {
+    pub fn new(config: Config, relays: RelayList, bridges: BridgeList) -> Self {
         RelaySelector {
             config: Arc::new(Mutex::new(config)),
             relays: Arc::new(RwLock::new(relays)),
@@ -312,7 +310,7 @@ impl RelaySelector {
     }
 
     /// Update the relay selector config.
-    pub fn set_config(&self, config: SelectorConfig) {
+    pub fn set_config(&self, config: Config) {
         *self.config.lock().unwrap() = config;
     }
 
@@ -329,9 +327,7 @@ impl RelaySelector {
 
     fn custom_lists(&self) -> CustomListsSettings {
         let config_guard = self.config.lock().unwrap();
-        let SpecializedSelectorConfig::Normal(config) =
-            SpecializedSelectorConfig::from(&*config_guard)
-        else {
+        let SpecializedConfig::Normal(config) = SpecializedConfig::from(&*config_guard) else {
             panic!("Custom lists are not supported with custom relays")
         };
         config.custom_lists.clone()
@@ -373,12 +369,10 @@ impl RelaySelector {
     /// Returns random relay and relay endpoint matching `query`.
     pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
-        let config = SpecializedSelectorConfig::from(&*config_guard);
+        let config = SpecializedConfig::from(&*config_guard);
         match config {
-            SpecializedSelectorConfig::Custom(custom_config) => {
-                Ok(GetRelay::Custom(custom_config.clone()))
-            }
-            SpecializedSelectorConfig::Normal(normal_config) => {
+            SpecializedConfig::Custom(custom_config) => Ok(GetRelay::Custom(custom_config.clone())),
+            SpecializedConfig::Normal(normal_config) => {
                 let relay_list = self.get_relays();
                 Self::get_wireguard_relay_inner(&query, normal_config.custom_lists, &relay_list)
             }
@@ -386,7 +380,7 @@ impl RelaySelector {
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints corresponding to
-    /// `retry_attempt` in one of the retry orders while considering the [`SelectorConfig`].
+    /// `retry_attempt` in one of the retry orders while considering the [`Config`].
     pub fn get_relay(
         &self,
         retry_attempt: usize,
@@ -404,15 +398,13 @@ impl RelaySelector {
         runtime_ip_availability: IpAvailability,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
-        let config = SpecializedSelectorConfig::from(&*config_guard);
+        let config = SpecializedConfig::from(&*config_guard);
 
         // Short-circuit if a custom tunnel endpoint is to be used - don't have to involve the
         // relay selector further!
         match config {
-            SpecializedSelectorConfig::Custom(custom_config) => {
-                Ok(GetRelay::Custom(custom_config.clone()))
-            }
-            SpecializedSelectorConfig::Normal(normal_config) => {
+            SpecializedConfig::Custom(custom_config) => Ok(GetRelay::Custom(custom_config.clone())),
+            SpecializedConfig::Normal(normal_config) => {
                 let parsed_relays = self.get_relays();
                 // Merge user preferences with the relay selector's default preferences.
                 let custom_lists = normal_config.custom_lists;
