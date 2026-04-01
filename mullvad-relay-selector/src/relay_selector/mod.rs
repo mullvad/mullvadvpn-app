@@ -810,188 +810,131 @@ impl RelaySelector {
     /// regards to any particular config / settings, but is stateful in the sense that it works with
     /// the [`RelaySelector`]s current relay list. [`RelaySelector::partition_relays`] is idempotent
     /// if the relay list is pinned.
-    //
-    // # Algorithm
-    // pseudo-code
-    //
-    // let criterias := [<is relay active?>, <is relay in expected location?>, ..]
-    //
-    // for each relay in relay list ..
-    // let mut reject_reasons := []
-    // for each criteria ..
-    // if let Reject(reason) = critera.eval(relay) {
-    //   reject_reasons.push(reason)
-    // }
-    // ..
-    // if rejections_reasons.empty() {
-    //   (relay, Accept),
-    // } else {
-    //   (relay, Reject(reject_reasons))
-    // }
-    // ..
     pub fn partition_relays(&self, predicate: Predicate) -> RelayPartitions {
-        let criteria = self.criteria(predicate);
-        // The relay selection algorithm is embarrassingly parallel: https://en.wikipedia.org/wiki/Embarrassingly_parallel.
-        // We may explore the entire search space (`relays` x `criteria`) without any synchronization between different
-        // branches if we really wanted to.
-        let (matches, discards) = self.get_relays()
-            .into_relays()
-            .map(|relay| {
-                let verdict = Criteria::fold(criteria.iter(), &relay);
-                (relay, verdict)
-            })
-            // After this mapping, a single reduce is performed to partition the relays based on
-            // their assigned verdict.
-            .partition_map(|(relay, verdict)| match verdict {
-                Verdict::Accept => Either::Left(relay),
-                Verdict::Reject(rejected) => Either::Right((relay, rejected)),
-            });
+        match predicate {
+            Predicate::Singlehop(constraints) => self.partition_entry(&constraints),
+            Predicate::Autohop(constraints) => self.partition_autohop(constraints),
+            Predicate::Entry(multihop_constraints) => {
+                self.partition_multihop(multihop_constraints).0
+            }
+            Predicate::Exit(multihop_constraints) => {
+                self.partition_multihop(multihop_constraints).1
+            }
+        }
+    }
+
+    // Evaluate a verdict function over every relay in the current relay list and partition the
+    // results into matches and discards.
+    fn partition_by_verdict(&self, f: impl Fn(&WireguardRelay) -> Verdict) -> RelayPartitions {
+        let (matches, discards) =
+            self.get_relays()
+                .into_relays()
+                .partition_map(|relay| match f(&relay) {
+                    Verdict::Accept => Either::Left(relay),
+                    Verdict::Reject(reasons) => Either::Right((relay, reasons)),
+                });
         RelayPartitions { matches, discards }
     }
 
-    /// Calculate the set of criteria each predicate will render for scrutinizing relays.
-    fn criteria(&self, predicate: Predicate) -> Vec<Criteria<'_, WireguardRelay>> {
-        let shadowsocks_port_ranges =
-            self.relay_list(|rl| rl.wireguard.shadowsocks_port_ranges.clone());
-        let custom_lists: CustomListsSettings = self.custom_lists();
+    fn partition_entry(&self, constraints: &EntryConstraints) -> RelayPartitions {
+        self.partition_by_verdict(|relay| {
+            self.usable_as_entry(relay, constraints)
+                .and(self.usable_as_exit(relay, &constraints.general))
+        })
+    }
 
-        match predicate {
-            Predicate::Singlehop(constraints) => {
-                let usable_as_exit =
-                    Self::usable_as_exit(constraints.general.clone(), custom_lists);
-                let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
+    fn partition_autohop(&self, constraints: EntryConstraints) -> RelayPartitions {
+        // This case is identical to `singlehop`, except that it does not generally care
+        // about obfuscation, DAITA, etc. In those cases, the VPN traffic may be routed
+        // through an alternative entry relay.
+        //
+        // If a specific exit is to be selected, it could occupy the only possible entry
+        // relay. We search globally for an alternate entry relay (same constraints, any
+        // location) once up-front, rather than once per relay.
+        let global_autohop_entry = {
+            let mut global_constraints = constraints.clone();
+            // TODO: Clear the entire `general`, i.e. provider and ownership filters too
+            global_constraints.general.location = Constraint::Any;
+            self.partition_entry(&global_constraints)
+                .matches
+                .into_iter()
+                .at_most_one()
+        };
+        self.partition_by_verdict(|relay| {
+            let can_use_autohop_entry = match &global_autohop_entry {
+                // If there is exactly one matching entry relay, discard that relay
+                // from the list of entries.
+                Ok(Some(entry_relay)) => {
+                    (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
+                }
+                // Globally, there are no matching relays.
+                // We reject the relay with no additional reasons, only
+                // as not being usable as entry or exit, which is tested
+                // below.
+                Ok(None) => Verdict::Reject(vec![]),
+                // There are more than 1 possible entry relays — any exit relay goes.
+                Err(_) => Verdict::Accept,
+            };
 
-                vec![usable_as_entry, usable_as_exit]
-            }
-            Predicate::Autohop(constraints) => {
-                // This case is identical to `singlehop`, except that it does not generally care about obfuscation, DAITA, etc.
-                // In those cases, the VPN traffic may be routed through an alternative entry relay.
+            // The relay must be a valid exit...
+            self.usable_as_exit(relay, &constraints.general).and(
+                // ...and must either be a valid entry itself...
+                self.usable_as_entry(relay, &constraints)
+                        // ...or another entry must be findable.
+                        .or(can_use_autohop_entry),
+            )
+        })
+    }
 
-                // If a specific exit is to be selected, it could occupy the only possible entry relay.
-                // We may run `partition_relays` searching for the entry relay. If the result yields one
-                // (and only one) specific relay, we know that it must be excluded from the list of
-                // exit relays.
-                let can_find_autohop_entry = {
-                    // Search globally for an alternate entry relay.
-                    let global_predicate = {
-                        let mut constraints = constraints.clone();
-                        constraints.general.location = Constraint::Any;
-                        Predicate::Singlehop(constraints)
-                    };
-                    // Compare with the equiv predicate for the `Predicate::Exit` case.
-                    let RelayPartitions { matches, .. } = self.partition_relays(global_predicate);
+    fn partition_multihop(
+        &self,
+        MultihopConstraints { entry, exit }: MultihopConstraints,
+    ) -> (RelayPartitions, RelayPartitions) {
+        let mut entries = self.partition_entry(&entry);
+        let mut exits = self.partition_exit(&exit);
 
-                    match matches.into_iter().at_most_one() {
-                        Ok(None) => {
-                            // Globally, there are no matching relays.
-                            // The most sane thing we can do is to convert the original Predicate from
-                            // `Autohop` to `Singlehop`, and re-evaluate those criteria for each relay
-                            // to retrieve accurate reject reasons.
-                            return self.criteria(Predicate::Singlehop(constraints));
-                        }
-                        Ok(Some(entry_relay)) => Criteria::new(move |relay: &WireguardRelay| {
-                            (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
-                        }),
-                        Err(_) => {
-                            // There where more than 1 possible entry relays for the provided entry relay
-                            // predicate, any exit relay goes.
-                            Criteria::new(|_| Verdict::Accept)
-                        }
-                    }
-                };
+        // Compute both conflict positions against the original state before applying either
+        // removal, so that if both sides have the same single relay, both get rejected.
 
-                // Check criteria that apply to both exits and entries
-                let usable_as_exit =
-                    Self::usable_as_exit(constraints.general.clone(), custom_lists);
+        // If there is exactly one valid entry relay, it must not also be chosen as the exit.
+        let entry_conflicts_exit = match entries.matches.as_slice() {
+            [unique_entry] => exits.matches.iter().position(|r| r == unique_entry),
+            _ => None,
+        };
 
-                // Check criteria that apply specifically to entries
-                let usable_as_entry = Self::usable_as_entry(constraints, shadowsocks_port_ranges);
+        // If there is exactly one valid exit relay, it must not also be chosen as the entry.
+        let exit_conflicts_entry = match exits.matches.as_slice() {
+            [unique_exit] => entries.matches.iter().position(|r| r == unique_exit),
+            _ => None,
+        };
 
-                let criteria = usable_as_exit.and(
-                    // The relay must also be a valid entry.
-                    usable_as_entry.or(
-                        // Else another entry must be found.
-                        can_find_autohop_entry,
-                    ),
-                );
-                vec![criteria]
-            }
-            Predicate::Entry(MultihopConstraints { entry, exit }) => {
-                // If an exit is already selected, it should be rejected as a possible entry relay.
-                // To find out if a certain location is already selected as an exit relay, we may
-                // run `partition_relays` searching for the exit relay. If the result yields one
-                // (and only one) specific relay, we know that it must be excluded from the list of
-                // entry relays.
-                // NOTE: We don't handle the case where there are zero exit relays here, you must
-                // call the function again with `Predicate::Exit` to find that out.
-                let doesnt_collide_with_exit = {
-                    let exit_relay = self
-                            // Compare with the equiv predicate for the `Predicate::Exit` case.
-                            .partition_relays(Predicate::Singlehop(EntryConstraints { general: exit, ..Default::default()} ))
-                            .matches
-                            .into_iter()
-                            .exactly_one();
-                    match exit_relay {
-                        Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
-                            (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
-                        }),
-                        Err(_) => {
-                            // There where more than 1 possible entry relays for the provided entry relay
-                            // predicate, any exit relay goes.
-                            Criteria::new(|_| Verdict::Accept)
-                        }
-                    }
-                };
-
-                // Except for the `usable_as_exit` condition, the remainder of the work is
-                // ~equiv to `Predicate::Singlehop`.
-                let usable_as_entry = Self::usable_as_entry(entry.clone(), shadowsocks_port_ranges);
-                let usable_as_exit = Self::usable_as_exit(entry.general, custom_lists);
-                vec![usable_as_entry, usable_as_exit, doesnt_collide_with_exit]
-            }
-            Predicate::Exit(MultihopConstraints { entry, exit }) => {
-                // If an entry is already selected, it should be rejected as a possible exit relay.
-                // To find out if a certain location is already selected as an entry relay, we may
-                // run `partition_relays` searching for the entry relay. If the result yields one
-                // (and only one) specific relay, we know that it must be excluded from the list of
-                // exit relays.
-                let doesnt_collide_with_entry = {
-                    let entry_relay = self
-                        .partition_relays(Predicate::Singlehop(entry))
-                        .matches
-                        .into_iter()
-                        .exactly_one();
-                    match entry_relay {
-                        Ok(entry_relay) => Criteria::new(move |relay: &WireguardRelay| {
-                            (relay.inner == entry_relay.inner).if_true(Reason::Conflict)
-                        }),
-                        Err(_) => {
-                            // There where more than 1 possible entry relays for the provided entry relay
-                            // predicate, any exit relay goes.
-                            Criteria::new(|_| Verdict::Accept)
-                        }
-                    }
-                };
-
-                let usable_as_exit = Self::usable_as_exit(exit, custom_lists);
-                vec![usable_as_exit, doesnt_collide_with_entry]
-            }
+        if let Some(pos) = entry_conflicts_exit {
+            let relay = exits.matches.remove(pos);
+            exits.discards.push((relay, vec![Reason::Conflict]));
         }
+        if let Some(pos) = exit_conflicts_entry {
+            let relay = entries.matches.remove(pos);
+            entries.discards.push((relay, vec![Reason::Conflict]));
+        }
+
+        (entries, exits)
+    }
+
+    fn partition_exit(&self, constraints: &ExitConstraints) -> RelayPartitions {
+        self.partition_by_verdict(|relay| self.usable_as_exit(relay, constraints))
     }
 
     /// Check that the relay satisfies the entry specific criteria. Note that this does not check exit constraints.
     ///
     /// Here we consider only entry specific constraints, i.e. DAITA, obfuscation and IP version.
-    fn usable_as_entry(
-        constraints: EntryConstraints,
-        shadowsocks_port_ranges: Vec<RangeInclusive<u16>>,
-    ) -> Criteria<'static, WireguardRelay> {
-        let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
-        let daita = Criteria::new(move |relay| {
-            matcher::filter_on_daita(daita_on, relay).if_false(Reason::Daita)
-        });
+    fn usable_as_entry(&self, relay: &WireguardRelay, constraints: &EntryConstraints) -> Verdict {
+        let shadowsocks_port_ranges =
+            self.relay_list(|rl| rl.wireguard.shadowsocks_port_ranges.clone());
 
-        let obfuscation_ipversion_port = Criteria::new(move |relay: &WireguardRelay| {
+        let daita_on = constraints.daita.as_ref().map(|settings| settings.enabled);
+        let daita = matcher::filter_on_daita(daita_on, relay).if_false(Reason::Daita);
+
+        let obfuscation_ipversion_port = {
             let wg_endpoint_ip_version = match constraints.ip_version {
                 Constraint::Any => Verdict::Accept,
                 Constraint::Only(IpVersion::V4) => Verdict::Accept,
@@ -1000,50 +943,47 @@ impl RelaySelector {
                 }
             };
 
-            match obfuscation_criteria(&shadowsocks_port_ranges, relay, &constraints) {
+            match obfuscation_criteria(&shadowsocks_port_ranges, relay, constraints) {
                 ObfuscationVerdict::AcceptWireguardEndpoint => wg_endpoint_ip_version,
                 ObfuscationVerdict::AcceptObfuscationEndpoint => Verdict::Accept,
                 ObfuscationVerdict::Reject(reason) => {
                     Verdict::reject(reason).and(wg_endpoint_ip_version)
                 }
             }
-        });
+        };
         daita.and(obfuscation_ipversion_port)
     }
 
     /// Check that the relay satisfies the exit criteria.
     fn usable_as_exit(
+        &self,
+        relay: &WireguardRelay,
         ExitConstraints {
             location,
             providers,
             ownership,
-        }: ExitConstraints,
-        custom_lists: CustomListsSettings,
-    ) -> Criteria<'static, WireguardRelay> {
-        let ownership = Criteria::new(move |relay| {
-            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership)
-        });
-        let providers = Criteria::new(move |relay| {
-            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers)
-        });
-        let location = Self::location_criteria(location, custom_lists);
-        let active =
-            Criteria::new(|relay: &WireguardRelay| relay.active.if_false(Reason::Inactive));
+        }: &ExitConstraints,
+    ) -> Verdict {
+        let ownership =
+            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership);
+        let providers =
+            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers);
+        let location = self.location_criteria(relay, location);
+        let active = relay.active.if_false(Reason::Inactive);
 
         ownership.and(providers).and(location).and(active)
     }
 
     fn location_criteria(
-        location: Constraint<LocationConstraint>,
-        custom_lists: CustomListsSettings,
-    ) -> Criteria<'static, WireguardRelay> {
-        Criteria::new(move |relay| {
-            let location = matcher::ResolvedLocationConstraint::from_constraint(
-                location.as_ref(),
-                &custom_lists,
-            );
-            matcher::filter_on_location(location.as_ref(), relay).if_false(Reason::Location)
-        })
+        &self,
+        relay: &WireguardRelay,
+        location: &Constraint<LocationConstraint>,
+    ) -> Verdict {
+        let custom_lists: CustomListsSettings = self.custom_lists();
+
+        let location =
+            matcher::ResolvedLocationConstraint::from_constraint(location.as_ref(), &custom_lists);
+        matcher::filter_on_location(location.as_ref(), relay).if_false(Reason::Location)
     }
 }
 
@@ -1158,64 +1098,12 @@ fn obfuscation_criteria(
     }
 }
 
-/// A criteria is a function from a _single_ constraint and a relay to a [`Verdict`].
-///
-/// Multiple [`Criteria`] can be evaluated against a single relay at once by [`Criteria::eval`]. A
-/// final verdict is then compiled. If applicable, all reject reasons are accumulated and presented
-/// as a single [`Verdict::Reject`].
-struct Criteria<'a, T> {
-    // TODO:Store a &'static str with each Criteria, much like gotatun::Task. Makes for nicer
-    // debugging/tracing of Criteria.
-    f: Box<dyn Fn(&T) -> Verdict + 'a>,
-}
-
-impl<'a, T> Criteria<'a, T> {
-    /// Create a new [`Criteria`].
-    fn new(f: impl Fn(&T) -> Verdict + 'a) -> Self {
-        Criteria { f: Box::new(f) }
-    }
-}
-
-impl<'a> Criteria<'a, WireguardRelay> {
-    /// Evaluate [`Criteria`] for a single [`Relay`].
-    fn eval(&self, relay: &WireguardRelay) -> Verdict {
-        (self.f)(relay)
-    }
-
-    /// Combine two [`Criteria`].
-    ///
-    /// This composition is biased towards the negative case, i.e. rejections always take
-    /// precedence. If two rejecting criteria are composed, all of their reasons accumulate.
-    fn and(self, other: Self) -> Self {
-        Criteria::new(move |relay| self.eval(relay).and(other.eval(relay)))
-    }
-
-    /// Combine two [`Criteria`].
-    ///
-    /// This composition is biased towards the positive case, i.e. accepts always take
-    /// precedence. If two rejecting criteria are composed, all of their reasons accumulate.
-    fn or(self, other: Self) -> Self {
-        Criteria::new(move |relay| self.eval(relay).or(other.eval(relay)))
-    }
-
-    /// Evaluate all criteria for a given relay, yield a final [`Verdict`].
-    ///
-    /// This function is biased towards [`Verdict::Accept`]. E.g. if `criterias` is emtpy, the
-    /// scrutinized `relay` is accepted.
-    fn fold(criterias: impl Iterator<Item = &'a Self>, relay: &WireguardRelay) -> Verdict {
-        criterias
-            .into_iter()
-            .map(|criteria| criteria.eval(relay))
-            .fold(Verdict::Accept, Verdict::and)
-    }
-}
-
 /// If a relay is accepted or rejected. If it is rejected, all [reasons](Reason) for that judgment
 /// is provided as well.
 ///
 /// # Note
 /// The associated relay is implied from the environment.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 enum Verdict {
     Accept,
     Reject(Vec<Reason>),
