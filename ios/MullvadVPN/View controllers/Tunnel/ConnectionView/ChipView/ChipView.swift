@@ -13,38 +13,34 @@ struct ChipView: View {
     let onPress: (() -> Void)?
     private let borderWidth: CGFloat = 1
 
-    private var content: Text {
-        if let icon = item.icon {
-            Text("\(icon) \(item.name)")
-        } else {
-            Text(item.name)
-        }
-
-    }
-
     var body: some View {
         Button {
             onPress?()
         } label: {
-            content
-                .font(.subheadline)
-                .lineLimit(1)
-                .foregroundStyle(UIColor.primaryTextColor.color)
-                .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorisontalPadding)
-                .padding(.vertical, 4)
+            HStack(spacing: UIMetrics.FeatureIndicators.chipViewIconTextSpacing) {
+                if let icon = item.icon {
+                    icon
+                }
+                Text(item.name)
+                    .font(.subheadline)
+                    .lineLimit(1)
+                    .foregroundStyle(UIColor.primaryTextColor.color)
+                    .padding(.vertical, 4)
+            }
+            .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorizontalPadding)
+        }
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    UIColor.primaryColor.color,
+                    lineWidth: borderWidth
+                )
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(
-                            UIColor.primaryColor.color,
-                            lineWidth: borderWidth
-                        )
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(UIColor.secondaryColor.color)
-                        )
-                        .padding(borderWidth)
+                        .fill(UIColor.secondaryColor.color)
                 )
-        }
+                .padding(borderWidth)
+        )
     }
 }
 
