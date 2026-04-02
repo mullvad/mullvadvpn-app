@@ -20,6 +20,7 @@ struct ChipView: View {
             HStack(spacing: UIMetrics.FeatureIndicators.chipViewIconTextSpacing) {
                 if let icon = item.icon {
                     icon
+                        .foregroundStyle(UIColor.primaryTextColor.color)
                 }
                 Text(item.name)
                     .font(.subheadline)
