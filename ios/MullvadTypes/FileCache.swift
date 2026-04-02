@@ -81,19 +81,19 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
     public func write(_ content: Content) throws {
         // Encode before acquiring the lock to minimize exclusive lock hold time.
-        // Use a unique temp file to avoid races between concurrent writers.
         let data = try JSONEncoder().encode(content)
-        let tempURL = fileURL.appendingPathExtension("\(UUID().uuidString).tmp")
-        try data.write(to: tempURL)
 
         let lockFd = try openLockFile()
         defer { close(lockFd) }
 
         guard flock(lockFd, LOCK_EX) == 0 else {
-            try? FileManager.default.removeItem(at: tempURL)
             throw FileCacheError.lockFailed(errno)
         }
         defer { flock(lockFd, LOCK_UN) }
+
+        // Write to a temporary file then atomically rename, both under the exclusive lock.
+        let tempURL = fileURL.appendingPathExtension("tmp")
+        try data.write(to: tempURL)
 
         if rename(tempURL.path, fileURL.path) != 0 {
             try? FileManager.default.removeItem(at: tempURL)
