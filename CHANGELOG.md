@@ -27,7 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Add support for RISC-V builds.
 - Add `--daemon-only` build option for deb and rpm packages for CLI usage.
-- GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
 
 ### Changed
 - Location setting no longer defaults to Sweden, instead it uses you current location if it
