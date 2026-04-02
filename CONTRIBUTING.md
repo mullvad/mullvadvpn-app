@@ -21,7 +21,21 @@ following sections first and then feel free to submit a pull request on GitHub.
 
 While we appreciate your interest in helping us to improve Mullvad VPN, please understand that
 choosing which submitted changes to merge is fully at our discretion, based upon our development
-plans for the app.
+plans for the app. Before implementing new features, refactoring or making major changes, consider
+existing [discussions](https://github.com/mullvad/mullvadvpn-app/discussions) or creating a
+[new one](https://github.com/mullvad/mullvadvpn-app/discussions/new?category=feature-requests-ideas).
+If you are fixing a bug, feel free to comment on the relevant existing issue or create a [bug report](https://github.com/mullvad/mullvadvpn-app/issues/new/choose)
+before you start.
+
+### AI-assisted contributions
+
+A human must be behind all pull requests, issues, security advisories, and other submissions to this
+repository. Regardless of whether AI was used to author the code, we require that a human
+understands everything being submitted and is available for feedback and questions. If you have not
+read your own changes or do not fully understand them, please do not expect us to either.
+
+We will immediately close submissions where it is obvious that no human was in the loop, or where
+the only communication we receive from the author is clearly from a bot.
 
 ### Localization / translations
 
