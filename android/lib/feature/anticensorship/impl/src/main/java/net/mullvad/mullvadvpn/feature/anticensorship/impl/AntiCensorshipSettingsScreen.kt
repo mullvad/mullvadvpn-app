@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
@@ -111,7 +111,7 @@ fun AntiCensorshipSettingsScreen(
     onBackClick: () -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         modifier = modifier,
         appBarTitle = stringResource(id = R.string.anti_censorship),
         navigationIcon = {

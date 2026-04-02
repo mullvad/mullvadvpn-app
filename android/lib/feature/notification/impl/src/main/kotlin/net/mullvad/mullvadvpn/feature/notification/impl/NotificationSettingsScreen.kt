@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -82,7 +82,7 @@ fun NotificationSettingsScreen(
     onToggleLocationInNotifications: (Boolean) -> Unit,
     onOpenSystemNotificationsSettings: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.settings_notifications),
         navigationIcon = {
             unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }

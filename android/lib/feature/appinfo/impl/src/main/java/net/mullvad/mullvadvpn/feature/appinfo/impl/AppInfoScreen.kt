@@ -28,7 +28,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExternalLinkListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
@@ -93,7 +93,7 @@ fun AppInfo(
     navigateToChangelog: () -> Unit,
     openAppListing: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.app_info),
         navigationIcon = {
             unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }

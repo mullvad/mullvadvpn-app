@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -78,7 +78,7 @@ fun MultihopScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         modifier = modifier,
         appBarTitle = stringResource(id = R.string.multihop),
         navigationIcon = {

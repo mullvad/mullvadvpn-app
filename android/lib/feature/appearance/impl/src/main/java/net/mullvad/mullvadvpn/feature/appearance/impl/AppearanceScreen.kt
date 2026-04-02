@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appicon.api.AppIconNavKey
 import net.mullvad.mullvadvpn.feature.language.api.LanguageNavKey
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -50,7 +50,7 @@ fun AppearanceScreen(
     onLanguageClick: (() -> Unit)?,
     onBackClick: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier, lazyListState: LazyListState ->
