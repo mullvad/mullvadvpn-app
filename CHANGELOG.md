@@ -33,10 +33,10 @@ Line wrap the file at 100 chars.                                              Th
   has available relays, and falls back to Sweden otherwise.
 - `mullvad-daemon` now defaults to `ERROR` log level when `-v` is not specified.
   `mullvad-daemon -vv` is used in system services to maintain previous `DEBUG` log level.
-- Update GotaTun from version `0.2.0` to `0.4.1`. This improves compliance with the
-  WireGuard spec by implementing padding to multiples of 16 bytes, fixes a minor
-  vulnerability when generating peer indices, and fixes another when registering incoming
-  decoy packets for DAITA.
+- Update GotaTun from version `0.2.0` to `0.5.0`. This improves compliance with the
+  WireGuard spec by adding handshake jitter and implementing padding to multiples of 16 bytes,
+  fixes a minor vulnerability when generating peer indices, and fixes another when registering
+  incoming decoy packets for DAITA.
 - Disable SNI for Mullvad API traffic. This prevents DPI based on domain name when obfuscation is
   disabled.
 - Redact other users' home paths in logs.
