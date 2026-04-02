@@ -1673,9 +1673,9 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 
 [[package]]
 name = "gotatun"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bab3fc4a86ff8192b2f11b856ba2717ef3cf6833b4cb1d7d66c7ad0af5e2d61a"
+checksum = "011b0c02e571262b965413848b5e1e25810a9a1b8cea2ce373ea67e8f2174197"
 dependencies = [
  "aead",
  "base64",
