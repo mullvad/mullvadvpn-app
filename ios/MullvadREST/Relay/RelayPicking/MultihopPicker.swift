@@ -36,7 +36,7 @@ struct MultihopPicker: RelayPicking {
         ).obfuscate()
 
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
+            by: tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryLocations,
             in: supportedObfuscation.obfuscatedRelays,
             filterConstraint: constraints.entryFilter,
             daitaEnabled: daitaSettings.daitaState.isEnabled
@@ -83,7 +83,7 @@ struct MultihopPicker: RelayPicking {
         return try decisionFlow.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
-            daitaAutomaticRouting: daitaSettings.isAutomaticRouting
+            selectNearbyLocation: tunnelSettings.automaticMultihopIsEnabled
         )
     }
 

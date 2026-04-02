@@ -37,8 +37,8 @@ struct SelectLocationDelegate {
     let showFilterView: (MultihopContext) -> Void
     let showEditCustomListView: ([LocationNode], CustomList?) -> Void
     let showAddCustomListView: ([LocationNode]) -> Void
-    let didSelectExitRelayLocations: (UserSelectedRelays) -> Void
-    let didSelectEntryRelayLocations: (UserSelectedRelays) -> Void
+    let didSelectExitRelayLocations: (RelayConstraint<UserSelectedRelays>) -> Void
+    let didSelectEntryRelayLocations: (RelayConstraint<UserSelectedRelays>) -> Void
     let didFinish: () -> Void
 }
 
@@ -92,8 +92,8 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             repository: customListRepository
         )
         self.recentsInteractor = RecentsInteractor(
-            selectedEntryRelays: tunnelManager.settings.selectedEntryRelays,
-            selectedExitRelays: tunnelManager.settings.selectedExitRelays,
+            selectedEntryConstraint: tunnelManager.settings.relayConstraints.entryLocations,
+            selectedExitConstraint: tunnelManager.settings.relayConstraints.exitLocations,
             repository: recentConnectionsRepository)
 
         self.delegate = delegate
@@ -137,8 +137,17 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             filter: SelectLocationFilter.getActiveFilters(tunnelManager.settings).0,
             selectLocation: { [weak self] location in
                 guard let self else { return }
-                recentsInteractor.updateSelectedLocations(location.userSelectedRelays, for: .entry)
-                delegate.didSelectEntryRelayLocations(location.userSelectedRelays)
+
+                let constraint: RelayConstraint<UserSelectedRelays> =
+                    if location is AutomaticLocationNode {
+                        .any
+                    } else {
+                        .only(location.userSelectedRelays)
+                    }
+
+                recentsInteractor.updateSelectedLocations(constraint, for: .entry)
+                delegate.didSelectEntryRelayLocations(constraint)
+
                 multihopContext = .exit
             }
         )
@@ -146,8 +155,11 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             filter: SelectLocationFilter.getActiveFilters(tunnelManager.settings).1,
             selectLocation: { [weak self] location in
                 guard let self else { return }
-                recentsInteractor.updateSelectedLocations(location.userSelectedRelays, for: .exit)
-                delegate.didSelectExitRelayLocations(location.userSelectedRelays)
+
+                let constraint = RelayConstraint.only(location.userSelectedRelays)
+
+                recentsInteractor.updateSelectedLocations(constraint, for: .exit)
+                delegate.didSelectExitRelayLocations(constraint)
             }
         )
         let tunnelObserver =
@@ -334,10 +346,13 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             exitContext.availableRelayCount = relaysCandidates.exitRelays.count
 
             if let entryRelays = relaysCandidates.entryRelays {
-                entryLocationsDataSource
-                    .reload(entryRelays.toLocationRelays())
-                entryContext.locations =
-                    entryLocationsDataSource.nodes
+                entryLocationsDataSource.reload(entryRelays.toLocationRelays())
+
+                if tunnelManager.settings.tunnelMultihopState.isUserSelected {
+                    entryLocationsDataSource.addAutomaticLocationNode()
+                }
+
+                entryContext.locations = entryLocationsDataSource.nodes
                 entryContext.customListAvailableLocations = entryLocationsDataSource.nodes
                 entryContext.availableRelayCount = entryRelays.count
             }
@@ -348,11 +363,30 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateConnectedLocations(_ status: TunnelStatus) {
-        entryCustomListsDataSource.setConnectedRelay(hostname: status.state.relays?.entry?.hostname)
-        entryLocationsDataSource.setConnectedRelay(hostname: status.state.relays?.entry?.hostname)
+        let relayConstraints = tunnelManager.settings.relayConstraints
+        let selectedRelays = status.state.relays
 
-        exitCustomListsDataSource.setConnectedRelay(hostname: status.state.relays?.exit.hostname)
-        exitLocationsDataSource.setConnectedRelay(hostname: status.state.relays?.exit.hostname)
+        ([
+            entryCustomListsDataSource,
+            entryLocationsDataSource,
+            entryRecentsDataSource,
+        ] as [LocationDataSourceProtocol]).forEach {
+            $0.setConnectedRelay(
+                relayConstraint: relayConstraints.entryLocations,
+                selectedRelay: selectedRelays?.entry
+            )
+        }
+
+        ([
+            exitCustomListsDataSource,
+            exitLocationsDataSource,
+            exitRecentsDataSource,
+        ] as [LocationDataSourceProtocol]).forEach {
+            $0.setConnectedRelay(
+                relayConstraint: relayConstraints.exitLocations,
+                selectedRelay: selectedRelays?.exit
+            )
+        }
     }
 
     private func search(searchText: String) {
@@ -363,38 +397,40 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateSelections() {
-        let selectedEntryRelays = tunnelManager.settings.selectedEntryRelays
-        let selectedExitRelays = tunnelManager.settings.selectedExitRelays
+        let selectedEntryConstraint = tunnelManager.settings.relayConstraints.entryLocations
+        let selectedExitConstraint = tunnelManager.settings.relayConstraints.exitLocations
+
         let updateRecentsDataSources:
             (
                 LocationDataSourceProtocol,
-                UserSelectedRelays
+                RelayConstraint<UserSelectedRelays>
             ) -> Void = { dataSource, selected in
-                dataSource.setSelectedNode(selectedRelays: selected)
+                dataSource.setSelectedNode(constraint: selected)
             }
 
         let updateLocationsDataSources:
             (
                 [LocationDataSourceProtocol],
-                UserSelectedRelays,
-                UserSelectedRelays
+                RelayConstraint<UserSelectedRelays>,
+                RelayConstraint<UserSelectedRelays>
             ) -> Void = { dataSources, selected, excluded in
-                let locationDataSource = dataSources.first(where: { $0.node(by: selected) != nil })
-                locationDataSource?.setSelectedNode(selectedRelays: selected)
-                locationDataSource?.expandSelection()
                 dataSources.forEach {
+                    $0.setSelectedNode(constraint: selected)
+                    $0.expandSelection()
+
                     if self.isMultihopEnabled {
-                        $0.setExcludedNode(excludedSelection: excluded)
+                        $0.setExcludedNode(constraint: excluded)
                     }
                 }
             }
-        updateLocationsDataSources(
-            [entryCustomListsDataSource, entryLocationsDataSource], selectedEntryRelays, selectedExitRelays)
-        updateLocationsDataSources(
-            [exitCustomListsDataSource, exitLocationsDataSource], selectedExitRelays, selectedEntryRelays)
 
-        updateRecentsDataSources(entryRecentsDataSource, selectedEntryRelays)
-        updateRecentsDataSources(exitRecentsDataSource, selectedExitRelays)
+        updateLocationsDataSources(
+            [entryCustomListsDataSource, entryLocationsDataSource], selectedEntryConstraint, selectedExitConstraint)
+        updateLocationsDataSources(
+            [exitCustomListsDataSource, exitLocationsDataSource], selectedExitConstraint, selectedEntryConstraint)
+
+        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
+        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
 
         exitContext.selectedLocation =
             [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode
@@ -433,44 +469,5 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             updateSelections()
             updateConnectedLocations(tunnelManager.tunnelStatus)
         }
-    }
-
-    private func updateRecents(
-        dataSource: LocationDataSourceProtocol,
-        selected: UserSelectedRelays
-    ) {
-        dataSource.setSelectedNode(selectedRelays: selected)
-    }
-
-    private func updateLocationDataSources(
-        dataSources: [LocationDataSourceProtocol],
-        selected: UserSelectedRelays,
-        excluded: UserSelectedRelays
-    ) {
-        if let dataSource = dataSources.first(where: { $0.node(by: selected) != nil }) {
-            dataSource.setSelectedNode(selectedRelays: selected)
-            dataSource.expandSelection()
-        }
-
-        guard isMultihopEnabled else { return }
-
-        dataSources.forEach {
-            $0.setExcludedNode(excludedSelection: excluded)
-        }
-    }
-
-    private func selectedNode(
-        from dataSources: [LocationDataSourceProtocol]
-    ) -> LocationNode? {
-        dataSources.firstSelectedNode
-    }
-}
-
-private extension LatestTunnelSettings {
-    var selectedEntryRelays: UserSelectedRelays {
-        relayConstraints.entryLocations.value ?? .default
-    }
-    var selectedExitRelays: UserSelectedRelays {
-        relayConstraints.exitLocations.value ?? .default
     }
 }

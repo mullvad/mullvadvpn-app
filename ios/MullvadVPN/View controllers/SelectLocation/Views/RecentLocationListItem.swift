@@ -10,26 +10,39 @@ import MullvadTypes
 import SwiftUI
 
 struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
+    @State private var alert: MullvadAlert?
+    private let itemFactory = ListItemFactory()
+
     @Binding var location: LocationNode
-    let multihopContext: MultihopContext
-    let subtitle: LocalizedStringKey?
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
     var body: some View {
-        RelayItemView(
-            location: location,
-            multihopContext: multihopContext,
-            level: 0,
-            subtitle: subtitle,
-            isLastInList: true,
-            onSelect: { onSelect(location) }
+        if location is AutomaticLocationNode {
+            AutomaticLocationListItem(location: $location, isRecent: true, onSelect: onSelect)
+        } else {
+            recentLocationListItem
+        }
+    }
+
+    @ViewBuilder
+    var recentLocationListItem: some View {
+        SegmentedListItem(
+            accessibilityIdentifier: .recentListItem(location.name),
+            accessibilityLabel: location.name,
+            label: {
+                itemFactory.label(for: .recent(node: location))
+            },
+            segment: {},
+            groupedContent: {},
+            onSelect: {
+                onSelect(location)
+            }
         )
-        .accessibilityIdentifier(.recentListItem(location.name))
         .contextMenu {
             contextMenu(location)
         }
-        .padding(.top, 4)
         .id(location.id)  // to be able to scroll to this item programmatically
+        .mullvadAlert(item: $alert)
     }
 }

@@ -24,6 +24,10 @@ class LocationNode: @unchecked Sendable {
     var isOverridden: Bool
     let id = UUID()
 
+    var isSearchable: Bool {
+        true
+    }
+
     init(
         name: String,
         code: String,
@@ -83,6 +87,9 @@ extension LocationNode {
     }
     var asCustomListNode: CustomListLocationNode? {
         self as? CustomListLocationNode
+    }
+    var asAutomaticLocationNode: AutomaticLocationNode? {
+        self as? AutomaticLocationNode
     }
 
     var userSelectedRelays: UserSelectedRelays {
@@ -242,7 +249,6 @@ class CustomListLocationNode: LocationNode, @unchecked Sendable {
 
         return node
     }
-
 }
 
 class RecentLocationNode: LocationNode, @unchecked Sendable {
@@ -270,6 +276,41 @@ class RecentLocationNode: LocationNode, @unchecked Sendable {
             children: children,
             showsChildren: showsChildren,
             isOverridden: isIPOverriden
+        )
+    }
+}
+
+class AutomaticLocationNode: LocationNode, @unchecked Sendable {
+    var locationInfo: [String]?
+
+    override var isSearchable: Bool {
+        false
+    }
+
+    init(
+        name: String = NSLocalizedString("Automatic", comment: ""),
+        code: String = "automatic",
+        isConnected: Bool = false,
+        isSelected: Bool = false,
+        locationInfo: [String]? = nil
+    ) {
+        self.locationInfo = locationInfo
+
+        super.init(
+            name: name,
+            code: code,
+            isConnected: isConnected,
+            isSelected: isSelected
+        )
+    }
+
+    override func copy(withParent parent: LocationNode? = nil) -> LocationNode {
+        AutomaticLocationNode(
+            name: name,
+            code: code,
+            isConnected: isConnected,
+            isSelected: isSelected,
+            locationInfo: locationInfo
         )
     }
 }

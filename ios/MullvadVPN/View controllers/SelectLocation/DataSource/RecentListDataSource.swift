@@ -21,15 +21,20 @@ class RecentListDataSource: LocationDataSourceProtocol {
         self.customListsDataSource = customListsDataSource
     }
 
-    func reload(_ recents: [UserSelectedRelays]) {
+    func reload(_ recents: [RelayConstraint<UserSelectedRelays>]) {
         nodes = Array(
-            recents.compactMap { userSelectedRelays -> RecentLocationNode? in
+            recents.compactMap { userSelectedRelays -> LocationNode? in
                 let allLocationNode = allLocationDataSource.node(by: userSelectedRelays)
                 guard
                     let node =
                         customListsDataSource.node(by: userSelectedRelays)
                         ?? allLocationNode
                 else { return nil }
+
+                // Preserve automatic location as an AutomaticLocationNode and return early
+                guard !(node is AutomaticLocationNode) else {
+                    return node.copy()
+                }
 
                 // Preserve the parent only when the node originates from a custom list
                 let copiedNode = node.copy(withParent: node.root.asCustomListNode)
@@ -43,17 +48,20 @@ class RecentListDataSource: LocationDataSourceProtocol {
                     children: copiedNode.children,
                     showsChildren: false,  // Recents shouldn't be expandable
                     locationInfo: allLocationNode?.pathToRoot())  // Store relay location info (country, city)
-
             }
             .filter({ $0.isActive })
             .prefix(3)
         )
-
     }
 
-    func node(by selectedRelays: UserSelectedRelays) -> LocationNode? {
-        nodes.first { node in
-            node.userSelectedRelays == selectedRelays
+    func node(by selectedConstraint: RelayConstraint<UserSelectedRelays>) -> LocationNode? {
+        nodes.first {
+            switch selectedConstraint {
+            case .any:
+                $0 is AutomaticLocationNode
+            case .only(let relays):
+                $0.userSelectedRelays == relays
+            }
         }
     }
 }

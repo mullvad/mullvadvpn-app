@@ -7,20 +7,8 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
     let onSelectLocation: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
-    var filteredLocationIndices: [Int] {
-        locations
-            .enumerated()
-            .map { $0.offset }
-    }
-
     var body: some View {
-        ForEach(
-            Array(filteredLocationIndices.enumerated()),
-            id: \.element
-        ) {
-            index,
-            indexInLocationList in
-            let location = $locations[indexInLocationList]
+        ForEach($locations, id: \.self) { location in
             LocationListItem(
                 location: location,
                 multihopContext: multihopContext,
@@ -47,4 +35,7 @@ struct LocationsListView<ContextMenu>: View where ContextMenu: View {
         }
     }
     .background(Color.mullvadBackground)
+    .onAppear {
+        viewModel.exitContext.recents.insert(AutomaticLocationNode(), at: 0)
+    }
 }
