@@ -35,8 +35,8 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
     public let fileURL: URL
     private let lockFileURL: URL
 
-    /// Serial queue protecting `cachedContent` and `cachedMtime` against data races.
-    private let cacheQueue = DispatchQueue(label: "net.mullvadvpn.FileCache.cacheQueue")
+    /// Lock protecting `cachedContent` and `cachedMtime` against data races.
+    private let cacheLock = NSLock()
     private var cachedContent: Content?
     private var contentModified: Date?
 
@@ -47,9 +47,11 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
     public func read() throws -> Content {
         // Fast path: if the file modification time hasn't changed, return the cached content.
-        let currentMtime = fileMtime()
-        let cached: Content? = cacheQueue.sync {
-            if let cachedContent, let cachedMtime, cachedMtime == currentMtime, currentMtime != nil {
+        let currentModificationTime = fileModificationTime()
+        let cached: Content? = cacheLock.withLock {
+            if let cachedContent, let contentModified, contentModified == currentModificationTime,
+                currentModificationTime != nil
+            {
                 return cachedContent
             }
             return nil
@@ -71,7 +73,7 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
         let content = try JSONDecoder().decode(Content.self, from: data)
         let mtime = fileModificationTime()
 
-        cacheQueue.sync {
+        cacheLock.withLock {
             cachedContent = content
             contentModified = mtime
         }
@@ -80,27 +82,28 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
     }
 
     public func write(_ content: Content) throws {
+        // Encode before acquiring the lock to minimize exclusive lock hold time.
+        // Use a unique temp file to avoid races between concurrent writers.
+        let data = try JSONEncoder().encode(content)
+        let tempURL = fileURL.appendingPathExtension("\(UUID().uuidString).tmp")
+        try data.write(to: tempURL)
+
         let lockFd = try openLockFile()
         defer { close(lockFd) }
 
         guard flock(lockFd, LOCK_EX) == 0 else {
+            try? FileManager.default.removeItem(at: tempURL)
             throw FileCacheError.lockFailed(errno)
         }
         defer { flock(lockFd, LOCK_UN) }
 
-        // Write to a temporary file first, then atomically rename for crash safety.
-        let tempURL = fileURL.appendingPathExtension("tmp")
-        let data = try JSONEncoder().encode(content)
-        try data.write(to: tempURL)
-
         if rename(tempURL.path, fileURL.path) != 0 {
-            // Clean up temp file on failure.
             try? FileManager.default.removeItem(at: tempURL)
             throw FileCacheError.renameFailed(errno)
         }
 
-        let mtime = fileMtime()
-        cacheQueue.sync {
+        let mtime = fileModificationTime()
+        cacheLock.withLock {
             cachedContent = content
             contentModified = mtime
         }
@@ -117,7 +120,7 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
         try FileManager.default.removeItem(at: fileURL)
 
-        cacheQueue.sync {
+        cacheLock.withLock {
             cachedContent = nil
             contentModified = nil
         }
