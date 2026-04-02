@@ -31,12 +31,12 @@ NOTARIZE="false"
 # If a macOS or Windows build should create an installer artifact working on both
 # x86 and arm64
 UNIVERSAL="false"
-# If only the daemon should be built and packaged separately (.deb and .rpm).
-DAEMON_ONLY="false"
 # Use gotatun instead of wireguard-go.
 GOTATUN="false"
-# Enable GotaTun by default on macOS and Linux.
-if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == "Linux" ]]; then
+# If only the daemon should be built and packaged separately (.deb and .rpm).
+DAEMON_ONLY="false"
+# Enable GotaTun by default on macOS.
+if [[ "$(uname -s)" == "Darwin" ]]; then
     GOTATUN="true"
 fi
 
