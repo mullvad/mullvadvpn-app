@@ -47,7 +47,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxB
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.PackageName
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
@@ -127,7 +127,7 @@ fun SplitTunnelingScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         modifier = modifier.fillMaxSize(),
         appBarTitle = stringResource(id = R.string.split_tunneling),
         navigationIcon = {

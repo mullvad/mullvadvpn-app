@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs
 
 import android.content.Context
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,12 +13,9 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
@@ -41,16 +36,14 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.getLogsShareIntent
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
-import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -78,30 +71,8 @@ fun ViewLogsScreen(state: Lc<Unit, ViewLogsUiState>, onBackClick: () -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboardHandle =
         createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = false)
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
-            )
-        },
-        topBar = { TopBar(state, clipboardHandle, onBackClick) },
-    ) {
-        Content(state, it)
-    }
-}
-
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBar(
-    state: Lc<Unit, ViewLogsUiState>,
-    clipboardHandle: CopyToClipboardHandle,
-    onBackClick: () -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    MullvadMediumTopBar(
-        title = stringResource(id = R.string.view_logs),
+    ScaffoldWithSmallTopBar(
+        appBarTitle = stringResource(id = R.string.view_logs),
         navigationIcon = {
             NavigateBackIconButton(
                 onNavigateBack = onBackClick,
@@ -110,6 +81,8 @@ private fun TopBar(
         },
         actions = {
             val clipboardToastMessage = stringResource(R.string.copied_logs_to_clipboard)
+            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
             IconButton(
                 onClick = {
                     clipboardHandle(state.contentOrNull()?.text() ?: "", clipboardToastMessage)
@@ -135,15 +108,18 @@ private fun TopBar(
                 )
             }
         },
-    )
+        snackbarHostState = snackbarHostState,
+    ) { modifier ->
+        Content(state, modifier)
+    }
 }
 
 @Composable
-private fun Content(state: Lc<Unit, ViewLogsUiState>, paddingValues: PaddingValues) {
+private fun Content(state: Lc<Unit, ViewLogsUiState>, modifier: Modifier) {
     Card(
         modifier =
-            Modifier.fillMaxSize()
-                .padding(paddingValues)
+            modifier
+                .fillMaxSize()
                 .padding(
                     start = Dimens.sideMargin,
                     end = Dimens.sideMargin,

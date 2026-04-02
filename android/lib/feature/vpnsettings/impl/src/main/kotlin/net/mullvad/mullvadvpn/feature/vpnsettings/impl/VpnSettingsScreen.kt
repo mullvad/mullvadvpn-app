@@ -80,7 +80,7 @@ import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
@@ -305,7 +305,7 @@ fun VpnSettingsScreen(
     Scaffold(
         modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            MullvadMediumTopBar(
+            MullvadSmallTopBar(
                 title = stringResource(id = R.string.settings_vpn),
                 navigationIcon = {
                     if (state.isModal()) {
