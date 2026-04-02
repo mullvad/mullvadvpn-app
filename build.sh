@@ -239,16 +239,6 @@ function build {
         for_target_string=" for local target $HOST"
     fi
 
-    # Check for vendored C-libraries.
-    local clib_dir="${SCRIPT_DIR}/dist-assets/binaries/${current_target}"
-    local libmnl_file="${clib_dir}/libmnl.a"
-    local libnftnl_file="${clib_dir}/libnftnl.a"
-
-    if [ ! -f "${libmnl_file}" ] || [ ! -f "${libnftnl_file}" ]; then
-         log_warn "Libraries not found at ${clib_dir}/*"
-         log_warn "Check \"dist-assets/binaries\" for build details!"
-    fi
-
     ################################################################################
     # Compile and link all binaries.
     ################################################################################
@@ -273,6 +263,17 @@ function build {
     )
     if [[ ("$(uname -s)" == "Linux") ]]; then
         cargo_crates_to_build+=(-p mullvad-exclude --bin mullvad-exclude)
+    fi
+
+    if [[ ("$(uname -s)" == "Linux") ]]; then
+        # Check for vendored C-libraries.
+        local clib_dir="${SCRIPT_DIR}/dist-assets/binaries/${current_target}"
+        local libmnl_file="${clib_dir}/libmnl.a"
+        local libnftnl_file="${clib_dir}/libnftnl.a"
+        if [ ! -f "${libmnl_file}" ] || [ ! -f "${libnftnl_file}" ]; then
+             log_warn "Libraries not found at ${clib_dir}/*"
+             log_warn "Check \"dist-assets/binaries\" for build details!"
+        fi
     fi
 
     cargo build "${cargo_target_arg[@]}" "${cargo_features[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
