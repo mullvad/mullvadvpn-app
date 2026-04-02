@@ -56,7 +56,7 @@ public struct SelectedRelay: Equatable, Codable, Sendable {
 
 extension SelectedRelay: CustomDebugStringConvertible {
     public var debugDescription: String {
-        "\(hostname)(\(endpoint.socketAddress))\(isIPOverridden ? " [IP Overridden]" : "")"
+        "\(hostname)\(isIPOverridden ? " [IP Overridden]" : "")"
     }
 }
 
@@ -82,12 +82,5 @@ public struct SelectedRelays: Equatable, Codable, Sendable {
         self.entry = entry
         self.exit = exit
         self.retryAttempt = retryAttempt
-    }
-}
-
-extension SelectedRelays: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        "Entry: \(entry?.hostname ?? "-") -> \(entry?.endpoint.socketAddress.description ?? "-"), "
-            + "Exit: \(exit.hostname) -> \(exit.endpoint.socketAddress), obfuscation: \(obfuscation)"
     }
 }

@@ -35,7 +35,7 @@ public enum EphemeralPeerNegotiationState: Equatable, Sendable {
     }
 }
 
-public struct EphemeralPeerRelayConfiguration: Equatable, CustomDebugStringConvertible, Sendable {
+public struct EphemeralPeerRelayConfiguration: Equatable, Sendable {
     public let relay: SelectedRelay
     public let configuration: EphemeralPeerConfiguration
 
@@ -43,13 +43,9 @@ public struct EphemeralPeerRelayConfiguration: Equatable, CustomDebugStringConve
         self.relay = relay
         self.configuration = configuration
     }
-
-    public var debugDescription: String {
-        "{ relay : \(relay.debugDescription), post quantum: \(configuration.debugDescription) }"
-    }
 }
 
-public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertible, Sendable {
+public struct EphemeralPeerConfiguration: Equatable, Sendable {
     public let privateKey: PrivateKey
     public let preSharedKey: PreSharedKey?
     public let allowedIPs: [IPAddressRange]
@@ -65,15 +61,5 @@ public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertibl
         self.preSharedKey = preSharedKey
         self.allowedIPs = allowedIPs
         self.daitaParameters = daitaParameters
-    }
-
-    public var debugDescription: String {
-        var string = "{ private key : \(privateKey),"
-        string +=
-            preSharedKey.flatMap {
-                "preShared key: \($0), "
-            } ?? ""
-        string += ", allowedIPs: \(allowedIPs) }"
-        return string
     }
 }
