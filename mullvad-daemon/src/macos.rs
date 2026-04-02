@@ -13,7 +13,6 @@ use crate::device::AccountManagerHandle;
 
 /// Mullvad app install path
 const APP_PATH: &str = "/Applications/Mullvad VPN.app";
-const DAEMON_DIR: &str = "/Library/PrivilegedHelperTools";
 
 /// Bump filehandle limit
 pub fn bump_filehandle_limit() {
@@ -63,9 +62,10 @@ pub async fn handle_app_bundle_removal(
     const UNINSTALL_SCRIPT_PATH: &str = "/var/root/uninstall_mullvad.sh";
 
     let mullvad_daemon = std::env::current_exe().context("Failed to get daemon path")?;
+    let daemon_path = mullvad_daemon.clone();
 
-    // Ignore app removal if the daemon isn't installed in the expected directory
-    if !mullvad_daemon.starts_with(DAEMON_DIR) {
+    // Ignore app removal if the daemon isn't installed in the app directory
+    if !daemon_path.starts_with(APP_PATH) {
         log::trace!("Stopping handle_app_bundle_removal as the daemon is not installed");
         return Ok(());
     }
@@ -76,8 +76,8 @@ pub async fn handle_app_bundle_removal(
             // Ignore access events
             let is_access_event = event.map(|evt| evt.kind.is_access()).unwrap_or(false);
 
-            // Check if the app bundle still exists
-            if !is_access_event && !Path::new(APP_PATH).exists() {
+            // Check if the daemon binary still exists
+            if !is_access_event && !daemon_path.exists() {
                 _ = fs_notify_tx.try_send(());
             }
         })
