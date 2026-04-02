@@ -25,7 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 
 #### Linux
-- Add support for RISC-V builds.
+- Make it possible to build for RISC-V from source.
 - Add `--daemon-only` build option for deb and rpm packages for CLI usage.
 - GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
 
