@@ -10,21 +10,16 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 
@@ -40,7 +35,6 @@ fun ScaffoldWithTopBar(
     enabled: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -101,131 +95,7 @@ fun ScaffoldWithTopBarAndDeviceName(
     )
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun ScaffoldWithMediumTopBar(
-    appBarTitle: String,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    lazyListState: LazyListState = rememberLazyListState(),
-    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit,
-) {
-
-    val appBarState = rememberTopAppBarState()
-    val canScroll = lazyListState.canScrollForward || lazyListState.canScrollBackward
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
-    Scaffold(
-        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MullvadMediumTopBar(
-                title = appBarTitle,
-                navigationIcon = navigationIcon,
-                actions,
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
-            )
-        },
-        content = {
-            content(
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
-                lazyListState,
-            )
-        },
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun ScaffoldWithMediumTopBar(
-    appBarTitle: String,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    lazyGridState: LazyGridState = rememberLazyGridState(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    content: @Composable (modifier: Modifier, lazyGridState: LazyGridState) -> Unit,
-) {
-
-    val appBarState = rememberTopAppBarState()
-    val canScroll = lazyGridState.canScrollForward || lazyGridState.canScrollBackward
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
-    Scaffold(
-        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MullvadMediumTopBar(
-                title = appBarTitle,
-                navigationIcon = navigationIcon,
-                actions,
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
-            )
-        },
-        content = { content(Modifier.fillMaxSize().padding(it), lazyGridState) },
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScaffoldWithMediumTopBar(
-    appBarTitle: String,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    bottomBar: @Composable () -> Unit = {},
-    content: @Composable (modifier: Modifier) -> Unit,
-) {
-    val appBarState = rememberTopAppBarState()
-    val scrollState = rememberScrollState()
-    val canScroll = scrollState.canScrollForward || scrollState.canScrollBackward
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(appBarState, canScroll = { canScroll })
-    Scaffold(
-        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            MullvadMediumTopBar(
-                title = appBarTitle,
-                navigationIcon = navigationIcon,
-                actions,
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        bottomBar = bottomBar,
-        snackbarHost = {
-            SnackbarHost(
-                snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
-            )
-        },
-        content = {
-            content(
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .drawVerticalScrollbar(state = scrollState, color = scrollbarColor)
-                    .verticalScroll(scrollState)
-            )
-        },
-    )
-}
-
 @Composable
 fun ScaffoldWithSmallTopBar(
     appBarTitle: String,
@@ -257,5 +127,73 @@ fun ScaffoldWithSmallTopBar(
         floatingActionButton = floatingActionButton,
         floatingActionButtonPosition = floatingActionButtonPosition,
         content = { content(Modifier.fillMaxSize().padding(it)) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithSmallTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    lazyListState: LazyListState = rememberLazyListState(),
+    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit,
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize().imePadding(),
+        topBar = {
+            MullvadSmallTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
+            )
+        },
+        content = {
+            content(
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
+                lazyListState,
+            )
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScaffoldWithSmallTopBar(
+    appBarTitle: String,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    lazyGridState: LazyGridState = rememberLazyGridState(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    content: @Composable (modifier: Modifier, lazyGridState: LazyGridState) -> Unit,
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize().imePadding(),
+        topBar = {
+            MullvadSmallTopBar(
+                title = appBarTitle,
+                navigationIcon = navigationIcon,
+                actions = actions,
+            )
+        },
+        snackbarHost = {
+            SnackbarHost(
+                snackbarHostState,
+                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
+            )
+        },
+        content = { content(Modifier.fillMaxSize().padding(it), lazyGridState) },
     )
 }

@@ -49,7 +49,7 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
@@ -192,7 +192,7 @@ fun ApiAccessMethodDetailsScreen(
     onNavigateToEncryptedDnsInfoDialog: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = state.name(),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClicked) },
         snackbarHostState = snackbarHostState,

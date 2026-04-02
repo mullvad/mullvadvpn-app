@@ -63,7 +63,7 @@ import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotated
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -100,7 +100,7 @@ fun AutoConnectAndLockdownModeScreen(
     onBackClick: () -> Unit,
 ) {
     val context = LocalContext.current
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
         navigationIcon = {
             unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }

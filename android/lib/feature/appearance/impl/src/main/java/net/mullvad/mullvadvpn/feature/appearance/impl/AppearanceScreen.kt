@@ -35,7 +35,7 @@ import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscation
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
@@ -99,7 +99,7 @@ fun AppearanceScreen(
     onObfuscationSelected: (AppObfuscation) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
