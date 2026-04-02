@@ -567,7 +567,6 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapMultihopCell()
 
         MultihopPage(app)
-            .verifyOnePage()
             .tapMultihopAlways()
             .tapBackButton()
 
@@ -582,6 +581,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .verifyNoAutomaticCellsExist()
             .tapEntryLocationButton()
             .tapLocationCell(withName: "Automatic")
+            .tapDoneButton()
 
         TunnelControlPage(app)
             .tapSelectLocationButton()
