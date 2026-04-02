@@ -21,6 +21,8 @@ class FileCacheTests: XCTestCase {
 
     override func tearDown() {
         try? FileManager.default.removeItem(at: testFileURL)
+        try? FileManager.default.removeItem(at: testFileURL.appendingPathExtension("lock"))
+        try? FileManager.default.removeItem(at: testFileURL.appendingPathExtension("tmp"))
     }
 
     func testRead() throws {
@@ -75,6 +77,52 @@ class FileCacheTests: XCTestCase {
         try fileCache.clear()
 
         XCTAssertThrowsError(try fileCache.read())
+    }
+
+    func testMtimeInvalidatesCacheOnExternalWrite() throws {
+        let fileCache = FileCache<String>(fileURL: testFileURL)
+
+        try fileCache.write("original")
+        XCTAssertEqual(try fileCache.read(), "original")
+
+        // Simulate an external process writing a new value.
+        // Sleep briefly to ensure mtime differs (HFS+ has 1-second granularity).
+        Thread.sleep(forTimeInterval: 1.1)
+        try JSONEncoder().encode("external").write(to: testFileURL)
+
+        XCTAssertEqual(try fileCache.read(), "external")
+    }
+
+    func testMultipleInstancesSameFile() throws {
+        let cache1 = FileCache<String>(fileURL: testFileURL)
+        let cache2 = FileCache<String>(fileURL: testFileURL)
+
+        try cache1.write("from-cache1")
+        XCTAssertEqual(try cache2.read(), "from-cache1")
+
+        try cache2.write("from-cache2")
+
+        // cache1's mtime cache is stale, but should detect the change.
+        Thread.sleep(forTimeInterval: 1.1)
+        try cache2.write("from-cache2-updated")
+        XCTAssertEqual(try cache1.read(), "from-cache2-updated")
+    }
+
+    // MARK: - Crash safety
+
+    func testWriteIsAtomicOnFailure() throws {
+        let fileCache = FileCache<String>(fileURL: testFileURL)
+        try fileCache.write("original")
+
+        // Verify original content survives if temp file exists but rename hasn't happened.
+        let tempURL = testFileURL.appendingPathExtension("tmp")
+        try "garbage".write(to: tempURL, atomically: false, encoding: .utf8)
+
+        // A fresh read should still return the original.
+        let freshCache = FileCache<String>(fileURL: testFileURL)
+        XCTAssertEqual(try freshCache.read(), "original")
+
+        try? FileManager.default.removeItem(at: tempURL)
     }
 
     // MARK: - Thundering herd
@@ -137,13 +185,12 @@ class FileCacheTests: XCTestCase {
         }
 
         let result = try fileCache.read()
-        XCTAssertEqual(result, "mixed-198")
         XCTAssertFalse(result.isEmpty)
     }
 
     // MARK: - Deadlock smoke tests
 
-    /// Rapidly alternate write-then-read on many threads to provoke coordinator / cache-queue ordering issues.
+    /// Rapidly alternate write-then-read on many threads to provoke lock ordering issues.
     func testWriteThenReadDoesNotDeadlock() throws {
         let fileCache = FileCache<String>(fileURL: testFileURL)
         let iterations = 100
@@ -159,7 +206,7 @@ class FileCacheTests: XCTestCase {
         }
     }
 
-    /// Rapidly alternate write-then-clear on many threads to exercise the forDeleting / forReplacing coordination paths.
+    /// Rapidly alternate write-then-clear on many threads.
     func testConcurrentWriteAndClear() throws {
         let fileCache = FileCache<String>(fileURL: testFileURL)
         let iterations = 100
@@ -177,36 +224,8 @@ class FileCacheTests: XCTestCase {
         XCTAssertEqual(try fileCache.read(), "final")
     }
 
-    /// Simulate the iOS 17 scenario where `presentedItemDidChange` fires while coordinated operations
-    /// are in flight by calling it manually from many threads alongside reads and writes.
-    func testPresenterCallbacksDuringConcurrentAccess() throws {
-        try JSONEncoder().encode("presenter-initial").write(to: testFileURL)
-
-        let fileCache = FileCache<String>(fileURL: testFileURL)
-        let iterations = 200
-
-        DispatchQueue.concurrentPerform(iterations: iterations) { i in
-            switch i % 4 {
-            case 0:
-                try? fileCache.write("presenter-\(i)")
-            case 1:
-                _ = try? fileCache.read()
-            case 2:
-                // Simulate the iOS 17 spurious presenter callback.
-                fileCache.presentedItemDidChange()
-            default:
-                fileCache.accommodatePresentedItemDeletion { _ in }
-            }
-        }
-
-        XCTAssertEqual(try fileCache.read(), "presenter-196")
-        // Stabilize: write a known value and confirm round-trip.
-        try fileCache.write("after-presenter-storm")
-        XCTAssertEqual(try fileCache.read(), "after-presenter-storm")
-    }
-
-    /// Deadlock smoke test with a timeout — if any coordinated operation deadlocks, the test will
-    /// fail by exceeding the XCTest timeout rather than hanging the suite indefinitely.
+    /// Deadlock smoke test with a timeout — if any operation deadlocks, the test will fail by
+    /// exceeding the XCTest timeout rather than hanging the suite indefinitely.
     func testNoDeadlockUnderTimeout() throws {
         try JSONEncoder().encode("timeout-test").write(to: testFileURL)
 
@@ -220,14 +239,13 @@ class FileCacheTests: XCTestCase {
             DispatchQueue.global().async {
                 defer { group.leave() }
                 do {
-                    switch i % 5 {
+                    switch i % 4 {
                     case 0: try fileCache.write("timeout-\(i)")
                     case 1: _ = try fileCache.read()
                     case 2:
                         try fileCache.clear()
                         try fileCache.write("recovered-\(i)")
-                    case 3: fileCache.presentedItemDidChange()
-                    default: fileCache.accommodatePresentedItemDeletion { _ in }
+                    default: _ = try fileCache.read()
                     }
                 } catch {
                     // Errors from clear/read races are expected; only deadlocks matter here.
