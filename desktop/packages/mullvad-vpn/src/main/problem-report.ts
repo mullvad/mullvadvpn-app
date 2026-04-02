@@ -14,9 +14,28 @@ export function registerIpcListeners() {
     return send(email, message, savedReportId);
   });
 
-  IpcMainEventChannel.problemReport.handleViewLog((savedReportId) =>
-    shell.openPath(getProblemReportPath(savedReportId)),
-  );
+  IpcMainEventChannel.problemReport.handleViewLog((savedReportId) => {
+    const problemReportPath = getProblemReportPath(savedReportId);
+    if (process.platform === 'linux') {
+      // As of this upstream PR[1] the underlying C implementation for
+      // shell.openPath no longer waits for the process to exit, which
+      // means that the callback in the C code will never be called.
+      //
+      // That callback is what eventually causes the promise returned
+      // by shell.openPath to resolve, and as it is never being called,
+      // the promise will never be resolved.
+      //
+      // Because of that, we just invoke shell.openPath and return a
+      // promise resolved with an empty string, the same signature as
+      // returned from shell.openPath.
+      //
+      // [1] https://github.com/electron/electron/pull/48079
+      void shell.openPath(problemReportPath);
+      return Promise.resolve('');
+    }
+
+    return shell.openPath(problemReportPath);
+  });
 }
 
 function collectLogs(toRedact?: string): Promise<string> {
