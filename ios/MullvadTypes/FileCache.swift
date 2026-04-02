@@ -17,98 +17,145 @@ public protocol FileCacheProtocol<Content> {
     func clear() throws
 }
 
-/// File cache implementation that can read and write any `Codable` content and uses file coordinator to coordinate I/O.
-/// Caches content in memory after initial load and invalidates the cache when file changes are detected from other processes.
+/// File cache implementation that can read and write any `Codable` content.
 ///
-/// - Important: Only a single `FileCache` instance should exist per file URL within a process. Multiple instances
-///   backed by the same file will deadlock under concurrent writes due to `NSFileCoordinator` presenter limitations,
-///   and presenter notifications between same-process instances are not reliably delivered.
+/// Uses `flock()` for cross-process synchronization (shared locks for reads, exclusive locks for writes)
+/// and an in-memory cache keyed by file modification time to skip I/O when the file hasn't changed.
 ///
-/// File coordination handles cross-process and cross-thread serialization of disk I/O. A separate serial dispatch queue
-/// protects the in-memory cache against data races with presenter callbacks, which on iOS 17 may fire even when the
-/// coordinator is initialized with `filePresenter: self`.
-public final class FileCache<Content: Codable>: NSObject, FileCacheProtocol, NSFilePresenter, @unchecked Sendable {
+/// Writes are crash-safe: data is written to a temporary file first, then atomically renamed into place
+/// while holding the exclusive lock. If a process crashes mid-write, the original file remains intact
+/// and the lock is automatically released by the kernel when the file descriptor is closed.
+///
+/// A separate lock file (`.lock` extension) is used as the locking point so that atomic renames
+/// don't invalidate held locks.
+///
+/// Multiple `FileCache` instances backed by the same file are safe — they all coordinate through the
+/// same lock file.
+public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Sendable {
     public let fileURL: URL
-    public var presentedItemURL: URL? { fileURL }
-    public let presentedItemOperationQueue = OperationQueue()
+    private let lockFileURL: URL
 
-    /// In-memory cache of the content, only accessed on `cacheQueue`.
-    private var cachedContent: Content?
-
-    /// Serial queue that synchronizes all access to `cachedContent`.
+    /// Serial queue protecting `cachedContent` and `cachedMtime` against data races.
     private let cacheQueue = DispatchQueue(label: "net.mullvadvpn.FileCache.cacheQueue")
+    private var cachedContent: Content?
+    private var contentModified: Date?
 
     public init(fileURL: URL) {
         self.fileURL = fileURL
-        super.init()
-
-        presentedItemOperationQueue.maxConcurrentOperationCount = 1
-
-        // Register as file presenter to receive change notifications
-        NSFileCoordinator.addFilePresenter(self)
-
-        // Load initial content off the main thread
-        DispatchQueue.global().async {
-            _ = try? self.read()
-        }
-    }
-
-    deinit {
-        NSFileCoordinator.removeFilePresenter(self)
+        self.lockFileURL = fileURL.appendingPathExtension("lock")
     }
 
     public func read() throws -> Content {
-        // Fast path: return cached content without file coordination.
-        if let cached = cacheQueue.sync(execute: { cachedContent }) {
+        // Fast path: if the file modification time hasn't changed, return the cached content.
+        let currentMtime = fileMtime()
+        let cached: Content? = cacheQueue.sync {
+            if let cachedContent, let cachedMtime, cachedMtime == currentMtime, currentMtime != nil {
+                return cachedContent
+            }
+            return nil
+        }
+        if let cached {
             return cached
         }
 
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+        // Slow path: acquire a shared lock and read from disk.
+        let lockFd = try openLockFile()
+        defer { close(lockFd) }
 
-        return try fileCoordinator.coordinate(readingItemAt: fileURL, options: [.withoutChanges]) { url in
-            // Re-check after acquiring coordination; another thread may have populated the cache.
-            if let cached = cacheQueue.sync(execute: { cachedContent }) {
-                return cached
-            }
-
-            let content = try JSONDecoder().decode(Content.self, from: Data(contentsOf: url))
-            cacheQueue.sync { cachedContent = content }
-            return content
+        guard flock(lockFd, LOCK_SH) == 0 else {
+            throw FileCacheError.lockFailed(errno)
         }
+        defer { flock(lockFd, LOCK_UN) }
+
+        let data = try Data(contentsOf: fileURL)
+        let content = try JSONDecoder().decode(Content.self, from: data)
+        let mtime = fileModificationTime()
+
+        cacheQueue.sync {
+            cachedContent = content
+            contentModified = mtime
+        }
+
+        return content
     }
 
     public func write(_ content: Content) throws {
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+        let lockFd = try openLockFile()
+        defer { close(lockFd) }
 
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forReplacing]) { url in
-            try JSONEncoder().encode(content).write(to: url)
-            cacheQueue.sync { cachedContent = content }
+        guard flock(lockFd, LOCK_EX) == 0 else {
+            throw FileCacheError.lockFailed(errno)
+        }
+        defer { flock(lockFd, LOCK_UN) }
+
+        // Write to a temporary file first, then atomically rename for crash safety.
+        let tempURL = fileURL.appendingPathExtension("tmp")
+        let data = try JSONEncoder().encode(content)
+        try data.write(to: tempURL)
+
+        if rename(tempURL.path, fileURL.path) != 0 {
+            // Clean up temp file on failure.
+            try? FileManager.default.removeItem(at: tempURL)
+            throw FileCacheError.renameFailed(errno)
+        }
+
+        let mtime = fileMtime()
+        cacheQueue.sync {
+            cachedContent = content
+            contentModified = mtime
         }
     }
 
     public func clear() throws {
-        let fileCoordinator = NSFileCoordinator(filePresenter: self)
+        let lockFd = try openLockFile()
+        defer { close(lockFd) }
 
-        try fileCoordinator.coordinate(writingItemAt: fileURL, options: [.forDeleting]) { url in
-            try FileManager.default.removeItem(at: url)
-            cacheQueue.sync { cachedContent = nil }
+        guard flock(lockFd, LOCK_EX) == 0 else {
+            throw FileCacheError.lockFailed(errno)
+        }
+        defer { flock(lockFd, LOCK_UN) }
+
+        try FileManager.default.removeItem(at: fileURL)
+
+        cacheQueue.sync {
+            cachedContent = nil
+            contentModified = nil
         }
     }
 
-    // MARK: - NSFilePresenter
+    // MARK: - Private
 
-    /// Called when the file content has changed by another process.
-    public func presentedItemDidChange() {
-        let content = try? JSONDecoder().decode(
-            Content.self,
-            from: Data(contentsOf: fileURL)
-        )
-        cacheQueue.sync { cachedContent = content }
+    private func openLockFile() throws -> Int32 {
+        // Open a file path that is to be used with `flock` to synchronize access to the actual caching file.
+        let fd = open(lockFileURL.path, O_RDWR | O_CREAT, 0o644)
+        guard fd >= 0 else {
+            throw FileCacheError.openFailed(errno)
+        }
+        return fd
     }
 
-    /// Called when the file is being deleted by another process.
-    public func accommodatePresentedItemDeletion(completionHandler: @escaping ((any Error)?) -> Void) {
-        cacheQueue.sync { cachedContent = nil }
-        completionHandler(nil)
+    private func fileModificationTime() -> Date? {
+        (try? FileManager.default.attributesOfItem(atPath: fileURL.path))?[.modificationDate] as? Date
+    }
+}
+
+/// Errors specific to `FileCache` operations.
+public enum FileCacheError: LocalizedError {
+    /// `flock()` failed with the given `errno`.
+    case lockFailed(Int32)
+    /// Could not open or create the lock file.
+    case openFailed(Int32)
+    /// Atomic rename of temporary file failed.
+    case renameFailed(Int32)
+
+    public var errorDescription: String? {
+        switch self {
+        case let .lockFailed(code):
+            return "Failed to acquire file lock: \(String(cString: strerror(code)))"
+        case let .openFailed(code):
+            return "Failed to open lock file: \(String(cString: strerror(code)))"
+        case let .renameFailed(code):
+            return "Failed to rename temporary file: \(String(cString: strerror(code)))"
+        }
     }
 }
