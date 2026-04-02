@@ -1,4 +1,4 @@
-Default location is now based on the user's location.
-[macOS] Improve VPN speed.
-[Windows] Fix a bug where split tunneling could not be enabled.
+Default VPN location is now closer to your offline location.
+[Windows] Fix a bug where split tunneling would fail to start.
+[macOS] Changed WireGuard implementaiton to GotaTun.
 Various other bug and security fixes.
