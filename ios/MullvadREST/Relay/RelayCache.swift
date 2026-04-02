@@ -39,7 +39,7 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
         self.fileCache = fileCache
     }
 
-    /// Safely read the cache file from disk using file coordinator and fallback in the following manner:
+    /// Safely read the cache file from disk with fallback in the following manner:
     /// 1. If there is a file but it's not decodable, try to parse into the old cache format. If it's still
     ///    not decodable, read the pre-bundled data.
     /// 2. If there is no file, read from the pre-bundled data.
@@ -58,7 +58,7 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
         }
     }
 
-    /// Safely write the cache file on disk using file coordinator.
+    /// Safely write the cache file on disk.
     public func write(record: StoredRelays) throws {
         try fileCache.write(record)
     }
