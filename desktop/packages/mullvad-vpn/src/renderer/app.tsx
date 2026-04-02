@@ -517,7 +517,7 @@ export default class AppRenderer {
       });
       this.reduxActions.appUpgrade.resetAppUpgradeError();
 
-      IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
+      IpcRendererEventChannel.app.upgradeInstallerStart();
     } else {
       log.error('App upgrade was invoked without a valid verified installer path.');
     }
@@ -732,7 +732,7 @@ export default class AppRenderer {
         this.reduxActions.appUpgrade.setAppUpgradeEvent({
           type: 'APP_UPGRADE_STATUS_AUTOMATIC_STARTING_INSTALLER',
         });
-        IpcRendererEventChannel.app.upgradeInstallerStart(verifiedInstallerPath);
+        IpcRendererEventChannel.app.upgradeInstallerStart();
       } else {
         // Otherwise, flag this as requiring manual start
         this.reduxActions.appUpgrade.setAppUpgradeEvent({
