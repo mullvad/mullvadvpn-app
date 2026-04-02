@@ -178,7 +178,7 @@ export const ipcSchema = {
     upgradeAbort: send<void>(),
     upgradeEvent: notifyRenderer<AppUpgradeEvent>(),
     upgradeError: notifyRenderer<AppUpgradeError>(),
-    upgradeInstallerStart: send<string>(),
+    upgradeInstallerStart: send<void>(),
     getUpgradeCacheDir: invoke<void, string>(),
   },
   tunnel: {

@@ -19,8 +19,13 @@ export default class AppUpgrade {
       this.daemonRpc.appUpgradeAbort();
     });
 
-    IpcMainEventChannel.app.handleUpgradeInstallerStart(async (verifiedInstallerPath: string) => {
+    IpcMainEventChannel.app.handleUpgradeInstallerStart(async () => {
+      const versionInfo = await this.daemonRpc.getVersionInfo();
+      const verifiedInstallerPath = versionInfo.suggestedUpgrade?.verifiedInstallerPath;
       try {
+        if (!verifiedInstallerPath) {
+          throw new Error('Verified installer path is not set.');
+        }
         await this.checkInstallerPath(verifiedInstallerPath);
         this.startInstaller(verifiedInstallerPath);
       } catch (e) {
