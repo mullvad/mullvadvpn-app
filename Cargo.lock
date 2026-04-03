@@ -3279,6 +3279,7 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.18",
  "tokio",
+ "tracing",
  "tracing-subscriber",
  "windows-service",
  "windows-sys 0.61.2",
