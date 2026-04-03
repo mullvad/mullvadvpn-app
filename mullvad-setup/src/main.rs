@@ -9,6 +9,8 @@ use talpid_types::ErrorExt;
 use tracing_subscriber::EnvFilter;
 
 #[cfg(target_os = "windows")]
+mod driver_setup;
+#[cfg(target_os = "windows")]
 mod service;
 
 static APP_VERSION: LazyLock<Version> =
@@ -87,6 +89,34 @@ pub enum Error {
     #[cfg(target_os = "windows")]
     #[error("Failed to open service control manager")]
     OpenServiceControlManager(#[source] windows_service::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to open split tunnel device")]
+    OpenDevice(#[source] std::io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("IoControl operation failed")]
+    IoControl(#[source] std::io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Split tunnel driver is in unexpected state: {0}")]
+    UnexpectedDriverState(u64),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to enumerate or uninstall devices")]
+    DeviceEnumeration(#[source] std::io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to control service")]
+    ServiceControl(#[source] windows_service::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to load driver DLL")]
+    LoadLibrary(#[source] std::io::Error),
+
+    #[cfg(target_os = "windows")]
+    #[error("Failed to delete driver")]
+    DeleteDriver,
 }
 
 #[derive(Debug, Parser)]
@@ -113,6 +143,31 @@ enum Cli {
     /// Start the Mullvad daemon service
     #[cfg(target_os = "windows")]
     StartService,
+    /// Manage Mullvad-installed Windows drivers
+    #[cfg(target_os = "windows")]
+    #[command(subcommand)]
+    Driver(DriverCommand),
+}
+
+#[cfg(target_os = "windows")]
+#[derive(Debug, clap::Subcommand)]
+enum DriverCommand {
+    /// Remove a Mullvad-installed Windows driver
+    #[command(subcommand)]
+    Remove(DriverRemoveCommand),
+}
+
+#[cfg(target_os = "windows")]
+#[derive(Debug, clap::Subcommand)]
+enum DriverRemoveCommand {
+    /// Reset split tunnel driver, uninstall the ST device, stop and delete the service
+    SplitTunnel,
+    /// Remove the WireGuard-NT driver (loads mullvad-wireguard.dll from the same directory)
+    WgNt,
+    /// Remove the Wintun driver (loads wintun.dll from the same directory)
+    Wintun,
+    /// Uninstall an abandoned Wintun network adapter with the legacy GUID
+    WintunAbandonedDevice,
 }
 
 #[tokio::main]
@@ -134,6 +189,15 @@ async fn main() {
         }
         #[cfg(target_os = "windows")]
         Cli::StartService => service::start().await,
+        #[cfg(target_os = "windows")]
+        Cli::Driver(DriverCommand::Remove(cmd)) => match cmd {
+            DriverRemoveCommand::SplitTunnel => driver_setup::remove_split_tunnel(),
+            DriverRemoveCommand::WgNt => driver_setup::remove_wg_nt(),
+            DriverRemoveCommand::Wintun => driver_setup::remove_wintun(),
+            DriverRemoveCommand::WintunAbandonedDevice => {
+                driver_setup::remove_wintun_abandoned_device()
+            }
+        },
     };
 
     if let Err(e) = result {
