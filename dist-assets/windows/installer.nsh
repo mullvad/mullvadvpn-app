@@ -30,10 +30,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 !define MULLVAD_FILE_EXISTS 2
 !define MULLVAD_CANCELLED 3
 
-# Return codes from driverlogic
-!define DL_GENERAL_SUCCESS 0
-!define DL_GENERAL_ERROR 1
-
 # Log targets
 !define LOG_INSTALL 0
 !define LOG_UNINSTALL 1
@@ -89,20 +85,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 !define UnloadPlugins '!insertmacro "UnloadPlugins"'
 
 #
-# ExtractDriverlogic
-#
-# Extract device setup tools to $PLUGINSDIR
-#
-!macro ExtractDriverlogic
-
-	SetOutPath "$PLUGINSDIR"
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\$%CPP_BUILD_TARGET%-$%CPP_BUILD_MODE%\driverlogic.exe"
-
-!macroend
-
-!define ExtractDriverlogic '!insertmacro "ExtractDriverlogic"'
-
-#
 # ExtractWireGuard
 #
 # Extract Wintun and WireGuardNT installer into $PLUGINSDIR
@@ -143,11 +125,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wintun-delete-driver'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DL_GENERAL_SUCCESS}
+	${If} $0 != ${MVSETUP_OK}
 		StrCpy $R0 "Failed to remove Wintun driver. It may be in use."
 		log::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
@@ -178,11 +160,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveWireGuardNt()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wg-nt-cleanup'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DL_GENERAL_SUCCESS}
+	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove WireGuardNT pool: error $0"
 		log::LogWithDetails $R0 $1
@@ -213,11 +195,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" wintun-delete-abandoned-device'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DL_GENERAL_SUCCESS}
+	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove network adapter: error $0"
 		log::LogWithDetails $R0 $1
@@ -323,12 +305,12 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Push $1
 
 	log::Log "Removing Split Tunneling driver"
-	nsExec::ExecToStack '"$PLUGINSDIR\driverlogic.exe" st-remove'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove split-tunnel'
 
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${DL_GENERAL_SUCCESS}
+	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove driver: error $0"
 		log::LogWithDetails $R0 $1
@@ -834,7 +816,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
 
-	${ExtractDriverlogic}
+	${ExtractMullvadSetup}
 	${RemoveAbandonedWintunAdapter}
 
 	${RemoveSplitTunnelDriver}
@@ -1109,7 +1091,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	Pop $Silent
 
-	${ExtractDriverlogic}
 	${ExtractMullvadSetup}
 
 	${If} ${isUpdated}
