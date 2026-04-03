@@ -31,7 +31,6 @@ while [[ "$#" -gt 0 ]]; do
         clean) ACTION="clean";;
         build) ACTION="build";;
         winfw) SOLUTIONS+=(winfw);;
-        driverlogic) SOLUTIONS+=(driverlogic);;
         nsis-plugins) SOLUTIONS+=(nsis-plugins);;
         --max-concurrent-processes)
             MAX_CPUS="$2"
@@ -47,18 +46,16 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 if [[ -z "${SOLUTIONS[*]}" ]]; then
-    SOLUTIONS=(winfw driverlogic nsis-plugins)
+    SOLUTIONS=(winfw nsis-plugins)
 fi
 
 BUILD_WINFW=false
 BUILD_NSIS=false
-BUILD_DRIVERLOGIC=false
 
 for sln in "${SOLUTIONS[@]}"; do
     case $sln in
         winfw) BUILD_WINFW=true;;
         nsis-plugins) BUILD_NSIS=true;;
-        driverlogic) BUILD_DRIVERLOGIC=true;;
     esac
 done
 
@@ -156,10 +153,6 @@ function clean_all {
 function build {
     if [[ $BUILD_WINFW == "true" ]]; then
         build_solution "./windows/winfw" "winfw.sln"
-    fi
-
-    if [[ $BUILD_DRIVERLOGIC == "true" ]]; then
-        build_solution "./windows/driverlogic" "driverlogic.sln"
     fi
 
     if [[ $BUILD_NSIS == "true" ]]; then
