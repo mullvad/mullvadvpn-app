@@ -397,7 +397,7 @@
     <string name="retry">تلاش دوباره</string>
     <string name="save">ذخیره</string>
     <string name="search">جستجو</string>
-    <string name="search_location_empty_text">هیچ نتیجه‌ای برای «%1$s» یافت نشد، لطفاً جستجوی دیگری انجام دهید</string>
+    <string name="search_no_matches_for_text">هیچ نتیجه‌ای برای «%1$s» یافت نشد، لطفاً جستجوی دیگری انجام دهید</string>
     <string name="search_placeholder">جست‌وجو برای...</string>
     <string name="select_location">انتخاب مکان</string>
     <string name="send">ارسال</string>

@@ -40,14 +40,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.splittunneling.api.SearchSplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -76,6 +78,7 @@ private fun PreviewSplitTunnelingScreen(
             onExcludeAppClick = {},
             onIncludeAppClick = {},
             onBackClick = {},
+            navigateToSearch = {},
             onResolveIcon = { null },
         )
     }
@@ -104,6 +107,7 @@ fun SharedTransitionScope.SplitTunneling(
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = dropUnlessResumed { navigator.goBack() },
+        navigateToSearch = dropUnlessResumed { navigator.navigate(SearchSplitTunnelingNavKey) },
         onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }
@@ -117,6 +121,7 @@ fun SplitTunnelingScreen(
     onIncludeAppClick: (packageName: String) -> Unit,
     onBackClick: () -> Unit,
     onResolveIcon: (String) -> Drawable?,
+    navigateToSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -131,6 +136,12 @@ fun SplitTunnelingScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
+        actions = {
+            SearchButton(
+                onClick = navigateToSearch,
+                enabled = state.enabled(),
+            )
+        },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier =
@@ -141,16 +152,22 @@ fun SplitTunnelingScreen(
             state = lazyListState,
         ) {
             description()
-            enabledToggle(
-                enabled = state.enabled(),
-                onEnableSplitTunneling = onEnableSplitTunneling,
-            )
             when (state) {
                 is Lc.Loading -> {
                     spacer()
                     loading()
                 }
                 is Lc.Content -> {
+                    enabledToggle(
+                        enabled = state.value.enabled,
+                        onEnableSplitTunneling = onEnableSplitTunneling,
+                    )
+                    item { HorizontalDivider(color = Color.Transparent) }
+                    systemAppsToggle(
+                        showSystemApps = state.value.showSystemApps,
+                        onShowSystemAppsClick = onShowSystemAppsClick,
+                        enabled = state.value.enabled,
+                    )
                     appList(
                         state = state.value,
                         focusManager = focusManager,
@@ -174,6 +191,7 @@ private fun LazyListScope.enabledToggle(
             title = stringResource(id = R.string.enable),
             isToggled = enabled,
             onCellClicked = onEnableSplitTunneling,
+            position = Position.Top,
         )
     }
 }
@@ -221,11 +239,6 @@ private fun LazyListScope.appList(
         )
     }
     spacer()
-    systemAppsToggle(
-        showSystemApps = state.showSystemApps,
-        onShowSystemAppsClick = onShowSystemAppsClick,
-        enabled = state.enabled,
-    )
     headerItem(
         key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
         textId = R.string.all_applications,
@@ -242,7 +255,7 @@ private fun LazyListScope.appList(
     spacer()
 }
 
-private fun LazyListScope.appItems(
+internal fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
     onAppClick: (String) -> Unit,
@@ -303,7 +316,7 @@ private fun LazyListScope.appItems(
     }
 }
 
-private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
+internal fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         ListHeader(
             modifier =
@@ -320,7 +333,7 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
     }
 }
 
-private fun LazyListScope.systemAppsToggle(
+internal fun LazyListScope.systemAppsToggle(
     showSystemApps: Boolean,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     enabled: Boolean,
@@ -341,7 +354,7 @@ private fun LazyListScope.systemAppsToggle(
                 } else {
                     AlphaDisabled
                 },
-            position = Position.Single,
+            position = Position.Bottom,
         )
     }
 }
@@ -354,14 +367,14 @@ private fun LazyListScope.spacer() {
 
 private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
     when (this) {
-        is Lc.Loading -> this.value.isModal
-        is Lc.Content -> this.value.isModal
+        is Lc.Loading -> value.isModal
+        is Lc.Content -> value.isModal
     }
 
 private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
     when (this) {
-        is Lc.Loading -> this.value.enabled
-        is Lc.Content -> this.value.enabled
+        is Lc.Loading -> false
+        is Lc.Content -> value.enabled
     }
 
 fun PackageManager.getApplicationIconOrNull(packageName: String): Drawable? =
