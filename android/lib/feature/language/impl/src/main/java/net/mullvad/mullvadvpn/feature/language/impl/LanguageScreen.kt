@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,7 +20,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -77,10 +78,11 @@ fun LanguageScreen(
     onLanguageSelected: (Locale?) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.language),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
-    ) { modifier, lazyListState: LazyListState ->
+    ) { modifier ->
+        val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(
             state = lazyListState,
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
