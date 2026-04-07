@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge

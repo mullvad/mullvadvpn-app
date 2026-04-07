@@ -62,7 +62,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.PAGES.Companion.annotatedTopText
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton

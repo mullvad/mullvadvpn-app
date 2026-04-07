@@ -1,13 +1,10 @@
-package net.mullvad.mullvadvpn.feature.splittunneling.impl
+package net.mullvad.mullvadvpn.feature.splittunneling.impl.search
 
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 
-data class Loading(val isModal: Boolean = false)
-
-data class SplitTunnelingUiState(
-    val enabled: Boolean = false,
+data class SearchSplitTunnelingUiState(
+    val searchTerm: String,
     val excludedApps: List<AppData> = emptyList(),
     val includedApps: List<AppData> = emptyList(),
     val showSystemApps: Boolean = false,
-    val isModal: Boolean = false,
 )

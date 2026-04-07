@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.splittunneling.impl
+package net.mullvad.mullvadvpn.feature.splittunneling.impl.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,8 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
-class SplitTunnelingViewModel(
-    isModal: Boolean,
+class SearchSplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -28,52 +27,57 @@ class SplitTunnelingViewModel(
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)
+    private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
 
-    val uiState: StateFlow<Lc<Loading, SplitTunnelingUiState>> =
+    val uiState: StateFlow<Lc<Unit, SearchSplitTunnelingUiState>> =
         combine(
+                _searchTerm,
                 splitTunnelingRepository.excludedApps,
-                splitTunnelingRepository.splitTunnelingEnabled,
                 allApps,
                 userPreferencesRepository.showSystemAppsSplitTunneling(),
-            ) { excludedApps, enabled, allApps, showSystemApps ->
+            ) {
+                searchTerm,
+                excludedApps,
+                allApps,
+                showSystemApps ->
                 if (allApps == null) {
-                    return@combine Lc.Loading(Loading(isModal = isModal))
+                    return@combine Lc.Loading(Unit)
                 }
 
-                val (excludedApps, includedApps) =
-                    allApps.partition { appData ->
-                        if (enabled) {
-                            excludedApps.contains(AppId(appData.packageName))
-                        } else {
-                            false
-                        }
+                val filteredApps =
+                    if (searchTerm.isNotEmpty()) {
+                        allApps.filter { it.name.contains(searchTerm, ignoreCase = true) }
+                    } else {
+                        allApps
                     }
 
-                SplitTunnelingUiState(
-                        enabled = enabled,
-                        excludedApps = excludedApps,
+                val (excluded, included) =
+                    filteredApps.partition { appData ->
+                        excludedApps.contains(AppId(appData.packageName))
+                    }
+
+                SearchSplitTunnelingUiState(
+                        searchTerm = searchTerm,
+                        excludedApps = excluded,
                         includedApps =
-                            if (showSystemApps) includedApps
-                            else includedApps.filter { appData -> !appData.isSystemApp },
+                            if (showSystemApps) included
+                            else included.filter { appData -> !appData.isSystemApp },
                         showSystemApps = showSystemApps,
-                        isModal = isModal,
                     )
                     .toLc()
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                Lc.Loading(Loading(isModal = isModal)),
+                Lc.Loading(Unit),
             )
 
     init {
         viewModelScope.launch(dispatcher) { fetchApps() }
     }
 
-    fun onEnableSplitTunneling(isEnabled: Boolean) {
-        viewModelScope.launch(dispatcher) {
-            splitTunnelingRepository.enableSplitTunneling(isEnabled)
-        }
+    fun onSearchInputChanged(searchTerm: String) {
+        viewModelScope.launch { _searchTerm.emit(searchTerm) }
     }
 
     fun onIncludeAppClick(packageName: String) {
@@ -88,13 +92,11 @@ class SplitTunnelingViewModel(
         }
     }
 
-    fun onShowSystemAppsClick(show: Boolean) {
-        viewModelScope.launch(dispatcher) {
-            userPreferencesRepository.setShowSystemAppsSplitTunneling(show)
-        }
-    }
-
     private suspend fun fetchApps() {
         appsProvider.apps().let { appsList -> allApps.emit(appsList) }
+    }
+
+    companion object {
+        private const val EMPTY_SEARCH_TERM = ""
     }
 }

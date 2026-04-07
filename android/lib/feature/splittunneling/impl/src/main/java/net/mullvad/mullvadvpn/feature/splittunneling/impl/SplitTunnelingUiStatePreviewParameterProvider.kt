@@ -24,7 +24,7 @@ class SplitTunnelingUiStatePreviewParameterProvider :
                     showSystemApps = false,
                 )
                 .toLc(),
-            Lc.Loading(Loading(enabled = true)),
+            Lc.Loading(Loading()),
         )
 }
 

@@ -41,6 +41,7 @@ class SplitTunnelingScreenTest {
         onIncludeAppClick: (packageName: String) -> Unit = {},
         onBackClick: () -> Unit = {},
         onResolveIcon: (String) -> Drawable? = { null },
+        navigateToSearch: () -> Unit = {},
     ) {
         setContentWithTheme {
             SplitTunnelingScreen(
@@ -51,6 +52,7 @@ class SplitTunnelingScreenTest {
                 onIncludeAppClick = onIncludeAppClick,
                 onBackClick = onBackClick,
                 onResolveIcon = onResolveIcon,
+                navigateToSearch = navigateToSearch
             )
         }
     }
@@ -58,7 +60,7 @@ class SplitTunnelingScreenTest {
     @Test
     fun testLoadingState() = composeExtension.use {
         // Arrange
-        initScreen(state = Lc.Loading(Loading(enabled = true)))
+        initScreen(state = Lc.Loading(Loading()))
 
         // Assert
         onNodeWithText(TITLE).assertExists()

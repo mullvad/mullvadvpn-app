@@ -9,4 +9,5 @@ message UserPreferences {
   int64 account_expiry_unix_time_seconds = 3;
   bool show_android_16_connect_warning = 4;
   bool show_location_in_system_notification = 5;
+  bool show_system_apps_split_tunneling = 6;
 }

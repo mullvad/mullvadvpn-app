@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.reset.ResetServerIpO
 import net.mullvad.mullvadvpn.feature.settings.impl.SettingsViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
@@ -125,10 +126,6 @@ import org.koin.dsl.module
 val uiModule = module {
     single<ComponentName>(named(BOOT_COMPLETED_RECEIVER_COMPONENT_NAME)) {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
-    }
-
-    viewModel { params ->
-        SplitTunnelingViewModel(isModal = params.get(), get(), get(), Dispatchers.Default)
     }
 
     single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
@@ -419,6 +416,11 @@ val uiModule = module {
         viewModel { LanguageViewModel(get()) }
     }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
+    viewModel { params ->
+        SplitTunnelingViewModel(isModal = params.get(), get(), get(), get(), Dispatchers.Default)
+    }
+
+    viewModel { SearchSplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

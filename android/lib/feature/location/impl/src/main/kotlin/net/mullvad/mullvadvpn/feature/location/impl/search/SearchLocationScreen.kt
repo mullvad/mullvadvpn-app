@@ -3,22 +3,13 @@ package net.mullvad.mullvadvpn.feature.location.impl.search
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -61,8 +52,8 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
@@ -197,7 +188,6 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
 }
 
 @Suppress("LongMethod", "LongParameterList")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
@@ -222,7 +212,7 @@ fun SearchLocationScreen(
         Column(modifier = Modifier.padding(it)) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(state is Lce.Content) { focusRequester.requestFocus() }
-            SearchBar(
+            MullvadSearchBar(
                 modifier = Modifier.focusRequester(focusRequester),
                 searchTerm = state.contentOrNull()?.searchTerm ?: "",
                 enabled = state is Lce.Content,
@@ -294,55 +284,6 @@ fun SearchLocationScreen(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SearchBar(
-    searchTerm: String,
-    enabled: Boolean,
-    onSearchInputChanged: (String) -> Unit,
-    hideKeyboard: () -> Unit,
-    onGoBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    SearchBarDefaults.InputField(
-        modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
-        query = searchTerm,
-        enabled = enabled,
-        onQueryChange = onSearchInputChanged,
-        onSearch = { hideKeyboard() },
-        expanded = true,
-        onExpandedChange = {},
-        leadingIcon = {
-            IconButton(onClick = onGoBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = stringResource(R.string.back),
-                )
-            }
-        },
-        trailingIcon = {
-            if (searchTerm.isNotEmpty()) {
-                IconButton(onClick = { onSearchInputChanged("") }) {
-                    Icon(
-                        imageVector = Icons.Rounded.Close,
-                        contentDescription = stringResource(R.string.clear_input),
-                    )
-                }
-            }
-        },
-        placeholder = { Text(text = stringResource(id = R.string.search_placeholder)) },
-        colors =
-            mullvadDarkTextFieldColors()
-                .copy(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    errorContainerColor = MaterialTheme.colorScheme.surface,
-                    disabledContainerColor = MaterialTheme.colorScheme.surface,
-                    disabledLeadingIconColor = MaterialTheme.colorScheme.onSurface,
-                ),
-    )
 }
 
 private fun LazyListScope.filterRow(

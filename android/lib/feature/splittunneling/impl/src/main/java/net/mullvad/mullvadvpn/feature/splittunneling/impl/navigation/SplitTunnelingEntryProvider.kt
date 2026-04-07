@@ -20,4 +20,5 @@ fun EntryProviderScope<NavKey2>.splitTunnelingEntry(navigator: Navigator) {
             animatedVisibilityScope = LocalNavAnimatedContentScope.current,
         )
     }
+    searchSplitTunnelingEntry(navigator)
 }
