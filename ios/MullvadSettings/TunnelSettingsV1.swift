@@ -9,7 +9,9 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // IPAddressRange
+
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
 public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {

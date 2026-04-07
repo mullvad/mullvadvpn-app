@@ -9,7 +9,10 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
+
+import class WireGuardKitTypes.PreSharedKey
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 /// Error returned when there is an endpoint but its public key is invalid.
 public struct PublicKeyError: LocalizedError {

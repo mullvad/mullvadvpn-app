@@ -7,7 +7,8 @@
 //
 
 import Foundation
-@preconcurrency import WireGuardKitTypes  // IPAddressRange
+
+import class WireGuardKitTypes.PublicKey
 
 public struct Account: Codable, Equatable, Sendable {
     public let id: String
