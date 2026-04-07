@@ -239,7 +239,7 @@ private fun LazyListScope.content(
 @Composable
 private fun LocationsEmptyText(searchTerm: String) {
     Text(
-        text = stringResource(R.string.search_location_empty_text, searchTerm),
+        text = stringResource(R.string.search_no_matches_for_text, searchTerm),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant,

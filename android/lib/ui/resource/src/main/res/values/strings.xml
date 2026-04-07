@@ -209,7 +209,7 @@
     <string name="on">On</string>
     <string name="wireguard_port_title">WireGuard port</string>
     <string name="search_placeholder">Search for...</string>
-    <string name="search_location_empty_text">No result for \"%s\", please try a different search</string>
+    <string name="search_no_matches_for_text">No result for \"%s\", please try a different search</string>
     <string name="wireguard_custon_port_title">Custom</string>
     <string name="port">Port</string>
     <string name="custom_port_dialog_submit">Set port</string>

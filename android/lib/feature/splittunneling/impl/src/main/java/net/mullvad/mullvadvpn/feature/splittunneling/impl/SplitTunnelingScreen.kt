@@ -14,7 +14,11 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.splittunneling.api.SearchSplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
@@ -76,6 +81,7 @@ private fun PreviewSplitTunnelingScreen(
             onExcludeAppClick = {},
             onIncludeAppClick = {},
             onBackClick = {},
+            navigateToSearch = {},
             onResolveIcon = { null },
         )
     }
@@ -104,6 +110,7 @@ fun SharedTransitionScope.SplitTunneling(
         onExcludeAppClick = viewModel::onExcludeAppClick,
         onIncludeAppClick = viewModel::onIncludeAppClick,
         onBackClick = dropUnlessResumed { navigator.goBack() },
+        navigateToSearch = dropUnlessResumed { navigator.navigate(SearchSplitTunnelingNavKey) },
         onResolveIcon = { packageName -> packageManager.getApplicationIconOrNull(packageName) },
     )
 }
@@ -117,6 +124,7 @@ fun SplitTunnelingScreen(
     onIncludeAppClick: (packageName: String) -> Unit,
     onBackClick: () -> Unit,
     onResolveIcon: (String) -> Drawable?,
+    navigateToSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val focusManager = LocalFocusManager.current
@@ -129,6 +137,18 @@ fun SplitTunnelingScreen(
                 NavigateCloseIconButton(onNavigateClose = onBackClick)
             } else {
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
+            }
+        },
+        actions = {
+            IconButton(onClick = navigateToSearch) {
+                Icon(
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = stringResource(id = R.string.search),
+                    tint =
+                        MaterialTheme.colorScheme.onSurface.copy(
+                            alpha = if (true) AlphaVisible else AlphaDisabled
+                        ),
+                )
             }
         },
     ) { modifier, lazyListState: LazyListState ->
@@ -144,6 +164,12 @@ fun SplitTunnelingScreen(
             enabledToggle(
                 enabled = state.enabled(),
                 onEnableSplitTunneling = onEnableSplitTunneling,
+            )
+            item { HorizontalDivider(color = Color.Transparent) }
+            systemAppsToggle(
+                showSystemApps = (state as? Lc.Content)?.value?.showSystemApps ?: false,
+                onShowSystemAppsClick = onShowSystemAppsClick,
+                enabled = state.enabled(),
             )
             when (state) {
                 is Lc.Loading -> {
@@ -174,6 +200,7 @@ private fun LazyListScope.enabledToggle(
             title = stringResource(id = R.string.enable),
             isToggled = enabled,
             onCellClicked = onEnableSplitTunneling,
+            position = Position.Top,
         )
     }
 }
@@ -221,11 +248,6 @@ private fun LazyListScope.appList(
         )
     }
     spacer()
-    systemAppsToggle(
-        showSystemApps = state.showSystemApps,
-        onShowSystemAppsClick = onShowSystemAppsClick,
-        enabled = state.enabled,
-    )
     headerItem(
         key = SplitTunnelingContentKey.INCLUDED_APPLICATIONS,
         textId = R.string.all_applications,
@@ -242,7 +264,7 @@ private fun LazyListScope.appList(
     spacer()
 }
 
-private fun LazyListScope.appItems(
+internal fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
     onAppClick: (String) -> Unit,
@@ -303,7 +325,7 @@ private fun LazyListScope.appItems(
     }
 }
 
-private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
+internal fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         ListHeader(
             modifier =
@@ -320,7 +342,7 @@ private fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean)
     }
 }
 
-private fun LazyListScope.systemAppsToggle(
+internal fun LazyListScope.systemAppsToggle(
     showSystemApps: Boolean,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     enabled: Boolean,
@@ -341,7 +363,7 @@ private fun LazyListScope.systemAppsToggle(
                 } else {
                     AlphaDisabled
                 },
-            position = Position.Single,
+            position = Position.Bottom,
         )
     }
 }
