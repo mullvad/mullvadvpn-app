@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E10A0001000000000000AB01 /* GotaTunActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0001000000000000AA01 /* GotaTunActor.swift */; };
+		E10A0002000000000000AB01 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
+		E10A0002000000000000AB02 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
+		E10A0002000000000000AB03 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
+		E10A0002000000000000AB04 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
+		E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */; };
 		0107F40B2F5B02580012451B /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 0107F40A2F5B02580012451B /* WireGuardKitTypes */; };
 		0107F40D2F5B02840012451B /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		0107F4142F5B02D70012451B /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
@@ -1713,6 +1719,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		E10A0001000000000000AA01 /* GotaTunActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunActor.swift; sourceTree = "<group>"; };
+		E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelDebugSettings.swift; sourceTree = "<group>"; };
 		0107F3F82F56E3ED0012451B /* RelayCacheTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTrackerTests.swift; sourceTree = "<group>"; };
 		0107F4212F5B97F30012451B /* RelayListCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayListCacheTests.swift; sourceTree = "<group>"; };
 		014E8C2F2F294FB000837D0A /* relays-test-data.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "relays-test-data.json"; sourceTree = "<group>"; };
@@ -3840,6 +3848,7 @@
 				58C76A072A33850E00100D75 /* ApplicationTarget.swift */,
 				F0EF2B762F4C801D00C7ECA7 /* AppResetManager.swift */,
 				F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */,
+				E10A0002000000000000AA01 /* PacketTunnelDebugSettings.swift */,
 				F0AF894A2F55A77800DE9740 /* UITestSettingsResetPolicy.swift */,
 			);
 			path = Shared;
@@ -4137,11 +4146,20 @@
 			path = MullvadVPN;
 			sourceTree = "<group>";
 		};
+		E10A0001000000000000AC01 /* GotaTunAdapter */ = {
+			isa = PBXGroup;
+			children = (
+				E10A0001000000000000AA01 /* GotaTunActor.swift */,
+			);
+			path = GotaTunAdapter;
+			sourceTree = "<group>";
+		};
 		58CE5E7A224146470008646E /* PacketTunnel */ = {
 			isa = PBXGroup;
 			children = (
 				F09D616A2F5AD5E200C85C9E /* Localizable.xcstrings */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
+				E10A0001000000000000AC01 /* GotaTunAdapter */,
 				7A9ED2A82F3CC057005BC0D9 /* Notifications */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				F059197A2C45404500C301F3 /* PostQuantum */,
@@ -6304,6 +6322,7 @@
 				A9C7B62C2EB9F71D002CABB1 /* LoggerBuilderTests.swift in Sources */,
 				A9A5FA352ACB05160083449F /* WgKeyRotationTests.swift in Sources */,
 				F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */,
+				E10A0002000000000000AB01 /* PacketTunnelDebugSettings.swift in Sources */,
 				7AB4CCB92B69097E006037F5 /* IPOverrideTests.swift in Sources */,
 				A9A5FA362ACB05160083449F /* TunnelManagerTests.swift in Sources */,
 			);
@@ -6321,6 +6340,7 @@
 				F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */,
 				7A5869BD2B56EF7300640D27 /* IPOverride.swift in Sources */,
 				58B2FDEE2AA72098003EB5C6 /* ApplicationConfiguration.swift in Sources */,
+				E10A0002000000000000AB02 /* PacketTunnelDebugSettings.swift in Sources */,
 				F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */,
 				58B2FDE52AA71D5C003EB5C6 /* TunnelSettingsV2.swift in Sources */,
 				A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */,
@@ -6465,6 +6485,7 @@
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
 				7A5468AC2C6A55B100590086 /* LocationRelays.swift in Sources */,
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
+				E10A0002000000000000AB03 /* PacketTunnelDebugSettings.swift in Sources */,
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58E511E628DDDEAC00B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58C76A0B2A338E4300100D75 /* BackgroundTask.swift in Sources */,
@@ -6942,6 +6963,8 @@
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
+				E10A0001000000000000AB01 /* GotaTunActor.swift in Sources */,
+				E10A0002000000000000AB04 /* PacketTunnelDebugSettings.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				58FDF2D92A0BA11A00C2B061 /* DeviceCheckOperation.swift in Sources */,
@@ -7033,6 +7056,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */,
+				E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */,
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,

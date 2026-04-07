@@ -277,6 +277,29 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             )
         )
 
+        #if DEBUG
+        let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
+                style: .default,
+                handler: { _ in
+                    PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+
+                    let confirmAlert = UIAlertController(
+                        title: "GotaTun \(!gotaTunEnabled ? "enabled" : "disabled")",
+                        message: "Restart the tunnel for the change to take effect.",
+                        preferredStyle: .alert
+                    )
+                    confirmAlert.overrideUserInterfaceStyle = .dark
+                    confirmAlert.view.tintColor = .AlertController.tintColor
+                    confirmAlert.addAction(UIAlertAction(title: "OK", style: .default))
+                    self.present(confirmAlert, animated: true)
+                }
+            )
+        )
+        #endif
+
         sheetController.addAction(
             UIAlertAction(
                 title: "Cancel",
