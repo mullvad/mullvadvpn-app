@@ -16,6 +16,7 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
+YUBIKEY_PIN=${YUBIKEY_PIN:-""}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -31,11 +32,19 @@ case ${1-:""} in
     android)
         container_image_name=$(cat "$SCRIPT_DIR/android-container-image.txt")
         optional_gradle_cache_volume=(-v "$GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z")
+        optional_android_vars=()
 
         if [ -n "$PLAY_CREDENTIALS_PATH" ]; then
-            optional_play_credentials_file=(
+            optional_android_vars+=(
                 -v "$PLAY_CREDENTIALS_PATH:$REPO_MOUNT_TARGET/android/credentials/play-api-key.json:Z"
                 -e "PLAY_CREDENTIALS_PATH=$REPO_MOUNT_TARGET/android/credentials/play-api-key.json"
+            )
+        fi
+
+        if [ -n "$YUBIKEY_PIN" ]; then
+            echo "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
+            optional_android_vars+=(
+                --secret "YUBIKEY_PIN,type=env"
             )
         fi
 
@@ -52,5 +61,5 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_TARGET_VOLUME_NAME:/cargo-target:Z" \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
-    "${optional_play_credentials_file[@]}" \
+    "${optional_android_vars[@]}" \
     "$container_image_name" bash -c "$*"
