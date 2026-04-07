@@ -25,6 +25,7 @@ echo "Running postinstall at $(date)"
 # LPE from admin user to root.
 if [[ -d "$INSTALL_DIR/Mullvad VPN.localized" ]]; then
     echo "Found '$INSTALL_DIR/Mullvad VPN.localized' unexpectedly. Aborting."
+    rm -rf "$INSTALL_DIR/Mullvad VPN.localized" || echo "Failed to remove '$INSTALL_DIR/Mullvad VPN.localized'"
     exit 1
 fi
 # Check if Mullvad VPN.app is owned by root. If not, non-root users may potentially overwrite
