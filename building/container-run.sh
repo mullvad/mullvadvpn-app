@@ -16,7 +16,6 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
-YUBIKEY_PIN=${YUBIKEY_PIN:-""}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -41,8 +40,7 @@ case ${1-:""} in
             )
         fi
 
-        if [ -n "$YUBIKEY_PIN" ]; then
-            echo "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
+        if "$CONTAINER_RUNNER" secret inspect YUBIKEY_PIN &>/dev/null; then
             optional_android_vars+=(
                 --secret "YUBIKEY_PIN,type=env"
             )

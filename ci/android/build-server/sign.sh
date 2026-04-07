@@ -11,11 +11,16 @@ PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="28"
+CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "YUBIKEY_PIN pin must be set."
     exit 1
 fi
+
+echo "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
+cleanup() { "$CONTAINER_RUNNER" secret rm YUBIKEY_PIN 2>/dev/null || true; }
+trap cleanup EXIT
 
 function main {
     if [[ $# -eq 0 ]]; then
