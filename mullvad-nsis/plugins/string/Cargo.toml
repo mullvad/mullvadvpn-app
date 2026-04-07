@@ -1,0 +1,18 @@
+[package]
+name = "nsis-string"
+edition.workspace = true
+rust-version.workspace = true
+description = "NSIS string plugin - string utilities for the Mullvad VPN installer"
+repository.workspace = true
+license.workspace = true
+
+[lib]
+name = "string"
+crate-type = ["cdylib"]
+
+[target.i686-pc-windows-msvc.dependencies]
+nsis-plugin-api.workspace = true
+windows-sys = { workspace = true, features = ["Win32_Foundation"] }
+
+[lints]
+workspace = true

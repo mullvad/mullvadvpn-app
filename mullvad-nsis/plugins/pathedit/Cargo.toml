@@ -1,0 +1,22 @@
+[package]
+name = "nsis-pathedit"
+edition.workspace = true
+rust-version.workspace = true
+description = "NSIS pathedit plugin - system PATH editor for the Mullvad VPN installer"
+repository.workspace = true
+license.workspace = true
+
+[lib]
+name = "pathedit"
+crate-type = ["cdylib"]
+
+[target.i686-pc-windows-msvc.dependencies]
+nsis-plugin-api.workspace = true
+windows-sys = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_System_Registry",
+  "Win32_UI_WindowsAndMessaging",
+] }
+
+[lints]
+workspace = true

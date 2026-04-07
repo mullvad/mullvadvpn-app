@@ -11,7 +11,7 @@ use std::{
     ptr,
 };
 
-mod handle;
+pub mod handle;
 
 #[repr(C)]
 pub enum Status {
