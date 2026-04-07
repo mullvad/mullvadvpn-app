@@ -16,6 +16,7 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
+KEYSTORE_SIGNING_KEY_PATH=${KEYSTORE_SIGNING_KEY_PATH:-""}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -40,16 +41,19 @@ case ${1-:""} in
             )
         fi
 
-        if "$CONTAINER_RUNNER" secret inspect YUBIKEY_PIN &>/dev/null; then
-            optional_android_vars+=(
-                --secret "YUBIKEY_PIN,type=env"
-            )
-        fi
+        shift 1
+    ;;
+    android-signing)
+        container_image_name=$(cat "$SCRIPT_DIR/android-signing-container-image.txt")
+        optional_android_vars+=(
+            --device $KEYSTORE_SIGNING_KEY_PATH:$KEYSTORE_SIGNING_KEY_PATH \
+            --secret "YUBIKEY_PIN,type=env"
+        )
 
         shift 1
     ;;
     *)
-        log_error "Invalid platform. Specify 'linux' or 'android' as first argument"
+        log_error "Invalid platform. Specify 'linux', 'android' or 'android-signing' as first argument"
         exit 1
 esac
 

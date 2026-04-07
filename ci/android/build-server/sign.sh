@@ -7,11 +7,12 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
+PROVIDER_ARG="~/pkcs11_java.cfg"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="28"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
+KEYSTORE_SIGNING_KEY_PATH=$(readlink -f /dev/android-release-signing-key)
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "YUBIKEY_PIN pin must be set."
@@ -36,6 +37,8 @@ function main {
 function sign_artifact {
     local artifact_file="$1"
 
+    KEYSTORE_SIGNING_KEY_PATH="$KEYSTORE_SIGNING_KEY_PATH" \
+    "$SCRIPT_DIR/mullvadvpn-app/building/container-run.sh" android-signing \
     $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \

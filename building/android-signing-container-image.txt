@@ -1,0 +1,1 @@
+mullvadvpn-app-sign-android:latest
