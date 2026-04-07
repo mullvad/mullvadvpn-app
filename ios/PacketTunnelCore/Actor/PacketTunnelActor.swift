@@ -13,7 +13,6 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
 
 /**
  Packet tunnel state machine implemented as an actor.
@@ -444,7 +443,7 @@ extension PacketTunnelActor {
         }
     }
 
-    internal func activeKey(from state: State.ConnectionData, in settings: Settings) -> PrivateKey {
+    internal func activeKey(from state: State.ConnectionData, in settings: Settings) -> WireGuard.PrivateKey {
         switch state.keyPolicy {
         case .useCurrent:
             settings.privateKey
@@ -456,7 +455,7 @@ extension PacketTunnelActor {
     internal func obfuscateConnection(
         nextRelays: NextRelays,
         settings: Settings,
-        ephemeralPeerKey: PrivateKey?,
+        ephemeralPeerKey: WireGuard.PrivateKey?,
         reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         guard let connectionState = try makeConnectionState(nextRelays: nextRelays, settings: settings, reason: reason)

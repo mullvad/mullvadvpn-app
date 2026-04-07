@@ -5,7 +5,6 @@ import Testing
 @testable import MullvadRustRuntime
 @testable import MullvadSettings
 @testable import MullvadTypes
-@testable import WireGuardKitTypes
 
 struct CustomListInteractorTests {
     static let store = InMemorySettingsStore<SettingNotFound>()

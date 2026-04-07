@@ -12,7 +12,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
 
 class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked Sendable {
     private let interactor: TunnelInteractor

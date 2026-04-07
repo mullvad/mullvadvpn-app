@@ -9,19 +9,19 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+import WireGuardKitTypes  // IPAddressRange
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
 public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {
     public var relayConstraints = RelayConstraints()
-    public var interface = InterfaceSettings()
+    public var dnsSettings = DNSSettings()
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        return TunnelSettingsV2(relayConstraints: relayConstraints, dnsSettings: interface.dnsSettings)
+        return TunnelSettingsV2(relayConstraints: relayConstraints, dnsSettings: dnsSettings)
     }
 
     public var debugDescription: String {
-        "TunnelSettingsV1(relayConstraints: \(relayConstraints), interface: \(interface))"
+        "TunnelSettingsV1(relayConstraints: \(relayConstraints))"
     }
 }
 
@@ -35,18 +35,6 @@ public struct InterfaceSettings: Codable, Equatable, CustomDebugStringConvertibl
 
     private enum CodingKeys: String, CodingKey {
         case privateKey, nextPrivateKey, addresses, dnsSettings
-    }
-
-    public init(
-        privateKey: PrivateKeyWithMetadata = PrivateKeyWithMetadata(),
-        nextPrivateKey: PrivateKeyWithMetadata? = nil,
-        addresses: [IPAddressRange] = [],
-        dnsSettings: DNSSettings = DNSSettings()
-    ) {
-        self.privateKey = privateKey
-        self.nextPrivateKey = nextPrivateKey
-        self.addresses = addresses
-        self.dnsSettings = dnsSettings
     }
 
     public init(from decoder: Decoder) throws {
@@ -92,21 +80,10 @@ public struct PrivateKeyWithMetadata: Equatable, Codable {
     public let creationDate: Date
 
     /// Private key
-    public let privateKey: PrivateKey
-
-    /// Public key
-    public var publicKey: PublicKey {
-        privateKey.publicKey
-    }
-
-    /// Initialize the new private key
-    public init() {
-        privateKey = PrivateKey()
-        creationDate = Date()
-    }
+    public let privateKey: WireGuard.PrivateKey
 
     /// Initialize with the existing private key
-    public init(privateKey: PrivateKey, createdAt: Date) {
+    public init(privateKey: WireGuard.PrivateKey, createdAt: Date) {
         self.privateKey = privateKey
         creationDate = createdAt
     }

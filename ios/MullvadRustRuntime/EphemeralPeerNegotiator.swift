@@ -9,12 +9,11 @@
 import Foundation
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
 
 public protocol EphemeralPeerNegotiating {
     func startNegotiation(
-        devicePublicKey: PublicKey,
-        presharedKey: PrivateKey,
+        devicePublicKey: WireGuard.PublicKey,
+        presharedKey: WireGuard.PrivateKey,
         peerReceiver: any TunnelProvider,
         ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool
@@ -31,8 +30,8 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     var cancelToken: OpaquePointer?
 
     public func startNegotiation(
-        devicePublicKey: PublicKey,
-        presharedKey: PrivateKey,
+        devicePublicKey: WireGuard.PublicKey,
+        presharedKey: WireGuard.PrivateKey,
         peerReceiver: any TunnelProvider,
         ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool {

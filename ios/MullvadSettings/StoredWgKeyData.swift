@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@preconcurrency import WireGuardKitTypes
+import MullvadTypes
 
 public struct StoredWgKeyData: Codable, Equatable, Sendable {
     /// Private key creation date.
@@ -17,17 +17,17 @@ public struct StoredWgKeyData: Codable, Equatable, Sendable {
     public var lastRotationAttemptDate: Date?
 
     /// Private key.
-    public var privateKey: PrivateKey
+    public var privateKey: WireGuard.PrivateKey
 
     /// Next private key we're trying to rotate to.
     /// Added in 2023.3
-    public var nextPrivateKey: PrivateKey?
+    public var nextPrivateKey: WireGuard.PrivateKey?
 
     public init(
         creationDate: Date,
         lastRotationAttemptDate: Date? = nil,
-        privateKey: PrivateKey,
-        nextPrivateKey: PrivateKey? = nil
+        privateKey: WireGuard.PrivateKey,
+        nextPrivateKey: WireGuard.PrivateKey? = nil
     ) {
         self.creationDate = creationDate
         self.lastRotationAttemptDate = lastRotationAttemptDate

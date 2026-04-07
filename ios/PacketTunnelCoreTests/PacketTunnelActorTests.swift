@@ -9,7 +9,7 @@
 @preconcurrency import Combine
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData
@@ -253,7 +253,7 @@ final class PacketTunnelActorTests: XCTestCase {
         }
 
         var isFirstReadAttempt = true
-        let privateKey = PrivateKey()
+        let privateKey = WireGuard.PrivateKey()
         let settingsReader = SettingsReaderStub {
             if isFirstReadAttempt {
                 isFirstReadAttempt = false

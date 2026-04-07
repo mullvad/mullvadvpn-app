@@ -7,7 +7,6 @@
 //
 
 import Network
-import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -17,7 +16,7 @@ import XCTest
 
 final class ProtocolObfuscatorTests: XCTestCase {
     var obfuscator: ProtocolObfuscator<TunnelObfuscationStub>!
-    var clientPublicKey = PrivateKey().publicKey
+    var clientPublicKey = WireGuard.PrivateKey().publicKey
 
     override func setUpWithError() throws {
         obfuscator = ProtocolObfuscator<TunnelObfuscationStub>()
@@ -32,7 +31,7 @@ final class ProtocolObfuscatorTests: XCTestCase {
             socketAddress: .ipv4(v4Endpoint),
             ipv4Gateway: gateway,
             ipv6Gateway: .any,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             obfuscation: obfuscation
         )
     }

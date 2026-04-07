@@ -12,7 +12,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-@preconcurrency import WireGuardKitTypes
 
 enum SetAccountAction {
     /// Set new account.
@@ -396,7 +395,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         accountNumber: String,
         completion: @escaping @Sendable (Result<NewDevice, Error>) -> Void
     ) {
-        let privateKey = PrivateKey()
+        let privateKey = WireGuard.PrivateKey()
         let request = CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
 
         logger.debug("Create device...")
@@ -433,7 +432,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     /// may contain `nil` if such device is not found for some reason.
     private func findDevice(
         accountNumber: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         completion: @escaping @Sendable (Result<Device?, Error>) -> Void
     ) {
         let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
@@ -460,7 +459,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     /// Struct that holds a private key that was used for creating a new device on the API along with the successful
     /// response from the API.
     private struct NewDevice {
-        var privateKey: PrivateKey
+        var privateKey: WireGuard.PrivateKey
         var device: Device
     }
 }

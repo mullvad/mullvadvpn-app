@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // IPAddressRange
 
 public struct Account: Codable, Equatable, Sendable {
     public let id: String
@@ -26,7 +26,7 @@ public struct Account: Codable, Equatable, Sendable {
 public struct Device: Codable, Equatable, Sendable {
     public let id: String
     public let name: String
-    public let pubkey: PublicKey
+    public let pubkey: WireGuard.PublicKey
     public let hijackDNS: Bool
     public let created: Date
     public let ipv4Address: IPAddressRange
@@ -40,7 +40,7 @@ public struct Device: Codable, Equatable, Sendable {
     public init(
         id: String,
         name: String,
-        pubkey: PublicKey,
+        pubkey: WireGuard.PublicKey,
         hijackDNS: Bool,
         created: Date,
         ipv4Address: IPAddressRange,
@@ -71,10 +71,10 @@ public struct ProblemReportRequest: Codable, Sendable {
 }
 
 public struct CreateDeviceRequest: Codable, Sendable {
-    public let publicKey: PublicKey
+    public let publicKey: WireGuard.PublicKey
     public let hijackDNS: Bool
 
-    public init(publicKey: PublicKey, hijackDNS: Bool) {
+    public init(publicKey: WireGuard.PublicKey, hijackDNS: Bool) {
         self.publicKey = publicKey
         self.hijackDNS = hijackDNS
     }
@@ -93,9 +93,9 @@ public struct CreateDeviceRequest: Codable, Sendable {
 }
 
 public struct RotateDeviceKeyRequest: Codable, Sendable {
-    let publicKey: PublicKey
+    let publicKey: WireGuard.PublicKey
 
-    public init(publicKey: PublicKey) {
+    public init(publicKey: WireGuard.PublicKey) {
         self.publicKey = publicKey
     }
 

@@ -13,7 +13,6 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 import PacketTunnelCore
-import WireGuardKitTypes
 
 /**
  An operation that is responsible for performing account and device diagnostics and key rotation from within packet
