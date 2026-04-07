@@ -5,7 +5,7 @@
 !include stdutils.nsh
 !include winver.nsh
 
-!addplugindir "${BUILD_RESOURCES_DIR}\..\windows\nsis-plugins\bin\Win32-Release"
+!addplugindir "${BUILD_RESOURCES_DIR}\..\target\i686-pc-windows-msvc\release"
 
 # Set supported OSes to Windows 10 and 11 in manifest explicitly.
 # The default also includes Windows 7, 8.1, and 8.
