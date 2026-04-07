@@ -81,13 +81,11 @@ fun ImportOverridesByTextScreen(onNavigateBack: () -> Unit, onImportClicked: (St
                     }
                 },
             )
-        },
+        }
     ) {
         Column(modifier = Modifier.padding(it)) {
             TextField(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG),
+                modifier = Modifier.fillMaxSize().testTag(SERVER_IP_OVERRIDES_TEXT_INPUT_TEST_TAG),
                 value = text,
                 onValueChange = { text = it },
                 placeholder = {
