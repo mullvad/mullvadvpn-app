@@ -15,4 +15,4 @@
 #
 # Create a symlink so we more easily can access the device from publish script
 # SYMLINK+="android-jks-signing-key"
-ACTION!="remove|unbind", SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", KERNEL=="5-1", RUN+="/usr/bin/setfacl -m u:build:rw /dev/$name", ENV{PCSCLITE_IGNORE}="1" SYMLINK+="android-release-signing-key"
+ACTION!="remove|unbind", SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", KERNEL=="5-2", RUN+="/usr/bin/setfacl -m u:build:rw /dev/$name", ENV{PCSCLITE_IGNORE}="1" SYMLINK+="android-jks-signing-key"

@@ -12,7 +12,7 @@ APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="28"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-KEYSTORE_SIGNING_KEY_PATH=$(readlink -f /dev/android-release-signing-key)
+KEYSTORE_SIGNING_KEY_PATH=$(readlink -f /dev/android-jks-signing-key)
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "YUBIKEY_PIN pin must be set."
