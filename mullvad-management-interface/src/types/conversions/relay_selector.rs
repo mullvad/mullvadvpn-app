@@ -2,7 +2,8 @@ use mullvad_types::{
     constraints::Constraint,
     relay_list::Relay,
     relay_selector::{
-        EntryConstraints, ExitConstraints, MultihopConstraints, Predicate, Reason, RelayPartitions,
+        EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
+        Predicate, Reason, RelayPartitions,
     },
 };
 
@@ -77,16 +78,19 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .map(mullvad_types::relay_constraints::ObfuscationSettings::try_from)
             .transpose()?
             .unwrap_or_default();
+        let obfuscation = mullvad_types::relay_constraints::obfuscation_constraint_from_settings(
+            obfuscation_settings,
+        );
 
-        let daita: Constraint<_> = daita_settings
-            .map(mullvad_types::wireguard::DaitaSettings::from)
-            .into();
+        let daita: Constraint<_> = daita_settings.map(|ds| ds.enabled).into();
 
         Ok(EntryConstraints {
             general,
-            obfuscation_settings,
-            daita,
-            ip_version,
+            entry_specific: EntrySpecificConstraints {
+                obfuscation,
+                daita,
+                ip_version,
+            },
         })
     }
 }
@@ -156,6 +160,7 @@ impl From<Vec<Reason>> for proto::IncompatibleConstraints {
                 Obfuscation => incompatible.obfuscation = true,
                 Port => incompatible.port = true,
                 Conflict => incompatible.conflict_with_other_hop = true,
+                IncludeInCountry => incompatible.include_in_country = true,
             };
         }
         incompatible

@@ -319,7 +319,7 @@ impl Quic {
     }
 
     /// Port of the masque-proxy daemon.
-    pub const fn port(&self) -> u16 {
+    pub const fn port() -> u16 {
         // The point of the masque-proxy is to look like a regular web server serving http traffic.
         443
     }
@@ -332,7 +332,7 @@ impl Quic {
         &self.token
     }
 
-    pub fn in_addr(&self) -> impl Iterator<Item = IpAddr> {
+    pub fn in_addr(&self) -> impl Iterator<Item = IpAddr> + Clone {
         self.addr_in.iter().copied()
     }
 }

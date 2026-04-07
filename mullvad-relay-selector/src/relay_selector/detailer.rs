@@ -7,13 +7,13 @@
 //!
 //! [`MullvadEndpoint`]: mullvad_types::endpoint::MullvadEndpoint
 
-use std::net::{IpAddr, SocketAddr};
+use std::net::SocketAddr;
 
 use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
-    relay_constraints::allowed_ip::resolve_from_constraint,
+    relay_constraints::{AllowedIps, allowed_ip::resolve_from_constraint},
     relay_list::{Bridge, BridgeEndpointData, EndpointData, WireguardRelay},
 };
 use rand::seq::IndexedRandom;
@@ -23,9 +23,7 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use crate::query::ObfuscationMode;
-
-use super::{WireguardConfig, query::WireguardRelayQuery};
+use super::WireguardConfig;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -44,39 +42,36 @@ pub enum Error {
 /// # Returns
 /// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop
 ///   connection.
-/// - Returns [`None`] if the desired port is not in a valid port range (see
-///   [`get_port_for_wireguard_relay`]) or relay addresses cannot be resolved.
 pub fn wireguard_endpoint(
-    query: &WireguardRelayQuery,
+    allowed_ips: &Constraint<AllowedIps>,
     data: &EndpointData,
     relay: &WireguardConfig,
-) -> Result<MullvadEndpoint, Error> {
+    entry_endpoint: SocketAddr,
+) -> MullvadEndpoint {
     match relay {
-        WireguardConfig::Singlehop { exit } => wireguard_singlehop_endpoint(query, data, exit),
+        WireguardConfig::Singlehop { exit } => {
+            wireguard_singlehop_endpoint(allowed_ips, data, exit, entry_endpoint)
+        }
         WireguardConfig::Multihop { exit, entry } => {
-            wireguard_multihop_endpoint(query, data, exit, entry)
+            wireguard_multihop_endpoint(allowed_ips, data, exit, entry, entry_endpoint)
         }
     }
 }
 
 /// Configure a single-hop connection using the exit relay data.
 fn wireguard_singlehop_endpoint(
-    query: &WireguardRelayQuery,
+    allowed_ips: &Constraint<AllowedIps>,
     data: &EndpointData,
     exit: &WireguardRelay,
-) -> Result<MullvadEndpoint, Error> {
-    let endpoint = {
-        let host = get_address_for_wireguard_relay(query, exit)?;
-        let port = get_port_for_wireguard_relay(query, data)?;
-        SocketAddr::new(host, port)
-    };
+    endpoint: SocketAddr,
+) -> MullvadEndpoint {
     let peer_config = PeerConfig {
         public_key: get_public_key(exit).clone(),
         endpoint,
         // The peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
         allowed_ips: resolve_from_constraint(
-            &query.allowed_ips,
+            allowed_ips,
             Some(data.ipv4_gateway),
             Some(data.ipv6_gateway),
         ),
@@ -86,12 +81,12 @@ fn wireguard_singlehop_endpoint(
         #[cfg(daita)]
         constant_packet_size: false,
     };
-    Ok(MullvadEndpoint {
+    MullvadEndpoint {
         peer: peer_config,
         exit_peer: None,
         ipv4_gateway: data.ipv4_gateway,
         ipv6_gateway: data.ipv6_gateway,
-    })
+    }
 }
 
 /// Configure a multihop connection using the entry & exit relay data.
@@ -100,11 +95,12 @@ fn wireguard_singlehop_endpoint(
 /// In a multihop circuit, we need to provide an exit peer configuration in addition to the
 /// peer configuration.
 fn wireguard_multihop_endpoint(
-    query: &WireguardRelayQuery,
+    allowed_ips: &Constraint<AllowedIps>,
     data: &EndpointData,
     exit: &WireguardRelay,
     entry: &WireguardRelay,
-) -> Result<MullvadEndpoint, Error> {
+    entry_endpoint: SocketAddr,
+) -> MullvadEndpoint {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
     const WIREGUARD_EXIT_PORT: u16 = 51820;
@@ -121,7 +117,7 @@ fn wireguard_multihop_endpoint(
         // The exit peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
         allowed_ips: resolve_from_constraint(
-            &query.allowed_ips,
+            allowed_ips,
             Some(data.ipv4_gateway),
             Some(data.ipv6_gateway),
         ),
@@ -132,11 +128,6 @@ fn wireguard_multihop_endpoint(
         constant_packet_size: false,
     };
 
-    let entry_endpoint = {
-        let host = get_address_for_wireguard_relay(query, entry)?;
-        let port = get_port_for_wireguard_relay(query, data)?;
-        SocketAddr::from((host, port))
-    };
     let entry = PeerConfig {
         public_key: get_public_key(entry).clone(),
         endpoint: entry_endpoint,
@@ -150,25 +141,11 @@ fn wireguard_multihop_endpoint(
         constant_packet_size: false,
     };
 
-    Ok(MullvadEndpoint {
+    MullvadEndpoint {
         peer: entry,
         exit_peer: Some(exit),
         ipv4_gateway: data.ipv4_gateway,
         ipv6_gateway: data.ipv6_gateway,
-    })
-}
-
-/// Get the correct IP address for the given relay.
-fn get_address_for_wireguard_relay(
-    query: &WireguardRelayQuery,
-    relay: &WireguardRelay,
-) -> Result<IpAddr, Error> {
-    match resolve_ip_version(query.ip_version.as_ref()) {
-        IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
-        IpVersion::V6 => relay
-            .ipv6_addr_in
-            .map(|addr| addr.into())
-            .ok_or(Error::NoIPv6(Box::new(relay.clone()))),
     }
 }
 
@@ -177,21 +154,6 @@ pub fn resolve_ip_version(ip_version: Constraint<&IpVersion>) -> IpVersion {
         Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
         Constraint::Only(IpVersion::V6) => IpVersion::V6,
     }
-}
-
-/// Try to pick a valid Wireguard port.
-fn get_port_for_wireguard_relay(
-    query: &WireguardRelayQuery,
-    data: &EndpointData,
-) -> Result<u16, Error> {
-    let port = if let Constraint::Only(ObfuscationMode::Port(port)) = query.obfuscation {
-        port.get()
-    } else {
-        Constraint::Any
-    };
-
-    super::helpers::desired_or_random_port_from_range(&data.port_ranges, port)
-        .map_err(|_err| Error::PortSelectionError { port })
 }
 
 /// Read the [`PublicKey`] of a relay.

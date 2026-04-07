@@ -1,64 +1,11 @@
-//! This module is responsible for filtering the whole relay list based on queries.
-use std::{collections::HashSet, ops::RangeInclusive};
+//! Relay filter predicates used by the verdict-based partition functions.
 
 use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
-    relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, Ownership, Providers, ShadowsocksSettings,
-    },
-    relay_list::{RelayList, WireguardRelay, WireguardRelayEndpointData},
+    relay_constraints::{GeographicLocationConstraint, LocationConstraint, Ownership, Providers},
+    relay_list::{WireguardRelay, WireguardRelayEndpointData},
 };
-use talpid_types::net::IpVersion;
-
-use super::query::{ObfuscationMode, RelayQuery, WireguardRelayQuery};
-
-/// Filter a list of relays and their endpoints based on constraints.
-/// Only relays with (and including) matching endpoints are returned.
-///
-/// This function filter relays on the `include_in_country` flag, as opposed to
-/// [`filter_matching_relay_list_include_all`].
-pub fn filter_matching_relay_list(
-    query: &RelayQuery,
-    relay_list: &RelayList,
-    custom_lists: &CustomListsSettings,
-) -> Vec<WireguardRelay> {
-    let relays = filter_matching_relay_list_include_all(query, relay_list, custom_lists);
-    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
-    filter_on_include_in_country(locations, relays)
-}
-
-/// Filter a list of relays and their endpoints based on constraints.
-/// Only relays with (and including) matching endpoints are returned.
-pub fn filter_matching_relay_list_include_all(
-    query: &RelayQuery,
-    relay_list: &RelayList,
-    custom_lists: &CustomListsSettings,
-) -> Vec<WireguardRelay> {
-    let relays = relay_list.relays();
-    let locations = ResolvedLocationConstraint::from_constraint(query.location(), custom_lists);
-    relays
-            // Filter on active relays
-            .filter(|relay| filter_on_active(relay))
-            // Filter by location
-            .filter(|relay| filter_on_location(locations.as_ref(), relay))
-            // Filter by ownership
-            .filter(|relay| filter_on_ownership(query.ownership().as_ref(), relay))
-            // Filter by providers
-            .filter(|relay| filter_on_providers(query.providers().as_ref(), relay))
-            // Filter by DAITA support
-            .filter(|relay| filter_on_daita(query.wireguard_constraints().daita, relay))
-            // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay)).cloned().collect()
-}
-
-// --- Define relay filters as simple functions / predicates ---
-// The intent is to make it easier to re-use in iterator chains.
-
-/// Returns whether `relay` is active.
-pub fn filter_on_active(relay: &WireguardRelay) -> bool {
-    relay.active
-}
 
 /// Returns whether `relay` satisfy the location constraint posed by `filter`.
 pub fn filter_on_location(
@@ -88,98 +35,27 @@ pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool
     }
 }
 
-/// Returns whether `relay` satisfies the obfuscation settings.
-fn filter_on_obfuscation(
-    query: &WireguardRelayQuery,
-    relay_list: &RelayList,
+/// Returns `true` if no city- or hostname-level [`GeographicLocationConstraint`] in `location`
+/// matches `relay`. This covers both `Constraint::Any` (no constraint at all, meaning the relay
+/// is not specifically targeted) and constraints that only mention the relay's country.
+///
+/// Used to determine whether a relay with `include_in_country = false` should be treated as a
+/// fallback: if the user has pinpointed a specific city or hostname that contains this relay,
+/// we honour that explicit choice and promote it to a primary match.
+pub fn is_country_only_match(
+    location: Constraint<&ResolvedLocationConstraint<'_>>,
     relay: &WireguardRelay,
 ) -> bool {
-    use ObfuscationMode::*;
-    match &query.obfuscation {
+    match location {
+        // No location constraint — relay is not specifically targeted.
         Constraint::Any => true,
-        Constraint::Only(mode) => match mode {
-            // Shadowsocks has relay-specific constraints
-            Shadowsocks(settings) => {
-                let wg_data = &relay_list.wireguard;
-                filter_on_shadowsocks(
-                    &wg_data.shadowsocks_port_ranges,
-                    query.ip_version.as_ref(),
-                    settings,
-                    relay.endpoint(),
-                )
-            }
-            // QUIC is only enabled on some relays
-            Quic => match relay.endpoint().quic() {
-                Some(quic) => match query.ip_version {
-                    Constraint::Any => true,
-                    Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
-                    Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
-                },
-                None => false,
-            },
-            // LWO is only enabled on some relays
-            Lwo(_) => relay.endpoint().lwo,
-            // Other relays are compatible with this query
-            Off | Port(_) | Udp2tcp(_) => true,
-        },
-    }
-}
-
-/// Returns whether `relay` satisfies the Shadowsocks filter posed by `port`.
-pub(crate) fn filter_on_shadowsocks(
-    port_ranges: &[RangeInclusive<u16>],
-    ip_version: Constraint<&IpVersion>,
-    settings: &ShadowsocksSettings,
-    endpoint_data: &WireguardRelayEndpointData,
-) -> bool {
-    let ip_version = super::detailer::resolve_ip_version(ip_version);
-
-    match settings {
-        // If Shadowsocks is specifically asked for, we must check if the specific relay supports
-        // our port. If there are extra addresses, then all ports are available, so we do
-        // not need to do this.
-        ShadowsocksSettings {
-            port: Constraint::Only(desired_port),
-        } => {
-            let filtered_extra_addrs = endpoint_data
-                .shadowsocks_extra_addr_in
-                .iter()
-                .find(|&&addr| IpVersion::from(addr) == ip_version);
-
-            filtered_extra_addrs.is_some()
-                || port_ranges.iter().any(|range| range.contains(desired_port))
-        }
-
-        // Otherwise, any relay works.
-        _ => true,
-    }
-}
-
-/// When the location constraint is based on country, a relay which has
-/// `include_in_country` set to true should always be prioritized over relays which has this
-/// flag set to false. We should only consider relays with `include_in_country` set to false
-/// if there are no other candidates left.
-fn filter_on_include_in_country(
-    locations: Constraint<ResolvedLocationConstraint<'_>>,
-    relays: Vec<WireguardRelay>,
-) -> Vec<WireguardRelay> {
-    match locations {
-        Constraint::Any => relays,
-        Constraint::Only(locations) => {
-            let mut included = HashSet::new();
-            let mut excluded = HashSet::new();
-            for location in &locations {
-                let (included_in_country, not_included_in_country): (Vec<_>, Vec<_>) = relays
-                    .iter()
-                    .partition(|relay| location.is_country() && relay.include_in_country);
-                included.extend(included_in_country);
-                excluded.extend(not_included_in_country);
-            }
-            if included.is_empty() {
-                excluded.into_iter().cloned().collect()
-            } else {
-                included.into_iter().cloned().collect()
-            }
+        Constraint::Only(resolved) => {
+            // It is a country-only match as long as none of the matching constraints
+            // is more specific than a country (i.e. city or hostname).
+            !resolved
+                .into_iter()
+                .filter(|loc| loc.matches(relay))
+                .any(|loc| !loc.is_country())
         }
     }
 }
