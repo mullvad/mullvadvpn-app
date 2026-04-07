@@ -4,23 +4,27 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+
+@Preview
+@Composable
+private fun PreviewSearchButton() {
+    PreviewColumn {
+        SearchButton(onClick = {})
+        SearchButton(onClick = {}, enabled = false)
+    }
+}
 
 @Composable
-fun SearchButton(onClick: () -> Unit, enabled: Boolean) {
-    IconButton(onClick = onClick) {
+fun SearchButton(onClick: () -> Unit, enabled: Boolean = true) {
+    IconButton(onClick = onClick, enabled = enabled) {
         Icon(
             imageVector = Icons.Rounded.Search,
             contentDescription = stringResource(id = R.string.search),
-            tint =
-                MaterialTheme.colorScheme.onSurface.copy(
-                    alpha = if (enabled) AlphaVisible else AlphaDisabled
-                ),
         )
     }
 }
