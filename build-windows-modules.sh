@@ -137,13 +137,23 @@ function get_solution_output_path {
 }
 
 function build_nsis_plugins {
-    local nsis_root_path="./windows/nsis-plugins"
-    build_solution_config "$nsis_root_path/nsis-plugins.sln" "Release" "x86"
+    cargo build --release --target i686-pc-windows-msvc \
+        -p nsis-string \
+        -p nsis-registry \
+        -p nsis-pathedit \
+        -p nsis-cleanup \
+        -p nsis-log \
+        -p nsis-tray
 }
 
 function clean_all {
-    local nsis_root_path="./windows/nsis-plugins"
-    clean_solution "$nsis_root_path"
+    cargo clean \
+        -p nsis-string \
+        -p nsis-registry \
+        -p nsis-pathedit \
+        -p nsis-cleanup \
+        -p nsis-log \
+        -p nsis-tray
 
     clean_solution "./windows/libshared"
     clean_solution "./windows/windows-libraries"
