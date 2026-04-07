@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.core.NavResult
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 
-@Parcelize data class CreateCustomListNavKey(val locationCode: GeoLocationId?) : NavKey2
+@Parcelize data class CreateCustomListNavKey(val locationCode: GeoLocationId? = null) : NavKey2
 
 @Parcelize
 data class CreateCustomListNavResult(

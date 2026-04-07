@@ -8,54 +8,46 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.TextFields
-import androidx.compose.material.icons.rounded.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import kotlinx.coroutines.DisposableHandle
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavKey
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByFileNavResult
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavResult
+import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverridesNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverrideConfirmationNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ResetServerIpOverrideConfirmationNavResult
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideInfoNavKey
@@ -63,20 +55,13 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKe
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.SettingsPatchError
-import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ServerIpOverridesListItem
-import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
-import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
@@ -98,9 +83,8 @@ private fun PreviewServerIpOverridesScreen(
             state = state,
             onBackClick = {},
             onInfoClick = {},
+            onImportClick = {},
             onResetOverridesClick = {},
-            onImportByFile = {},
-            onImportByText = {},
             snackbarHostState = SnackbarHostState(),
         )
     }
@@ -130,9 +114,21 @@ fun SharedTransitionScope.ServerIpOverrides(
     }
 
     val resultStore = LocalResultStore.current
+
+    val openFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+            if (it != null) {
+                vm.importFile(it)
+            }
+        }
+
     val scope = rememberCoroutineScope()
 
     resultStore.consumeResult<ImportOverrideByTextNavResult>()?.let { vm.importText(it.text) }
+
+    resultStore.consumeResult<ImportOverrideByFileNavResult>()?.let {
+        openFileLauncher.launch("application/json")
+    }
 
     // On successful clear of overrides, show snackbar
     resultStore.consumeResult<ResetServerIpOverrideConfirmationNavResult>()?.let { result ->
@@ -149,21 +145,13 @@ fun SharedTransitionScope.ServerIpOverrides(
         }
     }
 
-    val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
-            if (it != null) {
-                vm.importFile(it)
-            }
-        }
-
     ServerIpOverridesScreen(
         state = state,
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverrideInfoNavKey) },
+        onImportClick = dropUnlessResumed { navigator.navigate(ImportOverridesNavKey) },
         onResetOverridesClick =
             dropUnlessResumed { navigator.navigate(ResetServerIpOverrideConfirmationNavKey) },
-        onImportByFile = dropUnlessResumed { openFileLauncher.launch("application/json") },
-        onImportByText = dropUnlessResumed { navigator.navigate(ImportOverrideByTextNavKey) },
         snackbarHostState = snackbarHostState,
         modifier =
             Modifier.sharedBounds(
@@ -179,16 +167,11 @@ fun ServerIpOverridesScreen(
     state: Lc<Boolean, ServerIpOverridesUiState>,
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
+    onImportClick: () -> Unit,
     onResetOverridesClick: () -> Unit,
-    onImportByFile: () -> Unit,
-    onImportByText: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
-
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var showBottomSheet by remember { mutableStateOf(false) }
-
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.server_ip_override),
         modifier = modifier,
@@ -207,16 +190,6 @@ fun ServerIpOverridesScreen(
             )
         },
     ) { modifier ->
-        if (showBottomSheet && state is Lc.Content) {
-            ImportOverridesByBottomSheet(
-                sheetState,
-                { showBottomSheet = it },
-                state.value.overridesActive,
-                onImportByFile,
-                onImportByText,
-            )
-        }
-
         Column(
             modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew)
         ) {
@@ -225,120 +198,11 @@ fun ServerIpOverridesScreen(
             Spacer(modifier = Modifier.weight(1f))
             SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
             PrimaryButton(
-                onClick = { showBottomSheet = true },
+                onClick = onImportClick,
                 text = stringResource(R.string.import_overrides_import),
                 modifier =
                     Modifier.padding(bottom = Dimens.screenBottomMargin)
                         .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ImportOverridesByBottomSheet(
-    sheetState: SheetState,
-    showBottomSheet: (Boolean) -> Unit,
-    overridesActive: Boolean,
-    onImportByFile: () -> Unit,
-    onImportByText: () -> Unit,
-) {
-    val scope = rememberCoroutineScope()
-    val onCloseSheet = {
-        scope
-            .launch { sheetState.hide() }
-            .invokeOnCompletion {
-                if (!sheetState.isVisible) {
-                    showBottomSheet(false)
-                }
-            }
-    }
-    val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
-    val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
-
-    MullvadModalBottomSheet(
-        sheetState = sheetState,
-        backgroundColor = backgroundColor,
-        onBackgroundColor = onBackgroundColor,
-        onDismissRequest = { showBottomSheet(false) },
-    ) {
-        BottomSheetContent(
-            backgroundColor = backgroundColor,
-            onBackgroundColor = onBackgroundColor,
-            overridesActive = overridesActive,
-            onImportByFile = onImportByFile,
-            onImportByText = onImportByText,
-            onCloseSheet = onCloseSheet,
-        )
-    }
-}
-
-@Composable
-private fun BottomSheetContent(
-    backgroundColor: Color,
-    onBackgroundColor: Color,
-    overridesActive: Boolean,
-    onImportByFile: () -> Unit,
-    onImportByText: () -> Unit,
-    onCloseSheet: () -> DisposableHandle,
-) {
-    BottomSheetListItem(
-        title = stringResource(id = R.string.server_ip_overrides_import_by),
-        backgroundColor = backgroundColor,
-        onBackgroundColor = onBackgroundColor,
-    )
-    HorizontalDivider(color = onBackgroundColor)
-    IconListItem(
-        leadingIcon = Icons.Rounded.UploadFile,
-        title = stringResource(id = R.string.server_ip_overrides_import_by_file),
-        modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG),
-        position = Position.Middle,
-        onClick = {
-            onImportByFile()
-            onCloseSheet()
-        },
-        colors =
-            ListItemDefaults.colors(
-                containerColorParent = backgroundColor,
-                headlineColor = onBackgroundColor,
-            ),
-    )
-    IconListItem(
-        leadingIcon = Icons.Rounded.TextFields,
-        title = stringResource(id = R.string.server_ip_overrides_import_by_text),
-        position = Position.Middle,
-        modifier = Modifier.testTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG),
-        onClick = {
-            onImportByText()
-            onCloseSheet()
-        },
-        colors =
-            ListItemDefaults.colors(
-                containerColorParent = backgroundColor,
-                headlineColor = onBackgroundColor,
-            ),
-    )
-    if (overridesActive) {
-        HorizontalDivider(color = onBackgroundColor)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                modifier = Modifier.padding(Dimens.mediumPadding),
-                imageVector = Icons.Rounded.Info,
-                tint = MaterialTheme.colorScheme.error,
-                contentDescription = null,
-            )
-            Text(
-                modifier =
-                    Modifier.padding(
-                        top = Dimens.smallPadding,
-                        end = Dimens.mediumPadding,
-                        bottom = Dimens.smallPadding,
-                    ),
-                text = stringResource(R.string.import_overrides_bottom_sheet_override_warning),
-                maxLines = 2,
-                style = MaterialTheme.typography.labelLarge,
-                overflow = TextOverflow.Ellipsis,
             )
         }
     }

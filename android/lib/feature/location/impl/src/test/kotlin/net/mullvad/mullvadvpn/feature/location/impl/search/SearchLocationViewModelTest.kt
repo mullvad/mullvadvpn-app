@@ -17,9 +17,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
-import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
@@ -42,7 +40,6 @@ class SearchLocationViewModelTest {
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilteredRelayListUseCase: FilteredRelayListUseCase = mockk()
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk()
-    private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockFilteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase = mockk()
@@ -51,7 +48,6 @@ class SearchLocationViewModelTest {
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
-    private val mockRelayListRepository: RelayListRepository = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocation =
@@ -82,7 +78,6 @@ class SearchLocationViewModelTest {
                 relayListType = RelayListType.Single,
                 filteredRelayListUseCase = mockFilteredRelayListUseCase,
                 customListActionUseCase = mockCustomListActionUseCase,
-                customListsRepository = mockCustomListsRepository,
                 relayListFilterRepository = mockRelayListFilterRepository,
                 filterChipUseCase = mockFilterChipUseCase,
                 filteredCustomListRelayItemsUseCase = mockFilteredCustomListRelayItemsUseCase,
@@ -91,8 +86,6 @@ class SearchLocationViewModelTest {
                 selectSinglehopUseCase = mockSelectSinglehopUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 settingsRepository = mockSettingsRepository,
-                wireguardConstraintsRepository = mockWireguardConstraintsRepository,
-                relayListRepository = mockRelayListRepository,
             )
     }
 

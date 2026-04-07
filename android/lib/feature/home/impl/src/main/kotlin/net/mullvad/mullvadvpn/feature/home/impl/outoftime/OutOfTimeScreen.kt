@@ -21,12 +21,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -42,10 +39,9 @@ import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
+import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
-import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -72,7 +68,7 @@ private fun PreviewOutOfTimeScreen(
             onDisconnectClick = {},
             onSettingsClick = {},
             onAccountClick = {},
-            onRedeemVoucherClick = {},
+            onAddMoreTimeClick = {},
             onPlayPaymentInfoClick = {},
         )
     }
@@ -104,7 +100,7 @@ fun OutOfTime(navigator: Navigator) {
         snackbarHostState = snackbarHostState,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsNavKey) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
+        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
         onPlayPaymentInfoClick =
             dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
@@ -118,7 +114,7 @@ fun OutOfTimeScreen(
     onDisconnectClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
+    onAddMoreTimeClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -141,15 +137,6 @@ fun OutOfTimeScreen(
         deviceName = state.deviceName,
         timeLeft = null,
     ) {
-        var addTimeBottomSheetState by remember { mutableStateOf(false) }
-        if (!LocalInspectionMode.current) {
-            AddTimeBottomSheet(
-                visible = addTimeBottomSheetState,
-                onHideBottomSheet = { addTimeBottomSheetState = false },
-                onRedeemVoucherClick = onRedeemVoucherClick,
-                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-            )
-        }
         Column(
             modifier =
                 Modifier.fillMaxSize()
@@ -173,7 +160,7 @@ fun OutOfTimeScreen(
             ButtonPanel(
                 state = state,
                 onDisconnectClick = onDisconnectClick,
-                onAddMoreTimeClick = { addTimeBottomSheetState = true },
+                onAddMoreTimeClick = onAddMoreTimeClick,
                 onInfoClick = onPlayPaymentInfoClick,
             )
         }

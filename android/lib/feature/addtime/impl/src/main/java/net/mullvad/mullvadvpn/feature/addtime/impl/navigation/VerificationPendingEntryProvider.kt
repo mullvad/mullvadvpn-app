@@ -13,4 +13,6 @@ fun EntryProviderScope<NavKey2>.addTimeVerificationPendingEntry(navigator: Navig
     entry<VerificationPendingNavKey>(metadata = DialogSceneStrategy.dialog()) {
         VerificationPending(navigator = navigator)
     }
+
+    addTimeEntry(navigator)
 }

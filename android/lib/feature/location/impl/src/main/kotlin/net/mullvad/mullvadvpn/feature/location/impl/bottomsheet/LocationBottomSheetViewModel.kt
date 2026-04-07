@@ -4,21 +4,29 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
+import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
+import net.mullvad.mullvadvpn.feature.location.impl.addLocationToCustomList
+import net.mullvad.mullvadvpn.feature.location.impl.removeLocationFromCustomList
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
@@ -29,10 +37,14 @@ import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
+import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 
+@Suppress("TooManyFunctions", "LongParameterList")
 class LocationBottomSheetViewModel(
     private val locationBottomSheetState: LocationBottomSheetState,
+    private val customListActionUseCase: CustomListActionUseCase,
+    private val customListsRepository: CustomListsRepository,
     private val hopSelectionUseCase: HopSelectionUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val modifyAndEnableMultihopUseCase: ModifyAndEnableMultihopUseCase,
@@ -115,6 +127,9 @@ class LocationBottomSheetViewModel(
                 started = SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(Unit),
             )
+
+    private val _uiSideEffect = Channel<LocationBottomSheetNavResult>()
+    val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun setAsEntry(
         item: RelayItem,
@@ -201,6 +216,77 @@ class LocationBottomSheetViewModel(
                 )
         }
     }
+
+    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
+        viewModelScope.launch {
+            val result =
+                addLocationToCustomList(
+                    item = item,
+                    customList = customList,
+                    update = customListActionUseCase::invoke,
+                )
+            _uiSideEffect.send(LocationBottomSheetNavResult.CustomListActionToast(result))
+        }
+    }
+
+    fun removeLocationFromList(item: RelayItem.Location, customListId: CustomListId) {
+        viewModelScope.launch {
+            val result =
+                removeLocationFromCustomList(
+                    item = item,
+                    customListId = customListId,
+                    getCustomListById = customListsRepository::getCustomListById,
+                    update = customListActionUseCase::invoke,
+                )
+            _uiSideEffect.trySend(LocationBottomSheetNavResult.CustomListActionToast(result))
+        }
+    }
+
+    fun onModifyMultihopError(
+        modifyMultihopError: ModifyMultihopError,
+        multihopChange: MultihopChange,
+    ) {
+        viewModelScope.launch {
+            _uiSideEffect.send(modifyMultihopError.toSideEffect(multihopChange))
+        }
+    }
+
+    fun onSelectRelayItemError(selectRelayItemError: SelectRelayItemError) {
+        viewModelScope.launch { _uiSideEffect.send(selectRelayItemError.toSideEffect()) }
+    }
+
+    fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
+        viewModelScope.launch {
+            _uiSideEffect.send(
+                LocationBottomSheetNavResult.MultihopChanged(undoChangeMultihopAction)
+            )
+        }
+    }
+
+    private fun ModifyMultihopError.toSideEffect(
+        multihopChange: MultihopChange
+    ): LocationBottomSheetNavResult =
+        when (this) {
+            is ModifyMultihopError.EntrySameAsExit ->
+                when (multihopChange) {
+                    is MultihopChange.Entry ->
+                        LocationBottomSheetNavResult.ExitAlreadySelected(relayItem = relayItem)
+                    is MultihopChange.Exit ->
+                        LocationBottomSheetNavResult.EntryAlreadySelected(relayItem = relayItem)
+                }
+            ModifyMultihopError.GenericError -> LocationBottomSheetNavResult.GenericError
+            is ModifyMultihopError.RelayItemInactive ->
+                LocationBottomSheetNavResult.RelayItemInactive(relayItem = relayItem)
+        }
+
+    private fun SelectRelayItemError.toSideEffect(): LocationBottomSheetNavResult =
+        when (this) {
+            SelectRelayItemError.GenericError -> LocationBottomSheetNavResult.GenericError
+            is SelectRelayItemError.RelayInactive ->
+                LocationBottomSheetNavResult.RelayItemInactive(relayItem = relayItem)
+            SelectRelayItemError.EntryAndExitSame ->
+                LocationBottomSheetNavResult.EntryAndExitAreSame
+        }
 
     private fun isMultihopEnabled() =
         wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ?: false

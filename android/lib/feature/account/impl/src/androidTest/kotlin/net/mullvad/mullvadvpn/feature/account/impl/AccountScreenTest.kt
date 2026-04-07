@@ -41,12 +41,12 @@ class AccountScreenTest {
     private fun ComposeContext.initScreen(
         state: AccountUiState? = null,
         onCopyAccountNumber: (String) -> Unit = {},
-        onRedeemVoucherClick: () -> Unit = {},
         onLogoutClick: () -> Unit = {},
         onPlayPaymentInfoClick: () -> Unit = {},
         onBackClick: () -> Unit = {},
         onManageDevicesClick: () -> Unit = {},
         navigateToDeleteAccount: () -> Unit = {},
+        navigateToAddTime: () -> Unit = {},
     ) {
         setContentWithTheme {
             AccountScreen(
@@ -54,10 +54,10 @@ class AccountScreenTest {
                 onCopyAccountNumber = onCopyAccountNumber,
                 onManageDevicesClick = onManageDevicesClick,
                 onLogoutClick = onLogoutClick,
-                onRedeemVoucherClick = onRedeemVoucherClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
                 onBackClick = onBackClick,
                 navigateToDeleteAccount = navigateToDeleteAccount,
+                navigateToAddTime = navigateToAddTime,
             )
         }
     }

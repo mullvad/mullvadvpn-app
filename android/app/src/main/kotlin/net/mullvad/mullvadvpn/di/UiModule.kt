@@ -35,9 +35,9 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InApp
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.welcome.WelcomeViewModel
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
 import net.mullvad.mullvadvpn.feature.location.impl.SelectLocationViewModel
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationListViewModel
 import net.mullvad.mullvadvpn.feature.location.impl.search.SearchLocationViewModel
@@ -311,7 +311,6 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            get(),
         )
     }
     viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
@@ -368,9 +367,6 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            get(),
-            get(),
-            get(),
         )
     }
     viewModel { (relayListType: RelayListType) ->
@@ -405,6 +401,7 @@ val uiModule = module {
     viewModel { (locationBottomSheetState: LocationBottomSheetState) ->
         LocationBottomSheetViewModel(
             locationBottomSheetState = locationBottomSheetState,
+            customListActionUseCase = get(),
             canBeSelectedUseCase = get(),
             customListsRelayItemUseCase = get(),
             selectedLocationUseCase = get(),
@@ -413,6 +410,7 @@ val uiModule = module {
             selectAndEnableMultihopUseCase = get(),
             hopSelectionUseCase = get(),
             modifyAndEnableMultihopUseCase = get(),
+            customListsRepository = get(),
         )
     }
     viewModel { AppearanceViewModel(get()) }
