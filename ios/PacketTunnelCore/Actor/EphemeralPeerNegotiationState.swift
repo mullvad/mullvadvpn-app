@@ -8,13 +8,13 @@
 
 import MullvadREST
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 
 public enum EphemeralPeerNegotiationState: Equatable, Sendable {
     case single(EphemeralPeerRelayConfiguration)
     case multi(entry: EphemeralPeerRelayConfiguration, exit: EphemeralPeerRelayConfiguration)
 
-    var ephemeralPeerKeys: (entry: PrivateKey?, exit: PrivateKey) {
+    var ephemeralPeerKeys: (entry: WireGuard.PrivateKey?, exit: WireGuard.PrivateKey) {
         switch self {
         case .single(let configuration):
             (nil, configuration.configuration.privateKey)
@@ -46,14 +46,14 @@ public struct EphemeralPeerRelayConfiguration: Equatable, Sendable {
 }
 
 public struct EphemeralPeerConfiguration: Equatable, Sendable {
-    public let privateKey: PrivateKey
-    public let preSharedKey: PreSharedKey?
+    public let privateKey: WireGuard.PrivateKey
+    public let preSharedKey: WireGuard.PreSharedKey?
     public let allowedIPs: [IPAddressRange]
     public let daitaParameters: DaitaV2Parameters?
 
     public init(
-        privateKey: PrivateKey,
-        preSharedKey: PreSharedKey? = nil,
+        privateKey: WireGuard.PrivateKey,
+        preSharedKey: WireGuard.PreSharedKey? = nil,
         allowedIPs: [IPAddressRange],
         daitaParameters: DaitaV2Parameters?
     ) {

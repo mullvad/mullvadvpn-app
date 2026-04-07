@@ -6,7 +6,6 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
 
 public enum APIRequest: Codable, Sendable {
     // Api Proxy
@@ -31,7 +30,7 @@ public enum APIRequest: Codable, Sendable {
         _ retryStrategy: REST.RetryStrategy,
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey
+        publicKey: WireGuard.PublicKey
     )
 
     var name: String {

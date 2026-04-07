@@ -8,7 +8,7 @@
 
 import Foundation
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // IPAddressRange
 
 public struct StoredDeviceData: Codable, Equatable, Sendable {
     /// Device creation date.

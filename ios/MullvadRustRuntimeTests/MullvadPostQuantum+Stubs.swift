@@ -11,7 +11,6 @@ import NetworkExtension
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
 @testable import PacketTunnelCore
-@testable import WireGuardKitTypes
 
 class TunnelProviderStub: TunnelProvider {
     func tunnelHandle() throws -> Int32 {
@@ -40,8 +39,8 @@ class FailedNegotiatorStub: EphemeralPeerNegotiating {
     }
 
     func startNegotiation(
-        devicePublicKey: WireGuardKitTypes.PublicKey,
-        presharedKey: WireGuardKitTypes.PrivateKey,
+        devicePublicKey: WireGuard.PublicKey,
+        presharedKey: WireGuard.PrivateKey,
         peerReceiver: any MullvadTypes.TunnelProvider,
         ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool {
@@ -64,8 +63,8 @@ class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
     }
 
     func startNegotiation(
-        devicePublicKey: WireGuardKitTypes.PublicKey,
-        presharedKey: WireGuardKitTypes.PrivateKey,
+        devicePublicKey: WireGuard.PublicKey,
+        presharedKey: WireGuard.PrivateKey,
         peerReceiver: any MullvadTypes.TunnelProvider,
         ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool {

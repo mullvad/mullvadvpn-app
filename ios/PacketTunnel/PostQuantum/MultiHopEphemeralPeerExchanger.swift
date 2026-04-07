@@ -11,13 +11,13 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes
+import WireGuardKitTypes  // IPAddressRange
 
 final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let entry: SelectedRelay
     let exit: SelectedRelay
     let keyExchanger: EphemeralPeerExchangeActorProtocol
-    let devicePrivateKey: PrivateKey
+    let devicePrivateKey: WireGuard.PrivateKey
     let onFinish: () -> Void
     let onUpdateConfiguration: (EphemeralPeerNegotiationState) async -> Void
     let enablePostQuantum: Bool
@@ -47,7 +47,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     init(
         entry: SelectedRelay,
         exit: SelectedRelay,
-        devicePrivateKey: PrivateKey,
+        devicePrivateKey: WireGuard.PrivateKey,
         keyExchanger: EphemeralPeerExchangeActorProtocol,
         enablePostQuantum: Bool,
         enableDaita: Bool,
@@ -70,7 +70,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     }
 
     public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: PrivateKey,
+        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
         if state == .negotiatingWithEntry {
@@ -84,8 +84,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     }
 
     func receivePostQuantumKey(
-        _ preSharedKey: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ preSharedKey: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
         if state == .negotiatingWithEntry {

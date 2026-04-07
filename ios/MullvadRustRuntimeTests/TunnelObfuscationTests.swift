@@ -7,13 +7,13 @@
 //
 
 import MullvadRustRuntime
+import MullvadTypes
 import Network
-import WireGuardKitTypes
 import XCTest
 
 final class TunnelObfuscationTests: XCTestCase {
     /// A test public key generated from a random private key.
-    private let testPublicKey = PrivateKey().publicKey
+    private let testPublicKey = WireGuard.PrivateKey().publicKey
 
     override func setUp() {
         super.setUp()
@@ -106,8 +106,8 @@ final class TunnelObfuscationTests: XCTestCase {
         try await localUdpListener.start()
 
         // Generate test keys for LWO
-        let clientPrivateKey = PrivateKey()
-        let serverPrivateKey = PrivateKey()
+        let clientPrivateKey = WireGuard.PrivateKey()
+        let serverPrivateKey = WireGuard.PrivateKey()
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,
@@ -152,8 +152,8 @@ final class TunnelObfuscationTests: XCTestCase {
         let localUdpListener = try UnsafeListener<UDPConnection>()
         try await localUdpListener.start()
 
-        let clientPrivateKey = PrivateKey()
-        let serverPrivateKey = PrivateKey()
+        let clientPrivateKey = WireGuard.PrivateKey()
+        let serverPrivateKey = WireGuard.PrivateKey()
 
         // Create and destroy obfuscators multiple times to check for memory leaks/issues
         for iteration in 1...5 {
@@ -179,8 +179,8 @@ final class TunnelObfuscationTests: XCTestCase {
         let localUdpListener = try UnsafeListener<UDPConnection>()
         try await localUdpListener.start()
 
-        let clientPrivateKey = PrivateKey()
-        let serverPrivateKey = PrivateKey()
+        let clientPrivateKey = WireGuard.PrivateKey()
+        let serverPrivateKey = WireGuard.PrivateKey()
 
         let obfuscator = TunnelObfuscator(
             remoteAddress: IPv4Address.loopback,

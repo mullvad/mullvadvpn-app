@@ -10,13 +10,12 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import Network
-import WireGuardKitTypes
 
 public enum TunnelObfuscationProtocol {
     case udpOverTcp
     case shadowsocks
     case quic(hostname: String, token: String)
-    case lwo(serverPublicKey: PublicKey, clientPublicKey: PublicKey)
+    case lwo(serverPublicKey: WireGuard.PublicKey, clientPublicKey: WireGuard.PublicKey)
 
     public var isLwo: Bool {
         if case .lwo = self { return true }

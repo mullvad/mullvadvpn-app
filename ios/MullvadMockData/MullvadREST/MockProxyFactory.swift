@@ -10,7 +10,6 @@ import Foundation
 import MullvadREST
 import MullvadRustRuntime
 import MullvadTypes
-import WireGuardKitTypes
 
 public struct MockProxyFactory: ProxyFactoryProtocol {
     public var apiTransportProvider: APITransportProviderProtocol
@@ -24,7 +23,7 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
     }
 
     public func createDevicesProxy() -> any DeviceHandling {
-        DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: PrivateKey().publicKey)))
+        DevicesProxyStub(deviceResult: .success(Device.mock(publicKey: WireGuard.PrivateKey().publicKey)))
     }
 
     public static func makeProxyFactory(
