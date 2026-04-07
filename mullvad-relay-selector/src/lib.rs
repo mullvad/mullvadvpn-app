@@ -7,10 +7,10 @@ mod relay_selector;
 // Re-exports
 pub use error::Error;
 pub use mullvad_types::relay_selector::{
-    EntryConstraints, ExitConstraints, MultihopConstraints, Predicate, Reason, RelayPartitions,
+    EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints, Predicate,
+    Reason, RelayPartitions,
 };
 pub use relay_selector::{
-    AdditionalWireguardConstraints, Config, GetRelay, RETRY_ORDER, Relay, RelaySelector,
-    SelectedObfuscator, detailer, matcher, matcher::filter_matching_relay_list, query,
+    GetRelay, RETRY_ORDER, Relay, RelaySelector, detailer, endpoint_set, query,
     relays::WireguardConfig,
 };
