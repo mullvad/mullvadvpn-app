@@ -1,18 +1,12 @@
 use std::{io, mem, ptr};
 use windows_sys::{
     Win32::{
-        Devices::{
-            DeviceAndDriverInstallation::{
-                DICS_FLAG_GLOBAL, DIGCF_PRESENT, DIREG_DRV, DiUninstallDevice, HDEVINFO,
-                SP_DEVINFO_DATA, SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInfo,
-                SetupDiGetClassDevsW, SetupDiGetDevicePropertyW, SetupDiOpenDevRegKey,
-            },
-            Properties::{DEVPKEY_NAME, DEVPROPTYPE},
+        Devices::DeviceAndDriverInstallation::{
+            DICS_FLAG_GLOBAL, DIGCF_PRESENT, DIREG_DRV, DiUninstallDevice, HDEVINFO,
+            SP_DEVINFO_DATA, SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInfo,
+            SetupDiGetClassDevsW, SetupDiOpenDevRegKey,
         },
-        Foundation::{
-            DEVPROPKEY, ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_ITEMS, ERROR_NOT_FOUND, FALSE,
-            INVALID_HANDLE_VALUE,
-        },
+        Foundation::{ERROR_NO_MORE_ITEMS, FALSE, INVALID_HANDLE_VALUE},
         System::Registry::{HKEY, KEY_READ, RRF_RT_REG_SZ, RegCloseKey, RegGetValueW},
     },
     core::GUID,
@@ -80,18 +74,6 @@ pub fn find_and_uninstall_device(
     }
 }
 
-/// Returns `true` if the device's DEVPKEY_NAME matches `name` (case-insensitive).
-pub fn device_name_matches(
-    device_info_set: HDEVINFO,
-    device_info: &SP_DEVINFO_DATA,
-    name: &str,
-) -> bool {
-    match get_device_string_property(device_info_set, device_info, &DEVPKEY_NAME) {
-        Ok(Some(prop)) => prop.eq_ignore_ascii_case(name),
-        _ => false,
-    }
-}
-
 /// Read the `NetCfgInstanceId` registry value from a device's driver key.
 /// Returns the GUID string (e.g. `{AFE43773-...}`).
 ///
@@ -149,70 +131,6 @@ pub unsafe fn get_device_net_cfg_instance_id(
         .position(|&c| c == 0)
         .expect("RegGetValueW guarantees a NUL terminator for REG_SZ");
     Ok(String::from_utf16_lossy(&buffer[..len]))
-}
-
-/// Read a string device property. Returns `None` if the property is not set.
-fn get_device_string_property(
-    device_info_set: HDEVINFO,
-    device_info: &SP_DEVINFO_DATA,
-    property: &DEVPROPKEY,
-) -> Result<Option<String>, io::Error> {
-    let mut required_size: u32 = 0;
-    let mut prop_type: DEVPROPTYPE = 0;
-
-    // First call: determine buffer size
-    let result = unsafe {
-        SetupDiGetDevicePropertyW(
-            device_info_set,
-            device_info as *const SP_DEVINFO_DATA,
-            property,
-            &raw mut prop_type,
-            ptr::null_mut(),
-            0,
-            &raw mut required_size,
-            0,
-        )
-    };
-
-    if result == FALSE {
-        let err = io::Error::last_os_error();
-        if err.raw_os_error() == Some(ERROR_NOT_FOUND as i32) {
-            return Ok(None);
-        }
-        if err.raw_os_error() != Some(ERROR_INSUFFICIENT_BUFFER as i32) {
-            return Err(err);
-        }
-    }
-
-    if required_size < 2 {
-        return Ok(Some(String::new()));
-    }
-
-    let mut buffer: Vec<u16> = vec![0u16; (required_size / 2) as usize];
-
-    // Second call: read the value
-    let result = unsafe {
-        SetupDiGetDevicePropertyW(
-            device_info_set,
-            device_info as *const SP_DEVINFO_DATA,
-            property,
-            &raw mut prop_type,
-            buffer.as_mut_ptr() as *mut u8,
-            required_size,
-            ptr::null_mut(),
-            0,
-        )
-    };
-
-    if result == FALSE {
-        return Err(io::Error::last_os_error());
-    }
-
-    let len = buffer
-        .iter()
-        .position(|&c| c == 0)
-        .expect("SetupDiGetDevicePropertyW guarantees a NUL terminator for DEVPROP_TYPE_STRING");
-    Ok(Some(String::from_utf16_lossy(&buffer[..len])))
 }
 
 /// # Safety

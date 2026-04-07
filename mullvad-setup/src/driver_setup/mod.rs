@@ -8,15 +8,6 @@ use windows_sys::Win32::{
     System::LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
 };
 
-// WFP callouts device class GUID: {57465043-616C-6C6F-7574-5F636C617373}
-// This is the class GUID for the Mullvad split tunnel device.
-const WFP_CALLOUTS_CLASS_GUID: windows_sys::core::GUID = windows_sys::core::GUID {
-    data1: 0x57465043,
-    data2: 0x616C,
-    data3: 0x6C6F,
-    data4: [0x75, 0x74, 0x5F, 0x63, 0x6C, 0x61, 0x73, 0x73],
-};
-
 // GUID_DEVCLASS_NET: {4D36E972-E325-11CE-BFC1-08002BE10318}
 const GUID_DEVCLASS_NET: windows_sys::core::GUID = windows_sys::core::GUID {
     data1: 0x4D36E972,
@@ -25,25 +16,19 @@ const GUID_DEVCLASS_NET: windows_sys::core::GUID = windows_sys::core::GUID {
     data4: [0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18],
 };
 
-const SPLIT_TUNNEL_DEVICE_NAME: &str = "Mullvad Split Tunnel Device";
 const SPLIT_TUNNEL_SERVICE_NAME: &str = "mullvad-split-tunnel";
 
 // Wintun adapter GUID that may have been left behind
 const WINTUN_ABANDONED_GUID: &str = "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}";
 
-/// Reset split tunnel driver state, uninstall the ST device, stop and delete
-/// the `mullvad-split-tunnel` service.
+/// Reset split tunnel driver state, stop and delete the `mullvad-split-tunnel`
+/// service.
 pub fn st_remove() -> Result<(), crate::Error> {
     if service::service_is_running(SPLIT_TUNNEL_SERVICE_NAME)
         .map_err(crate::Error::ServiceControl)?
     {
         split_tunnel::reset_driver_state()?;
     }
-
-    device::find_and_uninstall_device(WFP_CALLOUTS_CLASS_GUID, |set, info| {
-        device::device_name_matches(set, info, SPLIT_TUNNEL_DEVICE_NAME)
-    })
-    .map_err(crate::Error::DeviceEnumeration)?;
 
     service::stop_and_delete_service(SPLIT_TUNNEL_SERVICE_NAME)
         .map_err(crate::Error::ServiceControl)?;
