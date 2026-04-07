@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -99,11 +100,12 @@ fun AppearanceScreen(
     onObfuscationSelected: (AppObfuscation) -> Unit,
     onBackClick: () -> Unit,
 ) {
+    val lazyGridState: LazyGridState = rememberLazyGridState()
     ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
-    ) { modifier, lazyGridState: LazyGridState ->
+    ) { modifier ->
         LazyVerticalGrid(
             state = lazyGridState,
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
