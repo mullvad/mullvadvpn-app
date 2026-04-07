@@ -683,6 +683,92 @@ pub struct ObfuscationSettings {
     pub lwo: LwoSettings,
 }
 
+/// Represents a specific obfuscation method (or explicit "off").
+///
+/// This enum does *not* have an `Auto` variant — that role is played by
+/// `Constraint::Any` on the wrapping `Constraint<ObfuscationMode>`.
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
+pub enum ObfuscationMode {
+    Off,
+    Port(WireguardPortSettings),
+    Udp2tcp(Udp2TcpObfuscationSettings),
+    Shadowsocks(ShadowsocksSettings),
+    Quic,
+    Lwo(LwoSettings),
+}
+
+impl ObfuscationMode {
+    pub fn into_settings(self) -> ObfuscationSettings {
+        let selected_obfuscation = match self {
+            ObfuscationMode::Off => SelectedObfuscation::Off,
+            ObfuscationMode::Quic => SelectedObfuscation::Quic,
+            ObfuscationMode::Lwo(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Lwo,
+                    lwo: settings,
+                    ..Default::default()
+                };
+            }
+            ObfuscationMode::Port(wireguard_port) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::WireguardPort,
+                    wireguard_port,
+                    ..Default::default()
+                };
+            }
+            ObfuscationMode::Udp2tcp(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Udp2Tcp,
+                    udp2tcp: settings,
+                    ..Default::default()
+                };
+            }
+            ObfuscationMode::Shadowsocks(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
+                    shadowsocks: settings,
+                    ..Default::default()
+                };
+            }
+        };
+        ObfuscationSettings {
+            selected_obfuscation,
+            ..Default::default()
+        }
+    }
+}
+
+pub fn obfuscation_to_settings(constraint: Constraint<ObfuscationMode>) -> ObfuscationSettings {
+    match constraint {
+        Constraint::Any => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..Default::default()
+        },
+        Constraint::Only(mode) => mode.into_settings(),
+    }
+}
+
+/// Convert [`ObfuscationSettings`] into a `Constraint<ObfuscationMode>`.
+///
+/// `SelectedObfuscation::Auto` maps to `Constraint::Any`.
+///
+/// Note: this drops protocol-specific constraints from [`ObfuscationSettings`]
+/// when the selected obfuscation type is auto.
+pub fn obfuscation_constraint_from_settings(
+    obfuscation: ObfuscationSettings,
+) -> Constraint<ObfuscationMode> {
+    use SelectedObfuscation::*;
+    match obfuscation.selected_obfuscation {
+        Auto => Constraint::Any,
+        Off => Constraint::Only(ObfuscationMode::Off),
+        WireguardPort => Constraint::Only(ObfuscationMode::Port(obfuscation.wireguard_port)),
+        Udp2Tcp => Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation.udp2tcp)),
+        Shadowsocks => Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation.shadowsocks)),
+        Quic => Constraint::Only(ObfuscationMode::Quic),
+        Lwo => Constraint::Only(ObfuscationMode::Lwo(obfuscation.lwo)),
+    }
+}
+
 /// Options to override for a particular relay to use instead of the ones specified in the relay
 /// list
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]

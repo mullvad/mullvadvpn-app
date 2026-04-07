@@ -815,4 +815,5 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
         obfuscation = obfuscation,
         port = port,
         conflictWithOtherHop = conflictWithOtherHop,
+        includeInCountry = includeInCountry,
     )

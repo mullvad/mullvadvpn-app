@@ -1,7 +1,11 @@
 //! Definition of relay selector errors
 #![allow(dead_code)]
 
-use crate::{detailer, query::RelayQuery, relay_selector::relays::WireguardConfig};
+use crate::{
+    detailer,
+    relay_selector::{query::RelayQuery, relays::WireguardConfig},
+};
+use mullvad_types::relay_selector::{EntryConstraints, ExitConstraints};
 use talpid_types::net::IpVersion;
 
 #[derive(thiserror::Error, Debug)]
@@ -10,10 +14,10 @@ pub enum Error {
     InvalidConstraints,
 
     #[error("No relays matching current entry constraints: {0:?}")]
-    NoRelayEntry(Box<RelayQuery>),
+    NoRelayEntry(Box<EntryConstraints>),
 
     #[error("No relays matching current exit constraints: {0:?}")]
-    NoRelayExit(Box<RelayQuery>),
+    NoRelayExit(Box<ExitConstraints>),
 
     #[error("No relays matching current constraints: {0:?}")]
     NoRelay(Box<RelayQuery>),
@@ -22,7 +26,7 @@ pub enum Error {
     NoBridge,
 
     #[error("No obfuscators matching current constraints")]
-    NoObfuscator(#[source] Box<dyn std::error::Error + Send + Sync>),
+    NoObfuscator(#[from] crate::endpoint_set::Error),
 
     #[error("No endpoint could be constructed due to {} for relay {:?}", .internal, .relay)]
     NoEndpoint {
