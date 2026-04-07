@@ -10,7 +10,6 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
-@preconcurrency import WireGuardKitTypes
 
 /// Describes the tunnel status.
 ///
@@ -66,7 +65,7 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     case connecting(SelectedRelays?, isPostQuantum: Bool, isDaita: Bool)
 
     /// Negotiating an ephemeral peer either for post-quantum resistance or Daita
-    case negotiatingEphemeralPeer(SelectedRelays, PrivateKey, isPostQuantum: Bool, isDaita: Bool)
+    case negotiatingEphemeralPeer(SelectedRelays, WireGuard.PrivateKey, isPostQuantum: Bool, isDaita: Bool)
 
     /// Connected the tunnel
     case connected(SelectedRelays, isPostQuantum: Bool, isDaita: Bool)

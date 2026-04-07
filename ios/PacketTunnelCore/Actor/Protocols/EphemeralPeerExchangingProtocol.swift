@@ -7,14 +7,13 @@
 //
 
 import MullvadTypes
-import WireGuardKitTypes
 
 public protocol EphemeralPeerExchangingProtocol {
     func start() async
     func receivePostQuantumKey(
-        _ preSharedKey: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ preSharedKey: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async
-    func receiveEphemeralPeerPrivateKey(_: PrivateKey, daitaParameters: DaitaV2Parameters?) async
+    func receiveEphemeralPeerPrivateKey(_: WireGuard.PrivateKey, daitaParameters: DaitaV2Parameters?) async
 }

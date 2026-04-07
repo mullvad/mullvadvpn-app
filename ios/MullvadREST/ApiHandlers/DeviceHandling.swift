@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
 
 public protocol DeviceHandling: Sendable {
     func getDevice(
@@ -41,7 +40,7 @@ public protocol DeviceHandling: Sendable {
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable

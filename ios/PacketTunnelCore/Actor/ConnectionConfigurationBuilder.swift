@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 
 protocol Configuration {
     var name: String { get }
@@ -53,7 +53,7 @@ private struct NormalConnectionConfiguration: Configuration {
         "Normal connection configuration"
     }
 
-    private var activeKey: PrivateKey {
+    private var activeKey: WireGuard.PrivateKey {
         switch connectionData.keyPolicy {
         case .useCurrent:
             settings.privateKey

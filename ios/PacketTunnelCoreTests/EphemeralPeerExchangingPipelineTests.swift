@@ -12,7 +12,6 @@ import XCTest
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
 @testable import PacketTunnelCore
-@testable import WireGuardKitTypes
 
 final class EphemeralPeerExchangingPipelineTests: XCTestCase {
     var entryRelay: SelectedRelay!
@@ -83,8 +82,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let keyExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        keyExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
@@ -102,7 +101,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: true, enableDaita: false)
-        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: WireGuard.PrivateKey())
 
         await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
@@ -115,8 +114,10 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let keyExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(
+            WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue)
+        )
+        keyExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
@@ -133,7 +134,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: false, enableDaita: true)
-        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: WireGuard.PrivateKey())
 
         await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
@@ -146,8 +147,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let keyExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        keyExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
@@ -165,7 +166,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: true, enableDaita: false)
-        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: WireGuard.PrivateKey())
 
         await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }
@@ -178,8 +179,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let keyExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        keyExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let postQuantumKeyExchangingPipeline = EphemeralPeerExchangingPipeline(keyExchangeActor) { _ in
             reconfigurationExpectation.fulfill()
@@ -192,7 +193,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: false, enableDaita: true)
-        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: WireGuard.PrivateKey())
 
         await fulfillment(of: [reconfigurationExpectation, negotiationSuccessful], timeout: .UnitTest.invertedTimeout)
     }

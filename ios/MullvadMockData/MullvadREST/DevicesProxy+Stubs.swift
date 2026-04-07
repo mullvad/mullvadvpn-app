@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import WireGuardKitTypes
 
 struct DevicesProxyStubError: Error {}
 
@@ -62,7 +61,7 @@ struct DevicesProxyStub: DeviceHandling {
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         retryStrategy: REST.RetryStrategy,
         completion: @escaping ProxyCompletionHandler<Device>
     ) -> Cancellable {

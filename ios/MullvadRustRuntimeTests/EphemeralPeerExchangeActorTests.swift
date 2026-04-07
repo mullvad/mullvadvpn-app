@@ -13,7 +13,6 @@ import XCTest
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
 @testable import PacketTunnelCore
-@testable import WireGuardKitTypes
 
 class EphemeralPeerExchangeActorTests: XCTestCase {
     var tunnelProvider: TunnelProviderStub!
@@ -35,7 +34,7 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
             iteratorProvider: { AnyIterator { .milliseconds(10) } }
         )
 
-        let privateKey = PrivateKey()
+        let privateKey = WireGuard.PrivateKey()
         keyExchangeActor.startNegotiation(with: privateKey, enablePostQuantum: true, enableDaita: false)
 
         wait(for: [negotiationFailure])
@@ -54,7 +53,7 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
             iteratorProvider: { AnyIterator { .milliseconds(10) } }
         )
 
-        let privateKey = PrivateKey()
+        let privateKey = WireGuard.PrivateKey()
         keyExchangeActor.startNegotiation(with: privateKey, enablePostQuantum: true, enableDaita: false)
 
         wait(for: [negotiationFailure])
@@ -73,7 +72,7 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
             iteratorProvider: { AnyIterator { .seconds(1) } }
         )
 
-        let privateKey = PrivateKey()
+        let privateKey = WireGuard.PrivateKey()
         keyExchangeActor.startNegotiation(with: privateKey, enablePostQuantum: true, enableDaita: false)
 
         let negotiationProvider = try XCTUnwrap(

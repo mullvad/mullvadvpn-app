@@ -871,6 +871,8 @@ int32_t stop_tunnel_obfuscator_proxy(struct ProxyHandle *proxy_handle);
 
 /**
  * Generate a new random WireGuard private key, writing 32 bytes to `key_out`.
+ * This function is safe to call concurrently with different pointers. Not safe to call
+ * concurrently with the same pointers.
  *
  * # Safety
  * `key_out` must be a valid pointer to a 32-byte buffer.
@@ -879,6 +881,7 @@ void mullvad_generate_private_key(uint8_t *key_out);
 
 /**
  * Derive a WireGuard public key from a private key.
+ * This function is safe to call concurrently if different parameters are used.
  *
  * # Safety
  * `private_key` must be a valid pointer to 32 bytes.

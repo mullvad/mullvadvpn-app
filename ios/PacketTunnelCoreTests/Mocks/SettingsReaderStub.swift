@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 
 @testable import MullvadSettings
 
@@ -26,7 +26,7 @@ extension SettingsReaderStub {
     /// Initialize non-fallible settings reader stub that will always return the same static configuration generated at the time of creation.
     static func staticConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
-            privateKey: PrivateKey(),
+            privateKey: WireGuard.PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),
@@ -45,7 +45,7 @@ extension SettingsReaderStub {
 
     static func noPostQuantumConfiguration() -> SettingsReaderStub {
         let staticSettings = Settings(
-            privateKey: PrivateKey(),
+            privateKey: WireGuard.PrivateKey(),
             interfaceAddresses: [IPAddressRange(from: "127.0.0.1/32")!],
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),

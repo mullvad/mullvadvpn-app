@@ -9,7 +9,6 @@
 import Foundation
 @preconcurrency import MullvadTypes
 import Network
-import WireGuardKitTypes
 
 extension PacketTunnelActor {
     /// Describes events that the state machine handles. These can be user commands or non-user-initiated events

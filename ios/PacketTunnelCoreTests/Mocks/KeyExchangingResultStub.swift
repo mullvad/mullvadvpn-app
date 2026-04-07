@@ -8,23 +8,22 @@
 
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
-@testable import WireGuardKitTypes
 
 struct KeyExchangingResultStub: EphemeralPeerReceiving {
     var onFailure: (() -> Void)?
-    var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey, DaitaV2Parameters?) async -> Void)?
-    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey, DaitaV2Parameters?) async -> Void)?
+    var onReceivePostQuantumKey: ((WireGuard.PreSharedKey, WireGuard.PrivateKey, DaitaV2Parameters?) async -> Void)?
+    var onReceiveEphemeralPeerPrivateKey: ((WireGuard.PrivateKey, DaitaV2Parameters?) async -> Void)?
 
     func receivePostQuantumKey(
-        _ key: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ key: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
         await onReceivePostQuantumKey?(key, ephemeralKey, daitaParameters)
     }
 
     public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: PrivateKey,
+        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
         daitaParameters: MullvadTypes.DaitaV2Parameters?
     ) async {
         await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey, daitaParameters)

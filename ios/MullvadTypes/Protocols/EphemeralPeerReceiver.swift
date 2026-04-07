@@ -8,7 +8,6 @@
 
 import Foundation
 import NetworkExtension
-import WireGuardKitTypes
 
 public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     public func tunnelHandle() throws -> Int32 {
@@ -30,8 +29,8 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     // MARK: - EphemeralPeerReceiving
 
     public func receivePostQuantumKey(
-        _ key: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ key: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) {
         let semaphore = DispatchSemaphore(value: 0)
@@ -43,7 +42,7 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     }
 
     public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: PrivateKey,
+        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) {
         let semaphore = DispatchSemaphore(value: 0)

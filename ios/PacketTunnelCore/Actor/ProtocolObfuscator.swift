@@ -11,14 +11,13 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
-import WireGuardKitTypes
 
 public struct ProtocolObfuscationResult {
     public let endpoint: SelectedEndpoint
 }
 
 public protocol ProtocolObfuscation {
-    func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: PublicKey) -> ProtocolObfuscationResult
+    func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: WireGuard.PublicKey) -> ProtocolObfuscationResult
     var transportLayer: TransportLayer? { get }
     var remotePort: UInt16 { get }
 }
@@ -44,7 +43,9 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
     ///
     /// Note: LWO obfuscation only supports IPv4 for its local proxy, so the loopback
     /// endpoint always uses IPv4 localhost when LWO is active.
-    public func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: PublicKey) -> ProtocolObfuscationResult {
+    public func obfuscate(_ endpoint: SelectedEndpoint, clientPublicKey: WireGuard.PublicKey)
+        -> ProtocolObfuscationResult
+    {
         remotePort = endpoint.socketAddress.port
 
         // Extract obfuscation protocol from the bundled obfuscation method
@@ -59,7 +60,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
             case let .quic(hostname, token):
                 .quic(hostname: hostname, token: token)
             case .lwo:
-                if let key = PublicKey(rawValue: endpoint.publicKey) {
+                if let key = WireGuard.PublicKey(rawValue: endpoint.publicKey) {
                     .lwo(serverPublicKey: key, clientPublicKey: clientPublicKey)
                 } else {
                     nil

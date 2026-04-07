@@ -9,7 +9,6 @@
 import MullvadRustRuntime
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
 
 public protocol RESTAccountHandling: Sendable {
     func createAccount(

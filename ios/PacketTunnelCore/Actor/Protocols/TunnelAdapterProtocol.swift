@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import Network
 import NetworkExtension
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // For IPAddressRange, DaitaConfiguration
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol: Sendable {
@@ -41,7 +41,7 @@ public protocol TunnelAdapterProtocol: Sendable {
 
 /// Struct describing tunnel adapter configuration.
 public struct TunnelAdapterConfiguration {
-    public var privateKey: PrivateKey
+    public var privateKey: WireGuard.PrivateKey
     public var interfaceAddresses: [IPAddressRange]
     public var dns: [IPAddress]
     public var peer: TunnelPeer?
@@ -142,8 +142,8 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
 /// Struct describing a single peer.
 public struct TunnelPeer {
     public var endpoint: AnyIPEndpoint
-    public var publicKey: PublicKey
-    public var preSharedKey: PreSharedKey?
+    public var publicKey: WireGuard.PublicKey
+    public var preSharedKey: WireGuard.PreSharedKey?
 }
 
 extension TunnelAdapterConfiguration: CustomDebugStringConvertible {

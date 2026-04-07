@@ -7,7 +7,6 @@
 //
 
 import MullvadMockData
-import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -331,7 +330,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: ["192.168.1.1", "2001:db8::1"],  // Has IPv6
@@ -347,7 +346,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: ["192.168.1.2"],  // IPv4 only for shadowsocks
@@ -367,7 +366,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: ["192.168.1.3", "2001:db8::3"],  // Has IPv6
@@ -387,7 +386,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: ["192.168.1.4"],  // IPv4 only
@@ -407,7 +406,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: nil,
@@ -614,7 +613,7 @@ extension RelayObfuscatorTests {
             weight: 100,
             ipv4AddrIn: .loopback,
             ipv6AddrIn: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             includeInCountry: true,
             daita: false,
             shadowsocksExtraAddrIn: nil,

@@ -10,7 +10,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Network
-import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 public final class RelaySelectorStub: RelaySelectorProtocol {
@@ -47,7 +46,7 @@ public final class RelaySelectorStub: RelaySelectorProtocol {
             socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 1300)),
             ipv4Gateway: .loopback,
             ipv6Gateway: .loopback,
-            publicKey: PrivateKey().publicKey.rawValue,
+            publicKey: WireGuard.PrivateKey().publicKey.rawValue,
             obfuscation: .off
         ),
         hostname: "se-got",
@@ -80,7 +79,7 @@ extension RelaySelectorStub {
                         socketAddress: .ipv4(IPv4Endpoint(ip: .loopback, port: 1300)),
                         ipv4Gateway: .loopback,
                         ipv6Gateway: .loopback,
-                        publicKey: PrivateKey().publicKey.rawValue,
+                        publicKey: WireGuard.PrivateKey().publicKey.rawValue,
                         obfuscation: .off
                     ),
                     hostname: "se-got",

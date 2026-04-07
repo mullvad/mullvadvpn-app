@@ -8,7 +8,7 @@
 
 import MullvadSettings
 import MullvadTypes
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 final class WgKeyRotationTests: XCTestCase {
@@ -16,7 +16,7 @@ final class WgKeyRotationTests: XCTestCase {
         let data = StoredDeviceData.mock(
             keyData: StoredWgKeyData(
                 creationDate: Date(),
-                privateKey: PrivateKey()
+                privateKey: WireGuard.PrivateKey()
             )
         )
 
@@ -38,8 +38,8 @@ final class WgKeyRotationTests: XCTestCase {
     }
 
     func testHandlesMultipleKeyRotationAttempts() {
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
         let data = StoredDeviceData.mock(
             keyData: StoredWgKeyData(
                 creationDate: Date(),
@@ -65,8 +65,8 @@ final class WgKeyRotationTests: XCTestCase {
     }
 
     func testHandlesMultipleKeyRotationCompletions() {
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
         let data = StoredDeviceData.mock(
             keyData: StoredWgKeyData(
                 creationDate: Date(),
@@ -102,7 +102,7 @@ private extension StoredDeviceData {
 }
 
 private extension Device {
-    static func mock(privateKey: PrivateKey) -> Device {
+    static func mock(privateKey: WireGuard.PrivateKey) -> Device {
         Device(
             id: "device-id",
             name: "device-name",

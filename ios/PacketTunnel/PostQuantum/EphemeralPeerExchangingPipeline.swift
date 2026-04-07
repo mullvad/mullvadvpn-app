@@ -10,7 +10,6 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes
 
 final public class EphemeralPeerExchangingPipeline {
     let keyExchanger: EphemeralPeerExchangeActorProtocol
@@ -29,7 +28,7 @@ final public class EphemeralPeerExchangingPipeline {
         self.onFinish = onFinish
     }
 
-    public func startNegotiation(_ connectionState: ObservedConnectionState, privateKey: PrivateKey) async {
+    public func startNegotiation(_ connectionState: ObservedConnectionState, privateKey: WireGuard.PrivateKey) async {
         keyExchanger.reset()
         let entryPeer = connectionState.selectedRelays.entry
         let exitPeer = connectionState.selectedRelays.exit
@@ -61,8 +60,8 @@ final public class EphemeralPeerExchangingPipeline {
     }
 
     public func receivePostQuantumKey(
-        _ key: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ key: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
         await ephemeralPeerExchanger.receivePostQuantumKey(
@@ -73,7 +72,7 @@ final public class EphemeralPeerExchangingPipeline {
     }
 
     public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: PrivateKey,
+        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
         await ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(

@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 
 extension PacketTunnelActor {
     /**
@@ -117,7 +117,7 @@ extension PacketTunnelActor {
     private func configureAdapterForErrorState() async {
         do {
             let configurationBuilder = ConfigurationBuilder(
-                privateKey: PrivateKey(),
+                privateKey: WireGuard.PrivateKey(),
                 interfaceAddresses: [],
                 allowedIPs: [],
                 pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddressIpV4.rawValue)!
@@ -127,7 +127,7 @@ extension PacketTunnelActor {
             config.interfaceAddresses = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddressIpV4.rawValue)/8")!]
             config.peer = TunnelPeer(
                 endpoint: .ipv4(IPv4Endpoint(string: "127.0.0.1:9090")!),
-                publicKey: PrivateKey().publicKey
+                publicKey: WireGuard.PrivateKey().publicKey
             )
             try? await tunnelAdapter.stop()
             try await tunnelAdapter.start(configuration: config, daita: nil)

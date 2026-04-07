@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import WireGuardKitTypes
 
 public protocol EphemeralPeerReceiving {
     /// Called when successfully requesting an ephemeral peer with Post Quantum PSK enabled
@@ -16,13 +15,14 @@ public protocol EphemeralPeerReceiving {
     ///   - key: The preshared key used by the Ephemeral Peer
     ///   - ephemeralKey: The private key used by the Ephemeral Peer
     ///   - daitaParameters: DAITA parameters
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey, daitaParameters: DaitaV2Parameters?) async
+    func receivePostQuantumKey(
+        _ key: WireGuard.PreSharedKey, ephemeralKey: WireGuard.PrivateKey, daitaParameters: DaitaV2Parameters?) async
 
     /// Called when successfully requesting an ephemeral peer with Daita enabled, and Post Quantum PSK disabled
     /// - Parameters:
     ///     - _: The private key used by the Ephemeral Peer
     ///     - daitaParameters: DAITA parameters
-    func receiveEphemeralPeerPrivateKey(_: PrivateKey, daitaParameters: DaitaV2Parameters?) async
+    func receiveEphemeralPeerPrivateKey(_: WireGuard.PrivateKey, daitaParameters: DaitaV2Parameters?) async
 
     /// Called when an ephemeral peer could not be successfully negotiated
     func ephemeralPeerExchangeFailed()

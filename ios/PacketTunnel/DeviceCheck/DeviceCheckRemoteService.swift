@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import WireGuardKitTypes
 
 /// An object that implements remote service used by `DeviceCheckOperation`.
 struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
@@ -48,7 +47,7 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable {
         devicesProxy.rotateDeviceKey(

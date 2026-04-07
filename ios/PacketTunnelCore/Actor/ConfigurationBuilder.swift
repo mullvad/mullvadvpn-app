@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 
 /// Error returned when there is an endpoint but its public key is invalid.
 public struct PublicKeyError: LocalizedError {
@@ -22,21 +22,21 @@ public struct PublicKeyError: LocalizedError {
 
 /// Struct building tunnel adapter configuration.
 public struct ConfigurationBuilder {
-    var privateKey: PrivateKey
+    var privateKey: WireGuard.PrivateKey
     var interfaceAddresses: [IPAddressRange]
     var dns: SelectedDNSServers?
     var endpoint: SelectedEndpoint?
     var allowedIPs: [IPAddressRange]
-    var preSharedKey: PreSharedKey?
+    var preSharedKey: WireGuard.PreSharedKey?
     var pingableGateway: IPv4Address
 
     public init(
-        privateKey: PrivateKey,
+        privateKey: WireGuard.PrivateKey,
         interfaceAddresses: [IPAddressRange],
         dns: SelectedDNSServers? = nil,
         endpoint: SelectedEndpoint? = nil,
         allowedIPs: [IPAddressRange],
-        preSharedKey: PreSharedKey? = nil,
+        preSharedKey: WireGuard.PreSharedKey? = nil,
         pingableGateway: IPv4Address
     ) {
         self.privateKey = privateKey
@@ -63,7 +63,7 @@ public struct ConfigurationBuilder {
         get throws {
             guard let endpoint else { return nil }
 
-            guard let publicKey = PublicKey(rawValue: endpoint.publicKey) else {
+            guard let publicKey = WireGuard.PublicKey(rawValue: endpoint.publicKey) else {
                 throw PublicKeyError(endpoint: endpoint)
             }
 

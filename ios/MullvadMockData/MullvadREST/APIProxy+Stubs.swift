@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import WireGuardKitTypes
 
 struct APIProxyStubError: Error {}
 

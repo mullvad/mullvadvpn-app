@@ -12,14 +12,13 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Network
-@preconcurrency import WireGuardKitTypes
 
 /// A serializable representation of internal state.
 public enum ObservedState: Equatable, Codable, Sendable {
     case initial
     case connecting(ObservedConnectionState)
     case reconnecting(ObservedConnectionState)
-    case negotiatingEphemeralPeer(ObservedConnectionState, PrivateKey)
+    case negotiatingEphemeralPeer(ObservedConnectionState, WireGuard.PrivateKey)
     case connected(ObservedConnectionState)
     case disconnecting(ObservedConnectionState)
     case disconnected

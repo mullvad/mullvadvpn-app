@@ -9,7 +9,6 @@
 import Foundation
 import MullvadSettings
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
 
 /**
  Implements manipulations related to marking the beginning and the completion of key rotation, private key creation and other tasks relevant to handling the state of
@@ -42,7 +41,7 @@ struct WgKeyRotation: Sendable {
     
      Returns the public key that should be pushed to the backend.
      */
-    mutating func beginAttempt() -> PublicKey {
+    mutating func beginAttempt() -> WireGuard.PublicKey {
         // Mark the rotation attempt.
         data.wgKeyData.lastRotationAttemptDate = Date()
 
@@ -51,7 +50,7 @@ struct WgKeyRotation: Sendable {
             return nextPrivateKey.publicKey
         } else {
             // If not found then create a new one and store it.
-            let newKey = PrivateKey()
+            let newKey = WireGuard.PrivateKey()
             data.wgKeyData.nextPrivateKey = newKey
             return newKey.publicKey
         }

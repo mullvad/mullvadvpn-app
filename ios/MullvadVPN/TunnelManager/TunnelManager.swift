@@ -15,7 +15,6 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 import UIKit
-import WireGuardKitTypes
 
 /// Interval used for periodic polling of tunnel relay status when the packet tunnel is running
 private let tunnelStatusPollInterval: Duration = .milliseconds(500)

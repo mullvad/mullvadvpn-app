@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
 protocol DeviceCheckRemoteServiceProtocol {
@@ -23,7 +22,7 @@ protocol DeviceCheckRemoteServiceProtocol {
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable
 }

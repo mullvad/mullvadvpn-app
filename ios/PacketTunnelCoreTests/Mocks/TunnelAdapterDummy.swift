@@ -9,7 +9,7 @@
 import Foundation
 import PacketTunnelCore
 
-@testable import WireGuardKitTypes
+@testable import WireGuardKitTypes  // For DaitaConfiguration, TunnelAdapterConfiguration
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
 class TunnelAdapterDummy: TunnelAdapterProtocol, @unchecked Sendable {

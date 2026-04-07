@@ -8,7 +8,6 @@
 
 import MullvadMockData
 import MullvadTypes
-import WireGuardKitTypes
 import XCTest
 
 @testable import MullvadREST
@@ -206,7 +205,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleConnectionLossReconnectFromPQKeyNegotiation() {
         // Given
-        var state = State.negotiatingEphemeralPeer(makeConnectionData(), PrivateKey())
+        var state = State.negotiatingEphemeralPeer(makeConnectionData(), WireGuard.PrivateKey())
 
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .connectionLoss))
@@ -217,7 +216,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleUserReconnectFromPQKeyNegotiation() {
         // Given
-        var state = State.negotiatingEphemeralPeer(makeConnectionData(), PrivateKey())
+        var state = State.negotiatingEphemeralPeer(makeConnectionData(), WireGuard.PrivateKey())
 
         // When
         let effects = PacketTunnelActor.Reducer.reduce(&state, .reconnect(.random, reason: .userInitiated))
@@ -268,7 +267,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleNotifyKeyRotatedWhileUsingPriorKey() {
         // Given
-        let keyPolicy = State.KeyPolicy.usePrior(PrivateKey(), AutoCancellingTask(Task(operation: {})))
+        let keyPolicy = State.KeyPolicy.usePrior(WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
         var state = State.connected(makeConnectionData(keyPolicy: keyPolicy))
         let date = Date()
 
@@ -294,7 +293,7 @@ final class PacketTunnelActorReducerTests: XCTestCase {
 
     func testHandleSwitchKeyFromUsePrior() {
         // Given
-        let keyPolicy = State.KeyPolicy.usePrior(PrivateKey(), AutoCancellingTask(Task(operation: {})))
+        let keyPolicy = State.KeyPolicy.usePrior(WireGuard.PrivateKey(), AutoCancellingTask(Task(operation: {})))
         var state = State.connected(makeConnectionData(keyPolicy: keyPolicy))
 
         // When

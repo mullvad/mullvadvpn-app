@@ -7,9 +7,10 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 import Network
 import Operations
-import WireGuardKitTypes
+import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData
@@ -33,7 +34,7 @@ class StartTunnelOperationTests: XCTestCase {
             hijackDNS: false,
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
             ipv6Address: IPAddressRange(from: "::ff/64")!,
-            wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: PrivateKey())
+            wgKeyData: StoredWgKeyData(creationDate: Date(), privateKey: WireGuard.PrivateKey())
         )
     )
 

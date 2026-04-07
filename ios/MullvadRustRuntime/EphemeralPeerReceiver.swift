@@ -10,7 +10,6 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
 
 /// End sequence of an ephemeral peer exchange.
 ///
@@ -38,7 +37,7 @@ func receivePostQuantumKey(
 
     // If there are no private keys for the ephemeral peer, then the negotiation either failed, or timed out.
     guard let rawEphemeralKey,
-        let ephemeralKey = PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32))
+        let ephemeralKey = WireGuard.PrivateKey(rawValue: Data(bytes: rawEphemeralKey, count: 32))
     else {
         ephemeralPeerReceiver.ephemeralPeerExchangeFailed()
         return
@@ -63,7 +62,7 @@ func receivePostQuantumKey(
 
     // If there is a pre-shared key, an ephemeral peer was negotiated with Post Quantum options
     // Otherwise, a Daita enabled ephemeral peer was requested
-    if let rawPresharedKey, let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32)) {
+    if let rawPresharedKey, let key = WireGuard.PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32)) {
         ephemeralPeerReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     } else {
         ephemeralPeerReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daitaParameters)

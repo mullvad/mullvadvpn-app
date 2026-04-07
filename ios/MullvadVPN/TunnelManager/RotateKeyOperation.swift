@@ -12,7 +12,6 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
 
 class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "RotateKeyOperation")

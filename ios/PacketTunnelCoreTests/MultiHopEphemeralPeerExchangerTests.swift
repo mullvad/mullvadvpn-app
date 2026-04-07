@@ -12,7 +12,6 @@ import XCTest
 @testable import MullvadREST
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
-@testable import WireGuardKitTypes
 
 final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!
@@ -91,7 +90,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         let multiHopExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: peerExchangeActor,
             enablePostQuantum: true,
             enableDaita: false
@@ -124,13 +123,13 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let peerExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        peerExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: peerExchangeActor,
             enablePostQuantum: true,
             enableDaita: false
@@ -167,13 +166,13 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let peerExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        peerExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true
@@ -205,13 +204,13 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let peerExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        peerExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
             entry: entryRelay,
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true

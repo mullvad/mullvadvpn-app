@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes
+import WireGuardKitTypes  // IPAddressRange
 
 extension Device {
-    public static func mock(publicKey: PublicKey) -> Device {
+    public static func mock(publicKey: WireGuard.PublicKey) -> Device {
         Device(
             id: "device-id",
             name: "Secure Mole",
