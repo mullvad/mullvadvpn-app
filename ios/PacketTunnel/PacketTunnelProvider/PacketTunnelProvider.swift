@@ -99,22 +99,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
 
         #if DEBUG
-        if PacketTunnelDebugSettings.useGotaTun {
-            providerLogger.info("Using GotaTunActor (debug)")
-            actor = GotaTunActor()
-        } else {
+            if PacketTunnelDebugSettings.useGotaTun {
+                providerLogger.info("Using GotaTunActor (debug)")
+                actor = GotaTunActor()
+            } else {
+                setUpWireGuardActor(
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader,
+                    apiTransportProvider: apiTransportProvider
+                )
+            }
+        #else
             setUpWireGuardActor(
                 ipOverrideWrapper: ipOverrideWrapper,
                 settingsReader: settingsReader,
                 apiTransportProvider: apiTransportProvider
             )
-        }
-        #else
-        setUpWireGuardActor(
-            ipOverrideWrapper: ipOverrideWrapper,
-            settingsReader: settingsReader,
-            apiTransportProvider: apiTransportProvider
-        )
         #endif
 
         let apiRequestProxy = APIRequestProxy(
