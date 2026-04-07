@@ -6,7 +6,7 @@ use std::{fmt, str::FromStr};
 use crate::Intersection;
 
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Constraint<T> {
     Any,
@@ -161,8 +161,6 @@ impl<T> From<T> for Constraint<T> {
         Constraint::Only(value)
     }
 }
-
-impl<T: Copy> Copy for Constraint<T> {}
 
 impl<T: fmt::Debug + Clone + FromStr> FromStr for Constraint<T> {
     type Err = T::Err;
