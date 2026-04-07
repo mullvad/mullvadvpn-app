@@ -131,7 +131,7 @@ pub fn terminate_processes(
                 &raw mut n_proc_info_needed,
                 &raw mut n_affected_apps,
                 rg_affected_apps.as_mut_ptr(),
-                (&raw mut reboot_reasons).cast::<u32>(),
+                (&raw mut reboot_reasons).cast(),
             )
         };
 

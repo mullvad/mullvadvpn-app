@@ -1,0 +1,29 @@
+[package]
+name = "nsis-cleanup"
+edition.workspace = true
+rust-version.workspace = true
+description = "NSIS cleanup plugin - cleanup operations for the Mullvad VPN installer"
+repository.workspace = true
+license.workspace = true
+
+[lib]
+name = "cleanup"
+crate-type = ["cdylib"]
+
+[target.i686-pc-windows-msvc.dependencies]
+nsis-plugin-api.workspace = true
+mullvad-nsis = { path = "../.." }
+mullvad-paths = { path = "../../../mullvad-paths" }
+anyhow.workspace = true
+widestring.workspace = true
+windows-sys = { workspace = true, features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Security_Authorization",
+  "Win32_Storage_FileSystem",
+  "Win32_System_Com",
+  "Win32_UI_Shell",
+] }
+
+[lints]
+workspace = true
