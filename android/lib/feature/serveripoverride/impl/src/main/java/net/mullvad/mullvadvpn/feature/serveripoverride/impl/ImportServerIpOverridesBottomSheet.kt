@@ -21,8 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.closeBottomSheet
-import net.mullvad.mullvadvpn.core.NavKey2
+import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByFileNavResult
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavKey
@@ -45,20 +44,11 @@ fun ImportOverridesBottomSheet(navigator: Navigator, overridesActive: Boolean) {
     val backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
     val onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface
 
-    fun closeBottomSheet(animate: Boolean, goTo: NavKey2? = null) =
-        closeBottomSheet(
-            animate = animate,
-            goTo = goTo,
-            sheetState = sheetState,
-            scope = scope,
-            navigator = navigator,
-        )
-
     MullvadModalBottomSheet(
         sheetState = sheetState,
         backgroundColor = backgroundColor,
         onBackgroundColor = onBackgroundColor,
-        onDismissRequest = { closeBottomSheet(animate = false) },
+        onDismissRequest = { navigator.goBack() },
     ) {
         BottomSheetContent(
             backgroundColor = backgroundColor,
@@ -68,7 +58,9 @@ fun ImportOverridesBottomSheet(navigator: Navigator, overridesActive: Boolean) {
                 dropUnlessResumed { navigator.goBack(result = ImportOverrideByFileNavResult) },
             onImportByText =
                 dropUnlessResumed {
-                    closeBottomSheet(animate = true, goTo = ImportOverrideByTextNavKey)
+                    sheetState.animateClose(scope) {
+                        navigator.navigateReplaceTop(ImportOverrideByTextNavKey)
+                    }
                 },
         )
     }

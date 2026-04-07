@@ -58,7 +58,7 @@ class SearchLocationScreenTest {
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
                 onGoBack = onGoBack,
-                onUpdateBottomSheetState = onUpdateBottomSheetState,
+                navigateToBottomSheet = onUpdateBottomSheetState,
             )
         }
     }

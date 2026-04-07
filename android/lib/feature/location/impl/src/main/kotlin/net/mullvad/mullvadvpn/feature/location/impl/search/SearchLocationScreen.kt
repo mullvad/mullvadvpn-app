@@ -90,7 +90,7 @@ private fun PreviewSearchLocationScreen(
             onSearchInputChanged = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
-            onUpdateBottomSheetState = {},
+            navigateToBottomSheet = {},
             onGoBack = {},
         )
     }
@@ -184,7 +184,7 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
-        onUpdateBottomSheetState =
+        navigateToBottomSheet =
             dropUnlessResumed { sheetState ->
                 navigator.navigate(LocationBottomSheetNavKey(sheetState))
             },
@@ -204,7 +204,7 @@ fun SearchLocationScreen(
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
     onGoBack: () -> Unit,
-    onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
@@ -263,7 +263,7 @@ fun SearchLocationScreen(
                                 onSelectRelayItem(it, state.value.relayListType)
                             },
                             onToggleExpand = onToggleExpand,
-                            onUpdateBottomSheetState = onUpdateBottomSheetState,
+                            onUpdateBottomSheetState = navigateToBottomSheet,
                             customListHeader = {
                                 ListHeader(
                                     content = {

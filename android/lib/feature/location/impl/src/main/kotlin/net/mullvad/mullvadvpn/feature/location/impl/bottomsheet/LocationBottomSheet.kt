@@ -38,11 +38,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.closeBottomSheet
+import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
-import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
@@ -90,56 +89,48 @@ internal fun LocationBottomSheets(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    fun closeBottomSheet(animate: Boolean, goTo: NavKey2? = null) =
-        closeBottomSheet(
-            animate = animate,
-            goTo = goTo,
-            sheetState = sheetState,
-            scope = scope,
-            navigator = navigator,
-        )
-
     LocationBottomSheets(
         locationBottomSheetUiState = state,
         sheetState = sheetState,
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
-                closeBottomSheet(
-                    animate = true,
-                    goTo = CreateCustomListNavKey(locationCode = relayItem?.id),
-                )
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(
+                        CreateCustomListNavKey(locationCode = relayItem?.id)
+                    )
+                }
             },
         onAddLocationToList = vm::addLocationToList,
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                closeBottomSheet(
-                    animate = true,
-                    goTo =
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(
                         EditCustomListNameNavKey(
                             customListId = customList.id,
                             initialName = customList.customList.name,
-                        ),
-                )
+                        )
+                    )
+                }
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                closeBottomSheet(
-                    animate = true,
-                    goTo =
-                        EditCustomListLocationsNavKey(customListId = customList.id, newList = false),
-                )
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(
+                        EditCustomListLocationsNavKey(customListId = customList.id, newList = false)
+                    )
+                }
             },
         onDeleteCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                closeBottomSheet(
-                    animate = true,
-                    goTo =
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(
                         DeleteCustomListNavKey(
                             customListId = customList.id,
                             name = customList.customList.name,
-                        ),
-                )
+                        )
+                    )
+                }
             },
         onSetAsEntry = {
             vm.setAsEntry(
@@ -157,7 +148,13 @@ internal fun LocationBottomSheets(
                 onUpdateMultihop = vm::onMultihopChanged,
             )
         },
-        closeBottomSheet = { animate -> closeBottomSheet(animate) },
+        closeBottomSheet = { animate ->
+            if (animate) {
+                sheetState.animateClose(scope) { navigator.goBack() }
+            } else {
+                navigator.goBack()
+            }
+        },
     )
 }
 
@@ -199,6 +196,7 @@ private fun LocationBottomSheets(
                 closeBottomSheet = closeBottomSheet,
             )
         }
+
         is LocationBottomSheetUiState.CustomList -> {
             EditCustomListBottomSheet(
                 backgroundColor = backgroundColor,
@@ -217,6 +215,7 @@ private fun LocationBottomSheets(
                 closeBottomSheet = closeBottomSheet,
             )
         }
+
         is LocationBottomSheetUiState.CustomListsEntry -> {
             CustomListEntryBottomSheet(
                 backgroundColor = backgroundColor,
@@ -235,6 +234,7 @@ private fun LocationBottomSheets(
                 closeBottomSheet = closeBottomSheet,
             )
         }
+
         null -> {
             /* Do nothing */
         }
@@ -628,20 +628,26 @@ private fun CustomListActionResultData.message(resources: Resources): String =
             } else {
                 resources.getString(R.string.create_custom_list_message, customListName)
             }
+
         is CustomListActionResultData.Success.Deleted ->
             resources.getString(R.string.delete_custom_list_message, customListName)
+
         is CustomListActionResultData.Success.LocationAdded ->
             resources.getString(R.string.location_was_added_to_list, locationName, customListName)
+
         is CustomListActionResultData.Success.LocationRemoved ->
             resources.getString(
                 R.string.location_was_removed_from_list,
                 locationName,
                 customListName,
             )
+
         is CustomListActionResultData.Success.LocationChanged ->
             resources.getString(R.string.locations_were_changed_for, customListName)
+
         is CustomListActionResultData.Success.Renamed ->
             resources.getString(R.string.name_was_changed_to, newName)
+
         CustomListActionResultData.GenericError -> resources.getString(R.string.error_occurred)
     }
 

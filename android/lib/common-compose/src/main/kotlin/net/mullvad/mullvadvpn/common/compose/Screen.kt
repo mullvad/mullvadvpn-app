@@ -41,19 +41,6 @@ fun Navigator.navigateReplaceIfDetailPane(key: NavKey2) {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-fun closeBottomSheet(
-    animate: Boolean,
-    goTo: NavKey2?,
-    sheetState: SheetState,
-    scope: CoroutineScope,
-    navigator: Navigator,
-) {
-    val navigationAction =
-        if (goTo == null) { -> navigator.goBack() } else { -> navigator.navigateReplaceTop(goTo) }
-
-    if (animate) {
-        scope.launch { sheetState.hide() }.invokeOnCompletion { navigationAction() }
-    } else {
-        navigationAction()
-    }
+fun SheetState.animateClose(scope: CoroutineScope, onClosed: (() -> Unit)? = null) {
+    scope.launch { hide() }.invokeOnCompletion { onClosed?.invoke() }
 }

@@ -96,7 +96,7 @@ class SelectLocationScreenTest {
         setContentWithTheme {
             SelectLocationScreen(
                 state = state,
-                onUpdateBottomSheetState = onUpdateBottomSheetState,
+                navigateToBottomSheet = onUpdateBottomSheetState,
                 onSelectSinglehop = onSelectHop,
                 onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,

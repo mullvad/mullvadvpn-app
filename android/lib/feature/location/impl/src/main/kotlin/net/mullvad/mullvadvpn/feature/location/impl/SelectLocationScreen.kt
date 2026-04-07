@@ -145,7 +145,7 @@ private fun PreviewSelectLocationScreen(
             scrollToItem = {},
             toggleMultihop = {},
             onCreateCustomList = {},
-            onUpdateBottomSheetState = {},
+            navigateToBottomSheet = {},
         )
     }
 }
@@ -343,7 +343,7 @@ fun SelectLocation(navigator: Navigator) {
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
-        onUpdateBottomSheetState =
+        navigateToBottomSheet =
             dropUnlessResumed { sheetState ->
                 navigator.navigate(LocationBottomSheetNavKey(sheetState))
             },
@@ -370,7 +370,7 @@ fun SelectLocationScreen(
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     toggleMultihop: (Boolean) -> Unit,
-    onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -518,7 +518,7 @@ fun SelectLocationScreen(
                         openDaitaSettings = openDaitaSettings,
                         onAddCustomList = onCreateCustomList,
                         onEditCustomLists = onEditCustomLists,
-                        onUpdateBottomSheetState = onUpdateBottomSheetState,
+                        onUpdateBottomSheetState = navigateToBottomSheet,
                     )
                 }
             }

@@ -36,9 +36,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.closeBottomSheet
+import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
@@ -100,21 +99,12 @@ fun AddTimeBottomSheet(navigator: Navigator) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
-    fun closeBottomSheet(animate: Boolean, goTo: NavKey2? = null) =
-        closeBottomSheet(
-            animate = animate,
-            goTo = goTo,
-            sheetState = sheetState,
-            scope = scope,
-            navigator = navigator,
-        )
-
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser -> {
                 openAccountPage(sideEffect.token)
-                closeBottomSheet(animate = true)
+                sheetState.animateClose(scope)
             }
         }
     }
@@ -130,16 +120,26 @@ fun AddTimeBottomSheet(navigator: Navigator) {
         onRetryFetchProducts = viewModel::fetchPaymentAvailability,
         onPlayPaymentInfoClick =
             dropUnlessResumed {
-                closeBottomSheet(animate = true, goTo = VerificationPendingNavKey)
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(VerificationPendingNavKey)
+                }
             },
         onRedeemVoucherClick =
-            dropUnlessResumed { closeBottomSheet(animate = true, goTo = RedeemVoucherNavKey) },
+            dropUnlessResumed {
+                sheetState.animateClose(scope) { navigator.navigateReplaceTop(RedeemVoucherNavKey) }
+            },
         resetPurchaseState = { viewModel.resetPurchaseResult() },
         closeSheetAndResetPurchaseState = {
             viewModel.resetPurchaseResult()
-            closeBottomSheet(animate = true)
+            sheetState.animateClose(scope)
         },
-        closeBottomSheet = { animate -> closeBottomSheet(animate) },
+        closeBottomSheet = { animate ->
+            if (animate) {
+                sheetState.animateClose(scope) { navigator.goBack() }
+            } else {
+                navigator.goBack()
+            }
+        },
     )
 }
 
@@ -245,6 +245,7 @@ private fun ColumnScope.PurchaseState(
         PurchaseState.Connecting -> {
             PurchaseStateLoading(title = stringResource(R.string.connecting))
         }
+
         PurchaseState.VerificationStarted -> {
             PurchaseStateLoading(title = stringResource(R.string.loading_verifying))
         }
@@ -275,6 +276,7 @@ private fun ColumnScope.PurchaseState(
                 resetPurchaseState = resetPurchaseState,
             )
         }
+
         is PurchaseState.Error.OtherError -> {
             PurchaseStateError(
                 backgroundColor = backgroundColor,
