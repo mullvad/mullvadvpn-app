@@ -39,7 +39,9 @@ pub fn st_remove() -> Result<(), crate::Error> {
 /// Dynamically load `wintun.dll` (from the same directory as this executable)
 /// and call `WintunDeleteDriver`.
 pub fn wintun_delete_driver() -> Result<(), crate::Error> {
-    call_delete_driver_fn("wintun.dll", "WintunDeleteDriver")?;
+    // SAFETY: `WintunDeleteDriver` exported by `wintun.dll` has the
+    // signature `BOOL WintunDeleteDriver(void)`.
+    unsafe { call_delete_driver_fn("wintun.dll", "WintunDeleteDriver") }?;
     tracing::info!("Deleted Wintun driver");
     Ok(())
 }
@@ -63,14 +65,21 @@ pub fn wintun_delete_abandoned_device() -> Result<(), crate::Error> {
 /// Dynamically load `mullvad-wireguard.dll` (from the same directory as this
 /// executable) and call `WireGuardDeleteDriver`.
 pub fn wg_nt_cleanup() -> Result<(), crate::Error> {
-    call_delete_driver_fn("mullvad-wireguard.dll", "WireGuardDeleteDriver")?;
+    // SAFETY: `WireGuardDeleteDriver` exported by `mullvad-wireguard.dll` has
+    // the signature `BOOL WireGuardDeleteDriver(void)`.
+    unsafe { call_delete_driver_fn("mullvad-wireguard.dll", "WireGuardDeleteDriver") }?;
     tracing::info!("Successfully deleted WireGuardNT driver");
     Ok(())
 }
 
 /// Load `dll_name` from the directory of the current executable, look up
 /// `fn_name`, call it, and return an error if it returns FALSE.
-fn call_delete_driver_fn(dll_name: &str, fn_name: &str) -> Result<(), crate::Error> {
+///
+/// # Safety
+///
+/// The exported function named `fn_name` in `dll_name` must have the signature
+/// `extern "system" fn() -> BOOL` and be safe to call with no arguments.
+unsafe fn call_delete_driver_fn(dll_name: &str, fn_name: &str) -> Result<(), crate::Error> {
     let exe_path = std::env::current_exe().map_err(crate::Error::LoadLibrary)?;
     let dll_path = exe_path
         .parent()
