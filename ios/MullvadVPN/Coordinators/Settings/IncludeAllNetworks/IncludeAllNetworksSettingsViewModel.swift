@@ -216,9 +216,9 @@ extension IncludeAllNetworksSettingsViewModel {
             " ∙ fc00::/7",
         ].joinedParagraphs(lineBreaks: 1)
 
-        let messageAttention =
+        let messageAttention = NSLocalizedString(
             "Attention: toggling “Local network sharing” requires restarting the VPN "
-            + "connection."
+                + "connection.", comment: "")
 
         return MullvadAlert(
             type: .info,
@@ -268,12 +268,12 @@ extension IncludeAllNetworksSettingsViewModel {
                             + "you and briefly expose your traffic. To prevent this, manually enable "
                             + "Airplane Mode and turn off Wi-Fi before continuing.", comment: ""),
                 enabled ? NSLocalizedString("Enabling", comment: "") : NSLocalizedString("Disabling", comment: ""),
-                feature.rawValue
+                NSLocalizedString(feature.rawValue, comment: "")
             ),
             String(
                 format: NSLocalizedString("Would you like to continue to %@ “%@”?", comment: ""),
                 enabled ? NSLocalizedString("enable", comment: "") : NSLocalizedString("disable", comment: ""),
-                feature.rawValue
+                NSLocalizedString(feature.rawValue, comment: "")
             ),
         ]
 
