@@ -288,7 +288,11 @@ pub async fn test_detect_app_removal(
 
         attempt += 1;
         if attempt == MAX_ATTEMPTS {
-            bail!("Uninstall script didn't run when app was removed");
+            log::error!("App traces found: {app_traces:?}");
+            bail!(
+                "Uninstall script didn't run when app was removed ({} Files remain).",
+                app_traces.len()
+            );
         }
 
         tokio::time::sleep(Duration::from_secs(1)).await;
