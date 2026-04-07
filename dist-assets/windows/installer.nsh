@@ -125,7 +125,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" wintun-delete-driver'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun'
 	Pop $0
 	Pop $1
 
@@ -160,7 +160,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveWireGuardNt()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" wg-nt-cleanup'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt'
 	Pop $0
 	Pop $1
 
@@ -195,7 +195,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	log::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" wintun-delete-abandoned-device'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
 	Pop $0
 	Pop $1
 
@@ -305,7 +305,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Push $1
 
 	log::Log "Removing Split Tunneling driver"
-	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" st-remove'
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove split-tunnel'
 
 	Pop $0
 	Pop $1

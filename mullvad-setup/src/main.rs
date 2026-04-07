@@ -143,22 +143,31 @@ enum Cli {
     /// Start the Mullvad daemon service
     #[cfg(target_os = "windows")]
     StartService,
+    /// Manage Mullvad-installed Windows drivers
+    #[cfg(target_os = "windows")]
+    #[command(subcommand)]
+    Driver(DriverCommand),
+}
+
+#[cfg(target_os = "windows")]
+#[derive(Debug, clap::Subcommand)]
+enum DriverCommand {
+    /// Remove a Mullvad-installed Windows driver
+    #[command(subcommand)]
+    Remove(DriverRemoveCommand),
+}
+
+#[cfg(target_os = "windows")]
+#[derive(Debug, clap::Subcommand)]
+enum DriverRemoveCommand {
     /// Reset split tunnel driver, uninstall the ST device, stop and delete the service
-    #[cfg(target_os = "windows")]
-    #[command(name = "st-remove")]
-    SplitTunnelRemove,
-    /// Delete the Wintun driver (loads wintun.dll from the same directory)
-    #[cfg(target_os = "windows")]
-    #[command(name = "wintun-delete-driver")]
-    WintunDeleteDriver,
+    SplitTunnel,
+    /// Remove the WireGuard-NT driver (loads mullvad-wireguard.dll from the same directory)
+    WgNt,
+    /// Remove the Wintun driver (loads wintun.dll from the same directory)
+    Wintun,
     /// Uninstall an abandoned Wintun network adapter with the legacy GUID
-    #[cfg(target_os = "windows")]
-    #[command(name = "wintun-delete-abandoned-device")]
-    WintunDeleteAbandonedDevice,
-    /// Delete the WireGuard-NT driver (loads mullvad-wireguard.dll from the same directory)
-    #[cfg(target_os = "windows")]
-    #[command(name = "wg-nt-cleanup")]
-    WgNtCleanup,
+    WintunAbandonedDevice,
 }
 
 #[tokio::main]
@@ -181,13 +190,14 @@ async fn main() {
         #[cfg(target_os = "windows")]
         Cli::StartService => service::start().await,
         #[cfg(target_os = "windows")]
-        Cli::SplitTunnelRemove => driver_setup::st_remove(),
-        #[cfg(target_os = "windows")]
-        Cli::WintunDeleteDriver => driver_setup::wintun_delete_driver(),
-        #[cfg(target_os = "windows")]
-        Cli::WintunDeleteAbandonedDevice => driver_setup::wintun_delete_abandoned_device(),
-        #[cfg(target_os = "windows")]
-        Cli::WgNtCleanup => driver_setup::wg_nt_cleanup(),
+        Cli::Driver(DriverCommand::Remove(cmd)) => match cmd {
+            DriverRemoveCommand::SplitTunnel => driver_setup::remove_split_tunnel(),
+            DriverRemoveCommand::WgNt => driver_setup::remove_wg_nt(),
+            DriverRemoveCommand::Wintun => driver_setup::remove_wintun(),
+            DriverRemoveCommand::WintunAbandonedDevice => {
+                driver_setup::remove_wintun_abandoned_device()
+            }
+        },
     };
 
     if let Err(e) = result {

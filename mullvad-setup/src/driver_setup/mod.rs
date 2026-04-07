@@ -23,7 +23,7 @@ const WINTUN_ABANDONED_GUID: &str = "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}";
 
 /// Reset split tunnel driver state, stop and delete the `mullvad-split-tunnel`
 /// service.
-pub fn st_remove() -> Result<(), crate::Error> {
+pub fn remove_split_tunnel() -> Result<(), crate::Error> {
     if service::service_is_running(SPLIT_TUNNEL_SERVICE_NAME)
         .map_err(crate::Error::ServiceControl)?
     {
@@ -38,17 +38,17 @@ pub fn st_remove() -> Result<(), crate::Error> {
 
 /// Dynamically load `wintun.dll` (from the same directory as this executable)
 /// and call `WintunDeleteDriver`.
-pub fn wintun_delete_driver() -> Result<(), crate::Error> {
+pub fn remove_wintun() -> Result<(), crate::Error> {
     // SAFETY: `WintunDeleteDriver` exported by `wintun.dll` has the
     // signature `BOOL WintunDeleteDriver(void)`.
     unsafe { call_delete_driver_fn("wintun.dll", "WintunDeleteDriver") }?;
-    tracing::info!("Deleted Wintun driver");
+    tracing::info!("Removed Wintun driver");
     Ok(())
 }
 
 /// Find and uninstall an abandoned Wintun network adapter with the well-known
 /// interface GUID `{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}`.
-pub fn wintun_delete_abandoned_device() -> Result<(), crate::Error> {
+pub fn remove_wintun_abandoned_device() -> Result<(), crate::Error> {
     device::find_and_uninstall_device(GUID_DEVCLASS_NET, |set, info| {
         // SAFETY: `set` and `info` are passed in by `find_and_uninstall_device`
         // after being obtained from `SetupDiGetClassDevsW` / `SetupDiEnumDeviceInfo`.
@@ -64,11 +64,11 @@ pub fn wintun_delete_abandoned_device() -> Result<(), crate::Error> {
 
 /// Dynamically load `mullvad-wireguard.dll` (from the same directory as this
 /// executable) and call `WireGuardDeleteDriver`.
-pub fn wg_nt_cleanup() -> Result<(), crate::Error> {
+pub fn remove_wg_nt() -> Result<(), crate::Error> {
     // SAFETY: `WireGuardDeleteDriver` exported by `mullvad-wireguard.dll` has
     // the signature `BOOL WireGuardDeleteDriver(void)`.
     unsafe { call_delete_driver_fn("mullvad-wireguard.dll", "WireGuardDeleteDriver") }?;
-    tracing::info!("Successfully deleted WireGuardNT driver");
+    tracing::info!("Removed WireGuardNT driver");
     Ok(())
 }
 
