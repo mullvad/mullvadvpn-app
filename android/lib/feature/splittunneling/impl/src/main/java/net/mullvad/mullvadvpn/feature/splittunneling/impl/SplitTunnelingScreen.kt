@@ -14,11 +14,7 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,9 +46,10 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSiz
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -140,16 +137,10 @@ fun SplitTunnelingScreen(
             }
         },
         actions = {
-            IconButton(onClick = navigateToSearch) {
-                Icon(
-                    imageVector = Icons.Rounded.Search,
-                    contentDescription = stringResource(id = R.string.search),
-                    tint =
-                        MaterialTheme.colorScheme.onSurface.copy(
-                            alpha = if (true) AlphaVisible else AlphaDisabled
-                        ),
-                )
-            }
+            SearchButton(
+                onClick = navigateToSearch,
+                enabled = state.enabled(),
+            )
         },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
@@ -376,14 +367,14 @@ private fun LazyListScope.spacer() {
 
 private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
     when (this) {
-        is Lc.Loading -> this.value.isModal
-        is Lc.Content -> this.value.isModal
+        is Lc.Loading -> value.isModal
+        is Lc.Content -> value.isModal
     }
 
 private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
     when (this) {
-        is Lc.Loading -> this.value.enabled
-        is Lc.Content -> this.value.enabled
+        is Lc.Loading -> value.enabled
+        is Lc.Content -> value.enabled
     }
 
 fun PackageManager.getApplicationIconOrNull(packageName: String): Drawable? =

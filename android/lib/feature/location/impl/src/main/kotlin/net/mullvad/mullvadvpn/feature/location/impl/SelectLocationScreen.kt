@@ -108,6 +108,7 @@ import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
+import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
@@ -115,7 +116,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
@@ -416,19 +416,10 @@ fun SelectLocationScreen(
         actions = {
             if (isTv()) {
                 val isSearchButtonEnabled = state.contentOrNull()?.isSearchButtonEnabled == true
-                IconButton(
+                SearchButton(
                     enabled = isSearchButtonEnabled,
                     onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = stringResource(id = R.string.search),
-                        tint =
-                            MaterialTheme.colorScheme.onSurface.copy(
-                                alpha = if (isSearchButtonEnabled) AlphaVisible else AlphaDisabled
-                            ),
-                    )
-                }
+                )
             }
             val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true

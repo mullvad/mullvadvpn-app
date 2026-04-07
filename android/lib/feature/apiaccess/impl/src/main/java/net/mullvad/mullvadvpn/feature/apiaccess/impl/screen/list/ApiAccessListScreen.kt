@@ -29,7 +29,7 @@ import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessMethodInfoNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.toDisplayName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
