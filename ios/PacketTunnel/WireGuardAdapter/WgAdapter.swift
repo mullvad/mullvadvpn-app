@@ -132,10 +132,16 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
     }
 }
 
+private extension MullvadTypes.IPAddressRange {
+    var asWireGuardKitType: WireGuardKitTypes.IPAddressRange {
+        WireGuardKitTypes.IPAddressRange(from: stringRepresentation)!
+    }
+}
+
 private extension TunnelAdapterConfiguration {
     var asWgConfig: TunnelConfiguration {
         var interfaceConfig = InterfaceConfiguration(privateKey: privateKey.wgKey)
-        interfaceConfig.addresses = interfaceAddresses
+        interfaceConfig.addresses = interfaceAddresses.map { $0.asWireGuardKitType }
         interfaceConfig.dns = dns.map { DNSServer(address: $0) }
         interfaceConfig.listenPort = 0
 
@@ -143,7 +149,7 @@ private extension TunnelAdapterConfiguration {
         if let peer {
             var peerConfig = PeerConfiguration(publicKey: peer.publicKey.wgKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
-            peerConfig.allowedIPs = allowedIPs
+            peerConfig.allowedIPs = allowedIPs.map { $0.asWireGuardKitType }
             peerConfig.preSharedKey = peer.preSharedKey?.wgKey
             peers.append(peerConfig)
         }

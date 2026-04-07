@@ -10,7 +10,11 @@ import Foundation
 import MullvadTypes
 import Network
 import NetworkExtension
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange, DaitaConfiguration
+
+@preconcurrency import struct WireGuardKitTypes.DaitaConfiguration
+@preconcurrency import class WireGuardKitTypes.PreSharedKey
+@preconcurrency import class WireGuardKitTypes.PrivateKey
+@preconcurrency import class WireGuardKitTypes.PublicKey
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol: Sendable {

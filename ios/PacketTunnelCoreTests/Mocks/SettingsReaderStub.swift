@@ -9,7 +9,8 @@
 import Foundation
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes  // For IPAddressRange
+
+import class WireGuardKitTypes.PrivateKey
 
 @testable import MullvadSettings
 

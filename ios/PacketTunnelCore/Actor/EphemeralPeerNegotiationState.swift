@@ -8,7 +8,9 @@
 
 import MullvadREST
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange
+
+@preconcurrency import class WireGuardKitTypes.PreSharedKey
+@preconcurrency import class WireGuardKitTypes.PrivateKey
 
 public enum EphemeralPeerNegotiationState: Equatable, Sendable {
     case single(EphemeralPeerRelayConfiguration)

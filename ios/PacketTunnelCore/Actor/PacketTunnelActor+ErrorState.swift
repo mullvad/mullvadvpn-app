@@ -9,7 +9,9 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
+
+import class WireGuardKitTypes.PrivateKey
+import class WireGuardKitTypes.PublicKey
 
 extension PacketTunnelActor {
     /**

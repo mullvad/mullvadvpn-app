@@ -11,8 +11,10 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 import PacketTunnelCore
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 import XCTest
+
+@preconcurrency import class WireGuardKitTypes.PrivateKey
+@preconcurrency import class WireGuardKitTypes.PublicKey
 
 @testable import MullvadMockData
 

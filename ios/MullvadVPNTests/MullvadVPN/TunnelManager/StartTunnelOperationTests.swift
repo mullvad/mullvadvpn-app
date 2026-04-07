@@ -10,8 +10,9 @@ import MullvadSettings
 import MullvadTypes
 import Network
 import Operations
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
+
+import class WireGuardKitTypes.PrivateKey
 
 @testable import MullvadMockData
 

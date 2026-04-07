@@ -8,8 +8,9 @@
 
 import MullvadSettings
 import MullvadTypes
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
+
+import class WireGuardKitTypes.PrivateKey
 
 final class WgKeyRotationTests: XCTestCase {
     func testKeyRotationLifecycle() {

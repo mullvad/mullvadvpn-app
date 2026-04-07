@@ -8,7 +8,8 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes  // IPAddressRange
+
+import class WireGuardKitTypes.PublicKey
 
 extension Device {
     public static func mock(publicKey: WireGuard.PublicKey) -> Device {

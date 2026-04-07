@@ -9,8 +9,9 @@
 @preconcurrency import Combine
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
+
+import class WireGuardKitTypes.PrivateKey
 
 @testable import MullvadMockData
 @testable import MullvadREST

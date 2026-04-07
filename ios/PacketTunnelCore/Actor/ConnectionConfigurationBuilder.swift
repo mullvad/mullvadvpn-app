@@ -9,7 +9,8 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
+
+import class WireGuardKitTypes.PrivateKey
 
 protocol Configuration {
     var name: String { get }
