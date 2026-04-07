@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - mullvad-nsis/**
+      - windows/nsis-plugins/**
       - 'ci/cargo-ci.sh'
   workflow_dispatch:
 
@@ -22,9 +23,17 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Build mullvad-nsis
+      - name: Build NSIS plugins
         shell: bash
-        run: ci/cargo-ci.sh build --target i686-pc-windows-msvc -p mullvad-nsis
+        run: |
+          ci/cargo-ci.sh build --target i686-pc-windows-msvc \
+            -p mullvad-nsis \
+            -p nsis-string \
+            -p nsis-registry \
+            -p nsis-pathedit \
+            -p nsis-cleanup \
+            -p nsis-log \
+            -p nsis-tray
 
       - name: Check working directory is clean
         shell: bash
