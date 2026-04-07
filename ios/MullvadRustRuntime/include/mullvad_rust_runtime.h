@@ -868,3 +868,20 @@ int32_t start_lwo_obfuscator_proxy(const uint8_t *peer_address,
                                    struct ProxyHandle *proxy_handle);
 
 int32_t stop_tunnel_obfuscator_proxy(struct ProxyHandle *proxy_handle);
+
+/**
+ * Generate a new random WireGuard private key, writing 32 bytes to `key_out`.
+ *
+ * # Safety
+ * `key_out` must be a valid pointer to a 32-byte buffer.
+ */
+void mullvad_generate_private_key(uint8_t *key_out);
+
+/**
+ * Derive a WireGuard public key from a private key.
+ *
+ * # Safety
+ * `private_key` must be a valid pointer to 32 bytes.
+ * `public_key_out` must be a valid pointer to a 32-byte buffer.
+ */
+void mullvad_derive_public_key(const uint8_t *private_key, uint8_t *public_key_out);
