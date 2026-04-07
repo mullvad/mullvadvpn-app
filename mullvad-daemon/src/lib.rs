@@ -41,6 +41,7 @@ use futures::{
     future::{AbortHandle, Future, abortable},
 };
 use geoip::GeoIpHandler;
+use kameo::actor::{ActorRef, Spawn as _};
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
 use mullvad_api::{
@@ -692,7 +693,7 @@ pub struct Daemon {
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
     location_handler: GeoIpHandler,
-    leak_checker: LeakChecker,
+    leak_checker: ActorRef<LeakChecker>,
     cache_dir: PathBuf,
 }
 pub struct DaemonConfig {
@@ -1037,16 +1038,18 @@ impl Daemon {
             internal_event_tx.clone().to_specialized_sender(),
         );
 
-        let leak_checker = {
-            let mut leak_checker = LeakChecker::new(route_manager);
+        let leak_checker = LeakChecker::spawn(LeakChecker::new(route_manager));
+        {
             let internal_event_tx = internal_event_tx.clone();
-            leak_checker.add_leak_callback(move |info| {
-                internal_event_tx
-                    .send(InternalDaemonEvent::LeakDetected(info))
-                    .is_ok()
-            });
             leak_checker
-        };
+                .tell(leak_checker::AddCallback::new(move |info| {
+                    internal_event_tx
+                        .send(InternalDaemonEvent::LeakDetected(info))
+                        .is_ok()
+                }))
+                .await
+                .expect("actor is running");
+        }
 
         let daemon = Daemon {
             tunnel_state: TunnelState::Disconnected {
@@ -1226,8 +1229,13 @@ impl Daemon {
         &mut self,
         tunnel_state_transition: TunnelStateTransition,
     ) {
-        self.leak_checker
-            .on_tunnel_state_transition(tunnel_state_transition.clone());
+        let _ = self
+            .leak_checker
+            .tell(leak_checker::NotifyTunnelState {
+                tunnel_state: tunnel_state_transition.clone(),
+            })
+            .await
+            .inspect_err(|e| log::warn!("Leak checker actor error: {e:?}"));
 
         self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition);
         self.device_checker

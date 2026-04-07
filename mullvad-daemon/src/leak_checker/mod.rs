@@ -1,4 +1,5 @@
-use futures::{FutureExt, future::pending, select};
+use futures::FutureExt;
+use kameo::{actor::ActorRef, prelude::Context};
 pub use mullvad_leak_checker::LeakInfo;
 use std::time::Duration;
 use talpid_routing::RouteManagerHandle;
@@ -6,24 +7,14 @@ use talpid_types::{
     net::{Endpoint, TunnelEndpoint},
     tunnel::TunnelStateTransition,
 };
-use tokio::{sync::mpsc, task::JoinHandle};
+use tokio::task::JoinHandle;
 
 /// An actor that tries to leak traffic outside the tunnel while we are connected.
+#[derive(kameo::Actor)]
 pub struct LeakChecker {
-    task_event_tx: mpsc::UnboundedSender<TaskEvent>,
-}
-
-/// [LeakChecker] internal task state.
-struct Task {
-    events_rx: mpsc::UnboundedReceiver<TaskEvent>,
     route_manager: RouteManagerHandle,
     callbacks: Vec<Box<dyn LeakCheckerCallback>>,
     leak_test: Option<JoinHandle<Option<LeakInfo>>>,
-}
-
-enum TaskEvent {
-    NewTunnelState(TunnelStateTransition),
-    AddCallback(Box<dyn LeakCheckerCallback>),
 }
 
 #[derive(PartialEq, Eq)]
@@ -41,99 +32,75 @@ pub trait LeakCheckerCallback: Send + 'static {
 
 impl LeakChecker {
     pub fn new(route_manager: RouteManagerHandle) -> Self {
-        let (task_event_tx, events_rx) = mpsc::unbounded_channel();
-
-        let task = Task {
-            events_rx,
+        Self {
             route_manager,
             callbacks: vec![],
             leak_test: None,
-        };
-
-        tokio::task::spawn(task.run());
-
-        LeakChecker { task_event_tx }
-    }
-
-    /// Call when we transition to a new tunnel state.
-    pub fn on_tunnel_state_transition(&mut self, tunnel_state: TunnelStateTransition) {
-        self.send(TaskEvent::NewTunnelState(tunnel_state))
-    }
-
-    /// Call `callback` if a leak is detected.
-    pub fn add_leak_callback(&mut self, callback: impl LeakCheckerCallback) {
-        self.send(TaskEvent::AddCallback(Box::new(callback)))
-    }
-
-    /// Send a [TaskEvent] to the running [Task];
-    fn send(&mut self, event: TaskEvent) {
-        if self.task_event_tx.send(event).is_err() {
-            panic!("LeakChecker unexpectedly closed");
         }
     }
 }
 
-impl Task {
-    async fn run(mut self) {
-        loop {
-            let leak_test = async {
-                match &mut self.leak_test {
-                    Some(task) => task.await,
-                    None => pending().await,
-                }
-            };
-            select! {
-                event = self.events_rx.recv().fuse() => {
-                    let Some(event) = event else {
-                        break; // All LeakChecker handles dropped.
-                    };
-
-                    match event {
-                        TaskEvent::NewTunnelState(s) => self.on_new_tunnel_state(s),
-                        TaskEvent::AddCallback(c) => self.on_add_callback(c),
-                    }
-                }
-                leak_info = leak_test.fuse() => {
-                    self.leak_test = None;
-                    if let Ok(Some(leak_info)) = leak_info {
-                        self.on_leak_test_complete(leak_info);
-                    }
-                }
-            }
-        }
+#[kameo::messages]
+impl LeakChecker {
+    #[message]
+    pub fn add_callback(&mut self, callback: Box<dyn LeakCheckerCallback>) {
+        self.callbacks.push(callback);
     }
 
-    fn on_add_callback(&mut self, c: Box<dyn LeakCheckerCallback>) {
-        self.callbacks.push(c);
-    }
-
-    fn on_new_tunnel_state(&mut self, tunnel_state: TunnelStateTransition) {
+    /// Notify the leak checker that the tunnel state has changed.
+    ///
+    /// Transitioning into the connected state triggers a leak check.
+    #[message(ctx)]
+    pub fn notify_tunnel_state(
+        &mut self,
+        tunnel_state: TunnelStateTransition,
+        ctx: &mut Context<Self, ()>,
+    ) {
         // If the tunnel state changed, we need to abort any in-progress leak test,
         // since our results might become invalid.
         if let Some(task) = self.leak_test.take() {
             task.abort();
         }
 
-        // Only run leak tests if we are connected.                                                  ..
-        if let TunnelStateTransition::Connected(tunnel) = tunnel_state {
-            self.leak_test = Some(self.spawn_leak_test(tunnel));
+        // Only run leak tests if we are connected.
+        let TunnelStateTransition::Connected(tunnel) = tunnel_state else {
+            return;
         };
+
+        let actor = ctx.actor_ref().clone();
+        self.leak_test = Some(self.spawn_leak_test(actor, tunnel));
     }
 
-    fn on_leak_test_complete(&mut self, leak_info: LeakInfo) {
+    /// Notify the leak checker that `LeakChecker::leak_test` is done.
+    #[message]
+    fn notify_leak_test_complete(&mut self) {
+        let Some(result) = self.leak_test.take().and_then(FutureExt::now_or_never) else {
+            return; // TODO: explain this case
+        };
+
+        let Ok(Some(leak_info)) = result else {
+            return; // TODO: explain this case
+        };
+
         log::debug!("Leak detected: {leak_info:?}");
 
         self.callbacks
             .retain_mut(|callback| callback.on_leak(leak_info.clone()) == CallbackResult::Ok);
     }
+}
 
-    fn spawn_leak_test(&self, tunnel: TunnelEndpoint) -> JoinHandle<Option<LeakInfo>> {
+impl LeakChecker {
+    fn spawn_leak_test(
+        &self,
+        actor: ActorRef<LeakChecker>,
+        tunnel: TunnelEndpoint,
+    ) -> JoinHandle<Option<LeakInfo>> {
         let ping_destination = tunnel.endpoint;
         let route_manager = self.route_manager.clone();
-
         tokio::spawn(async move {
-            // Give the connection a lttle time to settle before starting the test.
+            // Give the connection a little time to settle before starting the test.
             tokio::time::sleep(Duration::from_secs(5)).await;
+
             let leak_result = check_for_leaks(&route_manager, ping_destination).await;
 
             let leak_info = match leak_result {
@@ -148,8 +115,18 @@ impl Task {
                 }
             };
 
+            let _ = actor.tell(NotifyLeakTestComplete {}).await;
+
             Some(leak_info)
         })
+    }
+}
+
+impl AddCallback {
+    pub fn new<C: LeakCheckerCallback>(callback: C) -> Self {
+        AddCallback {
+            callback: Box::new(callback),
+        }
     }
 }
 
