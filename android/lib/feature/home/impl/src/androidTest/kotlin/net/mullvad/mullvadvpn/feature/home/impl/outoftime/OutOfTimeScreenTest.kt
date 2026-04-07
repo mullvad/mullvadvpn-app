@@ -42,20 +42,20 @@ class OutOfTimeScreenTest {
     private fun ComposeContext.initScreen(
         state: OutOfTimeUiState = OutOfTimeUiState(),
         onDisconnectClick: () -> Unit = {},
-        onRedeemVoucherClick: () -> Unit = {},
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
         onPlayPaymentInfoClick: () -> Unit = {},
+        onAddMoreTimeClick: () -> Unit = {},
     ) {
 
         setContentWithTheme {
             OutOfTimeScreen(
                 state = state,
                 onDisconnectClick = onDisconnectClick,
-                onRedeemVoucherClick = onRedeemVoucherClick,
                 onSettingsClick = onSettingsClick,
                 onAccountClick = onAccountClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+                onAddMoreTimeClick = onAddMoreTimeClick,
             )
         }
     }

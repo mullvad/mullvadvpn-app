@@ -36,8 +36,7 @@ class ServerIpOverridesScreenTest {
         onBackClick: () -> Unit = {},
         onInfoClick: () -> Unit = {},
         onResetOverridesClick: () -> Unit = {},
-        onImportByFile: () -> Unit = {},
-        onImportByText: () -> Unit = {},
+        onImportClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             ServerIpOverridesScreen(
@@ -45,8 +44,7 @@ class ServerIpOverridesScreenTest {
                 onBackClick = onBackClick,
                 onInfoClick = onInfoClick,
                 onResetOverridesClick = onResetOverridesClick,
-                onImportByFile = onImportByFile,
-                onImportByText = onImportByText,
+                onImportClick = onImportClick,
             )
         }
     }
@@ -116,7 +114,7 @@ class ServerIpOverridesScreenTest {
     fun ensureImportByFileWorks() = composeExtension.use {
         // Arrange
         val clickHandler: () -> Unit = mockk(relaxed = true)
-        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportByFile = clickHandler)
+        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportClick = clickHandler)
 
         // Act
         onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
@@ -130,7 +128,7 @@ class ServerIpOverridesScreenTest {
     fun ensureImportByText() = composeExtension.use {
         // Arrange
         val clickHandler: () -> Unit = mockk(relaxed = true)
-        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportByText = clickHandler)
+        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportClick = clickHandler)
 
         // Act
         onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()

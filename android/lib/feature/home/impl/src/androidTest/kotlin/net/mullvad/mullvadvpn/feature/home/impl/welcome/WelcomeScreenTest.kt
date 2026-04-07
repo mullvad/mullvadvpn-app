@@ -42,22 +42,22 @@ class WelcomeScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lc<Unit, WelcomeUiState> = Lc.Loading(Unit),
-        onRedeemVoucherClick: () -> Unit = {},
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
         onDisconnectClick: () -> Unit = {},
         navigateToDeviceInfoDialog: () -> Unit = {},
         onPlayPaymentInfoClick: () -> Unit = {},
+        onAddMoreTimeClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             WelcomeScreen(
                 state = state,
-                onRedeemVoucherClick = onRedeemVoucherClick,
                 onSettingsClick = onSettingsClick,
                 onAccountClick = onAccountClick,
                 navigateToDeviceInfoDialog = navigateToDeviceInfoDialog,
                 onDisconnectClick = onDisconnectClick,
                 onPlayPaymentInfoClick = onPlayPaymentInfoClick,
+                onAddMoreTimeClick = onAddMoreTimeClick,
             )
         }
     }
