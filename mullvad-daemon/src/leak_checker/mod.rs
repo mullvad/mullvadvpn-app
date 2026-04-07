@@ -1,9 +1,12 @@
-use futures::{FutureExt, select};
+use futures::{FutureExt, future::pending, select};
 pub use mullvad_leak_checker::LeakInfo;
 use std::time::Duration;
 use talpid_routing::RouteManagerHandle;
-use talpid_types::{net::Endpoint, tunnel::TunnelStateTransition};
-use tokio::sync::mpsc;
+use talpid_types::{
+    net::{Endpoint, TunnelEndpoint},
+    tunnel::TunnelStateTransition,
+};
+use tokio::{sync::mpsc, task::JoinHandle};
 
 /// An actor that tries to leak traffic outside the tunnel while we are connected.
 pub struct LeakChecker {
@@ -15,6 +18,7 @@ struct Task {
     events_rx: mpsc::UnboundedReceiver<TaskEvent>,
     route_manager: RouteManagerHandle,
     callbacks: Vec<Box<dyn LeakCheckerCallback>>,
+    leak_test: Option<JoinHandle<Option<LeakInfo>>>,
 }
 
 enum TaskEvent {
@@ -43,6 +47,7 @@ impl LeakChecker {
             events_rx,
             route_manager,
             callbacks: vec![],
+            leak_test: None,
         };
 
         tokio::task::spawn(task.run());
@@ -71,13 +76,29 @@ impl LeakChecker {
 impl Task {
     async fn run(mut self) {
         loop {
-            let Some(event) = self.events_rx.recv().await else {
-                break; // All LeakChecker handles dropped.
+            let leak_test = async {
+                match &mut self.leak_test {
+                    Some(task) => task.await,
+                    None => pending().await,
+                }
             };
+            select! {
+                event = self.events_rx.recv().fuse() => {
+                    let Some(event) = event else {
+                        break; // All LeakChecker handles dropped.
+                    };
 
-            match event {
-                TaskEvent::NewTunnelState(s) => self.on_new_tunnel_state(s).await,
-                TaskEvent::AddCallback(c) => self.on_add_callback(c),
+                    match event {
+                        TaskEvent::NewTunnelState(s) => self.on_new_tunnel_state(s),
+                        TaskEvent::AddCallback(c) => self.on_add_callback(c),
+                    }
+                }
+                leak_info = leak_test.fuse() => {
+                    self.leak_test = None;
+                    if let Ok(Some(leak_info)) = leak_info {
+                        self.on_leak_test_complete(leak_info);
+                    }
+                }
             }
         }
     }
@@ -86,69 +107,49 @@ impl Task {
         self.callbacks.push(c);
     }
 
-    async fn on_new_tunnel_state(&mut self, mut tunnel_state: TunnelStateTransition) {
-        'leak_test: loop {
-            let TunnelStateTransition::Connected(tunnel) = &tunnel_state else {
-                break 'leak_test;
-            };
+    fn on_new_tunnel_state(&mut self, tunnel_state: TunnelStateTransition) {
+        // If the tunnel state changed, we need to abort any in-progress leak test,
+        // since our results might become invalid.
+        if let Some(task) = self.leak_test.take() {
+            task.abort();
+        }
 
-            let ping_destination = tunnel.endpoint;
-            let route_manager = self.route_manager.clone();
-            let leak_test = async {
-                // Give the connection a little time to settle before starting the test.
-                tokio::time::sleep(Duration::from_millis(5000)).await;
+        // Only run leak tests if we are connected.                                                  ..
+        if let TunnelStateTransition::Connected(tunnel) = tunnel_state {
+            self.leak_test = Some(self.spawn_leak_test(tunnel));
+        };
+    }
 
-                check_for_leaks(&route_manager, ping_destination).await
-            };
+    fn on_leak_test_complete(&mut self, leak_info: LeakInfo) {
+        log::debug!("Leak detected: {leak_info:?}");
 
-            // Make sure the tunnel state doesn't change while we're doing the leak test.
-            // If that happens, then our results might be invalid.
-            let another_tunnel_state = async {
-                'listen_for_events: while let Some(event) = self.events_rx.recv().await {
-                    let new_state = match event {
-                        TaskEvent::NewTunnelState(tunnel_state) => tunnel_state,
-                        TaskEvent::AddCallback(c) => {
-                            self.on_add_callback(c);
-                            continue 'listen_for_events;
-                        }
-                    };
+        self.callbacks
+            .retain_mut(|callback| callback.on_leak(leak_info.clone()) == CallbackResult::Ok);
+    }
 
-                    if let TunnelStateTransition::Connected(..) = new_state {
-                        // Still connected, all is well...
-                    } else {
-                        // Tunnel state changed! We have to discard the leak test and try again.
-                        tunnel_state = new_state;
-                        break 'listen_for_events;
-                    }
-                }
-            };
+    fn spawn_leak_test(&self, tunnel: TunnelEndpoint) -> JoinHandle<Option<LeakInfo>> {
+        let ping_destination = tunnel.endpoint;
+        let route_manager = self.route_manager.clone();
 
-            let leak_result = select! {
-                // If tunnel state changes, restart the test.
-                _ = another_tunnel_state.fuse() => continue 'leak_test,
-
-                leak_result = leak_test.fuse() => leak_result,
-            };
+        tokio::spawn(async move {
+            // Give the connection a lttle time to settle before starting the test.
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            let leak_result = check_for_leaks(&route_manager, ping_destination).await;
 
             let leak_info = match leak_result {
                 Ok(Some(leak_info)) => leak_info,
                 Ok(None) => {
                     log::debug!("No leak detected");
-                    break 'leak_test;
+                    return None;
                 }
                 Err(e) => {
                     log::debug!("Leak check errored: {e:#?}");
-                    break 'leak_test;
+                    return None;
                 }
             };
 
-            log::debug!("Leak detected: {leak_info:?}");
-
-            self.callbacks
-                .retain_mut(|callback| callback.on_leak(leak_info.clone()) == CallbackResult::Ok);
-
-            break 'leak_test;
-        }
+            Some(leak_info)
+        })
     }
 }
 
