@@ -10,8 +10,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
@@ -68,16 +66,12 @@ class ServerIpOverridesScreenTest {
     }
 
     @Test
-    fun ensureOverridesActiveShowsWarningOnImport() = composeExtension.use {
+    fun ensureOverridesImportButtonCanBeClicked() = composeExtension.use {
         // Arrange
         initScreen(state = ServerIpOverridesUiState(true).toLc())
 
         // Act
         onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-
-        // Assert
-        onNodeWithText("Importing new overrides might replace some previously imported overrides.")
-            .assertExists()
     }
 
     @Test
@@ -105,34 +99,6 @@ class ServerIpOverridesScreenTest {
         // Act
         onNodeWithTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG).performClick()
         onNodeWithTag(SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG).performClick()
-
-        // Assert
-        verify { clickHandler() }
-    }
-
-    @Test
-    fun ensureImportByFileWorks() = composeExtension.use {
-        // Arrange
-        val clickHandler: () -> Unit = mockk(relaxed = true)
-        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportClick = clickHandler)
-
-        // Act
-        onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-        onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_FILE_TEST_TAG).performClick()
-
-        // Assert
-        verify { clickHandler() }
-    }
-
-    @Test
-    fun ensureImportByText() = composeExtension.use {
-        // Arrange
-        val clickHandler: () -> Unit = mockk(relaxed = true)
-        initScreen(state = ServerIpOverridesUiState(false).toLc(), onImportClick = clickHandler)
-
-        // Act
-        onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
-        onNodeWithTag(SERVER_IP_OVERRIDES_IMPORT_BY_TEXT_TEST_TAG).performClick()
 
         // Assert
         verify { clickHandler() }

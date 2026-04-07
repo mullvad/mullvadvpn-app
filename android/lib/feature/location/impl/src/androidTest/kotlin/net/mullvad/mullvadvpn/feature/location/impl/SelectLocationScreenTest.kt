@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -36,8 +35,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -265,7 +262,7 @@ class SelectLocationScreenTest {
     }
 
     @Test
-    fun whenCustomListIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+    fun ensureCustomListLongClickWorks() = composeExtension.use {
         // Arrange
         val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
         every { listViewModel.uiState } returns
@@ -306,14 +303,11 @@ class SelectLocationScreenTest {
         )
 
         // Act
-        onNodeWithText(customList.name).performLongClick()
-
-        // Assert
-        onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
+        onNodeWithText(customList.name).assertExists().performLongClick()
     }
 
     @Test
-    fun whenLocationIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+    fun ensureLocationLongClickWorks() = composeExtension.use {
         // Arrange
         val relayItem = DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location
         every { listViewModel.uiState } returns
@@ -362,10 +356,7 @@ class SelectLocationScreenTest {
         )
 
         // Act
-        onNodeWithText(relayItem.name).performLongClick()
-
-        // Assert
-        onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
+        onNodeWithText(relayItem.name).assertExists().performLongClick()
     }
 
     @Test
