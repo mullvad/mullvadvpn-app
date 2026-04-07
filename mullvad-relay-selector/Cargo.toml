@@ -15,6 +15,7 @@ mullvad-types = { path = "../mullvad-types" }
 rand = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
+vec1 = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true, features = ["yaml"] }
