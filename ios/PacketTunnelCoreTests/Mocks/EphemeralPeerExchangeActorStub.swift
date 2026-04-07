@@ -11,15 +11,16 @@ import NetworkExtension
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
 @testable import PacketTunnelCore
-@testable import WireGuardKitTypes
 
 final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol, @unchecked Sendable {
-    typealias KeyNegotiationResult = Result<(PreSharedKey, PrivateKey), EphemeralPeerExchangeErrorStub>
+    typealias KeyNegotiationResult = Result<
+        (WireGuard.PreSharedKey, WireGuard.PrivateKey), EphemeralPeerExchangeErrorStub
+    >
     var result: KeyNegotiationResult = .failure(.unknown)
 
     var delegate: EphemeralPeerReceiving?
 
-    func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
+    func startNegotiation(with privateKey: WireGuard.PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
         let daita =
             enableDaita
             ? DaitaV2Parameters(

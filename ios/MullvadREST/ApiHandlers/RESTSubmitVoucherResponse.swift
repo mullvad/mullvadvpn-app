@@ -10,7 +10,6 @@ import Foundation
 import MullvadRustRuntime
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
 
 extension REST {
     public struct SubmitVoucherResponse: Decodable, Sendable {

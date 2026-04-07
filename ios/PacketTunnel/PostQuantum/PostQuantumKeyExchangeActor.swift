@@ -10,10 +10,9 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
 
 public protocol PostQuantumKeyExchangeActorProtocol {
-    func startNegotiation(with privateKey: PrivateKey)
+    func startNegotiation(with privateKey: WireGuard.PrivateKey)
     func endCurrentNegotiation()
     func reset()
 }
@@ -71,7 +70,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
     /// It is reset after every successful key exchange.
     ///
     /// - Parameter privateKey: The device's current private key
-    public func startNegotiation(with privateKey: PrivateKey) {
+    public func startNegotiation(with privateKey: WireGuard.PrivateKey) {
         endCurrentNegotiation()
         let negotiator = negotiationProvider.init()
 
@@ -81,7 +80,7 @@ public class PostQuantumKeyExchangeActor: PostQuantumKeyExchangeActorProtocol {
         let inTunnelTCPConnection = createTCPConnection(endpoint)
 
         // This will become the new private key of the device
-        let ephemeralSharedKey = PrivateKey()
+        let ephemeralSharedKey = WireGuard.PrivateKey()
 
         let tcpConnectionTimeout = keyExchangeRetriesIterator.next() ?? .seconds(10)
         // If the connection never becomes viable, force a reconnection after 10 seconds

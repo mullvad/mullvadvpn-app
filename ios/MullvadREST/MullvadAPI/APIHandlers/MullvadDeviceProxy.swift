@@ -8,7 +8,6 @@
 import MullvadRustRuntime
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
 
 extension REST {
     final class MullvadDeviceProxy: DeviceHandling, @unchecked Sendable {
@@ -103,7 +102,7 @@ extension REST {
         func rotateDeviceKey(
             accountNumber: String,
             identifier: String,
-            publicKey: PublicKey,
+            publicKey: WireGuard.PublicKey,
             retryStrategy: REST.RetryStrategy,
             completion: @escaping ProxyCompletionHandler<Device>
         ) -> Cancellable {

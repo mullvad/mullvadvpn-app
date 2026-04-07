@@ -14,7 +14,6 @@ import MullvadSettings
 import MullvadTypes
 @preconcurrency import NetworkExtension
 import PacketTunnelCore
-import WireGuardKitTypes
 
 class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
@@ -500,8 +499,8 @@ extension PacketTunnelProvider {
 
 extension PacketTunnelProvider: EphemeralPeerReceiving {
     func receivePostQuantumKey(
-        _ key: PreSharedKey,
-        ephemeralKey: PrivateKey,
+        _ key: WireGuard.PreSharedKey,
+        ephemeralKey: WireGuard.PrivateKey,
         daitaParameters: MullvadTypes.DaitaV2Parameters?
     ) async {
         await ephemeralPeerExchangingPipeline.receivePostQuantumKey(
@@ -512,7 +511,7 @@ extension PacketTunnelProvider: EphemeralPeerReceiving {
     }
 
     public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: PrivateKey,
+        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
         daitaParameters: MullvadTypes.DaitaV2Parameters?
     ) async {
         await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(

@@ -9,7 +9,7 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import WireGuardKitTypes
+import WireGuardKitTypes  // IPAddressRange
 
 protocol DeviceManaging {
     var currentDeviceId: String? { get }
@@ -61,7 +61,7 @@ class MockDeviceManaging: DeviceManaging {
         Device(
             id: "123",
             name: "Blind Mole",
-            pubkey: PrivateKey().publicKey,
+            pubkey: WireGuard.PrivateKey().publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
@@ -70,7 +70,7 @@ class MockDeviceManaging: DeviceManaging {
         Device(
             id: "456",
             name: "Tall Mole",
-            pubkey: PrivateKey().publicKey,
+            pubkey: WireGuard.PrivateKey().publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
@@ -79,7 +79,7 @@ class MockDeviceManaging: DeviceManaging {
         Device(
             id: "543",
             name: "Old Mole",
-            pubkey: PrivateKey().publicKey,
+            pubkey: WireGuard.PrivateKey().publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
@@ -88,7 +88,7 @@ class MockDeviceManaging: DeviceManaging {
         Device(
             id: "867",
             name: "Young Mole",
-            pubkey: PrivateKey().publicKey,
+            pubkey: WireGuard.PrivateKey().publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,
@@ -97,7 +97,7 @@ class MockDeviceManaging: DeviceManaging {
         Device(
             id: "234",
             name: "Rich Mole",
-            pubkey: PrivateKey().publicKey,
+            pubkey: WireGuard.PrivateKey().publicKey,
             hijackDNS: false,
             created: Date(),
             ipv4Address: IPAddressRange(from: "127.0.0.1/32")!,

@@ -11,7 +11,6 @@ import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
-@preconcurrency import WireGuardKitTypes
 
 /**
  Tunnel actor state with metadata describing the current phase of packet tunnel lifecycle.
@@ -61,7 +60,7 @@ enum State: Equatable {
     case initial
 
     /// Establish a connection to the gateway, and exchange an ephemeral wireguard peer with the GRPC service that resides there.
-    case negotiatingEphemeralPeer(ConnectionData, PrivateKey)
+    case negotiatingEphemeralPeer(ConnectionData, WireGuard.PrivateKey)
 
     /// Tunnel is attempting to connect.
     /// The actor should remain in this state until the very first connection is established, i.e determined by tunnel monitor.
@@ -93,7 +92,7 @@ public enum NetworkReachability: Equatable, Codable, Sendable {
 }
 
 protocol StateAssociatedData {
-    var currentKey: PrivateKey? { get set }
+    var currentKey: WireGuard.PrivateKey? { get set }
     var keyPolicy: State.KeyPolicy { get set }
     var networkReachability: NetworkReachability { get set }
     var lastKeyRotation: Date? { get set }
@@ -106,7 +105,7 @@ extension State {
         case useCurrent
 
         /// Use prior key until timer fires.
-        case usePrior(_ priorKey: PrivateKey, _ timerTask: AutoCancellingTask)
+        case usePrior(_ priorKey: WireGuard.PrivateKey, _ timerTask: AutoCancellingTask)
     }
 
     /// Data associated with states that hold connection data.
@@ -120,7 +119,7 @@ extension State {
 
         /// Last WG key read from settings.
         /// Can be `nil` if moved to `keyPolicy`.
-        public var currentKey: PrivateKey?
+        public var currentKey: WireGuard.PrivateKey?
 
         /// Policy describing the current key that should be used by the tunnel.
         public var keyPolicy: KeyPolicy
@@ -169,7 +168,7 @@ extension State {
 
         /// Last WG key read from setings.
         /// Can be `nil` if moved to `keyPolicy` or when it's uknown.
-        public var currentKey: PrivateKey?
+        public var currentKey: WireGuard.PrivateKey?
 
         /// Policy describing the current key that should be used by the tunnel.
         public var keyPolicy: KeyPolicy

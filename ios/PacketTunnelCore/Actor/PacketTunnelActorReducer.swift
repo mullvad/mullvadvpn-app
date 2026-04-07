@@ -9,7 +9,6 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes
 
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.

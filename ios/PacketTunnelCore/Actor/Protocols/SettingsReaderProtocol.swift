@@ -10,7 +10,7 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 import Network
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 
 /// A type that implements a reader that can return settings required by `PacketTunnelActor` in order to configure the tunnel.
 public protocol SettingsReaderProtocol {
@@ -26,7 +26,7 @@ public protocol SettingsReaderProtocol {
 /// Struct holding settings necessary to configure packet tunnel adapter.
 public struct Settings: Equatable, Sendable, CustomDebugStringConvertible {
     /// Private key used by device.
-    public var privateKey: PrivateKey
+    public var privateKey: WireGuard.PrivateKey
 
     /// IP addresses assigned for tunnel interface.
     public var interfaceAddresses: [IPAddressRange]
@@ -34,7 +34,7 @@ public struct Settings: Equatable, Sendable, CustomDebugStringConvertible {
     public var tunnelSettings: LatestTunnelSettings
 
     public init(
-        privateKey: PrivateKey,
+        privateKey: WireGuard.PrivateKey,
         interfaceAddresses: [IPAddressRange],
         tunnelSettings: LatestTunnelSettings
     ) {

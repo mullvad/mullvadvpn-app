@@ -10,10 +10,9 @@ import Foundation
 import MullvadRustRuntimeProxy
 import MullvadTypes
 import NetworkExtension
-import WireGuardKitTypes
 
 public protocol EphemeralPeerExchangeActorProtocol {
-    func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool)
+    func startNegotiation(with privateKey: WireGuard.PrivateKey, enablePostQuantum: Bool, enableDaita: Bool)
     func endCurrentNegotiation()
     func reset()
 }
@@ -58,12 +57,12 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
     /// It is reset after every successful key exchange.
     ///
     /// - Parameter privateKey: The device's current private key
-    public func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
+    public func startNegotiation(with privateKey: WireGuard.PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
         endCurrentNegotiation()
         let negotiator = negotiationProvider.init()
 
         // This will become the new private key of the device
-        let ephemeralSharedKey = PrivateKey()
+        let ephemeralSharedKey = WireGuard.PrivateKey()
 
         let tcpConnectionTimeout = keyExchangeRetriesIterator.next() ?? .seconds(10)
         // If the connection never becomes viable, force a reconnection after 10 seconds
