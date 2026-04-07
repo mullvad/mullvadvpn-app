@@ -18,7 +18,7 @@ if [[ -z ${YUBIKEY_PIN-} ]]; then
     exit 1
 fi
 
-echo "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
+printf '%s' "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
 cleanup() { "$CONTAINER_RUNNER" secret rm YUBIKEY_PIN 2>/dev/null || true; }
 trap cleanup EXIT
 
