@@ -30,6 +30,9 @@ const IOCTL_ST_RESET: u32 = ctl_code(ST_DEVICE_TYPE, 11, 3, 0);
 // State value indicating the driver is ready
 const ST_DRIVER_STATE_STARTED: u64 = 1;
 
+// Win32 device path for the Mullvad split tunnel device.
+const ST_DEVICE_PATH: &str = r"\\.\MULLVADSPLITTUNNEL";
+
 /// Open the split tunnel device, send IOCTL_ST_RESET, then verify
 /// the driver state is `ST_DRIVER_STATE_STARTED`.
 pub fn reset_driver_state() -> Result<(), crate::Error> {
@@ -37,7 +40,7 @@ pub fn reset_driver_state() -> Result<(), crate::Error> {
         .access_mode(GENERIC_READ | GENERIC_WRITE)
         .share_mode(0) // FILE_SHARE_NONE
         .custom_flags(FILE_FLAG_OVERLAPPED)
-        .open("\\\\.\\MULLVADSPLITTUNNEL")
+        .open(ST_DEVICE_PATH)
         .map_err(crate::Error::OpenDevice)?;
 
     let handle = file.as_raw_handle() as HANDLE;
