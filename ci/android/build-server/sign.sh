@@ -30,7 +30,7 @@ function main {
 function sign_artifact {
     local artifact_file="$1"
 
-    $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+    "$APKSIGNER_CMD" -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
     --min-sdk-version "$MIN_SDK_VERSION" --v4-signing-enabled false \

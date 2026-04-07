@@ -1,0 +1,18 @@
+# This rules allows forwarding the physical key into a container, by setting
+# the correct permissions and telling PCSC to ignore it.
+#
+# Filters on yubikeys only
+# ATTR{idVendor}=="1050", ATTR{idProduct}=="0407"
+#
+# Specifies the physical USB port where the yubikey is plugged in.
+# KERNAL=="5-2
+#
+# Set the ACL for the device so the build user can access the device.
+# RUN+="/usr/bin/setfacl -m u:build:rw /dev/$name"
+#
+# Make PCSC on the host ignore this yubikey, https://blog.apdu.fr/posts/2025/04/ignore-readers-using-pcsclite_ignore-udev-property/
+# ENV{PCSCLITE_IGNORE}="1"
+#
+# Create a symlink so we more easily can access the device from publish script
+# SYMLINK+="android-jks-signing-key"
+ACTION!="remove|unbind", SUBSYSTEM=="usb", ATTR{idVendor}=="1050", ATTR{idProduct}=="0407", KERNEL=="5-2", RUN+="/usr/bin/setfacl -m u:build:rw /dev/$name", ENV{PCSCLITE_IGNORE}="1" SYMLINK+="android-jks-signing-key"
