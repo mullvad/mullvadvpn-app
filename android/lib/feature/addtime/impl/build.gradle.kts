@@ -11,6 +11,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.addtime.impl" }
 
 dependencies {
     implementation(projects.lib.feature.addtime.api)
+    implementation(projects.lib.feature.redeemvoucher.api)
     implementation(projects.lib.payment)
     implementation(projects.lib.repository)
 

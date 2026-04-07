@@ -387,6 +387,7 @@ dependencies {
     implementation(projects.lib.feature.home.impl)
     implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.location.impl)
+    implementation(projects.lib.feature.location.api)
     implementation(projects.lib.feature.login.impl)
     implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.managedevices.impl)

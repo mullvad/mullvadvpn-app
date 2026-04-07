@@ -12,5 +12,6 @@ fun EntryProviderScope<NavKey2>.selectLocationEntry(navigator: Navigator) {
         SelectLocation(navigator = navigator)
     }
 
+    locationBottomSheetEntry(navigator)
     searchLocationEntry(navigator)
 }

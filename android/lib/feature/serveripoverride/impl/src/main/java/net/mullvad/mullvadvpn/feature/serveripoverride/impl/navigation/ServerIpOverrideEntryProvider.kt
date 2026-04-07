@@ -23,5 +23,6 @@ fun EntryProviderScope<NavKey2>.serverIpOverrideEntry(navigator: Navigator) {
 
     resetServerIpOverrideConfirmationEntry(navigator)
     importOverrideByTextScreenEntry(navigator)
+    importOverridesEntry(navigator)
     serverIpOverrideInfoEntry(navigator)
 }

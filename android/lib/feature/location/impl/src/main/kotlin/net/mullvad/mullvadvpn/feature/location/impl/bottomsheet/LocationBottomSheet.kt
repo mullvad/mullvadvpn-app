@@ -28,17 +28,29 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.closeBottomSheet
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.NavKey2
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
+import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.R
 import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -46,7 +58,6 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
@@ -58,63 +69,176 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.RelayListHeaderTokens
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
-import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongMethod")
 @Composable
 internal fun LocationBottomSheets(
-    locationBottomSheetState: LocationBottomSheetState?,
-    onCreateCustomList: (RelayItem.Location?) -> Unit,
-    onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
-    onEditCustomListName: (RelayItem.CustomList) -> Unit,
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
-    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
-    onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
-    onHideBottomSheet: () -> Unit,
+    navigator: Navigator,
+    locationBottomSheetState: LocationBottomSheetState,
 ) {
-    if (locationBottomSheetState != null) {
-        val viewModel =
-            koinViewModel<LocationBottomSheetViewModel>(
-                key = locationBottomSheetState.toString(),
-                parameters = { parametersOf(locationBottomSheetState) },
-            )
+    val vm =
+        koinViewModel<LocationBottomSheetViewModel>(
+            key = locationBottomSheetState.toString(),
+            parameters = { parametersOf(locationBottomSheetState) },
+        )
 
-        val state by viewModel.uiState.collectAsStateWithLifecycle()
-        LocationBottomSheets(
-            locationBottomSheetUiState = state,
-            onCreateCustomList = onCreateCustomList,
-            onAddLocationToList = onAddLocationToList,
-            onRemoveLocationFromList = onRemoveLocationFromList,
-            onEditCustomListName = onEditCustomListName,
-            onEditLocationsCustomList = onEditLocationsCustomList,
-            onDeleteCustomList = onDeleteCustomList,
-            onSetAsEntry = {
-                viewModel.setAsEntry(item = it, onError = onModifyMultihopError, onMultihopChanged)
-            },
-            onDisableMultihop = { viewModel.disableMultihop(onMultihopChanged) },
-            onSetAsExit = {
-                viewModel.setAsExit(
-                    item = it,
-                    onModifyMultihopError = onModifyMultihopError,
-                    onRelayItemError = onRelayItemError,
-                    onMultihopChanged,
+    val snackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
+        when (it) {
+            is LocationBottomSheetSideEffect.CustomListActionToast ->
+                launch {
+                    snackbarHostState.showResultSnackbar(
+                        resources = resources,
+                        result = it.resultData,
+                        onUndo = vm::performAction,
+                    )
+                }
+            LocationBottomSheetSideEffect.GenericError ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = resources.getString(R.string.error_occurred)
+                    )
+                }
+            is LocationBottomSheetSideEffect.EntryAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            resources.getString(
+                                R.string.relay_item_already_selected_as_entry,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is LocationBottomSheetSideEffect.ExitAlreadySelected ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            resources.getString(
+                                R.string.relay_item_already_selected_as_exit,
+                                it.relayItem.name,
+                            )
+                    )
+                }
+            is LocationBottomSheetSideEffect.RelayItemInactive ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
+                    )
+                }
+            LocationBottomSheetSideEffect.EntryAndExitAreSame ->
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = resources.getString(R.string.entry_and_exit_are_same)
+                    )
+                }
+            is LocationBottomSheetSideEffect.MultihopChanged -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message =
+                            resources.getString(
+                                when (it.undoChangeMultihopAction) {
+                                    UndoChangeMultihopAction.Disable,
+                                    is UndoChangeMultihopAction.DisableAndSetExit,
+                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                        R.string.multihop_is_enabled
+                                    else -> R.string.multihop_is_disabled
+                                }
+                            ),
+                        actionLabel = resources.getString(R.string.undo),
+                        onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
+                        duration = SnackbarDuration.Long,
+                    )
+                }
+            }
+        }
+    }
+
+    val state by vm.uiState.collectAsStateWithLifecycle()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+
+    fun closeBottomSheet(animate: Boolean, goTo: NavKey2? = null) =
+        closeBottomSheet(
+            animate = animate,
+            goTo = goTo,
+            sheetState = sheetState,
+            scope = scope,
+            navigator = navigator,
+        )
+
+    LocationBottomSheets(
+        locationBottomSheetUiState = state,
+        sheetState = sheetState,
+        onCreateCustomList =
+            dropUnlessResumed { relayItem ->
+                closeBottomSheet(
+                    animate = true,
+                    goTo = CreateCustomListNavKey(locationCode = relayItem?.id),
                 )
             },
-            onHideBottomSheet = onHideBottomSheet,
-        )
-    }
+        onAddLocationToList = vm::addLocationToList,
+        onRemoveLocationFromList = vm::removeLocationFromList,
+        onEditCustomListName =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                closeBottomSheet(
+                    animate = true,
+                    goTo =
+                        EditCustomListNameNavKey(
+                            customListId = customList.id,
+                            initialName = customList.customList.name,
+                        ),
+                )
+            },
+        onEditLocationsCustomList =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                closeBottomSheet(
+                    animate = true,
+                    goTo =
+                        EditCustomListLocationsNavKey(customListId = customList.id, newList = false),
+                )
+            },
+        onDeleteCustomList =
+            dropUnlessResumed { customList: RelayItem.CustomList ->
+                closeBottomSheet(
+                    animate = true,
+                    goTo =
+                        DeleteCustomListNavKey(
+                            customListId = customList.id,
+                            name = customList.customList.name,
+                        ),
+                )
+            },
+        onSetAsEntry = {
+            vm.setAsEntry(
+                item = it,
+                onError = vm::onModifyMultihopError,
+                onUpdateMultihop = vm::onMultihopChanged,
+            )
+        },
+        onDisableMultihop = { vm.disableMultihop(vm::onMultihopChanged) },
+        onSetAsExit = {
+            vm.setAsExit(
+                item = it,
+                onModifyMultihopError = vm::onModifyMultihopError,
+                onRelayItemError = vm::onSelectRelayItemError,
+                onUpdateMultihop = vm::onMultihopChanged,
+            )
+        },
+        closeBottomSheet = { animate -> closeBottomSheet(animate) },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LocationBottomSheets(
     locationBottomSheetUiState: Lc<Unit, LocationBottomSheetUiState>,
+    sheetState: SheetState,
     onCreateCustomList: (RelayItem.Location?) -> Unit,
     onAddLocationToList: (RelayItem.Location, RelayItem.CustomList) -> Unit,
     onRemoveLocationFromList: (location: RelayItem.Location, parent: CustomListId) -> Unit,
@@ -124,17 +248,8 @@ private fun LocationBottomSheets(
     onSetAsEntry: (RelayItem) -> Unit,
     onDisableMultihop: () -> Unit,
     onSetAsExit: (RelayItem) -> Unit,
-    onHideBottomSheet: () -> Unit,
+    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val scope = rememberCoroutineScope()
-    val onCloseBottomSheet: (animate: Boolean) -> Unit = { animate ->
-        if (animate) {
-            scope.launch { sheetState.hide() }.invokeOnCompletion { onHideBottomSheet() }
-        } else {
-            onHideBottomSheet()
-        }
-    }
     val backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer
     val onBackgroundColor: Color = MaterialTheme.colorScheme.onSecondary
 
@@ -154,7 +269,7 @@ private fun LocationBottomSheets(
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
-                closeBottomSheet = onCloseBottomSheet,
+                closeBottomSheet = closeBottomSheet,
             )
         }
         is LocationBottomSheetUiState.CustomList -> {
@@ -172,7 +287,7 @@ private fun LocationBottomSheets(
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
-                closeBottomSheet = onCloseBottomSheet,
+                closeBottomSheet = closeBottomSheet,
             )
         }
         is LocationBottomSheetUiState.CustomListsEntry -> {
@@ -190,7 +305,7 @@ private fun LocationBottomSheets(
                 onSetAsEntry = onSetAsEntry,
                 onDisableMultihop = onDisableMultihop,
                 onSetAsExit = onSetAsExit,
-                closeBottomSheet = onCloseBottomSheet,
+                closeBottomSheet = closeBottomSheet,
             )
         }
         null -> {
@@ -306,10 +421,7 @@ private fun EditCustomListBottomSheet(
                     containerColorParent = backgroundColor,
                 ),
             position = Position.Middle,
-            onClick = {
-                onEditName(customList)
-                closeBottomSheet(true)
-            },
+            onClick = { onEditName(customList) },
         )
         IconListItem(
             leadingIcon = Icons.Rounded.Add,
@@ -320,10 +432,7 @@ private fun EditCustomListBottomSheet(
                     containerColorParent = backgroundColor,
                 ),
             position = Position.Middle,
-            onClick = {
-                onEditLocations(customList)
-                closeBottomSheet(true)
-            },
+            onClick = { onEditLocations(customList) },
         )
         IconListItem(
             leadingIcon = Icons.Rounded.Delete,
@@ -334,10 +443,7 @@ private fun EditCustomListBottomSheet(
                     containerColorParent = backgroundColor,
                 ),
             position = Position.Middle,
-            onClick = {
-                onDeleteCustomList(customList)
-                closeBottomSheet(true)
-            },
+            onClick = { onDeleteCustomList(customList) },
         )
     }
 }
@@ -436,10 +542,7 @@ private fun CustomLists(
                 containerColorParent = backgroundColor,
             ),
         position = Position.Middle,
-        onClick = {
-            onCreateCustomList(item)
-            closeBottomSheet(true)
-        },
+        onClick = { onCreateCustomList(item) },
     )
 }
 
@@ -614,26 +717,5 @@ private fun CustomListActionResultData.message(resources: Resources): String =
             resources.getString(R.string.name_was_changed_to, newName)
         CustomListActionResultData.GenericError -> resources.getString(R.string.error_occurred)
     }
-
-sealed interface LocationBottomSheetState {
-    val item: RelayItem
-    val relayListType: RelayListType
-
-    data class ShowCustomListsEntryBottomSheet(
-        val customListId: CustomListId,
-        override val item: RelayItem.Location,
-        override val relayListType: RelayListType,
-    ) : LocationBottomSheetState
-
-    data class ShowLocationBottomSheet(
-        override val item: RelayItem.Location,
-        override val relayListType: RelayListType,
-    ) : LocationBottomSheetState
-
-    data class ShowEditCustomListBottomSheet(
-        override val item: RelayItem.CustomList,
-        override val relayListType: RelayListType,
-    ) : LocationBottomSheetState
-}
 
 private val SUB_HEADER_HEADER_MIN_HEIGHT = 48.dp

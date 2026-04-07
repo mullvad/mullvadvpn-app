@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import arrow.optics.optics
+import kotlinx.parcelize.IgnoredOnParcel
+import kotlinx.parcelize.Parcelize
 
 typealias DomainCustomList = CustomList
 
@@ -23,8 +26,9 @@ sealed interface HopSelection {
         }
 }
 
+@Parcelize
 @optics
-sealed interface RelayItem {
+sealed interface RelayItem : Parcelable {
     val id: RelayItemId
     val name: String
 
@@ -34,15 +38,16 @@ sealed interface RelayItem {
     @optics
     data class CustomList(val customList: DomainCustomList, val locations: List<Location>) :
         RelayItem {
-        override val name: String = customList.name.value
-        override val id = customList.id
+        @IgnoredOnParcel override val name: String = customList.name.value
+        @IgnoredOnParcel override val id = customList.id
 
-        override val active = locations.any { it.active }
-        override val hasChildren: Boolean = locations.isNotEmpty()
+        @IgnoredOnParcel override val active = locations.any { it.active }
+        @IgnoredOnParcel override val hasChildren: Boolean = locations.isNotEmpty()
 
         companion object
     }
 
+    @Parcelize
     @optics
     sealed interface Location : RelayItem {
         override val id: GeoLocationId
@@ -53,9 +58,9 @@ sealed interface RelayItem {
             override val name: String,
             val cities: List<City>,
         ) : Location {
-            val relays = cities.flatMap { city -> city.relays }
-            override val active = cities.any { it.active }
-            override val hasChildren: Boolean = cities.isNotEmpty()
+            @IgnoredOnParcel val relays = cities.flatMap { city -> city.relays }
+            @IgnoredOnParcel override val active = cities.any { it.active }
+            @IgnoredOnParcel override val hasChildren: Boolean = cities.isNotEmpty()
 
             companion object
         }
@@ -67,8 +72,8 @@ sealed interface RelayItem {
             val relays: List<Relay>,
             val countryName: String,
         ) : Location {
-            override val active = relays.any { it.active }
-            override val hasChildren: Boolean = relays.isNotEmpty()
+            @IgnoredOnParcel override val active = relays.any { it.active }
+            @IgnoredOnParcel override val hasChildren: Boolean = relays.isNotEmpty()
 
             companion object
         }
@@ -85,8 +90,8 @@ sealed interface RelayItem {
             val cityName: String,
             val countryName: String,
         ) : Location {
-            override val name: String = id.code
-            override val hasChildren: Boolean = false
+            @IgnoredOnParcel override val name: String = id.code
+            @IgnoredOnParcel override val hasChildren: Boolean = false
 
             companion object
         }

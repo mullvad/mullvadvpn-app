@@ -11,10 +11,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
-import net.mullvad.mullvadvpn.feature.location.impl.addLocationToCustomList
 import net.mullvad.mullvadvpn.feature.location.impl.onToggleExpandMap
-import net.mullvad.mullvadvpn.feature.location.impl.removeLocationFromCustomList
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
@@ -27,12 +24,8 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
-import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
@@ -50,14 +43,11 @@ import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItem
 class SearchLocationViewModel(
     private val relayListType: RelayListType,
     private val customListActionUseCase: CustomListActionUseCase,
-    private val customListsRepository: CustomListsRepository,
     private val relayListFilterRepository: RelayListFilterRepository,
     private val filterChipUseCase: FilterChipUseCase,
     private val selectSinglehopUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val settingsRepository: SettingsRepository,
-    private val wireguardConstraintsRepository: WireguardConstraintsRepository,
-    private val relayListRepository: RelayListRepository,
     filteredRelayListUseCase: FilteredRelayListUseCase,
     filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -191,31 +181,6 @@ class SearchLocationViewModel(
             }
         }
 
-    fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
-        viewModelScope.launch {
-            val result =
-                addLocationToCustomList(
-                    item = item,
-                    customList = customList,
-                    update = customListActionUseCase::invoke,
-                )
-            _uiSideEffect.send(SearchLocationSideEffect.CustomListActionToast(result))
-        }
-    }
-
-    fun removeLocationFromList(item: RelayItem.Location, customListId: CustomListId) {
-        viewModelScope.launch {
-            val result =
-                removeLocationFromCustomList(
-                    item = item,
-                    customListId = customListId,
-                    getCustomListById = customListsRepository::getCustomListById,
-                    update = customListActionUseCase::invoke,
-                )
-            _uiSideEffect.trySend(SearchLocationSideEffect.CustomListActionToast(result))
-        }
-    }
-
     fun performAction(action: CustomListAction) {
         viewModelScope.launch { customListActionUseCase(action) }
     }
@@ -230,51 +195,6 @@ class SearchLocationViewModel(
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
         _expandOverrides.onToggleExpandMap(item = item, parent = parent, expand = expand)
-    }
-
-    fun onModifyMultihopError(
-        modifyMultihopError: ModifyMultihopError,
-        multihopChange: MultihopChange,
-    ) {
-        viewModelScope.launch {
-            _uiSideEffect.send(modifyMultihopError.toSideEffect(multihopChange))
-        }
-    }
-
-    fun onSelectRelayItemError(selectRelayItemError: SelectRelayItemError) {
-        viewModelScope.launch { _uiSideEffect.send(selectRelayItemError.toSideEffect()) }
-    }
-
-    fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
-        viewModelScope.launch {
-            _uiSideEffect.send(SearchLocationSideEffect.MultihopChanged(undoChangeMultihopAction))
-        }
-    }
-
-    fun undoMultihopAction(undoChangeMultihopAction: UndoChangeMultihopAction) {
-        viewModelScope.launch {
-            when (undoChangeMultihopAction) {
-                UndoChangeMultihopAction.Enable ->
-                    wireguardConstraintsRepository.setMultihop(true).onLeft {
-                        _uiSideEffect.send(SearchLocationSideEffect.GenericError)
-                    }
-                UndoChangeMultihopAction.Disable ->
-                    wireguardConstraintsRepository.setMultihop(false).onLeft {
-                        _uiSideEffect.send(SearchLocationSideEffect.GenericError)
-                    }
-                is UndoChangeMultihopAction.DisableAndSetEntry ->
-                    wireguardConstraintsRepository
-                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
-                        .onLeft { _uiSideEffect.send(SearchLocationSideEffect.GenericError) }
-                is UndoChangeMultihopAction.DisableAndSetExit ->
-                    relayListRepository
-                        .updateExitRelayLocationMultihop(
-                            false,
-                            undoChangeMultihopAction.relayItemId,
-                        )
-                        .onLeft { _uiSideEffect.send(SearchLocationSideEffect.GenericError) }
-            }
-        }
     }
 
     private fun Set<String>.with(overrides: Map<String, Boolean>): Set<String> =
@@ -311,12 +231,6 @@ class SearchLocationViewModel(
 
 sealed interface SearchLocationSideEffect {
     data class LocationSelected(val relayListType: RelayListType) : SearchLocationSideEffect
-
-    data class CustomListActionToast(val resultData: CustomListActionResultData) :
-        SearchLocationSideEffect
-
-    data class MultihopChanged(val undoChangeMultihopAction: UndoChangeMultihopAction) :
-        SearchLocationSideEffect
 
     data class RelayItemInactive(val relayItem: RelayItem) : SearchLocationSideEffect
 

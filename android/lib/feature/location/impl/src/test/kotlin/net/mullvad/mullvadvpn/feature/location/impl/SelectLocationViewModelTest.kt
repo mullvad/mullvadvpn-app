@@ -18,11 +18,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.CustomList
-import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
@@ -32,10 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.lib.model.communication.LocationsChanged
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
-import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
@@ -59,7 +52,6 @@ class SelectLocationViewModelTest {
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockCustomListActionUseCase: CustomListActionUseCase = mockk(relaxed = true)
     private val mockRelayListRepository: RelayListRepository = mockk()
-    private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
@@ -97,7 +89,6 @@ class SelectLocationViewModelTest {
                 relayListFilterRepository = mockRelayListFilterRepository,
                 customListActionUseCase = mockCustomListActionUseCase,
                 relayListRepository = mockRelayListRepository,
-                customListsRepository = mockCustomListsRepository,
                 filterChipUseCase = mockFilterChipUseCase,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 settingsRepository = mockSettingsRepository,
@@ -210,100 +201,6 @@ class SelectLocationViewModelTest {
         // Assert
         coVerify { mockCustomListActionUseCase(action) }
     }
-
-    @Test
-    fun `after adding a location to a list should emit location added side effect`() = runTest {
-        // Arrange
-        val customListId = CustomListId("1")
-        val addedLocationsId = GeoLocationId.Country("se")
-        val customListName = CustomListName.fromString("custom")
-        val location: RelayItem.Location.Country = mockk {
-            every { id } returns GeoLocationId.Country("se")
-            every { name } returns "Sweden"
-            every { descendants() } returns emptyList()
-        }
-        val customList =
-            RelayItem.CustomList(
-                customList =
-                    CustomList(
-                        id = CustomListId("1"),
-                        name = customListName,
-                        locations = emptyList(),
-                    ),
-                locations = emptyList(),
-            )
-        val expectedResult =
-            CustomListActionResultData.Success.LocationAdded(
-                customListName = customListName,
-                locationName = location.name,
-                undo = CustomListAction.UpdateLocations(id = customListId, locations = emptyList()),
-            )
-
-        coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
-            LocationsChanged(
-                    id = customListId,
-                    name = customListName,
-                    locations = listOf(addedLocationsId),
-                    oldLocations = emptyList(),
-                )
-                .right()
-
-        // Act, Assert
-        viewModel.uiSideEffect.test {
-            viewModel.addLocationToList(item = location, customList = customList)
-            val sideEffect = awaitItem()
-            assertIs<SelectLocationSideEffect.CustomListActionToast>(sideEffect)
-            assertEquals(expectedResult, sideEffect.resultData)
-        }
-    }
-
-    @Test
-    fun `after removing a location from a list should emit location removed side effect`() =
-        runTest {
-            // Arrange
-            val locationName = "Sweden"
-            val customListId = CustomListId("1")
-            val removedLocationsId = GeoLocationId.Country("se")
-            val customListName = CustomListName.fromString("custom")
-            val location: RelayItem.Location.Country = mockk {
-                every { id } returns removedLocationsId
-                every { name } returns locationName
-                every { descendants() } returns emptyList()
-            }
-            val expectedResult =
-                CustomListActionResultData.Success.LocationRemoved(
-                    customListName = customListName,
-                    locationName = locationName,
-                    undo =
-                        CustomListAction.UpdateLocations(
-                            id = customListId,
-                            locations = listOf(location.id),
-                        ),
-                )
-            coEvery { mockCustomListActionUseCase(any<CustomListAction.UpdateLocations>()) } returns
-                LocationsChanged(
-                        id = customListId,
-                        name = customListName,
-                        locations = emptyList(),
-                        oldLocations = listOf(removedLocationsId),
-                    )
-                    .right()
-            coEvery { mockCustomListsRepository.getCustomListById(customListId) } returns
-                CustomList(
-                        id = customListId,
-                        name = customListName,
-                        locations = listOf(removedLocationsId),
-                    )
-                    .right()
-
-            // Act, Assert
-            viewModel.uiSideEffect.test {
-                viewModel.removeLocationFromList(item = location, customListId = customListId)
-                val sideEffect = awaitItem()
-                assertIs<SelectLocationSideEffect.CustomListActionToast>(sideEffect)
-                assertEquals(expectedResult, sideEffect.resultData)
-            }
-        }
 
     @Test
     fun `given entry blocked should filters if in entry list`() = runTest {

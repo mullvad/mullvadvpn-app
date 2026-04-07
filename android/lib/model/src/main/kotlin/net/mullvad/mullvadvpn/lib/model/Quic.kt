@@ -1,8 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import java.net.InetAddress
+import kotlinx.parcelize.Parcelize
 
-data class Quic(val inAddresses: List<InetAddress>) {
-    val supportsIpv4 = inAddresses.any { it is java.net.Inet4Address }
-    val supportsIpv6 = inAddresses.any { it is java.net.Inet6Address }
-}
+@Parcelize data class Quic(val inAddresses: List<InetAddress>) : Parcelable

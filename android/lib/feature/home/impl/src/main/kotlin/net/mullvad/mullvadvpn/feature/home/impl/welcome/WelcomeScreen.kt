@@ -21,13 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
@@ -51,11 +49,10 @@ import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.account.impl.CopyAnimatedIconButton
+import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
-import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
@@ -83,8 +80,8 @@ private fun PreviewWelcomeScreen(
             onSettingsClick = {},
             onAccountClick = {},
             navigateToDeviceInfoDialog = {},
+            onAddMoreTimeClick = {},
             onDisconnectClick = {},
-            onRedeemVoucherClick = {},
             onPlayPaymentInfoClick = {},
         )
     }
@@ -131,7 +128,7 @@ fun Welcome(navigator: Navigator) {
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
         navigateToDeviceInfoDialog = dropUnlessResumed { navigator.navigate(DeviceNameInfoNavKey) },
         onDisconnectClick = vm::onDisconnectClick,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
+        onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
         onPlayPaymentInfoClick = dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
     )
 }
@@ -142,8 +139,8 @@ fun WelcomeScreen(
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
+    onAddMoreTimeClick: () -> Unit,
     onDisconnectClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     navigateToDeviceInfoDialog: () -> Unit,
 ) {
@@ -156,16 +153,6 @@ fun WelcomeScreen(
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,
     ) {
-        var addTimeBottomSheetState by remember { mutableStateOf(false) }
-        if (!LocalInspectionMode.current) {
-            AddTimeBottomSheet(
-                visible = addTimeBottomSheetState,
-                onHideBottomSheet = { addTimeBottomSheetState = false },
-                onRedeemVoucherClick = onRedeemVoucherClick,
-                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-            )
-        }
-
         Column(
             modifier =
                 Modifier.fillMaxSize()
@@ -187,7 +174,7 @@ fun WelcomeScreen(
                 ButtonPanel(
                     showDisconnectButton = state.value.tunnelState.isSecured(),
                     verificationPending = state.value.verificationPending,
-                    onAddMoreTimeClick = { addTimeBottomSheetState = true },
+                    onAddMoreTimeClick = onAddMoreTimeClick,
                     onDisconnectClick = onDisconnectClick,
                     onInfoClick = onPlayPaymentInfoClick,
                 )
