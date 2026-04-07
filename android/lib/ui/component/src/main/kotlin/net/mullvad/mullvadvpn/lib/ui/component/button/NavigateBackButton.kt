@@ -1,14 +1,13 @@
-package net.mullvad.mullvadvpn.lib.ui.component
+package net.mullvad.mullvadvpn.lib.ui.component.button
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.ArrowDownward
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import net.mullvad.mullvadvpn.lib.ui.component.R
 
 @Composable
 fun NavigateBackIconButton(
@@ -24,22 +23,3 @@ fun NavigateBackIconButton(
     }
 }
 
-@Composable
-fun NavigateBackDownIconButton(onNavigateBack: () -> Unit) {
-    IconButton(onClick = onNavigateBack) {
-        Icon(
-            imageVector = Icons.Rounded.ArrowDownward,
-            contentDescription = stringResource(id = R.string.back),
-        )
-    }
-}
-
-@Composable
-fun NavigateCloseIconButton(onNavigateClose: () -> Unit) {
-    IconButton(onClick = onNavigateClose) {
-        Icon(
-            imageVector = Icons.Rounded.Close,
-            contentDescription = stringResource(id = R.string.close),
-        )
-    }
-}

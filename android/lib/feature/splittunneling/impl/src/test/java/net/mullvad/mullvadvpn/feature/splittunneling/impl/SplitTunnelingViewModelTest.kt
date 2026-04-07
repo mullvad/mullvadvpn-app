@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -36,15 +37,19 @@ class SplitTunnelingViewModelTest {
 
     private val mockedApplicationsProvider = mockk<ApplicationsProvider>()
     private val mockedSplitTunnelingRepository = mockk<SplitTunnelingRepository>()
+    private val mockedUserPreferencesRepository = mockk<UserPreferencesRepository>()
     private lateinit var testSubject: SplitTunnelingViewModel
 
     private val excludedApps: MutableStateFlow<Set<AppId>> = MutableStateFlow(emptySet())
     private val enabled: MutableStateFlow<Boolean> = MutableStateFlow(true)
+    private val showSystemApps: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     @BeforeEach
     fun setup() {
         every { mockedSplitTunnelingRepository.splitTunnelingEnabled } returns enabled
         every { mockedSplitTunnelingRepository.excludedApps } returns excludedApps
+        every { mockedUserPreferencesRepository.showSystemAppsSplitTunneling() } returns
+            showSystemApps
     }
 
     @AfterEach
@@ -58,7 +63,7 @@ class SplitTunnelingViewModelTest {
         initTestSubject(emptyList())
         val actualState: Lc<Loading, SplitTunnelingUiState> = testSubject.uiState.value
 
-        val initialExpectedState = Lc.Loading(Loading(enabled = false))
+        val initialExpectedState = Lc.Loading(Loading())
 
         assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)
@@ -204,6 +209,7 @@ class SplitTunnelingViewModelTest {
                 isModal = false,
                 mockedApplicationsProvider,
                 mockedSplitTunnelingRepository,
+                mockedUserPreferencesRepository,
                 UnconfinedTestDispatcher(),
             )
     }

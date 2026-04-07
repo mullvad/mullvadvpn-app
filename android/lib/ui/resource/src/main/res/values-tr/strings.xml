@@ -397,7 +397,7 @@
     <string name="retry">Tekrar dene</string>
     <string name="save">Kaydet</string>
     <string name="search">Ara</string>
-    <string name="search_location_empty_text">\"%1$s\" için sonuç yok, lütfen farklı bir arama yapın</string>
+    <string name="search_no_matches_for_text">\"%1$s\" için sonuç yok, lütfen farklı bir arama yapın</string>
     <string name="search_placeholder">Ara...</string>
     <string name="select_location">Konum seçin</string>
     <string name="send">Gönder</string>

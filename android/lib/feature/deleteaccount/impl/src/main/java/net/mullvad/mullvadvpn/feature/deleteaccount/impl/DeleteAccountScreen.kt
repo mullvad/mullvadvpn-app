@@ -30,7 +30,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountConfirmationNavKey
 import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton

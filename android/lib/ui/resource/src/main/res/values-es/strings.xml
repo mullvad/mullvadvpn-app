@@ -397,7 +397,7 @@
     <string name="retry">Reintentar</string>
     <string name="save">Guardar</string>
     <string name="search">Buscar</string>
-    <string name="search_location_empty_text">No hay resultados para «%1$s», intente una búsqueda diferente</string>
+    <string name="search_no_matches_for_text">No hay resultados para «%1$s», intente una búsqueda diferente</string>
     <string name="search_placeholder">Buscar...</string>
     <string name="select_location">Seleccionar ubicación</string>
     <string name="send">Enviar</string>
