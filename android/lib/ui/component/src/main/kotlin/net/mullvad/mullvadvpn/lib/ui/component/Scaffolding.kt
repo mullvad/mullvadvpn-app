@@ -6,10 +6,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 
 @Composable
 fun ScaffoldWithTopBar(
@@ -137,10 +132,8 @@ fun ScaffoldWithSmallTopBar(
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    lazyListState: LazyListState = rememberLazyListState(),
-    scrollbarColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    content: @Composable (modifier: Modifier, lazyListState: LazyListState) -> Unit,
+    content: @Composable (modifier: Modifier) -> Unit,
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize().imePadding(),
@@ -157,43 +150,6 @@ fun ScaffoldWithSmallTopBar(
                 snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
             )
         },
-        content = {
-            content(
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .drawVerticalScrollbar(state = lazyListState, color = scrollbarColor),
-                lazyListState,
-            )
-        },
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ScaffoldWithSmallTopBar(
-    appBarTitle: String,
-    modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    actions: @Composable RowScope.() -> Unit = {},
-    lazyGridState: LazyGridState = rememberLazyGridState(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    content: @Composable (modifier: Modifier, lazyGridState: LazyGridState) -> Unit,
-) {
-    Scaffold(
-        modifier = modifier.fillMaxSize().imePadding(),
-        topBar = {
-            MullvadSmallTopBar(
-                title = appBarTitle,
-                navigationIcon = navigationIcon,
-                actions = actions,
-            )
-        },
-        snackbarHost = {
-            SnackbarHost(
-                snackbarHostState,
-                snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
-            )
-        },
-        content = { content(Modifier.fillMaxSize().padding(it), lazyGridState) },
+        content = { content(Modifier.fillMaxSize().padding(it)) },
     )
 }
