@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
+import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.addLocationToCustomList
 import net.mullvad.mullvadvpn.feature.location.impl.removeLocationFromCustomList
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -25,10 +26,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
-import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
@@ -47,7 +45,6 @@ class LocationBottomSheetViewModel(
     private val locationBottomSheetState: LocationBottomSheetState,
     private val customListActionUseCase: CustomListActionUseCase,
     private val customListsRepository: CustomListsRepository,
-    private val relayListRepository: RelayListRepository,
     private val hopSelectionUseCase: HopSelectionUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val modifyAndEnableMultihopUseCase: ModifyAndEnableMultihopUseCase,
@@ -131,7 +128,7 @@ class LocationBottomSheetViewModel(
                 Lc.Loading(Unit),
             )
 
-    private val _uiSideEffect = Channel<LocationBottomSheetSideEffect>()
+    private val _uiSideEffect = Channel<LocationBottomSheetNavResult>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     fun setAsEntry(
@@ -220,10 +217,6 @@ class LocationBottomSheetViewModel(
         }
     }
 
-    fun performAction(action: CustomListAction) {
-        viewModelScope.launch { customListActionUseCase(action) }
-    }
-
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {
             val result =
@@ -232,7 +225,7 @@ class LocationBottomSheetViewModel(
                     customList = customList,
                     update = customListActionUseCase::invoke,
                 )
-            _uiSideEffect.send(LocationBottomSheetSideEffect.CustomListActionToast(result))
+            _uiSideEffect.send(LocationBottomSheetNavResult.CustomListActionToast(result))
         }
     }
 
@@ -245,7 +238,7 @@ class LocationBottomSheetViewModel(
                     getCustomListById = customListsRepository::getCustomListById,
                     update = customListActionUseCase::invoke,
                 )
-            _uiSideEffect.trySend(LocationBottomSheetSideEffect.CustomListActionToast(result))
+            _uiSideEffect.trySend(LocationBottomSheetNavResult.CustomListActionToast(result))
         }
     }
 
@@ -265,60 +258,34 @@ class LocationBottomSheetViewModel(
     fun onMultihopChanged(undoChangeMultihopAction: UndoChangeMultihopAction) {
         viewModelScope.launch {
             _uiSideEffect.send(
-                LocationBottomSheetSideEffect.MultihopChanged(undoChangeMultihopAction)
+                LocationBottomSheetNavResult.MultihopChanged(undoChangeMultihopAction)
             )
-        }
-    }
-
-    fun undoMultihopAction(undoChangeMultihopAction: UndoChangeMultihopAction) {
-        viewModelScope.launch {
-            when (undoChangeMultihopAction) {
-                UndoChangeMultihopAction.Enable ->
-                    wireguardConstraintsRepository.setMultihop(true).onLeft {
-                        _uiSideEffect.send(LocationBottomSheetSideEffect.GenericError)
-                    }
-                UndoChangeMultihopAction.Disable ->
-                    wireguardConstraintsRepository.setMultihop(false).onLeft {
-                        _uiSideEffect.send(LocationBottomSheetSideEffect.GenericError)
-                    }
-                is UndoChangeMultihopAction.DisableAndSetEntry ->
-                    wireguardConstraintsRepository
-                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
-                        .onLeft { _uiSideEffect.send(LocationBottomSheetSideEffect.GenericError) }
-                is UndoChangeMultihopAction.DisableAndSetExit ->
-                    relayListRepository
-                        .updateExitRelayLocationMultihop(
-                            false,
-                            undoChangeMultihopAction.relayItemId,
-                        )
-                        .onLeft { _uiSideEffect.send(LocationBottomSheetSideEffect.GenericError) }
-            }
         }
     }
 
     private fun ModifyMultihopError.toSideEffect(
         multihopChange: MultihopChange
-    ): LocationBottomSheetSideEffect =
+    ): LocationBottomSheetNavResult =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->
                 when (multihopChange) {
                     is MultihopChange.Entry ->
-                        LocationBottomSheetSideEffect.ExitAlreadySelected(relayItem = relayItem)
+                        LocationBottomSheetNavResult.ExitAlreadySelected(relayItem = relayItem)
                     is MultihopChange.Exit ->
-                        LocationBottomSheetSideEffect.EntryAlreadySelected(relayItem = relayItem)
+                        LocationBottomSheetNavResult.EntryAlreadySelected(relayItem = relayItem)
                 }
-            ModifyMultihopError.GenericError -> LocationBottomSheetSideEffect.GenericError
+            ModifyMultihopError.GenericError -> LocationBottomSheetNavResult.GenericError
             is ModifyMultihopError.RelayItemInactive ->
-                LocationBottomSheetSideEffect.RelayItemInactive(relayItem = relayItem)
+                LocationBottomSheetNavResult.RelayItemInactive(relayItem = relayItem)
         }
 
-    private fun SelectRelayItemError.toSideEffect(): LocationBottomSheetSideEffect =
+    private fun SelectRelayItemError.toSideEffect(): LocationBottomSheetNavResult =
         when (this) {
-            SelectRelayItemError.GenericError -> LocationBottomSheetSideEffect.GenericError
+            SelectRelayItemError.GenericError -> LocationBottomSheetNavResult.GenericError
             is SelectRelayItemError.RelayInactive ->
-                LocationBottomSheetSideEffect.RelayItemInactive(relayItem = relayItem)
+                LocationBottomSheetNavResult.RelayItemInactive(relayItem = relayItem)
             SelectRelayItemError.EntryAndExitSame ->
-                LocationBottomSheetSideEffect.EntryAndExitAreSame
+                LocationBottomSheetNavResult.EntryAndExitAreSame
         }
 
     private fun isMultihopEnabled() =
@@ -336,23 +303,4 @@ class LocationBottomSheetViewModel(
         } else {
             SetAsState.DISABLED
         }
-}
-
-sealed interface LocationBottomSheetSideEffect {
-
-    data class CustomListActionToast(val resultData: CustomListActionResultData) :
-        LocationBottomSheetSideEffect
-
-    data object GenericError : LocationBottomSheetSideEffect
-
-    data class RelayItemInactive(val relayItem: RelayItem) : LocationBottomSheetSideEffect
-
-    data class EntryAlreadySelected(val relayItem: RelayItem) : LocationBottomSheetSideEffect
-
-    data class ExitAlreadySelected(val relayItem: RelayItem) : LocationBottomSheetSideEffect
-
-    data object EntryAndExitAreSame : LocationBottomSheetSideEffect
-
-    data class MultihopChanged(val undoChangeMultihopAction: UndoChangeMultihopAction) :
-        LocationBottomSheetSideEffect
 }

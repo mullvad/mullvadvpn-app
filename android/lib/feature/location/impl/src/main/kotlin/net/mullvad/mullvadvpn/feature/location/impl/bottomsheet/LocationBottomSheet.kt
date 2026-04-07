@@ -28,22 +28,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.closeBottomSheet
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
@@ -52,7 +50,6 @@ import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavK
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.R
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -85,79 +82,9 @@ internal fun LocationBottomSheets(
             parameters = { parametersOf(locationBottomSheetState) },
         )
 
-    val snackbarHostState = remember { SnackbarHostState() }
-    val resources = LocalResources.current
+    val resultStore = LocalResultStore.current
 
-    CollectSideEffectWithLifecycle(vm.uiSideEffect) {
-        when (it) {
-            is LocationBottomSheetSideEffect.CustomListActionToast ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        resources = resources,
-                        result = it.resultData,
-                        onUndo = vm::performAction,
-                    )
-                }
-            LocationBottomSheetSideEffect.GenericError ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.error_occurred)
-                    )
-                }
-            is LocationBottomSheetSideEffect.EntryAlreadySelected ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                R.string.relay_item_already_selected_as_entry,
-                                it.relayItem.name,
-                            )
-                    )
-                }
-            is LocationBottomSheetSideEffect.ExitAlreadySelected ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                R.string.relay_item_already_selected_as_exit,
-                                it.relayItem.name,
-                            )
-                    )
-                }
-            is LocationBottomSheetSideEffect.RelayItemInactive ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
-                    )
-                }
-            LocationBottomSheetSideEffect.EntryAndExitAreSame ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message = resources.getString(R.string.entry_and_exit_are_same)
-                    )
-                }
-            is LocationBottomSheetSideEffect.MultihopChanged -> {
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                when (it.undoChangeMultihopAction) {
-                                    UndoChangeMultihopAction.Disable,
-                                    is UndoChangeMultihopAction.DisableAndSetExit,
-                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
-                                        R.string.multihop_is_enabled
-                                    else -> R.string.multihop_is_disabled
-                                }
-                            ),
-                        actionLabel = resources.getString(R.string.undo),
-                        onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
-                        duration = SnackbarDuration.Long,
-                    )
-                }
-            }
-        }
-    }
+    CollectSideEffectWithLifecycle(vm.uiSideEffect) { resultStore.setResult(it) }
 
     val state by vm.uiState.collectAsStateWithLifecycle()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)

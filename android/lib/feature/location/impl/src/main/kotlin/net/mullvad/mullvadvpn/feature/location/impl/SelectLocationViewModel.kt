@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
@@ -150,6 +151,7 @@ class SelectLocationViewModel(
                     when (change) {
                         is MultihopChange.Entry ->
                             _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
@@ -165,9 +167,11 @@ class SelectLocationViewModel(
                 when (multihopChange) {
                     is MultihopChange.Entry ->
                         SelectLocationSideEffect.ExitAlreadySelected(relayItem = relayItem)
+
                     is MultihopChange.Exit ->
                         SelectLocationSideEffect.EntryAlreadySelected(relayItem = relayItem)
                 }
+
             ModifyMultihopError.GenericError -> SelectLocationSideEffect.GenericError
             is ModifyMultihopError.RelayItemInactive ->
                 SelectLocationSideEffect.RelayItemInactive(relayItem = relayItem)
@@ -178,6 +182,7 @@ class SelectLocationViewModel(
             SelectRelayItemError.GenericError -> SelectLocationSideEffect.GenericError
             is SelectRelayItemError.RelayInactive ->
                 SelectLocationSideEffect.RelayItemInactive(relayItem = relayItem)
+
             SelectRelayItemError.EntryAndExitSame -> SelectLocationSideEffect.EntryAndExitAreSame
         }
 
@@ -219,6 +224,35 @@ class SelectLocationViewModel(
                         }
                     },
                 )
+        }
+    }
+
+    fun undoMultihopAction(undoChangeMultihopAction: UndoChangeMultihopAction) {
+        viewModelScope.launch {
+            when (undoChangeMultihopAction) {
+                UndoChangeMultihopAction.Enable ->
+                    wireguardConstraintsRepository.setMultihop(true).onLeft {
+                        _uiSideEffect.send(SelectLocationSideEffect.GenericError)
+                    }
+
+                UndoChangeMultihopAction.Disable ->
+                    wireguardConstraintsRepository.setMultihop(false).onLeft {
+                        _uiSideEffect.send(SelectLocationSideEffect.GenericError)
+                    }
+
+                is UndoChangeMultihopAction.DisableAndSetEntry ->
+                    wireguardConstraintsRepository
+                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
+                        .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }
+
+                is UndoChangeMultihopAction.DisableAndSetExit ->
+                    relayListRepository
+                        .updateExitRelayLocationMultihop(
+                            false,
+                            undoChangeMultihopAction.relayItemId,
+                        )
+                        .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }
+            }
         }
     }
 

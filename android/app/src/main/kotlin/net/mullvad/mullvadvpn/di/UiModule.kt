@@ -411,7 +411,6 @@ val uiModule = module {
             hopSelectionUseCase = get(),
             modifyAndEnableMultihopUseCase = get(),
             customListsRepository = get(),
-            relayListRepository = get(),
         )
     }
     viewModel { AppearanceViewModel(get()) }
