@@ -1,6 +1,6 @@
 @file:Suppress("Registered")
 
-package net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation
+package net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation
 
 import android.app.Activity
 

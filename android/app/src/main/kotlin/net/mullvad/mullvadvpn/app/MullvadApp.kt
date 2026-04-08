@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.navigation.addTimeVerificatio
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.navigation.anticensorshipEntry
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.navigation.apiAccessEntry
 import net.mullvad.mullvadvpn.feature.appearance.impl.navigation.appearanceEntry
+import net.mullvad.mullvadvpn.feature.appicon.impl.navigation.appIconEntry
 import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.changelogEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
 import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
@@ -123,6 +124,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         addTimeVerificationPendingEntry(nav3)
         anticensorshipEntry(nav3)
         apiAccessEntry(nav3)
+        appIconEntry(nav3)
         appearanceEntry(nav3)
         autoConnectEntry(nav3)
         changelogEntry(nav3)

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation
+package net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation
 
 import android.content.ComponentName
 import android.content.pm.PackageManager

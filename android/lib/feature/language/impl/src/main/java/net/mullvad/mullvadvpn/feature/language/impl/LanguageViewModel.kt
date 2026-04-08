@@ -32,8 +32,7 @@ class LanguageViewModel(
                                 add(
                                     LanguageItem(
                                         locale = null,
-                                        displayName =
-                                            resources.getString(R.string.system_default),
+                                        displayName = resources.getString(R.string.system_default),
                                         isSelected = selected == null,
                                     )
                                 )
@@ -42,12 +41,10 @@ class LanguageViewModel(
                                         LanguageItem(
                                             locale = locale,
                                             displayName =
-                                                locale
-                                                    .getDisplayName(locale)
-                                                    .replaceFirstChar {
-                                                        if (it.isLowerCase()) it.titlecase()
-                                                        else it.toString()
-                                                    },
+                                                locale.getDisplayName(locale).replaceFirstChar {
+                                                    if (it.isLowerCase()) it.titlecase()
+                                                    else it.toString()
+                                                },
                                             isSelected =
                                                 selected != null &&
                                                     locale.toLanguageTag() ==
@@ -70,4 +67,3 @@ class LanguageViewModel(
         languageRepository.setAppLocale(locale)
     }
 }
-
