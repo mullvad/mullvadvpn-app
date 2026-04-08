@@ -4,16 +4,9 @@ mod split_tunnel;
 
 use std::{io, ptr};
 use windows_sys::Win32::{
+    Devices::DeviceAndDriverInstallation::GUID_DEVCLASS_NET,
     Foundation::{FALSE, FreeLibrary, HMODULE},
     System::LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
-};
-
-// GUID_DEVCLASS_NET: {4D36E972-E325-11CE-BFC1-08002BE10318}
-const GUID_DEVCLASS_NET: windows_sys::core::GUID = windows_sys::core::GUID {
-    data1: 0x4D36E972,
-    data2: 0xE325,
-    data3: 0x11CE,
-    data4: [0xBF, 0xC1, 0x08, 0x00, 0x2B, 0xE1, 0x03, 0x18],
 };
 
 const SPLIT_TUNNEL_SERVICE_NAME: &str = "mullvad-split-tunnel";
