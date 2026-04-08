@@ -152,22 +152,22 @@ fun SplitTunnelingScreen(
             state = lazyListState,
         ) {
             description()
-            enabledToggle(
-                enabled = state.enabled(),
-                onEnableSplitTunneling = onEnableSplitTunneling,
-            )
-            item { HorizontalDivider(color = Color.Transparent) }
-            systemAppsToggle(
-                showSystemApps = (state as? Lc.Content)?.value?.showSystemApps ?: false,
-                onShowSystemAppsClick = onShowSystemAppsClick,
-                enabled = state.enabled(),
-            )
             when (state) {
                 is Lc.Loading -> {
                     spacer()
                     loading()
                 }
                 is Lc.Content -> {
+                    enabledToggle(
+                        enabled = state.value.enabled,
+                        onEnableSplitTunneling = onEnableSplitTunneling,
+                    )
+                    item { HorizontalDivider(color = Color.Transparent) }
+                    systemAppsToggle(
+                        showSystemApps = state.value.showSystemApps,
+                        onShowSystemAppsClick = onShowSystemAppsClick,
+                        enabled = state.value.enabled,
+                    )
                     appList(
                         state = state.value,
                         focusManager = focusManager,
@@ -373,7 +373,7 @@ private fun Lc<Loading, SplitTunnelingUiState>.isModal(): Boolean =
 
 private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
     when (this) {
-        is Lc.Loading -> value.enabled
+        is Lc.Loading -> false
         is Lc.Content -> value.enabled
     }
 

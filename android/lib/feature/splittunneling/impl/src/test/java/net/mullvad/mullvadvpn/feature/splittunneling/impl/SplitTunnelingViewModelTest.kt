@@ -63,7 +63,7 @@ class SplitTunnelingViewModelTest {
         initTestSubject(emptyList())
         val actualState: Lc<Loading, SplitTunnelingUiState> = testSubject.uiState.value
 
-        val initialExpectedState = Lc.Loading(Loading(enabled = false))
+        val initialExpectedState = Lc.Loading(Loading())
 
         assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)

@@ -37,7 +37,7 @@ class SplitTunnelingViewModel(
                 userPreferencesRepository.showSystemAppsSplitTunneling(),
             ) { excludedApps, enabled, allApps, showSystemApps ->
                 if (allApps == null) {
-                    return@combine Lc.Loading(Loading(enabled = enabled, isModal = isModal))
+                    return@combine Lc.Loading(Loading(isModal = isModal))
                 }
 
                 val (excludedApps, includedApps) =
@@ -63,7 +63,7 @@ class SplitTunnelingViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                Lc.Loading(Loading(enabled = false, isModal = isModal)),
+                Lc.Loading(Loading(isModal = isModal)),
             )
 
     init {

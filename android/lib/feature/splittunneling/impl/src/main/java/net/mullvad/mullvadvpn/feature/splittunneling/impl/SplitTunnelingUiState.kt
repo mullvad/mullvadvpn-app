@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl
 
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 
-data class Loading(val enabled: Boolean = false, val isModal: Boolean = false)
+data class Loading(val isModal: Boolean = false)
 
 data class SplitTunnelingUiState(
     val enabled: Boolean = false,
