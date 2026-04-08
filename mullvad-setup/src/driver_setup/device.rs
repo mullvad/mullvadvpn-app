@@ -76,6 +76,31 @@ pub struct DeviceInfo<'a> {
     set: &'a DeviceInfoSet,
 }
 
+impl DeviceInfo<'_> {
+    /// Uninstalls the device represented by this `DeviceInfo`.
+    /// https://learn.microsoft.com/en-us/windows/win32/api/newdev/nf-newdev-diuninstalldevice.
+    pub fn uninstall_device(self) -> io::Result<()> {
+        let mut needs_reboot: windows_sys::core::BOOL = 0;
+        // SAFETY: `info.set.0` and `info.data`
+        // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.
+        let result = unsafe {
+            DiUninstallDevice(
+                ptr::null_mut(),
+                self.set.0,
+                &raw const self.data,
+                0,
+                &raw mut needs_reboot,
+            )
+        };
+
+        if result == FALSE {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(())
+    }
+}
+
 /// Enumerate devices of the given class.
 pub struct DeviceInfoIter<'a> {
     index: u32,
@@ -146,25 +171,4 @@ pub fn get_device_net_cfg_instance_id(info: &DeviceInfo<'_>) -> io::Result<Strin
         .position(|&c| c == 0)
         .expect("RegGetValueW guarantees a NUL terminator for REG_SZ");
     Ok(String::from_utf16_lossy(&buffer[..len]))
-}
-
-pub fn uninstall_device(info: DeviceInfo<'_>) -> io::Result<()> {
-    let mut needs_reboot: windows_sys::core::BOOL = 0;
-    // SAFETY: `info.set.0` and `info.data`
-    // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.
-    let result = unsafe {
-        DiUninstallDevice(
-            ptr::null_mut(),
-            info.set.0,
-            &raw const info.data,
-            0,
-            &raw mut needs_reboot,
-        )
-    };
-
-    if result == FALSE {
-        return Err(io::Error::last_os_error());
-    }
-
-    Ok(())
 }
