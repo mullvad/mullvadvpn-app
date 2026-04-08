@@ -10,7 +10,7 @@ import MullvadSettings
 import MullvadTypes
 
 /// Protocol describing a type that can select a relay.
-public protocol RelaySelectorProtocol {
+public protocol RelaySelectorProtocol: Sendable {
     var relayCache: RelayCacheProtocol { get }
     func selectRelays(
         tunnelSettings: LatestTunnelSettings,
