@@ -72,7 +72,7 @@ private fun PreviewEditCustomListScreen(
 fun EditCustomList(customListId: CustomListId, navigator: Navigator) {
     val viewModel = koinViewModel<EditCustomListViewModel> { parametersOf(customListId) }
 
-    LocalResultStore.current.consumeResult<DeleteCustomListNavResult>()?.let { result ->
+    LocalResultStore.current.consumeResult<DeleteCustomListNavResult> { result ->
         navigator.goBack(result = EditCustomListNavResult(result.value))
     }
 

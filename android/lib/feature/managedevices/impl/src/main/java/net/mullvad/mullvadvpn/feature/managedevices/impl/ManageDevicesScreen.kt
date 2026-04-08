@@ -69,7 +69,7 @@ fun ManageDevices(accountNumber: AccountNumber, navigator: Navigator) {
     val viewModel = koinViewModel<ManageDevicesViewModel> { parametersOf(accountNumber) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LocalResultStore.current.consumeResult<ManageDevicesRemoveConfirmationNavResult>()?.let {
+    LocalResultStore.current.consumeResult<ManageDevicesRemoveConfirmationNavResult> {
         viewModel.removeDevice(deviceIdToRemove = it.deviceId)
     }
 

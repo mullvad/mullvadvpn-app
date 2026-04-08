@@ -104,7 +104,7 @@ fun ReportProblem(navigator: Navigator) {
         }
     }
 
-    LocalResultStore.current.consumeResult<ProblemReportNoEmailConfirmedNavResult>()?.let {
+    LocalResultStore.current.consumeResult<ProblemReportNoEmailConfirmedNavResult> {
         vm.sendReport(state.email, state.description, true)
     }
 

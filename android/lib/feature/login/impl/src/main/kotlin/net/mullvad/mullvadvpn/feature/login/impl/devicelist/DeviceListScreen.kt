@@ -77,8 +77,8 @@ fun DeviceList(navigator: Navigator, accountNumber: AccountNumber) {
     val viewModel = koinViewModel<DeviceListViewModel> { parametersOf(accountNumber) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LocalResultStore.current.consumeResult<RemoveDeviceConfirmationDialogResult>()?.device?.let {
-        viewModel.removeDevice(deviceIdToRemove = it)
+    LocalResultStore.current.consumeResult<RemoveDeviceConfirmationDialogResult> { result ->
+        viewModel.removeDevice(deviceIdToRemove = result.device)
     }
 
     val snackbarHostState = remember { SnackbarHostState() }

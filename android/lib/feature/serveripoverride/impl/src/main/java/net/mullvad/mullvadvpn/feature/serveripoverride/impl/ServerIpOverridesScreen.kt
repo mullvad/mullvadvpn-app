@@ -124,14 +124,14 @@ fun SharedTransitionScope.ServerIpOverrides(
 
     val scope = rememberCoroutineScope()
 
-    resultStore.consumeResult<ImportOverrideByTextNavResult>()?.let { vm.importText(it.text) }
+    resultStore.consumeResult<ImportOverrideByTextNavResult> { vm.importText(it.text) }
 
-    resultStore.consumeResult<ImportOverrideByFileNavResult>()?.let {
+    resultStore.consumeResult<ImportOverrideByFileNavResult> {
         openFileLauncher.launch("application/json")
     }
 
     // On successful clear of overrides, show snackbar
-    resultStore.consumeResult<ResetServerIpOverrideConfirmationNavResult>()?.let { result ->
+    resultStore.consumeResult<ResetServerIpOverrideConfirmationNavResult> { result ->
         scope.launch {
             snackbarHostState.showSnackbarImmediately(
                 message =

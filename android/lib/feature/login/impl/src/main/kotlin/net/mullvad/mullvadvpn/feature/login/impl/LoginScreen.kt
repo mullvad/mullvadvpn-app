@@ -145,15 +145,11 @@ fun Login(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    if (
-        LocalResultStore.current
-            .consumeResult<CreateAccountConfirmationDialogResult>()
-            ?.confirmed == true
-    ) {
-        vm.onCreateAccountConfirmed()
+    LocalResultStore.current.consumeResult<CreateAccountConfirmationDialogResult> { result ->
+        if (result.confirmed) vm.onCreateAccountConfirmed()
     }
 
-    LocalResultStore.current.consumeResult<ApiUnreachableInfoDialogResult>()?.let {
+    LocalResultStore.current.consumeResult<ApiUnreachableInfoDialogResult> {
         when (it) {
             ApiUnreachableInfoDialogResult.Error ->
                 scope.launch {
