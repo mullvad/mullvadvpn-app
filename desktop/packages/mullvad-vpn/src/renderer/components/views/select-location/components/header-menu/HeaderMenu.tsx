@@ -11,7 +11,7 @@ export type HeaderMenuProps = MenuProps;
 
 export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
-  const { recents, setEnabledRecents } = useRecents();
+  const { hasRecents, setEnabledRecents } = useRecents();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -20,8 +20,6 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
     setDisableRecentsDialogOpen(true);
     onOpenChange?.(false);
   }, [onOpenChange]);
-
-  const recentsEnabled = recents !== undefined;
 
   const enableRecents = React.useCallback(async () => {
     await setEnabledRecents(true);
@@ -41,12 +39,11 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
             </Menu.Option.Trigger>
           </Menu.Option>
           <Menu.Option>
-            <Menu.Option.Trigger
-              onClick={recentsEnabled ? openDisableRecentsDialog : enableRecents}>
+            <Menu.Option.Trigger onClick={hasRecents ? openDisableRecentsDialog : enableRecents}>
               <Menu.Option.Item>
                 <Menu.Option.Item.Icon icon="history-remove" />
                 <Menu.Option.Item.Label>
-                  {recentsEnabled
+                  {hasRecents
                     ? // TRANSLATORS: Used in button to disable showing list of recent locations.
                       messages.pgettext('select-location-view', 'Disable recents')
                     : // TRANSLATORS: Used in button to enable showing list of recent locations.

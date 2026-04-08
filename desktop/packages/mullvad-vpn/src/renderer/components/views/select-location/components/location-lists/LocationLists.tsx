@@ -15,12 +15,12 @@ export type LocationsListsProps = React.PropsWithChildren & {
 };
 
 export function LocationLists(props: LocationsListsProps) {
-  const { recents } = useRecents();
+  const { hasRecents } = useRecents();
   const hasSearched = useHasSearched();
   const hasVisibleCustomLists = useHasCustomLists();
   const hasSearchedLocations = useHasSearchedLocations();
 
-  const showRecentLocations = !hasSearched && recents !== undefined;
+  const showRecentLocations = !hasSearched && hasRecents;
   const showCustomListLocationLists = !hasSearched || hasVisibleCustomLists;
   const showCountryLocations = !hasSearched || hasSearchedLocations;
   const showNoSearchResult =
