@@ -15,8 +15,8 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetSideEffect
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -123,7 +123,6 @@ class LocationBottomSheetViewModelTest {
                 locationBottomSheetState = mockLocationBottomSheetState,
                 customListActionUseCase = mockCustomListActionUseCase,
                 customListsRepository = mockCustomListsRepository,
-                relayListRepository = mockRelayListRepository,
                 hopSelectionUseCase = mockHopSelectionUseCase,
                 modifyMultihopUseCase = mockModifyMultihopUseCase,
                 modifyAndEnableMultihopUseCase = mockModifyAndEnableMultihopUseCase,
@@ -187,7 +186,7 @@ class LocationBottomSheetViewModelTest {
         viewModel.uiSideEffect.test {
             viewModel.addLocationToList(item = location, customList = customList)
             val sideEffect = awaitItem()
-            assertIs<LocationBottomSheetSideEffect.CustomListActionToast>(sideEffect)
+            assertIs<LocationBottomSheetNavResult.CustomListActionToast>(sideEffect)
             assertEquals(expectedResult, sideEffect.resultData)
         }
     }
@@ -235,7 +234,7 @@ class LocationBottomSheetViewModelTest {
             viewModel.uiSideEffect.test {
                 viewModel.removeLocationFromList(item = location, customListId = customListId)
                 val sideEffect = awaitItem()
-                assertIs<LocationBottomSheetSideEffect.CustomListActionToast>(sideEffect)
+                assertIs<LocationBottomSheetNavResult.CustomListActionToast>(sideEffect)
                 assertEquals(expectedResult, sideEffect.resultData)
             }
         }
