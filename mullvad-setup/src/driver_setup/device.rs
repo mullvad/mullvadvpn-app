@@ -50,7 +50,10 @@ impl DeviceInfoSet {
             return Err(err);
         }
 
-        Ok(Some(DeviceInfo { data: device_info, set: self }))
+        Ok(Some(DeviceInfo {
+            data: device_info,
+            set: self,
+        }))
     }
 }
 
@@ -93,14 +96,7 @@ pub fn find_and_uninstall_device(
 
 /// Read the `NetCfgInstanceId` registry value from a device's driver key.
 /// Returns the GUID string (e.g. `{AFE43773-...}`).
-///
-/// # Safety
-///
-/// `device_info_set` must be a valid `HDEVINFO` and `device_info` must refer to
-/// a device enumerated from that set (e.g. via `SetupDiEnumDeviceInfo`).
-pub unsafe fn get_device_net_cfg_instance_id(
-    info: &DeviceInfo<'_>,
-) -> io::Result<String> {
+pub fn get_device_net_cfg_instance_id(info: &DeviceInfo<'_>) -> io::Result<String> {
     // SAFETY: `device_info_set` and `device_info`
     // are valid and belong to the same enumeration.
     let reg_key: HKEY = unsafe {

@@ -43,9 +43,7 @@ pub fn remove_wintun() -> Result<(), crate::Error> {
 /// interface GUID `{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}`.
 pub fn remove_wintun_abandoned_device() -> Result<(), crate::Error> {
     device::find_and_uninstall_device(GUID_DEVCLASS_NET, |set| {
-        // SAFETY: `set` is passed in by `find_and_uninstall_device`
-        // after being obtained from `SetupDiGetClassDevsW` / `SetupDiEnumDeviceInfo`.
-        match unsafe { device::get_device_net_cfg_instance_id(set) } {
+        match device::get_device_net_cfg_instance_id(set) {
             Ok(id) => id.eq_ignore_ascii_case(WINTUN_ABANDONED_GUID),
             Err(_) => false,
         }
