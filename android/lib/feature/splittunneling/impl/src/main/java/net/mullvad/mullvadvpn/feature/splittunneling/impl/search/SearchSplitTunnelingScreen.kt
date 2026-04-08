@@ -4,8 +4,10 @@ import android.graphics.drawable.Drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -83,7 +85,13 @@ fun SearchSplitTunnelingScreen(
         }
     ) {
         val focusManager = LocalFocusManager.current
-        Column(modifier = Modifier.padding(it)) {
+        Column(
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(it)
+                    .consumeWindowInsets(it)
+                    .imePadding(),
+        ) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(state is Lc.Content) { focusRequester.requestFocus() }
             MullvadSearchBar(
@@ -107,8 +115,7 @@ fun SearchSplitTunnelingScreen(
                             lazyListState,
                             MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         ),
-                state = lazyListState,
-                horizontalAlignment = Alignment.CenterHorizontally,
+                state = lazyListState
             ) {
                 when (state) {
                     is Lc.Loading -> {
