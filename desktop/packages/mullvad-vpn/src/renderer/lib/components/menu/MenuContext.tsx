@@ -19,6 +19,8 @@ export const useMenuContext = (): MenuContextProps => {
 
 type MenuProviderProps = React.PropsWithChildren<{
   open: MenuProps['open'];
+  mounted?: boolean;
+  setMounted: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   triggerRef: MenuProps['triggerRef'];
   onOpenChange?: MenuProps['onOpenChange'];
 }>;
