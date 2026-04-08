@@ -19,6 +19,7 @@ use windows_sys::Win32::{
 
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
+/// https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/defining-i-o-control-codes.
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     (device_type << 16) | (access << 14) | (function << 2) | method
 }
