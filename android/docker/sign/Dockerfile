@@ -59,6 +59,6 @@ RUN printf '%s\n' \
 "name = YKCS11" \
 "description = SunPKCS11 via YKCS11" \
 "library = /usr/lib/x86_64-linux-gnu/libykcs11.so.2" \
-"slotListIndex = 1" > ~/ykcs11.conf
+"slotListIndex = 1" > ~/pkcs11_java.cfg
 
 WORKDIR /build

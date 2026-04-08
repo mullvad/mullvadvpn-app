@@ -7,7 +7,7 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROVIDER_ARG="~/pkcs11_java.cfg"
+PROVIDER_ARG="$HOME/pkcs11_java.cfg"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="28"
@@ -39,8 +39,9 @@ function sign_artifact {
 
     KEYSTORE_SIGNING_KEY_PATH="$KEYSTORE_SIGNING_KEY_PATH" \
     "$SCRIPT_DIR/mullvadvpn-app/building/container-run.sh" android-signing \
-    $APKSIGNER_CMD -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
+    "$APKSIGNER_CMD" -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
+    --ks-pass 'env:YUBIKEY_PIN' \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
     --min-sdk-version "$MIN_SDK_VERSION" --v4-signing-enabled false \
     --in "$artifact_file" <<< "$YUBIKEY_PIN"

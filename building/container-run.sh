@@ -46,7 +46,7 @@ case ${1-:""} in
     android-signing)
         container_image_name=$(cat "$SCRIPT_DIR/android-signing-container-image.txt")
         optional_android_vars+=(
-            --device $KEYSTORE_SIGNING_KEY_PATH:$KEYSTORE_SIGNING_KEY_PATH \
+            --device "$KEYSTORE_SIGNING_KEY_PATH:$KEYSTORE_SIGNING_KEY_PATH"
             --secret "YUBIKEY_PIN,type=env"
         )
 
