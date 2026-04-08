@@ -85,13 +85,7 @@ fun SearchSplitTunnelingScreen(
         }
     ) {
         val focusManager = LocalFocusManager.current
-        Column(
-            modifier =
-                Modifier.fillMaxSize()
-                    .padding(it)
-                    .consumeWindowInsets(it)
-                    .imePadding(),
-        ) {
+        Column(modifier = Modifier.fillMaxSize().padding(it).consumeWindowInsets(it).imePadding()) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(state is Lc.Content) { focusRequester.requestFocus() }
             MullvadSearchBar(
@@ -115,7 +109,7 @@ fun SearchSplitTunnelingScreen(
                             lazyListState,
                             MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                         ),
-                state = lazyListState
+                state = lazyListState,
             ) {
                 when (state) {
                     is Lc.Loading -> {
