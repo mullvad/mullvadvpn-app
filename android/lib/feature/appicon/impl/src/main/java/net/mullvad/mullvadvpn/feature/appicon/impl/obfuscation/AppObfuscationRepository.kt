@@ -109,4 +109,3 @@ enum class AppObfuscation(
 
 private const val ACTIVITY_ALIAS_PACKAGE =
     "net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation"
-
