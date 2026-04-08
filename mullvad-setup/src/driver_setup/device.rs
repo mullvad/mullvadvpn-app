@@ -34,7 +34,12 @@ impl DeviceInfoSet {
         Ok(DeviceInfoSet(device_info_set))
     }
 
-    fn enumerate(&self, index: u32) -> io::Result<Option<DeviceInfo<'_>>> {
+    /// Return an iterator over the device info set.
+    pub fn iter(&self) -> DeviceInfoIter<'_> {
+        DeviceInfoIter::new(self)
+    }
+
+    fn get_device_info(&self, index: u32) -> io::Result<Option<DeviceInfo<'_>>> {
         // SAFETY: `SP_DEVINFO_DATA` is a POD struct; zero is a valid bit pattern.
         let mut device_info: SP_DEVINFO_DATA = unsafe { mem::zeroed() };
         device_info.cbSize = mem::size_of::<SP_DEVINFO_DATA>() as u32;
@@ -71,27 +76,26 @@ pub struct DeviceInfo<'a> {
     set: &'a DeviceInfoSet,
 }
 
-/// Enumerate devices of the given class. If `filter` returns true for a device,
-/// uninstall it and return `Ok(true)`.  Returns `Ok(false)` if no matching device
-/// is found.
-pub fn find_and_uninstall_device(
-    class_guid: GUID,
-    filter: impl Fn(&DeviceInfo<'_>) -> bool,
-) -> io::Result<bool> {
-    let device_info_set = DeviceInfoSet::new(class_guid)?;
+/// Enumerate devices of the given class.
+pub struct DeviceInfoIter<'a> {
+    index: u32,
+    set: &'a DeviceInfoSet,
+}
 
-    for index in 0.. {
-        let Some(device_info) = device_info_set.enumerate(index)? else {
-            break;
-        };
-        if filter(&device_info) {
-            // SAFETY: `device_info_set` is valid (checked above) and `device_info`
-            // was just enumerated from it via `SetupDiEnumDeviceInfo`.
-            uninstall_device(&device_info)?;
-            return Ok(true);
-        }
+impl<'a> Iterator for DeviceInfoIter<'a> {
+    type Item = io::Result<DeviceInfo<'a>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let info = self.set.get_device_info(self.index).transpose()?;
+        self.index += 1;
+        Some(info)
     }
-    Ok(false)
+}
+
+impl<'a> DeviceInfoIter<'a> {
+    pub fn new(set: &'a DeviceInfoSet) -> Self {
+        DeviceInfoIter { index: 0, set }
+    }
 }
 
 /// Read the `NetCfgInstanceId` registry value from a device's driver key.
@@ -144,7 +148,7 @@ pub fn get_device_net_cfg_instance_id(info: &DeviceInfo<'_>) -> io::Result<Strin
     Ok(String::from_utf16_lossy(&buffer[..len]))
 }
 
-fn uninstall_device(info: &DeviceInfo<'_>) -> io::Result<()> {
+pub fn uninstall_device(info: DeviceInfo<'_>) -> io::Result<()> {
     let mut needs_reboot: windows_sys::core::BOOL = 0;
     // SAFETY: `info.set.0` and `info.data`
     // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.

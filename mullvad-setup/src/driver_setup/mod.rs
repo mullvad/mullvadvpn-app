@@ -9,6 +9,8 @@ use windows_sys::Win32::{
     System::LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
 };
 
+use device::{DeviceInfoSet, uninstall_device};
+
 const SPLIT_TUNNEL_SERVICE_NAME: &str = "mullvad-split-tunnel";
 
 // Wintun adapter GUID that may have been left behind
@@ -42,14 +44,18 @@ pub fn remove_wintun() -> Result<(), crate::Error> {
 /// Find and uninstall an abandoned Wintun network adapter with the well-known
 /// interface GUID `{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}`.
 pub fn remove_wintun_abandoned_device() -> Result<(), crate::Error> {
-    device::find_and_uninstall_device(GUID_DEVCLASS_NET, |set| {
-        match device::get_device_net_cfg_instance_id(set) {
-            Ok(id) => id.eq_ignore_ascii_case(WINTUN_ABANDONED_GUID),
-            Err(_) => false,
+    let device_info_set =
+        DeviceInfoSet::new(GUID_DEVCLASS_NET).map_err(crate::Error::DeviceEnumeration)?;
+    for info in device_info_set.iter() {
+        let info = info.map_err(crate::Error::DeviceEnumeration)?;
+        let Ok(id) = device::get_device_net_cfg_instance_id(&info) else {
+            continue;
+        };
+        if id.eq_ignore_ascii_case(WINTUN_ABANDONED_GUID) {
+            uninstall_device(info).map_err(crate::Error::DeviceEnumeration)?;
+            return Ok(());
         }
-    })
-    .map_err(crate::Error::DeviceEnumeration)?;
-
+    }
     Ok(())
 }
 
