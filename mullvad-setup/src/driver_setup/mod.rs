@@ -52,7 +52,9 @@ pub fn remove_wintun_abandoned_device() -> Result<(), crate::Error> {
             continue;
         };
         if id.eq_ignore_ascii_case(WINTUN_ABANDONED_GUID) {
-            device_info.uninstall_device().map_err(crate::Error::DeviceEnumeration)?;
+            device_info
+                .uninstall_device()
+                .map_err(crate::Error::DeviceEnumeration)?;
             return Ok(());
         }
     }
