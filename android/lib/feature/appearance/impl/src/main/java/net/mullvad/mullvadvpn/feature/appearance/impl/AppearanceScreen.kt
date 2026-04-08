@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.appearance.impl
 
+import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -34,7 +35,11 @@ fun Appearance(navigator: Navigator) {
     AppearanceScreen(
         onAppIconClick = dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppIconNavKey) },
         onLanguageClick =
-            dropUnlessResumed { navigator.navigateReplaceIfDetailPane(LanguageNavKey) },
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                dropUnlessResumed { navigator.navigateReplaceIfDetailPane(LanguageNavKey) }
+            } else {
+                null
+            },
         onBackClick = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -43,7 +48,7 @@ fun Appearance(navigator: Navigator) {
 @Composable
 fun AppearanceScreen(
     onAppIconClick: () -> Unit,
-    onLanguageClick: () -> Unit,
+    onLanguageClick: (() -> Unit)?,
     onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
@@ -58,15 +63,17 @@ fun AppearanceScreen(
                 NavigationListItem(
                     title = stringResource(id = R.string.app_icon),
                     onClick = onAppIconClick,
-                    position = Position.Top,
+                    position = if (onLanguageClick != null) Position.Top else Position.Single,
                 )
             }
-            item {
-                NavigationListItem(
-                    title = stringResource(id = R.string.language),
-                    onClick = onLanguageClick,
-                    position = Position.Bottom,
-                )
+            if (onLanguageClick != null) {
+                item {
+                    NavigationListItem(
+                        title = stringResource(id = R.string.language),
+                        onClick = onLanguageClick,
+                        position = Position.Bottom,
+                    )
+                }
             }
         }
     }
