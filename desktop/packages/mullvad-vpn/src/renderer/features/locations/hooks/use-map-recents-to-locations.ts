@@ -48,24 +48,19 @@ function getRecentLocations(
   cityLocations: CityLocation[],
   relayLocations: RelayLocation[],
 ): RecentLocation[] {
+  const findMatchingLocation = getFindMatchingLocation(
+    relayLocations,
+    cityLocations,
+    countryLocations,
+    customListLocations,
+  );
+
   return recents
     .map((recent) => {
       if (recent.type === 'multihop') {
         const { entry, exit } = recent;
-        const entryLocation = findMatchingLocation(
-          entry,
-          relayLocations,
-          cityLocations,
-          countryLocations,
-          customListLocations,
-        );
-        const exitLocation = findMatchingLocation(
-          exit,
-          relayLocations,
-          cityLocations,
-          countryLocations,
-          customListLocations,
-        );
+        const entryLocation = findMatchingLocation(entry);
+        const exitLocation = findMatchingLocation(exit);
         if (entryLocation && exitLocation) {
           const multihopLocation: RecentMultihopLocation = {
             type: 'multihop',
@@ -75,13 +70,7 @@ function getRecentLocations(
           return multihopLocation;
         }
       } else if (recent.type === 'singlehop') {
-        const recentLocation = findMatchingLocation(
-          recent.location,
-          relayLocations,
-          cityLocations,
-          countryLocations,
-          customListLocations,
-        );
+        const recentLocation = findMatchingLocation(recent.location);
         if (recentLocation) {
           const singlehopLocation: RecentSinglehopLocation = {
             type: 'singlehop',
@@ -97,27 +86,32 @@ function getRecentLocations(
     .filter((location) => location !== undefined);
 }
 
-function findMatchingLocation(
-  relayLocation: DaemonRelayLocation,
+function getFindMatchingLocation(
   relayLocations: RelayLocation[],
   cityLocations: CityLocation[],
   countryLocations: CountryLocation[],
   customListLocations: CustomListLocation[],
-): AnyLocation | undefined {
-  if ('hostname' in relayLocation) {
-    return relayLocations.find((location) => location.details.hostname === relayLocation.hostname);
-  }
-  if ('city' in relayLocation) {
-    return cityLocations.find((location) => location.details.city === relayLocation.city);
-  }
-  if ('country' in relayLocation) {
-    return countryLocations.find((location) => location.details.country === relayLocation.country);
-  }
-  if ('customList' in relayLocation) {
-    return customListLocations.find(
-      (location) => location.details.customList === relayLocation.customList,
-    );
-  }
+): (relayLocation: DaemonRelayLocation) => AnyLocation | undefined {
+  return (relayLocation: DaemonRelayLocation) => {
+    if ('hostname' in relayLocation) {
+      return relayLocations.find(
+        (location) => location.details.hostname === relayLocation.hostname,
+      );
+    }
+    if ('city' in relayLocation) {
+      return cityLocations.find((location) => location.details.city === relayLocation.city);
+    }
+    if ('country' in relayLocation) {
+      return countryLocations.find(
+        (location) => location.details.country === relayLocation.country,
+      );
+    }
+    if ('customList' in relayLocation) {
+      return customListLocations.find(
+        (location) => location.details.customList === relayLocation.customList,
+      );
+    }
 
-  return undefined;
+    return undefined;
+  };
 }
