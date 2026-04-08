@@ -17,19 +17,25 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 class SearchSplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
-    private val showSystemApps = MutableStateFlow(false)
 
     val uiState: StateFlow<Lc<Unit, SearchSplitTunnelingUiState>> =
-        combine(_searchTerm, splitTunnelingRepository.excludedApps, allApps, showSystemApps) {
+        combine(
+                _searchTerm,
+                splitTunnelingRepository.excludedApps,
+                allApps,
+                userPreferencesRepository.showSystemAppsSplitTunneling(),
+            ) {
                 searchTerm,
                 excludedApps,
                 allApps,

@@ -415,10 +415,10 @@ val uiModule = module {
     viewModel { AppearanceViewModel(get()) }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
     viewModel { params ->
-        SplitTunnelingViewModel(isModal = params.get(), get(), get(), Dispatchers.Default)
+        SplitTunnelingViewModel(isModal = params.get(), get(), get(), get(), Dispatchers.Default)
     }
 
-    viewModel { SearchSplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
+    viewModel { SearchSplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

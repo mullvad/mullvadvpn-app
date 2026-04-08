@@ -17,23 +17,24 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 class SplitTunnelingViewModel(
     isModal: Boolean,
     private val appsProvider: ApplicationsProvider,
     private val splitTunnelingRepository: SplitTunnelingRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val allApps = MutableStateFlow<List<AppData>?>(null)
-    private val showSystemApps = MutableStateFlow(false)
 
     val uiState: StateFlow<Lc<Loading, SplitTunnelingUiState>> =
         combine(
                 splitTunnelingRepository.excludedApps,
                 splitTunnelingRepository.splitTunnelingEnabled,
                 allApps,
-                showSystemApps,
+                userPreferencesRepository.showSystemAppsSplitTunneling(),
             ) { excludedApps, enabled, allApps, showSystemApps ->
                 if (allApps == null) {
                     return@combine Lc.Loading(Loading(enabled = enabled, isModal = isModal))
@@ -88,7 +89,9 @@ class SplitTunnelingViewModel(
     }
 
     fun onShowSystemAppsClick(show: Boolean) {
-        viewModelScope.launch(dispatcher) { showSystemApps.emit(show) }
+        viewModelScope.launch(dispatcher) {
+            userPreferencesRepository.setShowSystemAppsSplitTunneling(show)
+        }
     }
 
     private suspend fun fetchApps() {
