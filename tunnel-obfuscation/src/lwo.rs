@@ -325,6 +325,18 @@ pub fn new_rng() -> impl RngCore {
     rand::rngs::SmallRng::from_entropy()
 }
 
+/// Obfuscate a packet using a thread-local RNG.
+///
+/// This is a convenience function for callers that do not want to manage their own RNG.
+/// Uses a per-thread [`rand::rngs::SmallRng`] initialized lazily on first use.
+pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
+    use std::cell::RefCell;
+    thread_local! {
+        static RNG: RefCell<rand::rngs::SmallRng> = RefCell::new(rand::rngs::SmallRng::from_entropy());
+    }
+    RNG.with(|rng| obfuscate(&mut *rng.borrow_mut(), packet, key));
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

@@ -21,6 +21,7 @@ use gotatun::{
     },
     x25519::StaticSecret,
 };
+use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
 #[cfg(not(target_os = "android"))]
 use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
@@ -42,7 +43,10 @@ use gotatun::tun::{
 };
 
 mod conversions;
+mod lwo_transport;
+
 use conversions::to_gotatun_peer;
+use lwo_transport::LwoUdpTransportFactory;
 
 #[cfg(target_os = "android")]
 type UdpFactory = AndroidUdpSocketFactory;
@@ -50,7 +54,10 @@ type UdpFactory = AndroidUdpSocketFactory;
 #[cfg(not(target_os = "android"))]
 type UdpFactory = UdpSocketFactory;
 
+type LwoFactory = LwoUdpTransportFactory<UdpFactory>;
+
 type SinglehopDevice = Device<(UdpFactory, GotaTunDevice, GotaTunDevice)>;
+type LwoSinglehopDevice = Device<(LwoFactory, GotaTunDevice, GotaTunDevice)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
@@ -58,6 +65,15 @@ type EntryDevice = Device<(UdpFactory, TunChannelTx, TunChannelRx)>;
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 type EntryDevice = Device<(
     UdpFactory,
+    PcapSniffer<TunChannelTx>,
+    PcapSniffer<TunChannelRx>,
+)>;
+
+#[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
+type LwoEntryDevice = Device<(LwoFactory, TunChannelTx, TunChannelRx)>;
+#[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+type LwoEntryDevice = Device<(
+    LwoFactory,
     PcapSniffer<TunChannelTx>,
     PcapSniffer<TunChannelRx>,
 )>;
@@ -117,8 +133,17 @@ enum Devices {
         device: SinglehopDevice,
     },
 
+    SinglehopLwo {
+        device: LwoSinglehopDevice,
+    },
+
     Multihop {
         entry_device: EntryDevice,
+        exit_device: ExitDevice,
+    },
+
+    MultihopLwo {
+        entry_device: LwoEntryDevice,
         exit_device: ExitDevice,
     },
 }
@@ -126,10 +151,20 @@ enum Devices {
 impl Devices {
     async fn stop(self) {
         match self {
-            Devices::Singlehop { device, .. } => {
+            Devices::Singlehop { device } => {
+                device.stop().await;
+            }
+            Devices::SinglehopLwo { device } => {
                 device.stop().await;
             }
             Devices::Multihop {
+                entry_device,
+                exit_device,
+            } => {
+                exit_device.stop().await;
+                entry_device.stop().await;
+            }
+            Devices::MultihopLwo {
                 entry_device,
                 exit_device,
             } => {
@@ -268,10 +303,28 @@ pub async fn open_gotatun_tunnel(
     Ok(gotatun)
 }
 
+/// Extract LWO obfuscation keys from the tunnel config when LWO is configured for singlehop.
+///
+/// Returns `(tx_key, rx_key)` where:
+/// - `tx_key` is the server public key (used to obfuscate outgoing packets)
+/// - `rx_key` is the client public key (used to deobfuscate incoming packets)
+fn lwo_keys_from_config(config: &Config) -> Option<([u8; 32], [u8; 32])> {
+    match &config.obfuscator_config {
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. })) => {
+            let tx_key = *config.entry_peer.public_key.as_bytes();
+            let rx_key = *config.tunnel.private_key.public_key().as_bytes();
+            Some((tx_key, rx_key))
+        }
+        _ => None,
+    }
+}
+
 /// Create and configure gotatun devices.
 ///
 /// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
-/// and a [SinglehopDevice] otherwise.
+/// and a [SinglehopDevice] otherwise.  When `config.obfuscator_config` specifies LWO for
+/// singlehop, the appropriate LWO device variants are created instead so that obfuscation is
+/// applied inline without a localhost proxy round-trip.
 async fn create_devices(
     config: &Config, // TODO: do not include config to reduce confusion
     daita: Option<&DaitaSettings>,
@@ -279,10 +332,12 @@ async fn create_devices(
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
 ) -> Result<Devices, TunnelError> {
     #[cfg(target_os = "android")]
-    let udp_factory = AndroidUdpSocketFactory { tun: android_tun };
+    let base_factory = AndroidUdpSocketFactory { tun: android_tun };
 
     #[cfg(not(target_os = "android"))]
-    let udp_factory = UdpSocketFactory;
+    let base_factory = UdpSocketFactory;
+
+    let lwo_keys = lwo_keys_from_config(config);
 
     let mut devices = if let Some(exit_peer) = &config.exit_peer {
         // Multihop setup
@@ -331,33 +386,102 @@ async fn create_devices(
         #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
         let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
 
-        let entry_device = DeviceBuilder::new()
-            .with_udp(udp_factory)
-            .with_ip_pair(tun_channel_tx, tun_channel_rx)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        Devices::Multihop {
-            entry_device,
-            exit_device,
+        if let Some((tx_key, rx_key)) = lwo_keys {
+            let lwo_factory = LwoUdpTransportFactory { inner: base_factory, tx_key, rx_key };
+            let entry_device: LwoEntryDevice = DeviceBuilder::new()
+                .with_udp(lwo_factory)
+                .with_ip_pair(tun_channel_tx, tun_channel_rx)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::MultihopLwo {
+                entry_device,
+                exit_device,
+            }
+        } else {
+            let entry_device = DeviceBuilder::new()
+                .with_udp(base_factory)
+                .with_ip_pair(tun_channel_tx, tun_channel_rx)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::Multihop {
+                entry_device,
+                exit_device,
+            }
         }
     } else {
         // Singlehop setup
 
-        let device: SinglehopDevice = DeviceBuilder::new()
-            .with_udp(udp_factory)
-            .with_ip(tun_dev)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        Devices::Singlehop { device }
+        if let Some((tx_key, rx_key)) = lwo_keys {
+            let lwo_factory = LwoUdpTransportFactory { inner: base_factory, tx_key, rx_key };
+            let device: LwoSinglehopDevice = DeviceBuilder::new()
+                .with_udp(lwo_factory)
+                .with_ip(tun_dev)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::SinglehopLwo { device }
+        } else {
+            let device: SinglehopDevice = DeviceBuilder::new()
+                .with_udp(base_factory)
+                .with_ip(tun_dev)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::Singlehop { device }
+        }
     };
 
     configure_devices(&mut devices, config, daita).await?;
 
     Ok(devices)
+}
+
+/// Configure a single gotatun device as an entry (or singlehop) endpoint.
+async fn configure_entry_device(
+    device: &Device<impl DeviceTransports>,
+    config: &Config,
+    daita: Option<&DaitaSettings>,
+) -> Result<(), TunnelError> {
+    let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+    device
+        .write(async |device| {
+            device.clear_peers();
+            device.set_private_key(private_key).await;
+            device.add_peer(entry_peer);
+            #[cfg(target_os = "linux")]
+            if let Some(fwmark) = config.fwmark {
+                device.set_fwmark(fwmark)?;
+            }
+            Ok(())
+        })
+        .await
+        .flatten()
+        .map_err(|err| {
+            log::error!("Failed to set gotatun config: {err:#}");
+            TunnelError::SetConfigError
+        })
+}
+
+/// Configure a gotatun device as an exit endpoint.
+async fn configure_exit_device(
+    device: &Device<impl DeviceTransports>,
+    private_key: StaticSecret,
+    exit_peer: gotatun::device::Peer,
+) -> Result<(), TunnelError> {
+    device
+        .write(async |device| {
+            device.clear_peers();
+            device.set_private_key(private_key).await;
+            device.add_peer(exit_peer);
+        })
+        .await
+        .map_err(|err| {
+            log::error!("Failed to set gotatun config: {err:#}");
+            TunnelError::SetConfigError
+        })
 }
 
 /// (Re)Configure gotatun devices.
@@ -366,87 +490,55 @@ async fn configure_devices(
     config: &Config,
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
-    let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-    let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
-
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
             "configuring gotatun multihop device (daita={})",
             daita.is_some()
         );
 
+        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
         let exit_peer = to_gotatun_peer(exit_peer, daita);
 
-        let Devices::Multihop {
-            entry_device,
-            exit_device,
-            ..
-        } = devices
-        else {
-            return Err(TunnelError::ConfigureGotaTunDevice(
-                ConfigureGotaTunDeviceError::ExpectedMultihopDevice,
-            ));
-        };
-
-        entry_device
-            .write(async |device| {
-                device.clear_peers();
-                device.set_private_key(private_key.clone()).await;
-                device.add_peer(entry_peer);
-                #[cfg(target_os = "linux")]
-                if let Some(fwmark) = config.fwmark {
-                    device.set_fwmark(fwmark)?;
-                }
-                Ok(())
-            })
-            .await
-            .flatten()
-            .map_err(|err| {
-                log::error!("Failed to set gotatun config: {err:#}");
-                TunnelError::SetConfigError
-            })?;
-
-        exit_device
-            .write(async |device| {
-                device.clear_peers();
-                device.set_private_key(private_key).await;
-                device.add_peer(exit_peer);
-            })
-            .await
-            .map_err(|err| {
-                log::error!("Failed to set gotatun config: {err:#}");
-                TunnelError::SetConfigError
-            })?;
+        match devices {
+            Devices::Multihop {
+                entry_device,
+                exit_device,
+            } => {
+                configure_entry_device(entry_device, config, daita).await?;
+                configure_exit_device(exit_device, private_key, exit_peer).await?;
+            }
+            Devices::MultihopLwo {
+                entry_device,
+                exit_device,
+            } => {
+                configure_entry_device(entry_device, config, daita).await?;
+                configure_exit_device(exit_device, private_key, exit_peer).await?;
+            }
+            _ => {
+                return Err(TunnelError::ConfigureGotaTunDevice(
+                    ConfigureGotaTunDeviceError::ExpectedMultihopDevice,
+                ));
+            }
+        }
     } else {
         log::trace!(
             "configuring gotatun singlehop device (daita={})",
             daita.is_some()
         );
 
-        let Devices::Singlehop { device } = devices else {
-            return Err(TunnelError::ConfigureGotaTunDevice(
-                ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
-            ));
-        };
-
-        let peer = entry_peer;
-        device
-            .write(async |device| {
-                device.clear_peers();
-                device.set_private_key(private_key).await;
-                device.add_peer(peer);
-                #[cfg(target_os = "linux")]
-                if let Some(fwmark) = config.fwmark {
-                    device.set_fwmark(fwmark)?;
-                }
-                Ok(())
-            })
-            .await
-            .flatten()
-            .map_err(|err| {
-                log::error!("Failed to set gotatun config: {err:#}");
-                TunnelError::SetConfigError
-            })?;
+        match devices {
+            Devices::Singlehop { device } => {
+                configure_entry_device(device, config, daita).await?;
+            }
+            Devices::SinglehopLwo { device } => {
+                configure_entry_device(device, config, daita).await?;
+            }
+            _ => {
+                return Err(TunnelError::ConfigureGotaTunDevice(
+                    ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
+                ));
+            }
+        }
     }
 
     Ok(())
@@ -486,10 +578,19 @@ impl Tunnel for GotaTun {
 
         let stats = match self.devices.as_ref() {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
+            Some(Devices::SinglehopLwo { device }) => get_stats(device).await,
             Some(Devices::Multihop {
                 entry_device,
                 exit_device,
                 ..
+            }) => {
+                let mut stats = get_stats(entry_device).await;
+                stats.extend(get_stats(exit_device).await);
+                stats
+            }
+            Some(Devices::MultihopLwo {
+                entry_device,
+                exit_device,
             }) => {
                 let mut stats = get_stats(entry_device).await;
                 stats.extend(get_stats(exit_device).await);

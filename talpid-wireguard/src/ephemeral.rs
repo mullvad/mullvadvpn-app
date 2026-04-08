@@ -198,10 +198,15 @@ async fn reconfigure_tunnel(
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
+        // On Android, GotaTun is always used (when wireguard-go feature is disabled).
+        // For GotaTun + LWO, obfs_guard is always None so this branch is never reached.
+        // For all other cases (non-LWO obfuscation), is_gotatun does not affect the proxy path.
+        let is_gotatun = cfg!(not(feature = "wireguard-go"));
         *obfs_guard = super::obfuscation::apply_obfuscation_config(
             &mut config,
             obfuscation_mtu,
             close_obfs_sender,
+            is_gotatun,
             #[cfg(target_os = "android")]
             tun_provider.clone(),
         )
@@ -237,10 +242,14 @@ async fn reconfigure_tunnel(
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
+        // For GotaTun + LWO, obfs_guard is always None so this branch is never reached.
+        // For all other cases (non-LWO obfuscation), is_gotatun=false is always correct here
+        // because kernel WG always uses the proxy path.
         *obfs_guard = super::obfuscation::apply_obfuscation_config(
             &mut config,
             obfuscation_mtu,
             close_obfs_sender,
+            false, // is_gotatun: GotaTun+LWO never has an active obfuscator to reconfigure
         )
         .await
         .map_err(CloseMsg::ObfuscatorFailed)?;
