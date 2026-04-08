@@ -250,3 +250,45 @@ reason = "wireguard-go does not call ReadDir or Readdir"
 id = "GO-2026-4603"
 ignoreUntil = 2027-03-09
 reason = "wireguard-go does not use html/template"
+
+# TOCTOU permits root escape on Linux via Root.Chmod in os in internal/syscall/unix
+# https://osv.dev/vulnerability/GO-2026-4864
+[[IgnoredVulns]]
+id = "GO-2026-4864"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not call Root.Chmod"
+
+# JsBraceDepth Context Tracking Bugs (XSS) in html/template
+# https://osv.dev/vulnerability/GO-2026-4865
+[[IgnoredVulns]]
+id = "GO-2026-4865"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not use html/template"
+
+# Unbounded allocation for old GNU sparse in archive/tar
+# https://osv.dev/vulnerability/GO-2026-4869
+[[IgnoredVulns]]
+id = "GO-2026-4869"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not use archive/tar"
+
+# Unauthenticated TLS 1.3 KeyUpdate record can cause persistent connection retention and DoS in crypto/tls
+# https://osv.dev/vulnerability/GO-2026-4870
+[[IgnoredVulns]]
+id = "GO-2026-4870"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not use crypto/tls"
+
+# Inefficient policy validation in crypto/x509
+# https://osv.dev/vulnerability/GO-2026-4946
+[[IgnoredVulns]]
+id = "GO-2026-4946"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not use crypto/x509"
+
+# Unexpected work during chain building in crypto/x509
+# https://osv.dev/vulnerability/GO-2026-4947
+[[IgnoredVulns]]
+id = "GO-2026-4947"
+ignoreUntil = 2027-04-08
+reason = "wireguard-go does not use crypto/x509"
