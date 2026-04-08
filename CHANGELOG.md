@@ -53,6 +53,13 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Mitigate multiple local privilege escalation attacks from admin user to root in the `preinstall`
   and `postinstall` scripts.
+- Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
+  measure to ensure that the renderer process does not have any capabilities beyond that of a
+  regular user of the app. Fixes `GHSA-h72f-j6r4-c3jc`
+#### Windows
+- Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
+  measure to ensure that the renderer process does not have any capabilities beyond that of a
+  regular user of the app. Fixes `GHSA-h72f-j6r4-c3jc`
 
 
 ## [2026.1] - 2026-03-13
