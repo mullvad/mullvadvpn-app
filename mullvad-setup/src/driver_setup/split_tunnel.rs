@@ -45,18 +45,24 @@ pub fn reset_driver_state() -> Result<(), crate::Error> {
 
     let handle = file.as_raw_handle() as HANDLE;
 
-    send_ioctl(handle, IOCTL_ST_RESET, ptr::null(), 0, ptr::null_mut(), 0)
+    // SAFETY: IOCTL_ST_RESET takes no input or output buffer, so passing NULL pointers
+    // with zero sizes is correct.
+    unsafe { send_ioctl(handle, IOCTL_ST_RESET, ptr::null(), 0, ptr::null_mut(), 0) }
         .map_err(crate::Error::IoControl)?;
 
     let mut state: u64 = 0;
-    let bytes_returned = send_ioctl(
-        handle,
-        IOCTL_ST_GET_STATE,
-        ptr::null(),
-        0,
-        (&raw mut state) as *mut _,
-        size_of::<u64>() as u32,
-    )
+    // SAFETY: IOCTL_ST_GET_STATE writes a u64 to the output buffer; `state` is a writable
+    // u64 and the size matches.
+    let bytes_returned = unsafe {
+        send_ioctl(
+            handle,
+            IOCTL_ST_GET_STATE,
+            ptr::null(),
+            0,
+            (&raw mut state) as *mut _,
+            size_of::<u64>() as u32,
+        )
+    }
     .map_err(crate::Error::IoControl)?;
 
     if bytes_returned != size_of::<u64>() as u32 || state != ST_DRIVER_STATE_STARTED {
@@ -68,7 +74,13 @@ pub fn reset_driver_state() -> Result<(), crate::Error> {
 
 /// Send an IO control code to the device using overlapped I/O, waiting for completion.
 /// Returns the number of bytes transferred.
-fn send_ioctl(
+///
+/// # Safety
+///
+/// `in_buffer`/`in_size` and `out_buffer`/`out_size` must describe valid buffers (or be
+/// NULL/0) appropriate for the given IOCTL `code`. `device` must be a valid handle opened
+/// for overlapped I/O.
+unsafe fn send_ioctl(
     device: HANDLE,
     code: u32,
     in_buffer: *const core::ffi::c_void,
