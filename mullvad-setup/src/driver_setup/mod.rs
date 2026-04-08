@@ -76,7 +76,7 @@ unsafe fn call_delete_driver_fn(dll_name: &str, fn_name: &str) -> Result<(), cra
     let exe_path = std::env::current_exe().map_err(crate::Error::LoadLibrary)?;
     let dll_path = exe_path
         .parent()
-        .unwrap_or(std::path::Path::new("."))
+        .expect("current_exe always has a parent directory")
         .join(dll_name);
 
     let dll_path_wide: Vec<u16> = dll_path
