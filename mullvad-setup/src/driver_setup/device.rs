@@ -40,8 +40,7 @@ impl DeviceInfoSet {
     }
 
     fn get_device_info(&self, index: u32) -> io::Result<Option<DeviceInfo<'_>>> {
-        // SAFETY: `SP_DEVINFO_DATA` is a POD struct; zero is a valid bit pattern.
-        let mut device_info: SP_DEVINFO_DATA = unsafe { mem::zeroed() };
+        let mut device_info = SP_DEVINFO_DATA::default();
         device_info.cbSize = mem::size_of::<SP_DEVINFO_DATA>() as u32;
 
         // SAFETY: `device_info_set` is a valid HDEVINFO; `device_info` has `cbSize` set.
