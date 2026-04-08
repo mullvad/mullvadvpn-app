@@ -113,4 +113,59 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
 # Add rust targets
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
 
+# Install yubico-piv-tool (by building from source)
+#
+# NOTE: Yubico doesn't have a main signing key, instead individual devs
+# sign release. On version bumps, verify the new tarball .sig and update
+# the key file if a different developer signed the release.
+# https://developers.yubico.com/Software_Projects/Software_Signing.html
+ARG YUBICO_PIV_TOOL_VERSION=2.7.3
+COPY yubico-piv-tool-signing-key.asc /tmp/yubico-piv-tool-signing-key.asc
+RUN set -eux; \
+    # Install build-only dependencies (some marked auto for later removal)
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        check \
+        cmake \
+        g++ \
+        gengetopt \
+        help2man \
+        libpcsclite-dev \
+        libssl-dev \
+        pkg-config \
+        zlib1g-dev \
+    && \
+    apt-mark auto \
+        check \
+        cmake \
+        gengetopt \
+        help2man \
+        libpcsclite-dev \
+        libssl-dev \
+        pkg-config \
+        zlib1g-dev \
+    && \
+    # Download source tarball and detached signature
+    curl -sfLo /tmp/yubico-piv-tool.tar.gz \
+        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz" && \
+    curl -sfLo /tmp/yubico-piv-tool.tar.gz.sig \
+        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz.sig" && \
+    # Verify signature
+    export GNUPGHOME="$(mktemp -d)" && \
+    gpg --batch --import /tmp/yubico-piv-tool-signing-key.asc && \
+    gpg --batch --verify /tmp/yubico-piv-tool.tar.gz.sig /tmp/yubico-piv-tool.tar.gz && \
+    rm -rf "$GNUPGHOME" && \
+    # Extract and build
+    tar -xzf /tmp/yubico-piv-tool.tar.gz -C /tmp && \
+    mkdir /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
+    cd /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
+    cmake .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig && \
+    # Cleanup
+    rm -rf /tmp/yubico-piv-tool* && \
+    apt-get autoremove --purge -y && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /build
