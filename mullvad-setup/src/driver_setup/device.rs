@@ -126,7 +126,7 @@ struct DevRegKey {
 }
 
 impl DevRegKey {
-    /// Open the registry key from a device's driver key.
+    /// Open the registry key for device-specific configuration.
     pub fn open(info: &DeviceInfo<'_>) -> io::Result<Self> {
         // SAFETY: The device info set and info are valid
         // and belong to the same enumeration.
