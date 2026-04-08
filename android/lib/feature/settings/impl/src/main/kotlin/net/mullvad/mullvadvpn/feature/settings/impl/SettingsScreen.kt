@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.settings.impl
 
+import android.os.Build
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,7 @@ import net.mullvad.mullvadvpn.feature.appearance.api.AppearanceNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.api.AppInfoNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
+import net.mullvad.mullvadvpn.feature.language.api.LanguageNavKey
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.notification.api.NotificationSettingsNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
@@ -117,6 +119,12 @@ fun Settings(navigator: Navigator) {
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(NotificationSettingsNavKey) },
         onAppObfuscationClick =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AppearanceNavKey) },
+        onLanguageClick =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                dropUnlessResumed { navigator.navigateReplaceIfDetailPane(LanguageNavKey) }
+            } else {
+                null
+            },
         onBackClick = dropUnlessResumed { navigator.goBackUntil(SettingsNavKey, inclusive = true) },
     )
 }
@@ -133,6 +141,7 @@ fun SettingsScreen(
     onDaitaClick: () -> Unit,
     onBackClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
+    onLanguageClick: (() -> Unit)? = null,
     onAppObfuscationClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
@@ -162,6 +171,7 @@ fun SettingsScreen(
                         onDaitaClick = onDaitaClick,
                         onNotificationSettingsCellClick = onNotificationSettingsCellClick,
                         onAppObfuscationClick = onAppObfuscationClick,
+                        onLanguageClick = onLanguageClick,
                     )
                 }
             }
@@ -180,6 +190,7 @@ private fun LazyListScope.content(
     onDaitaClick: () -> Unit,
     onNotificationSettingsCellClick: () -> Unit,
     onAppObfuscationClick: () -> Unit = {},
+    onLanguageClick: (() -> Unit)? = null,
 ) {
     if (state.isLoggedIn) {
         itemWithDivider {
@@ -219,6 +230,16 @@ private fun LazyListScope.content(
             onClick = onAppObfuscationClick,
             position = Position.Top,
         )
+    }
+
+    if (onLanguageClick != null) {
+        itemWithDivider {
+            NavigationListItem(
+                title = stringResource(id = R.string.language),
+                onClick = onLanguageClick,
+                position = Position.Middle,
+            )
+        }
     }
 
     itemWithDivider {
