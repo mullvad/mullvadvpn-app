@@ -50,9 +50,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
           { location: customList.label },
         )}>
         <Location.Accordion.Header.TrailingActions.Action>
-          <Location.Accordion.Header.TrailingActions.Action.Icon
-            icon={expanded ? 'chevron-up' : 'chevron-down'}
-          />
+          <Location.Accordion.Header.TrailingActions.Action.Chevron />
         </Location.Accordion.Header.TrailingActions.Action>
       </Location.Accordion.Trigger>
     </Location.Accordion.Header.TrailingActions>
