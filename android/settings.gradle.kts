@@ -44,6 +44,8 @@ include(
     ":lib:feature:anticensorship:api",
     ":lib:feature:apiaccess:impl",
     ":lib:feature:apiaccess:api",
+    ":lib:feature:appicon:impl",
+    ":lib:feature:appicon:api",
     ":lib:feature:appinfo:impl",
     ":lib:feature:appinfo:api",
     ":lib:feature:appearance:impl",

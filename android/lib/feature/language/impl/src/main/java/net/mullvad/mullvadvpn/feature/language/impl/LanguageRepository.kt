@@ -10,8 +10,7 @@ import java.util.Locale
 @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU)
 class LanguageRepository(private val context: Context) {
 
-    private val localeManager: LocaleManager =
-        context.getSystemService(LocaleManager::class.java)
+    private val localeManager: LocaleManager = context.getSystemService(LocaleManager::class.java)
 
     fun getSupportedLocales(): List<Locale> {
         val localeList = LocaleConfig(context).supportedLocales ?: return emptyList()
@@ -37,5 +36,3 @@ class LanguageRepository(private val context: Context) {
             }
     }
 }
-
-

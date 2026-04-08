@@ -374,6 +374,8 @@ dependencies {
     implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.apiaccess.impl)
     implementation(projects.lib.feature.apiaccess.api)
+    implementation(projects.lib.feature.appicon.impl)
+    implementation(projects.lib.feature.appicon.api)
     implementation(projects.lib.feature.appinfo.impl)
     implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.appearance.impl)

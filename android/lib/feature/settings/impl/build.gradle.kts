@@ -16,7 +16,6 @@ dependencies {
     implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.daita.api)
-    implementation(projects.lib.feature.language.api)
     implementation(projects.lib.feature.multihop.api)
     implementation(projects.lib.feature.notification.api)
     implementation(projects.lib.feature.problemreport.api)

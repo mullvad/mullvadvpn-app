@@ -5,7 +5,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -79,9 +78,7 @@ fun LanguageScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.language),
-        navigationIcon = {
-            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
-        },
+        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             state = lazyListState,
@@ -113,4 +110,3 @@ fun LanguageScreen(
         }
     }
 }
-
