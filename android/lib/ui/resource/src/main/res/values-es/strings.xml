@@ -270,6 +270,7 @@
     <string name="ipv6_info">Cuando esta característica está habilitada, se puede usar IPv6 junto a IPv4 en el túnel VPN para comunicarse con los servicios de internet.</string>
     <string name="ipv6_unavailable">No se pudo configurar IPv6. Desactívelo en la aplicación o actívelo en el dispositivo.</string>
     <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
+    <string name="language">Idioma</string>
     <string name="legacy_always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa antes de utilizar la Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra VPN</string>
     <string name="less_than_a_day_left">A esta cuenta le queda menos de un día</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">No se puede iniciar la conexión del túnel. Envíe un informe de problemas.</string>
     <string name="submit_button">Enviar</string>
     <string name="switch_location">Cambiar ubicación</string>
+    <string name="system_default">Valor predeterminado del sistema</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Probar método</string>
     <string name="testing">Probando...</string>

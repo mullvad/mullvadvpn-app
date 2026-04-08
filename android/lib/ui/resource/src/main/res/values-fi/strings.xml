@@ -270,6 +270,7 @@
     <string name="ipv6_info">Kun tämä ominaisuus on käytössä, IPv6:ta voidaan käyttää IPv4:n rinnalla VPN-tunnelissa yhteydenpidossa internetpalveluiden kanssa.</string>
     <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
+    <string name="language">Kieli</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä ennen Mullvad VPN:n käyttämistä.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle VPN:lle</string>
     <string name="less_than_a_day_left">Tilin käyttöaikaa on jäljellä alle päivä</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen ei onnistu. Lähetä ongelmaraportti.</string>
     <string name="submit_button">Lähetä</string>
     <string name="switch_location">Vaihda sijaintia</string>
+    <string name="system_default">Järjestelmän oletusarvo</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Testaa menetelmä</string>
     <string name="testing">Testataan...</string>

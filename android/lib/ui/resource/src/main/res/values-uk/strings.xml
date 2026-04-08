@@ -270,6 +270,7 @@
     <string name="ipv6_info">Коли ця функція ввімкнена, IPv6 може використовуватися разом з IPv4 у VPN-тунелі для зв’язку з інтернет-сервісами.</string>
     <string name="ipv6_unavailable">Не вдалося налаштувати IPv6. Вимкніть його в застосунку або увімкніть на пристрої.</string>
     <string name="is_offline">Ваш пристрій офлайн. Тунель автоматично підключиться, щойно він знову буде онлайн.</string>
+    <string name="language">Мова</string>
     <string name="legacy_always_on_vpn_error_notification_content">Не вдалося запустити тунельне з’єднання. Вимкніть опцію «Завжди увімкнений VPN» перед використанням Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Опція «Завжди увімкнений VPN» призначена іншому VPN</string>
     <string name="less_than_a_day_left">На балансі облікового запису залишилося менше ніж один день</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Не вдалося запустити тунельне з’єднання. Надішліть звіт про проблему.</string>
     <string name="submit_button">Надіслати</string>
     <string name="switch_location">Змінити розташування</string>
+    <string name="system_default">Системне значення за замовчуванням</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Перевірити метод</string>
     <string name="testing">Перевіряється…</string>

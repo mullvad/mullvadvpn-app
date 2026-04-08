@@ -2961,6 +2961,9 @@ msgstr ""
 msgid "Any remaining time will be null and void."
 msgstr ""
 
+msgid "App icon"
+msgstr ""
+
 msgid "Appearance"
 msgstr ""
 

@@ -270,6 +270,7 @@
     <string name="ipv6_info">عندما يتم تفعيل هذه الميزة، يمكن استخدام IPv6 جنبًا إلى جنب مع IPv4 في نفق VPN للاتصال بخدمات الإنترنت.</string>
     <string name="ipv6_unavailable">تعذَّرت تهيئة بروتوكول IPv6. أوقفه في التطبيق أو فعِّله على جهازك.</string>
     <string name="is_offline">جهازك غير متصل بالإنترنت. سيتصل النفق تلقائيًا بمجرد اتصال جهازك مرة أخرى بالإنترنت.</string>
+    <string name="language">اللغة</string>
     <string name="legacy_always_on_vpn_error_notification_content">يتعذَّر بدء اتصال النفق. يُرجى إيقاف \"تشغيل VPN دائمًا\" قبل استخدام Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">تم تعيين \"تشغيل VPN دائمًا\" إلى شبكة VPN أخرى</string>
     <string name="less_than_a_day_left">يتبقى أقل من يوم لهذا الحساب</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">يتعذَّر بدء اتصال النفق. يُرجى إرسال بلاغ بالمشكلة.</string>
     <string name="submit_button">إرسال</string>
     <string name="switch_location">تبديل الموقع</string>
+    <string name="system_default">الافتراضية للنظام</string>
     <string name="tcp">TCP</string>
     <string name="test_method">طريقة الاختبار</string>
     <string name="testing">جارٍ الاختبار...</string>
