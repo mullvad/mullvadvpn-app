@@ -29,7 +29,7 @@ impl Drop for DeviceInfoSet {
 pub fn find_and_uninstall_device(
     class_guid: GUID,
     filter: impl Fn(HDEVINFO, &SP_DEVINFO_DATA) -> bool,
-) -> Result<bool, io::Error> {
+) -> io::Result<bool> {
     // SAFETY: `class_guid` points to a valid GUID; the other pointer args are documented as optional.
     let device_info_set = unsafe {
         SetupDiGetClassDevsW(
@@ -84,7 +84,7 @@ pub fn find_and_uninstall_device(
 pub unsafe fn get_device_net_cfg_instance_id(
     device_info_set: HDEVINFO,
     device_info: &SP_DEVINFO_DATA,
-) -> Result<String, io::Error> {
+) -> io::Result<String> {
     // SAFETY: Per this function's safety contract, `device_info_set` and `device_info`
     // are valid and belong to the same enumeration.
     let reg_key: HKEY = unsafe {
@@ -140,7 +140,7 @@ pub unsafe fn get_device_net_cfg_instance_id(
 unsafe fn uninstall_device(
     device_info_set: HDEVINFO,
     device_info: &SP_DEVINFO_DATA,
-) -> Result<(), io::Error> {
+) -> io::Result<()> {
     let mut needs_reboot: windows_sys::core::BOOL = 0;
     // SAFETY: Per this function's safety contract, `device_info_set` and `device_info`
     // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.
