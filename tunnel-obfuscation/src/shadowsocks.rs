@@ -24,7 +24,7 @@ use tokio::{net::UdpSocket, sync::oneshot};
 use std::os::fd::AsRawFd;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
-const SHADOWSOCKS_PASSWORD: &str = "mullvad";
+const SHADOWSOCKS_PASSWORD: &str = "mullvad1";
 
 type Result<T> = std::result::Result<T, Error>;
 
