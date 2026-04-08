@@ -34,7 +34,7 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
     }
 
     /// Initializer that accepts a custom FileCache implementation. Used in tests.
-    init(fileCache: some FileCacheProtocol<StoredRelays>) {
+    public init(fileCache: some FileCacheProtocol<StoredRelays>) {
         fileURL = FileManager.default.temporaryDirectory.appendingPathComponent("relays.json", isDirectory: false)
         self.fileCache = fileCache
     }
