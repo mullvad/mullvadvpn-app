@@ -10,7 +10,6 @@ use windows_sys::{
         System::Registry::{HKEY, KEY_READ, RRF_RT_REG_SZ, RegCloseKey, RegGetValueW},
     },
     core::GUID,
-    w,
 };
 
 pub struct DeviceInfoSet(HDEVINFO);
@@ -122,52 +121,77 @@ impl<'a> DeviceInfoIter<'a> {
     }
 }
 
+struct DevRegKey {
+    key: HKEY,
+}
+
+impl DevRegKey {
+    /// Open the registry key from a device's driver key.
+    pub fn open(info: &DeviceInfo<'_>) -> io::Result<Self> {
+        // SAFETY: The device info set and info are valid
+        // and belong to the same enumeration.
+        let key = unsafe {
+            SetupDiOpenDevRegKey(
+                info.set.0,
+                &raw const info.data,
+                DICS_FLAG_GLOBAL,
+                0,
+                DIREG_DRV,
+                KEY_READ,
+            )
+        };
+
+        if std::ptr::eq(key, INVALID_HANDLE_VALUE) {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(Self { key })
+    }
+
+    /// Read a `REG_SZ` type value from the driver key.
+    pub fn get_string_value(&self, value_name: &str) -> io::Result<String> {
+        let mut buffer: Vec<u16> = vec![0u16; 128];
+        let mut buffer_byte_len: u32 = (buffer.len() * 2) as u32;
+
+        let value_name: Vec<u16> = value_name
+            .encode_utf16()
+            .chain(std::iter::once(0))
+            .collect();
+
+        // SAFETY: `self.key` is valid; `value_name` is NUL-terminated; `buffer` is sized by `buffer_byte_len`.
+        let status = unsafe {
+            RegGetValueW(
+                self.key,
+                ptr::null(),
+                value_name.as_ptr(),
+                RRF_RT_REG_SZ,
+                ptr::null_mut(),
+                buffer.as_mut_ptr() as *mut _,
+                &raw mut buffer_byte_len,
+            )
+        };
+
+        if status != 0 {
+            return Err(io::Error::from_raw_os_error(status as i32));
+        }
+
+        let len = buffer
+            .iter()
+            .position(|&c| c == 0)
+            .expect("RegGetValueW guarantees a NUL terminator for REG_SZ");
+        Ok(String::from_utf16_lossy(&buffer[..len]))
+    }
+}
+
+impl Drop for DevRegKey {
+    fn drop(&mut self) {
+        // SAFETY: `self.key` is a valid reg key handle
+        unsafe { RegCloseKey(self.key) };
+    }
+}
+
 /// Read the `NetCfgInstanceId` registry value from a device's driver key.
 /// Returns the GUID string (e.g. `{AFE43773-...}`).
 pub fn get_device_net_cfg_instance_id(info: &DeviceInfo<'_>) -> io::Result<String> {
-    // SAFETY: `device_info_set` and `device_info`
-    // are valid and belong to the same enumeration.
-    let reg_key: HKEY = unsafe {
-        SetupDiOpenDevRegKey(
-            info.set.0,
-            &raw const info.data,
-            DICS_FLAG_GLOBAL,
-            0,
-            DIREG_DRV,
-            KEY_READ,
-        )
-    };
-
-    if std::ptr::eq(reg_key, INVALID_HANDLE_VALUE) {
-        return Err(io::Error::last_os_error());
-    }
-
-    let mut buffer: Vec<u16> = vec![0u16; 128];
-    let mut buffer_byte_len: u32 = (buffer.len() * 2) as u32;
-
-    // SAFETY: `reg_key` is valid; `value_name` is NUL-terminated; `buffer` is sized by `buffer_byte_len`.
-    let status = unsafe {
-        RegGetValueW(
-            reg_key,
-            ptr::null(),
-            w!("NetCfgInstanceId"),
-            RRF_RT_REG_SZ,
-            ptr::null_mut(),
-            buffer.as_mut_ptr() as *mut _,
-            &raw mut buffer_byte_len,
-        )
-    };
-
-    // SAFETY: `reg_key` was opened above and is not used again.
-    unsafe { RegCloseKey(reg_key) };
-
-    if status != 0 {
-        return Err(io::Error::from_raw_os_error(status as i32));
-    }
-
-    let len = buffer
-        .iter()
-        .position(|&c| c == 0)
-        .expect("RegGetValueW guarantees a NUL terminator for REG_SZ");
-    Ok(String::from_utf16_lossy(&buffer[..len]))
+    DevRegKey::open(info)?.get_string_value("NetCfgInstanceId")
 }
