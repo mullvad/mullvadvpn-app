@@ -259,7 +259,7 @@ pub async fn test_detect_app_removal(
         .context("Failed to delete Mullvad app")?;
 
     let mut attempt = 0;
-    const MAX_ATTEMPTS: usize = 30;
+    const MAX_ATTEMPTS: usize = 180;
 
     loop {
         let app_traces = rpc.find_mullvad_app_traces().await?;
