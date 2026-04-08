@@ -10,6 +10,7 @@ use windows_sys::{
         System::Registry::{HKEY, KEY_READ, RRF_RT_REG_SZ, RegCloseKey, RegGetValueW},
     },
     core::GUID,
+    w,
 };
 
 struct DeviceInfoSet(HDEVINFO);
@@ -102,7 +103,6 @@ pub unsafe fn get_device_net_cfg_instance_id(
         return Err(io::Error::last_os_error());
     }
 
-    let value_name: Vec<u16> = "NetCfgInstanceId\0".encode_utf16().collect();
     let mut buffer: Vec<u16> = vec![0u16; 128];
     let mut buffer_byte_len: u32 = (buffer.len() * 2) as u32;
 
@@ -111,7 +111,7 @@ pub unsafe fn get_device_net_cfg_instance_id(
         RegGetValueW(
             reg_key,
             ptr::null(),
-            value_name.as_ptr(),
+            w!("NetCfgInstanceId"),
             RRF_RT_REG_SZ,
             ptr::null_mut(),
             buffer.as_mut_ptr() as *mut _,
