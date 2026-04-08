@@ -60,6 +60,8 @@ include(
     ":lib:feature:filter:api",
     ":lib:feature:home:impl",
     ":lib:feature:home:api",
+    ":lib:feature:language:impl",
+    ":lib:feature:language:api",
     ":lib:feature:location:impl",
     ":lib:feature:location:api",
     ":lib:feature:login:impl",

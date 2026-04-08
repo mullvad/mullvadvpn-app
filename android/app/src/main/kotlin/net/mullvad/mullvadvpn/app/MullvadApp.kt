@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
+import net.mullvad.mullvadvpn.feature.language.impl.navigation.languageEntry
 import net.mullvad.mullvadvpn.feature.location.impl.navigation.selectLocationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
@@ -131,6 +132,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         deviceListEntry(nav3)
         filterEntry(nav3)
         homeEntry(nav3)
+        languageEntry(nav3)
         loginEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)

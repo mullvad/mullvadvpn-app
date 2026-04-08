@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMe
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.list.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.feature.appearance.impl.AppearanceViewModel
+import net.mullvad.mullvadvpn.feature.language.impl.LanguageViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
@@ -414,6 +415,9 @@ val uiModule = module {
         )
     }
     viewModel { AppearanceViewModel(get()) }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        viewModel { LanguageViewModel(get(), get()) }
+    }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity

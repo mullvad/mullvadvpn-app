@@ -386,6 +386,7 @@ dependencies {
     implementation(projects.lib.feature.filter.impl)
     implementation(projects.lib.feature.home.impl)
     implementation(projects.lib.feature.home.api)
+    implementation(projects.lib.feature.language.impl)
     implementation(projects.lib.feature.location.impl)
     implementation(projects.lib.feature.location.api)
     implementation(projects.lib.feature.login.impl)
