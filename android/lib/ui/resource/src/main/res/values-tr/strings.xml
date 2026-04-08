@@ -270,6 +270,7 @@
     <string name="ipv6_info">Bu özellik etkinleştirildiğinde IPv6, internet hizmetleriyle iletişim kurmak için VPN tünelinde IPv4 ile birlikte kullanılabilir.</string>
     <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
+    <string name="language">Dil</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen \"Her zaman açık VPN\"i devre dışı bırakın.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Her zaman açık VPN diğer VPN\'e atandı</string>
     <string name="less_than_a_day_left">Bu hesapta bir günden daha az süre kaldı</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
+    <string name="system_default">Sistem varsayılanı</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Yöntemi test et</string>
     <string name="testing">Test ediliyor...</string>

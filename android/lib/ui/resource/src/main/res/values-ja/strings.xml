@@ -270,6 +270,7 @@
     <string name="ipv6_info">この機能が有効である場合、VPNトンネルにIPv6とIPv4を併用してインターネットサービスと通信できます。</string>
     <string name="ipv6_unavailable">IPv6を設定できませんでした。アプリで無効にするか、デバイスで有効にしてください。</string>
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
+    <string name="language">言語</string>
     <string name="legacy_always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。</string>
     <string name="legacy_always_on_vpn_error_notification_title">Always-on VPNは他のVPNに割り当てられました</string>
     <string name="less_than_a_day_left">このアカウントの残り時間は1日未満です</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">トンネル接続を開始できません。問題の報告を送信してください。</string>
     <string name="submit_button">送信</string>
     <string name="switch_location">場所を切り替える</string>
+    <string name="system_default">システムデフォルト</string>
     <string name="tcp">TCP</string>
     <string name="test_method">方法をテストする</string>
     <string name="testing">テスト中...</string>

@@ -270,6 +270,7 @@
     <string name="ipv6_info">Gdy ta funkcja jest włączona, protokołu IPv6 można używać wraz z protokołem IPv4 w tunelu VPN do komunikacji z usługami internetowymi.</string>
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
+    <string name="language">Język</string>
     <string name="legacy_always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN”.</string>
     <string name="legacy_always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji VPN</string>
     <string name="less_than_a_day_left">Na koncie pozostał mniej niż jeden dzień</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
+    <string name="system_default">Domyślne ustawienie systemowe</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Przetestuj metodę</string>
     <string name="testing">Testowanie...</string>

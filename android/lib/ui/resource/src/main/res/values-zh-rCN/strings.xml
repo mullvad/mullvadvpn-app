@@ -270,6 +270,7 @@
     <string name="ipv6_info">启用此功能后，IPv6 可以在 VPN 隧道中与 IPv4 一起使用来通过互联网服务通信。</string>
     <string name="ipv6_unavailable">无法配置 IPv6。请在应用中将其停用或在您的设备上将其启用。</string>
     <string name="is_offline">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</string>
+    <string name="language">语言</string>
     <string name="legacy_always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请停用“始终开启 VPN”。</string>
     <string name="legacy_always_on_vpn_error_notification_title">“始终开启 VPN”已分配给其他 VPN</string>
     <string name="less_than_a_day_left">此帐户还剩不到 1 天</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">无法启动隧道连接。请发送问题报告。</string>
     <string name="submit_button">提交</string>
     <string name="switch_location">切换位置</string>
+    <string name="system_default">系统默认值</string>
     <string name="tcp">TCP</string>
     <string name="test_method">测试方法</string>
     <string name="testing">正在测试…</string>

@@ -270,6 +270,7 @@
     <string name="ipv6_info">이 기능을 활성화하면 VPN 터널에서 IPv4와 함께 IPv6을 사용하여 인터넷 서비스와 통신할 수 있습니다.</string>
     <string name="ipv6_unavailable">IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요.</string>
     <string name="is_offline">장치가 오프라인 상태입니다. 장치가 다시 온라인 상태가 되면 터널이 자동으로 연결됩니다.</string>
+    <string name="language">언어</string>
     <string name="legacy_always_on_vpn_error_notification_content">터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요.</string>
     <string name="legacy_always_on_vpn_error_notification_title">상시 접속 VPN이 다른 VPN에 할당됨</string>
     <string name="less_than_a_day_left">계정에 남은 기간이 1일 미만입니다</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">터널 연결을 시작할 수 없습니다. 문제 보고서를 보내주세요.</string>
     <string name="submit_button">제출</string>
     <string name="switch_location">위치 전환</string>
+    <string name="system_default">시스템 기본값</string>
     <string name="tcp">TCP</string>
     <string name="test_method">방법 테스트</string>
     <string name="testing">테스트 중...</string>
