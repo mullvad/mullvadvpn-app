@@ -147,7 +147,7 @@ fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Naviga
 
     val resultStore = LocalResultStore.current
 
-    resultStore.consumeResult<SaveApiAccessMethodNavResult>()?.let { result ->
+    resultStore.consumeResult<SaveApiAccessMethodNavResult> { result ->
         if (result.success) {
             navigator.goBack(result = EditApiAccessMethodNavResult(true))
         } else {
@@ -160,9 +160,7 @@ fun EditApiAccessMethod(apiAccessMethodId: ApiAccessMethodId?, navigator: Naviga
         }
     }
 
-    resultStore.consumeResult<DiscardApiAccessChangesConfirmedNavResult>()?.let {
-        navigator.goBack()
-    }
+    resultStore.consumeResult<DiscardApiAccessChangesConfirmedNavResult> { navigator.goBack() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

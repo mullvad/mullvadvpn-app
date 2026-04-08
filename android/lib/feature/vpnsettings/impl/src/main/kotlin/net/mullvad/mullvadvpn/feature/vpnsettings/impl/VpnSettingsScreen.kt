@@ -175,7 +175,7 @@ fun SharedTransitionScope.VpnSettings(
 
     navigator.assureHasDetailPane<VpnSettingsNavKey>(AutoConnectNavKey)
 
-    resultStore.consumeResult<DnsNavResult>()?.let { result ->
+    resultStore.consumeResult<DnsNavResult> { result ->
         when (result) {
             is DnsNavResult.Success -> {
                 vm.showApplySettingChangesWarningToast()
@@ -186,7 +186,7 @@ fun SharedTransitionScope.VpnSettings(
         }
     }
 
-    resultStore.consumeResult<MtuNavResult>()?.let { result ->
+    resultStore.consumeResult<MtuNavResult> { result ->
         if (!result.complete) {
             vm.showGenericErrorToast()
         }

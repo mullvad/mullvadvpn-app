@@ -37,7 +37,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -102,7 +101,6 @@ import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
@@ -160,22 +158,6 @@ fun SelectLocation(navigator: Navigator) {
     val snackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
     val resultStore = LocalResultStore.current
-
-    @Composable
-    fun ShowResultSnackbar(result: CustomListActionResultData) {
-        LaunchedEffect(result) {
-            snackbarHostState.showResultSnackbar(
-                resources = resources,
-                result = result,
-                onUndo = vm::performAction,
-            )
-        }
-    }
-
-    @Composable
-    fun ShowSnackbar(message: String) {
-        LaunchedEffect(message) { snackbarHostState.showSnackbarImmediately(message = message) }
-    }
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
@@ -236,16 +218,22 @@ fun SelectLocation(navigator: Navigator) {
         }
     }
 
-    resultStore.consumeResult<LocationBottomSheetNavResult>()?.let { result ->
+    resultStore.consumeResult<LocationBottomSheetNavResult> { result ->
         when (result) {
             is LocationBottomSheetNavResult.CustomListActionToast ->
-                ShowResultSnackbar(result.resultData)
+                snackbarHostState.showResultSnackbar(
+                    resources = resources,
+                    result = result.resultData,
+                    onUndo = vm::performAction,
+                )
 
             LocationBottomSheetNavResult.GenericError ->
-                ShowSnackbar(message = resources.getString(R.string.error_occurred))
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.error_occurred)
+                )
 
             is LocationBottomSheetNavResult.EntryAlreadySelected ->
-                ShowSnackbar(
+                snackbarHostState.showSnackbarImmediately(
                     message =
                         resources.getString(
                             R.string.relay_item_already_selected_as_entry,
@@ -254,7 +242,7 @@ fun SelectLocation(navigator: Navigator) {
                 )
 
             is LocationBottomSheetNavResult.ExitAlreadySelected ->
-                ShowSnackbar(
+                snackbarHostState.showSnackbarImmediately(
                     message =
                         resources.getString(
                             R.string.relay_item_already_selected_as_exit,
@@ -263,54 +251,70 @@ fun SelectLocation(navigator: Navigator) {
                 )
 
             is LocationBottomSheetNavResult.RelayItemInactive ->
-                ShowSnackbar(
+                snackbarHostState.showSnackbarImmediately(
                     message =
                         resources.getString(R.string.relayitem_is_inactive, result.relayItem.name)
                 )
 
             LocationBottomSheetNavResult.EntryAndExitAreSame ->
-                ShowSnackbar(message = resources.getString(R.string.entry_and_exit_are_same))
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.entry_and_exit_are_same)
+                )
 
             is LocationBottomSheetNavResult.MultihopChanged -> {
-                LaunchedEffect(result) {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                when (result.undoChangeMultihopAction) {
-                                    UndoChangeMultihopAction.Disable,
-                                    is UndoChangeMultihopAction.DisableAndSetExit,
-                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
-                                        R.string.multihop_is_enabled
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(
+                            when (result.undoChangeMultihopAction) {
+                                UndoChangeMultihopAction.Disable,
+                                is UndoChangeMultihopAction.DisableAndSetExit,
+                                is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                    R.string.multihop_is_enabled
 
-                                    else -> R.string.multihop_is_disabled
-                                }
-                            ),
-                        actionLabel = resources.getString(R.string.undo),
-                        onAction = { vm.undoMultihopAction(result.undoChangeMultihopAction) },
-                        duration = SnackbarDuration.Long,
-                    )
-                }
+                                else -> R.string.multihop_is_disabled
+                            }
+                        ),
+                    actionLabel = resources.getString(R.string.undo),
+                    onAction = { vm.undoMultihopAction(result.undoChangeMultihopAction) },
+                    duration = SnackbarDuration.Long,
+                )
             }
         }
     }
 
-    resultStore.consumeResult<CreateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<CreateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<EditCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<EditCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<DeleteCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<DeleteCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<UpdateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<UpdateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<SearchLocationNavResult>()?.let { result ->
+    resultStore.consumeResult<SearchLocationNavResult> { result ->
         when (val type = result.relayListType) {
             RelayListType.Single -> navigator.goBack(result = SelectLocationNavResult(true))
             is RelayListType.Multihop ->

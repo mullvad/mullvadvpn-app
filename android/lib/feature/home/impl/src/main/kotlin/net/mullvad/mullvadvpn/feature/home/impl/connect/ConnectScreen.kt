@@ -265,7 +265,7 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
         }
     }
 
-    LocalResultStore.current.consumeResult<SelectLocationNavResult>()?.let { result ->
+    LocalResultStore.current.consumeResult<SelectLocationNavResult> { result ->
         if (result.connect) {
             connectViewModel.onConnectClick()
         }

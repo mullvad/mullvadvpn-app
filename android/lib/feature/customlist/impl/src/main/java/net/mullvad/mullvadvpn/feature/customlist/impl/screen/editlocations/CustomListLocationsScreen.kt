@@ -75,7 +75,7 @@ private fun PreviewCustomListLocationScreen(
 fun CustomListLocations(navArgs: EditCustomListLocationsNavKey, navigator: Navigator) {
     val customListsViewModel = koinViewModel<CustomListLocationsViewModel> { parametersOf(navArgs) }
 
-    LocalResultStore.current.consumeResult<DiscardCustomListChangesConfirmedNavResult>()?.let {
+    LocalResultStore.current.consumeResult<DiscardCustomListChangesConfirmedNavResult> {
         navigator.goBack()
     }
 

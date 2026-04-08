@@ -61,7 +61,7 @@ fun SelectPort(navArgs: SelectPortNavKey, navigator: Navigator) {
     val viewModel = koinViewModel<SelectPortViewModel> { parametersOf(navArgs) }
     val stateLc by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LocalResultStore.current.consumeResult<CustomPortNavResult>()?.let { result ->
+    LocalResultStore.current.consumeResult<CustomPortNavResult> { result ->
         val port = result.port
         if (port != null) {
             viewModel.onPortSelected(Constraint.Only(port))

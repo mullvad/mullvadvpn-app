@@ -61,7 +61,6 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -149,31 +148,36 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
         }
     }
 
-    @Composable
-    fun ShowResultSnackbar(result: CustomListActionResultData) {
-        LaunchedEffect(result) {
-            snackbarHostState.showResultSnackbar(
-                resources = resources,
-                result = result,
-                onUndo = viewModel::performAction,
-            )
-        }
+    resultStore.consumeResult<CreateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<CreateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<EditCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<EditCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<DeleteCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<DeleteCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
-    }
-
-    resultStore.consumeResult<UpdateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<UpdateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
     SearchLocationScreen(
