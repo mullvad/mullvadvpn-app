@@ -13,7 +13,46 @@ use windows_sys::{
     w,
 };
 
-struct DeviceInfoSet(HDEVINFO);
+pub struct DeviceInfoSet(HDEVINFO);
+
+impl DeviceInfoSet {
+    pub fn new(class_guid: GUID) -> io::Result<Self> {
+        // SAFETY: `class_guid` points to a valid GUID; the other pointer args are documented as optional.
+        let device_info_set = unsafe {
+            SetupDiGetClassDevsW(
+                &raw const class_guid,
+                ptr::null(),
+                ptr::null_mut(),
+                DIGCF_PRESENT,
+            )
+        };
+
+        if device_info_set == -1 {
+            return Err(io::Error::last_os_error());
+        }
+
+        Ok(DeviceInfoSet(device_info_set))
+    }
+
+    fn enumerate(&self, index: u32) -> io::Result<Option<DeviceInfo<'_>>> {
+        // SAFETY: `SP_DEVINFO_DATA` is a POD struct; zero is a valid bit pattern.
+        let mut device_info: SP_DEVINFO_DATA = unsafe { mem::zeroed() };
+        device_info.cbSize = mem::size_of::<SP_DEVINFO_DATA>() as u32;
+
+        // SAFETY: `device_info_set` is a valid HDEVINFO; `device_info` has `cbSize` set.
+        let result = unsafe { SetupDiEnumDeviceInfo(self.0, index, &raw mut device_info) };
+
+        if result == FALSE {
+            let err = io::Error::last_os_error();
+            if err.raw_os_error() == Some(ERROR_NO_MORE_ITEMS as i32) {
+                return Ok(None);
+            }
+            return Err(err);
+        }
+
+        Ok(Some(DeviceInfo { data: device_info, set: self }))
+    }
+}
 
 impl Drop for DeviceInfoSet {
     fn drop(&mut self) {
@@ -24,55 +63,32 @@ impl Drop for DeviceInfoSet {
     }
 }
 
+pub struct DeviceInfo<'a> {
+    data: SP_DEVINFO_DATA,
+    set: &'a DeviceInfoSet,
+}
+
 /// Enumerate devices of the given class. If `filter` returns true for a device,
 /// uninstall it and return `Ok(true)`.  Returns `Ok(false)` if no matching device
 /// is found.
 pub fn find_and_uninstall_device(
     class_guid: GUID,
-    filter: impl Fn(HDEVINFO, &SP_DEVINFO_DATA) -> bool,
+    filter: impl Fn(&DeviceInfo<'_>) -> bool,
 ) -> io::Result<bool> {
-    // SAFETY: `class_guid` points to a valid GUID; the other pointer args are documented as optional.
-    let device_info_set = unsafe {
-        SetupDiGetClassDevsW(
-            &raw const class_guid,
-            ptr::null(),
-            ptr::null_mut(),
-            DIGCF_PRESENT,
-        )
-    };
+    let device_info_set = DeviceInfoSet::new(class_guid)?;
 
-    if device_info_set == -1 {
-        return Err(io::Error::last_os_error());
-    }
-
-    let _set_guard = DeviceInfoSet(device_info_set);
-
-    let mut index: u32 = 0;
-    loop {
-        // SAFETY: `SP_DEVINFO_DATA` is a POD struct; zero is a valid bit pattern.
-        let mut device_info: SP_DEVINFO_DATA = unsafe { mem::zeroed() };
-        device_info.cbSize = mem::size_of::<SP_DEVINFO_DATA>() as u32;
-
-        // SAFETY: `device_info_set` is a valid HDEVINFO; `device_info` has `cbSize` set.
-        let result = unsafe { SetupDiEnumDeviceInfo(device_info_set, index, &raw mut device_info) };
-
-        if result == FALSE {
-            let err = io::Error::last_os_error();
-            if err.raw_os_error() == Some(ERROR_NO_MORE_ITEMS as i32) {
-                return Ok(false);
-            }
-            return Err(err);
-        }
-
-        index += 1;
-
-        if filter(device_info_set, &device_info) {
+    for index in 0.. {
+        let Some(device_info) = device_info_set.enumerate(index)? else {
+            break;
+        };
+        if filter(&device_info) {
             // SAFETY: `device_info_set` is valid (checked above) and `device_info`
             // was just enumerated from it via `SetupDiEnumDeviceInfo`.
-            unsafe { uninstall_device(device_info_set, &device_info) }?;
+            uninstall_device(&device_info)?;
             return Ok(true);
         }
     }
+    Ok(false)
 }
 
 /// Read the `NetCfgInstanceId` registry value from a device's driver key.
@@ -83,15 +99,14 @@ pub fn find_and_uninstall_device(
 /// `device_info_set` must be a valid `HDEVINFO` and `device_info` must refer to
 /// a device enumerated from that set (e.g. via `SetupDiEnumDeviceInfo`).
 pub unsafe fn get_device_net_cfg_instance_id(
-    device_info_set: HDEVINFO,
-    device_info: &SP_DEVINFO_DATA,
+    info: &DeviceInfo<'_>,
 ) -> io::Result<String> {
-    // SAFETY: Per this function's safety contract, `device_info_set` and `device_info`
+    // SAFETY: `device_info_set` and `device_info`
     // are valid and belong to the same enumeration.
     let reg_key: HKEY = unsafe {
         SetupDiOpenDevRegKey(
-            device_info_set,
-            device_info as *const SP_DEVINFO_DATA,
+            info.set.0,
+            &raw const info.data,
             DICS_FLAG_GLOBAL,
             0,
             DIREG_DRV,
@@ -133,22 +148,15 @@ pub unsafe fn get_device_net_cfg_instance_id(
     Ok(String::from_utf16_lossy(&buffer[..len]))
 }
 
-/// # Safety
-///
-/// `device_info_set` must be a valid `HDEVINFO` and `device_info` must refer to
-/// a device enumerated from that set.
-unsafe fn uninstall_device(
-    device_info_set: HDEVINFO,
-    device_info: &SP_DEVINFO_DATA,
-) -> io::Result<()> {
+fn uninstall_device(info: &DeviceInfo<'_>) -> io::Result<()> {
     let mut needs_reboot: windows_sys::core::BOOL = 0;
-    // SAFETY: Per this function's safety contract, `device_info_set` and `device_info`
+    // SAFETY: `info.set.0` and `info.data`
     // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.
     let result = unsafe {
         DiUninstallDevice(
             ptr::null_mut(),
-            device_info_set,
-            device_info as *const SP_DEVINFO_DATA,
+            info.set.0,
+            &raw const info.data,
             0,
             &raw mut needs_reboot,
         )
