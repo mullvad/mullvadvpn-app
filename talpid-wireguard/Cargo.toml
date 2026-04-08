@@ -34,7 +34,12 @@ tun08 = { package = "tun", version = "0.8.5", default-features = false, features
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 wireguard-go-rs = { path = "../wireguard-go-rs", optional = true }
 
+[[bench]]
+name = "obfuscation_throughput"
+harness = false
+
 [dev-dependencies]
+criterion = { version = "0.7.0", features = ["async_tokio"] }
 insta = { workspace = true }
 proptest = { workspace = true }
 tokio = { workspace = true, features = ["test-util"] }
