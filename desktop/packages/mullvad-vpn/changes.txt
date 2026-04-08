@@ -1,3 +1,4 @@
+Update design of the "Select location" screen.
 Default VPN location is now closer to your offline location.
 [Windows] Fix a bug where split tunneling would fail to start.
 [macOS] Changed WireGuard implementaiton to GotaTun.
