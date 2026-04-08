@@ -78,7 +78,7 @@ fun SharedTransitionScope.Daita(
     val viewModel = koinViewModel<DaitaViewModel> { parametersOf(isModal) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    LocalResultStore.current.consumeResult<DaitaDirectOnlyConfirmedNavResult>()?.let {
+    LocalResultStore.current.consumeResult<DaitaDirectOnlyConfirmedNavResult> {
         viewModel.setDirectOnly(true)
     }
 

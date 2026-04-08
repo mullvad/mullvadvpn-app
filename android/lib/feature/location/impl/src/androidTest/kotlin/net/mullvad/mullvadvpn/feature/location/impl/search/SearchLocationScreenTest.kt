@@ -9,7 +9,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -18,9 +18,6 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
-import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -44,26 +41,12 @@ class SearchLocationScreenTest {
 
     private fun ComposeContext.initScreen(
         state: Lce<Unit, SearchLocationUiState, Unit>,
+        onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit = {},
         onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { _, _ -> },
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
-        onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-        onAddLocationToList:
-            (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-            { _, _ ->
-            },
-        onRemoveLocationFromList:
-            (location: RelayItem.Location, customListId: CustomListId) -> Unit =
-            { _, _ ->
-            },
-        onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
-        onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
-        onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
         onRemoveOwnershipFilter: () -> Unit = {},
         onRemoveProviderFilter: () -> Unit = {},
-        onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit = { _, _ -> },
-        onRelayItemError: (SelectRelayItemError) -> Unit = {},
-        onMultihopChanged: (UndoChangeMultihopAction) -> Unit = {},
         onGoBack: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -72,18 +55,10 @@ class SearchLocationScreenTest {
                 onSelectRelayItem = onSelectRelayItem,
                 onToggleExpand = onToggleExpand,
                 onSearchInputChanged = onSearchInputChanged,
-                onCreateCustomList = onCreateCustomList,
-                onAddLocationToList = onAddLocationToList,
-                onRemoveLocationFromList = onRemoveLocationFromList,
-                onEditCustomListName = onEditCustomListName,
-                onEditLocationsCustomList = onEditLocationsCustomList,
-                onDeleteCustomList = onDeleteCustomList,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
-                onModifyMultihopError = onModifyMultihopError,
-                onMultihopChanged = onMultihopChanged,
-                onRelayItemError = onRelayItemError,
                 onGoBack = onGoBack,
+                navigateToBottomSheet = onUpdateBottomSheetState,
             )
         }
     }

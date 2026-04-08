@@ -137,7 +137,7 @@ fun ApiAccessMethodDetails(apiAccessMethodId: ApiAccessMethodId, navigator: Navi
         }
     }
 
-    LocalResultStore.current.consumeResult<DeleteApiAccessMethodConfirmedNavResult>()?.let {
+    LocalResultStore.current.consumeResult<DeleteApiAccessMethodConfirmedNavResult> {
         navigator.goBack()
     }
 

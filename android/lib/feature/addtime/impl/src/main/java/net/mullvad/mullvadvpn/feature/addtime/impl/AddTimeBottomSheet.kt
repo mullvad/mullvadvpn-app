@@ -34,9 +34,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
+import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
@@ -88,55 +92,55 @@ private fun PreviewAddTimeBottomSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddTimeBottomSheet(
-    visible: Boolean,
-    onRedeemVoucherClick: () -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
-    onHideBottomSheet: () -> Unit,
-) {
+fun AddTimeBottomSheet(navigator: Navigator) {
     val viewModel: AddTimeViewModel = koinViewModel<AddTimeViewModel>()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    val onCloseBottomSheet: (animate: Boolean) -> Unit = { animate ->
-        if (animate) {
-            scope.launch { sheetState.hide() }.invokeOnCompletion { onHideBottomSheet() }
-        } else {
-            onHideBottomSheet()
-        }
-    }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) { sideEffect ->
         when (sideEffect) {
             is AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser -> {
                 openAccountPage(sideEffect.token)
-                onCloseBottomSheet(true)
+                sheetState.animateClose(scope)
             }
         }
     }
 
     val activity = LocalActivity.current
-    if (visible) {
-        AddTimeBottomSheetContent(
-            state = uiState,
-            sheetState = sheetState,
-            onPurchaseBillingProductClick = {
-                viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
+    AddTimeBottomSheetContent(
+        state = uiState,
+        sheetState = sheetState,
+        onPurchaseBillingProductClick = {
+            viewModel.startBillingPayment(productId = it, activityProvider = { activity!! })
+        },
+        onSitePaymentClick = viewModel::onManageAccountClick,
+        onRetryFetchProducts = viewModel::fetchPaymentAvailability,
+        onPlayPaymentInfoClick =
+            dropUnlessResumed {
+                sheetState.animateClose(scope) {
+                    navigator.navigateReplaceTop(VerificationPendingNavKey)
+                }
             },
-            onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-            onSitePaymentClick = viewModel::onManageAccountClick,
-            onRetryFetchProducts = viewModel::fetchPaymentAvailability,
-            onRedeemVoucherClick = onRedeemVoucherClick,
-            resetPurchaseState = { viewModel.resetPurchaseResult() },
-            closeSheetAndResetPurchaseState = {
-                viewModel.resetPurchaseResult()
-                onCloseBottomSheet(true)
+        onRedeemVoucherClick =
+            dropUnlessResumed {
+                sheetState.animateClose(scope) { navigator.navigateReplaceTop(RedeemVoucherNavKey) }
             },
-            closeBottomSheet = onCloseBottomSheet,
-        )
-    }
+        resetPurchaseState = { viewModel.resetPurchaseResult() },
+        closeSheetAndResetPurchaseState = {
+            viewModel.resetPurchaseResult()
+            sheetState.animateClose(scope)
+        },
+        closeBottomSheet = { animate ->
+            if (animate) {
+                sheetState.animateClose(scope) { navigator.goBack() }
+            } else {
+                navigator.goBack()
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -179,7 +183,6 @@ fun AddTimeBottomSheetContent(
                     onSitePaymentClick = onSitePaymentClick,
                     onRedeemVoucherClick = onRedeemVoucherClick,
                     onRetryFetchProducts = onRetryFetchProducts,
-                    closeBottomSheet = closeBottomSheet,
                     resetPurchaseState = resetPurchaseState,
                     closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
                 )
@@ -198,7 +201,6 @@ private fun Content(
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit,
     resetPurchaseState: () -> Unit,
     closeSheetAndResetPurchaseState: (Boolean) -> Unit,
 ) {
@@ -224,7 +226,6 @@ private fun Content(
                     onSitePaymentClick = onSitePaymentClick,
                     onRedeemVoucherClick = onRedeemVoucherClick,
                     onRetryFetchProducts = onRetryFetchProducts,
-                    closeBottomSheet = closeBottomSheet,
                 )
             }
         }
@@ -244,6 +245,7 @@ private fun ColumnScope.PurchaseState(
         PurchaseState.Connecting -> {
             PurchaseStateLoading(title = stringResource(R.string.connecting))
         }
+
         PurchaseState.VerificationStarted -> {
             PurchaseStateLoading(title = stringResource(R.string.loading_verifying))
         }
@@ -274,6 +276,7 @@ private fun ColumnScope.PurchaseState(
                 resetPurchaseState = resetPurchaseState,
             )
         }
+
         is PurchaseState.Error.OtherError -> {
             PurchaseStateError(
                 backgroundColor = backgroundColor,
@@ -409,7 +412,6 @@ private fun Products(
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
-    closeBottomSheet: (animate: Boolean) -> Unit,
 ) {
     SheetTitle(
         title = stringResource(id = R.string.add_time),
@@ -473,10 +475,7 @@ private fun Products(
                 containerColorParent = backgroundColor,
             ),
         position = Position.Middle,
-        onClick = {
-            onRedeemVoucherClick()
-            closeBottomSheet(true)
-        },
+        onClick = onRedeemVoucherClick,
     )
 }
 

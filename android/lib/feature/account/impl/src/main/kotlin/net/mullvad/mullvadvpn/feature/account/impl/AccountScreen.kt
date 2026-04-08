@@ -30,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -49,12 +48,11 @@ import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
-import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeBottomSheet
 import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesNavKey
-import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
@@ -80,10 +78,10 @@ private fun PreviewAccountScreen(
             onCopyAccountNumber = {},
             onManageDevicesClick = {},
             onLogoutClick = {},
-            onRedeemVoucherClick = {},
             onPlayPaymentInfoClick = {},
             onBackClick = {},
             navigateToDeleteAccount = {},
+            navigateToAddTime = {},
         )
     }
 }
@@ -126,11 +124,11 @@ fun Account(navigator: Navigator) {
             },
         onLogoutClick = vm::onLogoutClick,
         onCopyAccountNumber = vm::onCopyAccountNumber,
-        onRedeemVoucherClick = dropUnlessResumed { navigator.navigate(RedeemVoucherNavKey) },
         onPlayPaymentInfoClick =
             dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         navigateToDeleteAccount = dropUnlessResumed { navigator.navigate(DeleteAccountNavKey) },
+        navigateToAddTime = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
     )
 }
 
@@ -142,10 +140,10 @@ fun AccountScreen(
     onCopyAccountNumber: (String) -> Unit,
     onManageDevicesClick: () -> Unit,
     onLogoutClick: () -> Unit,
-    onRedeemVoucherClick: () -> Unit,
     onPlayPaymentInfoClick: () -> Unit,
     onBackClick: () -> Unit,
     navigateToDeleteAccount: () -> Unit,
+    navigateToAddTime: () -> Unit,
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
@@ -156,16 +154,6 @@ fun AccountScreen(
         snackbarHostState = snackbarHostState,
         actions = { AccountDropdownMenu(navigateToDeleteAccount) },
     ) { modifier ->
-        var addTimeBottomSheetState by remember { mutableStateOf<Boolean>(false) }
-        if (!LocalInspectionMode.current) {
-            AddTimeBottomSheet(
-                visible = addTimeBottomSheetState,
-                onHideBottomSheet = { addTimeBottomSheetState = false },
-                onRedeemVoucherClick = onRedeemVoucherClick,
-                onPlayPaymentInfoClick = onPlayPaymentInfoClick,
-            )
-        }
-
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =
@@ -191,7 +179,7 @@ fun AccountScreen(
                 PaidUntilRow(
                     accountExpiry = state?.accountExpiry,
                     verificationPending = state?.verificationPending == true,
-                    onOpenPaymentScreen = { addTimeBottomSheetState = true },
+                    onOpenPaymentScreen = navigateToAddTime,
                     onInfoClick = onPlayPaymentInfoClick,
                 )
             }

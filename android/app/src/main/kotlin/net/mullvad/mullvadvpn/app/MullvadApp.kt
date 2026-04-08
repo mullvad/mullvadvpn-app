@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.TRANSITION_DEFAULT_DURATION_MS
 import net.mullvad.mullvadvpn.core.rememberNavigationState
 import net.mullvad.mullvadvpn.core.rememberResultStore
+import net.mullvad.mullvadvpn.core.scene.SingleOverlaySceneStrategy
 import net.mullvad.mullvadvpn.core.scene.rememberListDetailSceneStrategy
 import net.mullvad.mullvadvpn.core.toEntries
 import net.mullvad.mullvadvpn.feature.account.impl.navigation.accountEntry
@@ -87,7 +88,11 @@ import org.koin.androidx.compose.koinViewModel
 fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     val resultStore = rememberResultStore()
     val navigationState = rememberNavigationState(SplashNavKey)
+
     val listDetailStrategy = rememberListDetailSceneStrategy<NavKey2>()
+    val dialogStrategy = remember { DialogSceneStrategy<NavKey2>() }
+    val bottomSheetStrategy = remember { SingleOverlaySceneStrategy<NavKey2>() }
+    val singlePaneStrategy = remember { SinglePaneSceneStrategy<NavKey2>() }
 
     val nav3 = remember {
         Navigator(
@@ -154,8 +159,9 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
                     sceneStrategies =
                         listOf(
                             listDetailStrategy,
-                            DialogSceneStrategy(),
-                            SinglePaneSceneStrategy(),
+                            dialogStrategy,
+                            bottomSheetStrategy,
+                            singlePaneStrategy,
                         ),
                     entries = navigationState.toEntries(entryProvider),
                     onBack = { nav3.goBack() },

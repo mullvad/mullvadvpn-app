@@ -1,8 +1,12 @@
 package net.mullvad.mullvadvpn.common.compose
 
 import android.annotation.SuppressLint
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.scene.ListDetailSceneStrategy
@@ -34,4 +38,9 @@ fun Navigator.navigateReplaceIfDetailPane(key: NavKey2) {
     } else {
         navigate(key)
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun SheetState.animateClose(scope: CoroutineScope, onClosed: (() -> Unit)? = null) {
+    scope.launch { hide() }.invokeOnCompletion { onClosed?.invoke() }
 }

@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -14,6 +13,7 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
 import kotlinx.coroutines.flow.MutableStateFlow
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetUiState
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetViewModel
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.SetAsState
@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeTextAndAncestorTa
 import net.mullvad.mullvadvpn.feature.location.impl.util.performLongClick
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -36,11 +35,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
-import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
-import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -79,61 +73,41 @@ class SelectLocationScreenTest {
     private fun ComposeContext.initScreen(
         state: Lc<Unit, SelectLocationUiState> = Lc.Loading(Unit),
         onSelectHop: (item: RelayItem) -> Unit = {},
+        onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit = {},
         onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
         onFilterClick: () -> Unit = {},
-        onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
+        onCreateCustomList: () -> Unit = {},
         onEditCustomLists: () -> Unit = {},
         removeOwnershipFilter: () -> Unit = {},
         removeProviderFilter: () -> Unit = {},
-        onAddLocationToList:
-            (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-            { _, _ ->
-            },
-        onRemoveLocationFromList:
-            (location: RelayItem.Location, customListId: CustomListId) -> Unit =
-            { _, _ ->
-            },
-        onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
-        onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
-        onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
         onSelectRelayList: (MultihopRelayListType) -> Unit = {},
         openDaitaSettings: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
         onScrollToItem: (ScrollEvent) -> Unit = {},
         toggleMultihop: (Boolean) -> Unit = {},
-        onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit = { _, _ -> },
-        onRelayItemError: (SelectRelayItemError) -> Unit = {},
-        onMultihopChanged: (UndoChangeMultihopAction) -> Unit = {},
     ) {
 
         setContentWithTheme {
             SelectLocationScreen(
                 state = state,
+                navigateToBottomSheet = onUpdateBottomSheetState,
                 onSelectSinglehop = onSelectHop,
                 onModifyMultihop = onModifyMultihop,
                 onSearchClick = onSearchClick,
                 onBackClick = onBackClick,
                 onFilterClick = onFilterClick,
-                onCreateCustomList = onCreateCustomList,
                 onEditCustomLists = onEditCustomLists,
+                onCreateCustomList = onCreateCustomList,
                 removeOwnershipFilter = removeOwnershipFilter,
                 removeProviderFilter = removeProviderFilter,
-                onAddLocationToList = onAddLocationToList,
-                onRemoveLocationFromList = onRemoveLocationFromList,
-                onEditCustomListName = onEditCustomListName,
-                onEditLocationsCustomList = onEditLocationsCustomList,
-                onDeleteCustomList = onDeleteCustomList,
                 onSelectRelayList = onSelectRelayList,
                 openDaitaSettings = openDaitaSettings,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 scrollToItem = onScrollToItem,
-                onModifyMultihopError = onModifyMultihopError,
-                onMultihopChanged = onMultihopChanged,
-                onRelayItemError = onRelayItemError,
                 toggleMultihop = toggleMultihop,
             )
         }
@@ -288,7 +262,7 @@ class SelectLocationScreenTest {
     }
 
     @Test
-    fun whenCustomListIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+    fun ensureCustomListLongClickWorks() = composeExtension.use {
         // Arrange
         val customList = DUMMY_RELAY_ITEM_CUSTOM_LISTS[0]
         every { listViewModel.uiState } returns
@@ -329,14 +303,11 @@ class SelectLocationScreenTest {
         )
 
         // Act
-        onNodeWithText(customList.name).performLongClick()
-
-        // Assert
-        onNodeWithTag(SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG).assertExists()
+        onNodeWithText(customList.name).assertExists().performLongClick()
     }
 
     @Test
-    fun whenLocationIsLongClickedShouldShowBottomSheet() = composeExtension.use {
+    fun ensureLocationLongClickWorks() = composeExtension.use {
         // Arrange
         val relayItem = DUMMY_RELAY_COUNTRIES[0] as RelayItem.Location
         every { listViewModel.uiState } returns
@@ -385,10 +356,7 @@ class SelectLocationScreenTest {
         )
 
         // Act
-        onNodeWithText(relayItem.name).performLongClick()
-
-        // Assert
-        onNodeWithTag(SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG).assertExists()
+        onNodeWithText(relayItem.name).assertExists().performLongClick()
     }
 
     @Test

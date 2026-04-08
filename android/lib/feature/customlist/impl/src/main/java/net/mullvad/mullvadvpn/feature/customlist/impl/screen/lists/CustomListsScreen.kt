@@ -71,7 +71,7 @@ fun CustomLists(navigator: Navigator) {
     val resources = LocalResources.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LocalResultStore.current.consumeResult<EditCustomListNavResult>()?.let { result ->
+    LocalResultStore.current.consumeResult<EditCustomListNavResult> { result ->
         val value = result.value
         if (value is CustomListActionResultData.Success.Deleted) {
             scope.launch {

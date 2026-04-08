@@ -19,16 +19,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -47,21 +44,16 @@ import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
-import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
-import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavKey
-import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavKey
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavResult
 import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.EmptyRelayListText
 import net.mullvad.mullvadvpn.feature.location.impl.FilterRow
-import net.mullvad.mullvadvpn.feature.location.impl.UndoChangeMultihopAction
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheets
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.relayListContent
 import net.mullvad.mullvadvpn.lib.common.Lce
@@ -69,7 +61,6 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -80,9 +71,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
-import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
-import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -99,17 +87,9 @@ private fun PreviewSearchLocationScreen(
             onSelectRelayItem = { _, _ -> },
             onToggleExpand = { _, _, _ -> },
             onSearchInputChanged = {},
-            onCreateCustomList = {},
-            onAddLocationToList = { _, _ -> },
-            onRemoveLocationFromList = { _, _ -> },
-            onEditCustomListName = {},
-            onEditLocationsCustomList = {},
-            onDeleteCustomList = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
-            onModifyMultihopError = { _, _ -> },
-            onRelayItemError = {},
-            onMultihopChanged = {},
+            navigateToBottomSheet = {},
             onGoBack = {},
         )
     }
@@ -131,14 +111,6 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
             is SearchLocationSideEffect.LocationSelected ->
                 navigator.goBack(result = SearchLocationNavResult(it.relayListType))
 
-            is SearchLocationSideEffect.CustomListActionToast ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        resources = resources,
-                        result = it.resultData,
-                        onUndo = viewModel::performAction,
-                    )
-                }
             SearchLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -173,53 +145,39 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
                     )
                 }
             }
-            is SearchLocationSideEffect.MultihopChanged -> {
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                when (it.undoChangeMultihopAction) {
-                                    UndoChangeMultihopAction.Disable,
-                                    is UndoChangeMultihopAction.DisableAndSetExit,
-                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
-                                        R.string.multihop_is_enabled
-                                    else -> R.string.multihop_is_disabled
-                                }
-                            ),
-                        actionLabel = resources.getString(R.string.undo),
-                        onAction = { viewModel.undoMultihopAction(it.undoChangeMultihopAction) },
-                        duration = SnackbarDuration.Long,
-                    )
-                }
-            }
         }
     }
 
-    @Composable
-    fun ShowResultSnackbar(result: CustomListActionResultData) {
-        LaunchedEffect(result) {
-            snackbarHostState.showResultSnackbar(
-                resources = resources,
-                result = result,
-                onUndo = viewModel::performAction,
-            )
-        }
+    resultStore.consumeResult<CreateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<CreateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<EditCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<EditCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<DeleteCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
-    resultStore.consumeResult<DeleteCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
-    }
-
-    resultStore.consumeResult<UpdateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<UpdateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = viewModel::performAction,
+        )
     }
 
     SearchLocationScreen(
@@ -228,41 +186,12 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
         onSelectRelayItem = viewModel::selectRelayItem,
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
-        onCreateCustomList =
-            dropUnlessResumed { relayItem ->
-                navigator.navigate(CreateCustomListNavKey(locationCode = relayItem?.id))
-            },
-        onAddLocationToList = viewModel::addLocationToList,
-        onRemoveLocationFromList = viewModel::removeLocationFromList,
-        onEditCustomListName =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    EditCustomListNameNavKey(
-                        customListId = customList.id,
-                        initialName = customList.customList.name,
-                    )
-                )
-            },
-        onEditLocationsCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    EditCustomListLocationsNavKey(customListId = customList.id, newList = false)
-                )
-            },
-        onDeleteCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    DeleteCustomListNavKey(
-                        customListId = customList.id,
-                        name = customList.customList.name,
-                    )
-                )
-            },
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
         onRemoveProviderFilter = viewModel::removeProviderFilter,
-        onModifyMultihopError = viewModel::onModifyMultihopError,
-        onRelayItemError = viewModel::onSelectRelayItemError,
-        onMultihopChanged = viewModel::onMultihopChanged,
+        navigateToBottomSheet =
+            dropUnlessResumed { sheetState ->
+                navigator.navigate(LocationBottomSheetNavKey(sheetState))
+            },
         onGoBack = dropUnlessResumed { navigator.goBack() },
     )
 }
@@ -276,18 +205,10 @@ fun SearchLocationScreen(
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
-    onCreateCustomList: (location: RelayItem.Location?) -> Unit,
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
-    onEditCustomListName: (RelayItem.CustomList) -> Unit,
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onRemoveOwnershipFilter: () -> Unit,
     onRemoveProviderFilter: () -> Unit,
-    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
-    onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
     onGoBack: () -> Unit,
+    navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     Scaffold(
@@ -298,20 +219,6 @@ fun SearchLocationScreen(
             )
         }
     ) {
-        var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
-        LocationBottomSheets(
-            locationBottomSheetState = locationBottomSheetState,
-            onCreateCustomList = onCreateCustomList,
-            onAddLocationToList = onAddLocationToList,
-            onRemoveLocationFromList = onRemoveLocationFromList,
-            onEditCustomListName = onEditCustomListName,
-            onEditLocationsCustomList = onEditLocationsCustomList,
-            onDeleteCustomList = onDeleteCustomList,
-            onModifyMultihopError = onModifyMultihopError,
-            onRelayItemError = onRelayItemError,
-            onMultihopChanged = onMultihopChanged,
-            onHideBottomSheet = { locationBottomSheetState = null },
-        )
         Column(modifier = Modifier.padding(it)) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(state is Lce.Content) { focusRequester.requestFocus() }
@@ -360,9 +267,7 @@ fun SearchLocationScreen(
                                 onSelectRelayItem(it, state.value.relayListType)
                             },
                             onToggleExpand = onToggleExpand,
-                            onUpdateBottomSheetState = { newSheetState ->
-                                locationBottomSheetState = newSheetState
-                            },
+                            onUpdateBottomSheetState = navigateToBottomSheet,
                             customListHeader = {
                                 ListHeader(
                                     content = {

@@ -37,7 +37,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -80,31 +79,28 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.CustomListNavKey
-import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
-import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
-import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.filter.api.FilterNavKey
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavKey
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavResult
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheets
+import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
@@ -117,9 +113,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
-import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
-import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import org.koin.androidx.compose.koinViewModel
 
 val SCROLL_COLLAPSE_DISTANCE = 150.dp
@@ -140,24 +133,17 @@ private fun PreviewSelectLocationScreen(
             onSearchClick = {},
             onBackClick = {},
             onFilterClick = {},
-            onCreateCustomList = { _ -> },
             onEditCustomLists = {},
             onRecentsToggleEnableClick = {},
             removeOwnershipFilter = {},
             removeProviderFilter = {},
-            onAddLocationToList = { _, _ -> },
-            onRemoveLocationFromList = { _, _ -> },
-            onEditCustomListName = {},
-            onEditLocationsCustomList = {},
-            onDeleteCustomList = {},
             onSelectRelayList = {},
             openDaitaSettings = {},
             onRefreshRelayList = {},
             scrollToItem = {},
             toggleMultihop = {},
-            onMultihopChanged = {},
-            onRelayItemError = {},
-            onModifyMultihopError = { _, _ -> },
+            onCreateCustomList = {},
+            navigateToBottomSheet = {},
         )
     }
 }
@@ -177,20 +163,14 @@ fun SelectLocation(navigator: Navigator) {
         when (it) {
             SelectLocationSideEffect.CloseScreen ->
                 navigator.goBack(result = SelectLocationNavResult(true))
-            is SelectLocationSideEffect.CustomListActionToast ->
-                launch {
-                    snackbarHostState.showResultSnackbar(
-                        resources = resources,
-                        result = it.resultData,
-                        onUndo = vm::performAction,
-                    )
-                }
+
             SelectLocationSideEffect.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = resources.getString(R.string.error_occurred)
                     )
                 }
+
             is SelectLocationSideEffect.EntryAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -201,6 +181,7 @@ fun SelectLocation(navigator: Navigator) {
                             )
                     )
                 }
+
             is SelectLocationSideEffect.ExitAlreadySelected ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -211,6 +192,7 @@ fun SelectLocation(navigator: Navigator) {
                             )
                     )
                 }
+
             is SelectLocationSideEffect.RelayItemInactive ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -218,12 +200,14 @@ fun SelectLocation(navigator: Navigator) {
                             resources.getString(R.string.relayitem_is_inactive, it.relayItem.name)
                     )
                 }
+
             SelectLocationSideEffect.EntryAndExitAreSame ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
                         message = resources.getString(R.string.entry_and_exit_are_same)
                     )
                 }
+
             SelectLocationSideEffect.RelayListUpdating ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -231,56 +215,106 @@ fun SelectLocation(navigator: Navigator) {
                             resources.getString(R.string.updating_server_list_in_the_background)
                     )
                 }
-            is SelectLocationSideEffect.MultihopChanged -> {
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(
-                                when (it.undoChangeMultihopAction) {
-                                    UndoChangeMultihopAction.Disable,
-                                    is UndoChangeMultihopAction.DisableAndSetExit,
-                                    is UndoChangeMultihopAction.DisableAndSetEntry ->
-                                        R.string.multihop_is_enabled
-                                    else -> R.string.multihop_is_disabled
-                                }
-                            ),
-                        actionLabel = resources.getString(R.string.undo),
-                        onAction = { vm.undoMultihopAction(it.undoChangeMultihopAction) },
-                        duration = SnackbarDuration.Long,
-                    )
-                }
+        }
+    }
+
+    resultStore.consumeResult<LocationBottomSheetNavResult> { result ->
+        when (result) {
+            is LocationBottomSheetNavResult.CustomListActionToast ->
+                snackbarHostState.showResultSnackbar(
+                    resources = resources,
+                    result = result.resultData,
+                    onUndo = vm::performAction,
+                )
+
+            LocationBottomSheetNavResult.GenericError ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.error_occurred)
+                )
+
+            is LocationBottomSheetNavResult.EntryAlreadySelected ->
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(
+                            R.string.relay_item_already_selected_as_entry,
+                            result.relayItem.name,
+                        )
+                )
+
+            is LocationBottomSheetNavResult.ExitAlreadySelected ->
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(
+                            R.string.relay_item_already_selected_as_exit,
+                            result.relayItem.name,
+                        )
+                )
+
+            is LocationBottomSheetNavResult.RelayItemInactive ->
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(R.string.relayitem_is_inactive, result.relayItem.name)
+                )
+
+            LocationBottomSheetNavResult.EntryAndExitAreSame ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = resources.getString(R.string.entry_and_exit_are_same)
+                )
+
+            is LocationBottomSheetNavResult.MultihopChanged -> {
+                snackbarHostState.showSnackbarImmediately(
+                    message =
+                        resources.getString(
+                            when (result.undoChangeMultihopAction) {
+                                UndoChangeMultihopAction.Disable,
+                                is UndoChangeMultihopAction.DisableAndSetExit,
+                                is UndoChangeMultihopAction.DisableAndSetEntry ->
+                                    R.string.multihop_is_enabled
+
+                                else -> R.string.multihop_is_disabled
+                            }
+                        ),
+                    actionLabel = resources.getString(R.string.undo),
+                    onAction = { vm.undoMultihopAction(result.undoChangeMultihopAction) },
+                    duration = SnackbarDuration.Long,
+                )
             }
         }
     }
 
-    @Composable
-    fun ShowResultSnackbar(result: CustomListActionResultData) {
-        LaunchedEffect(result) {
-            snackbarHostState.showResultSnackbar(
-                resources = resources,
-                result = result,
-                onUndo = vm::performAction,
-            )
-        }
+    resultStore.consumeResult<CreateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<CreateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<EditCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<EditCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<DeleteCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<DeleteCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
+    resultStore.consumeResult<UpdateCustomListNavResult> { result ->
+        snackbarHostState.showResultSnackbar(
+            resources = resources,
+            result = result.value,
+            onUndo = vm::performAction,
+        )
     }
 
-    resultStore.consumeResult<UpdateCustomListNavResult>()?.let { result ->
-        ShowResultSnackbar(result.value)
-    }
-
-    resultStore.consumeResult<SearchLocationNavResult>()?.let { result ->
+    resultStore.consumeResult<SearchLocationNavResult> { result ->
         when (val type = result.relayListType) {
             RelayListType.Single -> navigator.goBack(result = SelectLocationNavResult(true))
             is RelayListType.Multihop ->
@@ -301,48 +335,22 @@ fun SelectLocation(navigator: Navigator) {
             dropUnlessResumed { relayListType ->
                 navigator.navigate(SearchLocationNavKey(relayListType))
             },
+        onCreateCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListNavKey()) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onFilterClick = dropUnlessResumed { navigator.navigate(FilterNavKey) },
-        onCreateCustomList =
-            dropUnlessResumed { relayItem ->
-                navigator.navigate(CreateCustomListNavKey(locationCode = relayItem?.id))
-            },
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
-        onAddLocationToList = vm::addLocationToList,
-        onRemoveLocationFromList = vm::removeLocationFromList,
-        onEditCustomListName =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    EditCustomListNameNavKey(
-                        customListId = customList.id,
-                        initialName = customList.customList.name,
-                    )
-                )
-            },
-        onEditLocationsCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(EditCustomListNavKey(customListId = customList.id))
-            },
-        onDeleteCustomList =
-            dropUnlessResumed { customList: RelayItem.CustomList ->
-                navigator.navigate(
-                    DeleteCustomListNavKey(
-                        customListId = customList.id,
-                        name = customList.customList.name,
-                    )
-                )
-            },
         onSelectRelayList = vm::selectRelayList,
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
         openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaNavKey(isModal = true)) },
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
-        onModifyMultihopError = vm::onModifyMultihopError,
-        onRelayItemError = vm::onSelectRelayItemError,
-        onMultihopChanged = vm::onMultihopChanged,
+        navigateToBottomSheet =
+            dropUnlessResumed { sheetState ->
+                navigator.navigate(LocationBottomSheetNavKey(sheetState))
+            },
     )
 }
 
@@ -356,24 +364,17 @@ fun SelectLocationScreen(
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
     onFilterClick: () -> Unit,
-    onCreateCustomList: (location: RelayItem.Location?) -> Unit,
+    onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
     removeOwnershipFilter: () -> Unit,
     removeProviderFilter: () -> Unit,
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
-    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
-    onEditCustomListName: (RelayItem.CustomList) -> Unit,
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     openDaitaSettings: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     toggleMultihop: (Boolean) -> Unit,
-    onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
-    onRelayItemError: (SelectRelayItemError) -> Unit,
-    onMultihopChanged: (UndoChangeMultihopAction) -> Unit,
+    navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     var fabHeight by remember { mutableIntStateOf(0) }
@@ -452,21 +453,6 @@ fun SelectLocationScreen(
             )
         },
     ) { modifier ->
-        var locationBottomSheetState by remember { mutableStateOf<LocationBottomSheetState?>(null) }
-        LocationBottomSheets(
-            locationBottomSheetState = locationBottomSheetState,
-            onCreateCustomList = onCreateCustomList,
-            onAddLocationToList = onAddLocationToList,
-            onRemoveLocationFromList = onRemoveLocationFromList,
-            onEditCustomListName = onEditCustomListName,
-            onEditLocationsCustomList = onEditLocationsCustomList,
-            onDeleteCustomList = onDeleteCustomList,
-            onModifyMultihopError = onModifyMultihopError,
-            onRelayItemError = onRelayItemError,
-            onMultihopChanged = onMultihopChanged,
-            onHideBottomSheet = { locationBottomSheetState = null },
-        )
-
         val expandProgress = remember { Animatable(1f) }
 
         val scope = rememberCoroutineScope()
@@ -512,6 +498,7 @@ fun SelectLocationScreen(
                 is Lc.Loading -> {
                     Loading()
                 }
+
                 is Lc.Content -> {
                     SelectionContainer(
                         progress = expandProgress.value,
@@ -533,11 +520,9 @@ fun SelectLocationScreen(
                         onSelect = onSelectSinglehop,
                         onModifyMultihop = onModifyMultihop,
                         openDaitaSettings = openDaitaSettings,
-                        onAddCustomList = { onCreateCustomList(null) },
+                        onAddCustomList = onCreateCustomList,
                         onEditCustomLists = onEditCustomLists,
-                        onUpdateBottomSheetState = { newState ->
-                            locationBottomSheetState = newState
-                        },
+                        onUpdateBottomSheetState = navigateToBottomSheet,
                     )
                 }
             }
@@ -683,6 +668,7 @@ private fun RelayLists(
                                 lazyListStates.getOrPut(it, { rememberLazyListState() }),
                             scrollToList = scrollToLists.add(it),
                         )
+
                     MultihopRelayListType.EXIT ->
                         SelectLocationList(
                             relayListType = it,
@@ -697,6 +683,7 @@ private fun RelayLists(
                             scrollToList = scrollToLists.add(it),
                         )
                 }
+
             RelayListType.Single ->
                 SelectLocationList(
                     relayListType = it,
@@ -754,6 +741,7 @@ private fun SelectionContainer(
                             }
                         },
                     )
+
                 is HopSelection.Multi ->
                     MultihopSelector(
                         exitSelected = multihopListSelector == MultihopRelayListType.EXIT,

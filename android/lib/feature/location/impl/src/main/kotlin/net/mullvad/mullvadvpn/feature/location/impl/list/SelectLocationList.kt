@@ -35,9 +35,9 @@ import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.common.compose.animateScrollCentralizeItem
+import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.CustomListHeader
-import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.relayListContent
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
