@@ -1,6 +1,6 @@
-import { LocationType } from '../../../../../../features/locations/types';
-import { useMultihop } from '../../../../../../features/multihop/hooks';
-import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { LocationType } from '../../../../../../../../features/locations/types';
+import { useMultihop } from '../../../../../../../../features/multihop/hooks';
+import { useSelectLocationViewContext } from '../../../../../SelectLocationViewContext';
 
 export function useRecentLocations() {
   const {
