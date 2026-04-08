@@ -5506,6 +5506,9 @@
         }
       }
     },
+    "Always" : {
+
+    },
     "Always connect via an entry server. The location can either be set manually or automatically in the \"Select location\" view." : {
 
     },
@@ -11609,6 +11612,12 @@
           }
         }
       }
+    },
+    "Change to “%@”" : {
+
+    },
+    "Change to ”%@”" : {
+
     },
     "Changing language will disconnect you from the VPN and restart the app" : {
       "comment" : "Footer text in the settings screen that explains the impact of changing the app's language.",
@@ -41573,6 +41582,9 @@
         }
       }
     },
+    "Never" : {
+
+    },
     "NEW DEVICE CREATED" : {
       "localizations" : {
         "da" : {
@@ -55139,6 +55151,9 @@
           }
         }
       }
+    },
+    "Set entry to “%@”" : {
+
     },
     "Set up notifications" : {
       "comment" : "Title of a section in the notification prompt view that instructs the user to set up notifications.",
@@ -71133,6 +71148,9 @@
           }
         }
       }
+    },
+    "When needed" : {
+
     },
     "When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more." : {
       "localizations" : {
