@@ -130,3 +130,137 @@ half4 fireBorder(
     // Premultiplied alpha output
     return half4(fireColor * fireAlpha, fireAlpha);
 }
+
+// --- Chromatic aberration: splits R/G/B channels apart ---
+//
+// layerEffect: samples the rendered chip layer with per-channel offsets.
+//
+// Arguments after (position, layer):
+//   time      — elapsed seconds (drives oscillation)
+//   intensity — base split distance in points (1-3 range)
+
+[[ stitchable ]]
+half4 chromaticAberration(
+    float2 position,
+    SwiftUI::Layer layer,
+    float time,
+    float intensity
+) {
+    // Oscillating split that pulses like a bass hit
+    float pulse = sin(time * 4.0) * 0.5 + 0.5; // 0..1
+    float split = intensity * (0.6 + pulse * 0.4);
+
+    // RGB channels offset in different directions (120° apart)
+    float angle = time * 0.7; // slowly rotate the split direction
+    float2 rDir = float2(cos(angle), sin(angle));
+    float2 gDir = float2(cos(angle + 2.094), sin(angle + 2.094)); // +120°
+    float2 bDir = float2(cos(angle + 4.189), sin(angle + 4.189)); // +240°
+
+    half4 rSample = layer.sample(position + rDir * split);
+    half4 gSample = layer.sample(position + gDir * split);
+    half4 bSample = layer.sample(position + bDir * split);
+
+    half4 result;
+    result.r = rSample.r;
+    result.g = gSample.g;
+    result.b = bSample.b;
+    result.a = max(rSample.a, max(gSample.a, bSample.a));
+
+    return result;
+}
+
+// --- Liquid glass: Apple-style SDF lens refraction + Fresnel + Blinn-Phong ---
+//
+// Modeled after Apple's Liquid Glass design language (iOS 26):
+//  1. Rounded rect SDF → surface normals (convex lens curvature)
+//  2. Snell's law refraction offsets UV sampling (IOR ~1.3)
+//  3. Chromatic dispersion: per-channel IOR shift at edges
+//  4. Fresnel edge reflection (Schlick's approximation)
+//  5. Blinn-Phong specular from a gently drifting light direction
+//  6. Rim glow + corner boost at high-curvature SDF regions
+//
+// layerEffect arguments after (position, layer):
+//   size      — float2(width, height) of the view
+//   time      — elapsed seconds (drives subtle light drift)
+//   radius    — corner radius of the rounded rect
+
+[[ stitchable ]]
+half4 liquidGlass(
+    float2 position,
+    SwiftUI::Layer layer,
+    float2 size,
+    float time,
+    float radius
+) {
+    constexpr float IOR = 1.31;
+    constexpr float DEPTH = 0.15;
+    constexpr float DISPERSION = 0.025;
+    constexpr float FRESNEL_POWER = 3.0;
+    constexpr float SPEC_SHININESS = 64.0;
+    constexpr float LIGHT_INTENSITY = 0.55;
+    constexpr float RIM_INTENSITY = 0.08;
+    constexpr float TINT_STRENGTH = 0.06;
+
+    float2 center = size * 0.5;
+    float2 p = position - center;
+    // Inset by 1px so the rounded rect boundary falls inside the view
+    float2 halfSize = center - 1.0;
+    float minDim = min(size.x, size.y);
+
+    // 1. SDF and surface normal via central differences
+    float d = sdRoundedRect(p, halfSize, radius);
+
+    // Discard pixels outside the rounded rect (show as transparent)
+    if (d > 0.0) {
+        return layer.sample(position);
+    }
+    float eps = 0.5;
+    float dx = sdRoundedRect(p + float2(eps, 0), halfSize, radius)
+             - sdRoundedRect(p - float2(eps, 0), halfSize, radius);
+    float dy = sdRoundedRect(p + float2(0, eps), halfSize, radius)
+             - sdRoundedRect(p - float2(0, eps), halfSize, radius);
+    float2 grad = float2(dx, dy) / (2.0 * eps);
+
+    // Convex lens curvature: strongest at center, fades at border
+    float inside = smoothstep(0.0, -minDim * DEPTH, d);
+    float curvature = inside * DEPTH * minDim;
+    float3 normal = normalize(float3(-grad * curvature * 0.02, 1.0));
+
+    // 2–3. Refraction with chromatic dispersion (per-channel IOR)
+    float3 eye = float3(0, 0, 1);
+    float scale = minDim * 0.03;
+
+    float3 refR = refract(-eye, normal, 1.0 / (IOR - DISPERSION));
+    float3 refG = refract(-eye, normal, 1.0 / IOR);
+    float3 refB = refract(-eye, normal, 1.0 / (IOR + DISPERSION));
+
+    half4 sR = layer.sample(position + refR.xy * scale);
+    half4 sG = layer.sample(position + refG.xy * scale);
+    half4 sB = layer.sample(position + refB.xy * scale);
+
+    half3 color = half3(sR.r, sG.g, sB.b);
+    half alpha = max(sR.a, max(sG.a, sB.a));
+
+    // 4. Fresnel reflection (Schlick)
+    float cosTheta = max(dot(eye, normal), 0.0);
+    float fresnel = pow(1.0 - cosTheta, FRESNEL_POWER) * 0.15;
+
+    // 5. Blinn-Phong specular with gently drifting light
+    float lightAngle = 0.785 + sin(time * 0.3) * 0.15;
+    float3 lightDir = normalize(float3(cos(lightAngle), sin(lightAngle), 1.2));
+    float3 halfVec = normalize(lightDir + eye);
+    float spec = pow(max(dot(normal, halfVec), 0.0), SPEC_SHININESS) * LIGHT_INTENSITY;
+
+    // 6. Rim glow + corner boost
+    float edgeFade = smoothstep(0.0, -4.0, d);
+    float rim = (1.0 - edgeFade) * RIM_INTENSITY;
+    float cornerMask = smoothstep(0.8, 1.4, length(grad));
+    rim += cornerMask * 0.04;
+
+    // Compose
+    half3 result = mix(color, half3(0.88, 0.94, 1.0), half(TINT_STRENGTH));
+    result += half(fresnel + spec + rim);
+    result = clamp(result, half3(0.0), half3(1.0));
+
+    return half4(result, alpha);
+}
