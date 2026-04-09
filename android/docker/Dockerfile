@@ -69,7 +69,11 @@ ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 ENV JAVA_HOME=/opt/jdk-21
 
 # Make adb,apk signer and other tools accessible
-ENV PATH="${JAVA_HOME}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}:${PATH}"
+ENV PATH="\
+${JAVA_HOME}/bin\
+:${ANDROID_SDK_ROOT}/platform-tools\
+:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}\
+:${PATH}"
 
 # === Install/set up the image ===
 
