@@ -34,7 +34,7 @@ class ServerIpOverridesScreenTest {
         onBackClick: () -> Unit = {},
         onInfoClick: () -> Unit = {},
         onResetOverridesClick: () -> Unit = {},
-        onImportClick: () -> Unit = {},
+        onImportClick: (Boolean) -> Unit = {},
     ) {
         setContentWithTheme {
             ServerIpOverridesScreen(

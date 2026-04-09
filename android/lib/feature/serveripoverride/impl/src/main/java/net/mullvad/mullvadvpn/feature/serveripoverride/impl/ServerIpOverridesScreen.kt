@@ -41,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
@@ -149,7 +150,10 @@ fun SharedTransitionScope.ServerIpOverrides(
         state = state,
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onInfoClick = dropUnlessResumed { navigator.navigate(ServerIpOverrideInfoNavKey) },
-        onImportClick = dropUnlessResumed { navigator.navigate(ImportOverridesNavKey) },
+        onImportClick =
+            dropUnlessResumed { overridesActive ->
+                navigator.navigate(ImportOverridesNavKey(overridesActive))
+            },
         onResetOverridesClick =
             dropUnlessResumed { navigator.navigate(ResetServerIpOverrideConfirmationNavKey) },
         snackbarHostState = snackbarHostState,
@@ -167,7 +171,7 @@ fun ServerIpOverridesScreen(
     state: Lc<Boolean, ServerIpOverridesUiState>,
     onBackClick: () -> Unit,
     onInfoClick: () -> Unit,
-    onImportClick: () -> Unit,
+    onImportClick: (Boolean) -> Unit,
     onResetOverridesClick: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -198,7 +202,7 @@ fun ServerIpOverridesScreen(
             Spacer(modifier = Modifier.weight(1f))
             SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
             PrimaryButton(
-                onClick = onImportClick,
+                onClick = { onImportClick(state.contentOrNull()?.overridesActive == true) },
                 text = stringResource(R.string.import_overrides_import),
                 modifier =
                     Modifier.padding(bottom = Dimens.screenBottomMargin)
