@@ -17,6 +17,7 @@ use windows_sys::Win32::{
     },
 };
 
+/// Name of the service that represents the kernel driver/device
 pub const SERVICE_NAME: &str = "mullvad-split-tunnel";
 
 const ST_DEVICE_TYPE: u32 = 0x8000;
