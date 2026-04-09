@@ -30,6 +30,7 @@ pub fn service_is_running(name: &str) -> Result<bool, windows_service::Error> {
 }
 
 /// Stop and delete the named service. Does nothing if the service does not exist.
+/// May block the current thread for a prolonged duration defined by [`MAX_WAIT`].
 pub fn stop_and_delete_service(name: &str) -> Result<(), windows_service::Error> {
     let scm = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)?;
 
