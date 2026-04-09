@@ -131,7 +131,8 @@ unsafe fn call_delete_driver_fn(dll_name: &str, fn_name: &str) -> Result<(), Err
 
 /// Returns the full filesystem path for the sought dll as a NUL-terminated UTF-16 string.
 ///
-/// The dll must be part of the Mullvad VPN app installation directory.
+/// The dll must be part of the Mullvad VPN app installation directory, or whatever the current
+/// directory of this eexcutable is.
 fn dll_path(dll_name: &str) -> io::Result<PathBuf> {
     std::env::current_exe().map(|path| path.parent().unwrap().join(dll_name))
 }
