@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
+
 function commit_changes {
-  if ! git diff-index --quiet HEAD --; then
+  if [[ $(git status --porcelain) ]]; then
     git commit -a -S -m "$1"
   fi
 }
