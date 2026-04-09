@@ -171,4 +171,6 @@ RUN set -eux; \
     apt-get autoremove --purge -y && \
     rm -rf /var/lib/apt/lists/*
 
+COPY pkcs11_java.cfg /usr/local/etc/pkcs11_java.cfg
+
 WORKDIR /build
