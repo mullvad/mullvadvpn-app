@@ -166,7 +166,7 @@ impl DevRegKey {
                 value_name.as_ptr(),
                 RRF_RT_REG_SZ,
                 ptr::null_mut(),
-                buffer.as_mut_ptr() as *mut _,
+                buffer.as_mut_ptr().cast(),
                 &raw mut buffer_byte_len,
             )
         };

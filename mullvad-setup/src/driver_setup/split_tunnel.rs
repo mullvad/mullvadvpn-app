@@ -60,7 +60,7 @@ pub fn reset_driver_state() -> Result<(), crate::Error> {
             IOCTL_ST_GET_STATE,
             ptr::null(),
             0,
-            (&raw mut state) as *mut _,
+            (&raw mut state).cast(),
             size_of::<u64>() as u32,
         )
     }
