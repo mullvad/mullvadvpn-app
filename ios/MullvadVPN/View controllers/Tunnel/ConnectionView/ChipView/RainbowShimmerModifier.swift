@@ -211,6 +211,7 @@ struct GotaTunChipOverlay: ViewModifier {
                         ),
                         maxSampleOffset: CGSize(width: 4, height: 4)
                     )
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .overlay(LensFlareView(isVisible: showFlare))
                 .offset(shakeOffset)

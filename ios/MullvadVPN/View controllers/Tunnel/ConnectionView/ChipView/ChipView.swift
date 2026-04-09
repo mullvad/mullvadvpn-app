@@ -43,16 +43,19 @@ struct ChipView: View {
             }
             .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorizontalPadding)
         }
-        .background(standardBackground)
-
         #if NEVER_IN_PRODUCTION
         if item.style == .rainbowShimmer {
-            chip.gotaTunStyle()
-        } else {
             chip
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(UIColor.secondaryColor.color)
+                )
+                .gotaTunStyle()
+        } else {
+            chip.background(standardBackground)
         }
         #else
-        chip
+        chip.background(standardBackground)
         #endif
     }
 }

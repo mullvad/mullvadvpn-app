@@ -192,28 +192,22 @@ half4 liquidGlass(
     float time,
     float radius
 ) {
-    constexpr float IOR = 1.31;
-    constexpr float DEPTH = 0.15;
-    constexpr float DISPERSION = 0.025;
-    constexpr float FRESNEL_POWER = 3.0;
-    constexpr float SPEC_SHININESS = 64.0;
-    constexpr float LIGHT_INTENSITY = 0.55;
-    constexpr float RIM_INTENSITY = 0.08;
-    constexpr float TINT_STRENGTH = 0.06;
+    constexpr float IOR = 1.3;
+    constexpr float DISPERSION = 0.03;
+    constexpr float FRESNEL_POWER = 4.0;
+    constexpr float SPEC_SHININESS = 80.0;
+    constexpr float TINT_STRENGTH = 0.05;
+    constexpr float LENS_DEPTH = 10.0;
 
     float2 center = size * 0.5;
     float2 p = position - center;
-    // Inset by 1px so the rounded rect boundary falls inside the view
-    float2 halfSize = center - 1.0;
+    float2 halfSize = center;
     float minDim = min(size.x, size.y);
 
-    // 1. SDF and surface normal via central differences
+    // 1. SDF for lens curvature (clipShape handles the visible boundary)
     float d = sdRoundedRect(p, halfSize, radius);
 
-    // Discard pixels outside the rounded rect (show as transparent)
-    if (d > 0.0) {
-        return layer.sample(position);
-    }
+    // SDF gradient → direction away from nearest edge
     float eps = 0.5;
     float dx = sdRoundedRect(p + float2(eps, 0), halfSize, radius)
              - sdRoundedRect(p - float2(eps, 0), halfSize, radius);
@@ -221,45 +215,41 @@ half4 liquidGlass(
              - sdRoundedRect(p - float2(0, eps), halfSize, radius);
     float2 grad = float2(dx, dy) / (2.0 * eps);
 
-    // Convex lens curvature: strongest at center, fades at border
-    float inside = smoothstep(0.0, -minDim * DEPTH, d);
-    float curvature = inside * DEPTH * minDim;
-    float3 normal = normalize(float3(-grad * curvature * 0.02, 1.0));
+    // 2. Convex lens: slope peaks near border, zero at center
+    float dClamped = min(d, 0.0);
+    float slope = exp(dClamped / LENS_DEPTH) / LENS_DEPTH;
 
-    // 2–3. Refraction with chromatic dispersion (per-channel IOR)
+    float normalStrength = slope * LENS_DEPTH * 0.6;
+    float3 normal = normalize(float3(-grad * normalStrength, 1.0));
+
+    // 3. Refraction with chromatic dispersion
     float3 eye = float3(0, 0, 1);
-    float scale = minDim * 0.03;
+    float refrScale = minDim * 0.04;
 
     float3 refR = refract(-eye, normal, 1.0 / (IOR - DISPERSION));
     float3 refG = refract(-eye, normal, 1.0 / IOR);
     float3 refB = refract(-eye, normal, 1.0 / (IOR + DISPERSION));
 
-    half4 sR = layer.sample(position + refR.xy * scale);
-    half4 sG = layer.sample(position + refG.xy * scale);
-    half4 sB = layer.sample(position + refB.xy * scale);
+    half4 sR = layer.sample(position + refR.xy * refrScale);
+    half4 sG = layer.sample(position + refG.xy * refrScale);
+    half4 sB = layer.sample(position + refB.xy * refrScale);
 
     half3 color = half3(sR.r, sG.g, sB.b);
     half alpha = max(sR.a, max(sG.a, sB.a));
 
-    // 4. Fresnel reflection (Schlick)
+    // 4. Fresnel: subtle, only at very edge (clipShape provides shape)
     float cosTheta = max(dot(eye, normal), 0.0);
-    float fresnel = pow(1.0 - cosTheta, FRESNEL_POWER) * 0.15;
+    float fresnel = pow(1.0 - cosTheta, FRESNEL_POWER) * 0.08;
 
-    // 5. Blinn-Phong specular with gently drifting light
-    float lightAngle = 0.785 + sin(time * 0.3) * 0.15;
-    float3 lightDir = normalize(float3(cos(lightAngle), sin(lightAngle), 1.2));
+    // 5. Specular: gentle, from upper-left light
+    float lightAngle = 0.785 + sin(time * 0.3) * 0.1;
+    float3 lightDir = normalize(float3(cos(lightAngle), sin(lightAngle), 1.5));
     float3 halfVec = normalize(lightDir + eye);
-    float spec = pow(max(dot(normal, halfVec), 0.0), SPEC_SHININESS) * LIGHT_INTENSITY;
+    float spec = pow(max(dot(normal, halfVec), 0.0), SPEC_SHININESS) * 0.3;
 
-    // 6. Rim glow + corner boost
-    float edgeFade = smoothstep(0.0, -4.0, d);
-    float rim = (1.0 - edgeFade) * RIM_INTENSITY;
-    float cornerMask = smoothstep(0.8, 1.4, length(grad));
-    rim += cornerMask * 0.04;
-
-    // Compose
-    half3 result = mix(color, half3(0.88, 0.94, 1.0), half(TINT_STRENGTH));
-    result += half(fresnel + spec + rim);
+    // Compose: subtle tint + gentle highlights, no rim glow
+    half3 result = mix(color, half3(0.9, 0.95, 1.0), half(TINT_STRENGTH));
+    result += half(fresnel + spec);
     result = clamp(result, half3(0.0), half3(1.0));
 
     return half4(result, alpha);
