@@ -123,6 +123,7 @@ RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-andr
 # the key file if a different developer signed the release.
 # https://developers.yubico.com/Software_Projects/Software_Signing.html
 ARG YUBICO_PIV_TOOL_VERSION=2.7.3
+ARG YUBICO_PIV_TOOL_SHA256=fcb25c42f54298ece8b20684fb3c581ed9195a162cbc55180a4161501be93181
 COPY yubico-piv-tool-signing-key.asc /tmp/yubico-piv-tool-signing-key.asc
 RUN set -eux; \
     # Install build-only dependencies (some marked auto for later removal)
@@ -153,6 +154,8 @@ RUN set -eux; \
         "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz" && \
     curl -sfLo /tmp/yubico-piv-tool.tar.gz.sig \
         "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz.sig" && \
+    # Check checksum
+    echo "$YUBICO_PIV_TOOL_SHA256 /tmp/yubico-piv-tool.tar.gz" | sha256sum -c && \
     # Verify signature
     export GNUPGHOME="$(mktemp -d)" && \
     gpg --batch --import /tmp/yubico-piv-tool-signing-key.asc && \
