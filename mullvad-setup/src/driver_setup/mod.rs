@@ -89,7 +89,9 @@ impl Dll {
         Ok(Self { handle })
     }
 
-    /// https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress.
+    /// Return a function pointer for `fn_name`.
+    ///
+    /// <https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-getprocaddress>
     fn get_fn_address(&self, fn_name: &str) -> Result<GetProcAddressFn, Error> {
         let fn_name_bytes: Vec<u8> = fn_name.bytes().chain(std::iter::once(0u8)).collect();
         // SAFETY: `handle` is a valid module handle; `fn_name_bytes` is NUL-terminated.
