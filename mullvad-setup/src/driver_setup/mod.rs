@@ -12,19 +12,17 @@ use windows_sys::Win32::{
 use crate::Error;
 use device::DeviceInfoSet;
 
-const SPLIT_TUNNEL_SERVICE_NAME: &str = "mullvad-split-tunnel";
-
 // Wintun adapter GUID that may have been left behind
 const WINTUN_ABANDONED_GUID: &str = "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}";
 
 /// Reset split tunnel driver state, stop and delete the `mullvad-split-tunnel`
 /// service.
 pub fn remove_split_tunnel() -> Result<(), Error> {
-    if service::service_is_running(SPLIT_TUNNEL_SERVICE_NAME).map_err(Error::ServiceControl)? {
+    if service::service_is_running(split_tunnel::SERVICE_NAME).map_err(Error::ServiceControl)? {
         split_tunnel::reset_driver_state()?;
     }
 
-    service::stop_and_delete_service(SPLIT_TUNNEL_SERVICE_NAME).map_err(Error::ServiceControl)?;
+    service::stop_and_delete_service(split_tunnel::SERVICE_NAME).map_err(Error::ServiceControl)?;
 
     Ok(())
 }

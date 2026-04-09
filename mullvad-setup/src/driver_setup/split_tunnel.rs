@@ -17,6 +17,8 @@ use windows_sys::Win32::{
     },
 };
 
+pub const SERVICE_NAME: &str = "mullvad-split-tunnel";
+
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
 /// https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/defining-i-o-control-codes.
