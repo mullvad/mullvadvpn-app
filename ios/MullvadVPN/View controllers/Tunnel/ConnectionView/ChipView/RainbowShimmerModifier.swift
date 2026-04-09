@@ -81,6 +81,9 @@ struct GotaTunChipOverlay: ViewModifier {
     @State private var chipSize: CGSize = .zero
     @State private var timer: Timer?
 
+    /// Decided once at creation: `true` = rainbow shimmer, `false` = flames.
+    private let showRainbow = Bool.random()
+
     /// Apparent z-depth of the chip during rotation, in points.
     private let chipDepth: CGFloat = 12
 
@@ -88,10 +91,13 @@ struct GotaTunChipOverlay: ViewModifier {
         content
             .sizeOfView { chipSize = $0 }
             .overlay(
-                RainbowShimmerBorder(cornerRadius: 8, lineWidth: 2)
-            )
-            .overlay(
-                FireBorderView(chipSize: chipSize, cornerRadius: 8)
+                Group {
+                    if showRainbow {
+                        RainbowShimmerBorder(cornerRadius: 8, lineWidth: 2)
+                    } else {
+                        FireBorderView(chipSize: chipSize, cornerRadius: 8)
+                    }
+                }
             )
             // Thick "slab" effect: a darkened copy offset in Z sits behind the chip
             .background(
