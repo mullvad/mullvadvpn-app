@@ -62,6 +62,32 @@ struct FireBorderView: View {
     }
 }
 
+// MARK: - Sparkler border: sparks flying from orbiting points
+
+struct SparklerBorderView: View {
+    let chipSize: CGSize
+    let cornerRadius: CGFloat
+    @State private var startDate = Date.now
+
+    var body: some View {
+        TimelineView(.animation) { timeline in
+            let elapsed = timeline.date.timeIntervalSince(startDate)
+
+            Rectangle()
+                .fill(.white)
+                .colorEffect(
+                    ShaderLibrary.sparkler(
+                        .float2(Float(chipSize.width), Float(chipSize.height)),
+                        .float2(Float(chipSize.width), Float(chipSize.height)),
+                        .float(Float(elapsed)),
+                        .float(Float(cornerRadius))
+                    )
+                )
+        }
+        .allowsHitTesting(false)
+    }
+}
+
 // MARK: - Lens flare burst (triggered alongside 3D spin)
 
 struct LensFlareView: View {
@@ -156,15 +182,16 @@ struct GotaTunChipOverlay: ViewModifier {
     @State private var isShaking = false
 
     private enum BorderEffect: CaseIterable {
-        case rainbow, fire, chromaticAberration, liquidGlass
+        case rainbow, fire, chromaticAberration, liquidGlass, sparkler
 
         /// Picked once per app process lifetime.
         static let current: BorderEffect = {
-            switch Int.random(in: 0...3) {
+            switch Int.random(in: 0...4) {
             case 0: .rainbow
             case 1: .fire
             case 2: .chromaticAberration
-            default: .liquidGlass
+            case 3: .liquidGlass
+            default: .sparkler
             }
         }()
     }
@@ -187,6 +214,8 @@ struct GotaTunChipOverlay: ViewModifier {
                             RainbowShimmerBorder(cornerRadius: 8, lineWidth: 2)
                         case .fire:
                             FireBorderView(chipSize: chipSize, cornerRadius: 8)
+                        case .sparkler:
+                            SparklerBorderView(chipSize: chipSize, cornerRadius: 8)
                         case .chromaticAberration, .liquidGlass:
                             EmptyView()
                         }

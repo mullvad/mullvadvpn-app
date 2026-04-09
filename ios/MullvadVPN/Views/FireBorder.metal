@@ -254,3 +254,159 @@ half4 liquidGlass(
 
     return half4(result, alpha);
 }
+
+// --- Sparkler: streak sparks flying from orbiting points on the chip border ---
+//
+// Each sparking point orbits the rounded rect perimeter (golden-ratio spaced).
+// Sparks are line-segment streaks, not dots. Distance-to-segment gives thin
+// bright trails. Color: white-hot at source → orange → red → fade out.
+
+// Point on rounded rect border from center, given an angle.
+// Uses SDF ray marching: step outward from center until sdRoundedRect ≈ 0.
+float2 pointOnRoundedRect(float angle, float2 halfSize, float r) {
+    float2 dir = float2(cos(angle), sin(angle));
+    // Initial guess: distance to axis-aligned bounding box
+    float t = min(
+        abs(dir.x) > 0.001 ? halfSize.x / abs(dir.x) : 1e6,
+        abs(dir.y) > 0.001 ? halfSize.y / abs(dir.y) : 1e6
+    ) * 0.9;
+    // Newton-like iteration: SDF gradient along ray ≈ 1, so step by -d
+    for (int i = 0; i < 8; i++) {
+        float d = sdRoundedRect(dir * t, halfSize, r);
+        t -= d;
+    }
+    return dir * t;
+}
+
+// Outward normal at a point on the rounded rect (via SDF gradient)
+float2 borderNormal(float2 pt, float2 halfSize, float r) {
+    float eps = 0.5;
+    float dx = sdRoundedRect(pt + float2(eps, 0), halfSize, r)
+             - sdRoundedRect(pt - float2(eps, 0), halfSize, r);
+    float dy = sdRoundedRect(pt + float2(0, eps), halfSize, r)
+             - sdRoundedRect(pt - float2(0, eps), halfSize, r);
+    float2 g = float2(dx, dy);
+    float gl = length(g);
+    return (gl > 0.001) ? g / gl : float2(0, 1);
+}
+
+// Distance from point to a line segment (a → b)
+float distToSegment(float2 p, float2 a, float2 b) {
+    float2 ab = b - a;
+    float2 ap = p - a;
+    float t = saturate(dot(ap, ab) / max(dot(ab, ab), 0.0001));
+    return length(ap - ab * t);
+}
+
+float sparkHash(float2 p) {
+    return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+}
+
+[[ stitchable ]]
+half4 sparkler(
+    float2 position,
+    half4 currentColor,
+    float2 size,
+    float2 chipSize,
+    float time,
+    float radius
+) {
+    float2 chipOrigin = (size - chipSize) * 0.5;
+    float2 p = position - chipOrigin - chipSize * 0.5;
+    float2 halfSize = chipSize * 0.5;
+
+    constexpr int NUM_SOURCES = 5;
+    constexpr int SPARKS_PER_SOURCE = 18;
+    constexpr float SPARK_LIFETIME = 0.6;
+    constexpr float SPARK_TRAVEL = 22.0;
+    constexpr float STREAK_LENGTH = 9.0;
+    constexpr float ORBIT_SPEED = 0.25;
+    constexpr float PHI = 1.618033988;
+
+    float angularVel = ORBIT_SPEED * 2.0 * M_PI_F;
+
+    float totalBrightness = 0.0;
+    float totalHeat = 0.0;
+
+    for (int src = 0; src < NUM_SOURCES; src++) {
+        float baseAngle = float(src) * PHI * 2.0 * M_PI_F;
+        float currentAngle = baseAngle + time * angularVel;
+        float2 sourcePos = pointOnRoundedRect(currentAngle, halfSize, radius);
+
+        // Tight white-hot contact point on the border
+        float srcDist = length(p - sourcePos);
+        float srcCore = smoothstep(1.5, 0.0, srcDist); // tight bright core
+        float srcGlow = smoothstep(4.0, 1.5, srcDist) * 0.3; // soft halo
+        totalBrightness += srcCore + srcGlow;
+        totalHeat += (srcCore + srcGlow) * 1.0;
+
+        for (int sp = 0; sp < SPARKS_PER_SOURCE; sp++) {
+            float seed = float(src * 100 + sp);
+
+            float birthOffset = sparkHash(float2(seed, 1.0)) * SPARK_LIFETIME;
+            float age = fmod(time + birthOffset, SPARK_LIFETIME);
+            float life = age / SPARK_LIFETIME;
+
+            // Birth position: where the source was when this spark was emitted
+            float birthAngle = currentAngle - age * angularVel;
+            float2 birthPos = pointOnRoundedRect(birthAngle, halfSize, radius);
+            float2 birthNormal = borderNormal(birthPos, halfSize, radius);
+
+            // Wide angular spread, varied speed, mostly outward
+            float rSpread = sparkHash(float2(seed, 2.0)) * 2.0 - 1.0;
+            float rSpeed = sparkHash(float2(seed, 3.0)) * 0.8 + 0.3;
+            float rDir = sparkHash(float2(seed, 4.0)) > 0.35 ? 1.0 : -1.0;
+            float rThick = sparkHash(float2(seed, 5.0)) * 0.6 + 0.6;
+
+            float normalAngle = atan2(birthNormal.y, birthNormal.x);
+            float spreadAngle = normalAngle + rSpread * 1.4; // wider spread
+            float2 sparkDir = float2(cos(spreadAngle), sin(spreadAngle)) * rDir;
+
+            // Gravity: sparks curve slightly downward as they age
+            float2 gravity = float2(0.0, 3.0) * life * life;
+
+            float travel = life * SPARK_TRAVEL * rSpeed;
+            float tailLen = STREAK_LENGTH * rSpeed * (1.0 - life * 0.4);
+            float2 head = birthPos + sparkDir * travel + gravity;
+            float2 tail = birthPos + sparkDir * max(0.0, travel - tailLen) + gravity * 0.7;
+
+            float dist = distToSegment(p, tail, head);
+
+            float thickness = rThick * (1.0 - life * 0.4);
+            float brightness = smoothstep(thickness + 1.2, 0.0, dist);
+
+            float fade = 1.0 - life * life;
+            brightness *= fade;
+
+            if (brightness > 0.001) {
+                totalBrightness += brightness;
+                float2 ap = p - tail;
+                float2 ab = head - tail;
+                float along = saturate(dot(ap, ab) / max(dot(ab, ab), 0.0001));
+                float heat = pow(1.0 - life, 0.4) * (0.3 + 0.7 * along);
+                totalHeat += brightness * heat;
+            }
+        }
+    }
+
+    if (totalBrightness < 0.005) {
+        return half4(0.0);
+    }
+
+    float avgHeat = totalHeat / totalBrightness;
+
+    // Sparkler color ramp: white-hot → yellow → orange → red → out
+    half3 sparkColor;
+    if (avgHeat > 0.8) {
+        sparkColor = mix(half3(1.0, 0.92, 0.6), half3(1.0, 1.0, 0.95), half((avgHeat - 0.8) * 5.0));
+    } else if (avgHeat > 0.5) {
+        sparkColor = mix(half3(1.0, 0.5, 0.05), half3(1.0, 0.92, 0.6), half((avgHeat - 0.5) / 0.3));
+    } else if (avgHeat > 0.2) {
+        sparkColor = mix(half3(0.8, 0.15, 0.0), half3(1.0, 0.5, 0.05), half((avgHeat - 0.2) / 0.3));
+    } else {
+        sparkColor = mix(half3(0.3, 0.02, 0.0), half3(0.8, 0.15, 0.0), half(avgHeat / 0.2));
+    }
+
+    half alpha = half(saturate(totalBrightness));
+    return half4(sparkColor * alpha, alpha);
+}
