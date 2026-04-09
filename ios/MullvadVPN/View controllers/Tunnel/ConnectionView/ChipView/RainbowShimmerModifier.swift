@@ -43,26 +43,15 @@ struct FireBorderView: View {
     let cornerRadius: CGFloat
     @State private var startDate = Date.now
 
-    /// Extra padding around the chip so flames have room to render outward.
-    private let flameExtent: CGFloat = 16
-
-    private var viewSize: CGSize {
-        CGSize(
-            width: chipSize.width + flameExtent * 2,
-            height: chipSize.height + flameExtent * 2
-        )
-    }
-
     var body: some View {
         TimelineView(.animation) { timeline in
             let elapsed = timeline.date.timeIntervalSince(startDate)
 
             Rectangle()
                 .fill(.white)
-                .frame(width: viewSize.width, height: viewSize.height)
                 .colorEffect(
                     ShaderLibrary.fireBorder(
-                        .float2(Float(viewSize.width), Float(viewSize.height)),
+                        .float2(Float(chipSize.width), Float(chipSize.height)),
                         .float2(Float(chipSize.width), Float(chipSize.height)),
                         .float(Float(elapsed)),
                         .float(Float(cornerRadius))

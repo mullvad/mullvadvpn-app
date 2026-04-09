@@ -71,14 +71,17 @@ half4 fireBorder(
     // Distance from the rounded rect border
     float d = sdRoundedRect(p, halfSize, radius);
 
-    // Fire band: from slightly inside the border to well outside
-    float innerEdge = -2.0;
-    float outerEdge = 14.0;
+    // Fire band: extends inward from the border to stay within chip bounds
+    float outerEdge = 1.0;   // just barely outside the border
+    float innerEdge = -14.0; // flames lick inward
     float bandPos = (d - innerEdge) / (outerEdge - innerEdge);
 
     if (bandPos < 0.0 || bandPos > 1.0) {
         return half4(0.0); // transparent outside fire region
     }
+
+    // Invert so 0 = at border, 1 = deep inside
+    bandPos = 1.0 - bandPos;
 
     // Angle around perimeter for racing motion
     float angle = atan2(p.y, p.x);
