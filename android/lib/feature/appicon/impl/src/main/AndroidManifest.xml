@@ -6,7 +6,8 @@
     tools:ignore="MissingLeanbackSupport,ImpliedTouchscreenHardware">
     <application>
     <!-- Alternative icons names -->
-    <!-- CAUTION: Changing the android:name will break the settings for users, the name does not reference an actual class. The path old package path is only kept for  -->
+    <!-- CAUTION: Changing the android:name will break the settings for users, the name does not
+         reference an actual class. -->
     <!-- Default -->
     <activity-alias
         android:name="net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.MainActivityAltDefault"
