@@ -12,9 +12,13 @@ use windows_sys::{
     core::GUID,
 };
 
+/// Type that represents a device information set. Uses [SetupDiGetClassDevsW].
+///
+/// [SetupDiGetClassDevsW]: https://learn.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdigetclassdevsw
 pub struct DeviceInfoSet(HDEVINFO);
 
 impl DeviceInfoSet {
+    /// Return device information est for the given device class.
     pub fn new(class_guid: GUID) -> io::Result<Self> {
         // SAFETY: `class_guid` points to a valid GUID; the other pointer args are documented as optional.
         let device_info_set = unsafe {
@@ -44,7 +48,7 @@ impl DeviceInfoSet {
             ..Default::default()
         };
 
-        // SAFETY: `device_info_set` is a valid HDEVINFO; `device_info` has `cbSize` set.
+        // SAFETY: `self.0` is a valid HDEVINFO; `device_info` has `cbSize` set.
         let result = unsafe { SetupDiEnumDeviceInfo(self.0, index, &raw mut device_info) };
 
         if result == FALSE {
@@ -71,18 +75,24 @@ impl Drop for DeviceInfoSet {
     }
 }
 
+/// Type that represents a device information element from a [DeviceInfoSet].
+///
+/// See [`SetupDiEnumDeviceInfo`].
+///
+/// [`SetupDiEnumDeviceInfo`]: https://learn.microsoft.com/en-us/windows/win32/api/setupapi/nf-setupapi-setupdienumdeviceinfo
 pub struct DeviceInfo<'a> {
     data: SP_DEVINFO_DATA,
     set: &'a DeviceInfoSet,
 }
 
 impl DeviceInfo<'_> {
-    /// Uninstalls the device represented by this `DeviceInfo`.
-    /// https://learn.microsoft.com/en-us/windows/win32/api/newdev/nf-newdev-diuninstalldevice.
+    /// Uninstalls the device represented by this `DeviceInfo`. This calls [`DiUninstallDevice`].
+    ///
+    /// [`DiUninstallDevice`]: https://learn.microsoft.com/en-us/windows/win32/api/newdev/nf-newdev-diuninstalldevice.
     pub fn uninstall_device(self) -> io::Result<()> {
         let mut needs_reboot: windows_sys::core::BOOL = 0;
-        // SAFETY: `info.set.0` and `info.data`
-        // are valid and belong to the same enumeration. `needs_reboot` is a writable BOOL.
+        // SAFETY: `self.set.0` and `self.data` are valid and belong to the same enumeration.
+        // `needs_reboot` is a writable BOOL.
         let result = unsafe {
             DiUninstallDevice(
                 ptr::null_mut(),
@@ -101,7 +111,7 @@ impl DeviceInfo<'_> {
     }
 }
 
-/// Enumerate devices of the given class.
+/// Enumerates devices for a particular [DeviceInfoSet].
 pub struct DeviceInfoIter<'a> {
     index: u32,
     set: &'a DeviceInfoSet,
@@ -130,8 +140,7 @@ struct DevRegKey {
 impl DevRegKey {
     /// Open the registry key for device-specific configuration.
     pub fn open(info: &DeviceInfo<'_>) -> io::Result<Self> {
-        // SAFETY: The device info set and info are valid
-        // and belong to the same enumeration.
+        // SAFETY: The device info set and info are valid and belong to the same enumeration.
         let key = unsafe {
             SetupDiOpenDevRegKey(
                 info.set.0,
