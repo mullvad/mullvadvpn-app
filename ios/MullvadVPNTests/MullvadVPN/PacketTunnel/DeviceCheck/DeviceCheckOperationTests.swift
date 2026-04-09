@@ -11,7 +11,7 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 import PacketTunnelCore
-@preconcurrency import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData
@@ -23,7 +23,7 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldReportExpiredAccount() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
             getAccount: { _ in
@@ -52,8 +52,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldNotRotateKeyForInvalidAccount() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
@@ -83,8 +83,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldNotRotateKeyForRevokedDevice() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService(
             initialKey: currentKey.publicKey,
@@ -114,8 +114,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldRotateKeyOnMismatchImmediately() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
@@ -143,8 +143,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldRespectCooldownWhenAttemptingToRotateImmediately() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
@@ -172,7 +172,7 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldNotRotateDeviceKeyWhenServerKeyIsIdentical() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
         let remoteService = MockRemoteService(initialKey: currentKey.publicKey)
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
             currentKey: currentKey,
@@ -195,8 +195,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldNotRotateKeyBeforeRetryIntervalPassed() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService(initialKey: currentKey.publicKey)
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
@@ -220,8 +220,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldRotateKeyOnceInTwentyFourHours() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService()
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
@@ -245,8 +245,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldReportFailedKeyRotationAttempt() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let remoteService = MockRemoteService(
             rotateDeviceKey: { _, _, _ in
@@ -275,8 +275,8 @@ class DeviceCheckOperationTests: XCTestCase {
     func testShouldFailOnKeyRotationRace() async {
         let expect = expectation(description: "Wait for operation to complete")
 
-        let currentKey = PrivateKey()
-        let nextKey = PrivateKey()
+        let currentKey = WireGuard.PrivateKey()
+        let nextKey = WireGuard.PrivateKey()
 
         let deviceStateAccessor = MockDeviceStateAccessor.mockLoggedIn(
             currentKey: currentKey,
@@ -334,17 +334,17 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol, @unchecked Se
     typealias RotateDeviceKeyHandler = (
         _ accountNumber: String,
         _ deviceIdentifier: String,
-        _ publicKey: PublicKey
+        _ publicKey: WireGuard.PublicKey
     ) throws -> Void
 
     private let getAccountDataHandler: AccountDataHandler?
     private let getDeviceDataHandler: DeviceDataHandler?
     private let rotateDeviceKeyHandler: RotateDeviceKeyHandler?
 
-    private var currentKey: PublicKey
+    private var currentKey: WireGuard.PublicKey
 
     init(
-        initialKey: PublicKey = PrivateKey().publicKey,
+        initialKey: WireGuard.PublicKey = WireGuard.PrivateKey().publicKey,
         getAccount: AccountDataHandler? = nil,
         getDevice: DeviceDataHandler? = nil,
         rotateDeviceKey: RotateDeviceKeyHandler? = nil
@@ -395,7 +395,7 @@ private class MockRemoteService: DeviceCheckRemoteServiceProtocol, @unchecked Se
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
-        publicKey: PublicKey,
+        publicKey: WireGuard.PublicKey,
         completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable {
         DispatchQueue.main.async { [self] in
@@ -469,11 +469,13 @@ private enum TimeSinceLastKeyRotation {
 /// State of last key rotation used for mocking `StoredWgKeyData`.
 private enum LastKeyRotationState {
     case succeeded
-    case failed(when: TimeSinceLastKeyRotation, nextKey: PrivateKey)
+    case failed(when: TimeSinceLastKeyRotation, nextKey: WireGuard.PrivateKey)
 }
 
 extension MockDeviceStateAccessor {
-    static func mockLoggedIn(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> MockDeviceStateAccessor {
+    static func mockLoggedIn(currentKey: WireGuard.PrivateKey, rotationState: LastKeyRotationState)
+        -> MockDeviceStateAccessor
+    {
         MockDeviceStateAccessor(
             initialState: .loggedIn(
                 StoredAccountData.mock(),
@@ -484,7 +486,7 @@ extension MockDeviceStateAccessor {
 }
 
 private extension StoredWgKeyData {
-    static func mock(currentKey: PrivateKey, rotationState: LastKeyRotationState) -> StoredWgKeyData {
+    static func mock(currentKey: WireGuard.PrivateKey, rotationState: LastKeyRotationState) -> StoredWgKeyData {
         var keyData = StoredWgKeyData(creationDate: Date(), privateKey: currentKey)
         keyData.apply(rotationState)
         return keyData

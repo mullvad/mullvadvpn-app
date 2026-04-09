@@ -8,7 +8,6 @@
 
 import Foundation
 import Network
-import WireGuardKitTypes
 
 @testable import MullvadRustRuntime
 @testable import MullvadTypes

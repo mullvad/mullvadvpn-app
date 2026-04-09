@@ -12,7 +12,6 @@ import XCTest
 @testable import MullvadREST
 @testable import MullvadRustRuntime
 @testable import MullvadTypes
-@testable import WireGuardKitTypes
 
 final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
     var exitRelay: SelectedRelay!
@@ -65,7 +64,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
 
         let singleHopPostQuantumKeyExchanging = SingleHopEphemeralPeerExchanger(
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: keyExchangeActor,
             enablePostQuantum: true,
             enableDaita: false
@@ -98,12 +97,12 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let keyExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        keyExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        keyExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let singleHopPostQuantumKeyExchanging = SingleHopEphemeralPeerExchanger(
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: keyExchangeActor,
             enablePostQuantum: true,
             enableDaita: false
@@ -140,12 +139,12 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         negotiationSuccessful.expectedFulfillmentCount = 1
 
         let peerExchangeActor = EphemeralPeerExchangeActorStub()
-        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
-        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+        let preSharedKey = try XCTUnwrap(WireGuard.PreSharedKey(rawValue: WireGuard.PrivateKey().rawValue))
+        peerExchangeActor.result = .success((preSharedKey, WireGuard.PrivateKey()))
 
         let multiHopPeerExchanger = SingleHopEphemeralPeerExchanger(
             exit: exitRelay,
-            devicePrivateKey: PrivateKey(),
+            devicePrivateKey: WireGuard.PrivateKey(),
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true

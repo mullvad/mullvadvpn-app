@@ -12,6 +12,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 @preconcurrency import WireGuardKit
+import WireGuardKitTypes
 
 class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
     let logger = Logger(label: "WgAdapter")
@@ -133,17 +134,17 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
 
 private extension TunnelAdapterConfiguration {
     var asWgConfig: TunnelConfiguration {
-        var interfaceConfig = InterfaceConfiguration(privateKey: privateKey)
+        var interfaceConfig = InterfaceConfiguration(privateKey: privateKey.wgKey)
         interfaceConfig.addresses = interfaceAddresses
         interfaceConfig.dns = dns.map { DNSServer(address: $0) }
         interfaceConfig.listenPort = 0
 
         var peers: [PeerConfiguration] = []
         if let peer {
-            var peerConfig = PeerConfiguration(publicKey: peer.publicKey)
+            var peerConfig = PeerConfiguration(publicKey: peer.publicKey.wgKey)
             peerConfig.endpoint = peer.endpoint.wgEndpoint
             peerConfig.allowedIPs = allowedIPs
-            peerConfig.preSharedKey = peer.preSharedKey
+            peerConfig.preSharedKey = peer.preSharedKey?.wgKey
             peers.append(peerConfig)
         }
 
@@ -153,6 +154,29 @@ private extension TunnelAdapterConfiguration {
             peers: peers,
             pingableGateway: pingableGateway
         )
+    }
+}
+
+// MARK: - Conversion from MullvadTypes key types to WireGuardKitTypes key types
+
+private extension WireGuard.PrivateKey {
+    /// Convert to `WireGuardKitTypes.PrivateKey` for use with the WireGuard adapter.
+    var wgKey: WireGuardKitTypes.PrivateKey {
+        WireGuardKitTypes.PrivateKey(rawValue: rawValue)!
+    }
+}
+
+private extension WireGuard.PublicKey {
+    /// Convert to `WireGuardKitTypes.PublicKey` for use with the WireGuard adapter.
+    var wgKey: WireGuardKitTypes.PublicKey {
+        WireGuardKitTypes.PublicKey(rawValue: rawValue)!
+    }
+}
+
+private extension WireGuard.PreSharedKey {
+    /// Convert to `WireGuardKitTypes.PreSharedKey` for use with the WireGuard adapter.
+    var wgKey: WireGuardKitTypes.PreSharedKey {
+        WireGuardKitTypes.PreSharedKey(rawValue: rawValue)!
     }
 }
 

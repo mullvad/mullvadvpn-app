@@ -14,7 +14,6 @@ import XCTest
 
 @testable import MullvadREST
 @testable import MullvadSettings
-@testable import WireGuardKitTypes
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
 
@@ -341,7 +340,7 @@ extension RelaySelectorTests {
                         weight: 500,
                         ipv4AddrIn: .loopback,
                         ipv6AddrIn: .loopback,
-                        publicKey: PrivateKey().publicKey.rawValue,
+                        publicKey: WireGuard.PrivateKey().publicKey.rawValue,
                         includeInCountry: true,
                         daita: true,
                         shadowsocksExtraAddrIn: nil,
