@@ -9,6 +9,6 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.ImportOverridesBotto
 
 internal fun EntryProviderScope<NavKey2>.importOverridesEntry(navigator: Navigator) {
     entry<ImportOverridesNavKey>(metadata = SingleOverlaySceneStrategy.overlay()) {
-        ImportOverridesBottomSheet(navigator = navigator, overridesActive = true)
+        ImportOverridesBottomSheet(navigator = navigator, overridesActive = it.overridesActive)
     }
 }
