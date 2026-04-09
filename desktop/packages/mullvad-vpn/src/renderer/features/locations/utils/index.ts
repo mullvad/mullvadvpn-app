@@ -27,3 +27,4 @@ export * from './search-custom-list-and-locations';
 export * from './get-recent-multihop-entry-locations';
 export * from './get-recent-multihop-exit-locations';
 export * from './get-recent-singlehop-locations';
+export * from './get-unique-locations';

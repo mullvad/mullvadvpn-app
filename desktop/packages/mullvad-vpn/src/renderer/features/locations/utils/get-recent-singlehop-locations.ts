@@ -1,4 +1,5 @@
 import type { AnyLocation, RecentLocation } from '../types';
+import { getUniqueLocations } from './get-unique-locations';
 
 export const getRecentSinglehopLocations = (
   recentLocations?: RecentLocation[],
@@ -7,18 +8,11 @@ export const getRecentSinglehopLocations = (
     return undefined;
   }
 
-  const addedLocations = new Set();
   const singlehopLocations = recentLocations
     .filter((location) => location.type === 'singlehop')
-    .filter((location) => {
-      if (addedLocations.has(location.location)) {
-        return false;
-      }
-      addedLocations.add(location.location);
-      return true;
-    })
-    .map((location) => location.location)
-    .slice(0, 3);
+    .map((location) => location.location);
 
-  return singlehopLocations.length > 0 ? singlehopLocations : undefined;
+  const uniqueSinglehopLocations = getUniqueLocations(singlehopLocations);
+
+  return uniqueSinglehopLocations.length > 0 ? uniqueSinglehopLocations : undefined;
 };

@@ -1,4 +1,5 @@
 import type { AnyLocation, RecentLocation } from '../types';
+import { getUniqueLocations } from './get-unique-locations';
 
 export const getRecentMultihopEntryLocations = (
   recentLocations?: RecentLocation[],
@@ -7,18 +8,11 @@ export const getRecentMultihopEntryLocations = (
     return undefined;
   }
 
-  const addedLocations = new Set();
   const multihopLocations = recentLocations
     .filter((location) => location.type === 'multihop')
-    .map((location) => location.entry)
-    .filter((location) => {
-      if (addedLocations.has(location)) {
-        return false;
-      }
-      addedLocations.add(location);
-      return true;
-    })
-    .slice(0, 3);
+    .map((location) => location.entry);
 
-  return multihopLocations.length > 0 ? multihopLocations : undefined;
+  const uniqueMultihopLocations = getUniqueLocations(multihopLocations);
+
+  return uniqueMultihopLocations.length > 0 ? uniqueMultihopLocations : undefined;
 };
