@@ -23,11 +23,11 @@ LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 # === Define toolchain versions and paths ===
 
 ARG SDK_VERSION=platforms;android-36 \
-    BUILD_TOOLS_VERSION=build-tools;36.0.0
+    BUILD_TOOLS_VERSION=36.1.0
 
 # Command line tools and checksum from: https://developer.android.com/studio#command-line-tools-only
-ARG COMMAND_LINE_TOOLS_VERSION=13114758 \
-    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=7ec965280a073311c339e571cd5de778b9975026cfcbe79f2b1cdcb1e15317ee
+ARG COMMAND_LINE_TOOLS_VERSION=14742923 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=04453066b540409d975c676d781da1477479dde3761310f1a7eb92a1dfb15af7
 
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
 ARG NDK_VERSION_NAME=r27d \
@@ -68,8 +68,8 @@ ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 # Set Java home for the downloaded JDK
 ENV JAVA_HOME=/opt/jdk-21
 
-# Make adb and other platform tools accessible
-ENV PATH="${JAVA_HOME}/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
+# Make adb,apk signer and other tools accessible
+ENV PATH="${JAVA_HOME}/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}:${PATH}"
 
 # === Install/set up the image ===
 
@@ -81,6 +81,7 @@ RUN apt-get update -y && apt-get install -y \
     software-properties-common \
     unzip \
     ca-certificates-java \
+    pcscd \
     tidy \
     && rm -rf /var/lib/apt/lists/*
 
@@ -99,7 +100,7 @@ RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/c
     rm /tmp/cmdline-tools.zip
 
 # Install Android SDK
-RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
+RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_VERSION "build-tools;$BUILD_TOOLS_VERSION" "platform-tools"
 
 # Install Android NDK
 RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
