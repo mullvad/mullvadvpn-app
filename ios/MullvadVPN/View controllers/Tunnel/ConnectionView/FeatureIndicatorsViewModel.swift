@@ -53,11 +53,14 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
         default:
             break
         }
+        #if NEVER_IN_PRODUCTION
+            features.append(GotaTunFeature())
+        #endif
 
         return
             features
             .filter { $0.isEnabled }
-            .map { ChipModel(id: $0.id, name: $0.name, icon: $0.icon) }
+            .map { ChipModel(id: $0.id, name: $0.name, icon: $0.icon, style: $0.style) }
     }
 
     func onPressed(item: ChipModel) {

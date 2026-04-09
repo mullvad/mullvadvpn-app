@@ -15,10 +15,12 @@ protocol ChipFeature: Identifiable {
     var isEnabled: Bool { get }
     var name: String { get }
     var icon: Image? { get }
+    var style: ChipStyle { get }
 }
 
 extension ChipFeature {
     var icon: Image? { nil }
+    var style: ChipStyle { .standard }
 }
 
 enum FeatureType {
@@ -31,6 +33,9 @@ enum FeatureType {
     case includeAllNetworks
     case localNetworkSharing
     case ipVersion
+    #if NEVER_IN_PRODUCTION
+    case gotaTun
+    #endif
 }
 
 struct DaitaFeature: ChipFeature {
@@ -195,3 +200,19 @@ struct IPVersionFeature: ChipFeature {
         NSLocalizedString("IPv6", comment: "")
     }
 }
+
+#if NEVER_IN_PRODUCTION
+struct GotaTunFeature: ChipFeature {
+    let id: FeatureType = .gotaTun
+
+    var isEnabled: Bool {
+        PacketTunnelDebugSettings.useGotaTun
+    }
+
+    let name = "GotaTun"
+
+    var style: ChipStyle {
+        .rainbowShimmer
+    }
+}
+#endif

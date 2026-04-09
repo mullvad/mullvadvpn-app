@@ -13,8 +13,21 @@ struct ChipView: View {
     let onPress: (() -> Void)?
     private let borderWidth: CGFloat = 1
 
+    private var standardBackground: some View {
+        RoundedRectangle(cornerRadius: 8)
+            .stroke(
+                UIColor.primaryColor.color,
+                lineWidth: borderWidth
+            )
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(UIColor.secondaryColor.color)
+            )
+            .padding(borderWidth)
+    }
+
     var body: some View {
-        Button {
+        let chip = Button {
             onPress?()
         } label: {
             HStack(spacing: UIMetrics.FeatureIndicators.chipViewIconTextSpacing) {
@@ -30,18 +43,17 @@ struct ChipView: View {
             }
             .padding(.horizontal, UIMetrics.FeatureIndicators.chipViewHorizontalPadding)
         }
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    UIColor.primaryColor.color,
-                    lineWidth: borderWidth
-                )
-                .background(
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(UIColor.secondaryColor.color)
-                )
-                .padding(borderWidth)
-        )
+        .background(standardBackground)
+
+        #if NEVER_IN_PRODUCTION
+        if item.style == .rainbowShimmer {
+            chip.gotaTunStyle()
+        } else {
+            chip
+        }
+        #else
+        chip
+        #endif
     }
 }
 
