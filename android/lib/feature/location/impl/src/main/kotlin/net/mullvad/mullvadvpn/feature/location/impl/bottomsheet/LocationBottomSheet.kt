@@ -38,8 +38,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.common.compose.goBack
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
@@ -94,43 +95,43 @@ internal fun LocationBottomSheets(
         sheetState = sheetState,
         onCreateCustomList =
             dropUnlessResumed { relayItem ->
-                sheetState.animateClose(scope) {
-                    navigator.navigateReplaceTop(
-                        CreateCustomListNavKey(locationCode = relayItem?.id)
-                    )
-                }
+                navigator.navigateReplaceTop(
+                    sheetState,
+                    scope,
+                    CreateCustomListNavKey(locationCode = relayItem?.id),
+                )
             },
         onAddLocationToList = vm::addLocationToList,
         onRemoveLocationFromList = vm::removeLocationFromList,
         onEditCustomListName =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                sheetState.animateClose(scope) {
-                    navigator.navigateReplaceTop(
-                        EditCustomListNameNavKey(
-                            customListId = customList.id,
-                            initialName = customList.customList.name,
-                        )
-                    )
-                }
+                navigator.navigateReplaceTop(
+                    sheetState,
+                    scope,
+                    EditCustomListNameNavKey(
+                        customListId = customList.id,
+                        initialName = customList.customList.name,
+                    ),
+                )
             },
         onEditLocationsCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                sheetState.animateClose(scope) {
-                    navigator.navigateReplaceTop(
-                        EditCustomListLocationsNavKey(customListId = customList.id, newList = false)
-                    )
-                }
+                navigator.navigateReplaceTop(
+                    sheetState,
+                    scope,
+                    EditCustomListLocationsNavKey(customListId = customList.id, newList = false),
+                )
             },
         onDeleteCustomList =
             dropUnlessResumed { customList: RelayItem.CustomList ->
-                sheetState.animateClose(scope) {
-                    navigator.navigateReplaceTop(
-                        DeleteCustomListNavKey(
-                            customListId = customList.id,
-                            name = customList.customList.name,
-                        )
-                    )
-                }
+                navigator.navigateReplaceTop(
+                    sheetState,
+                    scope,
+                    DeleteCustomListNavKey(
+                        customListId = customList.id,
+                        name = customList.customList.name,
+                    ),
+                )
             },
         onSetAsEntry = {
             vm.setAsEntry(
@@ -150,7 +151,7 @@ internal fun LocationBottomSheets(
         },
         closeBottomSheet = { animate ->
             if (animate) {
-                sheetState.animateClose(scope) { navigator.goBack() }
+                navigator.goBack(sheetState, scope)
             } else {
                 navigator.goBack()
             }
