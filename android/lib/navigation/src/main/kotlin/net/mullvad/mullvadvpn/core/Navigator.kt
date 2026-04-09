@@ -4,7 +4,7 @@ import androidx.compose.runtime.toMutableStateList
 
 /** Handles navigation events (forward and back) by updating the navigation state. */
 class Navigator(
-    private val state: NavigationState,
+    val state: NavigationState,
     val resultStore: ResultStore,
     val screenIsListDetailTargetWidth: Boolean,
 ) {
