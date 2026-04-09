@@ -81,7 +81,7 @@ class Navigator(
     fun goBackUntil(key: NavKey2, inclusive: Boolean = false): Boolean {
         val backStackBeforePop = state.backStack.toList()
 
-        val index = state.backStack.indexOfLast { it == key }
+        val index = state.backStack.indexOfLast { it.javaClass == key.javaClass }
         if (index == -1) return false
 
         // coerceAtLeast(1) guarantees we can't end up with an empty backstack
