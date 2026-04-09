@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.animateClose
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByFileNavResult
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ImportOverrideByTextNavKey
@@ -58,9 +58,7 @@ fun ImportOverridesBottomSheet(navigator: Navigator, overridesActive: Boolean) {
                 dropUnlessResumed { navigator.goBack(result = ImportOverrideByFileNavResult) },
             onImportByText =
                 dropUnlessResumed {
-                    sheetState.animateClose(scope) {
-                        navigator.navigateReplaceTop(ImportOverrideByTextNavKey)
-                    }
+                    navigator.navigateReplaceTop(sheetState, scope, ImportOverrideByTextNavKey)
                 },
         )
     }

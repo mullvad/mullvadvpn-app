@@ -41,6 +41,11 @@ fun Navigator.navigateReplaceIfDetailPane(key: NavKey2) {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-fun SheetState.animateClose(scope: CoroutineScope, onClosed: (() -> Unit)? = null) {
-    scope.launch { hide() }.invokeOnCompletion { onClosed?.invoke() }
+fun Navigator.goBack(state: SheetState, scope: CoroutineScope) {
+    scope.launch { state.hide() }.invokeOnCompletion { goBack() }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+fun Navigator.navigateReplaceTop(state: SheetState, scope: CoroutineScope, navKey2: NavKey2) {
+    scope.launch { state.hide() }.invokeOnCompletion { navigateReplaceTop(navKey2) }
 }

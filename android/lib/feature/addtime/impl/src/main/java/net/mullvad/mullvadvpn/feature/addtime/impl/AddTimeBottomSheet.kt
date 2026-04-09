@@ -36,8 +36,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.animateClose
 import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.common.compose.goBack
+import net.mullvad.mullvadvpn.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
@@ -104,7 +105,7 @@ fun AddTimeBottomSheet(navigator: Navigator) {
         when (sideEffect) {
             is AddMoreTimeSideEffect.OpenAccountManagementPageInBrowser -> {
                 openAccountPage(sideEffect.token)
-                sheetState.animateClose(scope)
+                navigator.goBack(sheetState, scope)
             }
         }
     }
@@ -120,22 +121,20 @@ fun AddTimeBottomSheet(navigator: Navigator) {
         onRetryFetchProducts = viewModel::fetchPaymentAvailability,
         onPlayPaymentInfoClick =
             dropUnlessResumed {
-                sheetState.animateClose(scope) {
-                    navigator.navigateReplaceTop(VerificationPendingNavKey)
-                }
+                navigator.navigateReplaceTop(sheetState, scope, VerificationPendingNavKey)
             },
         onRedeemVoucherClick =
             dropUnlessResumed {
-                sheetState.animateClose(scope) { navigator.navigateReplaceTop(RedeemVoucherNavKey) }
+                navigator.navigateReplaceTop(sheetState, scope, RedeemVoucherNavKey)
             },
         resetPurchaseState = { viewModel.resetPurchaseResult() },
         closeSheetAndResetPurchaseState = {
             viewModel.resetPurchaseResult()
-            sheetState.animateClose(scope)
+            navigator.goBack(sheetState, scope)
         },
         closeBottomSheet = { animate ->
             if (animate) {
-                sheetState.animateClose(scope) { navigator.goBack() }
+                navigator.goBack(sheetState, scope)
             } else {
                 navigator.goBack()
             }
