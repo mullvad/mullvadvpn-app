@@ -66,4 +66,11 @@ class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     func onPressed(item: ChipModel) {
         onFeaturePressed?(item.id)
     }
+
+    #if NEVER_IN_PRODUCTION
+    /// Forces chips to recompute (e.g. after toggling a debug setting).
+    func invalidateChips() {
+        objectWillChange.send()
+    }
+    #endif
 }

@@ -69,7 +69,7 @@ class TunnelCoordinator: Coordinator, Presenting {
                 self?.showFeatureSetting?(.vpnSettings(.ipVersion))
 #if NEVER_IN_PRODUCTION
             case .gotaTun:
-                // do nothing
+                self?.showGotaTunDebugMenu()
 #endif
 
             }
@@ -121,4 +121,22 @@ class TunnelCoordinator: Coordinator, Presenting {
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
     }
+
+    #if NEVER_IN_PRODUCTION
+    private func showGotaTunDebugMenu() {
+        let isOn = PacketTunnelDebugSettings.useGotaTun
+        let sheet = UIAlertController(
+            title: "GotaTun Debug",
+            message: "GotaTun is currently \(isOn ? "ON" : "OFF")",
+            preferredStyle: .actionSheet
+        )
+        sheet.addAction(UIAlertAction(title: "Toggle GotaTun", style: .default) { [weak self] _ in
+            PacketTunnelDebugSettings.useGotaTun.toggle()
+            self?.tunnelManager.reapplyTunnelConfiguration()
+            self?.controller.invalidateFeatureIndicators()
+        })
+        sheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        controller.present(sheet, animated: true)
+    }
+    #endif
 }

@@ -27,6 +27,12 @@ class TunnelViewController: UIViewController, RootContainment {
     var shouldShowCancelTunnelAlert: (() -> Void)?
     var shouldShowSettingsForFeature: ((FeatureType) -> Void)?
 
+    #if NEVER_IN_PRODUCTION
+    func invalidateFeatureIndicators() {
+        indicatorsViewViewModel.invalidateChips()
+    }
+    #endif
+
     let activityIndicator: SpinnerActivityIndicatorView = {
         let activityIndicator = SpinnerActivityIndicatorView(style: .large)
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
