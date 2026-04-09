@@ -6,6 +6,7 @@ use windows_service::{
     service::{ServiceAccess, ServiceState},
     service_manager::{ServiceManager, ServiceManagerAccess},
 };
+use windows_sys::Win32::Foundation::ERROR_SERVICE_DOES_NOT_EXIST;
 
 const MAX_WAIT: Duration = Duration::from_secs(5);
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
@@ -16,9 +17,8 @@ pub fn service_is_running(name: &str) -> Result<bool, windows_service::Error> {
 
     let service = match scm.open_service(name, ServiceAccess::QUERY_STATUS) {
         Ok(s) => s,
-        Err(windows_service::Error::Winapi(ref e))
-            if e.raw_os_error()
-                == Some(windows_sys::Win32::Foundation::ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
+        Err(windows_service::Error::Winapi(e))
+            if e.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
         {
             return Ok(false);
         }
@@ -38,9 +38,8 @@ pub fn stop_and_delete_service(name: &str) -> Result<(), windows_service::Error>
         ServiceAccess::STOP | ServiceAccess::QUERY_STATUS | ServiceAccess::DELETE,
     ) {
         Ok(s) => s,
-        Err(windows_service::Error::Winapi(ref e))
-            if e.raw_os_error()
-                == Some(windows_sys::Win32::Foundation::ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
+        Err(windows_service::Error::Winapi(e))
+            if e.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST as i32) =>
         {
             return Ok(());
         }
