@@ -56,7 +56,7 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
-        self.options.userspace || self.options.daita
+        cfg!(target_os = "macos") || self.options.userspace || self.options.daita
     }
 }
 
