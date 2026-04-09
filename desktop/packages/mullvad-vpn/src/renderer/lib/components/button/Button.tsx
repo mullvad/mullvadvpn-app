@@ -52,6 +52,7 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
       align-items: center;
       padding: ${spacings.tiny} ${spacings.small};
       gap: ${spacings.small};
+      overflow-wrap: anywhere;
 
       min-height: 32px;
       min-width: 60px;

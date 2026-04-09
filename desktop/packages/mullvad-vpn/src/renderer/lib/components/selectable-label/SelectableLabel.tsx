@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 
+import { spacings } from '../../foundations';
 import { Flex } from '../flex';
 import { ListItem } from '../list-item';
 import { Text, type TextProps } from '../text';
@@ -10,8 +11,9 @@ export type SelectableLabelProps<E extends React.ElementType = 'span'> = TextPro
   disabled?: boolean;
 };
 
-export const StyledFlex = styled(Flex)`
+export const StyledSelectableLabel = styled(Flex)`
   position: relative;
+  word-break: break-word;
 `;
 
 export const StyledSelectableLabelIcon = styled(ListItem.Item.Icon)<{ $selected: boolean }>`
@@ -37,6 +39,15 @@ const StyledText = styled(Text)<{ $selected: boolean; $disabled: boolean }>`
     transition: transform var(--transition-duration) ease-out;
     transform: translateX(${$selected ? 32 : 0}px);
 
+    ${() => {
+      if ($selected) {
+        return css`
+          margin-right: ${spacings.big};
+        `;
+      }
+      return null;
+    }}
+
     // Only animate color if not disabled
     ${() => {
       if (!$disabled) {
@@ -59,7 +70,7 @@ export const SelectableLabel = <E extends React.ElementType = 'span'>({
   const color = useSelectableLabelColor(selected, disabled);
 
   return (
-    <StyledFlex>
+    <StyledSelectableLabel alignItems="center">
       <StyledSelectableLabelIcon icon="checkmark" color={color} $selected={selected} />
       <StyledText
         key="label"
@@ -69,6 +80,6 @@ export const SelectableLabel = <E extends React.ElementType = 'span'>({
         $disabled={disabled}
         {...props}
       />
-    </StyledFlex>
+    </StyledSelectableLabel>
   );
 };
