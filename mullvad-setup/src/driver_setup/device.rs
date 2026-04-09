@@ -39,8 +39,10 @@ impl DeviceInfoSet {
     }
 
     fn get_device_info(&self, index: u32) -> io::Result<Option<DeviceInfo<'_>>> {
-        let mut device_info = SP_DEVINFO_DATA::default();
-        device_info.cbSize = mem::size_of::<SP_DEVINFO_DATA>() as u32;
+        let mut device_info = SP_DEVINFO_DATA {
+            cbSize: mem::size_of::<SP_DEVINFO_DATA>() as u32,
+            ..Default::default()
+        };
 
         // SAFETY: `device_info_set` is a valid HDEVINFO; `device_info` has `cbSize` set.
         let result = unsafe { SetupDiEnumDeviceInfo(self.0, index, &raw mut device_info) };
