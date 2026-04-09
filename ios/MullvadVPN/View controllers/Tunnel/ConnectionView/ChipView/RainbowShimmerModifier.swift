@@ -155,19 +155,21 @@ struct GotaTunChipOverlay: ViewModifier {
     @State private var shakeOffset: CGSize = .zero
     @State private var isShaking = false
 
-    /// Decided once at creation: which border effect to show.
     private enum BorderEffect: CaseIterable {
         case rainbow, fire, chromaticAberration, liquidGlass
+
+        /// Picked once per app process lifetime.
+        static let current: BorderEffect = {
+            switch Int.random(in: 0...3) {
+            case 0: .rainbow
+            case 1: .fire
+            case 2: .chromaticAberration
+            default: .liquidGlass
+            }
+        }()
     }
 
-    private let borderEffect: BorderEffect = {
-        switch Int.random(in: 0...3) {
-        case 0: .rainbow
-        case 1: .fire
-        case 2: .chromaticAberration
-        default: .liquidGlass
-        }
-    }()
+    private let borderEffect = BorderEffect.current
 
     /// Apparent z-depth of the chip during rotation, in points.
     private let chipDepth: CGFloat = 12
