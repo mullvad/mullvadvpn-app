@@ -22,12 +22,12 @@ LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 # === Define toolchain versions and paths ===
 
-ARG SDK_VERSION=platforms;android-36 \
-    BUILD_TOOLS_VERSION=build-tools;36.0.0
+ARG SDK_VERSION=android-36 \
+    BUILD_TOOLS_VERSION=36.1.0
 
 # Command line tools and checksum from: https://developer.android.com/studio#command-line-tools-only
-ARG COMMAND_LINE_TOOLS_VERSION=13114758 \
-    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=7ec965280a073311c339e571cd5de778b9975026cfcbe79f2b1cdcb1e15317ee
+ARG COMMAND_LINE_TOOLS_VERSION=14742923 \
+    COMMAND_LINE_TOOLS_SHA256_CHECKSUM=04453066b540409d975c676d781da1477479dde3761310f1a7eb92a1dfb15af7
 
 # NDK and checksum from: https://github.com/android/ndk/wiki#supported-downloads
 ARG NDK_VERSION_NAME=r27d \
@@ -68,8 +68,12 @@ ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 # Set Java home for the downloaded JDK
 ENV JAVA_HOME=/opt/jdk-21
 
-# Make adb and other platform tools accessible
-ENV PATH="${JAVA_HOME}/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}"
+# Make adb,apk signer and other tools accessible
+ENV PATH="\
+${JAVA_HOME}/bin\
+:${ANDROID_SDK_ROOT}/platform-tools\
+:${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}\
+:${PATH}"
 
 # === Install/set up the image ===
 
@@ -82,6 +86,7 @@ RUN apt-get update -y && apt-get install -y \
     unzip \
     ca-certificates-java \
     tidy \
+    pcscd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
@@ -99,7 +104,10 @@ RUN curl -sfLo /tmp/cmdline-tools.zip https://dl.google.com/android/repository/c
     rm /tmp/cmdline-tools.zip
 
 # Install Android SDK
-RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_VERSION $BUILD_TOOLS_VERSION "platform-tools"
+RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+    "platforms;$SDK_VERSION" \
+    "build-tools;$BUILD_TOOLS_VERSION" \
+    "platform-tools"
 
 # Install Android NDK
 RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
@@ -111,5 +119,65 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
 
 # Add rust targets
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
+
+# Install yubico-piv-tool (by building from source)
+#
+# NOTE: Yubico doesn't have a main signing key, instead individual devs
+# sign release. On version bumps, verify the new tarball .sig and update
+# the key file if a different developer signed the release.
+# https://developers.yubico.com/Software_Projects/Software_Signing.html
+ARG YUBICO_PIV_TOOL_VERSION=2.7.3
+ARG YUBICO_PIV_TOOL_SHA256=fcb25c42f54298ece8b20684fb3c581ed9195a162cbc55180a4161501be93181
+COPY yubico-piv-tool-signing-key.asc /tmp/yubico-piv-tool-signing-key.asc
+RUN set -eux; \
+    # Install build-only dependencies (some marked auto for later removal)
+    apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+        check \
+        cmake \
+        g++ \
+        gengetopt \
+        help2man \
+        libpcsclite-dev \
+        libssl-dev \
+        pkg-config \
+        zlib1g-dev \
+    && \
+    apt-mark auto \
+        check \
+        cmake \
+        gengetopt \
+        help2man \
+        libpcsclite-dev \
+        libssl-dev \
+        pkg-config \
+        zlib1g-dev \
+    && \
+    # Download source tarball and detached signature
+    curl -sfLo /tmp/yubico-piv-tool.tar.gz \
+        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz" && \
+    curl -sfLo /tmp/yubico-piv-tool.tar.gz.sig \
+        "https://developers.yubico.com/yubico-piv-tool/Releases/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}.tar.gz.sig" && \
+    # Check checksum
+    echo "$YUBICO_PIV_TOOL_SHA256 /tmp/yubico-piv-tool.tar.gz" | sha256sum -c && \
+    # Verify signature
+    export GNUPGHOME="$(mktemp -d)" && \
+    gpg --batch --import /tmp/yubico-piv-tool-signing-key.asc && \
+    gpg --batch --verify /tmp/yubico-piv-tool.tar.gz.sig /tmp/yubico-piv-tool.tar.gz && \
+    rm -rf "$GNUPGHOME" && \
+    # Extract and build
+    tar -xzf /tmp/yubico-piv-tool.tar.gz -C /tmp && \
+    mkdir /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
+    cd /tmp/yubico-piv-tool-${YUBICO_PIV_TOOL_VERSION}/build && \
+    cmake .. && \
+    make -j"$(nproc)" && \
+    make install && \
+    ldconfig && \
+    # Cleanup
+    rm -rf /tmp/yubico-piv-tool* && \
+    apt-get autoremove --purge -y && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY pkcs11_java.cfg /usr/local/etc/pkcs11_java.cfg
 
 WORKDIR /build
