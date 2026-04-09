@@ -55,7 +55,7 @@ class TunnelStateNotificationProvider(
                     Notification.Tunnel(
                         channelId = channelId,
                         state = notificationTunnelState,
-                        actions = listOfNotNull(notificationTunnelState.toAction()),
+                        actions = notificationTunnelState.toActions(),
                         ongoing = notificationTunnelState is NotificationTunnelState.Connected,
                     ),
                 )
@@ -98,25 +98,28 @@ class TunnelStateNotificationProvider(
         }
     }
 
-    private fun NotificationTunnelState.toAction(): NotificationAction.Tunnel =
+    private fun NotificationTunnelState.toActions(): List<NotificationAction.Tunnel> =
         when (this) {
             is NotificationTunnelState.Disconnected -> {
                 when (prepareError) {
                     is PrepareError.OtherAlwaysOnApp,
                     is PrepareError.OtherLegacyAlwaysOnVpn,
-                    null -> NotificationAction.Tunnel.Connect
-                    is PrepareError.NotPrepared -> NotificationAction.Tunnel.RequestVpnProfile
+                    null -> listOf(NotificationAction.Tunnel.Connect)
+                    is PrepareError.NotPrepared ->
+                        listOf(NotificationAction.Tunnel.RequestVpnProfile)
                 }
             }
-            NotificationTunnelState.Disconnecting -> NotificationAction.Tunnel.Connect
+            NotificationTunnelState.Disconnecting -> listOf(NotificationAction.Tunnel.Connect)
             NotificationTunnelState.Error.Blocked,
             NotificationTunnelState.Blocking,
             NotificationTunnelState.Error.DeviceOffline,
-            is NotificationTunnelState.Connected -> NotificationAction.Tunnel.Disconnect
-            is NotificationTunnelState.Connecting -> NotificationAction.Tunnel.Cancel
+            is NotificationTunnelState.Connected ->
+                listOf(NotificationAction.Tunnel.Reconnect, NotificationAction.Tunnel.Disconnect)
+            is NotificationTunnelState.Connecting -> listOf(NotificationAction.Tunnel.Cancel)
             is NotificationTunnelState.Error.Critical,
             NotificationTunnelState.Error.VpnPermissionDenied,
             is NotificationTunnelState.Error.AlwaysOnVpn,
-            NotificationTunnelState.Error.LegacyLockdown -> NotificationAction.Tunnel.Dismiss
+            NotificationTunnelState.Error.LegacyLockdown ->
+                listOf(NotificationAction.Tunnel.Dismiss)
         }
 }
