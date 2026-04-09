@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.language.impl.Language
 
 fun EntryProviderScope<NavKey2>.languageEntry(navigator: Navigator) {
     entry<LanguageNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = slideInHorizontalTransition()
     ) {
         Language(navigator = navigator)
     }

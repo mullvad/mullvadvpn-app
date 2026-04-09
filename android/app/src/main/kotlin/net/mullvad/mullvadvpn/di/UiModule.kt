@@ -416,7 +416,7 @@ val uiModule = module {
     }
     viewModel { AppIconViewModel(get()) }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        viewModel { LanguageViewModel(get(), get()) }
+        viewModel { LanguageViewModel(get()) }
     }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
 

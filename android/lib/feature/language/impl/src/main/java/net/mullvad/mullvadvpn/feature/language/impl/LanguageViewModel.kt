@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.feature.language.impl
 
-import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.util.Locale
@@ -13,12 +12,8 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.ui.resource.R
 
-class LanguageViewModel(
-    private val languageRepository: LanguageRepository,
-    private val resources: Resources,
-) : ViewModel() {
+class LanguageViewModel(private val languageRepository: LanguageRepository) : ViewModel() {
 
     private val supportedLocales = languageRepository.getSupportedLocales()
     private val selectedLocale = MutableStateFlow(languageRepository.getAppLocale())
@@ -29,16 +24,10 @@ class LanguageViewModel(
                 LanguageUiState(
                         languages =
                             buildList {
-                                add(
-                                    LanguageItem(
-                                        locale = null,
-                                        displayName = resources.getString(R.string.system_default),
-                                        isSelected = selected == null,
-                                    )
-                                )
+                                add(LanguageItem.SystemDefault(isSelected = selected == null))
                                 supportedLocales.forEach { locale ->
                                     add(
-                                        LanguageItem(
+                                        LanguageItem.Language(
                                             locale = locale,
                                             displayName =
                                                 locale.getDisplayName(locale).replaceFirstChar {

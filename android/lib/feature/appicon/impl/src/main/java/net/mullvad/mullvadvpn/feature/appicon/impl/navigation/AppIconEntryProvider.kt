@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.feature.appicon.impl.AppIcon
 
 fun EntryProviderScope<NavKey2>.appIconEntry(navigator: Navigator) {
     entry<AppIconNavKey>(
-        metadata = ListDetailSceneStrategy.detailPane() + slideInHorizontalTransition()
+        metadata = slideInHorizontalTransition()
     ) {
         AppIcon(navigator = navigator)
     }

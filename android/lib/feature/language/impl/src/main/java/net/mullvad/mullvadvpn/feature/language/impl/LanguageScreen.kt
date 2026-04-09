@@ -35,17 +35,13 @@ private fun PreviewLanguageScreen() {
                 LanguageUiState(
                         languages =
                             listOf(
-                                LanguageItem(
-                                    locale = null,
-                                    displayName = "System default",
-                                    isSelected = true,
-                                ),
-                                LanguageItem(
+                                LanguageItem.SystemDefault(isSelected = true),
+                                LanguageItem.Language(
                                     locale = Locale.ENGLISH,
                                     displayName = "English",
                                     isSelected = false,
                                 ),
-                                LanguageItem(
+                                LanguageItem.Language(
                                     locale = Locale.forLanguageTag("sv"),
                                     displayName = "Svenska",
                                     isSelected = false,
@@ -91,12 +87,16 @@ fun LanguageScreen(
                 is Lc.Loading -> item { MullvadCircularProgressIndicatorLarge() }
                 is Lc.Content -> {
                     val languages = state.value.languages
-                    itemsIndexedWithDivider(
-                        items = languages,
-                        key = { _, item -> item.locale?.toLanguageTag() ?: "system_default" },
-                    ) { index, item ->
+                    itemsIndexedWithDivider(items = languages, key = { _, item -> item.key }) {
+                        index,
+                        item ->
                         SelectableListItem(
-                            title = item.displayName,
+                            title =
+                                when (item) {
+                                    is LanguageItem.Language -> item.displayName
+                                    is LanguageItem.SystemDefault ->
+                                        stringResource(R.string.system_default)
+                                },
                             isSelected = item.isSelected,
                             onClick = { onLanguageSelected(item.locale) },
                             position =
