@@ -40,6 +40,9 @@ if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == "Linux" ]]; then
     GOTATUN="true"
 fi
 
+# TEMP
+GOTATUN="true"
+
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --optimize) OPTIMIZE="true";;
