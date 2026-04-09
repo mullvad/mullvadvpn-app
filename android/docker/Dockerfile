@@ -82,6 +82,7 @@ RUN apt-get update -y && apt-get install -y \
     unzip \
     ca-certificates-java \
     tidy \
+    pcscd \
     && rm -rf /var/lib/apt/lists/*
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
