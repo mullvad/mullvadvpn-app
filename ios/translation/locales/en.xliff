@@ -15,11 +15,6 @@
         <target state="new">%@</target>
         <note/>
       </trans-unit>
-      <trans-unit id="%@ %@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
-        <source>%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
-        <target state="new">%1$@ %2$@ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
-        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the action being performed, and the second argument is the feature that requires restarting the VPN connection.</note>
-      </trans-unit>
       <trans-unit id="%@ (%@) hides patterns in your encrypted VPN traffic." xml:space="preserve">
         <source>%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</source>
         <target state="new">%1$@ (%2$@) hides patterns in your encrypted VPN traffic.</target>
@@ -59,6 +54,11 @@
         <source>%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
         <target state="new">%1$@ “%2$@“ requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
         <note from="auto-generated">A warning message that appears when a user is prompted to enable or disable a feature that requires the VPN to be restarted. The argument is a verb ("Enabling" or "Disabling"), and the second argument is the name of the feature.</note>
+      </trans-unit>
+      <trans-unit id="%@ “%@” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing." xml:space="preserve">
+        <source>%1$@ “%2$@” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</source>
+        <target state="new">%1$@ “%2$@” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing.</target>
+        <note from="auto-generated">A warning message that appears when a user is about to perform an action that requires restarting the VPN connection. The argument is the name of the action, and the second argument is the name of the feature.</note>
       </trans-unit>
       <trans-unit id="%@, %@" xml:space="preserve">
         <source>%1$@, %2$@</source>
@@ -310,15 +310,20 @@
         <target state="new">Attention: This will ignore filter settings for the entry server that is being automatically selected.</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Attention: This will ignore filter settings for the server that is being used as an entry point" xml:space="preserve">
+        <source>Attention: This will ignore filter settings for the server that is being used as an entry point</source>
+        <target state="new">Attention: This will ignore filter settings for the server that is being used as an entry point</target>
+        <note from="auto-generated">Additional information about the automatic location picker.</note>
+      </trans-unit>
       <trans-unit id="Attention: this setting cannot be used in combination with **%@**" xml:space="preserve">
         <source>Attention: this setting cannot be used in combination with **%@**</source>
         <target state="new">Attention: this setting cannot be used in combination with **%@**</target>
         <note/>
       </trans-unit>
-      <trans-unit id="Attention: toggling “Local network sharing” requires restarting the VPN connection." xml:space="preserve">
-        <source>Attention: toggling “Local network sharing” requires restarting the VPN connection.</source>
-        <target state="new">Attention: toggling “Local network sharing” requires restarting the VPN connection.</target>
-        <note/>
+      <trans-unit id="Attention: toggling “%@” requires restarting the VPN connection." xml:space="preserve">
+        <source>Attention: toggling “%@” requires restarting the VPN connection.</source>
+        <target state="new">Attention: toggling “%@” requires restarting the VPN connection.</target>
+        <note from="auto-generated">A note about a feature that requires restarting the VPN connection when toggled. The argument is the string “Local network sharing”.</note>
       </trans-unit>
       <trans-unit id="Auckland" xml:space="preserve">
         <source>Auckland</source>
@@ -1360,6 +1365,11 @@
         <target state="new">Indonesia</target>
         <note/>
       </trans-unit>
+      <trans-unit id="Information" xml:space="preserve">
+        <source>Information</source>
+        <target state="new">Information</target>
+        <note from="auto-generated">A button that provides more information about an item.</note>
+      </trans-unit>
       <trans-unit id="Install the latest app version to stay up to date." xml:space="preserve">
         <source>Install the latest app version to stay up to date.</source>
         <target state="new">Install the latest app version to stay up to date.</target>
@@ -1648,11 +1658,6 @@
       <trans-unit id="Milan" xml:space="preserve">
         <source>Milan</source>
         <target state="new">Milan</target>
-        <note/>
-      </trans-unit>
-      <trans-unit id="Mode" xml:space="preserve">
-        <source>Mode</source>
-        <target state="new">Mode</target>
         <note/>
       </trans-unit>
       <trans-unit id="Montreal" xml:space="preserve">
@@ -1969,6 +1974,11 @@
         <source>Phoenix, AZ</source>
         <target state="new">Phoenix, AZ</target>
         <note/>
+      </trans-unit>
+      <trans-unit id="Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load." xml:space="preserve">
+        <source>Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load.</source>
+        <target state="new">Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load.</target>
+        <note from="auto-generated">Description of an automatic location in the "What is an automatic location?" alert.</note>
       </trans-unit>
       <trans-unit id="Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?" xml:space="preserve">
         <source>Please enable notifications to ensure that you do not lose network connectivity. Would you like to continue anyways?</source>
