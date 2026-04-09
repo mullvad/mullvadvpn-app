@@ -20,7 +20,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
 
-    private var actor: PacketTunnelActor!
+    private var actor: (any PacketTunnelActorProtocol)!
     private var appMessageHandler: AppMessageHandler!
     private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
@@ -90,17 +90,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             )
         )
 
-        adapter = WgAdapter(packetTunnelProvider: self)
-
-        let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
-
-        let tunnelMonitor = TunnelMonitor(
-            eventQueue: internalQueue,
-            pinger: pinger,
-            tunnelDeviceInfo: adapter,
-            timings: TunnelMonitorTimings()
-        )
-
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
             apiTransportProvider: apiTransportProvider
         )
@@ -108,23 +97,25 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         let devicesProxy = proxyFactory.createDevicesProxy()
 
         deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
-        relaySelector = RelaySelectorWrapper(
-            relayCache: ipOverrideWrapper
-        )
 
-        actor = PacketTunnelActor(
-            timings: PacketTunnelActorTimings(),
-            tunnelAdapter: adapter,
-            tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: defaultPathObserver,
-            blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: relaySelector,
-            settingsReader: settingsReader,
-            protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
-        )
-
-        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
-        startDefaultPathObserver()
+        #if DEBUG
+            if PacketTunnelDebugSettings.useGotaTun {
+                providerLogger.info("Using GotaTunActor (debug)")
+                actor = GotaTunActor()
+            } else {
+                setUpWireGuardActor(
+                    ipOverrideWrapper: ipOverrideWrapper,
+                    settingsReader: settingsReader,
+                    apiTransportProvider: apiTransportProvider
+                )
+            }
+        #else
+            setUpWireGuardActor(
+                ipOverrideWrapper: ipOverrideWrapper,
+                settingsReader: settingsReader,
+                apiTransportProvider: apiTransportProvider
+            )
+        #endif
 
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
@@ -133,25 +124,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         appMessageHandler = AppMessageHandler(
             packetTunnelActor: actor,
             apiRequestProxy: apiRequestProxy
-        )
-
-        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
-            EphemeralPeerExchangeActor(
-                packetTunnel: ephemeralPeerReceiver,
-                onFailure: self.ephemeralPeerExchangeFailed,
-                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
-            ),
-            onUpdateConfiguration: { [unowned self] configuration in
-                let channel = OneshotChannel()
-                actor.changeEphemeralPeerNegotiationState(
-                    configuration: configuration,
-                    reconfigurationSemaphore: channel
-                )
-                await channel.receive()
-            },
-            onFinish: { [unowned self] in
-                actor.notifyEphemeralPeerNegotiated()
-            }
         )
 
         newAppVersionSystemNoticationHandler = NewAppVersionSystemNotificationHandler(
@@ -292,6 +264,60 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             apiContext: apiContext,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
+        )
+    }
+
+    private func setUpWireGuardActor(
+        ipOverrideWrapper: IPOverrideWrapper,
+        settingsReader: sending TunnelSettingsManager,
+        apiTransportProvider: APITransportProvider
+    ) {
+        adapter = WgAdapter(packetTunnelProvider: self)
+
+        let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
+
+        let tunnelMonitor = TunnelMonitor(
+            eventQueue: internalQueue,
+            pinger: pinger,
+            tunnelDeviceInfo: adapter,
+            timings: TunnelMonitorTimings()
+        )
+
+        relaySelector = RelaySelectorWrapper(
+            relayCache: ipOverrideWrapper
+        )
+
+        actor = PacketTunnelActor(
+            timings: PacketTunnelActorTimings(),
+            tunnelAdapter: adapter,
+            tunnelMonitor: tunnelMonitor,
+            defaultPathObserver: defaultPathObserver,
+            blockedStateErrorMapper: BlockedStateErrorMapper(),
+            relaySelector: relaySelector,
+            settingsReader: settingsReader,
+            protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
+        )
+
+        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
+        startDefaultPathObserver()
+
+        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
+            EphemeralPeerExchangeActor(
+                packetTunnel: ephemeralPeerReceiver,
+                onFailure: self.ephemeralPeerExchangeFailed,
+                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
+            ),
+            onUpdateConfiguration: { [unowned self] configuration in
+                let channel = OneshotChannel()
+                actor.changeEphemeralPeerNegotiationState(
+                    configuration: configuration,
+                    reconfigurationSemaphore: channel
+                )
+                await channel.receive()
+            },
+            onFinish: { [unowned self] in
+                actor.notifyEphemeralPeerNegotiated()
+            }
         )
     }
 

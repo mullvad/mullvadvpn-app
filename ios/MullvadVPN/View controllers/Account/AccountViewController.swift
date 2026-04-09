@@ -277,6 +277,20 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             )
         )
 
+        #if DEBUG
+            let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
+            sheetController.addAction(
+                UIAlertAction(
+                    title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
+                    style: .default,
+                    handler: { [weak self] _ in
+                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+                        self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                    }
+                )
+            )
+        #endif
+
         sheetController.addAction(
             UIAlertAction(
                 title: "Cancel",
