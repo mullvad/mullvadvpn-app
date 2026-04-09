@@ -97,6 +97,9 @@
                 <action android:name="net.mullvad.mullvadvpn.connect_action" />
             </intent-filter>
             <intent-filter>
+                <action android:name="net.mullvad.mullvadvpn.reconnect_action" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="net.mullvad.mullvadvpn.disconnect_action" />
             </intent-filter>
             <intent-filter>

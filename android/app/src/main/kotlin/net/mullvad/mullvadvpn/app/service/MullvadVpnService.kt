@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.app.service.notifications.ForegroundNotificationMa
 import net.mullvad.mullvadvpn.di.vpnServiceModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_RECONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
@@ -117,6 +118,11 @@ class MullvadVpnService : TalpidVpnService() {
             intent.isFromSystem() || intent?.action == KEY_CONNECT_ACTION -> {
                 foregroundNotificationHandler.startForeground()
                 lifecycleScope.launch { connectionProxy.connectWithoutPermissionCheck() }
+            }
+
+            intent?.action == KEY_RECONNECT_ACTION -> {
+                foregroundNotificationHandler.startForeground()
+                lifecycleScope.launch { connectionProxy.reconnect() }
             }
 
             intent?.action == KEY_DISCONNECT_ACTION -> {
