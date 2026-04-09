@@ -9,6 +9,7 @@ export type MenuOptionTriggerProps = React.HtmlHTMLAttributes<HTMLButtonElement>
 export const StyledListItemTrigger = styled.button`
   display: flex;
   background-color: transparent;
+  width: 100%;
 
   &:focus-visible {
     outline: 2px solid ${colors.white};

@@ -39,7 +39,7 @@ export const StyledMenuPopup = styled.div<{ $popoverId: string }>`
       border-radius: ${Radius.radius4};
       border: 2px solid ${colors.darkBlue};
       padding: 6px ${spacings.tiny};
-      max-width: calc(100% - ${spacings.medium} * 2);
+      max-width: 50%;
 
       box-shadow:
         0 2px 8px rgba(0, 0, 0, 0.1),

@@ -15,6 +15,7 @@ export const StyledMenuOptionItem = styled.div<{ $disabled?: boolean }>`
       background-color: ${colors.blue40};
       padding: ${spacings.tiny} ${spacings.small};
       border-radius: ${Radius.radius4};
+      overflow-wrap: anywhere;
 
       ${() => {
         if ($disabled) {
