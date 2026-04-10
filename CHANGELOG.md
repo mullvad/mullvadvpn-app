@@ -82,6 +82,9 @@ This release is identical to 2026.1-beta2.
 #### Linux
 - Change "Go back" keyboard shortcut from `Esc` to `Alt + Left Arrow` or `Alt + [`.
 - Use Wayland by default on Linux if available, otherwise fall back to X11.
+- Add a 60 second timeout to `mullvad-early-boot-blocking.service`. If this service fails badly,
+  we allow the user to boot, at the risk of potentially leaking some traffic before the daemon
+  starts up.
 
 #### macOS
 - Change "Go back" keyboard shortcut from `Esc` to `Cmd + Left Arrow` or `Cmd + [`.

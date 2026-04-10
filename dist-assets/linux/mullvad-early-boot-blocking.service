@@ -11,6 +11,8 @@ Before=basic.target mullvad-daemon.service
 [Service]
 Type=oneshot
 ExecStart=/usr/bin/mullvad-daemon --initialize-early-boot-firewall
+# Ensure we can still boot if the service gets stuck for whatever reason.
+TimeoutStartSec=60
 
 [Install]
 WantedBy=mullvad-daemon.service
