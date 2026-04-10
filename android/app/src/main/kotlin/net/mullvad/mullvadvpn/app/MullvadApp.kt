@@ -134,7 +134,9 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         deviceListEntry(nav3)
         filterEntry(nav3)
         homeEntry(nav3)
-        languageEntry(nav3)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            languageEntry(nav3)
+        }
         loginEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)

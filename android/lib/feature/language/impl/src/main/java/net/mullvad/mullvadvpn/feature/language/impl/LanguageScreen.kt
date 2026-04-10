@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.feature.language.impl
 
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,6 +56,7 @@ private fun PreviewLanguageScreen() {
 }
 
 @Composable
+@RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU)
 fun Language(navigator: Navigator) {
     val viewModel = koinViewModel<LanguageViewModel>()
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -75,9 +76,7 @@ fun LanguageScreen(
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.language),
-        navigationIcon = {
-            unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
-        },
+        navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             state = lazyListState,
