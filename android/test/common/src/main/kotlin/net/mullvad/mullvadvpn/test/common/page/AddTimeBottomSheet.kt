@@ -2,8 +2,10 @@ package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.lib.ui.tag.ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AddTimeBottomSheet internal constructor() : Page() {
@@ -21,5 +23,6 @@ class AddTimeBottomSheet internal constructor() : Page() {
 fun UiDevice.buyGooglePlayTime() {
     findObjectWithTimeout(By.text("1-tap buy"), LONG_TIMEOUT)
     findObjectWithTimeout(By.text("1-tap buy")).click()
-    waitForIdle()
+    waitForStableInActiveWindow()
+    findObjectWithTimeout(By.text("Close"), LONG_TIMEOUT).click()
 }
