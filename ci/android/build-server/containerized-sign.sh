@@ -23,7 +23,7 @@ cleanup() { "$CONTAINER_RUNNER" secret rm YUBIKEY_PIN 2>/dev/null || true; }
 trap cleanup EXIT
 
 "$CONTAINER_RUNNER" run --rm -it -q \
-    --device "$YUBIKEY_PATH:/dev/yubikey" \
+    --device "$YUBIKEY_PATH" \
     --secret YUBIKEY_PIN,type=env \
     -v "$SCRIPT_DIR/wait-for-pcscd.sh:/wait-for-pcscd.sh:Z" \
     -v "$SCRIPT_DIR/sign.sh:/sign.sh:Z" \
