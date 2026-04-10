@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show a two-column layout with a list and detail pane on the settings and
   VPN settings screens if the screen is wide enough (e.g. TV or tablet in landscape).
 - Obfuscating the app icon has now been moved to Settings -> Appearance -> App Icon.
+- Optimize LWO performance. The throughput is around 3 times higher in our benchmarks.
 
 
 ## [android/2026.3] - 2026-03-23
