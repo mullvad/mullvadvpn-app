@@ -11,7 +11,6 @@ import MullvadTypes
 import Network
 import NetworkExtension
 
-@preconcurrency import struct WireGuardKitTypes.DaitaConfiguration
 @preconcurrency import class WireGuardKitTypes.PreSharedKey
 @preconcurrency import class WireGuardKitTypes.PrivateKey
 @preconcurrency import class WireGuardKitTypes.PublicKey
