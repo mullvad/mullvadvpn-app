@@ -6,8 +6,7 @@
 set -eu
 shopt -s nullglob
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PROVIDER_ARG="$SCRIPT_DIR/signing/pkcs11_java.cfg"
+PROVIDER_ARG="${PROVIDER_ARG:-/usr/local/etc/pkcs11_java.cfg}"
 APKSIGNER_CMD="${APKSIGNER_CMD:-apksigner}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 MIN_SDK_VERSION="28"

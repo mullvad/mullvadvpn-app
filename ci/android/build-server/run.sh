@@ -146,8 +146,8 @@ function build_sign_and_publish_ref {
     # Sign all artifacts
     if [[ "$ENABLE_SIGNING" == "true" ]]; then
         YUBIKEY_PIN=$YUBIKEY_PIN \
-        "$SCRIPT_DIR/sign.sh" "$artifact_dir"/MullvadVPN-*.{aab,apk} \
-        || return 1
+        YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
+        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" || return 1
     else
         echo "WARNING: Signing skipped for $version"
     fi
