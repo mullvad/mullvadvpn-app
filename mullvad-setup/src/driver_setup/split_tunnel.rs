@@ -1,5 +1,5 @@
 use std::{
-    fs::OpenOptions,
+    fs::{self, OpenOptions},
     io,
     mem::size_of,
     os::windows::{
@@ -37,42 +37,73 @@ const ST_DRIVER_STATE_STARTED: u64 = 1;
 // Win32 device path for the Mullvad split tunnel device.
 const ST_DEVICE_PATH: &str = r"\\.\MULLVADSPLITTUNNEL";
 
+struct StDevice {
+    file: fs::File,
+}
+
+impl StDevice {
+    pub fn open() -> Result<Self, crate::Error> {
+        let file = OpenOptions::new()
+            .access_mode(GENERIC_READ | GENERIC_WRITE)
+            .share_mode(0) // FILE_SHARE_NONE
+            .custom_flags(FILE_FLAG_OVERLAPPED)
+            .open(ST_DEVICE_PATH)
+            .map_err(crate::Error::OpenDevice)?;
+
+        Ok(Self { file })
+    }
+
+    /// Send reset ioctl to device
+    pub fn reset(&self) -> Result<(), crate::Error> {
+        // SAFETY: IOCTL_ST_RESET takes no input or output buffer, so passing NULL pointers
+        // with zero sizes is correct.
+        unsafe {
+            send_ioctl(
+                self.file.as_raw_handle(),
+                IOCTL_ST_RESET,
+                ptr::null(),
+                0,
+                ptr::null_mut(),
+                0,
+            )
+        }
+        .map_err(crate::Error::IoControl)?;
+        Ok(())
+    }
+
+    /// Get split tunnel device state
+    pub fn state(&self) -> Result<u64, crate::Error> {
+        let mut state: u64 = 0;
+        // SAFETY: IOCTL_ST_GET_STATE writes a u64 to the output buffer; `state` is a writable
+        // u64 and the size matches.
+        let bytes_returned = unsafe {
+            send_ioctl(
+                self.file.as_raw_handle(),
+                IOCTL_ST_GET_STATE,
+                ptr::null(),
+                0,
+                (&raw mut state).cast(),
+                size_of::<u64>() as u32,
+            )
+        }
+        .map_err(crate::Error::IoControl)?;
+
+        if bytes_returned != size_of::<u64>() as u32 {
+            return Err(crate::Error::UnexpectedDriverState(state));
+        }
+        Ok(state)
+    }
+}
+
 /// Open the split tunnel device, send IOCTL_ST_RESET, then verify
 /// the driver state is `ST_DRIVER_STATE_STARTED`.
 pub fn reset_driver_state() -> Result<(), crate::Error> {
-    let file = OpenOptions::new()
-        .access_mode(GENERIC_READ | GENERIC_WRITE)
-        .share_mode(0) // FILE_SHARE_NONE
-        .custom_flags(FILE_FLAG_OVERLAPPED)
-        .open(ST_DEVICE_PATH)
-        .map_err(crate::Error::OpenDevice)?;
-
-    let handle = file.as_raw_handle() as HANDLE;
-
-    // SAFETY: IOCTL_ST_RESET takes no input or output buffer, so passing NULL pointers
-    // with zero sizes is correct.
-    unsafe { send_ioctl(handle, IOCTL_ST_RESET, ptr::null(), 0, ptr::null_mut(), 0) }
-        .map_err(crate::Error::IoControl)?;
-
-    let mut state: u64 = 0;
-    // SAFETY: IOCTL_ST_GET_STATE writes a u64 to the output buffer; `state` is a writable
-    // u64 and the size matches.
-    let bytes_returned = unsafe {
-        send_ioctl(
-            handle,
-            IOCTL_ST_GET_STATE,
-            ptr::null(),
-            0,
-            (&raw mut state).cast(),
-            size_of::<u64>() as u32,
-        )
-    }
-    .map_err(crate::Error::IoControl)?;
-
-    if bytes_returned != size_of::<u64>() as u32 || state != ST_DRIVER_STATE_STARTED {
+    let device = StDevice::open()?;
+    device.reset()?;
+    let state = device.state()?;
+    if state != ST_DRIVER_STATE_STARTED {
         return Err(crate::Error::UnexpectedDriverState(state));
     }
-
     Ok(())
 }
 
