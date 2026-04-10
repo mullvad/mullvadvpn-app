@@ -147,7 +147,7 @@ function build_sign_and_publish_ref {
     if [[ "$ENABLE_SIGNING" == "true" ]]; then
         YUBIKEY_PIN=$YUBIKEY_PIN \
         YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-        "./android/scripts/containerized-sign.sh" "$artifact_dir" || return 1
+        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" || return 1
     else
         echo "WARNING: Signing skipped for $version"
     fi
