@@ -201,7 +201,7 @@ jobs:
 
   instrumented-tests:
     name: Run instrumented tests
-    runs-on: [self-hosted, android-device]
+    runs-on: [self-hosted, android-device-test]
     needs: [build-app]
     strategy:
       fail-fast: false
@@ -263,7 +263,7 @@ jobs:
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
-    runs-on: [self-hosted, android-device]
+    runs-on: [self-hosted, android-device-test]
     needs: [prepare, build-app]
     if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
     steps:
