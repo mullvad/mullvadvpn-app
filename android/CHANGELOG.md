@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Optimize LWO performance. The throughput is around 3 times higher in our benchmarks.
 
 
 ## [android/2026.4-beta1] - 2026-04-13
