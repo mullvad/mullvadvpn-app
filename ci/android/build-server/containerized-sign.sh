@@ -23,7 +23,7 @@ if [[ -z ${YUBIKEY_PATH-} ]]; then
 fi
 
 if [[ -n ${OVERRIDE_PROVIDER_CONFIG-} ]]; then
-    optional_override_provider_config=(-v "$OVERRIDE_PROVIDER_CONFIG":/usr/local/etc/pkcs11_java.cfg:Z)
+    optional_override_provider_config=(--mount type=bind,src="$OVERRIDE_PROVIDER_CONFIG",dst=/usr/local/etc/pkcs11_java.cfg,Z)
 fi
 
 printf '%s' "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
