@@ -51,18 +51,18 @@ class AppInteractor(
         device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), LONG_TIMEOUT)
     }
 
-    fun launchAndEnsureOnLoginPage() {
+    fun launchAndEnsureOnLoginPage(scope: LoginPage.() -> Unit = {}) {
         launch()
         on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() }
         clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        on<LoginPage>()
+        on<LoginPage>(scope)
     }
 
     fun launchAndLogIn(accountNumber: String) {
-        launchAndEnsureOnLoginPage()
-        on<LoginPage> {
+        launchAndEnsureOnLoginPage {
             enterAccountNumber(accountNumber)
             clickLoginButton()
+            assertSuccessfulLogin()
         }
     }
 

@@ -5,9 +5,11 @@ import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class LoginPage internal constructor() : Page() {
@@ -38,6 +40,18 @@ class LoginPage internal constructor() : Page() {
 
     fun toggleRevealInput() {
         uiDevice.findObjectWithTimeout(By.res(LOGIN_REVEAL_INPUT_BUTTON_TEST_TAG)).click()
+    }
+
+    fun assertSuccessfulLogin() {
+        // This can be improved, if we've entered the same account number in the TextField we might
+        // get a false positive.
+        uiDevice.findObjectWithTimeout(By.text("Logged in"), VERY_LONG_TIMEOUT)
+    }
+
+    fun assertLoginFailed() {
+        uiDevice
+            .findObject(By.res(LOGIN_TITLE_TEST_TAG))
+            .wait(Until.textEquals("Login failed"), DEFAULT_TIMEOUT)
     }
 
     fun assertHasAccountHistory(accountNumber: String) {

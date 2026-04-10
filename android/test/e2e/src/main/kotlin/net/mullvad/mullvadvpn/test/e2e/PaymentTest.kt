@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.test.common.annotation.SkipForFlavors
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.page.AddTimeBottomSheet
-import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.OutOfTimePage
 import net.mullvad.mullvadvpn.test.common.page.buyGooglePlayTime
 import net.mullvad.mullvadvpn.test.common.page.on
@@ -27,12 +26,7 @@ class PaymentTest : EndToEndTest() {
     fun testInAppPurchaseForOutOfTime() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
-        app.launchAndEnsureOnLoginPage()
-
-        on<LoginPage> {
-            enterAccountNumber(validTestAccountNumber)
-            clickLoginButton()
-        }
+        app.launchAndLogIn(validTestAccountNumber)
 
         on<OutOfTimePage> { clickAddTime() }
 

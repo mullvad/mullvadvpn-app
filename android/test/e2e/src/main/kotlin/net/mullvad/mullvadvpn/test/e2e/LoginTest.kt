@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
-import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import org.junit.jupiter.api.Disabled
@@ -16,12 +15,7 @@ class LoginTest : EndToEndTest() {
     fun testLoginWithValidCredentials() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
-        app.launchAndEnsureOnLoginPage()
-
-        on<LoginPage> {
-            enterAccountNumber(validTestAccountNumber)
-            clickLoginButton()
-        }
+        app.launchAndLogIn(validTestAccountNumber)
 
         on<ConnectPage>()
     }
@@ -31,9 +25,7 @@ class LoginTest : EndToEndTest() {
     fun testLoginWithInvalidCredentials() {
         val invalidDummyAccountNumber = accountTestRule.invalidAccountNumber
 
-        app.launchAndEnsureOnLoginPage()
-
-        on<LoginPage> {
+        app.launchAndEnsureOnLoginPage {
             enterAccountNumber(invalidDummyAccountNumber)
             clickLoginButton()
             verifyShowingInvalidAccount()
