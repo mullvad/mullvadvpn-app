@@ -22,4 +22,3 @@ fun NavigateBackIconButton(
         )
     }
 }
-

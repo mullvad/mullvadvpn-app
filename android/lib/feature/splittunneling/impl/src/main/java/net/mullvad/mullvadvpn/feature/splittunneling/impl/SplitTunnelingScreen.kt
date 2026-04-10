@@ -45,10 +45,11 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
@@ -117,10 +118,10 @@ fun SplitTunnelingScreen(
     state: Lc<Loading, SplitTunnelingUiState>,
     onEnableSplitTunneling: (Boolean) -> Unit,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
-    onExcludeAppClick: (packageName: String) -> Unit,
-    onIncludeAppClick: (packageName: String) -> Unit,
+    onExcludeAppClick: (packageName: AppId) -> Unit,
+    onIncludeAppClick: (packageName: AppId) -> Unit,
     onBackClick: () -> Unit,
-    onResolveIcon: (String) -> Drawable?,
+    onResolveIcon: (AppId) -> Drawable?,
     navigateToSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -136,12 +137,7 @@ fun SplitTunnelingScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-        actions = {
-            SearchButton(
-                onClick = navigateToSearch,
-                enabled = state.enabled(),
-            )
-        },
+        actions = { SearchButton(onClick = navigateToSearch, enabled = state.enabled()) },
     ) { modifier, lazyListState: LazyListState ->
         LazyColumn(
             modifier =
@@ -171,7 +167,6 @@ fun SplitTunnelingScreen(
                     appList(
                         state = state.value,
                         focusManager = focusManager,
-                        onShowSystemAppsClick = onShowSystemAppsClick,
                         onExcludeAppClick = onExcludeAppClick,
                         onIncludeAppClick = onIncludeAppClick,
                         onResolveIcon = onResolveIcon,
@@ -218,10 +213,9 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.appList(
     state: SplitTunnelingUiState,
     focusManager: FocusManager,
-    onShowSystemAppsClick: (show: Boolean) -> Unit,
-    onExcludeAppClick: (packageName: String) -> Unit,
-    onIncludeAppClick: (packageName: String) -> Unit,
-    onResolveIcon: (String) -> Drawable?,
+    onExcludeAppClick: (packageName: AppId) -> Unit,
+    onIncludeAppClick: (packageName: AppId) -> Unit,
+    onResolveIcon: (AppId) -> Drawable?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
@@ -258,14 +252,14 @@ private fun LazyListScope.appList(
 internal fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
-    onAppClick: (String) -> Unit,
-    onResolveIcon: (String) -> Drawable?,
+    onAppClick: (AppId) -> Unit,
+    onResolveIcon: (AppId) -> Drawable?,
     enabled: Boolean,
     excluded: Boolean,
 ) {
     itemsIndexedWithDivider(
         items = apps,
-        key = { _, listItem -> listItem.packageName },
+        key = { _, listItem -> listItem.packageName.value },
         contentType = { _, _ -> ContentType.ITEM },
     ) { index, listItem ->
         val packageName = listItem.packageName
@@ -377,9 +371,9 @@ private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
         is Lc.Content -> value.enabled
     }
 
-fun PackageManager.getApplicationIconOrNull(packageName: String): Drawable? =
+fun PackageManager.getApplicationIconOrNull(packageName: AppId): Drawable? =
     try {
-        getApplicationIcon(packageName)
+        getApplicationIcon(packageName.value)
     } catch (e: PackageManager.NameNotFoundException) {
         // Name not found is thrown if the application is not installed
         null
