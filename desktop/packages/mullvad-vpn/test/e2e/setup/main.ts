@@ -91,6 +91,7 @@ class ApplicationMain {
       maximizable: false,
       fullscreenable: false,
       show: DEBUG,
+      titleBarStyle: 'hidden',
       frame: true,
       webPreferences: {
         offscreen: CI_E2E && !TEST_SHOW_WINDOW,
