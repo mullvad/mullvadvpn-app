@@ -26,19 +26,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -295,15 +290,8 @@ fun VpnSettingsScreen(
     navigateToDeviceIpInfo: () -> Unit,
     navigateToConnectOnDeviceOnStartUpInfo: () -> Unit,
 ) {
-    val appBarState = rememberTopAppBarState()
-    val canScroll = remember { mutableStateOf(false) }
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
-            appBarState,
-            canScroll = { canScroll.value },
-        )
     Scaffold(
-        modifier = modifier.fillMaxSize().nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = modifier.fillMaxSize(),
         topBar = {
             MullvadSmallTopBar(
                 title = stringResource(id = R.string.settings_vpn),
@@ -314,7 +302,6 @@ fun VpnSettingsScreen(
                         NavigateBackIconButton(onNavigateBack = onBackClick)
                     }
                 },
-                scrollBehavior = scrollBehavior,
             )
         },
         snackbarHost = {
@@ -332,7 +319,6 @@ fun VpnSettingsScreen(
                         VpnSettingsContent(
                             state.value,
                             initialScrollToFeature,
-                            canScroll,
                             navigateToContentBlockersInfo,
                             navigateToAutoConnectScreen,
                             navigateToCustomDnsInfo,
@@ -372,7 +358,6 @@ fun VpnSettingsScreen(
 fun VpnSettingsContent(
     state: VpnSettingsUiState,
     initialScrollToFeature: FeatureIndicator?,
-    canScroll: MutableState<Boolean>,
     navigateToContentBlockersInfo: () -> Unit,
     navigateToAutoConnectScreen: () -> Unit,
     navigateToCustomDnsInfo: () -> Unit,
@@ -430,7 +415,6 @@ fun VpnSettingsContent(
         }
 
     val lazyListState = rememberLazyListState(initialIndexFocus)
-    canScroll.value = lazyListState.canScrollForward || lazyListState.canScrollBackward
     val focusRequesters: Map<FeatureIndicator, FocusRequester> = remember {
         featureIndicators().associateWith { FocusRequester() }
     }

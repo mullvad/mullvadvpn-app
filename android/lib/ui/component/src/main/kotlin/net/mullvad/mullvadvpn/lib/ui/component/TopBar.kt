@@ -29,7 +29,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -192,12 +191,10 @@ fun MullvadTopBar(
 }
 
 @Composable
-@ExperimentalMaterial3Api
 fun MullvadSmallTopBar(
     title: String,
     navigationIcon: @Composable () -> Unit = {},
     actions: @Composable RowScope.() -> Unit = {},
-    scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     TopAppBar(
         title = { Text(text = title, maxLines = 1, overflow = TextOverflow.Ellipsis) },
@@ -209,7 +206,6 @@ fun MullvadSmallTopBar(
                 actionIconContentColor = MaterialTheme.colorScheme.onSurface,
             ),
         actions = actions,
-        scrollBehavior = scrollBehavior,
     )
 }
 
