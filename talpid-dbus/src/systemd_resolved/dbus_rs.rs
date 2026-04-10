@@ -6,7 +6,7 @@ use dbus::{
     },
     message::{MatchRule, SignalArgs},
 };
-use libc::{AF_INET, AF_INET6};
+use nix::libc::{AF_INET, AF_INET6};
 use std::{
     fs, io,
     net::IpAddr,

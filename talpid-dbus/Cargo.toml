@@ -7,8 +7,8 @@ license.workspace = true
 
 [target.'cfg(target_os = "linux")'.dependencies]
 dbus = { version = "0.9", optional = true }
-libc = "0.2"
 log = { workspace = true }
+nix = { workspace = true }
 serde = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
