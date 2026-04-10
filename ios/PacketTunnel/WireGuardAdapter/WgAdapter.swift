@@ -35,20 +35,21 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
         )
     }
 
-    func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws {
+    func start(configuration: TunnelAdapterConfiguration, daita: MullvadTypes.DaitaConfiguration?) async throws {
         let wgConfig = configuration.asWgConfig
+        let wgDaita = daita?.asWireGuardKitType
         do {
             try await adapter.stop()
-            try await adapter.start(tunnelConfiguration: wgConfig, daita: daita)
+            try await adapter.start(tunnelConfiguration: wgConfig, daita: wgDaita)
         } catch WireGuardAdapterError.invalidState {
-            try await adapter.start(tunnelConfiguration: wgConfig, daita: daita)
+            try await adapter.start(tunnelConfiguration: wgConfig, daita: wgDaita)
         }
     }
 
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration? = nil,
         exitConfiguration: TunnelAdapterConfiguration,
-        daita: DaitaConfiguration?
+        daita: MullvadTypes.DaitaConfiguration?
     ) async throws {
 
         if exitConfiguration.peer?.endpoint.ip is IPv6Address, entryConfiguration != nil {
@@ -64,18 +65,19 @@ class WgAdapter: TunnelAdapterProtocol, @unchecked Sendable {
             logger.info("\(entryConfiguration.peers)")
         }
 
+        let wgDaita = daita?.asWireGuardKitType
         do {
             try await adapter.stop()
             try await adapter.startMultihop(
                 entryConfiguration: entryConfiguration,
                 exitConfiguration: exitConfiguration,
-                daita: daita
+                daita: wgDaita
             )
         } catch WireGuardAdapterError.invalidState {
             try await adapter.startMultihop(
                 entryConfiguration: entryConfiguration,
                 exitConfiguration: exitConfiguration,
-                daita: daita
+                daita: wgDaita
             )
         }
     }
@@ -135,6 +137,18 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
 private extension MullvadTypes.IPAddressRange {
     var asWireGuardKitType: WireGuardKitTypes.IPAddressRange {
         WireGuardKitTypes.IPAddressRange(from: description)!
+    }
+}
+
+private extension MullvadTypes.DaitaConfiguration {
+    var asWireGuardKitType: WireGuardKitTypes.DaitaConfiguration {
+        WireGuardKitTypes.DaitaConfiguration(
+            machines: machines,
+            maxEvents: maxEvents,
+            maxActions: maxActions,
+            maxPadding: maxPadding,
+            maxBlocking: maxBlocking
+        )
     }
 }
 
