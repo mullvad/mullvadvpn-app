@@ -4,7 +4,6 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
-YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key)
 CONTAINER_IMAGE_NAME=$(cat "$SCRIPT_DIR/../../../building/android-container-image.txt")
 
 ARTIFACT_DIR=${1:?'Usage: sign.sh <artifact-dir>'}
@@ -15,6 +14,11 @@ fi
 
 if [[ -z ${YUBIKEY_PIN-} ]]; then
     echo "YUBIKEY_PIN pin must be set."
+    exit 1
+fi
+
+if [[ -z ${YUBIKEY_PATH-} ]]; then
+    echo "YUBIKEY_PATH must be set."
     exit 1
 fi
 
