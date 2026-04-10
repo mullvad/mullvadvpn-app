@@ -463,7 +463,7 @@ if [[ "$DAEMON_ONLY" == "false" ]]; then
     log_header "Installing JavaScript dependencies"
 
     pushd desktop
-    npm ci --no-audit --no-fund
+    npm run ci
 
     pushd packages/mullvad-vpn
 
