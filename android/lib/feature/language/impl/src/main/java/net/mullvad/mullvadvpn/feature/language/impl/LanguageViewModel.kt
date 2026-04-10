@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.language.impl
 
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.util.Locale
@@ -13,6 +14,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 
+@RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU)
 class LanguageViewModel(private val languageRepository: LanguageRepository) : ViewModel() {
 
     private val supportedLocales = languageRepository.getSupportedLocales()
