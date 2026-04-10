@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import net.mullvad.mullvadvpn.lib.model.AppId
 
 class ApplicationsProvider(
     private val packageManager: PackageManager,
@@ -21,7 +22,7 @@ class ApplicationsProvider(
             .filter(applicationFilterPredicate)
             .map { info ->
                 AppData(
-                    info.packageName,
+                    AppId(info.packageName),
                     info.icon,
                     info.loadLabel(packageManager).toString(),
                     !isLaunchable(info.packageName),

@@ -6,5 +6,4 @@ data class SearchSplitTunnelingUiState(
     val searchTerm: String,
     val excludedApps: List<AppData> = emptyList(),
     val includedApps: List<AppData> = emptyList(),
-    val showSystemApps: Boolean = false,
 )
