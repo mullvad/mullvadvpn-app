@@ -440,11 +440,6 @@ impl WireguardMonitor {
         let mut config = crate::config::Config::from_parameters(params, tunnel_mtu)
             .map_err(Error::WireguardConfigError)?;
 
-        // On Android, GotaTun is always used (when the wireguard-go feature is disabled).
-        let is_gotatun = cfg!(not(feature = "wireguard-go"));
-
-        // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
-        // For GotaTun + LWO, apply_obfuscation_config returns None and obfuscation is inline.
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         let obfuscation_mtu = route_mtu;
         let obfuscator = args
@@ -453,7 +448,7 @@ impl WireguardMonitor {
                 &mut config,
                 obfuscation_mtu,
                 close_obfs_sender.clone(),
-                is_gotatun,
+                true, // is_gotatun
                 args.tun_provider.clone(),
             ))?;
         // Adjust MTU again for obfuscation packet overhead
@@ -561,7 +556,6 @@ impl WireguardMonitor {
                     obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    is_gotatun,
                     args.tun_provider,
                 )
                 .await
