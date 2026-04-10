@@ -11,8 +11,6 @@ import MullvadSettings
 import MullvadTypes
 import Network
 
-@preconcurrency import class WireGuardKitTypes.PrivateKey
-
 /// A type that implements a reader that can return settings required by `PacketTunnelActor` in order to configure the tunnel.
 public protocol SettingsReaderProtocol {
     /**

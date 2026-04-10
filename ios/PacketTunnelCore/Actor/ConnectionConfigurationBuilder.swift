@@ -10,8 +10,6 @@ import Foundation
 import MullvadTypes
 import Network
 
-import class WireGuardKitTypes.PrivateKey
-
 protocol Configuration {
     var name: String { get }
     func make() throws -> ConnectionConfiguration

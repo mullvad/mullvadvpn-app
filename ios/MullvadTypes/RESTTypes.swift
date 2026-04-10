@@ -8,8 +8,6 @@
 
 import Foundation
 
-import class WireGuardKitTypes.PublicKey
-
 public struct Account: Codable, Equatable, Sendable {
     public let id: String
     public let expiry: Date

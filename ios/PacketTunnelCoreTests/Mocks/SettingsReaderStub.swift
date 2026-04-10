@@ -10,8 +10,6 @@ import Foundation
 import MullvadTypes
 import PacketTunnelCore
 
-import class WireGuardKitTypes.PrivateKey
-
 @testable import MullvadSettings
 
 /// Settings reader stub that can be configured with a block to provide the desired behavior when testing.
