@@ -30,7 +30,7 @@ jobs:
       - name: Install JS dependencies
         working-directory: desktop
         shell: bash
-        run: npm ci
+        run: npm run ci
 
       - name: Verify translations
         shell: bash
