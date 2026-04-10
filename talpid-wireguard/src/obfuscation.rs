@@ -90,7 +90,7 @@ pub async fn apply_obfuscation_config(
 }
 
 /// Returns `true` when the obfuscation config is a single LWO method.
-fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
     matches!(
         obfuscators,
         Obfuscators::Single(ObfuscatorConfig::Lwo { .. })

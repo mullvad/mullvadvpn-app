@@ -158,7 +158,13 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
         _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg();
+        let is_single_lwo = params
+            .obfuscation
+            .as_ref()
+            .is_some_and(obfuscation::is_single_lwo);
+        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD
+            || params.use_userspace_wg()
+            || (is_single_lwo && cfg!(not(feature = "wireguard-go")));
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
