@@ -291,6 +291,7 @@ impl WireguardMonitor {
                     obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
+                    is_gotatun,
                 )
                 .await
                 {
@@ -554,6 +555,7 @@ impl WireguardMonitor {
                     obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
+                    is_gotatun,
                     args.tun_provider,
                 )
                 .await

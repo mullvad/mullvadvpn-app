@@ -30,6 +30,7 @@ pub async fn config_ephemeral_peers(
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
 ) -> std::result::Result<(), CloseMsg> {
     let iface_name = {
         let tunnel = tunnel.lock().await;
@@ -50,6 +51,7 @@ pub async fn config_ephemeral_peers(
         obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
+        is_gotatun,
     )
     .await?;
 
@@ -82,6 +84,7 @@ pub async fn config_ephemeral_peers(
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
@@ -91,6 +94,7 @@ pub async fn config_ephemeral_peers(
         obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
+        is_gotatun,
         #[cfg(target_os = "android")]
         tun_provider,
     )
@@ -104,6 +108,7 @@ async fn config_ephemeral_peers_inner(
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
@@ -140,6 +145,7 @@ async fn config_ephemeral_peers_inner(
             obfuscation_mtu,
             obfuscator.clone(),
             close_obfs_sender,
+            is_gotatun,
             #[cfg(target_os = "android")]
             &tun_provider,
         )
@@ -175,6 +181,7 @@ async fn config_ephemeral_peers_inner(
         obfuscation_mtu,
         obfuscator,
         close_obfs_sender,
+        is_gotatun,
         #[cfg(target_os = "android")]
         &tun_provider,
     )
@@ -193,15 +200,12 @@ async fn reconfigure_tunnel(
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
     tun_provider: &Arc<Mutex<TunProvider>>,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
-        // On Android, GotaTun is always used (when wireguard-go feature is disabled).
-        // For GotaTun + LWO, obfs_guard is always None so this branch is never reached.
-        // For all other cases (non-LWO obfuscation), is_gotatun does not affect the proxy path.
-        let is_gotatun = cfg!(not(feature = "wireguard-go"));
         *obfs_guard = super::obfuscation::apply_obfuscation_config(
             &mut config,
             obfuscation_mtu,
@@ -238,18 +242,16 @@ async fn reconfigure_tunnel(
     obfuscation_mtu: u16,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
-        // For GotaTun + LWO, obfs_guard is always None so this branch is never reached.
-        // For all other cases (non-LWO obfuscation), is_gotatun=false is always correct here
-        // because kernel WG always uses the proxy path.
         *obfs_guard = super::obfuscation::apply_obfuscation_config(
             &mut config,
             obfuscation_mtu,
             close_obfs_sender,
-            false, // is_gotatun: GotaTun+LWO never has an active obfuscator to reconfigure
+            is_gotatun,
         )
         .await
         .map_err(CloseMsg::ObfuscatorFailed)?;

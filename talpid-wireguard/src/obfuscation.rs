@@ -40,7 +40,7 @@ pub async fn apply_obfuscation_config(
     };
 
     // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
-    // LwoUdpTransportFactory - no localhost proxy is needed.
+    // MaybeObfuscatingTransportFactory.
     if is_gotatun && is_single_lwo(obfuscator_config) {
         log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
         return Ok(None);
