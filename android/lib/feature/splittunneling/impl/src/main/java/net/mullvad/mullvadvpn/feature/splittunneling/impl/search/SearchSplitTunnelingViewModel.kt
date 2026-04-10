@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
 class SearchSplitTunnelingViewModel(
@@ -49,11 +49,11 @@ class SearchSplitTunnelingViewModel(
         viewModelScope.launch { _searchTerm.emit(searchTerm) }
     }
 
-    fun onIncludeAppClick(packageName: AppId) {
+    fun onIncludeAppClick(packageName: PackageName) {
         viewModelScope.launch(dispatcher) { splitTunnelingRepository.includeApp(packageName) }
     }
 
-    fun onExcludeAppClick(packageName: AppId) {
+    fun onExcludeAppClick(packageName: PackageName) {
         viewModelScope.launch(dispatcher) { splitTunnelingRepository.excludeApp(packageName) }
     }
 

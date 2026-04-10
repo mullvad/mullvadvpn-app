@@ -10,11 +10,12 @@ import android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED
 import android.content.pm.PackageManager.DONT_KILL_APP
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 class AppObfuscationRepository(
     private val packageManager: PackageManager,
-    private val packageName: String,
+    private val self: PackageName,
 ) {
     private val _currentAppObfuscation = MutableStateFlow(getObfuscation())
     val currentAppObfuscation: StateFlow<AppObfuscation> = _currentAppObfuscation
@@ -54,7 +55,7 @@ class AppObfuscationRepository(
             else -> error("Unknown component enabled setting")
         }
 
-    private fun AppObfuscation.toComponentName() = ComponentName(packageName, className)
+    private fun AppObfuscation.toComponentName() = ComponentName(self.value, className)
 }
 
 /**
