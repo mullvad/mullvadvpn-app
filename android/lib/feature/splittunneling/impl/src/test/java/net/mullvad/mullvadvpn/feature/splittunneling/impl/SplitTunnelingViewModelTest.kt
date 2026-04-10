@@ -19,6 +19,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AppId
@@ -90,11 +91,11 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun `includedApps and excludedApps should both be included in uiState`() = runTest {
-        val appExcluded = AppData("test.excluded", 0, "testName1")
-        val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
+        val appExcluded = AppData(AppId("test.excluded"), 0, "testName1")
+        val appNotExcluded = AppData(AppId("test.not.excluded"), 0, "testName2")
 
         initTestSubject(listOf(appExcluded, appNotExcluded))
-        excludedApps.value = setOf(AppId(appExcluded.packageName))
+        excludedApps.value = setOf(appExcluded.packageName)
 
         val expectedState =
             SplitTunnelingUiState(
@@ -113,10 +114,10 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun `include app should work`() = runTest {
-        val app = AppData("test", 0, "testName")
+        val app = AppData(AppId("test"), 0, "testName")
 
         initTestSubject(listOf(app))
-        excludedApps.value = setOf(AppId(app.packageName))
+        excludedApps.value = setOf(app.packageName)
 
         val expectedStateBeforeAction =
             SplitTunnelingUiState(
@@ -132,8 +133,7 @@ class SplitTunnelingViewModelTest {
                 includedApps = listOf(app),
                 showSystemApps = false,
             )
-        coEvery { mockedSplitTunnelingRepository.includeApp(AppId(app.packageName)) } returns
-            Unit.right()
+        coEvery { mockedSplitTunnelingRepository.includeApp(app.packageName) } returns Unit.right()
 
         testSubject.uiState.test {
             val beforeAction = awaitItem()
@@ -145,13 +145,13 @@ class SplitTunnelingViewModelTest {
             assertIs<Lc.Content<SplitTunnelingUiState>>(afterAction)
             assertEquals(expectedStateAfterAction, afterAction.value)
 
-            coVerify { mockedSplitTunnelingRepository.includeApp(AppId(app.packageName)) }
+            coVerify { mockedSplitTunnelingRepository.includeApp(app.packageName) }
         }
     }
 
     @Test
     fun `onExcludeApp should result in new uiState with app excluded`() = runTest {
-        val app = AppData("test", 0, "testName")
+        val app = AppData(AppId("test"), 0, "testName")
 
         initTestSubject(listOf(app))
 
@@ -171,20 +171,19 @@ class SplitTunnelingViewModelTest {
                 showSystemApps = false,
             )
 
-        coEvery { mockedSplitTunnelingRepository.excludeApp(AppId(app.packageName)) } returns
-            Unit.right()
+        coEvery { mockedSplitTunnelingRepository.excludeApp(app.packageName) } returns Unit.right()
 
         testSubject.uiState.test {
             val beforeAction = awaitItem()
             assertIs<Lc.Content<SplitTunnelingUiState>>(beforeAction)
             assertEquals(expectedStateBeforeAction, beforeAction.value)
             testSubject.onExcludeAppClick(app.packageName)
-            excludedApps.value = setOf(AppId(app.packageName))
+            excludedApps.value = setOf(app.packageName)
             val afterAction = awaitItem()
             assertIs<Lc.Content<SplitTunnelingUiState>>(afterAction)
             assertEquals(expectedStateAfterAction, afterAction.value)
 
-            coVerify { mockedSplitTunnelingRepository.excludeApp(AppId(app.packageName)) }
+            coVerify { mockedSplitTunnelingRepository.excludeApp(app.packageName) }
         }
     }
 
@@ -207,9 +206,13 @@ class SplitTunnelingViewModelTest {
         testSubject =
             SplitTunnelingViewModel(
                 isModal = false,
-                mockedApplicationsProvider,
                 mockedSplitTunnelingRepository,
                 mockedUserPreferencesRepository,
+                SplitTunnelingUseCase(
+                    mockedSplitTunnelingRepository,
+                    mockedApplicationsProvider,
+                    mockedUserPreferencesRepository,
+                ),
                 UnconfinedTestDispatcher(),
             )
     }

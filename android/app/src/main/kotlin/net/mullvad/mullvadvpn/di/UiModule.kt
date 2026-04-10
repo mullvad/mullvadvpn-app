@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.reset.ResetServerIpO
 import net.mullvad.mullvadvpn.feature.settings.impl.SettingsViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsProvider
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
@@ -152,6 +153,7 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
+    single { SplitTunnelingUseCase(get(), get(), get()) }
     single { ApiAccessRepository(get()) }
     single { NewDeviceRepository() }
     single { SplashCompleteRepository() }
@@ -420,7 +422,7 @@ val uiModule = module {
         SplitTunnelingViewModel(isModal = params.get(), get(), get(), get(), Dispatchers.Default)
     }
 
-    viewModel { SearchSplitTunnelingViewModel(get(), get(), get(), Dispatchers.Default) }
+    viewModel { SearchSplitTunnelingViewModel(get(), get(), Dispatchers.Default) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

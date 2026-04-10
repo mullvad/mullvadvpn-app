@@ -52,7 +52,7 @@ class SplitTunnelingScreenTest {
                 onIncludeAppClick = onIncludeAppClick,
                 onBackClick = onBackClick,
                 onResolveIcon = onResolveIcon,
-                navigateToSearch = navigateToSearch
+                navigateToSearch = navigateToSearch,
             )
         }
     }

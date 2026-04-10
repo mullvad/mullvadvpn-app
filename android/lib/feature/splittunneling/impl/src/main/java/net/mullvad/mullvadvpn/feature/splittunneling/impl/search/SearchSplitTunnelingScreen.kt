@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -43,6 +42,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.appItems
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.headerItem
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -71,8 +71,8 @@ fun SearchSplitTunnelingScreen(
     state: Lc<Unit, SearchSplitTunnelingUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSearchInputChanged: (String) -> Unit,
-    onExcludeAppClick: (packageName: String) -> Unit,
-    onIncludeAppClick: (packageName: String) -> Unit,
+    onExcludeAppClick: (packageName: AppId) -> Unit,
+    onIncludeAppClick: (packageName: AppId) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -148,9 +148,9 @@ private fun LazyListScope.spacer() {
 private fun LazyListScope.appList(
     state: SearchSplitTunnelingUiState,
     focusManager: FocusManager,
-    onExcludeAppClick: (packageName: String) -> Unit,
-    onIncludeAppClick: (packageName: String) -> Unit,
-    onResolveIcon: (String) -> Drawable?,
+    onExcludeAppClick: (packageName: AppId) -> Unit,
+    onIncludeAppClick: (packageName: AppId) -> Unit,
+    onResolveIcon: (AppId) -> Drawable?,
 ) {
     if (state.includedApps.isEmpty() && state.excludedApps.isEmpty()) {
         item { NoAppsMatchingSearch(state.searchTerm) }
