@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.navigation.addTimeVerificatio
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.navigation.anticensorshipEntry
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.navigation.apiAccessEntry
 import net.mullvad.mullvadvpn.feature.appearance.impl.navigation.appearanceEntry
+import net.mullvad.mullvadvpn.feature.appicon.impl.navigation.appIconEntry
 import net.mullvad.mullvadvpn.feature.appinfo.impl.navigation.changelogEntry
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEntry
 import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
@@ -56,6 +57,7 @@ import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
+import net.mullvad.mullvadvpn.feature.language.impl.navigation.languageEntry
 import net.mullvad.mullvadvpn.feature.location.impl.navigation.selectLocationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
@@ -122,6 +124,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         addTimeVerificationPendingEntry(nav3)
         anticensorshipEntry(nav3)
         apiAccessEntry(nav3)
+        appIconEntry(nav3)
         appearanceEntry(nav3)
         autoConnectEntry(nav3)
         changelogEntry(nav3)
@@ -131,6 +134,9 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         deviceListEntry(nav3)
         filterEntry(nav3)
         homeEntry(nav3)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            languageEntry(nav3)
+        }
         loginEntry(nav3)
         manageDevicesEntry(nav3)
         multihopEntry(nav3)

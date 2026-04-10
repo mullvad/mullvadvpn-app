@@ -270,6 +270,7 @@
     <string name="ipv6_info">Lorsque cette fonctionnalité est activée, IPv6 peut être utilisé parallèlement à IPv4 dans le tunnel VPN pour communiquer avec les services internet.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
+    <string name="language">Langue</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver Toujours exiger un VPN avant d\'utiliser Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à un autre VPN</string>
     <string name="less_than_a_day_left">Moins d\'un jour restant sur ce compte</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
     <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>
+    <string name="system_default">Valeur par défaut du système</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Tester la méthode</string>
     <string name="testing">Test...</string>

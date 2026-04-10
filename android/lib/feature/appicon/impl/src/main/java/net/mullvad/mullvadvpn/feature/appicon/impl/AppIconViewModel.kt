@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.appearance.impl
+package net.mullvad.mullvadvpn.feature.appicon.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscation
-import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscationRepository
+import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscation
+import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.lib.common.Lc
 
-class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
+class AppIconViewModel(private val appObfuscationRepository: AppObfuscationRepository) :
     ViewModel() {
 
     private val applying = MutableStateFlow(false)
@@ -23,7 +23,7 @@ class AppearanceViewModel(private val appObfuscationRepository: AppObfuscationRe
                 applying,
             ) { availableObfuscations, currentAppObfuscation, applying ->
                 Lc.Content(
-                    AppearanceUiState(
+                    AppIconUiState(
                         availableObfuscations = availableObfuscations,
                         currentAppObfuscation = currentAppObfuscation,
                         applyingChange = applying,

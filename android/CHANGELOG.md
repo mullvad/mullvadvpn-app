@@ -23,12 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add Ukrainian as a new language in the app
+- Add Ukrainian as a new language in the app.
+- Add in-app language selector for Android 13 and up.
 
 ### Changed
 - Drop support for Android 8/8.1 (Android 9/API level 28 or later is now required).
 - Show a two-column layout with a list and detail pane on the settings and
   VPN settings screens if the screen is wide enough (e.g. TV or tablet in landscape).
+- Obfuscating the app icon has now been moved to Settings -> Appearance -> App Icon.
 
 
 ## [android/2026.3] - 2026-03-23

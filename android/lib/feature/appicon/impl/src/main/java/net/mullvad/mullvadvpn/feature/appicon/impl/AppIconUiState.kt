@@ -1,8 +1,8 @@
-package net.mullvad.mullvadvpn.feature.appearance.impl
+package net.mullvad.mullvadvpn.feature.appicon.impl
 
-import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscation
+import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscation
 
-data class AppearanceUiState(
+data class AppIconUiState(
     val availableObfuscations: List<AppObfuscation> = emptyList(),
     val currentAppObfuscation: AppObfuscation? = null,
     val applyingChange: Boolean = false,

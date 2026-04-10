@@ -270,6 +270,7 @@
     <string name="ipv6_info">وقتی این قابلیت فعال باشد، IPv6 می‌تواند در کنار IPv4 داخل تونل VPN برای ارتباط با سرویس‌های اینترنتی استفاده شود.</string>
     <string name="ipv6_unavailable">پیکربندی IPv6 ممکن نشد. آن را در اپلیکیشن غیرفعال کنید یا در دستگاه خود فعال نمایید.</string>
     <string name="is_offline">دستگاه شما آفلاین است. تونل به‌طور خودکار زمانی که دستگاه آنلاین شود، متصل خواهد شد.</string>
+    <string name="language">زبان</string>
     <string name="legacy_always_on_vpn_error_notification_content">نمی‌توان اتصال تونل را آغاز کرد. لطفاً قبل از استفاده از Mullvad VPN، گزینهٔ «VPN همیشه‌فعال» را غیرفعال کنید.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN همیشه‌فعال به یک VPN دیگر اختصاص داده شده است</string>
     <string name="less_than_a_day_left">کمتر از یک روز از اعتبار این حساب باقی مانده است</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">قادر به شروع اتصال تونل نیست. لطفاً یک گزارش مشکل ارسال کنید.</string>
     <string name="submit_button">ارسال کردن</string>
     <string name="switch_location">تغییر مکان</string>
+    <string name="system_default">پیش‌فرض سیستم</string>
     <string name="tcp">TCP</string>
     <string name="test_method">آزمایش روش</string>
     <string name="testing">در حال تست...</string>
