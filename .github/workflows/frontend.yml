@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         working-directory: desktop
         shell: bash
-        run: npm ci
+        run: npm run ci
 
       - name: Check formatting
         if: matrix.os == 'ubuntu-latest'
