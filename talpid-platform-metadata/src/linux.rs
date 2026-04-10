@@ -97,7 +97,7 @@ fn kernel_version() -> Option<(String, String)> {
 /// > 1.26.0
 #[cfg(feature = "network-manager")]
 fn nm_version() -> Option<(String, String)> {
-    let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
+    let nm = talpid_dbus::network_manager::dbus_rs::NetworkManager::new().ok()?;
     Some(("nm".to_string(), nm.version_string().ok()?))
 }
 

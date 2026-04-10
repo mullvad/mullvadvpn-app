@@ -1,6 +1,8 @@
 use std::net::IpAddr;
-pub use talpid_dbus::network_manager::Error;
-use talpid_dbus::network_manager::{self, DeviceConfig, NetworkManager as DBus};
+pub use talpid_dbus::network_manager::dbus_rs::Error;
+use talpid_dbus::network_manager::dbus_rs::{
+    self as network_manager, DeviceConfig, NetworkManager as DBus,
+};
 
 pub type Result<T> = std::result::Result<T, Error>;
 

@@ -1180,18 +1180,14 @@ pub enum TunnelError {
 
 #[cfg(target_os = "linux")]
 fn will_nm_manage_dns() -> bool {
-    use talpid_dbus::network_manager::NetworkManager;
+    use talpid_dbus::{network_manager::zbus::NetworkManager, systemd_resolved::SystemdResolved};
 
-    if talpid_dbus::systemd_resolved::SystemdResolved::new().is_ok() {
+    if SystemdResolved::new().is_ok() {
         return false;
     }
-
     NetworkManager::new()
-        .and_then(|nm| {
-            nm.ensure_can_be_used_to_manage_dns()?;
-            Ok(true)
-        })
-        .unwrap_or(false)
+        .and_then(|nm| nm.ensure_can_be_used_to_manage_dns())
+        .is_ok_and(|p| p)
 }
 
 // Set the MTU to the lowest possible whilst still allowing for IPv6 to help with wireless

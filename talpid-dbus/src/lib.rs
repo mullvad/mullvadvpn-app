@@ -1,13 +1,14 @@
 //! DBus system connection
 #![cfg(target_os = "linux")]
 
-#[cfg(feature = "libdbus")] // TODO: implement network_manager using zbus
 pub mod network_manager;
 pub mod systemd;
 pub mod systemd_resolved;
 
 #[cfg(feature = "libdbus")]
 pub use dbus;
+#[cfg(feature = "zbus")]
+pub use zbus;
 
 #[cfg(feature = "libdbus")]
 use std::sync::{Arc, LazyLock, Mutex};
