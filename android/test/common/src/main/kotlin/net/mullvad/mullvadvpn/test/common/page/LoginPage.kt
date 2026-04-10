@@ -49,9 +49,7 @@ class LoginPage internal constructor() : Page() {
     }
 
     fun assertLoginFailed() {
-        uiDevice
-            .findObject(By.res(LOGIN_TITLE_TEST_TAG))
-            .wait(Until.textEquals("Login failed"), DEFAULT_TIMEOUT)
+        uiDevice.findObjectWithTimeout(By.text("Login failed"), DEFAULT_TIMEOUT)
     }
 
     fun assertHasAccountHistory(accountNumber: String) {
