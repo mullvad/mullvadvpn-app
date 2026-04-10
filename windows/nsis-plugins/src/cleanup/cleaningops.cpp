@@ -114,50 +114,6 @@ size_t EqualTokensCount(It lhsBegin, It lhsEnd, It rhsBegin, It rhsEnd)
 namespace cleaningops
 {
 
-//
-// Migrate cache for versions <= 2020.8-beta2.
-//
-void MigrateCacheServiceUser()
-{
-	const auto newCacheDir = GetSystemCacheDirectory();
-	common::fs::Mkdir(newCacheDir);
-
-	const auto localAppData = GetSystemUserLocalAppData();
-
-	const auto oldCacheDir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
-
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
-
-	common::security::AddAdminToObjectDacl(oldCacheDir, SE_FILE_OBJECT);
-
-	{
-		common::fs::FileEnumerator files(oldCacheDir);
-
-		auto notNamedSet = std::make_unique<common::fs::FilterNotNamedSet>();
-
-		notNamedSet->addObject(L"account-history.json");
-		notNamedSet->addObject(L"settings.json");
-		notNamedSet->addObject(L"device.json");
-
-		files.addFilter(std::move(notNamedSet));
-		files.addFilter(std::make_unique<common::fs::FilterFiles>());
-
-		WIN32_FIND_DATAW file;
-
-		while (files.next(file))
-		{
-			const auto source = std::filesystem::path(files.getDirectory()).append(file.cFileName);
-			const auto target = std::filesystem::path(newCacheDir).append(file.cFileName);
-			std::filesystem::rename(source, target);
-		}
-	}
-
-	//
-	// This fails unless the directory is empty. Settings remain in this directory.
-	//
-	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(oldCacheDir).c_str());
-}
-
 void RemoveLogsCacheCurrentUser()
 {
 	const auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData);
