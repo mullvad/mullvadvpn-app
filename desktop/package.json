@@ -13,6 +13,8 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "lint": "eslint --ignore-pattern packages/ . && npm run lint --workspaces --if-present",
+    "ci": "bash ./scripts/install-scripts.sh ci",
+    "install": "bash ./scripts/install-scripts.sh install",
     "lint-fix": "eslint --fix --ignore-pattern packages/ . && npm run lint-fix --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
