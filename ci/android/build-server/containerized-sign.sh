@@ -18,6 +18,10 @@ if [[ -z ${YUBIKEY_PIN-} ]]; then
     exit 1
 fi
 
+if [[ -n ${OVERRIDE_PROVIDER_CONFIG-} ]]; then
+    optional_override_provider_config=(-v "$OVERRIDE_PROVIDER_CONFIG":/usr/local/etc/pkcs11_java.cfg:Z)
+fi
+
 printf '%s' "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
 cleanup() { "$CONTAINER_RUNNER" secret rm YUBIKEY_PIN 2>/dev/null || true; }
 trap cleanup EXIT
@@ -28,6 +32,7 @@ trap cleanup EXIT
     -v "$SCRIPT_DIR/wait-for-pcscd.sh:/wait-for-pcscd.sh:Z" \
     -v "$SCRIPT_DIR/sign.sh:/sign.sh:Z" \
     -v "$ARTIFACT_DIR:/artifact_dir:Z" \
+    "${optional_override_provider_config[@]}" \
     -w "/artifact_dir" \
     --entrypoint /wait-for-pcscd.sh \
     "$CONTAINER_IMAGE_NAME" \
