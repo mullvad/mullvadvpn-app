@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -61,7 +62,7 @@ class ConnectViewModel(
     private val resources: Resources,
     private val isPlayBuild: Boolean,
     private val isFdroidBuild: Boolean,
-    private val packageName: String,
+    private val self: PackageName,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -200,7 +201,7 @@ class ConnectViewModel(
         val sideEffect =
             if (isPlayBuild || isFdroidBuild) {
                 UiSideEffect.OpenUri(
-                    uri = resources.getString(R.string.market_uri, packageName).toUri(),
+                    uri = resources.getString(R.string.market_uri, self.value).toUri(),
                     errorMessage = resources.getString(R.string.uri_market_app_not_found),
                 )
             } else {

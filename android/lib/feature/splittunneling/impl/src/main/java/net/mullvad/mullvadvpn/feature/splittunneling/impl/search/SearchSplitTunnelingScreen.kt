@@ -42,7 +42,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.appItems
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.headerItem
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -71,8 +71,8 @@ fun SearchSplitTunnelingScreen(
     state: Lc<Unit, SearchSplitTunnelingUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSearchInputChanged: (String) -> Unit,
-    onExcludeAppClick: (packageName: AppId) -> Unit,
-    onIncludeAppClick: (packageName: AppId) -> Unit,
+    onExcludeAppClick: (packageName: PackageName) -> Unit,
+    onIncludeAppClick: (packageName: PackageName) -> Unit,
     onGoBack: () -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -148,9 +148,9 @@ private fun LazyListScope.spacer() {
 private fun LazyListScope.appList(
     state: SearchSplitTunnelingUiState,
     focusManager: FocusManager,
-    onExcludeAppClick: (packageName: AppId) -> Unit,
-    onIncludeAppClick: (packageName: AppId) -> Unit,
-    onResolveIcon: (AppId) -> Drawable?,
+    onExcludeAppClick: (packageName: PackageName) -> Unit,
+    onIncludeAppClick: (packageName: PackageName) -> Unit,
+    onResolveIcon: (PackageName) -> Drawable?,
 ) {
     if (state.includedApps.isEmpty() && state.excludedApps.isEmpty()) {
         item { NoAppsMatchingSearch(state.searchTerm) }

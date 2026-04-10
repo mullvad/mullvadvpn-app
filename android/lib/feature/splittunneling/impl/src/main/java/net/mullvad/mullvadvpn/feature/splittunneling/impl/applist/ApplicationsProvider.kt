@@ -3,11 +3,11 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 
 class ApplicationsProvider(
     private val packageManager: PackageManager,
-    private val thisPackageName: String,
+    private val self: PackageName,
 ) {
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
         hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
@@ -22,7 +22,7 @@ class ApplicationsProvider(
             .filter(applicationFilterPredicate)
             .map { info ->
                 AppData(
-                    AppId(info.packageName),
+                    PackageName(info.packageName),
                     info.icon,
                     info.loadLabel(packageManager).toString(),
                     !isLaunchable(info.packageName),
@@ -43,6 +43,6 @@ class ApplicationsProvider(
     }
 
     private fun isSelfApplication(packageName: String): Boolean {
-        return packageName == thisPackageName
+        return packageName == self
     }
 }

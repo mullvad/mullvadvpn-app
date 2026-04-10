@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.feature.splittunneling.impl.applist
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
@@ -29,7 +29,7 @@ class SplitTunnelingUseCase(
         }
 }
 
-data class SplitApps(private val allApps: List<AppData>, private val exclusions: Set<AppId>) {
+data class SplitApps(private val allApps: List<AppData>, private val exclusions: Set<PackageName>) {
     val includedApps: List<AppData>
     val excludedApps: List<AppData>
 

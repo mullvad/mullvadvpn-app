@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
 import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
@@ -129,7 +130,8 @@ val uiModule = module {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
 
-    single { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
+    single { PackageName(androidContext().packageName) }
+    single { ApplicationsProvider(get(), get()) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
     single { androidContext().assets }
@@ -265,7 +267,7 @@ val uiModule = module {
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
             isFdroidBuild = IS_FDROID_BUILD,
-            packageName = get(named(SELF_PACKAGE_NAME)),
+            self = get(),
         )
     }
     viewModel {
@@ -285,7 +287,7 @@ val uiModule = module {
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
             isFdroidBuild = IS_FDROID_BUILD,
-            packageName = get(named(SELF_PACKAGE_NAME)),
+            self = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
@@ -429,7 +431,6 @@ val uiModule = module {
 }
 
 const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
-const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
 
 private const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"

@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsPr
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import org.junit.jupiter.api.AfterEach
@@ -41,7 +41,7 @@ class SplitTunnelingViewModelTest {
     private val mockedUserPreferencesRepository = mockk<UserPreferencesRepository>()
     private lateinit var testSubject: SplitTunnelingViewModel
 
-    private val excludedApps: MutableStateFlow<Set<AppId>> = MutableStateFlow(emptySet())
+    private val excludedApps: MutableStateFlow<Set<PackageName>> = MutableStateFlow(emptySet())
     private val enabled: MutableStateFlow<Boolean> = MutableStateFlow(true)
     private val showSystemApps: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
@@ -91,8 +91,8 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun `includedApps and excludedApps should both be included in uiState`() = runTest {
-        val appExcluded = AppData(AppId("test.excluded"), 0, "testName1")
-        val appNotExcluded = AppData(AppId("test.not.excluded"), 0, "testName2")
+        val appExcluded = AppData(PackageName("test.excluded"), 0, "testName1")
+        val appNotExcluded = AppData(PackageName("test.not.excluded"), 0, "testName2")
 
         initTestSubject(listOf(appExcluded, appNotExcluded))
         excludedApps.value = setOf(appExcluded.packageName)
@@ -114,7 +114,7 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun `include app should work`() = runTest {
-        val app = AppData(AppId("test"), 0, "testName")
+        val app = AppData(PackageName("test"), 0, "testName")
 
         initTestSubject(listOf(app))
         excludedApps.value = setOf(app.packageName)
@@ -151,7 +151,7 @@ class SplitTunnelingViewModelTest {
 
     @Test
     fun `onExcludeApp should result in new uiState with app excluded`() = runTest {
-        val app = AppData(AppId("test"), 0, "testName")
+        val app = AppData(PackageName("test"), 0, "testName")
 
         initTestSubject(listOf(app))
 
