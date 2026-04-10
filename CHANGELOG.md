@@ -50,6 +50,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix regression in 2026.1 that could cause split tunneling to become unavailable.
 
 ### Security
+- Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
+  measure to ensure that the renderer process does not have any capabilities beyond that of a
+  regular user of the app. Affects platforms with the in-app updates feature, i.e. macOS and
+  Windows. Fixes `GHSA-h72f-j6r4-c3jc`
+
 #### macOS
 - Mitigate multiple local privilege escalation attacks from admin user to root in the `preinstall`
   and `postinstall` scripts.
