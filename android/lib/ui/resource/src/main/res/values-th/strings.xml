@@ -397,7 +397,7 @@
     <string name="retry">ลองอีกครั้ง</string>
     <string name="save">บันทึก</string>
     <string name="search">ค้นหา</string>
-    <string name="search_location_empty_text">ไม่พบผลลัพธ์สำหรับ \"%1$s\" โปรดลองใช้คำค้นหาอื่น</string>
+    <string name="search_no_matches_for_text">ไม่พบผลลัพธ์สำหรับ \"%1$s\" โปรดลองใช้คำค้นหาอื่น</string>
     <string name="search_placeholder">ค้นหา…</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
     <string name="send">ส่ง</string>

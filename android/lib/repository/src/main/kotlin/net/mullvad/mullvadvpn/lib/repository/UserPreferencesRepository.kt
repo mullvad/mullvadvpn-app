@@ -64,4 +64,13 @@ class UserPreferencesRepository(
         userPreferencesStore.updateData { prefs ->
             prefs.toBuilder().setShowAndroid16ConnectWarning(show).build()
         }
+
+    fun showSystemAppsSplitTunneling(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.showSystemAppsSplitTunneling }
+
+    suspend fun setShowSystemAppsSplitTunneling(show: Boolean) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setShowSystemAppsSplitTunneling(show).build()
+        }
+    }
 }

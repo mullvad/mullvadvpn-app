@@ -397,7 +397,7 @@
     <string name="retry">Opnieuw proberen</string>
     <string name="save">Opslaan</string>
     <string name="search">Zoeken</string>
-    <string name="search_location_empty_text">Geen resultaat voor \"%1$s\", probeer een andere zoekopdracht</string>
+    <string name="search_no_matches_for_text">Geen resultaat voor \"%1$s\", probeer een andere zoekopdracht</string>
     <string name="search_placeholder">Zoeken naar...</string>
     <string name="select_location">Locatie selecteren</string>
     <string name="send">Verzenden</string>

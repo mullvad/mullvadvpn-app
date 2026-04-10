@@ -81,9 +81,9 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadMediumTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem

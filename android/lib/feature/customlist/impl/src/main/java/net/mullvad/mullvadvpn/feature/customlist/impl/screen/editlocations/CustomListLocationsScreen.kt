@@ -39,8 +39,8 @@ import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.ContentType
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.ui.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -239,7 +239,7 @@ private fun LazyListScope.content(
 @Composable
 private fun LocationsEmptyText(searchTerm: String) {
     Text(
-        text = stringResource(R.string.search_location_empty_text, searchTerm),
+        text = stringResource(R.string.search_no_matches_for_text, searchTerm),
         style = MaterialTheme.typography.bodyMedium,
         textAlign = TextAlign.Center,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
