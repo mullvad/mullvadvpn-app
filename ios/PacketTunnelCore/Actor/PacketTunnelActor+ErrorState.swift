@@ -10,9 +10,6 @@ import Foundation
 import MullvadTypes
 import Network
 
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
-
 extension PacketTunnelActor {
     /**
      Transition actor to error state.

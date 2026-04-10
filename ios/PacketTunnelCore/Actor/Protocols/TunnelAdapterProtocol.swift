@@ -11,10 +11,6 @@ import MullvadTypes
 import Network
 import NetworkExtension
 
-@preconcurrency import class WireGuardKitTypes.PreSharedKey
-@preconcurrency import class WireGuardKitTypes.PrivateKey
-@preconcurrency import class WireGuardKitTypes.PublicKey
-
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol: Sendable {
     /// Start tunnel adapter or update active configuration.

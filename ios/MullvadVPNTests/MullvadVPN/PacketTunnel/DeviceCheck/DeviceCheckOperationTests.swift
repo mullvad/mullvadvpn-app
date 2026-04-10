@@ -13,9 +13,6 @@ import Operations
 import PacketTunnelCore
 import XCTest
 
-@preconcurrency import class WireGuardKitTypes.PrivateKey
-@preconcurrency import class WireGuardKitTypes.PublicKey
-
 @testable import MullvadMockData
 
 class DeviceCheckOperationTests: XCTestCase {

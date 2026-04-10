@@ -10,10 +10,6 @@ import Foundation
 import MullvadTypes
 import Network
 
-import class WireGuardKitTypes.PreSharedKey
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
-
 /// Error returned when there is an endpoint but its public key is invalid.
 public struct PublicKeyError: LocalizedError {
     let endpoint: SelectedEndpoint

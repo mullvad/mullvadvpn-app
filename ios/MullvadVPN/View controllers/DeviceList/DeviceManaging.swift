@@ -10,9 +10,6 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-import class WireGuardKitTypes.PrivateKey
-import class WireGuardKitTypes.PublicKey
-
 protocol DeviceManaging {
     var currentDeviceId: String? { get }
     func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable

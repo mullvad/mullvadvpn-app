@@ -12,8 +12,6 @@ import Network
 import Operations
 import XCTest
 
-import class WireGuardKitTypes.PrivateKey
-
 @testable import MullvadMockData
 
 class StartTunnelOperationTests: XCTestCase {

@@ -12,9 +12,6 @@ import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
 
-import class WireGuardKitTypes.PreSharedKey
-import class WireGuardKitTypes.PrivateKey
-
 struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let exit: SelectedRelay
     let keyExchanger: EphemeralPeerExchangeActorProtocol

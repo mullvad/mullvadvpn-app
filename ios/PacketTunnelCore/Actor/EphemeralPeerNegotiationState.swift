@@ -9,9 +9,6 @@
 import MullvadREST
 import MullvadTypes
 
-@preconcurrency import class WireGuardKitTypes.PreSharedKey
-@preconcurrency import class WireGuardKitTypes.PrivateKey
-
 public enum EphemeralPeerNegotiationState: Equatable, Sendable {
     case single(EphemeralPeerRelayConfiguration)
     case multi(entry: EphemeralPeerRelayConfiguration, exit: EphemeralPeerRelayConfiguration)

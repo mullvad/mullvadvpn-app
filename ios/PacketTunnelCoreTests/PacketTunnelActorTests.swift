@@ -11,8 +11,6 @@ import MullvadTypes
 import Network
 import XCTest
 
-import class WireGuardKitTypes.PrivateKey
-
 @testable import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings

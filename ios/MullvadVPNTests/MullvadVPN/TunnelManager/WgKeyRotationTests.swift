@@ -10,8 +10,6 @@ import MullvadSettings
 import MullvadTypes
 import XCTest
 
-import class WireGuardKitTypes.PrivateKey
-
 final class WgKeyRotationTests: XCTestCase {
     func testKeyRotationLifecycle() {
         let data = StoredDeviceData.mock(
