@@ -45,7 +45,6 @@ fn bench_baseline(c: &mut Criterion) {
 }
 
 /// Inline LWO: obfuscate in-process with `obfuscate_thread_local`, then send.
-/// This is what `ObfuscatingTransportFactory::Lwo` does on every `send_to`.
 fn bench_inline_lwo(c: &mut Criterion) {
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
