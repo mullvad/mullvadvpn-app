@@ -45,8 +45,8 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
-import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
@@ -118,10 +118,10 @@ fun SplitTunnelingScreen(
     state: Lc<Loading, SplitTunnelingUiState>,
     onEnableSplitTunneling: (Boolean) -> Unit,
     onShowSystemAppsClick: (show: Boolean) -> Unit,
-    onExcludeAppClick: (packageName: AppId) -> Unit,
-    onIncludeAppClick: (packageName: AppId) -> Unit,
+    onExcludeAppClick: (packageName: PackageName) -> Unit,
+    onIncludeAppClick: (packageName: PackageName) -> Unit,
     onBackClick: () -> Unit,
-    onResolveIcon: (AppId) -> Drawable?,
+    onResolveIcon: (PackageName) -> Drawable?,
     navigateToSearch: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -213,9 +213,9 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.appList(
     state: SplitTunnelingUiState,
     focusManager: FocusManager,
-    onExcludeAppClick: (packageName: AppId) -> Unit,
-    onIncludeAppClick: (packageName: AppId) -> Unit,
-    onResolveIcon: (AppId) -> Drawable?,
+    onExcludeAppClick: (packageName: PackageName) -> Unit,
+    onIncludeAppClick: (packageName: PackageName) -> Unit,
+    onResolveIcon: (PackageName) -> Drawable?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
@@ -252,8 +252,8 @@ private fun LazyListScope.appList(
 internal fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
-    onAppClick: (AppId) -> Unit,
-    onResolveIcon: (AppId) -> Drawable?,
+    onAppClick: (PackageName) -> Unit,
+    onResolveIcon: (PackageName) -> Drawable?,
     enabled: Boolean,
     excluded: Boolean,
 ) {
@@ -371,7 +371,7 @@ private fun Lc<Loading, SplitTunnelingUiState>.enabled(): Boolean =
         is Lc.Content -> value.enabled
     }
 
-fun PackageManager.getApplicationIconOrNull(packageName: AppId): Drawable? =
+fun PackageManager.getApplicationIconOrNull(packageName: PackageName): Drawable? =
     try {
         getApplicationIcon(packageName.value)
     } catch (e: PackageManager.NameNotFoundException) {

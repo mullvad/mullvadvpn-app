@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
-import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.Cipher
@@ -54,6 +53,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.ObfuscationType
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -667,7 +667,7 @@ internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSucc
 internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSettings =
     SplitTunnelSettings(
         enabled = enableExclusions,
-        excludedApps = appsList.map { AppId(it) }.toSet(),
+        excludedApps = appsList.map { PackageName(it) }.toSet(),
     )
 
 internal fun ManagementInterface.PlayExternalObfuscatedAccountId.toDomain():

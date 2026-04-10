@@ -54,7 +54,6 @@ import net.mullvad.mullvadvpn.lib.model.AddSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
-import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
@@ -93,6 +92,7 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership as ModelOwnership
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
@@ -808,13 +808,15 @@ class ManagementService(
             .mapLeft { PlayPurchaseVerifyError.OtherError }
             .mapEmpty()
 
-    suspend fun addSplitTunnelingApp(app: AppId): Either<AddSplitTunnelingAppError, Unit> =
+    suspend fun addSplitTunnelingApp(app: PackageName): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch { grpc.addSplitTunnelApp(StringValue.of(app.value)) }
             .onLeft { Logger.e("Add split tunneling app error") }
             .mapLeft(AddSplitTunnelingAppError::Unknown)
             .mapEmpty()
 
-    suspend fun removeSplitTunnelingApp(app: AppId): Either<RemoveSplitTunnelingAppError, Unit> =
+    suspend fun removeSplitTunnelingApp(
+        app: PackageName
+    ): Either<RemoveSplitTunnelingAppError, Unit> =
         Either.catch { grpc.removeSplitTunnelApp(StringValue.of(app.value)) }
             .onLeft { Logger.e("Remove split tunneling app error") }
             .mapLeft(RemoveSplitTunnelingAppError::Unknown)

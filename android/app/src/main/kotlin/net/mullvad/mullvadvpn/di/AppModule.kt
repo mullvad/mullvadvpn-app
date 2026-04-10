@@ -68,8 +68,7 @@ val appModule = module {
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }
     single { AccountExpiryNotificationActionUseCase(get(), get()) }
     // TODO Move these back to UiModule when fixDisableBug is removed
-    single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
-    single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
+    single { AppObfuscationRepository(get(), get()) }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         single { LanguageRepository(androidContext()) }
     }

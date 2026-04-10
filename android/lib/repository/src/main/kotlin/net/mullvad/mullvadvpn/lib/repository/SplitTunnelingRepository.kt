@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.model.AppId
+import net.mullvad.mullvadvpn.lib.model.PackageName
 
 class SplitTunnelingRepository(
     private val managementService: ManagementService,
@@ -26,7 +26,7 @@ class SplitTunnelingRepository(
     suspend fun enableSplitTunneling(enabled: Boolean) =
         managementService.setSplitTunnelingState(enabled)
 
-    suspend fun excludeApp(app: AppId) = managementService.addSplitTunnelingApp(app)
+    suspend fun excludeApp(app: PackageName) = managementService.addSplitTunnelingApp(app)
 
-    suspend fun includeApp(app: AppId) = managementService.removeSplitTunnelingApp(app)
+    suspend fun includeApp(app: PackageName) = managementService.removeSplitTunnelingApp(app)
 }

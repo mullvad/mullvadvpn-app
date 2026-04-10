@@ -12,6 +12,7 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.AfterEach
@@ -37,10 +38,10 @@ class SplitTunnelingScreenTest {
         state: Lc<Loading, SplitTunnelingUiState>,
         onEnableSplitTunneling: (Boolean) -> Unit = {},
         onShowSystemAppsClick: (show: Boolean) -> Unit = {},
-        onExcludeAppClick: (packageName: String) -> Unit = {},
-        onIncludeAppClick: (packageName: String) -> Unit = {},
+        onExcludeAppClick: (packageName: PackageName) -> Unit = {},
+        onIncludeAppClick: (packageName: PackageName) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onResolveIcon: (String) -> Drawable? = { null },
+        onResolveIcon: (PackageName) -> Drawable? = { null },
         navigateToSearch: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -131,7 +132,7 @@ class SplitTunnelingScreenTest {
             AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
         val includedApp =
             AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
+        val mockedClickHandler: (PackageName) -> Unit = mockk(relaxed = true)
         initScreen(
             state =
                 SplitTunnelingUiState(
@@ -158,7 +159,7 @@ class SplitTunnelingScreenTest {
             AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
         val includedApp =
             AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
-        val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
+        val mockedClickHandler: (PackageName) -> Unit = mockk(relaxed = true)
         initScreen(
             state =
                 SplitTunnelingUiState(
@@ -206,9 +207,9 @@ class SplitTunnelingScreenTest {
     }
 
     companion object {
-        private const val EXCLUDED_APP_PACKAGE_NAME = "excluded-pkg"
+        private val EXCLUDED_APP_PACKAGE_NAME = PackageName("excluded-pkg")
         private const val EXCLUDED_APP_NAME = "Excluded Name"
-        private const val INCLUDED_APP_PACKAGE_NAME = "included-pkg"
+        private val INCLUDED_APP_PACKAGE_NAME = PackageName("included-pkg")
         private const val INCLUDED_APP_NAME = "Included Name"
         private const val TITLE = "Split tunneling"
         private const val DESCRIPTION =
