@@ -4,7 +4,6 @@ EXPORTS
 
 CloseHoggingProcesses
 IsEmptyDir
-MigrateCache
 RemoveLogsAndCache
 RemoveSettings
 RemoveRelayCache
