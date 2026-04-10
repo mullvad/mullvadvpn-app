@@ -40,4 +40,4 @@ trap cleanup EXIT
     -w "/artifact_dir" \
     --entrypoint /wait-for-pcscd.sh \
     "$CONTAINER_IMAGE_NAME" \
-    bash -c '/sign.sh MullvadVPN-*.{aab,apk}'
+    bash -c 'shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk'
