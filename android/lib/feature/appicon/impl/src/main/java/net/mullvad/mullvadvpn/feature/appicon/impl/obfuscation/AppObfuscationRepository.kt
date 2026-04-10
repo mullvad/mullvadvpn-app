@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation
+package net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation
 
 import android.content.ComponentName
 import android.content.pm.PackageManager
@@ -57,6 +57,12 @@ class AppObfuscationRepository(
     private fun AppObfuscation.toComponentName() = ComponentName(packageName, className)
 }
 
+/**
+ * The [className] values must match the `android:name` attribute of the corresponding
+ * `<activity-alias>` in the manifest. These use the original package name
+ * (`net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation`) to preserve the user's icon
+ * selection across app upgrades — changing them would reset everyone's chosen icon.
+ */
 enum class AppObfuscation(
     val className: String,
     val iconId: Int,
@@ -64,39 +70,42 @@ enum class AppObfuscation(
     val labelId: Int,
 ) {
     DEFAULT(
-        MainActivityAltDefault::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltDefault",
         R.mipmap.ic_launcher,
         R.mipmap.ic_banner,
         R.string.app_name,
     ),
     GAME(
-        MainActivityAltGame::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltGame",
         R.mipmap.ic_launcher_game,
         R.mipmap.ic_banner_game,
         R.string.app_name_game,
     ),
     NINJA(
-        MainActivityAltNinja::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltNinja",
         R.mipmap.ic_launcher_ninja,
         R.mipmap.ic_banner_ninja,
         R.string.app_name_ninja,
     ),
     WEATHER(
-        MainActivityAltWeather::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltWeather",
         R.mipmap.ic_launcher_weather,
         R.mipmap.ic_banner_weather,
         R.string.app_name_weather,
     ),
     NOTES(
-        MainActivityAltNotes::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltNotes",
         R.mipmap.ic_launcher_notes,
         R.mipmap.ic_banner_notes,
         R.string.app_name_notes,
     ),
     BROWSER(
-        MainActivityAltBrowser::class.java.name,
+        "$ACTIVITY_ALIAS_PACKAGE.MainActivityAltBrowser",
         R.mipmap.ic_launcher_browser,
         R.mipmap.ic_banner_browser,
         R.string.app_name_browser,
     ),
 }
+
+private const val ACTIVITY_ALIAS_PACKAGE =
+    "net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation"

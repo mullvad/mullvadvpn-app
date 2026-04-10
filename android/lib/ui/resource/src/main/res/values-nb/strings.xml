@@ -270,6 +270,7 @@
     <string name="ipv6_info">Når denne funksjonen er aktivert, kan IPv6 brukes sammen med IPv4 i VPN-tunnelen til å kommunisere med internettjenester.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din.</string>
     <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
+    <string name="language">Språk</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, før du bruker Mullvad VPN.</string>
     <string name="legacy_always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen VPN</string>
     <string name="less_than_a_day_left">Mindre enn én dag igjen på denne kontoen</string>
@@ -448,6 +449,7 @@
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
     <string name="submit_button">Send inn</string>
     <string name="switch_location">Bytt plassering</string>
+    <string name="system_default">Systemstandard</string>
     <string name="tcp">TCP</string>
     <string name="test_method">Test metoden</string>
     <string name="testing">Tester ...</string>

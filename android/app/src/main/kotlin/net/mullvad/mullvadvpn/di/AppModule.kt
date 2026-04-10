@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.di
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.NotificationManagerCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
@@ -9,7 +10,8 @@ import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.feature.appearance.impl.obfuscation.AppObfuscationRepository
+import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscationRepository
+import net.mullvad.mullvadvpn.feature.language.impl.LanguageRepository
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -68,6 +70,9 @@ val appModule = module {
     // TODO Move these back to UiModule when fixDisableBug is removed
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
     single { AppObfuscationRepository(get(), get(named(SELF_PACKAGE_NAME))) }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        single { LanguageRepository(androidContext()) }
+    }
     single<PackageManager> { androidContext().packageManager }
 
     single { NotificationChannel.TunnelUpdates } bind NotificationChannel::class

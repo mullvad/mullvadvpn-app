@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.detail.ApiAccessMeth
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMethodViewModel
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.list.ApiAccessListViewModel
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMethodViewModel
-import net.mullvad.mullvadvpn.feature.appearance.impl.AppearanceViewModel
+import net.mullvad.mullvadvpn.feature.appicon.impl.AppIconViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogViewModel
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InApp
 import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.welcome.WelcomeViewModel
+import net.mullvad.mullvadvpn.feature.language.impl.LanguageViewModel
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
 import net.mullvad.mullvadvpn.feature.location.impl.SelectLocationViewModel
@@ -413,7 +414,10 @@ val uiModule = module {
             customListsRepository = get(),
         )
     }
-    viewModel { AppearanceViewModel(get()) }
+    viewModel { AppIconViewModel(get()) }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        viewModel { LanguageViewModel(get()) }
+    }
     viewModel { AutoConnectAndLockdownModeViewModel(isPlayBuild = IS_PLAY_BUILD) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity

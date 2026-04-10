@@ -520,4 +520,7 @@
     <string name="delete_account_confirm_first_item"><b>This action cannot be undone.</b></string>
     <string name="delete_account_confirm_second_item"><b>You will lose access to this account on all devices.</b></string>
     <string name="delete_account_confirm_third_item"><b>Account recovery will not be possible.</b></string>
+    <string name="language">Language</string>
+    <string name="system_default">System default</string>
+    <string name="app_icon">App icon</string>
 </resources>
