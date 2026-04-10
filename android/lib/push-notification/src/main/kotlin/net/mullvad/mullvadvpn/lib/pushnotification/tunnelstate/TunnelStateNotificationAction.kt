@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_RECONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.getSupportedPendingIntentFlags
@@ -109,6 +110,7 @@ fun NotificationAction.Tunnel.titleResource() =
         NotificationAction.Tunnel.Cancel -> R.string.cancel
         NotificationAction.Tunnel.Connect,
         is NotificationAction.Tunnel.RequestVpnProfile -> R.string.connect
+        NotificationAction.Tunnel.Reconnect -> R.string.reconnect
         NotificationAction.Tunnel.Disconnect -> R.string.disconnect
         NotificationAction.Tunnel.Dismiss -> R.string.dismiss
     }
@@ -116,6 +118,7 @@ fun NotificationAction.Tunnel.titleResource() =
 fun NotificationAction.Tunnel.toKey() =
     when (this) {
         NotificationAction.Tunnel.Connect -> KEY_CONNECT_ACTION
+        NotificationAction.Tunnel.Reconnect -> KEY_RECONNECT_ACTION
         is NotificationAction.Tunnel.RequestVpnProfile -> KEY_REQUEST_VPN_PROFILE
         NotificationAction.Tunnel.Cancel,
         NotificationAction.Tunnel.Disconnect,
