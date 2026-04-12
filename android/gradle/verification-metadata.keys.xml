@@ -60,6 +60,7 @@
             <trusting group="androidx.fragment"/>
             <trusting group="androidx.lifecycle"/>
             <trusting group="androidx.navigation"/>
+            <trusting group="androidx.navigation3"/>
             <trusting group="androidx.navigationevent"/>
             <trusting group="androidx.room"/>
             <trusting group="androidx.savedstate"/>
