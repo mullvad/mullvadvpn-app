@@ -72,7 +72,7 @@ profileinstaller = "1.4.1"
 protobuf = "4.34.1"
 protobuf-gradle-plugin = "0.9.6"
 turbine = "1.2.1"
-annotation-jvm = "1.9.1"
+annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
 material = "1.13.0"
 
