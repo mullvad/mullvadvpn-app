@@ -280,12 +280,17 @@ impl Intersection for ObfuscationQuery {
         match (self, other) {
             (ObfuscationQuery::Off, _) | (_, ObfuscationQuery::Off) => Some(ObfuscationQuery::Off),
             (ObfuscationQuery::Auto, other) | (other, ObfuscationQuery::Auto) => Some(other),
+            (ObfuscationQuery::Port(a), ObfuscationQuery::Port(b)) => {
+                Some(ObfuscationQuery::Port(a.intersection(b)?))
+            }
             (ObfuscationQuery::Udp2tcp(a), ObfuscationQuery::Udp2tcp(b)) => {
                 Some(ObfuscationQuery::Udp2tcp(a.intersection(b)?))
             }
             (ObfuscationQuery::Shadowsocks(a), ObfuscationQuery::Shadowsocks(b)) => {
                 Some(ObfuscationQuery::Shadowsocks(a.intersection(b)?))
             }
+            (ObfuscationQuery::Quic, ObfuscationQuery::Quic) => Some(ObfuscationQuery::Quic),
+            (ObfuscationQuery::Lwo, ObfuscationQuery::Lwo) => Some(ObfuscationQuery::Lwo),
             _ => None,
         }
     }
@@ -824,6 +829,76 @@ mod test {
                 wireguard_port: port1.into(),
             });
             assert_eq!(query, ObfuscationQuery::Auto);
+        }
+    }
+
+    /// Returns one representative instance per `ObfuscationQuery` variant.
+    ///
+    /// The exhaustive match (no wildcard!) ensures a compile error when a new
+    /// variant is added, reminding the author to update both this list and the
+    /// `Intersection` impl.
+    fn all_obfuscation_query_variants() -> Vec<ObfuscationQuery> {
+        use mullvad_types::relay_constraints::WireguardPortSettings;
+
+        let _exhaustive_check = |q: ObfuscationQuery| match q {
+            ObfuscationQuery::Off => {}
+            ObfuscationQuery::Auto => {}
+            ObfuscationQuery::Port(_) => {}
+            ObfuscationQuery::Udp2tcp(_) => {}
+            ObfuscationQuery::Shadowsocks(_) => {}
+            ObfuscationQuery::Quic => {}
+            ObfuscationQuery::Lwo => {}
+        };
+
+        vec![
+            ObfuscationQuery::Off,
+            ObfuscationQuery::Auto,
+            ObfuscationQuery::Port(WireguardPortSettings::from(Constraint::Any)),
+            ObfuscationQuery::Udp2tcp(Udp2TcpObfuscationSettings {
+                port: Constraint::Any,
+            }),
+            ObfuscationQuery::Shadowsocks(ShadowsocksSettings {
+                port: Constraint::Any,
+            }),
+            ObfuscationQuery::Quic,
+            ObfuscationQuery::Lwo,
+        ]
+    }
+
+    /// Verify the intersection semantics for all concrete `ObfuscationQuery`
+    /// variants (everything except `Off` and `Auto`, which have special
+    /// absorbing / identity behaviour).
+    ///
+    /// Uses `combinations_with_replacement(2)` to cover every pair `(a, b)`:
+    /// - Same variant → `Some(a)` (idempotent)
+    /// - Different variants → `None` (incompatible)
+    ///
+    /// This is a regression test for a bug where `Quic`, `Lwo`, and `Port`
+    /// fell through to the wildcard `_ => None` arm, breaking idempotency.
+    #[test]
+    fn obfuscation_query_intersection_all_concrete_pairs() {
+        use itertools::Itertools;
+
+        let concrete: Vec<_> = all_obfuscation_query_variants()
+            .into_iter()
+            .filter(|q| !matches!(q, ObfuscationQuery::Off | ObfuscationQuery::Auto))
+            .collect();
+
+        for pair in concrete.iter().combinations_with_replacement(2) {
+            let (a, b) = (pair[0], pair[1]);
+            let result = a.clone().intersection(b.clone());
+            if a == b {
+                assert_eq!(
+                    result,
+                    Some(a.clone()),
+                    "expected {a:?} ∩ {b:?} = Some({a:?}), got {result:?}"
+                );
+            } else {
+                assert_eq!(
+                    result, None,
+                    "expected {a:?} ∩ {b:?} = None, got {result:?}"
+                );
+            }
         }
     }
 }
