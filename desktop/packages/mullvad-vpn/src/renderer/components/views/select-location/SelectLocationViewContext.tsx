@@ -40,18 +40,28 @@ export const useSelectLocationViewContext = (): SelectLocationViewContextProps =
 type SelectLocationViewProviderProps = React.PropsWithChildren;
 
 export function SelectLocationViewProvider({ children }: SelectLocationViewProviderProps) {
-  const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = React.useState('');
   const relaySettings = useNormalRelaySettings();
-  const selectedLocation = useSelectedLocation(locationTypeSelector);
+  const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
 
-  const filteredCountries = useFilterCountryLocations(locationTypeSelector);
+  const locationType = React.useMemo(() => {
+    const allowEntryLocations = relaySettings?.wireguard.useMultihop;
+
+    if (allowEntryLocations) {
+      return locationTypeSelector;
+    }
+    return LocationType.exit;
+  }, [locationTypeSelector, relaySettings]);
+
+  const filteredCountries = useFilterCountryLocations(locationType);
   const filteredCountryLocations = useMapReduxCountriesToCountryLocations(
-    locationTypeSelector,
+    locationType,
     filteredCountries,
   );
   const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
+
+  const selectedLocation = useSelectedLocation(locationType);
 
   const filteredCustomListLocations = useMapCustomListsToLocations(
     searchedCountryLocations,
@@ -62,15 +72,6 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
     filteredCustomListLocations,
     searchTerm,
   );
-
-  const locationType = React.useMemo(() => {
-    const allowEntryLocations = relaySettings?.wireguard.useMultihop;
-
-    if (allowEntryLocations) {
-      return locationTypeSelector;
-    }
-    return LocationType.exit;
-  }, [locationTypeSelector, relaySettings]);
 
   const value = React.useMemo(
     () => ({
