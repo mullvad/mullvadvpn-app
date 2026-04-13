@@ -68,7 +68,7 @@ fn bench_inline_lwo(c: &mut Criterion) {
     c.bench_function("inline_lwo/send_recv", |b| {
         b.iter(|| {
             rt.block_on(async {
-                let mut pkt = packet.clone();
+                let mut pkt = core::hint::black_box(packet.clone());
                 obfuscate_thread_local(&mut pkt, &tx_key);
                 sender.send(&pkt).await.unwrap();
                 let n = relay.recv(&mut recv_buf).await.unwrap();
