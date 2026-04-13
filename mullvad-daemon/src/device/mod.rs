@@ -1017,7 +1017,13 @@ impl AccountManager {
                 let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
 
                 tokio::spawn(async move {
-                    let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                    let response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                    if response.is_err() {
+                        log::warn!(
+                            "Logout reached {:.2}s timeout. Releasing as a background task.",
+                            LOGOUT_TIMEOUT.as_secs_f32()
+                        );
+                    }
                     let _ = tx.send(Ok(()));
                 });
             }
@@ -1079,9 +1085,11 @@ impl AccountManager {
                 .await
             {
                 log::error!(
-                    "{}",
+                    "Failed to remove device: {}",
                     error.display_chain_with_msg("Failed to logout device")
                 );
+            } else {
+                log::debug!("Device removed.");
             }
         }
     }
