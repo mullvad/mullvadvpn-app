@@ -9,16 +9,15 @@ GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
+SKIP_CLEAN_CHECK="no"
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
         GRADLE_BUILD_TYPE="debug"
         GRADLE_TASKS=(createOssProdDebugDistApk)
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
-    elif [[ "${1:-""}" == "--fdroid" ]]; then
-        GRADLE_BUILD_TYPE="fdroid"
-        GRADLE_TASKS=(createOssProdFdroidDistApk)
-        BUNDLE_TASKS=(createOssProdFdroidDistBundle)
+    elif [[ "${1:-""}" == "--skip-clean-check" ]]; then
+        SKIP_CLEAN_CHECK="yes"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
     fi
@@ -33,7 +32,7 @@ function assert_clean_working_directory {
     fi
 }
 
-if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" && "$SKIP_CLEAN_CHECK" == "no" ]]; then
     assert_clean_working_directory
 fi
 
@@ -80,7 +79,7 @@ fi
 # further up. Now verify that this is still true. The build process should never make the
 # working directory dirty.
 # This could for example happen if lockfiles are outdated, and the build process updates them.
-if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" && "$SKIP_CLEAN_CHECK" == "no" ]]; then
     assert_clean_working_directory
 fi
 

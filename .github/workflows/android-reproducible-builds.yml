@@ -49,7 +49,7 @@ jobs:
 
   # Considered our source of truth.
   build-using-container:
-    name: Build fdroid variant using container
+    name: Build release variant using container
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -64,18 +64,18 @@ jobs:
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
       - name: Build app
-        run: ./building/containerized-build.sh android --fdroid
+        run: ./building/containerized-build.sh android --skip-clean-check
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
           name: apk-container
-          path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          path: android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
   build-using-fdroidserver:
-    name: Build fdroid variant using fdroidserver
+    name: Build release variant using fdroidserver
     runs-on: ubuntu-latest
     needs: set-up-env
     steps:
@@ -138,12 +138,12 @@ jobs:
         with:
           name: apk-fdroidserver
           path: |
-            build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+            build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
   build-using-nix:
-    name: Build fdroid variant using nix
+    name: Build release variant using nix
     runs-on: ${{ matrix.runs-on }}
     needs: set-up-env
     strategy:
@@ -167,13 +167,13 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - name: Build app
-        run: nix develop .#android -c buildFdroid
+        run: nix develop .#android -c buildRelease
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
           name: apk-nix-${{ matrix.runs-on }}
-          path: android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          path: android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -204,7 +204,9 @@ jobs:
 
       - name: Compare apk against source of truth
         working-directory: ./artifacts
-        run: diff apk-container/app-oss-prod-fdroid-unsigned.apk ${{ matrix.artifact}}/app-oss-prod-fdroid-unsigned.apk
+        run: diff \
+          apk-container/app-oss-prod-release-unsigned.apk \
+          ${{ matrix.artifact}}/app-oss-prod-release-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
@@ -229,7 +231,7 @@ jobs:
 
       - name: Extract resources
         run: |
-          apktool d app-oss-prod-fdroid-unsigned.apk -s -o output
+          apktool d app-oss-prod-release-unsigned.apk -s -o output
 
       - name: Compare manifest permissions with checked in snapshot
         run: |
