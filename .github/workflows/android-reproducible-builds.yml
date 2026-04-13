@@ -63,6 +63,10 @@ jobs:
         run: |
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
+      - name: Lower available memory for gradle
+        run: |
+          sed -i 's/8192M/4096M/g' android/gradle.properties
+
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
 
