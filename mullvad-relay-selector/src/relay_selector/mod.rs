@@ -6,7 +6,6 @@ pub mod matcher;
 pub mod query;
 pub mod relays;
 
-use detailer::resolve_ip_version;
 use matcher::{filter_matching_relay_list, filter_matching_relay_list_include_all};
 use relays::{Multihop, Singlehop, WireguardConfig};
 
@@ -751,8 +750,7 @@ impl RelaySelector {
                 Ok(Some(obfuscation))
             }
             ObfuscationQuery::Quic => {
-                let ip_version =
-                    resolve_ip_version(query.wireguard_constraints().ip_version.as_ref());
+                let ip_version = query.wireguard_constraints().ip_version;
                 Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version).map(Into::into))
             }
             ObfuscationQuery::Lwo => {
