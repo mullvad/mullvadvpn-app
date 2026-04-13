@@ -47,7 +47,7 @@ const DATA_OVERHEAD_SZ: usize = 32;
 fn fake_packet() -> Vec<u8> {
     let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 1200];
     packet[0] = DATA;
-    rand::thread_rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
+    rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
     packet
 }
 
