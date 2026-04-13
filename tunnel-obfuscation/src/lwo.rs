@@ -330,11 +330,12 @@ pub fn new_rng() -> impl RngCore {
 /// This is a convenience function for callers that do not want to manage their own RNG.
 /// Uses a per-thread [`rand::rngs::SmallRng`] initialized lazily on first use.
 pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
-    use std::cell::RefCell;
+    use std::cell::UnsafeCell;
     thread_local! {
-        static RNG: RefCell<rand::rngs::SmallRng> = RefCell::new(rand::rngs::SmallRng::from_entropy());
+        static RNG: UnsafeCell<rand::rngs::SmallRng> = UnsafeCell::new(rand::rngs::SmallRng::from_entropy());
     }
-    RNG.with(|rng| obfuscate(&mut *rng.borrow_mut(), packet, key));
+    // SAFETY: The cell is thread-local and we only mutably access it here.
+    RNG.with(|rng| obfuscate(unsafe { &mut *rng.get() }, packet, key));
 }
 
 #[cfg(test)]
