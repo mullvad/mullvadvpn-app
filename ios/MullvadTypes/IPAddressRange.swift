@@ -10,10 +10,10 @@ import Foundation
 import Network
 
 public struct IPAddressRange: Sendable {
-    public let address: IPAddress
+    public let address: AnyIPAddress
     public let networkPrefixLength: UInt8
 
-    public init(address: IPAddress, networkPrefixLength: UInt8) {
+    public init(address: AnyIPAddress, networkPrefixLength: UInt8) {
         self.address = address
         self.networkPrefixLength = networkPrefixLength
     }
@@ -68,22 +68,19 @@ extension IPAddressRange {
         networkPrefixLength = parsed.1
     }
 
-    private static func parseAddressString(_ string: String) -> (IPAddress, UInt8)? {
+    private static func parseAddressString(_ string: String) -> (AnyIPAddress, UInt8)? {
         // Split "192.168.1.0/24" into address ("192.168.1.0") and prefix length ("24")
         let parts = string.split(separator: "/", maxSplits: 1)
         guard let addressPart = parts.first else { return nil }
 
         // Parse the address part as either IPv4 or IPv6
-        let address: IPAddress
-        if let addr = IPv4Address(String(addressPart)) {
-            address = addr
-        } else if let addr = IPv6Address(String(addressPart)) {
-            address = addr
-        } else {
-            return nil
-        }
+        guard let address = AnyIPAddress(String(addressPart)) else { return nil }
 
-        let maxNetworkPrefixLength: UInt8 = address is IPv4Address ? 32 : 128
+        let maxNetworkPrefixLength: UInt8 =
+            switch address {
+            case .ipv4: 32
+            case .ipv6: 128
+            }
 
         // If a prefix length is provided, parse it; otherwise default to the maximum for the address family
         if parts.count > 1 {
@@ -96,7 +93,7 @@ extension IPAddressRange {
 
     public func subnetMask() -> IPAddress {
         switch address {
-        case is IPv4Address:
+        case .ipv4:
             let mask = networkPrefixLength > 0 ? ~UInt32(0) << (32 - networkPrefixLength) : UInt32(0)
             let bytes = Data([
                 UInt8(truncatingIfNeeded: mask >> 24),
@@ -106,7 +103,7 @@ extension IPAddressRange {
             ])
             return IPv4Address(bytes)!
 
-        case is IPv6Address:
+        case .ipv6:
             var bytes = Data(repeating: 0, count: 16)
             for i in 0..<Int(networkPrefixLength / 8) {
                 bytes[i] = 0xff
@@ -121,27 +118,21 @@ extension IPAddressRange {
                 bytes[i + 3] = UInt8(truncatingIfNeeded: mask >> 0)
             }
             return IPv6Address(bytes)!
-
-        default:
-            fatalError("Unsupported address type: \(type(of: address))")
         }
     }
 
     public func maskedAddress() -> IPAddress {
         let subnet = subnetMask().rawValue
         var masked = Data(address.rawValue)
-        assert(subnet.count == masked.count)
         for i in 0..<subnet.count {
             masked[i] &= subnet[i]
         }
 
         switch address {
-        case is IPv4Address:
+        case .ipv4:
             return IPv4Address(masked)!
-        case is IPv6Address:
+        case .ipv6:
             return IPv6Address(masked)!
-        default:
-            fatalError("Unsupported address type: \(type(of: address))")
         }
     }
 }

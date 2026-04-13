@@ -219,8 +219,7 @@ final class IPAddressRangeTests: XCTestCase {
     // MARK: - Direct Init
 
     func testDirectInit() {
-        let address = IPv4Address("192.168.1.1")!
-        let range = IPAddressRange(address: address, networkPrefixLength: 24)
+        let range = IPAddressRange(address: .ipv4(IPv4Address("192.168.1.1")!), networkPrefixLength: 24)
         XCTAssertEqual("\(range.address)", "192.168.1.1")
         XCTAssertEqual(range.networkPrefixLength, 24)
     }
