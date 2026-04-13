@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2026.4-beta1] - 2026-04-13
 ### Added
 - Add Ukrainian as a new language in the app.
 - Add in-app language selector for Android 13 and up.
