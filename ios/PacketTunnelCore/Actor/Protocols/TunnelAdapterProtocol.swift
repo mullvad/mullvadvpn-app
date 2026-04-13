@@ -10,7 +10,6 @@ import Foundation
 import MullvadTypes
 import Network
 import NetworkExtension
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange, DaitaConfiguration
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
 public protocol TunnelAdapterProtocol: Sendable {
@@ -82,7 +81,7 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
         var routes = [NEIPv4Route]()
         routes.append(NEIPv4Route.default())
 
-        for range in self.interfaceAddresses where range.address is IPv4Address {
+        for range in self.interfaceAddresses where range.address.isIPv4 {
             addresses.append("\(range.address)")
             subnetMasks.append("\(range.subnetMask())")
 
@@ -104,7 +103,7 @@ public struct TunnelInterfaceSettings: Equatable, Sendable {
         var prefixLengths = [NSNumber]()
         var routes = [NEIPv6Route]()
 
-        for range in self.interfaceAddresses where range.address is IPv6Address {
+        for range in self.interfaceAddresses where range.address.isIPv6 {
             addresses.append("\(range.address)")
             prefixLengths.append(NSNumber(value: min(120, range.networkPrefixLength)))
 

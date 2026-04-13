@@ -9,7 +9,6 @@
 @preconcurrency import Combine
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData

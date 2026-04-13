@@ -8,7 +8,6 @@
 
 import MullvadSettings
 import MullvadTypes
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 final class WgKeyRotationTests: XCTestCase {

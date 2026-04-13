@@ -10,7 +10,6 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 import Network
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 
 /// A type that implements a reader that can return settings required by `PacketTunnelActor` in order to configure the tunnel.
 public protocol SettingsReaderProtocol {

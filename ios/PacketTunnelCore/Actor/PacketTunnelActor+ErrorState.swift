@@ -9,7 +9,6 @@
 import Foundation
 import MullvadTypes
 import Network
-import WireGuardKitTypes  // For IPAddressRange
 
 extension PacketTunnelActor {
     /**

@@ -11,7 +11,6 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes  // IPAddressRange
 
 struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let exit: SelectedRelay

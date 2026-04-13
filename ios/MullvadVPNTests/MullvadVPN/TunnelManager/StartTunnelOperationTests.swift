@@ -10,7 +10,6 @@ import MullvadSettings
 import MullvadTypes
 import Network
 import Operations
-import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData

@@ -11,7 +11,6 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 import PacketTunnelCore
-@preconcurrency import WireGuardKitTypes  // For IPAddressRange
 import XCTest
 
 @testable import MullvadMockData

@@ -98,6 +98,16 @@ public enum AnyIPAddress: IPAddress, Codable, Equatable, CustomDebugStringConver
         innerAddress.isMulticast
     }
 
+    public var isIPv4: Bool {
+        if case .ipv4 = self { return true }
+        return false
+    }
+
+    public var isIPv6: Bool {
+        if case .ipv6 = self { return true }
+        return false
+    }
+
     public var debugDescription: String {
         switch self {
         case let .ipv4(ipv4Address):

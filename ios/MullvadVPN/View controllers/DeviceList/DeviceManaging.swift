@@ -9,7 +9,6 @@
 import Foundation
 import MullvadREST
 import MullvadTypes
-import WireGuardKitTypes  // IPAddressRange
 
 protocol DeviceManaging {
     var currentDeviceId: String? { get }

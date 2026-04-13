@@ -8,7 +8,6 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes  // For DaitaConfiguration
 
 extension PacketTunnelActor {
     /**
