@@ -6,6 +6,7 @@ import { type BodySmallProps, LabelTinySemiBold } from '../../../text';
 export type MenuTitleProps = BodySmallProps;
 
 export const StyledMenuTitle = styled(LabelTinySemiBold)`
+  display: inline-block;
   padding: ${spacings.tiny} ${spacings.small};
 `;
 
