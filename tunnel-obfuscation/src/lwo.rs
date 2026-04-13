@@ -334,7 +334,7 @@ pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
     thread_local! {
         static RNG: UnsafeCell<rand::rngs::SmallRng> = UnsafeCell::new(rand::rngs::SmallRng::from_entropy());
     }
-    // SAFETY: The cell is thread-local and we only mutably access it here.
+    // SAFETY: The cell is thread-local and we only access it here.
     RNG.with(|rng| obfuscate(unsafe { &mut *rng.get() }, packet, key));
 }
 
