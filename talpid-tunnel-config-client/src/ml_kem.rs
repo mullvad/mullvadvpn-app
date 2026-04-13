@@ -60,8 +60,7 @@ impl Keypair {
 
 /// Generates and returns an ML-KEM keypair.
 pub fn keypair() -> Keypair {
-    let (decapsulation_key, encapsulation_key) =
-        ml_kem::MlKem1024::generate(&mut rand::thread_rng());
+    let (decapsulation_key, encapsulation_key) = ml_kem::MlKem1024::generate(&mut rand_core::OsRng);
     Keypair {
         encapsulation_key,
         decapsulation_key,
