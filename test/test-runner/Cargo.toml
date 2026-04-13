@@ -14,7 +14,6 @@ futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 mullvad-paths = { path = "../../mullvad-paths" }
-parity-tokio-ipc = "0.9"
 rand = { workspace = true }
 serde_json = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
@@ -23,6 +22,7 @@ talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-fe
 tarpc = { workspace = true }
 test-rpc = { path = "../test-rpc" }
 thiserror = { workspace = true }
+tipsy = { workspace = true }
 tokio = { workspace = true }
 tokio-serial = { workspace = true }
 

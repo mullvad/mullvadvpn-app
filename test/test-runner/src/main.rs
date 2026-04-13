@@ -704,7 +704,7 @@ async fn forward_to_mullvad_daemon_interface(proxy_transport: GrpcForwarder) {
         log::info!("mullvad daemon: connecting");
 
         let mut daemon_socket_endpoint =
-            match parity_tokio_ipc::Endpoint::connect(SOCKET_PATH).await {
+            match tipsy::Endpoint::connect(PathBuf::from(SOCKET_PATH)).await {
                 Ok(uds_endpoint) => uds_endpoint,
                 Err(error) => {
                     log::error!("mullvad daemon: failed to connect: {error}");
