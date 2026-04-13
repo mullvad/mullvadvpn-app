@@ -6,6 +6,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -28,6 +29,7 @@ fun InformationView(
     modifier: Modifier = Modifier,
     whenMissing: MissingPolicy = MissingPolicy.SHOW_VIEW,
     maxLines: Int = 1,
+    fontFamily: FontFamily? = null,
 ) {
     return if (content.isNotEmpty()) {
         AutoResizeText(
@@ -37,6 +39,7 @@ fun InformationView(
             maxTextSize = MaterialTheme.typography.titleMedium.fontSize,
             maxLines = maxLines,
             modifier = modifier.padding(vertical = Dimens.smallPadding),
+            fontFamily = fontFamily,
         )
     } else {
         when (whenMissing) {
