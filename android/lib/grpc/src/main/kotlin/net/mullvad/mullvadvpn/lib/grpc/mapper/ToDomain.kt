@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -437,6 +438,7 @@ internal fun ManagementInterface.ObfuscationSettings.toDomain(): ObfuscationSett
         udp2tcp = udp2Tcp.toDomain(),
         shadowsocks = shadowsocks.toDomain(),
         wireguardPort = wireguardPort.toDomain(),
+        lwo = lwo.toDomain()
     )
 
 internal fun ManagementInterface.ObfuscationSettings.SelectedObfuscation.toDomain():
@@ -462,6 +464,14 @@ internal fun ManagementInterface.ObfuscationSettings.Udp2TcpObfuscation.toDomain
         Udp2TcpObfuscationSettings(Constraint.Only(Port(port)))
     } else {
         Udp2TcpObfuscationSettings(Constraint.Any)
+    }
+
+internal fun ManagementInterface.ObfuscationSettings.Lwo.toDomain():
+    LwoObfuscationSettings =
+    if (hasPort()) {
+        LwoObfuscationSettings(Constraint.Only(Port(port)))
+    } else {
+        LwoObfuscationSettings(Constraint.Any)
     }
 
 internal fun ManagementInterface.ObfuscationSettings.Shadowsocks.toDomain():
