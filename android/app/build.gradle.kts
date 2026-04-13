@@ -98,11 +98,6 @@ android {
             )
         }
         getByName(BuildTypes.DEBUG) { isPseudoLocalesEnabled = true }
-        create(BuildTypes.FDROID) {
-            initWith(buildTypes.getByName(BuildTypes.RELEASE))
-            signingConfig = null
-            matchingFallbacks += BuildTypes.RELEASE
-        }
         create(BuildTypes.LEAK_CANARY) {
             initWith(buildTypes.getByName(BuildTypes.DEBUG))
             applicationIdSuffix = ".leakcanary"

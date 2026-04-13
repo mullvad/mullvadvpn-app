@@ -5,9 +5,7 @@ import org.gradle.api.Project
 // This is a hack and will not work correctly under all scenarios.
 // See DROID-1696 for how we can improve this.
 fun Project.isReleaseBuild() =
-    gradle.startParameter.getTaskNames().any {
-        it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
-    }
+    gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
 fun Project.generateRemapArguments(): String {
     val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
