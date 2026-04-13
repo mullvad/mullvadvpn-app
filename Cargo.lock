@@ -5461,7 +5461,6 @@ dependencies = [
  "pqcrypto-hqc",
  "pqcrypto-traits",
  "prost",
- "rand 0.9.3",
  "rand_core 0.6.4",
  "sha2",
  "talpid-types",
