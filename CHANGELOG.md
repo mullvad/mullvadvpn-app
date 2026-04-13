@@ -46,6 +46,8 @@ Line wrap the file at 100 chars.                                              Th
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
 ### Fixed
+- Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
+
 #### Windows
 - Fix regression in 2026.1 that could cause split tunneling to become unavailable.
 
