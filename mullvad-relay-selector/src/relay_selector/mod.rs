@@ -755,8 +755,14 @@ impl RelaySelector {
                     resolve_ip_version(query.wireguard_constraints().ip_version.as_ref());
                 Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version).map(Into::into))
             }
-            ObfuscationQuery::Lwo => {
-                Ok(helpers::get_lwo_obfuscator(obfuscator_relay, endpoint).map(Into::into))
+            ObfuscationQuery::Lwo(settings) => {
+                let port_ranges = &parsed_relays.wireguard.port_ranges;
+                let obfuscation =
+                    helpers::get_lwo_obfuscator(obfuscator_relay, endpoint, port_ranges, *settings)
+                        .map(|obfs| obfs.into())
+                        .map_err(box_obfuscation_error)?;
+
+                Ok(Some(obfuscation))
             }
         }
     }

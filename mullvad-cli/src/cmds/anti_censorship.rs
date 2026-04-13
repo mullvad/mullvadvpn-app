@@ -4,8 +4,8 @@ use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
-        ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
-        WireguardPortSettings,
+        LwoSettings, ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings,
+        Udp2TcpObfuscationSettings, WireguardPortSettings,
     },
 };
 
@@ -37,8 +37,16 @@ pub enum SetCommands {
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
     },
+
     /// Configure WireGuard port anti-censorship.
     WireguardPort {
+        /// Port to use
+        #[arg(long, short = 'p')]
+        port: Constraint<u16>,
+    },
+
+    /// Configure LWO port.
+    LwoPort {
         /// Port to use
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
@@ -58,6 +66,7 @@ impl AntiCensorship {
                     "wireguard-port settings: {}",
                     obfuscation_settings.wireguard_port
                 );
+                println!("lwo settings: {}", obfuscation_settings.lwo);
                 Ok(())
             }
             AntiCensorship::Set(subcmd) => Self::set(subcmd).await,
@@ -94,19 +103,24 @@ impl AntiCensorship {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let wireguard = rpc.get_relay_locations().await?.wireguard;
                 let wireguard_port = WireguardPortSettings::from(port);
-                let is_valid_port = match wireguard_port.get() {
-                    Constraint::Any => true,
-                    Constraint::Only(port) => wireguard
-                        .port_ranges
-                        .into_iter()
-                        .any(|range| range.contains(&port)),
-                };
-
-                if !is_valid_port {
+                if !is_valid_wg_port(&wireguard, port) {
                     return Err(anyhow::anyhow!("The specified port is invalid"));
                 }
                 rpc.set_obfuscation_settings(ObfuscationSettings {
                     wireguard_port,
+                    ..current_settings
+                })
+                .await?;
+            }
+            SetCommands::LwoPort { port } => {
+                let mut rpc = MullvadProxyClient::new().await?;
+                let wireguard = rpc.get_relay_locations().await?.wireguard;
+                let lwo = LwoSettings { port };
+                if !is_valid_wg_port(&wireguard, port) {
+                    return Err(anyhow::anyhow!("The specified port is invalid"));
+                }
+                rpc.set_obfuscation_settings(ObfuscationSettings {
+                    lwo,
                     ..current_settings
                 })
                 .await?;
@@ -116,5 +130,18 @@ impl AntiCensorship {
         println!("Updated anti-censorship settings");
 
         Ok(())
+    }
+}
+
+fn is_valid_wg_port(
+    wireguard: &mullvad_types::relay_list::EndpointData,
+    port: Constraint<u16>,
+) -> bool {
+    match port {
+        Constraint::Any => true,
+        Constraint::Only(port) => wireguard
+            .port_ranges
+            .iter()
+            .any(|range| range.contains(&port)),
     }
 }

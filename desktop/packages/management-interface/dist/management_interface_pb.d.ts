@@ -1127,6 +1127,11 @@ export class ObfuscationSettings extends jspb.Message {
     getWireguardPort(): ObfuscationSettings.WireguardPort | undefined;
     setWireguardPort(value?: ObfuscationSettings.WireguardPort): ObfuscationSettings;
 
+    hasLwo(): boolean;
+    clearLwo(): void;
+    getLwo(): ObfuscationSettings.Lwo | undefined;
+    setLwo(value?: ObfuscationSettings.Lwo): ObfuscationSettings;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ObfuscationSettings.AsObject;
     static toObject(includeInstance: boolean, msg: ObfuscationSettings): ObfuscationSettings.AsObject;
@@ -1143,6 +1148,7 @@ export namespace ObfuscationSettings {
         udp2tcp?: ObfuscationSettings.Udp2TcpObfuscation.AsObject,
         shadowsocks?: ObfuscationSettings.Shadowsocks.AsObject,
         wireguardPort?: ObfuscationSettings.WireguardPort.AsObject,
+        lwo?: ObfuscationSettings.Lwo.AsObject,
     }
 
 
@@ -1210,6 +1216,29 @@ export namespace ObfuscationSettings {
     }
 
     export namespace WireguardPort {
+        export type AsObject = {
+            port?: number,
+        }
+    }
+
+    export class Lwo extends jspb.Message { 
+
+        hasPort(): boolean;
+        clearPort(): void;
+        getPort(): number | undefined;
+        setPort(value: number): Lwo;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): Lwo.AsObject;
+        static toObject(includeInstance: boolean, msg: Lwo): Lwo.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: Lwo, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): Lwo;
+        static deserializeBinaryFromReader(message: Lwo, reader: jspb.BinaryReader): Lwo;
+    }
+
+    export namespace Lwo {
         export type AsObject = {
             port?: number,
         }

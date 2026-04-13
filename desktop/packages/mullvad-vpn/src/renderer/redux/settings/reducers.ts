@@ -155,6 +155,9 @@ const initialState: ISettingsReduxState = {
     wireGuardPortSettings: {
       port: 'any',
     },
+    lwoSettings: {
+      port: 'any',
+    },
   },
   customLists: [],
   apiAccessMethods: getDefaultApiAccessMethods(),

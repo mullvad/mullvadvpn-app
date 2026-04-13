@@ -656,6 +656,21 @@ impl fmt::Display for WireguardPortSettings {
     }
 }
 
+#[derive(Default, Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize, Intersection)]
+#[serde(rename_all = "snake_case")]
+pub struct LwoSettings {
+    pub port: Constraint<u16>,
+}
+
+impl fmt::Display for LwoSettings {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.port {
+            Constraint::Any => write!(f, "any port"),
+            Constraint::Only(port) => write!(f, "port {port}"),
+        }
+    }
+}
+
 /// Contains obfuscation settings
 #[derive(Default, Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -665,6 +680,7 @@ pub struct ObfuscationSettings {
     pub udp2tcp: Udp2TcpObfuscationSettings,
     pub shadowsocks: ShadowsocksSettings,
     pub wireguard_port: WireguardPortSettings,
+    pub lwo: LwoSettings,
 }
 
 /// Options to override for a particular relay to use instead of the ones specified in the relay
