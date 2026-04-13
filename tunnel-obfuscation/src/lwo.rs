@@ -322,7 +322,7 @@ impl Obfuscator for Lwo {
 }
 
 pub fn new_rng() -> impl RngCore {
-    rand::rngs::SmallRng::from_entropy()
+    rand::rngs::SmallRng::from_os_rng()
 }
 
 #[cfg(test)]
@@ -332,7 +332,7 @@ mod test {
     fn fake_packet() -> Vec<u8> {
         let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 100];
         packet[0] = DATA;
-        rand::thread_rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
+        rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
         packet
     }
 

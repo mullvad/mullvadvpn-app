@@ -15,7 +15,7 @@ async-trait = "0.1"
 futures = { workspace = true }
 log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }
-rand = { version = "0.8.5", features = ["small_rng"] }
+rand = { workspace = true, features = ["small_rng"] }
 shadowsocks = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
