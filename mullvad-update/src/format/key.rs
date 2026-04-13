@@ -16,7 +16,8 @@ impl SecretKey {
     /// Generate a new secret ed25519 key
     #[cfg(feature = "sign")]
     pub fn generate() -> Self {
-        let key = ed25519_dalek::SigningKey::generate(&mut rand08::thread_rng());
+        let mut csprng = rand_core::OsRng;
+        let key = ed25519_dalek::SigningKey::generate(&mut csprng);
         SecretKey(key)
     }
 
