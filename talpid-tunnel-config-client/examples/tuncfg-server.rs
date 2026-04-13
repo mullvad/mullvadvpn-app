@@ -23,7 +23,7 @@ use proto::{
     EphemeralPeerRequestV1, EphemeralPeerResponseV1, PostQuantumResponseV1,
     ephemeral_peer_server::{EphemeralPeer, EphemeralPeerServer},
 };
-use rand::{CryptoRng, RngCore};
+use rand_core::{CryptoRng, RngCore};
 use talpid_types::net::wireguard::PresharedKey;
 
 use tonic::{Request, Response, Status, transport::Server};
@@ -37,7 +37,7 @@ impl EphemeralPeer for EphemeralPeerImpl {
         &self,
         request: Request<EphemeralPeerRequestV1>,
     ) -> Result<Response<EphemeralPeerResponseV1>, Status> {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand_core::OsRng;
         let request = request.into_inner();
 
         println!("wg_parent_pubkey: {:?}", request.wg_parent_pubkey);
