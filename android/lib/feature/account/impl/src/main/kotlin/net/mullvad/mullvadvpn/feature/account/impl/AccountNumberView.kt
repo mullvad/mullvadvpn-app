@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.account.impl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import net.mullvad.mullvadvpn.lib.common.util.groupPasswordModeWithSpaces
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 
@@ -16,6 +17,7 @@ fun AccountNumberView(
             if (obfuscateWithPasswordDots) accountNumber.groupPasswordModeWithSpaces()
             else accountNumber.groupWithSpaces(),
         modifier = modifier,
+        fontFamily = FontFamily.Monospace,
         whenMissing = MissingPolicy.SHOW_SPINNER,
     )
 }

@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
@@ -157,6 +158,7 @@ fun Login(
                         message = resources.getString(R.string.error_occurred)
                     )
                 }
+
             is ApiUnreachableInfoDialogResult.Success -> {
                 when (it.arg.action) {
                     LoginAction.LOGIN -> vm.login(state.accountNumberInput)
@@ -170,14 +172,19 @@ fun Login(
         when (it) {
             LoginUiSideEffect.NavigateToWelcome ->
                 navigator.navigate(WelcomeNavKey, clearBackStack = true)
+
             is LoginUiSideEffect.NavigateToConnect ->
                 navigator.navigate(ConnectNavKey, clearBackStack = true)
+
             is LoginUiSideEffect.TooManyDevices ->
                 navigator.navigate(DeviceListNavKey(it.accountNumber))
+
             LoginUiSideEffect.NavigateToOutOfTime ->
                 navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
+
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationNavKey)
+
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -366,7 +373,11 @@ private fun ColumnScope.LoginInput(
             accountNumberVisualTransformation(showPassword, if (showLastChar) 1 else 0),
         enabled = state.loginState is LoginState.Idle,
         colors = mullvadWhiteTextFieldColors(),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+        textStyle =
+            MaterialTheme.typography.bodyLarge.copy(
+                textDirection = TextDirection.Ltr,
+                fontFamily = FontFamily.Monospace,
+            ),
         isError = state.loginState.isError(),
     )
 
@@ -416,6 +427,7 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
                 }
+
             is LoginState.Loading -> MullvadCircularProgressIndicatorLarge()
             LoginState.Success ->
                 Image(
@@ -436,8 +448,10 @@ private fun LoginState.title(): String =
                         is LoginUiStateError.LoginError -> R.string.login_fail_title
                         is LoginUiStateError.CreateAccountError ->
                             R.string.create_account_fail_title
+
                         null -> R.string.log_in
                     }
+
                 is LoginState.Loading -> R.string.logging_in_title
                 LoginState.Success -> R.string.logged_in_title
             }
@@ -472,6 +486,7 @@ private fun LoginState.supportingText(
             (loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
                 loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable)
          -> apiUnreachableText(loginUiStateError, onShowApiUnreachableDialog)
+
         is LoginState.Idle -> {
             when (loginUiStateError) {
                 LoginUiStateError.LoginError.InvalidCredentials -> R.string.login_fail_description
@@ -479,16 +494,20 @@ private fun LoginState.supportingText(
                 LoginUiStateError.LoginError.NoInternetConnection,
                 LoginUiStateError.CreateAccountError.NoInternetConnection ->
                     R.string.no_internet_connection
+
                 LoginUiStateError.LoginError.ApiUnreachable,
                 LoginUiStateError.CreateAccountError.ApiUnreachable -> R.string.api_unreachable
+
                 LoginUiStateError.LoginError.TooManyAttempts,
                 LoginUiStateError.CreateAccountError.TooManyAttempts ->
                     R.string.login_error_too_many_attempts
+
                 is LoginUiStateError.LoginError.Unknown -> R.string.error_occurred
                 LoginUiStateError.CreateAccountError.Unknown -> R.string.failed_to_create_account
                 null -> null
             }?.toAnnotatedString()
         }
+
         is LoginState.Loading.CreatingAccount -> R.string.creating_new_account.toAnnotatedString()
         is LoginState.Loading.LoggingIn -> R.string.logging_in_description.toAnnotatedString()
         LoginState.Success -> R.string.logged_in_description.toAnnotatedString()
@@ -546,6 +565,7 @@ private fun AccountDropDownItem(
                 text = accountNumber,
                 overflow = TextOverflow.Clip,
                 style = MaterialTheme.typography.bodyLarge,
+                fontFamily = FontFamily.Monospace,
             )
         }
         IconButton(
