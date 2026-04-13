@@ -296,7 +296,7 @@ val uiModule = module {
     }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { params -> MtuDialogViewModel(navArgs = params.get(), get()) }
-    viewModel { params -> DnsDialogViewModel(navArgs = params.get(), get(), get(), get(), get()) }
+    viewModel { params -> DnsDialogViewModel(navArgs = params.get(), get(), get(), get()) }
     viewModel { params -> CustomPortDialogViewModel(navArgs = params.get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
