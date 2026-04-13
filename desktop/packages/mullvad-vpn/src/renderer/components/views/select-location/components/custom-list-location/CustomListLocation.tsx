@@ -74,7 +74,7 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
       <Location root selected={customList.selected}>
         <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
           <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.Trigger
+            <Location.Accordion.Header.ItemTrigger
               onClick={handleClick}
               aria-label={sprintf(
                 // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -100,7 +100,7 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
                   )}
                 </FlexColumn>
               </Location.Accordion.Header.Item>
-            </Location.Accordion.Header.Trigger>
+            </Location.Accordion.Header.ItemTrigger>
             <CustomListTrailingActions customList={customList} />
           </Location.Accordion.Header>
           <Location.Accordion.Content>

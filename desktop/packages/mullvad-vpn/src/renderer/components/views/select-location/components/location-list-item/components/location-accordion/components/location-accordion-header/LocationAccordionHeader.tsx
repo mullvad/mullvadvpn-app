@@ -8,7 +8,11 @@ import {
 } from '../../../../../../../../../lib/components/accordion/components';
 import { StyledAccordionHeaderItem } from '../../../../../../../../../lib/components/accordion/components/accordion-header/components';
 import { StyledListItemTrailingAction } from '../../../../../../../../../lib/components/list-item/components/list-item-trailing-actions/components';
-import { LocationAccordionHeaderItem, LocationAccordionTrailingActions } from './components';
+import {
+  LocationAccordionHeaderItem,
+  LocationAccordionTrailingActions,
+  LocationAccordionTrigger,
+} from './components';
 
 export type LocationAccordionHeaderProps = AccordionHeaderProps;
 
@@ -47,7 +51,8 @@ function LocationAccordionHeader({ children, ...props }: LocationAccordionHeader
 const LocationAccordionHeaderNamespace = Object.assign(LocationAccordionHeader, {
   Item: LocationAccordionHeaderItem,
   TrailingActions: LocationAccordionTrailingActions,
-  Trigger: Accordion.Header.Trigger,
+  AccordionTrigger: LocationAccordionTrigger,
+  ItemTrigger: Accordion.Header.ItemTrigger,
 });
 
 export { LocationAccordionHeaderNamespace as LocationAccordionHeader };

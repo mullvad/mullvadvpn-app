@@ -23,7 +23,7 @@ function SettingsAccordionHeader({ children, ...props }: SettingsAccordionHeader
 
 const SettingsAccordionHeaderNamespace = Object.assign(SettingsAccordionHeader, {
   Item: AccordionHeader.Item,
-  Trigger: AccordionHeader.Trigger,
+  AccordionTrigger: AccordionHeader.AccordionTrigger,
 });
 
 export { SettingsAccordionHeaderNamespace as SettingsAccordionHeader };

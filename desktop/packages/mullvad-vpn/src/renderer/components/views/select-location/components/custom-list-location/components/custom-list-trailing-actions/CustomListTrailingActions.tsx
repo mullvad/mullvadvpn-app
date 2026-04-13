@@ -42,7 +42,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
           setLoading={setLoading}
         />
       </Location.Accordion.Header.TrailingActions.Action>
-      <Location.Accordion.Trigger
+      <Location.Accordion.Header.AccordionTrigger
         aria-label={sprintf(
           expanded
             ? messages.pgettext('accessibility', 'Collapse %(location)s')
@@ -52,7 +52,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
         <Location.Accordion.Header.TrailingActions.Action>
           <Location.Accordion.Header.TrailingActions.Action.Chevron />
         </Location.Accordion.Header.TrailingActions.Action>
-      </Location.Accordion.Trigger>
+      </Location.Accordion.Header.AccordionTrigger>
     </Location.Accordion.Header.TrailingActions>
   );
 }

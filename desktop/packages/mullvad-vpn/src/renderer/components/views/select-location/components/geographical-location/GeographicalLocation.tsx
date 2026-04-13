@@ -77,7 +77,7 @@ function GeographicalLocationImpl({
           ref={location.selected ? selectedLocationRef : null}
           level={level}
           position={position}>
-          <Location.Accordion.Header.Trigger
+          <Location.Accordion.Header.ItemTrigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -93,7 +93,7 @@ function GeographicalLocationImpl({
                 {location.label}
               </Location.Accordion.Header.Item.Title>
             </Location.Accordion.Header.Item>
-          </Location.Accordion.Header.Trigger>
+          </Location.Accordion.Header.ItemTrigger>
           <GeographicalLocationTrailingActions location={location} />
         </Location.Accordion.Header>
         <Location.Accordion.Content>

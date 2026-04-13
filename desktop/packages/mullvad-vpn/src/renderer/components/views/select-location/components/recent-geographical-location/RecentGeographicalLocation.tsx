@@ -44,7 +44,7 @@ function RecentGeographicalLocationImpl({
       <Location root selected={location.selected}>
         <Location.Accordion expanded disabled={disabled}>
           <Location.Accordion.Header level={0}>
-            <Location.Accordion.Header.Trigger
+            <Location.Accordion.Header.ItemTrigger
               onClick={handleClick}
               aria-label={sprintf(
                 // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -67,7 +67,7 @@ function RecentGeographicalLocationImpl({
                   )}
                 </FlexColumn>
               </Location.Accordion.Header.Item>
-            </Location.Accordion.Header.Trigger>
+            </Location.Accordion.Header.ItemTrigger>
             <RecentGeographicalLocationTrailingActions location={location} />
           </Location.Accordion.Header>
         </Location.Accordion>

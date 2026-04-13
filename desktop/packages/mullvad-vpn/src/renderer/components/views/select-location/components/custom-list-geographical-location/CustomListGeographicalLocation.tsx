@@ -57,7 +57,7 @@ function CustomListGeographicalLocationImpl({
     <Location selected={location.selected}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
         <Location.Accordion.Header level={level} position={position}>
-          <Location.Accordion.Header.Trigger
+          <Location.Accordion.Header.ItemTrigger
             onClick={handleClick}
             aria-label={sprintf(
               // TRANSLATORS: Accessibility label for a button that connects to a location.
@@ -73,7 +73,7 @@ function CustomListGeographicalLocationImpl({
                 {location.label}
               </Location.Accordion.Header.Item.Title>
             </Location.Accordion.Header.Item>
-          </Location.Accordion.Header.Trigger>
+          </Location.Accordion.Header.ItemTrigger>
 
           <CustomListGeographicalLocationTrailingActions />
         </Location.Accordion.Header>

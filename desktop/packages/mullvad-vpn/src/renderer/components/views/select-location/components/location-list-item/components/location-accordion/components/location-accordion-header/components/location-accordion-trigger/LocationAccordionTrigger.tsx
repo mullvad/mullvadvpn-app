@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Accordion } from '../../../../../../../../../lib/components/accordion';
-import { useAccordionContext } from '../../../../../../../../../lib/components/accordion/AccordionContext';
-import type { AccordionHeaderTriggerProps } from '../../../../../../../../../lib/components/accordion/components/accordion-header/components/accordion-header-trigger';
-import { useLocationAccordionContext } from '../../LocationAccordionContext';
+import { Accordion } from '../../../../../../../../../../../lib/components/accordion';
+import { useAccordionContext } from '../../../../../../../../../../../lib/components/accordion/AccordionContext';
+import type { AccordionHeaderTriggerProps } from '../../../../../../../../../../../lib/components/accordion/components/accordion-header/components/accordion-header-trigger';
+import { useLocationAccordionContext } from '../../../../LocationAccordionContext';
 
 export type LocationAccordionTriggerProps = AccordionHeaderTriggerProps;
 
@@ -21,8 +21,8 @@ export function LocationAccordionTrigger({ children, ...props }: LocationAccordi
   );
 
   return (
-    <Accordion.Header.Trigger onClick={handleClick} {...props}>
+    <Accordion.Header.AccordionTrigger onClick={handleClick} {...props}>
       {children}
-    </Accordion.Header.Trigger>
+    </Accordion.Header.AccordionTrigger>
   );
 }

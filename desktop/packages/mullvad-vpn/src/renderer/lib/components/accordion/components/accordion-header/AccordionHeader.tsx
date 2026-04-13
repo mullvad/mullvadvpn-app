@@ -40,9 +40,10 @@ function AccordionHeader({ children, ...props }: AccordionHeaderProps) {
 }
 
 const AccordionHeaderNamespace = Object.assign(AccordionHeader, {
-  Trigger: AccordionHeaderTrigger,
+  AccordionTrigger: AccordionHeaderTrigger,
   Item: AccordionHeaderItem,
   TrailingActions: ListItem.TrailingActions,
+  ItemTrigger: ListItem.Trigger,
 });
 
 export { AccordionHeaderNamespace as AccordionHeader };

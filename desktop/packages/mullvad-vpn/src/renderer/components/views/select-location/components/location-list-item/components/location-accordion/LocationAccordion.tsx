@@ -1,9 +1,5 @@
 import { Accordion, type AccordionProps } from '../../../../../../../lib/components/accordion';
-import {
-  LocationAccordionContent,
-  LocationAccordionHeader,
-  LocationAccordionTrigger,
-} from './components';
+import { LocationAccordionContent, LocationAccordionHeader } from './components';
 import { LocationAccordionProvider } from './LocationAccordionContext';
 
 export type LocationAccordionProps = AccordionProps;
@@ -18,7 +14,6 @@ function LocationAccordion({ children, ...props }: LocationAccordionProps) {
 
 const LocationAccordionNamespace = Object.assign(LocationAccordion, {
   Content: LocationAccordionContent,
-  Trigger: LocationAccordionTrigger,
   Header: LocationAccordionHeader,
   Container: Accordion.Container,
 });
