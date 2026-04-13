@@ -8,6 +8,7 @@ data class ObfuscationSettings(
     val udp2tcp: Udp2TcpObfuscationSettings,
     val shadowsocks: ShadowsocksObfuscationSettings,
     val wireguardPort: Constraint<Port>,
+    val lwo: LwoObfuscationSettings,
 ) {
     companion object
 }
