@@ -28,7 +28,7 @@ Builds:
       - apt-get update
       - apt-get install -y build-essential protobuf-compiler libprotobuf-dev
     init: NDK_PATH="$$NDK$$" ../fdroid-build/init.sh
-    output: build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+    output: build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
     rm:
       - desktop
       - graphics
@@ -51,7 +51,7 @@ Builds:
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
-      - ../build.sh --fdroid
+      - ../build.sh --oss-only --skip-clean-check
     ndk: 27.3.13750724
 
 AutoUpdateMode: Version

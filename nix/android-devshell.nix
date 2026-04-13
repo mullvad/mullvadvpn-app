@@ -33,8 +33,8 @@ pkgs.devshell.mkShell {
       command = "$ANDROID_ROOT/gradlew -p $ANDROID_ROOT assembleOssProdDebug";
     }
     {
-      name = "buildFdroid";
-      command = "$ANDROID_ROOT/gradlew -p $ANDROID_ROOT assembleOssProdFdroid";
+      name = "buildRelease";
+      command = "$ANDROID_ROOT/gradlew -p $ANDROID_ROOT assembleOssProdRelease";
     }
   ];
 }
