@@ -30,10 +30,8 @@ pub enum Error {
 
 fn validate_access_method(access_method: &AccessMethod) -> Result<(), crate::Error> {
     if let AccessMethod::Custom(proxy) = access_method {
-        use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
-        let mode = ApiConnectionMode::Proxied(ProxyConfig::from(proxy.clone()));
-        mullvad_api::validate_connection_mode(&mode)
-            .map_err(|e| crate::Error::InvalidAccessMethod(e.to_string()))?;
+        use mullvad_api::proxy::ProxyConfig;
+        ProxyConfig::try_from(proxy.clone()).map_err(crate::Error::InvalidAccessMethod)?;
     }
     Ok(())
 }

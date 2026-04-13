@@ -59,7 +59,13 @@ impl AccessMethodResolver for DaemonAccessMethodResolver {
                         return None;
                     };
                     let proxy = CustomProxy::Shadowsocks(bridge);
-                    ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
+                    match ProxyConfig::try_from(proxy) {
+                        Ok(config) => ApiConnectionMode::Proxied(config),
+                        Err(err) => {
+                            log::error!("Bridge has invalid proxy config: {err}");
+                            return None;
+                        }
+                    }
                 }
                 AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
                     if let Err(error) = self
@@ -76,9 +82,13 @@ impl AccessMethodResolver for DaemonAccessMethodResolver {
                     };
                     ApiConnectionMode::Proxied(ProxyConfig::from(edp))
                 }
-                AccessMethod::Custom(config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
-                }
+                AccessMethod::Custom(config) => match ProxyConfig::try_from(config.clone()) {
+                    Ok(config) => ApiConnectionMode::Proxied(config),
+                    Err(err) => {
+                        log::error!("Custom access method has invalid config: {err}");
+                        return None;
+                    }
+                },
             }
         };
         let endpoint =

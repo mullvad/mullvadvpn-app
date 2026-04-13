@@ -222,8 +222,8 @@ pub enum Error {
 
     #[error("API connection mode error")]
     ApiConnectionModeError(#[source] mullvad_api::access_mode::Error),
-    #[error("Access method has an invalid configuration: {0}")]
-    InvalidAccessMethod(String),
+    #[error("Access method has an invalid configuration")]
+    InvalidAccessMethod(#[source] mullvad_api::proxy::ProxyConfigError),
 
     #[error("No custom bridge has been specified")]
     NoCustomProxySaved,
@@ -3131,18 +3131,18 @@ impl Daemon {
         use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
         use talpid_types::net::AllowedEndpoint;
 
-        let connection_mode = ApiConnectionMode::Proxied(ProxyConfig::from(proxy.clone()));
-
-        // Validate eagerly (e.g. unsupported Shadowsocks cipher)
-        if let Err(err) = mullvad_api::validate_connection_mode(&connection_mode) {
-            log::warn!("Rejecting access method test, invalid config: {err}");
-            Self::oneshot_send(
-                tx,
-                Err(Error::InvalidAccessMethod(err.to_string())),
-                "on_test_proxy_as_access_method response",
-            );
-            return;
-        }
+        let connection_mode = match ProxyConfig::try_from(proxy.clone()) {
+            Ok(config) => ApiConnectionMode::Proxied(config),
+            Err(err) => {
+                log::warn!("Rejecting access method test, invalid config: {err}");
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::InvalidAccessMethod(err)),
+                    "on_test_proxy_as_access_method response",
+                );
+                return;
+            }
+        };
 
         let api_proxy = self.create_limited_api_proxy(connection_mode.clone());
         let proxy_endpoint = AllowedEndpoint {

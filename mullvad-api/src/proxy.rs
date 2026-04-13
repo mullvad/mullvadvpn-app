@@ -1,10 +1,12 @@
 use hyper_util::client::legacy::connect::{Connected, Connection};
 use serde::{Deserialize, Serialize};
+use shadowsocks::crypto::CipherKind;
 use std::{
     fmt, io,
     net::SocketAddr,
     path::Path,
     pin::Pin,
+    str::FromStr,
     task::{self, Poll},
 };
 use talpid_types::{
@@ -70,9 +72,62 @@ impl fmt::Display for ApiConnectionMode {
     }
 }
 
+#[derive(thiserror::Error, Debug)]
+pub enum ProxyConfigError {
+    #[error("Unrecognized cipher selected: {0}")]
+    InvalidCipher(String),
+}
+
+/// Shadowsocks proxy configuration with a parsed (validated) cipher.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ApiShadowsocksConfig {
+    pub endpoint: SocketAddr,
+    pub password: String,
+    pub cipher: CipherKind,
+}
+
+impl Serialize for ApiShadowsocksConfig {
+    fn serialize<S: serde::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        // Delegate to the talpid-types Shadowsocks for on-disk format compatibility
+        let raw = proxy::Shadowsocks {
+            endpoint: self.endpoint,
+            password: self.password.clone(),
+            cipher: self.cipher.to_string(),
+        };
+        raw.serialize(serializer)
+    }
+}
+
+impl<'de> Deserialize<'de> for ApiShadowsocksConfig {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw = proxy::Shadowsocks::deserialize(deserializer)?;
+        let cipher = CipherKind::from_str(&raw.cipher)
+            .map_err(|_| serde::de::Error::custom(format!("invalid cipher: {}", raw.cipher)))?;
+        Ok(ApiShadowsocksConfig {
+            endpoint: raw.endpoint,
+            password: raw.password,
+            cipher,
+        })
+    }
+}
+
+impl TryFrom<proxy::Shadowsocks> for ApiShadowsocksConfig {
+    type Error = ProxyConfigError;
+
+    fn try_from(value: proxy::Shadowsocks) -> Result<Self, Self::Error> {
+        let cipher = CipherKind::from_str(&value.cipher)
+            .map_err(|_| ProxyConfigError::InvalidCipher(value.cipher))?;
+        Ok(ApiShadowsocksConfig {
+            endpoint: value.endpoint,
+            password: value.password,
+            cipher,
+        })
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub enum ProxyConfig {
-    Shadowsocks(proxy::Shadowsocks),
+    Shadowsocks(ApiShadowsocksConfig),
     Socks5Local(proxy::Socks5Local),
     Socks5Remote(proxy::Socks5Remote),
     EncryptedDnsProxy(mullvad_encrypted_dns_proxy::config::ProxyConfig),
@@ -97,13 +152,17 @@ impl ProxyConfig {
     }
 }
 
-impl From<proxy::CustomProxy> for ProxyConfig {
-    fn from(value: proxy::CustomProxy) -> Self {
-        match value {
-            proxy::CustomProxy::Shadowsocks(shadowsocks) => ProxyConfig::Shadowsocks(shadowsocks),
+impl TryFrom<proxy::CustomProxy> for ProxyConfig {
+    type Error = ProxyConfigError;
+
+    fn try_from(value: proxy::CustomProxy) -> Result<Self, Self::Error> {
+        Ok(match value {
+            proxy::CustomProxy::Shadowsocks(shadowsocks) => {
+                ProxyConfig::Shadowsocks(ApiShadowsocksConfig::try_from(shadowsocks)?)
+            }
             proxy::CustomProxy::Socks5Local(socks) => ProxyConfig::Socks5Local(socks),
             proxy::CustomProxy::Socks5Remote(socks) => ProxyConfig::Socks5Remote(socks),
-        }
+        })
     }
 }
 

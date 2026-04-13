@@ -1,7 +1,7 @@
 use crate::{
     DnsResolver,
     abortable_stream::{AbortableStream, AbortableStreamHandle},
-    proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
+    proxy::{ApiConnection, ApiConnectionMode, ApiShadowsocksConfig, ProxyConfig},
     tls_stream::TlsStream,
 };
 use futures::{StreamExt, channel::mpsc, future, pin_mut};
@@ -17,7 +17,6 @@ use shadowsocks::{
     ServerConfig,
     config::{ServerConfigError, ServerType},
     context::{Context as SsContext, SharedContext},
-    crypto::CipherKind,
     relay::tcprelay::ProxyClientStream,
 };
 #[cfg(target_os = "android")]
@@ -28,12 +27,12 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
-    str::{self, FromStr},
+    str,
     sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::{ErrorExt, net::proxy};
+use talpid_types::net::proxy;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
@@ -109,7 +108,7 @@ impl InnerConnectionMode {
             }
             // Set up a Shadowsocks-connection.
             InnerConnectionMode::Shadowsocks(shadowsocks) => {
-                let first_hop = shadowsocks.params.peer;
+                let first_hop = shadowsocks.params.endpoint;
                 let make_proxy_stream = |tcp_stream| async {
                     Ok(ProxyClientStream::from_stream(
                         shadowsocks.proxy_context,
@@ -228,21 +227,14 @@ impl InnerConnectionMode {
 #[derive(Clone)]
 struct ShadowsocksConfig {
     proxy_context: SharedContext,
-    params: ParsedShadowsocksConfig,
+    params: ApiShadowsocksConfig,
 }
 
-#[derive(Clone)]
-struct ParsedShadowsocksConfig {
-    peer: SocketAddr,
-    password: String,
-    cipher: CipherKind,
-}
-
-impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
+impl TryFrom<ApiShadowsocksConfig> for ServerConfig {
     type Error = ServerConfigError;
 
-    fn try_from(config: ParsedShadowsocksConfig) -> Result<Self, Self::Error> {
-        ServerConfig::new(config.peer, config.password, config.cipher)
+    fn try_from(config: ApiShadowsocksConfig) -> Result<Self, Self::Error> {
+        ServerConfig::new(config.endpoint, config.password, config.cipher)
     }
 }
 
@@ -252,34 +244,15 @@ struct SocksConfig {
     authentication: Option<proxy::SocksAuth>,
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum ProxyConfigError {
-    #[error("Unrecognized cipher selected: {0}")]
-    InvalidCipher(String),
-}
-
-/// Validate an [`ApiConnectionMode`], returning an error if it contains
-/// an unsupported cipher or other configuration issue.
-pub fn validate_connection_mode(mode: &ApiConnectionMode) -> Result<(), ProxyConfigError> {
-    InnerConnectionMode::try_from(mode.clone()).map(|_| ())
-}
-
-impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
-    type Error = ProxyConfigError;
-
-    fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
+impl From<ApiConnectionMode> for InnerConnectionMode {
+    fn from(config: ApiConnectionMode) -> Self {
         use std::net::Ipv4Addr;
-        Ok(match config {
+        match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
                 ProxyConfig::Shadowsocks(config) => {
                     InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
-                        params: ParsedShadowsocksConfig {
-                            peer: config.endpoint,
-                            password: config.password,
-                            cipher: CipherKind::from_str(&config.cipher)
-                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
-                        },
+                        params: config,
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })
                 }
@@ -295,7 +268,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     InnerConnectionMode::EncryptedDnsProxy(config)
                 }
             },
-        })
+        }
     }
 }
 
@@ -341,19 +314,7 @@ impl HttpsConnector {
                     let mut inner = inner_copy.lock().unwrap();
 
                     if let HttpsConnectorRequest::SetConnectionMode(config) = request {
-                        match InnerConnectionMode::try_from(config) {
-                            Ok(config) => {
-                                inner.proxy_config = config;
-                            }
-                            Err(error) => {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to parse new API proxy config"
-                                    )
-                                );
-                            }
-                        }
+                        inner.proxy_config = InnerConnectionMode::from(config);
                     }
 
                     std::mem::take(&mut inner.stream_handles)
@@ -515,36 +476,30 @@ impl Service<Uri> for HttpsConnector {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::proxy::ProxyConfig;
+    use crate::proxy::{ApiShadowsocksConfig, ProxyConfigError};
     use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
     use talpid_types::net::proxy::Shadowsocks;
 
-    fn shadowsocks_mode(cipher: &str) -> ApiConnectionMode {
-        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(Shadowsocks {
+    fn make_shadowsocks(cipher: &str) -> Shadowsocks {
+        Shadowsocks {
             endpoint: SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, 1080)),
             password: "pass".to_owned(),
             cipher: cipher.to_owned(),
-        }))
+        }
     }
 
     #[test]
-    fn validate_valid_cipher() {
-        assert!(validate_connection_mode(&shadowsocks_mode("aes-256-gcm")).is_ok());
+    fn parse_valid_cipher() {
+        assert!(ApiShadowsocksConfig::try_from(make_shadowsocks("aes-256-gcm")).is_ok());
     }
 
     #[test]
-    fn validate_invalid_cipher() {
-        let err = validate_connection_mode(&shadowsocks_mode("xchacha20-ietf-poly1305"))
+    fn parse_invalid_cipher() {
+        let err = ApiShadowsocksConfig::try_from(make_shadowsocks("xchacha20-ietf-poly1305"))
             .unwrap_err();
         assert!(
             matches!(err, ProxyConfigError::InvalidCipher(_)),
             "unexpected error variant: {err}"
         );
-    }
-
-    #[test]
-    fn validate_direct_mode() {
-        assert!(validate_connection_mode(&ApiConnectionMode::Direct).is_ok());
     }
 }
