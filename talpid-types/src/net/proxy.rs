@@ -88,7 +88,8 @@ pub struct Shadowsocks {
     pub endpoint: SocketAddr,
     pub password: String,
     /// One of [`SHADOWSOCKS_CIPHERS`].
-    /// Gets validated at a later stage. Is assumed to be valid.
+    /// Validated by the daemon at add/update time and before use. Must be a cipher name
+    /// recognised by the `shadowsocks` crate (see `shadowsocks::crypto::available_ciphers`).
     pub cipher: String,
 }
 

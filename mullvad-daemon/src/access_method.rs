@@ -28,6 +28,16 @@ pub enum Error {
     Settings(#[from] settings::Error),
 }
 
+fn validate_access_method(access_method: &AccessMethod) -> Result<(), crate::Error> {
+    if let AccessMethod::Custom(proxy) = access_method {
+        use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
+        let mode = ApiConnectionMode::Proxied(ProxyConfig::from(proxy.clone()));
+        mullvad_api::validate_connection_mode(&mode)
+            .map_err(|e| crate::Error::InvalidAccessMethod(e.to_string()))?;
+    }
+    Ok(())
+}
+
 impl Daemon {
     /// Add a [`AccessMethod`] to the daemon's settings.
     ///
@@ -40,6 +50,7 @@ impl Daemon {
         enabled: bool,
         access_method: AccessMethod,
     ) -> Result<access_method::Id, crate::Error> {
+        validate_access_method(&access_method)?;
         let access_method_setting = AccessMethodSetting::new(name, enabled, access_method);
         let id = access_method_setting.get_id();
         self.settings
@@ -114,6 +125,7 @@ impl Daemon {
         &mut self,
         access_method_update: AccessMethodSetting,
     ) -> Result<(), crate::Error> {
+        validate_access_method(&access_method_update.access_method)?;
         self.settings
             .try_update(
                 |settings: &mut Settings| -> Result<(), access_method::Error> {

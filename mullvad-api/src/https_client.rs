@@ -253,9 +253,15 @@ struct SocksConfig {
 }
 
 #[derive(thiserror::Error, Debug)]
-enum ProxyConfigError {
+pub enum ProxyConfigError {
     #[error("Unrecognized cipher selected: {0}")]
     InvalidCipher(String),
+}
+
+/// Validate an [`ApiConnectionMode`], returning an error if it contains
+/// an unsupported cipher or other configuration issue.
+pub fn validate_connection_mode(mode: &ApiConnectionMode) -> Result<(), ProxyConfigError> {
+    InnerConnectionMode::try_from(mode.clone()).map(|_| ())
 }
 
 impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
@@ -504,5 +510,41 @@ impl Service<Uri> for HttpsConnector {
         };
 
         Box::pin(fut)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::proxy::ProxyConfig;
+    use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
+    use talpid_types::net::proxy::Shadowsocks;
+
+    fn shadowsocks_mode(cipher: &str) -> ApiConnectionMode {
+        ApiConnectionMode::Proxied(ProxyConfig::Shadowsocks(Shadowsocks {
+            endpoint: SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::LOCALHOST, 1080)),
+            password: "pass".to_owned(),
+            cipher: cipher.to_owned(),
+        }))
+    }
+
+    #[test]
+    fn validate_valid_cipher() {
+        assert!(validate_connection_mode(&shadowsocks_mode("aes-256-gcm")).is_ok());
+    }
+
+    #[test]
+    fn validate_invalid_cipher() {
+        let err = validate_connection_mode(&shadowsocks_mode("xchacha20-ietf-poly1305"))
+            .unwrap_err();
+        assert!(
+            matches!(err, ProxyConfigError::InvalidCipher(_)),
+            "unexpected error variant: {err}"
+        );
+    }
+
+    #[test]
+    fn validate_direct_mode() {
+        assert!(validate_connection_mode(&ApiConnectionMode::Direct).is_ok());
     }
 }

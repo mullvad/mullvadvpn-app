@@ -19,6 +19,7 @@ pub mod version;
 mod abortable_stream;
 pub mod access_mode;
 mod https_client;
+pub use https_client::{ProxyConfigError, validate_connection_mode};
 pub mod proxy;
 mod tls_stream;
 #[cfg(target_os = "android")]
