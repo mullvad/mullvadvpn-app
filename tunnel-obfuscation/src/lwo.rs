@@ -185,7 +185,7 @@ async fn run_obfuscation(
 ) {
     if sending {
         run_obfuscation_inner(
-            move |buf| obfuscate(&mut rand::thread_rng(), buf, key.as_bytes()),
+            move |buf| obfuscate(&mut rand::rng(), buf, key.as_bytes()),
             read_socket,
             write_socket,
         )
@@ -325,7 +325,7 @@ impl Obfuscator for Lwo {
 /// This is a convenience function for callers that do not want to manage their own RNG.
 /// Uses a per-thread [`rand::rngs::SmallRng`] initialized lazily on first use.
 pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
-    obfuscate(&mut rand::thread_rng(), packet, key);
+    obfuscate(&mut rand::rng(), packet, key);
 }
 
 #[cfg(test)]
@@ -335,7 +335,7 @@ mod test {
     fn fake_packet() -> Vec<u8> {
         let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 100];
         packet[0] = DATA;
-        rand::thread_rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
+        rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
         packet
     }
 
@@ -345,7 +345,7 @@ mod test {
         let mut packet = fake_packet();
         let original_packet = packet.clone();
 
-        let mut rng = &mut rand::thread_rng();
+        let mut rng = &mut rand::rng();
 
         obfuscate(&mut rng, &mut packet, &key);
         assert_ne!(packet, original_packet);
@@ -382,7 +382,7 @@ mod test {
 
         tokio::spawn(Box::new(lwo).run());
 
-        let mut rng = &mut rand::thread_rng();
+        let mut rng = &mut rand::rng();
 
         // Send a test message, verify it on the server
         let packet = fake_packet();

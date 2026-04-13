@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-htmlize = { version = "1.0.6", features = ["unescape"] }
+htmlize = { version = "1.1.0", features = ["unescape"] }
 itertools = "0.14.0"
 quick-xml = { version = "0.27.1", features = ["serialize"] }
 regex = "1"
