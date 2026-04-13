@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add port setting for LWO obfuscation.
 
 #### Linux
 - Make it possible to build for RISC-V from source.
