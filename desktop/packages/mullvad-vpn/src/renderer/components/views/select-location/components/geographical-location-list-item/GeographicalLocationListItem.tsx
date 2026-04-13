@@ -5,6 +5,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
+import { useScrollPositionContext } from '../../ScrollPositionContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { LocationListItem } from '../location-list-item';
 import { GeographicalLocationTrailingActions } from './components';
@@ -33,6 +34,7 @@ function GeographicalLocationListItemImpl({
   const { loading } = useGeographicalLocationListItemContext();
   const [expanded, setExpanded] = useState(location.expanded);
   const locationChildren = getLocationChildren(location);
+  const { selectedLocationRef } = useScrollPositionContext();
 
   useEffect(() => {
     setExpanded(location.expanded);
@@ -74,7 +76,10 @@ function GeographicalLocationListItemImpl({
         expanded={expanded}
         onExpandedChange={setExpanded}
         disabled={disabled}>
-        <LocationListItem.Accordion.Header level={level} position={position}>
+        <LocationListItem.Accordion.Header
+          ref={location.selected ? selectedLocationRef : null}
+          level={level}
+          position={position}>
           <LocationListItem.Accordion.Header.Trigger
             onClick={handleClick}
             aria-label={sprintf(
