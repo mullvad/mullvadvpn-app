@@ -32,9 +32,10 @@ use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
-        RelaySettings, SelectedObfuscation, ShadowsocksSettings, Udp2TcpObfuscationSettings,
-        WireguardConstraints, WireguardPortSettings, allowed_ip::AllowedIps,
+        LocationConstraint, LwoSettings, ObfuscationSettings, Ownership, Providers,
+        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
+        Udp2TcpObfuscationSettings, WireguardConstraints, WireguardPortSettings,
+        allowed_ip::AllowedIps,
     },
     wireguard::QuantumResistantState,
 };
@@ -217,7 +218,7 @@ pub enum ObfuscationQuery {
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
     Quic,
-    Lwo,
+    Lwo(LwoSettings),
 }
 
 impl ObfuscationQuery {
@@ -226,7 +227,13 @@ impl ObfuscationQuery {
             ObfuscationQuery::Off => SelectedObfuscation::Off,
             ObfuscationQuery::Auto => SelectedObfuscation::Auto,
             ObfuscationQuery::Quic => SelectedObfuscation::Quic,
-            ObfuscationQuery::Lwo => SelectedObfuscation::Lwo,
+            ObfuscationQuery::Lwo(settings) => {
+                return ObfuscationSettings {
+                    selected_obfuscation: SelectedObfuscation::Lwo,
+                    lwo: settings,
+                    ..Default::default()
+                };
+            }
             ObfuscationQuery::Port(wireguard_port) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::WireguardPort,
@@ -270,7 +277,7 @@ impl From<ObfuscationSettings> for ObfuscationQuery {
             Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
             Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
             Quic => ObfuscationQuery::Quic,
-            Lwo => ObfuscationQuery::Lwo,
+            Lwo => ObfuscationQuery::Lwo(obfuscation.lwo),
         }
     }
 }
@@ -285,6 +292,9 @@ impl Intersection for ObfuscationQuery {
             }
             (ObfuscationQuery::Shadowsocks(a), ObfuscationQuery::Shadowsocks(b)) => {
                 Some(ObfuscationQuery::Shadowsocks(a.intersection(b)?))
+            }
+            (ObfuscationQuery::Lwo(a), ObfuscationQuery::Lwo(b)) => {
+                Some(ObfuscationQuery::Lwo(a.intersection(b)?))
             }
             _ => None,
         }
@@ -353,8 +363,8 @@ pub mod builder {
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
-            LocationConstraint, RelayConstraints, SelectedObfuscation, ShadowsocksSettings,
-            TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
+            LocationConstraint, LwoSettings, RelayConstraints, SelectedObfuscation,
+            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
         },
         wireguard::QuantumResistantState,
     };
@@ -665,7 +675,8 @@ pub mod builder {
 
         /// Enable LWO obfuscation.
         pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo, Daita, QuantumResistant> {
-            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Lwo;
+            self.query.wireguard_constraints.obfuscation =
+                ObfuscationQuery::Lwo(LwoSettings::default());
             RelayQueryBuilder {
                 query: self.query,
                 settings: Settings {
@@ -725,7 +736,7 @@ mod test {
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
-            ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings,
+            LwoSettings, ObfuscationSettings, SelectedObfuscation, ShadowsocksSettings,
             Udp2TcpObfuscationSettings,
         },
     };
@@ -822,6 +833,7 @@ mod test {
                     port: port2,
                 },
                 wireguard_port: port1.into(),
+                lwo: LwoSettings { port: port1 },
             });
             assert_eq!(query, ObfuscationQuery::Auto);
         }

@@ -622,6 +622,9 @@ function convertFromObfuscationSettings(
     wireGuardPortSettings: obfuscationSettings?.wireguardPort
       ? { port: convertFromConstraint(obfuscationSettings.wireguardPort.port) }
       : { port: 'any' },
+    lwoSettings: obfuscationSettings?.lwo
+      ? { port: convertFromConstraint(obfuscationSettings.lwo.port) }
+      : { port: 'any' },
   };
 }
 
