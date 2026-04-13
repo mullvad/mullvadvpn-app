@@ -34,7 +34,7 @@ import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
@@ -110,7 +110,7 @@ fun ManageDevicesScreen(
     onTryAgainClicked: () -> Unit,
     navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.manage_devices),
         navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
         snackbarHostState = snackbarHostState,

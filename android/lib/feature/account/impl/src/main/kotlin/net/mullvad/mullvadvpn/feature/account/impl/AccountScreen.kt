@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeOutlinedButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
@@ -148,7 +148,7 @@ fun AccountScreen(
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()
 
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.settings_account),
         navigationIcon = { NavigateCloseIconButton(onBackClick) },
         snackbarHostState = snackbarHostState,

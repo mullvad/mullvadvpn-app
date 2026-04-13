@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,10 +31,11 @@ import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.PortType
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.ObfuscationModeListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
@@ -50,6 +53,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.util.applyIfNotNull
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -111,7 +115,7 @@ fun AntiCensorshipSettingsScreen(
     onBackClick: () -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         modifier = modifier,
         appBarTitle = stringResource(id = R.string.anti_censorship),
         navigationIcon = {
@@ -121,10 +125,15 @@ fun AntiCensorshipSettingsScreen(
                 unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) }
             }
         },
-    ) { modifier, lazyListState: LazyListState ->
+    ) { modifier ->
+        val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(
             modifier =
                 modifier
+                    .drawVerticalScrollbar(
+                        state = lazyListState,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                    )
                     .testTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
                     .padding(horizontal = Dimens.sideMarginNew),
             horizontalAlignment = Alignment.CenterHorizontally,

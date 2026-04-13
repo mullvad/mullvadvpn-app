@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -14,7 +15,7 @@ import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appicon.api.AppIconNavKey
 import net.mullvad.mullvadvpn.feature.language.api.LanguageNavKey
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -50,10 +51,11 @@ fun AppearanceScreen(
     onLanguageClick: (() -> Unit)?,
     onBackClick: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.appearance),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
-    ) { modifier, lazyListState: LazyListState ->
+    ) { modifier ->
+        val lazyListState: LazyListState = rememberLazyListState()
         LazyColumn(
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
             state = lazyListState,

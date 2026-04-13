@@ -40,7 +40,7 @@ import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyConfirmedNavResul
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaDirectOnlyInfoNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -112,7 +112,7 @@ fun DaitaScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.daita),
         modifier = modifier,
         navigationIcon = {

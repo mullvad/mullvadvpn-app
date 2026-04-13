@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -36,7 +37,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscation
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
-import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.griditem.AppIconAndTitleGridItem
@@ -101,11 +102,12 @@ fun AppIconScreen(
     onObfuscationSelected: (AppObfuscation) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    ScaffoldWithMediumTopBar(
+    ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
         appBarTitle = stringResource(id = R.string.app_icon),
         navigationIcon = { unlessIsDetail { NavigateBackIconButton(onNavigateBack = onBackClick) } },
-    ) { modifier, lazyGridState: LazyGridState ->
+    ) { modifier ->
+        val lazyGridState: LazyGridState = rememberLazyGridState()
         LazyVerticalGrid(
             state = lazyGridState,
             modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
