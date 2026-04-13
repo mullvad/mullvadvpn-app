@@ -36,8 +36,8 @@
     "npm": ">=8.3"
   },
   "volta": {
-    "node": "22.21.1",
-    "npm": "11.1.0"
+    "node": "22.22.1",
+    "npm": "11.12.1"
   },
   "overrides": {
     "grpc_tools_node_protoc_ts": {

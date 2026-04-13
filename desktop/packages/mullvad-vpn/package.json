@@ -45,7 +45,7 @@
     "@types/topojson-specification": "^1.0.2",
     "@vitejs/plugin-react": "^5.1.4",
     "cross-env": "^7.0.3",
-    "electron": "39.2.6",
+    "electron": "39.8.5",
     "electron-builder": "26.8.1",
     "electron-devtools-installer": "^3.2.0",
     "eslint-plugin-react": "^7.36.1",
