@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -93,6 +94,7 @@ internal fun ObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSe
         .setUdp2Tcp(udp2tcp.fromDomain())
         .setShadowsocks(shadowsocks.fromDomain())
         .setWireguardPort(wireguardPort.fromDomain())
+        .setLwo(lwo.fromDomain())
         .build()
 
 internal fun ObfuscationMode.fromDomain():
@@ -271,6 +273,16 @@ internal fun ShadowsocksObfuscationSettings.fromDomain():
             ManagementInterface.ObfuscationSettings.Shadowsocks.newBuilder().clearPort().build()
         is Constraint.Only ->
             ManagementInterface.ObfuscationSettings.Shadowsocks.newBuilder()
+                .setPort(port.value.value)
+                .build()
+    }
+
+internal fun LwoObfuscationSettings.fromDomain(): ManagementInterface.ObfuscationSettings.Lwo =
+    when (val port = port) {
+        is Constraint.Any ->
+            ManagementInterface.ObfuscationSettings.Lwo.newBuilder().clearPort().build()
+        is Constraint.Only ->
+            ManagementInterface.ObfuscationSettings.Lwo.newBuilder()
                 .setPort(port.value.value)
                 .build()
     }
