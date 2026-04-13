@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, including
+  Windows. It replaces wireguard-go.
 
 #### Linux
 - Make it possible to build for RISC-V from source.
