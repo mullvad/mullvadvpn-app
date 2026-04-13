@@ -9,6 +9,7 @@
 //! The difference `proxy_lwo - inline_lwo` is the cost of the extra kernel
 //! round-trip.
 
+use core::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
 use talpid_types::net::wireguard::PublicKey;
 use tokio::net::UdpSocket;
@@ -37,7 +38,7 @@ fn bench_baseline(c: &mut Criterion) {
     c.bench_function("baseline/send_recv", |b| {
         b.iter(|| {
             rt.block_on(async {
-                sender.send(&packet).await.unwrap();
+                sender.send(black_box(&packet)).await.unwrap();
                 relay.recv(&mut recv_buf).await.unwrap();
             });
         });
@@ -68,7 +69,7 @@ fn bench_inline_lwo(c: &mut Criterion) {
     c.bench_function("inline_lwo/send_recv", |b| {
         b.iter(|| {
             rt.block_on(async {
-                let mut pkt = core::hint::black_box(packet.clone());
+                let mut pkt = black_box(packet.clone());
                 obfuscate_thread_local(&mut pkt, &tx_key);
                 sender.send(&pkt).await.unwrap();
                 let n = relay.recv(&mut recv_buf).await.unwrap();
@@ -117,7 +118,10 @@ fn bench_proxy_lwo(c: &mut Criterion) {
     c.bench_function("proxy_lwo/send_recv", |b| {
         b.iter(|| {
             rt.block_on(async {
-                wg_socket.send_to(&packet, proxy_addr).await.unwrap();
+                wg_socket
+                    .send_to(black_box(&packet), proxy_addr)
+                    .await
+                    .unwrap();
                 relay.recv(&mut recv_buf).await.unwrap();
             });
         });
