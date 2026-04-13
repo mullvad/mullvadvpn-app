@@ -46,6 +46,10 @@ Line wrap the file at 100 chars.                                              Th
 - GotaTun is now used as the WireGuard implementation. It replaces wireguard-go.
 
 ### Fixed
+- Fix a bug in the relay selector logic for automatic anti-censorship selection, which erroneously
+  missed QUIC and LWO. The retry order now correctly adheres to the list specified in
+  `docs/relay-selector.md`.
+
 #### Windows
 - Fix regression in 2026.1 that could cause split tunneling to become unavailable.
 
