@@ -126,8 +126,8 @@ pub fn get_multiplexer_obfuscator(
     configs.push(shadowsocks.0);
 
     let ip_version = match endpoint.peer.endpoint {
-        SocketAddr::V4(_) => IpVersion::V4,
-        SocketAddr::V6(_) => IpVersion::V6,
+        SocketAddr::V4(_) => Constraint::Only(IpVersion::V4),
+        SocketAddr::V6(_) => Constraint::Only(IpVersion::V6),
     };
     if let Some(quic) = get_quic_obfuscator(obfuscator_relay.clone(), ip_version) {
         configs.push(quic.0);
@@ -194,14 +194,24 @@ pub fn get_shadowsocks_obfuscator(
 
 pub fn get_quic_obfuscator(
     relay: WireguardRelay,
-    ip_version: IpVersion,
+    ip_version: Constraint<IpVersion>,
 ) -> Option<(ObfuscatorConfig, WireguardRelay)> {
     let quic = relay.endpoint().quic()?;
     let config = {
         let hostname = quic.hostname().to_string();
         let addrs: Vec<IpAddr> = match ip_version {
-            IpVersion::V4 => quic.in_ipv4().map(IpAddr::from).collect(),
-            IpVersion::V6 => quic.in_ipv6().map(IpAddr::from).collect(),
+            Constraint::Only(IpVersion::V4) => quic.in_ipv4().map(IpAddr::from).collect(),
+            Constraint::Only(IpVersion::V6) => quic.in_ipv6().map(IpAddr::from).collect(),
+            // Prefer IPv4, but fall back to IPv6 if the relay's QUIC obfuscator
+            // only has IPv6 addresses.
+            Constraint::Any => {
+                let v4: Vec<IpAddr> = quic.in_ipv4().map(IpAddr::from).collect();
+                if v4.is_empty() {
+                    quic.in_ipv6().map(IpAddr::from).collect()
+                } else {
+                    v4
+                }
+            }
         };
         let &in_ip = addrs.iter().choose(&mut rand::rng())?;
         let endpoint = SocketAddr::from((in_ip, quic.port()));
@@ -450,5 +460,119 @@ mod tests {
             selected_addr.is_ok(),
             "expected match for within-range port"
         );
+    }
+
+    mod quic {
+        use super::super::get_quic_obfuscator;
+        use mullvad_types::{
+            constraints::Constraint,
+            location::Location,
+            relay_list::{Quic, Relay, WireguardRelay, WireguardRelayEndpointData},
+        };
+        use std::net::IpAddr;
+        use talpid_types::net::{IpVersion, obfuscation::ObfuscatorConfig, wireguard::PublicKey};
+        fn dummy_relay(quic_addrs: Vec<IpAddr>) -> WireguardRelay {
+            let quic = Quic::new(
+                quic_addrs.try_into().expect("quic_addrs must be non-empty"),
+                "token".to_string(),
+                "example.com".to_string(),
+            );
+            let mut endpoint_data = WireguardRelayEndpointData::new(PublicKey::from([0u8; 32]));
+            endpoint_data.quic = Some(quic);
+            WireguardRelay::new(
+                false,
+                false,
+                true,
+                true,
+                "provider".to_string(),
+                endpoint_data,
+                Relay {
+                    hostname: "se-got-wg-003".to_string(),
+                    ipv4_addr_in: "1.2.3.4".parse().unwrap(),
+                    ipv6_addr_in: None,
+                    active: true,
+                    weight: 100,
+                    location: Location {
+                        country: "Sweden".to_string(),
+                        country_code: "se".to_string(),
+                        city: "Gothenburg".to_string(),
+                        city_code: "got".to_string(),
+                        latitude: 57.71,
+                        longitude: 11.97,
+                    },
+                },
+            )
+        }
+
+        /// IPv4-only runtime with relay that has no IPv4 QUIC addresses should return None.
+        #[test]
+        fn ipv4_only_no_ipv4_quic_addrs() {
+            let relay = dummy_relay(vec!["::1".parse().unwrap(), "::2".parse().unwrap()]);
+            let result = get_quic_obfuscator(relay, Constraint::Only(IpVersion::V4));
+            assert!(
+                result.is_none(),
+                "expected no QUIC obfuscator for IPv4-only with only IPv6 QUIC addresses"
+            );
+        }
+
+        /// IPv6 available at runtime, relay has only IPv6 QUIC addresses - should succeed.
+        #[test]
+        fn ipv6_available_only_ipv6_quic_addrs() {
+            let ipv6_addr: IpAddr = "::1".parse().unwrap();
+            let relay = dummy_relay(vec![ipv6_addr]);
+            let (config, _relay) = get_quic_obfuscator(relay, Constraint::Only(IpVersion::V6))
+                .expect("expected QUIC obfuscator with IPv6 address");
+            let ObfuscatorConfig::Quic { endpoint, .. } = config else {
+                panic!("expected Quic config");
+            };
+            assert!(endpoint.ip().is_ipv6(), "expected IPv6 endpoint");
+        }
+
+        /// When unconstrained (Any), prefers IPv4 if available, even when IPv6 also exists.
+        #[test]
+        fn any_prefers_ipv4_when_available() {
+            let ipv4: IpAddr = "10.0.0.1".parse().unwrap();
+            let ipv6: IpAddr = "::1".parse().unwrap();
+            let relay = dummy_relay(vec![ipv4, ipv6]);
+            let (config, _relay) =
+                get_quic_obfuscator(relay, Constraint::Any).expect("expected QUIC obfuscator");
+            let ObfuscatorConfig::Quic { endpoint, .. } = config else {
+                panic!("expected Quic config");
+            };
+            assert!(
+                endpoint.ip().is_ipv4(),
+                "expected IPv4 endpoint when both are available"
+            );
+        }
+
+        /// When unconstrained (Any) and relay only has IPv6 QUIC addresses, falls back to IPv6.
+        #[test]
+        fn any_falls_back_to_ipv6() {
+            let ipv6: IpAddr = "::1".parse().unwrap();
+            let relay = dummy_relay(vec![ipv6]);
+            let (config, _relay) = get_quic_obfuscator(relay, Constraint::Any)
+                .expect("expected QUIC obfuscator to fall back to IPv6");
+            let ObfuscatorConfig::Quic { endpoint, .. } = config else {
+                panic!("expected Quic config");
+            };
+            assert!(endpoint.ip().is_ipv6(), "expected IPv6 fallback endpoint");
+        }
+
+        /// When constrained to IPv6, should only return IPv6 addresses.
+        #[test]
+        fn ipv6_constraint_ignores_ipv4() {
+            let ipv4: IpAddr = "10.0.0.1".parse().unwrap();
+            let ipv6: IpAddr = "::1".parse().unwrap();
+            let relay = dummy_relay(vec![ipv4, ipv6]);
+            let (config, _relay) = get_quic_obfuscator(relay, Constraint::Only(IpVersion::V6))
+                .expect("expected QUIC obfuscator");
+            let ObfuscatorConfig::Quic { endpoint, .. } = config else {
+                panic!("expected Quic config");
+            };
+            assert!(
+                endpoint.ip().is_ipv6(),
+                "expected only IPv6 when constrained"
+            );
+        }
     }
 }
