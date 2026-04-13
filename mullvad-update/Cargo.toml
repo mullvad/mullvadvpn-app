@@ -24,8 +24,8 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 # If a consumer enable the `proptest` feature, then we expose proptest generators in the public API
 proptest = { workspace = true, optional = true }
 rand = { workspace = true }
-rand_core = { version = "0.6", features = ["getrandom"], optional = true }
 # ed25519-dalek still depends on rand_core 0.6 as of ed25519-dalek 2.2.0
+rand_core = { version = "0.6", features = ["getrandom"], optional = true }
 reqwest = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
