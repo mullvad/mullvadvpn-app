@@ -39,5 +39,6 @@ export type LocalizationContexts =
   | 'changelog-view'
   | 'app-upgrade-view'
   | 'anti-censorship-view'
+  | 'lwo-settings-view'
   | 'custom-list-feature'
   | 'locations-feature';

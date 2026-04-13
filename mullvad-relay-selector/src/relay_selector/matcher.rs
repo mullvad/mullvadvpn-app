@@ -116,7 +116,7 @@ fn filter_on_obfuscation(
             None => false,
         },
         // LWO is only enabled on some relays
-        Lwo => relay.endpoint().lwo,
+        Lwo(_) => relay.endpoint().lwo,
         // Other relays are compatible with this query
         Off | Auto | Port(_) | Udp2tcp(_) => true,
     }

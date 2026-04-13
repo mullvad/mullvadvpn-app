@@ -66,6 +66,9 @@ export function getDefaultSettings(): ISettings {
       wireGuardPortSettings: {
         port: 'any',
       },
+      lwoSettings: {
+        port: 'any',
+      },
     },
     customLists: [],
     apiAccessMethods: getDefaultApiAccessMethods(),
