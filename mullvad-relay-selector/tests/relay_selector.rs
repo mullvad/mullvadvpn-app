@@ -339,7 +339,7 @@ fn test_retry_order() {
                     ObfuscationQuery::Quic
                     | ObfuscationQuery::Udp2tcp(_)
                     | ObfuscationQuery::Shadowsocks(_)
-                    | ObfuscationQuery::Lwo => obfuscator.is_some(),
+                    | ObfuscationQuery::Lwo(_) => obfuscator.is_some(),
                 });
             }
             _ => unreachable!(),

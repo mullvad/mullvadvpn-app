@@ -15,24 +15,24 @@ import InfoButton from '../../../../InfoButton';
 import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
-const WIREGUARD_UDP_PORTS = [51820, 53];
+const LWO_UDP_PORTS = [51820, 53];
 
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
-export function PortSetting() {
+export function LwoPortSetting() {
   const { setObfuscationSettings } = useAppContext();
 
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
 
-  const wireguardPortItems = useMemo<Array<SelectorItem<number>>>(
-    () => WIREGUARD_UDP_PORTS.map(mapPortToSelectorItem),
+  const lwoPortItems = useMemo<Array<SelectorItem<number>>>(
+    () => LWO_UDP_PORTS.map(mapPortToSelectorItem),
     [],
   );
 
   const selectedOption = useMemo(() => {
-    const port = liftConstraint(obfuscationSettings.wireGuardPortSettings.port);
+    const port = liftConstraint(obfuscationSettings.lwoSettings.port);
 
     if (port === 'any') {
       return {
@@ -41,7 +41,7 @@ export function PortSetting() {
       };
     }
 
-    if (port && !WIREGUARD_UDP_PORTS.includes(port)) {
+    if (port && !LWO_UDP_PORTS.includes(port)) {
       return {
         port,
         value: 'custom',
@@ -54,12 +54,12 @@ export function PortSetting() {
     };
   }, [obfuscationSettings]);
 
-  const setWireguardPort = useCallback(
+  const setLwoPort = useCallback(
     async (port: number | string | null) => {
       await setObfuscationSettings({
         ...obfuscationSettings,
-        wireGuardPortSettings: {
-          ...obfuscationSettings.wireGuardPortSettings,
+        lwoSettings: {
+          ...obfuscationSettings.lwoSettings,
           port: wrapConstraint(typeof port === 'string' ? parseInt(port) : port),
         },
       });
@@ -78,13 +78,13 @@ export function PortSetting() {
     <SettingsListbox
       anchorId="port-setting"
       value={selectedOption.value}
-      onValueChange={setWireguardPort}>
+      onValueChange={setLwoPort}>
       <SettingsListbox.Header>
         <SettingsListbox.Header.Item>
           <SettingsListbox.Header.Item.Label>
             {
-              // TRANSLATORS: The title for the WireGuard port selector.
-              messages.pgettext('wireguard-settings-view', 'Port')
+              // TRANSLATORS: The title for the LWO port selector.
+              messages.pgettext('lwo-settings-view', 'Port')
             }
           </SettingsListbox.Header.Item.Label>
           <SettingsListbox.Header.Item.ActionGroup>
@@ -92,14 +92,14 @@ export function PortSetting() {
               <>
                 <ModalMessage>
                   {messages.pgettext(
-                    'wireguard-settings-view',
+                    'lwo-settings-view',
                     'The automatic setting will randomly choose from the valid port ranges shown below.',
                   )}
                 </ModalMessage>
                 <ModalMessage>
                   {sprintf(
                     messages.pgettext(
-                      'wireguard-settings-view',
+                      'lwo-settings-view',
                       'The custom port can be any value inside the valid ranges: %(portRanges)s.',
                     ),
                     { portRanges: portRangesText },
@@ -114,7 +114,7 @@ export function PortSetting() {
         <SettingsListbox.Options.BaseOption value={null}>
           {messages.gettext('Automatic')}
         </SettingsListbox.Options.BaseOption>
-        {wireguardPortItems.map((item) => (
+        {lwoPortItems.map((item) => (
           <SettingsListbox.Options.BaseOption key={item.value} value={item.value}>
             {item.label}
           </SettingsListbox.Options.BaseOption>
@@ -131,7 +131,7 @@ export function PortSetting() {
           </SettingsListbox.Options.InputOption.Label>
           <SettingsListbox.Header.Item.ActionGroup>
             <SettingsListbox.Options.InputOption.Input
-              placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
+              placeholder={messages.pgettext('lwo-settings-view', 'Port')}
               maxLength={5}
               type="text"
               inputMode="numeric"

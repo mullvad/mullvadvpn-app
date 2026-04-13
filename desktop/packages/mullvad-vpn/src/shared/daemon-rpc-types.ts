@@ -478,6 +478,10 @@ export type WireGuardPortObfuscationSettings = {
   port: Constraint<number>;
 };
 
+export type LwoSettings = {
+  port: Constraint<number>;
+};
+
 export type Udp2TcpObfuscationSettings = {
   port: Constraint<number>;
 };
@@ -501,6 +505,7 @@ export type ObfuscationSettings = {
   udp2tcpSettings: Udp2TcpObfuscationSettings;
   shadowsocksSettings: ShadowsocksSettings;
   wireGuardPortSettings: WireGuardPortObfuscationSettings;
+  lwoSettings: LwoSettings;
 };
 
 export interface ISocketAddress {

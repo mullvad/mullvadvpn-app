@@ -152,6 +152,7 @@ impl From<&mullvad_types::relay_constraints::ObfuscationSettings> for proto::Obf
             wireguard_port: Some(proto::obfuscation_settings::WireguardPort::from(
                 &settings.wireguard_port,
             )),
+            lwo: Some(proto::obfuscation_settings::Lwo::from(&settings.lwo)),
         }
     }
 }
@@ -188,6 +189,14 @@ impl From<&mullvad_types::relay_constraints::WireguardPortSettings>
     fn from(port: &mullvad_types::relay_constraints::WireguardPortSettings) -> Self {
         Self {
             port: port.get().map(u32::from).option(),
+        }
+    }
+}
+
+impl From<&mullvad_types::relay_constraints::LwoSettings> for proto::obfuscation_settings::Lwo {
+    fn from(settings: &mullvad_types::relay_constraints::LwoSettings) -> Self {
+        Self {
+            port: settings.port.map(u32::from).option(),
         }
     }
 }
@@ -399,11 +408,21 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
             }
         };
 
+        let lwo = match settings.lwo {
+            Some(s) => mullvad_types::relay_constraints::LwoSettings::try_from(&s)?,
+            None => {
+                return Err(FromProtobufTypeError::invalid_argument(
+                    "invalid LWO settings",
+                ));
+            }
+        };
+
         Ok(Self {
             selected_obfuscation,
             udp2tcp,
             shadowsocks,
             wireguard_port,
+            lwo,
         })
     }
 }
@@ -444,6 +463,16 @@ impl TryFrom<&proto::obfuscation_settings::WireguardPort>
     ) -> Result<Self, Self::Error> {
         let port = settings.port.map(|port| port as u16);
         Ok(Self::from(port))
+    }
+}
+
+impl TryFrom<&proto::obfuscation_settings::Lwo> for mullvad_types::relay_constraints::LwoSettings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: &proto::obfuscation_settings::Lwo) -> Result<Self, Self::Error> {
+        Ok(Self {
+            port: Constraint::from(settings.port.map(|port| port as u16)),
+        })
     }
 }
 

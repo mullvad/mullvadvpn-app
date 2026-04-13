@@ -307,6 +307,13 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
+#. Text for screen readers to describe the LWO port settings navigation button.
+#. Available placeholders:
+#. %(lwo)s - will be replaced with LWO
+msgctxt "accessibility"
+msgid "%(lwo)s port settings"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr ""
@@ -1725,6 +1732,26 @@ msgstr ""
 #. Text that informs the users about consequences of creating a new account.
 msgctxt "login-view"
 msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr ""
+
+#. The title for the LWO port selector.
+msgctxt "lwo-settings-view"
+msgid "Port"
+msgstr ""
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
+msgctxt "lwo-settings-view"
+msgid "Port: %(port)s"
+msgstr ""
+
+msgctxt "lwo-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr ""
+
+msgctxt "lwo-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
 msgstr ""
 
 #. Title label in navigation bar

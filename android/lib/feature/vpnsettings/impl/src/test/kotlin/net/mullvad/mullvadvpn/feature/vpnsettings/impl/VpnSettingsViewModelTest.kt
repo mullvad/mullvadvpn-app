@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -267,6 +268,7 @@ class VpnSettingsViewModelTest {
                         udp2tcp = Udp2TcpObfuscationSettings(Constraint.Any),
                         shadowsocks = ShadowsocksObfuscationSettings(Constraint.Any),
                         wireguardPort = Constraint.Any,
+                        lwo = LwoObfuscationSettings(Constraint.Any),
                     ),
                 customLists = emptyList(),
                 allowLan = false,
