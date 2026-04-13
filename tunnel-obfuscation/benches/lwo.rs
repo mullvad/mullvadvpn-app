@@ -4,7 +4,7 @@ use talpid_types::net::wireguard::PublicKey;
 
 fn obfuscate(c: &mut Criterion) {
     let pubkey = PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
-    let rng = &mut rand::thread_rng();
+    let rng = &mut rand::rng();
 
     let mut group = c.benchmark_group("lwo");
     group.throughput(criterion::Throughput::Bytes(fake_packet().len() as u64));
@@ -20,7 +20,7 @@ fn obfuscate(c: &mut Criterion) {
 
 fn deobfuscate(c: &mut Criterion) {
     let pubkey = PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
-    let rng = &mut rand::thread_rng();
+    let rng = &mut rand::rng();
 
     let mut group = c.benchmark_group("lwo");
     group.throughput(criterion::Throughput::Bytes(
@@ -44,7 +44,7 @@ const DATA_OVERHEAD_SZ: usize = 32;
 fn fake_packet() -> Vec<u8> {
     let mut packet = vec![0u8; DATA_OVERHEAD_SZ + 1200];
     packet[0] = DATA;
-    rand::thread_rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
+    rand::rng().fill_bytes(&mut packet[DATA_OVERHEAD_SZ..]);
     packet
 }
 

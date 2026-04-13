@@ -45,7 +45,7 @@ zeroize = { workspace = true, features = ["zeroize_derive"] }
 [dev-dependencies]
 async-tempfile = "0.6"
 insta = { workspace = true }
-mockito = "1.6.1"
+mockito = { workspace = true }
 proptest = { workspace = true }
 rand = { workspace = true }
 tokio = { workspace = true, features = ["fs", "macros", "test-util", "time"] }
