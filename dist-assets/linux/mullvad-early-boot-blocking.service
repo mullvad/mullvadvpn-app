@@ -10,7 +10,7 @@ Before=basic.target mullvad-daemon.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/mullvad-daemon --initialize-early-boot-firewall
+ExecStart=/usr/bin/mullvad-daemon -v --initialize-early-boot-firewall
 
 [Install]
 WantedBy=mullvad-daemon.service
