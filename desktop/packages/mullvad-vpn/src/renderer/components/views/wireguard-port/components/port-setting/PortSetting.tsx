@@ -4,8 +4,11 @@ import { sprintf } from 'sprintf-js';
 import { liftConstraint, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../shared/gettext';
 import { removeNonNumericCharacters } from '../../../../../../shared/string-helpers';
-import { isInRanges } from '../../../../../../shared/utils';
 import { useAppContext } from '../../../../../context';
+import {
+  formatPortRanges,
+  validatePortString,
+} from '../../../../../features/anti-censorship/utils';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
 import InfoButton from '../../../../InfoButton';
@@ -65,23 +68,12 @@ export function PortSetting() {
     [setObfuscationSettings, obfuscationSettings],
   );
 
-  const validateValue = useCallback(
-    (value: number) => isInRanges(value, allowedPortRanges),
+  const validateStringValue = useCallback(
+    (value: string) => validatePortString(value, allowedPortRanges),
     [allowedPortRanges],
   );
 
-  const validateStringValue = useCallback(
-    (value: string) => {
-      const numericValue = parseInt(value, 10);
-      if (Number.isNaN(numericValue)) return false;
-      return validateValue(numericValue);
-    },
-    [validateValue],
-  );
-
-  const portRangesText = allowedPortRanges
-    .map(([start, end]) => (start === end ? start : `${start}-${end}`))
-    .join(', ');
+  const portRangesText = formatPortRanges(allowedPortRanges);
 
   return (
     <SettingsListbox
