@@ -34,5 +34,5 @@ export enum RoutePath {
   manageDevices = '/settings/manage-devices',
   antiCensorship = '/settings/advanced/anti-censorship',
   wireguardPort = '/settings/advanced/wireguard-port',
-  lwoPort = '/settings/advanced/lwo-port',
+  lwo = '/settings/advanced/lwo',
 }

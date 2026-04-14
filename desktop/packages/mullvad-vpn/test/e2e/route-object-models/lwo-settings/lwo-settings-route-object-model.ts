@@ -4,7 +4,7 @@ import { TestUtils } from '../../utils';
 import { NavigationObjectModel } from '../navigation';
 import { createSelectors } from './selectors';
 
-export class LwoPortRouteObjectModel extends NavigationObjectModel {
+export class LwoSettingsRouteObjectModel extends NavigationObjectModel {
   readonly selectors: ReturnType<typeof createSelectors>;
 
   constructor(

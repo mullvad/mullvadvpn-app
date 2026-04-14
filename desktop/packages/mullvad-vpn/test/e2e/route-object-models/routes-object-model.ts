@@ -9,7 +9,7 @@ import { ExpiredRouteObjectModel } from './expired';
 import { FilterRouteObjectModel } from './filter';
 import { LaunchRouteObjectModel } from './launch';
 import { LoginRouteObjectModel } from './login';
-import { LwoPortRouteObjectModel } from './lwo-port';
+import { LwoSettingsRouteObjectModel } from './lwo-settings';
 import { MainRouteObjectModel } from './main';
 import { ManageDevicesRouteObjectModel } from './manage-devices';
 import { MultihopSettingsRouteObjectModel } from './multihop-settings';
@@ -54,7 +54,7 @@ export class RoutesObjectModel {
   readonly account: AccountRouteObjectModel;
   readonly manageDevices: ManageDevicesRouteObjectModel;
   readonly wireguardPort: WireGuardPortRouteObjectModel;
-  readonly lwoPort: LwoPortRouteObjectModel;
+  readonly lwoSettings: LwoSettingsRouteObjectModel;
 
   constructor(page: Page, utils: TestUtils) {
     this.selectLanguage = new SelectLanguageRouteObjectModel(page, utils);
@@ -82,6 +82,6 @@ export class RoutesObjectModel {
     this.account = new AccountRouteObjectModel(page, utils);
     this.manageDevices = new ManageDevicesRouteObjectModel(page, utils);
     this.wireguardPort = new WireGuardPortRouteObjectModel(page, utils);
-    this.lwoPort = new LwoPortRouteObjectModel(page, utils);
+    this.lwoSettings = new LwoSettingsRouteObjectModel(page, utils);
   }
 }

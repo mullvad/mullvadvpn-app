@@ -8,7 +8,7 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import { HeaderTitle } from '../../SettingsHeader';
 import { LwoPortSetting } from './components';
 
-export function LwoPortView() {
+export function LwoSettingsView() {
   const { pop } = useHistory();
 
   return (

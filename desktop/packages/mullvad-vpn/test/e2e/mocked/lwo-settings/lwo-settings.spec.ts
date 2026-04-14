@@ -23,7 +23,7 @@ test.describe('LWO port settings', () => {
     await routes.main.gotoSettings();
     await routes.settings.gotoVpnSettings();
     await routes.vpnSettings.gotoAntiCensorship();
-    await routes.antiCensorship.gotoLwoPort();
+    await routes.antiCensorship.gotoLwoSettings();
   };
 
   test.beforeAll(async () => {
@@ -56,7 +56,7 @@ test.describe('LWO port settings', () => {
   };
 
   test.beforeEach(async () => {
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill('');
     await setPort('any');
   });
@@ -64,7 +64,7 @@ test.describe('LWO port settings', () => {
   test('Should select automatic port', async () => {
     await setPort({ only: VALID_PORT });
 
-    const option = routes.lwoPort.selectors.automaticOption();
+    const option = routes.lwoSettings.selectors.automaticOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
 
     await setPort('any');
@@ -72,32 +72,32 @@ test.describe('LWO port settings', () => {
   });
 
   test('Should select port 51820', async () => {
-    const option = routes.lwoPort.selectors.fiveOneEightTwoZeroOption();
+    const option = routes.lwoSettings.selectors.fiveOneEightTwoZeroOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
     await setPort({ only: 51820 });
     await expect(option).toHaveAttribute('aria-selected', 'true');
   });
 
   test('Should select port 53', async () => {
-    const option = routes.lwoPort.selectors.fiveThreeOption();
+    const option = routes.lwoSettings.selectors.fiveThreeOption();
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
     await setPort({ only: 53 });
     await expect(option).toHaveAttribute('aria-selected', 'true');
   });
 
   test('Should selecting custom port option should focus input', async () => {
-    const option = routes.lwoPort.selectors.customOption();
+    const option = routes.lwoSettings.selectors.customOption();
     await option.click();
 
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await expect(input).toBeFocused();
   });
 
   test('Should set custom port', async () => {
-    const option = routes.lwoPort.selectors.customOption();
+    const option = routes.lwoSettings.selectors.customOption();
     await option.click();
 
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill(VALID_PORT.toString());
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), input.press('Enter')]);
 
@@ -106,19 +106,19 @@ test.describe('LWO port settings', () => {
   });
 
   test('Should not accept invalid custom port', async () => {
-    const option = routes.lwoPort.selectors.customOption();
+    const option = routes.lwoSettings.selectors.customOption();
     await option.click();
 
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill(INVALID_PORT.toString());
     await expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 
   test('Should select custom option when clicking trigger with valid value', async () => {
-    const option = routes.lwoPort.selectors.customOption();
+    const option = routes.lwoSettings.selectors.customOption();
     await option.click();
 
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill(VALID_PORT.toString());
 
     await Promise.all([util.ipc.settings.setObfuscationSettings.expect(), option.click()]);
@@ -128,19 +128,19 @@ test.describe('LWO port settings', () => {
   });
 
   test('Should not select custom option when clicking input with valid value', async () => {
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill(VALID_PORT.toString());
     await input.click();
 
-    const option = routes.lwoPort.selectors.customOption();
+    const option = routes.lwoSettings.selectors.customOption();
     await expect(option).not.toHaveAttribute('aria-selected', 'true');
 
-    const automaticOption = routes.lwoPort.selectors.automaticOption();
+    const automaticOption = routes.lwoSettings.selectors.automaticOption();
     await expect(automaticOption).toHaveAttribute('aria-selected', 'true');
   });
 
   test('Should reset custom port on blur with valid and invalid values', async () => {
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
 
     await input.fill(VALID_PORT.toString());
     await expect(input).toHaveAttribute('aria-invalid', 'false');
@@ -156,7 +156,7 @@ test.describe('LWO port settings', () => {
   });
 
   test('Should remember last valid custom port on blur', async () => {
-    const input = routes.lwoPort.selectors.customInput();
+    const input = routes.lwoSettings.selectors.customInput();
     await input.fill(VALID_PORT.toString());
     await expect(input).toHaveAttribute('aria-invalid', 'false');
 

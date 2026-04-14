@@ -40,12 +40,12 @@ export function LwoOption() {
         </FlexColumn>
       </SettingsListbox.Options.SplitOption.Item>
       <SettingsListbox.Options.SplitOption.NavigateButton
-        to={RoutePath.lwoPort}
+        to={RoutePath.lwo}
         aria-label={sprintf(
-          // TRANSLATORS: Text for screen readers to describe the LWO port settings navigation button.
+          // TRANSLATORS: Text for screen readers to describe the LWO settings navigation button.
           // TRANSLATORS: Available placeholders:
           // TRANSLATORS: %(lwo)s - will be replaced with LWO
-          messages.pgettext('accessibility', '%(lwo)s port settings'),
+          messages.pgettext('accessibility', '%(lwo)s settings'),
           { lwo: strings.lwo },
         )}
       />

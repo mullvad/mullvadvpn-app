@@ -26,7 +26,7 @@ import {
   FilterView,
   LaunchView,
   LoginView,
-  LwoPortView,
+  LwoSettingsView,
   MainView,
   ManageDevicesView,
   MultihopSettingsView,
@@ -98,7 +98,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.manageDevices} component={ManageDevicesView} />
           <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
-          <Route exact path={RoutePath.lwoPort} component={LwoPortView} />
+          <Route exact path={RoutePath.lwo} component={LwoSettingsView} />
         </Switch>
       </Focus>
     </>
