@@ -164,14 +164,15 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
-        let (connector, connector_handle) = HttpsConnector::new(
+        let connector = HttpsConnector::new(
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
         );
-
+        let connector_handle = connector.spawn();
+        // TODO: Wait for this to finish. Or even better, provide it to the constructor of HttpsConnector.
         connector_handle.set_connection_mode(connection_mode_provider.initial());
 
         let (command_tx, command_rx) = mpsc::unbounded();
