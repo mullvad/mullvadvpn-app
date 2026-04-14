@@ -22,8 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
 
+
+## [2026.2-beta1 - 2026-04-14]
+### Added
 #### Linux
 - Make it possible to build for RISC-V from source.
 - Add `--daemon-only` build option for deb and rpm packages for CLI usage.
