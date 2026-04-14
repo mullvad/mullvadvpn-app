@@ -9,8 +9,8 @@
 import MullvadSettings
 import SwiftUI
 
-struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObservable<MultihopState> {
-    @StateObject var tunnelViewModel: ViewModel
+struct SettingsMultihopView: View {
+    @StateObject var viewModel: MultihopTunnelSettingsViewModel
     @State private var alert: MullvadAlert?
     private let itemFactory = ListItemFactory()
 
@@ -18,7 +18,7 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
         let id: MultihopState
         let label: String
         let accessibilityIdentifier: AccessibilityIdentifier
-        let helpText: [LocalizedStringKey]?
+        let customView: AnyView?
     }
 
     private let options: [OptionSpec] = [
@@ -26,29 +26,37 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
             id: .whenNeeded,
             label: MultihopState.whenNeeded.description,
             accessibilityIdentifier: .multihopState(MultihopState.whenNeeded.description),
-            helpText: [
-                "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the \(Image.mullvadIconMultihopWhenNeeded) symbol",
-                "",
-                "Attention: This will ignore filter settings for the entry server that is being automatically selected.",
-            ]),
+            customView: AnyView(WhenNeededAlert())
+        ),
         .init(
             id: .always,
             label: MultihopState.always.description,
             accessibilityIdentifier: .multihopState(MultihopState.always.description),
-            helpText: [
-                "Always connect via an entry server. The location can either be set manually or automatically in the \"Select location\" view."
-            ]),
+            customView: nil
+        ),
         .init(
             id: .never,
             label: MultihopState.never.description,
             accessibilityIdentifier: .multihopState(MultihopState.never.description),
-            helpText: nil
+            customView: nil
         ),
     ]
 
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
+                if viewModel.automaticRoutingIsActive {
+                    AutomaticLocationNotice()
+                        .padding(
+                            EdgeInsets(
+                                top: 0,
+                                leading: UIMetrics.contentInsets.toEdgeInsets.leading,
+                                bottom: 16,
+                                trailing: UIMetrics.contentInsets.toEdgeInsets.trailing
+                            )
+                        )
+                }
+
                 SettingsInfoView(viewModel: dataViewModel)
 
                 VStack(spacing: 0) {
@@ -70,21 +78,21 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                                                 title: option.label,
                                                 level: 1,
                                                 selected:
-                                                    tunnelViewModel.value == option.id
+                                                    viewModel.multihopState == option.id
                                             ))
                                     },
                                     segment: {
-                                        if let helpText = option.helpText {
+                                        if let customView = option.customView {
                                             itemFactory.segment(
                                                 for: .info(onSelect: {
-                                                    alert = getInfoAlert(for: helpText) { alert = nil }
+                                                    alert = getInfoAlert(for: customView) { alert = nil }
                                                 })
                                             )
                                         }
                                     },
                                     groupedContent: {},
                                     onSelect: {
-                                        tunnelViewModel.value = option.id
+                                        viewModel.multihopState = option.id
                                     }
                                 )
                             }
@@ -99,10 +107,10 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
         .mullvadAlert(item: $alert)
     }
 
-    private func getInfoAlert(for messages: [LocalizedStringKey], completion: @escaping () -> Void) -> MullvadAlert {
+    private func getInfoAlert(for customView: AnyView, completion: @escaping () -> Void) -> MullvadAlert {
         MullvadAlert(
             type: .info,
-            messages: messages,
+            customView: customView,
             actions: [
                 MullvadAlert.Action(
                     type: .default,
@@ -114,25 +122,114 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
     }
 }
 
-#Preview {
-    SettingsMultihopView(tunnelViewModel: MockMultihopTunnelSettingsViewModel())
-}
-
 extension SettingsMultihopView {
     private var dataViewModel: SettingsInfoViewModel {
         SettingsInfoViewModel(
             pages: [
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
-                        """
-                        Multihop routes your traffic into one WireGuard server and out another, making it \
-                        harder to trace. This results in increased latency but increases anonymity online.
-                        """,
+                        "Multihop routes your traffic into one WireGuard server and out another, "
+                            + "making it harder to trace. This results in increased latency but increases "
+                            + "anonymity online. Multihop has three different modes to choose between: "
+                            + "When needed, Always, and Never.",
                         comment: ""
                     ),
-                    image: .multihopIllustration
-                )
+                    image: .multihopIllustrationGeneral
+                ),
+                SettingsInfoViewModelPage(
+                    image: .multihopIllustrationWhenNeeded,
+                    customView: AnyView(WhenNeededPage())
+                ),
+                SettingsInfoViewModelPage(
+                    image: .multihopIllustrationAlways,
+                    customView: AnyView(AlwaysPage())
+                ),
+                SettingsInfoViewModelPage(
+                    image: .multihopIllustrationNever,
+                    customView: AnyView(NeverPage())
+                ),
             ]
         )
+    }
+
+    private struct WhenNeededPage: View {
+        var body: some View {
+            VStack(alignment: .leading) {
+                Text("When needed")
+                    .fontWeight(.bold)
+                Text(
+                    "To ensure your current settings work with your selected location, and to "
+                        + "avoid blocking your connection, the app might automatically multihop via "
+                        + "a different entry server."
+                )
+                Text(
+                    "This will be indicated by the \(UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 14, to: .subheadline, offset: .init(x: 0, y: 2))) symbol"
+                )
+            }
+            .font(.mullvadTiny)
+            .foregroundStyle(Color.mullvadTextSecondary)
+        }
+    }
+
+    private struct AlwaysPage: View {
+        var body: some View {
+            VStack(alignment: .leading) {
+                Text("Always")
+                    .fontWeight(.bold)
+                Text(
+                    "Multihop is enabled. Your connection is routed through an entry server before "
+                        + "exiting through the selected location."
+                )
+            }
+            .font(.mullvadTiny)
+            .foregroundStyle(Color.mullvadTextSecondary)
+        }
+    }
+
+    private struct NeverPage: View {
+        var body: some View {
+            VStack(alignment: .leading) {
+                Text("Never")
+                    .fontWeight(.bold)
+                Text(
+                    "Multihop is disabled. Your selected location must support all active settings in "
+                        + "order to establish a connection."
+                )
+            }
+            .font(.mullvadTiny)
+            .foregroundStyle(Color.mullvadTextSecondary)
+        }
+    }
+
+    private struct WhenNeededAlert: View {
+        var body: some View {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(
+                    "To ensure your current settings work with your selected location, and to "
+                        + "avoid blocking your connection, the app might automatically multihop via "
+                        + "a different entry server."
+                )
+                Text(
+                    "This will be indicated by the \(UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 15, to: .body, offset: .init(x: 0, y: 2))) symbol."
+                )
+                Text(
+                    "Attention: This will ignore filter settings for the entry server that is "
+                        + "being automatically selected."
+                )
+            }
+            .font(.mullvadSmall)
+            .foregroundStyle(Color.mullvadTextSecondary)
+        }
+    }
+
+    struct AutomaticLocationNotice: View {
+        var body: some View {
+            HStack(alignment: .center, spacing: 8) {
+                UIImage.Multihop.whenNeeded.scaledIcon(fromBaseSize: 18, to: .subheadline, offset: .init(x: 0, y: 2))
+                Text("An additional server is used to match your settings for your selected location")
+            }
+            .font(.mullvadTinySemiBold)
+            .foregroundColor(Color.mullvadTextSecondary)
+        }
     }
 }
