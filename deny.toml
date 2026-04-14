@@ -82,6 +82,7 @@ deny = [
   { name = "hyper", version = "0" },
   { name = "tokio", version = "0" },
   { name = "time", version = "0.1" },
+  { name = "rand", version = "0.8 " },
 ]
 
 # This section is considered when running `cargo deny check sources`.
