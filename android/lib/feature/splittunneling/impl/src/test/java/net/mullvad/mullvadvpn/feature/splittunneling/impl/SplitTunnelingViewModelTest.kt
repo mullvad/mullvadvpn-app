@@ -8,7 +8,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import io.mockk.verify
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -68,8 +67,6 @@ class SplitTunnelingViewModelTest {
 
         assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)
-
-        verify(exactly = 1) { mockedApplicationsProvider.apps() }
     }
 
     @Test
@@ -212,6 +209,7 @@ class SplitTunnelingViewModelTest {
                     mockedSplitTunnelingRepository,
                     mockedApplicationsProvider,
                     mockedUserPreferencesRepository,
+                    UnconfinedTestDispatcher(),
                 ),
                 UnconfinedTestDispatcher(),
             )
