@@ -500,10 +500,10 @@ impl RequestHandler {
     /// Process a single request from a connected [HttpsConnectorHandle].
     fn handle(&mut self, request: HttpsConnectorRequest) {
         let handles = {
+            let mut inner = self.connector.lock().unwrap();
             match request {
-                HttpsConnectorRequest::Reset => return,
+                HttpsConnectorRequest::Reset => std::mem::take(&mut inner.stream_handles),
                 HttpsConnectorRequest::SetConnectionMode(config) => {
-                    let mut inner = self.connector.lock().unwrap();
                     inner.proxy_config = InnerConnectionMode::from(config);
                     std::mem::take(&mut inner.stream_handles)
                 }
