@@ -509,7 +509,6 @@ impl RequestHandler {
                 }
             }
         };
-        // TODO: Document why we do this.
         for handle in handles {
             handle.close();
         }
