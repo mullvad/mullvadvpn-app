@@ -65,7 +65,7 @@ jobs:
 
       - name: Lower available memory for gradle
         run: |
-          sed -i 's/8192M/4096M/g' android/gradle.properties
+          sed -i 's|^org\.gradle\.jvmargs=.*|org.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options\\="-Xmx4096M"|' android/gradle.properties
 
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
