@@ -8,6 +8,8 @@ import { isInRanges } from '../../../../../../shared/utils';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
+import InfoButton from '../../../../InfoButton';
+import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 const LWO_UDP_PORTS = [51820, 53];
@@ -94,6 +96,27 @@ export function LwoPortSetting() {
               messages.pgettext('lwo-settings-view', 'Port')
             }
           </SettingsListbox.Header.Item.Label>
+          <SettingsListbox.Header.Item.ActionGroup>
+            <InfoButton>
+              <>
+                <ModalMessage>
+                  {messages.pgettext(
+                    'lwo-settings-view',
+                    'The automatic setting will randomly choose from the valid port ranges shown below.',
+                  )}
+                </ModalMessage>
+                <ModalMessage>
+                  {sprintf(
+                    messages.pgettext(
+                      'lwo-settings-view',
+                      'The custom port can be any value inside the valid ranges: %(portRanges)s.',
+                    ),
+                    { portRanges: portRangesText },
+                  )}
+                </ModalMessage>
+              </>
+            </InfoButton>
+          </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
