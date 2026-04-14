@@ -307,6 +307,13 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
+#. Text for screen readers to describe the LWO settings navigation button.
+#. Available placeholders:
+#. %(lwo)s - will be replaced with LWO
+msgctxt "accessibility"
+msgid "%(lwo)s settings"
+msgstr ""
+
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr ""
@@ -1727,6 +1734,33 @@ msgctxt "login-view"
 msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
 msgstr ""
 
+#. The title for the LWO port selector.
+msgctxt "lwo-settings-view"
+msgid "Port"
+msgstr ""
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
+msgctxt "lwo-settings-view"
+msgid "Port: %(port)s"
+msgstr ""
+
+msgctxt "lwo-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr ""
+
+msgctxt "lwo-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr ""
+
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
+msgctxt "lwo-settings-view"
+msgid "Valid ranges: %(portRanges)s"
+msgstr ""
+
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "API access"
@@ -2807,6 +2841,13 @@ msgctxt "wireguard-settings-view"
 msgid "Valid range: %(min)s - %(max)s"
 msgstr ""
 
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
+msgctxt "wireguard-settings-view"
+msgid "Valid ranges: %(portRanges)s"
+msgstr ""
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
@@ -3601,9 +3642,6 @@ msgid "VPN tunnel status"
 msgstr ""
 
 msgid "Valid range for all servers: %s"
-msgstr ""
-
-msgid "Valid ranges: %s"
 msgstr ""
 
 msgid "Value: %s"

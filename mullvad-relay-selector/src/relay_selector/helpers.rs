@@ -8,7 +8,7 @@ use std::{
 use mullvad_types::{
     constraints::Constraint,
     endpoint::MullvadEndpoint,
-    relay_constraints::{ShadowsocksSettings, Udp2TcpObfuscationSettings},
+    relay_constraints::{LwoSettings, ShadowsocksSettings, Udp2TcpObfuscationSettings},
     relay_list::{Relay, WireguardRelay},
 };
 use rand::{
@@ -28,6 +28,10 @@ const SHADOWSOCKS_EXTRA_PORT_RANGES: &[RangeInclusive<u16>] = &[1..=u16::MAX];
 pub enum Error {
     #[error("Found no valid port matching the selected settings")]
     NoMatchingPort,
+    #[error("Found no valid IP protocol matching the selected settings")]
+    NoMatchingAddresses,
+    #[error("The selected relay does not support the selected obfuscation method")]
+    MissingSupport,
 }
 
 /// Picks a relay at random from `relays`, but don't pick `exclude`.
@@ -229,20 +233,22 @@ pub fn get_quic_obfuscator(
 pub fn get_lwo_obfuscator(
     relay: WireguardRelay,
     endpoint: &MullvadEndpoint,
-) -> Option<(ObfuscatorConfig, WireguardRelay)> {
+    port_ranges: &[RangeInclusive<u16>],
+    settings: LwoSettings,
+) -> Result<(ObfuscatorConfig, WireguardRelay), Error> {
     if !relay.endpoint().lwo {
-        return None;
+        return Err(Error::MissingSupport);
     }
     let ip = match endpoint.peer.endpoint {
         SocketAddr::V4(_) => IpAddr::V4(relay.ipv4_addr_in),
-        SocketAddr::V6(_) => IpAddr::V6(relay.ipv6_addr_in?),
+        SocketAddr::V6(_) => IpAddr::V6(relay.ipv6_addr_in.ok_or(Error::NoMatchingAddresses)?),
     };
-    let port = endpoint.peer.endpoint.port();
+    let port = desired_or_random_port_from_range(port_ranges, settings.port)?;
     let endpoint = SocketAddr::new(ip, port);
 
     let config = ObfuscatorConfig::Lwo { endpoint };
 
-    Some((config, relay))
+    Ok((config, relay))
 }
 
 /// Return an obfuscation config for the wireguard server at `wg_in_addr` or one of `extra_in_addrs`

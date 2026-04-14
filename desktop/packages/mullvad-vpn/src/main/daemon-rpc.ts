@@ -365,6 +365,14 @@ export class DaemonRpc extends GrpcClient {
       grpcObfuscationSettings.setWireguardPort(wireGuardPortSettings);
     }
 
+    if (obfuscationSettings.lwoSettings) {
+      const lwoSettings = new grpcTypes.ObfuscationSettings.Lwo();
+      if (obfuscationSettings.lwoSettings.port !== 'any') {
+        lwoSettings.setPort(obfuscationSettings.lwoSettings.port.only);
+      }
+      grpcObfuscationSettings.setLwo(lwoSettings);
+    }
+
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
       grpcObfuscationSettings,
