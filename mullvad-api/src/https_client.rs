@@ -74,7 +74,6 @@ enum HttpsConnectorRequest {
     SetConnectionMode(ApiConnectionMode),
 }
 
-/// TODO: Move? Deprecate?
 #[derive(Clone)]
 pub(crate) enum InnerConnectionMode {
     /// Connect directly to the target.
