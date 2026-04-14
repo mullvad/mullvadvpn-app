@@ -133,6 +133,9 @@ jobs:
           export PATH=$PATH:/opt/gradle/gradle-${{ env.gradle_version }}/bin
           fdroid build net.mullvad.mullvadvpn:1
 
+      - name: Locate apk
+        run: find . -name *.apk
+
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
