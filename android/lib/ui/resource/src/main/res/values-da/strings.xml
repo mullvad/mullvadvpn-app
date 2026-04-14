@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Opret</string>
-    <string name="create_account_fail_title">Oprettelse af konto mislykkedes</string>
     <string name="create_custom_list_message">\"%1$s\" blev oprettet</string>
     <string name="create_new_account">Opret ny konto</string>
     <string name="create_new_account_warning_paragraph1">Du har allerede et gemt kontonummer, og når du opretter en ny konto, fjernes det gemte kontonummer fra denne enhed. Dette kan ikke fortrydes.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver \"%1$s\" nedenfor for at aktivere disse indstillinger.</string>
     <string name="dns_content_blockers_warning">Dette kan forårsage problemer på visse websteder, tjenester og apps.</string>
-    <string name="dont_have_an_account">Har du ikke noget kontonummer?</string>
     <string name="duplicate_address_warning">Denne adresse er allerede blevet indtastet.</string>
     <string name="edit_custom_lists">Rediger tilpassede lister</string>
     <string name="edit_list">Rediger liste</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">Placeringer blev ændret for \"%1$s\"</string>
     <string name="log_in">Log på</string>
     <string name="log_out">Log af</string>
-    <string name="logged_in_description">Gyldigt kontonummer</string>
     <string name="logged_in_title">Logget ind</string>
-    <string name="logging_in_description">Kontrollerer kontonummer</string>
     <string name="logging_in_title">Logger ind...</string>
     <string name="login_description">Indtast dit kontonummer</string>
     <string name="login_error_api_unreachable">Kan ikke nå API, %1$s</string>
-    <string name="login_error_invalid_input">Kontonummeret er for langt. Indtast et gyldigt nummer</string>
     <string name="login_error_too_many_attempts">For mange forsøg, prøv igen senere</string>
     <string name="login_fail_description">Ugyldigt kontonummer</string>
     <string name="login_fail_title">Login mislykkedes</string>

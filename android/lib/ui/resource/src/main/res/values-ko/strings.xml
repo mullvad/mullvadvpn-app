@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">생성</string>
-    <string name="create_account_fail_title">계정을 생성하지 못했습니다</string>
     <string name="create_custom_list_message">\"%1$s\"이(가) 생성되었습니다</string>
     <string name="create_new_account">새 계정 생성</string>
     <string name="create_new_account_warning_paragraph1">저장한 계정 번호가 이미 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다.</string>
     <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 \"%1$s\"을(를) 비활성화하세요.</string>
     <string name="dns_content_blockers_warning">이 기능을 사용하면 특정 웹 사이트, 서비스 및 앱에서 문제가 발생할 수 있습니다.</string>
-    <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
     <string name="duplicate_address_warning">이 주소는 이미 입력되었습니다.</string>
     <string name="edit_custom_lists">사용자 지정 목록 편집</string>
     <string name="edit_list">목록 편집</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">\"%1$s\"에 대해 위치가 변경되었습니다</string>
     <string name="log_in">로그인</string>
     <string name="log_out">로그아웃</string>
-    <string name="logged_in_description">유효한 계정 번호</string>
     <string name="logged_in_title">다음으로 로그인</string>
-    <string name="logging_in_description">계정 번호 확인 중</string>
     <string name="logging_in_title">로그인 중...</string>
     <string name="login_description">계정 번호 입력</string>
     <string name="login_error_api_unreachable">API에 연결할 수 없습니다. %1$s</string>
-    <string name="login_error_invalid_input">계정 번호가 너무 깁니다. 유효한 번호를 입력해 주세요</string>
     <string name="login_error_too_many_attempts">시도 횟수가 너무 많습니다. 나중에 다시 시도하세요</string>
     <string name="login_fail_description">유효하지 않은 계정 번호</string>
     <string name="login_fail_title">로그인 실패</string>

@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s، %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s، %2$s، %3$s</string>
     <string name="create">إنشاء</string>
-    <string name="create_account_fail_title">فشل إنشاء الحساب</string>
     <string name="create_custom_list_message">تم إنشاء \"%1$s\"</string>
     <string name="create_new_account">إنشاء حساب جديد</string>
     <string name="create_new_account_warning_paragraph1">لديك رقم حساب محفوظ بالفعل، بإنشاء حساب جديد، سيتم حذفه من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">عندما يتم تفعيل هذه الميزة، فإنها تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها.</string>
     <string name="dns_content_blockers_subtitle">أوقف \"%1$s\" أدناه لتنشيط هذه الإعدادات.</string>
     <string name="dns_content_blockers_warning">قد يؤدي ذلك إلى حدوث مشكلات في بعض المواقع الإلكترونية والخدمات والتطبيقات.</string>
-    <string name="dont_have_an_account">ليس لديك رقم حساب؟</string>
     <string name="duplicate_address_warning">لقد تم إدخال هذا العنوان بالفعل.</string>
     <string name="edit_custom_lists">تعديل القوائم المُخصَّصة</string>
     <string name="edit_list">تعديل القائمة</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">تم تغيير المواقع لـ \"%1$s\"</string>
     <string name="log_in">تسجيل الدخول</string>
     <string name="log_out">تسجيل الخروج</string>
-    <string name="logged_in_description">رقم حساب صالح</string>
     <string name="logged_in_title">مُسجَّل الدخول</string>
-    <string name="logging_in_description">جارٍ التحقُّق من رقم الحساب</string>
     <string name="logging_in_title">جارٍ تسجيل الدخول...</string>
     <string name="login_description">أدخل رقم حسابك</string>
     <string name="login_error_api_unreachable">يتعذَّر الوصول إلى واجهة API، %1$s</string>
-    <string name="login_error_invalid_input">رقم الحساب طويل جدًا، يُرجى إدخال رقم صالح</string>
     <string name="login_error_too_many_attempts">تم إجراء عدد كبير جدًا من المحاولات، يُرجى إعادة المحاولة لاحقًا</string>
     <string name="login_fail_description">رقم الحساب غير صالح</string>
     <string name="login_fail_title">فشل تسجيل الدخول</string>

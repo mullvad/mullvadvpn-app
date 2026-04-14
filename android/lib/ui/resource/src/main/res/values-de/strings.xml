@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Erstellen</string>
-    <string name="create_account_fail_title">Kontoerstellung fehlgeschlagen</string>
     <string name="create_custom_list_message">„%1$s“ wurde erstellt</string>
     <string name="create_new_account">Neues Konto erstellen</string>
     <string name="create_new_account_warning_paragraph1">Sie haben bereits eine gespeicherte Kontonummer. Wenn Sie ein neues Konto erstellen, wird die gespeicherte Kontonummer von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Trackern und mehr bekannt sind.</string>
     <string name="dns_content_blockers_subtitle">Deaktivieren Sie unten „%1$s“, um diese Einstellungen zu aktivieren.</string>
     <string name="dns_content_blockers_warning">Dies kann bei bestimmten Websites, Diensten und Apps zu Problemen führen.</string>
-    <string name="dont_have_an_account">Sie haben keine Kontonummer?</string>
     <string name="duplicate_address_warning">Diese Adresse wurde bereits eingetragen.</string>
     <string name="edit_custom_lists">Eigene Listen bearbeiten</string>
     <string name="edit_list">Liste bearbeiten</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">Standorte wurden geändert für „%1$s“</string>
     <string name="log_in">Anmelden</string>
     <string name="log_out">Abmelden</string>
-    <string name="logged_in_description">Gültige Kontonummer</string>
     <string name="logged_in_title">Angemeldet</string>
-    <string name="logging_in_description">Ihre Kontonummer wird geprüft</string>
     <string name="logging_in_title">Anmeldung läuft...</string>
     <string name="login_description">Geben Sie Ihre Kontonummer ein</string>
     <string name="login_error_api_unreachable">API nicht erreichbar, %1$s</string>
-    <string name="login_error_invalid_input">Die Kontonummer ist zu lang, bitte geben Sie eine gültige Nummer ein.</string>
     <string name="login_error_too_many_attempts">Zu viele Versuche, bitte versuchen Sie es später erneut</string>
     <string name="login_fail_description">Ungültige Kontonummer</string>
     <string name="login_fail_title">Anmeldung fehlgeschlagen</string>

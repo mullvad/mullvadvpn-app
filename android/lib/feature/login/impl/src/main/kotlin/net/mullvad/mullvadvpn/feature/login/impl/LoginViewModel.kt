@@ -48,6 +48,18 @@ sealed interface LoginUiSideEffect {
 
     data class TooManyDevices(val accountNumber: AccountNumber) : LoginUiSideEffect
 
+    sealed interface CreateAccount : LoginUiSideEffect {
+        data object TooManyAttempts : CreateAccount
+
+        data object ApiUnreachable : CreateAccount
+
+        data object NoInternet : CreateAccount
+
+        data object TimeOut : CreateAccount
+
+        data class Unknown(val error: Throwable) : CreateAccount
+    }
+
     data object GenericError : LoginUiSideEffect
 }
 
@@ -114,13 +126,20 @@ class LoginViewModel(
             accountRepository
                 .createAccount()
                 .fold(
-                    { _loginState.value = it.toUiState() },
+                    {
+                        _uiSideEffect.send(it.toSideEffect())
+                        _loginState.value = LoginState.Idle()
+                    },
                     { _uiSideEffect.send(NavigateToWelcome) },
                 )
         }
     }
 
     fun login(accountNumber: String) {
+        if (accountNumber.isEmpty()) {
+            _loginState.value = LoginState.Idle(LoginUiStateError.LoginError.Empty)
+            return
+        }
         _loginState.value = LoginState.Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
             val uiState =
@@ -195,21 +214,17 @@ class LoginViewModel(
                 }
         }
 
-    private fun CreateAccountError.toUiState(): LoginState =
+    private fun CreateAccountError.toSideEffect(): LoginUiSideEffect.CreateAccount =
         when (this) {
-            CreateAccountError.ApiUnreachable,
-            CreateAccountError.TimeOut ->
+            CreateAccountError.TooManyAttempts -> LoginUiSideEffect.CreateAccount.TooManyAttempts
+            CreateAccountError.ApiUnreachable ->
                 if (isInternetAvailable()) {
-                    LoginState.Idle(LoginUiStateError.CreateAccountError.ApiUnreachable)
+                    LoginUiSideEffect.CreateAccount.ApiUnreachable
                 } else {
-                    LoginState.Idle(LoginUiStateError.CreateAccountError.NoInternetConnection)
+                    LoginUiSideEffect.CreateAccount.NoInternet
                 }
-            CreateAccountError.TooManyAttempts ->
-                LoginState.Idle(LoginUiStateError.CreateAccountError.TooManyAttempts)
-            is CreateAccountError.Unknown ->
-                LoginState.Idle(LoginUiStateError.CreateAccountError.Unknown).also {
-                    Logger.w("Create account failed with error: $this", error)
-                }
+            CreateAccountError.TimeOut -> LoginUiSideEffect.CreateAccount.TimeOut
+            is CreateAccountError.Unknown -> LoginUiSideEffect.CreateAccount.Unknown(error)
         }
 
     private fun isInternetAvailable(): Boolean {

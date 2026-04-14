@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Criar</string>
-    <string name="create_account_fail_title">Falha ao criar conta</string>
     <string name="create_custom_list_message">\"%1$s\" foi criada</string>
     <string name="create_new_account">Criar nova conta</string>
     <string name="create_new_account_warning_paragraph1">Já tem um número de conta guardado. Ao criar uma nova conta, o número de conta guardado será removido deste dispositivo. Esta ação não pode ser anulada.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</string>
     <string name="dns_content_blockers_subtitle">Desative \"%1$s\" abaixo para ativar estas definições.</string>
     <string name="dns_content_blockers_warning">Pode causar problemas em alguns sites, serviços e apps.</string>
-    <string name="dont_have_an_account">Não tem um número de conta?</string>
     <string name="duplicate_address_warning">Este endereço já foi introduzido.</string>
     <string name="edit_custom_lists">Editar listas personalizadas</string>
     <string name="edit_list">Editar lista</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">As localizações foram alteradas para \"%1$s\"</string>
     <string name="log_in">Iniciar sessão</string>
     <string name="log_out">Terminar sessão</string>
-    <string name="logged_in_description">Número de conta válido</string>
     <string name="logged_in_title">Sessão iniciada</string>
-    <string name="logging_in_description">A verificar o número da conta</string>
     <string name="logging_in_title">A iniciar sessão...</string>
     <string name="login_description">Introduza o seu número de conta</string>
     <string name="login_error_api_unreachable">Não é possível aceder à API, %1$s</string>
-    <string name="login_error_invalid_input">O número de conta é demasiado longo. Introduza um número válido</string>
     <string name="login_error_too_many_attempts">Demasiadas tentativas. Tente novamente mais tarde</string>
     <string name="login_fail_description">Número de conta inválido</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>

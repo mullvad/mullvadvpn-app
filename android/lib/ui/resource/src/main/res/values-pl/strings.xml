@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Utwórz</string>
-    <string name="create_account_fail_title">Nie udało się utworzyć konta</string>
     <string name="create_custom_list_message">Utworzono „%1$s”</string>
     <string name="create_new_account">Utwórz nowe konto</string>
     <string name="create_new_account_warning_paragraph1">Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
     <string name="dns_content_blockers_subtitle">Wyłącz poniżej funkcję „%1$s”, aby aktywować te ustawienia.</string>
     <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami.</string>
-    <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_custom_lists">Edytuj listy niestandardowe</string>
     <string name="edit_list">Edytuj listę</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">Zmieniono lokalizacje dla „%1$s”</string>
     <string name="log_in">Zaloguj się</string>
     <string name="log_out">Wyloguj się</string>
-    <string name="logged_in_description">Prawidłowy numer konta</string>
     <string name="logged_in_title">Zalogowano jako</string>
-    <string name="logging_in_description">Sprawdzanie numeru konta</string>
     <string name="logging_in_title">Logowanie...</string>
     <string name="login_description">Wprowadź numer konta</string>
     <string name="login_error_api_unreachable">Nie można osiągnąć interfejsu API, %1$s</string>
-    <string name="login_error_invalid_input">Numer konta jest zbyt długi, wprowadź prawidłowy numer</string>
     <string name="login_error_too_many_attempts">Zbyt wiele prób, spróbuj ponownie później</string>
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
