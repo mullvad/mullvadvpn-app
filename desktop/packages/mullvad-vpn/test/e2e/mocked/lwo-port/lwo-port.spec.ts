@@ -111,8 +111,6 @@ test.describe('LWO port settings', () => {
 
     const input = routes.lwoPort.selectors.customInput();
     await input.fill(INVALID_PORT.toString());
-    await input.press('Enter');
-
     await expect(input).toHaveAttribute('aria-invalid', 'true');
   });
 
