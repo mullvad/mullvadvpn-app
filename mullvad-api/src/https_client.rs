@@ -301,7 +301,6 @@ pub struct HttpsConnector {
 }
 
 struct HttpsConnectorInner {
-    /// TODO: Document
     stream_handles: Vec<AbortableStreamHandle>,
     proxy_config: InnerConnectionMode,
 }
