@@ -307,11 +307,11 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#. Text for screen readers to describe the LWO port settings navigation button.
+#. Text for screen readers to describe the LWO settings navigation button.
 #. Available placeholders:
 #. %(lwo)s - will be replaced with LWO
 msgctxt "accessibility"
-msgid "%(lwo)s port settings"
+msgid "%(lwo)s settings"
 msgstr ""
 
 msgctxt "accessibility"
@@ -1746,6 +1746,14 @@ msgctxt "lwo-settings-view"
 msgid "Port: %(port)s"
 msgstr ""
 
+msgctxt "lwo-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr ""
+
+msgctxt "lwo-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr ""
+
 #. Text describing the valid port ranges for a port selector.
 #. Available placeholders:
 #. %(portRanges)s - will be replaced with a comma-separated list of port ranges
@@ -2831,6 +2839,13 @@ msgstr ""
 #. Text describing the valid port range for a port selector.
 msgctxt "wireguard-settings-view"
 msgid "Valid range: %(min)s - %(max)s"
+msgstr ""
+
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
+msgctxt "wireguard-settings-view"
+msgid "Valid ranges: %(portRanges)s"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
