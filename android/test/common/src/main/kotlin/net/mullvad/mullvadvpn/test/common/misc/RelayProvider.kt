@@ -21,6 +21,14 @@ class RelayProvider(val currentFlavor: String) {
         }
     }
 
+    fun getNonDaitaRelay(): TestRelay {
+        return when (currentFlavor) {
+            "play" -> Stagemole.NON_DAITA_RELAY
+            "oss" -> Production.NON_DAITA_RELAY
+            else -> error("Invalid flavor: $currentFlavor")
+        }
+    }
+
     fun getQuicRelay(): TestRelay {
         return when (currentFlavor) {
             "play" -> Stagemole.QUIC_RELAY
