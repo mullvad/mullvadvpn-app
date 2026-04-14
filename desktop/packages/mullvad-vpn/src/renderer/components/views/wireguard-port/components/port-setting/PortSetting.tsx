@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { liftConstraint, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
@@ -22,6 +22,7 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
 }
 export function PortSetting() {
   const { setObfuscationSettings } = useAppContext();
+  const descriptionId = React.useId();
 
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
@@ -131,6 +132,7 @@ export function PortSetting() {
           </SettingsListbox.Options.InputOption.Label>
           <SettingsListbox.Header.Item.ActionGroup>
             <SettingsListbox.Options.InputOption.Input
+              aria-describedby={descriptionId}
               placeholder={messages.pgettext('wireguard-settings-view', 'Port')}
               maxLength={5}
               type="text"
@@ -139,6 +141,17 @@ export function PortSetting() {
           </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Options.InputOption>
       </SettingsListbox.Options>
+      <SettingsListbox.Footer>
+        <SettingsListbox.Footer.Text id={descriptionId}>
+          {sprintf(
+            // TRANSLATORS: Text describing the valid port ranges for a port selector.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(portRanges)s - will be replaced with a comma-separated list of port ranges
+            messages.pgettext('wireguard-settings-view', 'Valid ranges: %(portRanges)s'),
+            { portRanges: portRangesText },
+          )}
+        </SettingsListbox.Footer.Text>
+      </SettingsListbox.Footer>
     </SettingsListbox>
   );
 }
