@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Crea</string>
-    <string name="create_account_fail_title">Creazione dell\'account non riuscita</string>
     <string name="create_custom_list_message">\"%1$s\" creato</string>
     <string name="create_new_account">Crea nuovo account</string>
     <string name="create_new_account_warning_paragraph1">Hai già un numero di account salvato, creando un nuovo account il numero di account salvato verrà rimosso da questo dispositivo. Questa operazione non può essere annullata.</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Disconnesso (nessuna autorizzazione VPN)</string>
     <string name="disconnecting">Disconnessione...</string>
     <string name="dismiss">Ignora</string>
+    <string name="divier_or">Oppure</string>
     <string name="dns_content_blockers">Blocchi dei contenuti DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Attenzione: questa impostazione non può essere utilizzata in combinazione con \"Usa un server DNS personalizzato\".</string>
     <string name="dns_content_blockers_info">Quando è abilitata, questa funzionalità impedisce al dispositivo di contattare determinati domini o siti Web noti per la distribuzione di annunci, malware, tracker e altro.</string>
     <string name="dns_content_blockers_subtitle">Disabilita \"%1$s\" di seguito per attivare queste impostazioni.</string>
     <string name="dns_content_blockers_warning">Ciò potrebbe causare problemi su determinati siti web, servizi e app.</string>
-    <string name="dont_have_an_account">Non hai un numero di account?</string>
     <string name="duplicate_address_warning">Questo indirizzo è già stato inserito.</string>
     <string name="edit_custom_lists">Modifica elenchi personalizzati</string>
     <string name="edit_list">Modifica elenco</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">Le posizioni sono state modificate per \"%1$s\"</string>
     <string name="log_in">Accedi</string>
     <string name="log_out">Esci</string>
-    <string name="logged_in_description">Numero di account valido</string>
     <string name="logged_in_title">Accesso effettuato</string>
-    <string name="logging_in_description">Verifica numero di account</string>
     <string name="logging_in_title">Accesso...</string>
     <string name="login_description">Inserisci il tuo numero di account</string>
     <string name="login_error_api_unreachable">Impossibile raggiungere l\'API, %1$s</string>
-    <string name="login_error_invalid_input">Il numero di account è troppo lungo, inserisci un numero valido</string>
     <string name="login_error_too_many_attempts">Troppi tentativi, riprova più tardi</string>
     <string name="login_fail_description">Numero di account non valido</string>
     <string name="login_fail_title">Accesso non riuscito</string>

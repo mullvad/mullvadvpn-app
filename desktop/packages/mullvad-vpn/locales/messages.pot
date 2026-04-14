@@ -3023,9 +3023,6 @@ msgstr ""
 msgid "Account deleted"
 msgstr ""
 
-msgid "Account number is too long, please enter a valid number"
-msgstr ""
-
 msgid "Account number must match"
 msgstr ""
 
@@ -3173,9 +3170,6 @@ msgstr ""
 msgid "Create new list"
 msgstr ""
 
-msgid "Creating account failed"
-msgstr ""
-
 msgid "Critical error (your attention is required)"
 msgstr ""
 
@@ -3230,9 +3224,6 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-msgid "Don’t have an account number?"
-msgstr ""
-
 msgid "Edit custom lists"
 msgstr ""
 
@@ -3264,6 +3255,9 @@ msgid "Enter MTU"
 msgstr ""
 
 msgid "Enter account number digits"
+msgstr ""
+
+msgid "Enter an account number"
 msgstr ""
 
 msgid "Entry relay is the same as exit relay"
@@ -3303,6 +3297,9 @@ msgid "For details, please see our %s."
 msgstr ""
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr ""
+
+msgid "Generating..."
 msgstr ""
 
 msgid "Go to VPN settings"
@@ -3486,6 +3483,9 @@ msgid "Privacy"
 msgstr ""
 
 msgid "Privacy policy"
+msgstr ""
+
+msgid "Read more"
 msgstr ""
 
 msgid "Recents disabled and history cleared"

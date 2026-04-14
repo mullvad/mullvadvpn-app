@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">สร้าง</string>
-    <string name="create_account_fail_title">การสร้างบัญชีล้มเหลว</string>
     <string name="create_custom_list_message">\"%1$s\" ถูกสร้างแล้ว</string>
     <string name="create_new_account">สร้างบัญชีใหม่</string>
     <string name="create_new_account_warning_paragraph1">คุณมีหมายเลขบัญชีที่บันทึกไว้แล้ว การสร้างบัญชีใหม่จะเป็นการลบหมายเลขบัญชีที่บันทึกไว้ออกจากอุปกรณ์นี้ การดำเนินการนี้ไม่สามารถย้อนกลับได้</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">ตัดการเชื่อมต่อแล้ว (ไม่มีสิทธิ์ VPN)</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ...</string>
     <string name="dismiss">ละทิ้ง</string>
+    <string name="divier_or">หรือ</string>
     <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่างเพื่อเปิดใช้งานการตั้งค่าเหล่านี้</string>
     <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้</string>
-    <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
     <string name="edit_custom_lists">แก้ไขรายการแบบกำหนดเอง</string>
     <string name="edit_list">แก้ไขรายการ</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">ตำแหน่งที่ตั้งสำหรับ \"%1$s\" มีการเปลี่ยนแปลง</string>
     <string name="log_in">เข้าสู่ระบบ</string>
     <string name="log_out">ลงชื่อออก</string>
-    <string name="logged_in_description">หมายเลขบัญชีที่ถูกต้อง</string>
     <string name="logged_in_title">เข้าสู่ระบบแล้ว</string>
-    <string name="logging_in_description">กำลังตรวจสอบหมายเลขบัญชี</string>
     <string name="logging_in_title">กำลังเข้าสู่ระบบ...</string>
     <string name="login_description">ป้อนหมายเลขบัญชีของคุณ</string>
     <string name="login_error_api_unreachable">ไม่สามารถเข้าถึง API %1$s</string>
-    <string name="login_error_invalid_input">หมายเลขบัญชียาวเกินไป โปรดใส่หมายเลขที่ถูกต้อง</string>
     <string name="login_error_too_many_attempts">พยายามหลายครั้งเกินไป โปรดลองอีกครั้งในภายหลัง</string>
     <string name="login_fail_description">หมายเลขบัญชีไม่ถูกต้อง</string>
     <string name="login_fail_title">การเข้าสู่ระบบล้มเหลว</string>

@@ -127,7 +127,7 @@ fun DeviceListScreen(
 ) {
 
     ScaffoldWithTopBar(
-        topBarColor = MaterialTheme.colorScheme.primary,
+        topBarColor = MaterialTheme.colorScheme.background,
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,

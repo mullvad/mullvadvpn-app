@@ -55,6 +55,7 @@ data class Dimensions(
     val notificationStatusIconSize: Dp = 10.dp,
     val obfuscationNavigationBoxWidth: Dp = 56.dp,
     val outLineButtonBorderWidth: Dp = 1.dp,
+    val orDivierMinHeight: Dp = 48.dp,
     val privacyPolicyIconSize: Dp = 16.dp,
     val problemReportTextFieldMinHeight: Dp = 220.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,

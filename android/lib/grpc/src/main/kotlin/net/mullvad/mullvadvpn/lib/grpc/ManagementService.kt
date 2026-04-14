@@ -452,7 +452,7 @@ class ManagementService(
                 val accountNumberStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
                 AccountNumber(accountNumberStringValue.value)
             }
-            .onLeft { Logger.e("Create account error") }
+            .onLeft { Logger.e("Create account error ${it.message}") }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts

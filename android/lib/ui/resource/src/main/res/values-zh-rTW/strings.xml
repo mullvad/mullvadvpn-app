@@ -113,7 +113,6 @@
     <string name="country_comma_city">%2$s%1$s</string>
     <string name="country_comma_city_comma_relay">%1$s，%2$s，%3$s</string>
     <string name="create">建立</string>
-    <string name="create_account_fail_title">建立帳戶失敗</string>
     <string name="create_custom_list_message">已建立「%1$s」</string>
     <string name="create_new_account">建立新帳戶</string>
     <string name="create_new_account_warning_paragraph1">您已儲存一組帳號。若建立新帳戶，該已儲存的帳號將會從此裝置移除；此動作無法復原。</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">已中斷連線 (無 VPN 權限)</string>
     <string name="disconnecting">正在中斷連線…</string>
     <string name="dismiss">取消</string>
+    <string name="divier_or">還是</string>
     <string name="dns_content_blockers">DNS 內容封鎖程式</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此設定不能與「使用自訂 DNS 伺服器」共同使用。</string>
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的「%1$s」以啟動這些設定。</string>
     <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和應用程式出現問題。</string>
-    <string name="dont_have_an_account">沒有帳號嗎？</string>
     <string name="duplicate_address_warning">此地址已輸入過。</string>
     <string name="edit_custom_lists">編輯自訂清單</string>
     <string name="edit_list">編輯清單</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">已變更「%1$s」的位置</string>
     <string name="log_in">登入</string>
     <string name="log_out">登出</string>
-    <string name="logged_in_description">有效帳號</string>
     <string name="logged_in_title">已登入</string>
-    <string name="logging_in_description">檢查帳號中</string>
     <string name="logging_in_title">登入中…</string>
     <string name="login_description">輸入您的帳號</string>
     <string name="login_error_api_unreachable">無法存取 API，%1$s</string>
-    <string name="login_error_invalid_input">帳號過長，請輸入有效的帳號</string>
     <string name="login_error_too_many_attempts">嘗試次數過多，請稍後再試</string>
     <string name="login_fail_description">帳號無效</string>
     <string name="login_fail_title">登入失敗</string>
