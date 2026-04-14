@@ -62,7 +62,6 @@ import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
-import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -266,7 +265,7 @@ val uiModule = module {
             appVersionInfoRepository = get(),
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
-            isFdroidBuild = IS_FDROID_BUILD,
+            isFdroidBuild = false,
             self = get(),
         )
     }
@@ -286,7 +285,7 @@ val uiModule = module {
             systemVpnSettingsUseCase = get(),
             resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
-            isFdroidBuild = IS_FDROID_BUILD,
+            isFdroidBuild = false,
             self = get(),
         )
     }
@@ -434,5 +433,4 @@ const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
 
 private const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
-private val IS_FDROID_BUILD = BuildConfig.BUILD_TYPE == BuildTypes.FDROID
 private val IS_PLAY_BUILD = BuildConfig.FLAVOR_billing == BillingTypes.PLAY
