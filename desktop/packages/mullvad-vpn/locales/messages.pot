@@ -1746,12 +1746,11 @@ msgctxt "lwo-settings-view"
 msgid "Port: %(port)s"
 msgstr ""
 
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
 msgctxt "lwo-settings-view"
-msgid "The automatic setting will randomly choose from the valid port ranges shown below."
-msgstr ""
-
-msgctxt "lwo-settings-view"
-msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgid "Valid ranges: %(portRanges)s"
 msgstr ""
 
 #. Title label in navigation bar
@@ -3628,9 +3627,6 @@ msgid "VPN tunnel status"
 msgstr ""
 
 msgid "Valid range for all servers: %s"
-msgstr ""
-
-msgid "Valid ranges: %s"
 msgstr ""
 
 msgid "Value: %s"

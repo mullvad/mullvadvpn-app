@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { liftConstraint, wrapConstraint } from '../../../../../../shared/daemon-rpc-types';
@@ -8,8 +8,6 @@ import { isInRanges } from '../../../../../../shared/utils';
 import { useAppContext } from '../../../../../context';
 import { useSelector } from '../../../../../redux/store';
 import { SelectorItem } from '../../../../cell/Selector';
-import InfoButton from '../../../../InfoButton';
-import { ModalMessage } from '../../../../Modal';
 import { SettingsListbox } from '../../../../settings-listbox';
 
 const LWO_UDP_PORTS = [51820, 53];
@@ -19,6 +17,7 @@ function mapPortToSelectorItem(value: number): SelectorItem<number> {
 }
 export function LwoPortSetting() {
   const { setObfuscationSettings } = useAppContext();
+  const descriptionId = React.useId();
 
   const obfuscationSettings = useSelector((state) => state.settings.obfuscationSettings);
   const allowedPortRanges = useSelector((state) => state.settings.wireguardEndpointData.portRanges);
@@ -95,27 +94,6 @@ export function LwoPortSetting() {
               messages.pgettext('lwo-settings-view', 'Port')
             }
           </SettingsListbox.Header.Item.Label>
-          <SettingsListbox.Header.Item.ActionGroup>
-            <InfoButton>
-              <>
-                <ModalMessage>
-                  {messages.pgettext(
-                    'lwo-settings-view',
-                    'The automatic setting will randomly choose from the valid port ranges shown below.',
-                  )}
-                </ModalMessage>
-                <ModalMessage>
-                  {sprintf(
-                    messages.pgettext(
-                      'lwo-settings-view',
-                      'The custom port can be any value inside the valid ranges: %(portRanges)s.',
-                    ),
-                    { portRanges: portRangesText },
-                  )}
-                </ModalMessage>
-              </>
-            </InfoButton>
-          </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Header.Item>
       </SettingsListbox.Header>
       <SettingsListbox.Options>
@@ -139,6 +117,7 @@ export function LwoPortSetting() {
           </SettingsListbox.Options.InputOption.Label>
           <SettingsListbox.Header.Item.ActionGroup>
             <SettingsListbox.Options.InputOption.Input
+              aria-describedby={descriptionId}
               placeholder={messages.pgettext('lwo-settings-view', 'Port')}
               maxLength={5}
               type="text"
@@ -147,6 +126,17 @@ export function LwoPortSetting() {
           </SettingsListbox.Header.Item.ActionGroup>
         </SettingsListbox.Options.InputOption>
       </SettingsListbox.Options>
+      <SettingsListbox.Footer>
+        <SettingsListbox.Footer.Text id={descriptionId}>
+          {sprintf(
+            // TRANSLATORS: Text describing the valid port ranges for a port selector.
+            // TRANSLATORS: Available placeholders:
+            // TRANSLATORS: %(portRanges)s - will be replaced with a comma-separated list of port ranges
+            messages.pgettext('lwo-settings-view', 'Valid ranges: %(portRanges)s'),
+            { portRanges: portRangesText },
+          )}
+        </SettingsListbox.Footer.Text>
+      </SettingsListbox.Footer>
     </SettingsListbox>
   );
 }
