@@ -2,7 +2,6 @@
   pkgs,
   nixpkgs,
   android-nixpkgs,
-  system,
   common-toolchain,
 }:
 let
@@ -22,8 +21,9 @@ let
   buildToolsVersion = versions."build-tools";
   minSdkVersion = versions."min-sdk";
   ndkVersion = versions.ndk;
+  jdk = pkgs."jdk${versions."jvm-toolchain"}";
 
-  android-sdk = android-nixpkgs.sdk.${system} (
+  android-sdk = (import "${android-nixpkgs}" { pkgs = pkgs // { openjdk = jdk; }; }).sdk (
     sdkPkgs: with sdkPkgs; [
       (builtins.getAttr "platforms-android-${compileSdkVersion}-${compileSdkMinorVersion}" sdkPkgs)
       (builtins.getAttr "build-tools-${builtins.replaceStrings [ "." ] [ "-" ] buildToolsVersion}" sdkPkgs)
@@ -47,6 +47,7 @@ in
   inherit
     android-sdk
     rust-toolchain
+    jdk
     buildToolsVersion
     ndkVersion
     minSdkVersion
@@ -58,7 +59,7 @@ in
       android-sdk
       rust-toolchain
       pkgs.protoc-gen-grpc-java
-      pkgs.jdk17
+      jdk
       pkgs.python314
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
