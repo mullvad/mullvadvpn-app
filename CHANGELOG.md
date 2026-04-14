@@ -48,6 +48,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
+- Fix Shadowsocks being configurable by Mullvad VPN clients while not being supported by the system
+  service.
 
 #### Windows
 - Fix regression in 2026.1 that could cause split tunneling to become unavailable.
