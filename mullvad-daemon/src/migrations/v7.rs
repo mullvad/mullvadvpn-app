@@ -7,7 +7,7 @@ use mullvad_types::{
 use serde::{Deserialize, Serialize};
 use talpid_types::net::{
     Endpoint, TransportProtocol,
-    proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
+    proxy::{CustomProxy, Shadowsocks, ShadowsocksCipher, Socks5Local, Socks5Remote, SocksAuth},
 };
 
 // ======================================================
@@ -243,7 +243,9 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
                     .parse()
                     .map_err(|_| Error::InvalidSettingsContent)?,
                 password: extract_str(custom_bridge_shadowsocks.get("password"))?.to_string(),
-                cipher: extract_str(custom_bridge_shadowsocks.get("cipher"))?.to_string(),
+                cipher: extract_str(custom_bridge_shadowsocks.get("cipher")).and_then(
+                    |cipher| ShadowsocksCipher::new(cipher).or(Err(Error::InvalidSettingsContent)),
+                )?,
             })),
         }
     } else if let Some(normal_bridge) = settings

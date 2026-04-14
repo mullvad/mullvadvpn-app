@@ -1,4 +1,4 @@
-use crate::types::{FromProtobufTypeError, invalid_argument, proto};
+use crate::types::{FromProtobufTypeError, proto};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::Id,
@@ -25,13 +25,13 @@ impl TryFrom<&proto::WireguardConstraints>
             .ip_version
             .map(proto::IpVersion::try_from)
             .transpose()
-            .map_err(|_| invalid_argument("invalid IP protocol version"))?
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid IP protocol version"))?
             .map(net::IpVersion::from);
 
         let allowed_ips = AllowedIps::parse(&constraints.allowed_ips)
             .map_err(|e| {
                 log::error!("Failed to parse allowed IPs: {}", e);
-                invalid_argument("invalid allowed IPs")
+                FromProtobufTypeError::invalid_argument("invalid allowed IPs")
             })?
             .to_constraint();
 
@@ -62,7 +62,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
 
         let update_value = settings
             .endpoint
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing relay settings",
             ))?;
 
@@ -70,7 +70,7 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
             proto::relay_settings::Endpoint::Custom(settings) => {
                 let config = settings
                     .config
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing relay connection config",
                     ))?;
                 let config = ConnectionConfig::try_from(config)?;
@@ -95,7 +95,9 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                 let mut wireguard_constraints =
                     mullvad_constraints::WireguardConstraints::try_from(
                         &settings.wireguard_constraints.ok_or(
-                            FromProtobufTypeError::InvalidArgument("missing wireguard constraints"),
+                            FromProtobufTypeError::invalid_argument(
+                                "missing wireguard constraints",
+                            ),
                         )?,
                     )?;
 
@@ -281,7 +283,7 @@ impl TryFrom<proto::LocationConstraint> for mullvad_types::relay_constraints::Lo
     fn try_from(location: proto::LocationConstraint) -> Result<Self, Self::Error> {
         use mullvad_types::relay_constraints::LocationConstraint;
         let Some(typ) = location.r#type else {
-            return Err(invalid_argument(
+            return Err(FromProtobufTypeError::invalid_argument(
                 "Type of location constraint was not provided",
             ));
         };
@@ -292,7 +294,7 @@ impl TryFrom<proto::LocationConstraint> for mullvad_types::relay_constraints::Lo
             proto::location_constraint::Type::CustomList(list_id) => {
                 let location = LocationConstraint::CustomList {
                     list_id: Id::from_str(&list_id).map_err(|_| {
-                        FromProtobufTypeError::InvalidArgument("Id could not be parsed to a uuid")
+                        FromProtobufTypeError::invalid_argument("Id could not be parsed to a uuid")
                     })?,
                 };
                 Ok(location)
@@ -336,7 +338,7 @@ impl TryFrom<proto::GeographicLocationConstraint> for GeographicLocationConstrai
             (country, Some(city), Some(hostname)) => Ok(GeographicLocationConstraint::Hostname(
                 country, city, hostname,
             )),
-            (_country, None, Some(_hostname)) => Err(FromProtobufTypeError::InvalidArgument(
+            (_country, None, Some(_hostname)) => Err(FromProtobufTypeError::invalid_argument(
                 "Relay location contains hostname but no city",
             )),
         }
@@ -359,7 +361,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 Ok(IpcSelectedObfuscation::Lwo) => SelectedObfuscation::Lwo,
                 Ok(IpcSelectedObfuscation::WireguardPort) => SelectedObfuscation::WireguardPort,
                 Err(_) => {
-                    return Err(FromProtobufTypeError::InvalidArgument(
+                    return Err(FromProtobufTypeError::invalid_argument(
                         "invalid obfuscation settings",
                     ));
                 }
@@ -370,7 +372,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 mullvad_types::relay_constraints::Udp2TcpObfuscationSettings::try_from(&settings)?
             }
             None => {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid udp2tcp settings",
                 ));
             }
@@ -380,7 +382,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 mullvad_types::relay_constraints::ShadowsocksSettings::try_from(&settings)?
             }
             None => {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid shadowsocks settings",
                 ));
             }
@@ -391,7 +393,7 @@ impl TryFrom<proto::ObfuscationSettings> for mullvad_types::relay_constraints::O
                 mullvad_types::relay_constraints::WireguardPortSettings::try_from(&settings)?
             }
             None => {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid Wireguard port",
                 ));
             }
@@ -477,15 +479,17 @@ impl TryFrom<proto::RelayOverride> for mullvad_types::relay_constraints::RelayOv
             ipv4_addr_in: r#override
                 .ipv4_addr_in
                 .map(|addr| {
-                    addr.parse()
-                        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid IPv4 address"))
+                    addr.parse().map_err(|_| {
+                        FromProtobufTypeError::invalid_argument("invalid IPv4 address")
+                    })
                 })
                 .transpose()?,
             ipv6_addr_in: r#override
                 .ipv6_addr_in
                 .map(|addr| {
-                    addr.parse()
-                        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid IPv6 address"))
+                    addr.parse().map_err(|_| {
+                        FromProtobufTypeError::invalid_argument("invalid IPv6 address")
+                    })
                 })
                 .transpose()?,
         })
@@ -516,7 +520,7 @@ pub fn try_ownership_constraint_from_i32(
 ) -> Result<Constraint<mullvad_types::relay_constraints::Ownership>, FromProtobufTypeError> {
     proto::Ownership::try_from(ownership)
         .map(ownership_constraint_from_proto)
-        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid ownership argument"))
+        .map_err(|_| FromProtobufTypeError::invalid_argument("invalid ownership argument"))
 }
 
 pub fn ownership_constraint_from_proto(

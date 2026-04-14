@@ -26,10 +26,10 @@ impl TryFrom<types::VoucherSubmission> for VoucherSubmission {
     fn try_from(submission: types::VoucherSubmission) -> Result<Self, FromProtobufTypeError> {
         let new_expiry = submission
             .new_expiry
-            .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("missing expiry"))?;
 
         let new_expiry = DateTime::from_timestamp(new_expiry.seconds, new_expiry.nanos as u32)
-            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("invalid timestamp"))?;
 
         Ok(VoucherSubmission {
             new_expiry,
@@ -56,10 +56,10 @@ impl TryFrom<types::AccountData> for AccountData {
     fn try_from(data: types::AccountData) -> Result<Self, FromProtobufTypeError> {
         let expiry = data
             .expiry
-            .ok_or(FromProtobufTypeError::InvalidArgument("missing expiry"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("missing expiry"))?;
 
         let expiry = DateTime::from_timestamp(expiry.seconds, expiry.nanos as u32)
-            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("invalid timestamp"))?;
 
         Ok(AccountData {
             id: data.id,
@@ -76,7 +76,7 @@ impl TryFrom<types::PlayPurchase> for PlayPurchase {
         let product_id = value.product_id;
         let purchase_token = value
             .purchase_token
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "Missing purchase token",
             ))?
             .token;

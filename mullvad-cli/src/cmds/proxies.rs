@@ -2,7 +2,7 @@ use clap::Args;
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::{
     Endpoint, TransportProtocol,
-    proxy::{SHADOWSOCKS_CIPHERS, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
+    proxy::{Shadowsocks, ShadowsocksCipher, Socks5Local, Socks5Remote, SocksAuth},
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -75,8 +75,8 @@ pub struct ShadowsocksAdd {
     /// Password for authentication
     pub password: String,
     /// Cipher to use
-    #[arg(long, value_parser = SHADOWSOCKS_CIPHERS)]
-    pub cipher: String,
+    #[arg(long)]
+    pub cipher: ShadowsocksCipher,
 }
 
 impl From<ShadowsocksAdd> for Shadowsocks {
@@ -109,8 +109,8 @@ pub struct ProxyEditParams {
     #[arg(long)]
     pub password: Option<String>,
     /// Cipher to use \[Shadowsocks\]
-    #[arg(value_parser = SHADOWSOCKS_CIPHERS, long)]
-    pub cipher: Option<String>,
+    #[arg(long)]
+    pub cipher: Option<ShadowsocksCipher>,
     /// The IP of the remote proxy server \[Socks5 (Local & Remote proxy), Shadowsocks\]
     #[arg(long)]
     pub ip: Option<IpAddr>,
@@ -137,7 +137,10 @@ pub mod pp {
         fn fmt(&self, _: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
             match self.custom_proxy {
                 CustomProxy::Shadowsocks(shadowsocks) => {
-                    print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
+                    print_option!(
+                        "Protocol",
+                        format!("Shadowsocks [{}]", shadowsocks.cipher.clone().to_string())
+                    );
                     print_option!("Peer", shadowsocks.endpoint);
                     print_option!("Password", shadowsocks.password);
                     Ok(())
