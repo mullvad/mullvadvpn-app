@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Oluştur</string>
-    <string name="create_account_fail_title">Hesap oluşturulamadı</string>
     <string name="create_custom_list_message">\"%1$s\" oluşturuldu</string>
     <string name="create_new_account">Yeni hesap oluştur</string>
     <string name="create_new_account_warning_paragraph1">Zaten kayıtlı bir hesap numaranız var. Yeni bir hesap oluşturduğunuzda kayıtlı hesap numarası bu cihazdan kaldırılır. Bu işlem geri alınamaz.</string>
@@ -198,7 +197,6 @@
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
     <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki \"%1$s\" seçeneğini devre dışı bırakın.</string>
     <string name="dns_content_blockers_warning">Bu, belirli web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir.</string>
-    <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
     <string name="duplicate_address_warning">Bu adres zaten girilmiş.</string>
     <string name="edit_custom_lists">Özel listeleri düzenle</string>
     <string name="edit_list">Listeyi düzenle</string>
@@ -290,13 +288,10 @@
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
     <string name="log_in">Oturum aç</string>
     <string name="log_out">Oturumu kapat</string>
-    <string name="logged_in_description">Geçerli hesap numarası</string>
     <string name="logged_in_title">Oturum açıldı</string>
-    <string name="logging_in_description">Hesap numarası kontrol ediliyor</string>
     <string name="logging_in_title">Oturum açılıyor...</string>
     <string name="login_description">Hesap numaranızı girin</string>
     <string name="login_error_api_unreachable">API\'ye erişilemiyor, %1$s</string>
-    <string name="login_error_invalid_input">Hesap numarası çok uzun, lütfen geçerli bir numara girin</string>
     <string name="login_error_too_many_attempts">Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.</string>
     <string name="login_fail_description">Geçersiz hesap numarası</string>
     <string name="login_fail_title">Oturum açma başarısız</string>

@@ -10,12 +10,10 @@
     <string name="log_in">Log in</string>
     <string name="login_description">Enter your account number</string>
     <string name="logging_in_title">Logging in...</string>
-    <string name="logging_in_description">Checking account number</string>
     <string name="logged_in_title">Logged in</string>
-    <string name="logged_in_description">Valid account number</string>
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number</string>
-    <string name="dont_have_an_account">Don’t have an account number?</string>
+    <string name="login_fail_empty">Enter an account number</string>
     <string name="create_new_account_warning_paragraph1">You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</string>
     <string name="create_new_account_warning_paragraph2">Do you want to create a new account?</string>
     <string name="creating_new_account">Creating account...</string>
@@ -442,9 +440,8 @@
     <string name="click_here">click here</string>
     <string name="login_error_api_unreachable">Unable to reach API, %s</string>
     <string name="login_error_too_many_attempts">Too many attempts, please try again later</string>
-    <string name="login_error_invalid_input">Account number is too long, please enter a valid number</string>
-    <string name="create_account_fail_title">Creating account failed</string>
     <string name="read_more_here">read more here</string>
+    <string name="read_more">Read more</string>
     <string name="unable_to_reach_api">Unable to reach API</string>
     <string name="unable_to_reach_api_dialog_message_first_login">The app was unable to login due to not being able to reach the Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">The app was unable to create an account due to not being able to reach the Mullvad API.</string>
@@ -524,4 +521,5 @@
     <string name="language">Language</string>
     <string name="system_default">System default</string>
     <string name="app_icon">App icon</string>
+    <string name="generating_account_number">Generating...</string>
 </resources>
