@@ -24,6 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [androide2026.4-beta2] - 2026-04-14
+### Fixed
+- Fix crash when showing the Custom DNS dialog that was introduced in 2026.4-beta1.
+- Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
+
+
 ## [android/2026.4-beta1] - 2026-04-13
 ### Added
 - Add Ukrainian as a new language in the app.
