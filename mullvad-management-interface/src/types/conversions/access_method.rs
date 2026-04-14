@@ -26,21 +26,21 @@ mod settings {
         fn try_from(settings: proto::ApiAccessMethodSettings) -> Result<Self, Self::Error> {
             let direct = settings
                 .direct
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "Could not deserialize Direct Access Method from protobuf",
                 ))
                 .and_then(access_method::AccessMethodSetting::try_from)?;
 
             let mullvad_bridges = settings
                 .mullvad_bridges
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "Could not deserialize Mullvad Bridges Access Method from protobuf",
                 ))
                 .and_then(access_method::AccessMethodSetting::try_from)?;
 
             let encrypted_dns_proxy = settings
                 .encrypted_dns_proxy
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "Could not deserialize Encrypted DNS proxy Access Method from protobuf",
                 ))
                 .and_then(access_method::AccessMethodSetting::try_from)?;
@@ -77,7 +77,7 @@ mod data {
         fn try_from(value: proto::AccessMethodSetting) -> Result<Self, Self::Error> {
             let id = value
                 .id
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "Could not deserialize Access Method from protobuf",
                 ))
                 .and_then(Id::try_from)?;
@@ -85,7 +85,7 @@ mod data {
             let enabled = value.enabled;
             let access_method = value
                 .access_method
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "Could not deserialize Access Method from protobuf",
                 ))
                 .and_then(AccessMethod::try_from)?;
@@ -120,7 +120,7 @@ mod data {
             let access_method =
                 value
                     .access_method
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "Could not deserialize Access Method from protobuf",
                     ))?;
 
@@ -246,7 +246,7 @@ mod data {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Uuid) -> Result<Self, Self::Error> {
-            Self::from_string(value.value).ok_or(FromProtobufTypeError::InvalidArgument(
+            Self::from_string(value.value).ok_or(FromProtobufTypeError::invalid_argument(
                 "Could not parse UUID message from protobuf",
             ))
         }

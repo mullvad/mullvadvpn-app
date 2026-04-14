@@ -193,7 +193,10 @@ async fn test_custom_access_methods_gui(
                 "SHADOWSOCKS_SERVER_PORT",
                 access_method.endpoint.port().to_string().as_ref(),
             ),
-            ("SHADOWSOCKS_SERVER_CIPHER", access_method.cipher.as_ref()),
+            (
+                "SHADOWSOCKS_SERVER_CIPHER",
+                access_method.cipher.to_string().as_ref(),
+            ),
             (
                 "SHADOWSOCKS_SERVER_PASSWORD",
                 access_method.password.as_ref(),

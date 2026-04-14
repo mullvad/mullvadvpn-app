@@ -8,7 +8,11 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
-use talpid_types::net::{TransportProtocol, proxy::Shadowsocks, wireguard};
+use talpid_types::net::{
+    TransportProtocol,
+    proxy::{Shadowsocks, ShadowsocksCipher},
+    wireguard,
+};
 use vec1::Vec1;
 
 /// Stores a list of relays for each country obtained from the API using
@@ -498,7 +502,7 @@ pub struct BridgeEndpointData {
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Deserialize, Serialize)]
 pub struct ShadowsocksEndpointData {
     pub port: u16,
-    pub cipher: String,
+    pub cipher: ShadowsocksCipher,
     pub password: String,
     pub protocol: TransportProtocol,
 }

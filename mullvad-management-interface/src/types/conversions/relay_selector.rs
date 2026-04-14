@@ -7,8 +7,7 @@ use mullvad_types::{
 };
 
 use crate::types::{
-    FromProtobufTypeError, IpVersion, invalid_argument,
-    relay_constraints::try_ownership_constraint_from_i32,
+    FromProtobufTypeError, IpVersion, relay_constraints::try_ownership_constraint_from_i32,
 };
 use crate::types::{relay_constraints::providers_constraint_from_proto, relay_selector as proto};
 
@@ -17,7 +16,9 @@ impl TryFrom<proto::Predicate> for Predicate {
 
     fn try_from(predicate: proto::Predicate) -> Result<Self, Self::Error> {
         let Some(context) = predicate.context else {
-            return Err(invalid_argument("context must be provided"));
+            return Err(FromProtobufTypeError::invalid_argument(
+                "context must be provided",
+            ));
         };
         match context {
             proto::predicate::Context::Singlehop(constraints) => {
@@ -44,9 +45,9 @@ impl TryFrom<proto::Predicate> for Predicate {
                 let constraints = MultihopConstraints { entry, exit };
                 Ok(Self::Exit(constraints))
             }
-            proto::predicate::Context::Entry(_) | proto::predicate::Context::Exit(_) => {
-                Err(invalid_argument("entry + exit must be provided"))
-            }
+            proto::predicate::Context::Entry(_) | proto::predicate::Context::Exit(_) => Err(
+                FromProtobufTypeError::invalid_argument("entry + exit must be provided"),
+            ),
         }
     }
 }
@@ -68,7 +69,7 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .unwrap_or_default();
 
         let ip_version: Constraint<_> = IpVersion::try_from(ip_version)
-            .map_err(|_| invalid_argument("invalid IP protocol version"))
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid IP protocol version"))
             .map(talpid_types::net::IpVersion::from)?
             .into();
 

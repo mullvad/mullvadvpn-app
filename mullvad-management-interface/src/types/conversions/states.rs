@@ -270,7 +270,7 @@ fn try_auth_failed_from_i32(
 ) -> Result<mullvad_types::auth_failed::AuthFailed, FromProtobufTypeError> {
     proto::error_state::AuthFailedError::try_from(auth_failed_error)
         .map(mullvad_types::auth_failed::AuthFailed::from)
-        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid auth failed error"))
+        .map_err(|_| FromProtobufTypeError::invalid_argument("invalid auth failed error"))
 }
 
 impl From<proto::error_state::AuthFailedError> for mullvad_types::auth_failed::AuthFailed {
@@ -319,7 +319,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     .transpose()?,
                 feature_indicators: feature_indicators
                     .map(mullvad_types::features::FeatureIndicators::from)
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "Missing feature indicators",
                     ))?,
             },
@@ -337,7 +337,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     .transpose()?,
                 feature_indicators: feature_indicators
                     .map(mullvad_types::features::FeatureIndicators::from)
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "Missing feature indicators",
                     ))?,
             },
@@ -355,7 +355,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         talpid_tunnel::ActionAfterDisconnect::Reconnect
                     }
                     _ => {
-                        return Err(FromProtobufTypeError::InvalidArgument(
+                        return Err(FromProtobufTypeError::invalid_argument(
                             "invalid \"after_disconnect\" action",
                         ));
                     }
@@ -393,9 +393,10 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         talpid_tunnel::ErrorStateCause::SetDnsError
                     }
                     Ok(proto::error_state::Cause::SetFirewallPolicyError) => {
-                        let policy_error = policy_error.ok_or(
-                            FromProtobufTypeError::InvalidArgument("missing firewall policy error"),
-                        )?;
+                        let policy_error =
+                            policy_error.ok_or(FromProtobufTypeError::invalid_argument(
+                                "missing firewall policy error",
+                            ))?;
                         let policy_error = try_firewall_policy_error_from_i32(
                             policy_error.r#type,
                             policy_error.lock_pid,
@@ -421,7 +422,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                             Ok(proto::error_state::GenerationError::NetworkIpv4Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V4 },
                             Ok(proto::error_state::GenerationError::NetworkIpv6Unavailable) => talpid_tunnel::ParameterGenerationError::IpVersionUnavailable { family: IpVersion::V6 },
                             Ok(proto::error_state::GenerationError::NoMatchingRelay) => talpid_tunnel::ParameterGenerationError::NoMatchingRelay,
-                            _ => return Err(FromProtobufTypeError::InvalidArgument(
+                            _ => return Err(FromProtobufTypeError::invalid_argument(
                                 "invalid parameter error",
                             )),
                         };
@@ -436,7 +437,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         talpid_tunnel::ErrorStateCause::NeedFullDiskPermissions
                     }
                     _ => {
-                        return Err(FromProtobufTypeError::InvalidArgument(
+                        return Err(FromProtobufTypeError::invalid_argument(
                             "invalid error cause",
                         ));
                     }
@@ -455,7 +456,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                 MullvadState::Error(talpid_tunnel::ErrorState::new(cause, block_failure))
             }
             _ => {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid tunnel state",
                 ));
             }
@@ -485,7 +486,7 @@ fn try_firewall_policy_error_from_i32(
                 blocking_app,
             ))
         }
-        _ => Err(FromProtobufTypeError::InvalidArgument(
+        _ => Err(FromProtobufTypeError::invalid_argument(
             "invalid firewall policy error",
         )),
     }

@@ -115,37 +115,37 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
         let relay_settings =
             settings
                 .relay_settings
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing relay settings",
                 ))?;
         let tunnel_options =
             settings
                 .tunnel_options
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing tunnel options",
                 ))?;
         let obfuscation_settings =
             settings
                 .obfuscation_settings
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing obfuscation settings",
                 ))?;
         let custom_lists_settings =
             settings
                 .custom_lists
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing custom lists settings",
                 ))?;
         let api_access_methods_settings =
             settings
                 .api_access_methods
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing api access methods settings",
                 ))?;
         #[cfg(any(windows, target_os = "android", target_os = "macos"))]
         let split_tunnel = settings
             .split_tunnel
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing split tunnel options",
             ))?;
 
@@ -209,7 +209,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
 
         let dns_options = options
             .dns_options
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing tunnel DNS options",
             ))?;
 
@@ -220,7 +220,7 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                     .rotation_interval
                     .map(std::time::Duration::try_from)
                     .transpose()
-                    .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid duration"))?
+                    .map_err(|_| FromProtobufTypeError::invalid_argument("invalid duration"))?
                     .map(mullvad_types::wireguard::RotationInterval::try_from)
                     .transpose()
                     .map_err(|error: mullvad_types::wireguard::RotationIntervalError| {
@@ -228,19 +228,19 @@ impl TryFrom<proto::TunnelOptions> for mullvad_types::settings::TunnelOptions {
                             "{}",
                             error.display_chain_with_msg("Invalid rotation interval")
                         );
-                        FromProtobufTypeError::InvalidArgument("invalid rotation interval")
+                        FromProtobufTypeError::invalid_argument("invalid rotation interval")
                     })?,
                 quantum_resistant: options
                     .quantum_resistant
                     .map(mullvad_types::wireguard::QuantumResistantState::try_from)
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing quantum resistant state",
                     ))??,
                 #[cfg(daita)]
                 daita: options
                     .daita
                     .map(mullvad_types::wireguard::DaitaSettings::from)
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing daita settings",
                     ))?,
                 userspace: options.userspace,
@@ -267,7 +267,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
             Ok(proto::dns_options::DnsState::Default) => MullvadDnsState::Default,
             Ok(proto::dns_options::DnsState::Custom) => MullvadDnsState::Custom,
             Err(_) => {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid DNS options state",
                 ));
             }
@@ -276,13 +276,13 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
         let default_options =
             options
                 .default_options
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing default DNS options",
                 ))?;
         let custom_options =
             options
                 .custom_options
-                .ok_or(FromProtobufTypeError::InvalidArgument(
+                .ok_or(FromProtobufTypeError::invalid_argument(
                     "missing default DNS options",
                 ))?;
 
@@ -302,7 +302,7 @@ impl TryFrom<proto::DnsOptions> for mullvad_types::settings::DnsOptions {
                     .into_iter()
                     .map(|addr| {
                         addr.parse().map_err(|_| {
-                            FromProtobufTypeError::InvalidArgument("invalid IP address")
+                            FromProtobufTypeError::invalid_argument("invalid IP address")
                         })
                     })
                     .collect::<Result<Vec<_>, _>>()?,

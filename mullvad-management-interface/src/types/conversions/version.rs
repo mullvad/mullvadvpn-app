@@ -52,7 +52,7 @@ impl TryFrom<proto::SuggestedUpgrade> for SuggestedUpgrade {
     fn try_from(suggested_upgrade: proto::SuggestedUpgrade) -> Result<Self, Self::Error> {
         // TODO: we probably don't need to convert in this direction
         let version = suggested_upgrade.version.parse().map_err(|_err| {
-            FromProtobufTypeError::InvalidArgument("invalid Mullvad app version")
+            FromProtobufTypeError::invalid_argument("invalid Mullvad app version")
         })?;
         let verified_installer_path = suggested_upgrade
             .verified_installer_path
@@ -100,7 +100,7 @@ impl TryFrom<proto::AppUpgradeEvent> for AppUpgradeEvent {
 
         let event = upgrade_event
             .event
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "Non-existent AppUpgradeEvent",
             ))?;
 
@@ -181,7 +181,7 @@ impl TryFrom<proto::AppUpgradeError> for AppUpgradeError {
     fn try_from(value: proto::AppUpgradeError) -> Result<Self, Self::Error> {
         type ProtoError = proto::app_upgrade_error::Error;
         let Ok(error) = ProtoError::try_from(value.error) else {
-            return Err(FromProtobufTypeError::InvalidArgument(
+            return Err(FromProtobufTypeError::invalid_argument(
                 "invalid AppUpgradeError",
             ));
         };

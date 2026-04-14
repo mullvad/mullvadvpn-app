@@ -4,7 +4,7 @@ use crate::{
     DnsResolver,
     access::AccessTokenStore,
     availability::ApiAvailability,
-    https_client::{HttpsConnector, HttpsConnectorHandle},
+    https_client::{HttpsConnector, HttpsConnectorHandle, InnerConnectionMode},
     proxy::ConnectionModeProvider,
 };
 use futures::{
@@ -164,27 +164,28 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
-        let (connector, connector_handle) = HttpsConnector::new(
+        let proxy_config = {
+            let api_connection_mode = connection_mode_provider.initial();
+            InnerConnectionMode::from(api_connection_mode)
+        };
+        let connector = HttpsConnector::new(
             dns_resolver,
+            proxy_config,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
             #[cfg(any(feature = "api-override", test))]
             disable_tls,
         );
-
-        connector_handle.set_connection_mode(connection_mode_provider.initial());
-
-        let (command_tx, command_rx) = mpsc::unbounded();
         let client =
             hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
-                .build(connector);
+                .build(connector.clone());
 
+        let (command_tx, command_rx) = mpsc::unbounded();
         let command_tx = Arc::new(command_tx);
-
         let service = Self {
             command_tx: Arc::downgrade(&command_tx),
             command_rx,
-            connector_handle,
+            connector_handle: connector.spawn(),
             client,
             connection_mode_provider,
             connection_mode_generation: 0,

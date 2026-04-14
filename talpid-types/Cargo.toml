@@ -11,6 +11,7 @@ base64 = "0.22.0"
 ipnetwork = { workspace = true, features = ["serde"] }
 log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+shadowsocks-crypto.workspace = true
 thiserror = { workspace = true }
 x25519-dalek = { version = "2.0.1", features = [
   "getrandom",

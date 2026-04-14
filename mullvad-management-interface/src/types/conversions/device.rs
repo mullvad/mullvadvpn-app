@@ -8,13 +8,13 @@ impl TryFrom<proto::Device> for mullvad_types::device::Device {
     fn try_from(device: proto::Device) -> Result<Self, Self::Error> {
         let created_seconds = device
             .created
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing 'created' field",
             ))?
             .seconds;
 
         let created = DateTime::from_timestamp(created_seconds, 0)
-            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("invalid timestamp"))?;
 
         Ok(mullvad_types::device::Device {
             id: device.id,
@@ -46,16 +46,16 @@ impl TryFrom<proto::DeviceState> for mullvad_types::device::DeviceState {
 
     fn try_from(state: proto::DeviceState) -> Result<Self, FromProtobufTypeError> {
         let state_type = proto::device_state::State::try_from(state.state)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid device state"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid device state"))?;
 
         match state_type {
             proto::device_state::State::LoggedIn => {
-                let account = state.device.ok_or(FromProtobufTypeError::InvalidArgument(
+                let account = state.device.ok_or(FromProtobufTypeError::invalid_argument(
                     "missing account data",
                 ))?;
                 let device = account
                     .device
-                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                    .ok_or(FromProtobufTypeError::invalid_argument(
                         "missing device data",
                     ))?;
 
@@ -111,11 +111,11 @@ impl TryFrom<proto::DeviceEvent> for mullvad_types::device::DeviceEvent {
 
     fn try_from(event: proto::DeviceEvent) -> Result<Self, Self::Error> {
         let cause = proto::device_event::Cause::try_from(event.cause)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid event"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid event"))?;
         let cause = mullvad_types::device::DeviceEventCause::from(cause);
 
         let new_state = mullvad_types::device::DeviceState::try_from(event.new_state.ok_or(
-            FromProtobufTypeError::InvalidArgument("missing device state"),
+            FromProtobufTypeError::invalid_argument("missing device state"),
         )?)?;
 
         Ok(mullvad_types::device::DeviceEvent { cause, new_state })

@@ -28,15 +28,16 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
-    str::{self, FromStr},
+    str,
     sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::{ErrorExt, net::proxy};
+use talpid_types::net::proxy;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
+    sync::Notify,
     time::timeout,
 };
 use tower::Service;
@@ -46,6 +47,8 @@ use crate::proxy::ConnectionDecorator;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
+/// Communicate asynchronously with an [HttpsConnector] actor.
+/// Created via [HttpsConnector::spawn].
 #[derive(Clone)]
 pub struct HttpsConnectorHandle {
     tx: mpsc::UnboundedSender<HttpsConnectorRequest>,
@@ -65,13 +68,14 @@ impl HttpsConnectorHandle {
     }
 }
 
+/// Requests for the HttpsConnector actor.
 enum HttpsConnectorRequest {
     Reset,
     SetConnectionMode(ApiConnectionMode),
 }
 
 #[derive(Clone)]
-enum InnerConnectionMode {
+pub(crate) enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
     /// Connect to the destination via a Shadowsocks proxy.
@@ -226,7 +230,7 @@ impl InnerConnectionMode {
 }
 
 #[derive(Clone)]
-struct ShadowsocksConfig {
+pub(crate) struct ShadowsocksConfig {
     proxy_context: SharedContext,
     params: ParsedShadowsocksConfig,
 }
@@ -247,23 +251,15 @@ impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
 }
 
 #[derive(Clone)]
-struct SocksConfig {
+pub(crate) struct SocksConfig {
     peer: SocketAddr,
     authentication: Option<proxy::SocksAuth>,
 }
 
-#[derive(thiserror::Error, Debug)]
-enum ProxyConfigError {
-    #[error("Unrecognized cipher selected: {0}")]
-    InvalidCipher(String),
-}
-
-impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
-    type Error = ProxyConfigError;
-
-    fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
+impl From<ApiConnectionMode> for InnerConnectionMode {
+    fn from(config: ApiConnectionMode) -> Self {
         use std::net::Ipv4Addr;
-        Ok(match config {
+        match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
                 ProxyConfig::Shadowsocks(config) => {
@@ -271,8 +267,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                         params: ParsedShadowsocksConfig {
                             peer: config.endpoint,
                             password: config.password,
-                            cipher: CipherKind::from_str(&config.cipher)
-                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                            cipher: config.cipher.kind(),
                         },
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })
@@ -289,7 +284,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     InnerConnectionMode::EncryptedDnsProxy(config)
                 }
             },
-        })
+        }
     }
 }
 
@@ -297,7 +292,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 #[derive(Clone)]
 pub struct HttpsConnector {
     inner: Arc<Mutex<HttpsConnectorInner>>,
-    abort_notify: Arc<tokio::sync::Notify>,
+    abort_notify: Arc<Notify>,
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -314,63 +309,44 @@ struct HttpsConnectorInner {
 pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnector {
+    /// Creates a new [HttpsConnector] actor instance, which notably implements [`Service<Uri>`].
+    ///
+    /// Call [HttpsConnector::spawn] to start listening for [events](HttpsConnectorRequest).
     pub fn new(
         dns_resolver: Arc<dyn DnsResolver>,
+        proxy_config: InnerConnectionMode,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
-    ) -> (Self, HttpsConnectorHandle) {
-        let (tx, mut rx) = mpsc::unbounded();
+    ) -> Self {
         let abort_notify = Arc::new(tokio::sync::Notify::new());
-        let inner = Arc::new(Mutex::new(HttpsConnectorInner {
-            stream_handles: vec![],
-            proxy_config: InnerConnectionMode::Direct,
+        let connector = Arc::new(Mutex::new(HttpsConnectorInner {
+            proxy_config,
+            stream_handles: Default::default(),
         }));
 
-        let inner_copy = inner.clone();
-        let notify = abort_notify.clone();
-        tokio::spawn(async move {
-            // Handle requests by `HttpsConnectorHandle`s
-            while let Some(request) = rx.next().await {
-                let handles = {
-                    let mut inner = inner_copy.lock().unwrap();
+        HttpsConnector {
+            inner: connector,
+            abort_notify,
+            dns_resolver,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls,
+        }
+    }
 
-                    if let HttpsConnectorRequest::SetConnectionMode(config) = request {
-                        match InnerConnectionMode::try_from(config) {
-                            Ok(config) => {
-                                inner.proxy_config = config;
-                            }
-                            Err(error) => {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to parse new API proxy config"
-                                    )
-                                );
-                            }
-                        }
-                    }
-
-                    std::mem::take(&mut inner.stream_handles)
-                };
-                for handle in handles {
-                    handle.close();
-                }
-                notify.notify_waiters();
-            }
-        });
-
-        (
-            HttpsConnector {
-                inner,
-                abort_notify,
-                dns_resolver,
-                #[cfg(target_os = "android")]
-                socket_bypass_tx,
-                #[cfg(any(feature = "api-override", test))]
-                disable_tls,
-            },
-            HttpsConnectorHandle { tx },
-        )
+    /// Start listening for incoming [HttpsConnectorRequest]s from the created [HttpsConnectorHandle].
+    pub fn spawn(&self) -> HttpsConnectorHandle {
+        let (tx, requests) = mpsc::unbounded();
+        let connector = self.inner.clone();
+        let notify = self.abort_notify.clone();
+        let request_handler = RequestHandler {
+            connector,
+            notify,
+            requests,
+        };
+        tokio::spawn(request_handler.run());
+        HttpsConnectorHandle { tx }
     }
 
     /// Establishes a TCP connection with a peer at the specified socket address.
@@ -504,5 +480,38 @@ impl Service<Uri> for HttpsConnector {
         };
 
         Box::pin(fut)
+    }
+}
+
+struct RequestHandler {
+    connector: Arc<Mutex<HttpsConnectorInner>>,
+    notify: Arc<Notify>,
+    requests: mpsc::UnboundedReceiver<HttpsConnectorRequest>,
+}
+
+impl RequestHandler {
+    /// Process requests from an associated [HttpsConnectorHandle].
+    async fn run(mut self) {
+        while let Some(request) = self.requests.next().await {
+            self.handle(request);
+        }
+    }
+
+    /// Process a single request from a connected [HttpsConnectorHandle].
+    fn handle(&mut self, request: HttpsConnectorRequest) {
+        let handles = {
+            match request {
+                HttpsConnectorRequest::Reset => return,
+                HttpsConnectorRequest::SetConnectionMode(config) => {
+                    let mut inner = self.connector.lock().unwrap();
+                    inner.proxy_config = InnerConnectionMode::from(config);
+                    std::mem::take(&mut inner.stream_handles)
+                }
+            }
+        };
+        for handle in handles {
+            handle.close();
+        }
+        self.notify.notify_waiters();
     }
 }

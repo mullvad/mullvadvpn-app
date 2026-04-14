@@ -11,13 +11,15 @@ impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
     fn try_from(
         config: proto::WireguardConfig,
     ) -> Result<wireguard::ConnectionConfig, Self::Error> {
-        let tunnel = config.tunnel.ok_or(FromProtobufTypeError::InvalidArgument(
-            "missing tunnel config",
-        ))?;
+        let tunnel = config
+            .tunnel
+            .ok_or(FromProtobufTypeError::invalid_argument(
+                "missing tunnel config",
+            ))?;
 
         let private_key = bytes_to_privkey(&tunnel.private_key)?;
 
-        let peer = config.peer.ok_or(FromProtobufTypeError::InvalidArgument(
+        let peer = config.peer.ok_or(FromProtobufTypeError::invalid_argument(
             "missing peer config",
         ))?;
 
@@ -26,25 +28,25 @@ impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
         let ipv4_gateway = config
             .ipv4_gateway
             .parse()
-            .map_err(|_err| FromProtobufTypeError::InvalidArgument("invalid IPv4 gateway"))?;
+            .map_err(|_err| FromProtobufTypeError::invalid_argument("invalid IPv4 gateway"))?;
         let ipv6_gateway = config
             .ipv6_gateway
             .map(|addr| {
                 addr.parse()
-                    .map_err(|_err| FromProtobufTypeError::InvalidArgument("invalid IPv6 gateway"))
+                    .map_err(|_err| FromProtobufTypeError::invalid_argument("invalid IPv6 gateway"))
             })
             .transpose()?;
 
         let endpoint = peer
             .endpoint
             .parse()
-            .map_err(|_err| FromProtobufTypeError::InvalidArgument("invalid peer address"))?;
+            .map_err(|_err| FromProtobufTypeError::invalid_argument("invalid peer address"))?;
 
         let mut tunnel_addresses = Vec::new();
         for address in tunnel.addresses {
             let address = address
                 .parse()
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid address"))?;
+                .map_err(|_| FromProtobufTypeError::invalid_argument("invalid address"))?;
             tunnel_addresses.push(address);
         }
 
@@ -52,7 +54,7 @@ impl TryFrom<proto::WireguardConfig> for wireguard::ConnectionConfig {
         for address in peer.allowed_ips {
             let address = address
                 .parse()
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid address"))?;
+                .map_err(|_| FromProtobufTypeError::invalid_argument("invalid address"))?;
             allowed_ips.push(address);
         }
 

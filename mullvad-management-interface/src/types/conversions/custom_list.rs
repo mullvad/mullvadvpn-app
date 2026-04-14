@@ -55,7 +55,7 @@ impl TryFrom<proto::CustomList> for mullvad_types::custom_list::CustomList {
             .collect::<Result<BTreeSet<_>, Self::Error>>()?;
 
         let id = Id::from_str(&custom_list.id)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid list ID"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("Invalid list ID"))?;
 
         let mut inner = Self::with_id(id);
         inner.name = custom_list.name;

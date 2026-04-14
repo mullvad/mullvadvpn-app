@@ -1,6 +1,6 @@
 use crate::net::Endpoint;
 use serde::{Deserialize, Serialize};
-use std::{fmt, net::SocketAddr};
+use std::{fmt, net::SocketAddr, str::FromStr};
 
 use super::TransportProtocol;
 
@@ -87,9 +87,57 @@ impl From<Shadowsocks> for CustomProxy {
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
     pub password: String,
-    /// One of [`SHADOWSOCKS_CIPHERS`].
-    /// Gets validated at a later stage. Is assumed to be valid.
-    pub cipher: String,
+    pub cipher: ShadowsocksCipher,
+}
+
+/// Like [shadowsocks_crypto::CipherKind], but implements [Serialize] + [Deserialize].
+///
+/// A [ShadowsocksCipher] constructed via [ShadowsocksCipher::new] is guaranteed to:
+/// - Hnfallibly convert into a [shadowsocks_crypto::CipherKind].
+/// - Have the same string representation as [shadowsocks_crypto::CipherKind].
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+pub struct ShadowsocksCipher(String);
+
+impl ShadowsocksCipher {
+    /// Validates cipher against all known, supported Shadowsocks ciphers.
+    ///
+    /// For a list of supported ciphers, see [Self::list].
+    pub fn new(cipher: &str) -> Result<Self, shadowsocks_crypto::kind::ParseCipherKindError> {
+        let cipher = shadowsocks_crypto::CipherKind::from_str(cipher)?;
+        Ok(Self(cipher.to_string()))
+    }
+
+    pub fn kind(self) -> shadowsocks_crypto::CipherKind {
+        shadowsocks_crypto::CipherKind::from_str(&self.0).unwrap()
+    }
+
+    pub fn list() -> &'static [&'static str] {
+        shadowsocks_crypto::available_ciphers()
+    }
+}
+
+impl core::fmt::Display for ShadowsocksCipher {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl From<shadowsocks_crypto::CipherKind> for ShadowsocksCipher {
+    fn from(cipher: shadowsocks_crypto::CipherKind) -> Self {
+        ShadowsocksCipher::new(&cipher.to_string()).unwrap()
+    }
+}
+
+#[derive(thiserror::Error, Debug)]
+#[error("Failed to parse Shadowsocks cipher: {0}")]
+pub struct ParseCipherKindError(shadowsocks_crypto::kind::ParseCipherKindError);
+
+impl FromStr for ShadowsocksCipher {
+    type Err = ParseCipherKindError;
+
+    fn from_str(cipher: &str) -> Result<Self, Self::Err> {
+        Self::new(cipher).map_err(ParseCipherKindError)
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -185,7 +233,11 @@ impl SocksAuth {
 }
 
 impl Shadowsocks {
-    pub fn new<I: Into<SocketAddr>>(endpoint: I, cipher: String, password: String) -> Self {
+    pub fn new<I: Into<SocketAddr>>(
+        endpoint: I,
+        cipher: ShadowsocksCipher,
+        password: String,
+    ) -> Self {
         Shadowsocks {
             endpoint: endpoint.into(),
             password,
@@ -233,27 +285,18 @@ impl Socks5Remote {
     }
 }
 
-/// List of ciphers usable by a Shadowsocks proxy.
-pub const SHADOWSOCKS_CIPHERS: [&str; 19] = [
-    // Stream ciphers.
-    "aes-128-cfb",
-    "aes-128-cfb1",
-    "aes-128-cfb8",
-    "aes-128-cfb128",
-    "aes-256-cfb",
-    "aes-256-cfb1",
-    "aes-256-cfb8",
-    "aes-256-cfb128",
-    "rc4",
-    "rc4-md5",
-    "chacha20",
-    "salsa20",
-    "chacha20-ietf",
-    // AEAD ciphers.
-    "aes-128-gcm",
-    "aes-256-gcm",
-    "chacha20-ietf-poly1305",
-    "xchacha20-ietf-poly1305",
-    "aes-128-pmac-siv",
-    "aes-256-pmac-siv",
-];
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Iterate all known ciphers and ensure [ShadowsocksCipher] can be constructed for all of them.
+    #[test]
+    fn parse_shadowsocks_ciphers() {
+        for cipher in ShadowsocksCipher::list() {
+            let cipher =
+                ShadowsocksCipher::new(cipher).expect("{cipher} must be a valid ShadowsocksCipher");
+            // It *must be* infallible to convert a ShadowsocksCipher back to the CipherKind type.
+            let _kind = cipher.kind();
+        }
+    }
+}
