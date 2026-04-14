@@ -7,8 +7,6 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-# TODO: Upgrade to version which no longer depends on rand 0.8.5: https://github.com/danielparks/htmlize/pull/124.
-# See https://github.com/danielparks/htmlize/pull/osv.dev/vulnerability/RUSTSEC-2026-0097.
 htmlize = { version = "1.0.6", features = ["unescape"] }
 itertools = "0.14.0"
 quick-xml = { version = "0.27.1", features = ["serialize"] }
