@@ -1,0 +1,16 @@
+{
+  "images" : [
+    {
+      "filename" : "Multihop_1.svg",
+      "idiom" : "universal",
+      "language-direction" : "left-to-right"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  },
+  "properties" : {
+    "preserves-vector-representation" : true
+  }
+}

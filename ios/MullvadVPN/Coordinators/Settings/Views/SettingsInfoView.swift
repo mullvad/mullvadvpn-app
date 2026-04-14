@@ -13,11 +13,11 @@ struct SettingsInfoViewModel {
 }
 
 struct SettingsInfoViewModelPage: Hashable {
-    let body: String
+    let body: String?
     let image: ImageResource
     let customView: AnyView?
 
-    init(body: String, image: ImageResource, customView: AnyView? = nil) {
+    init(body: String? = nil, image: ImageResource, customView: AnyView? = nil) {
         self.body = body
         self.image = image
         self.customView = customView
@@ -65,13 +65,15 @@ struct SettingsInfoView: View {
         .hidden()
     }
 
-    private func bodyText(_ page: SettingsInfoViewModelPage) -> some View {
-        let message = page.body
-        return
+    private func bodyText(_ page: SettingsInfoViewModelPage) -> (some View)? {
+        if let message = page.body {
             (try? AttributedString(
                 markdown: message,
                 options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
             )).map(Text.init) ?? Text(message)
+        } else {
+            nil
+        }
     }
 
     private func contentView() -> some View {
@@ -84,9 +86,10 @@ struct SettingsInfoView: View {
                     bodyText(page)
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.mullvadTiny)
-                        .opacity(0.6)
+                        .foregroundStyle(Color.mullvadTextSecondary)
                     if let customView = page.customView {
                         customView
+                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
                 Spacer()
@@ -106,7 +109,7 @@ struct SettingsInfoView: View {
                         Multihop routes your traffic into one WireGuard server and out another, making it \
                         harder to trace. This results in increased latency but increases anonymity online.
                         """,
-                    image: .multihopIllustration
+                    image: .multihopIllustrationGeneral
                 )
             ]
         ))
@@ -121,7 +124,7 @@ struct SettingsInfoView: View {
                         Multihop routes your traffic into one WireGuard server and out another, making it \
                         harder to trace. This results in increased latency but increases anonymity online.
                         """,
-                    image: .multihopIllustration
+                    image: .multihopIllustrationGeneral
                 ),
                 SettingsInfoViewModelPage(
                     body: """
@@ -130,7 +133,7 @@ struct SettingsInfoView: View {
                         Multihop routes your traffic into one WireGuard server and out another, making it \
                         harder to trace. This results in increased latency but increases anonymity online.
                         """,
-                    image: .multihopIllustration
+                    image: .multihopIllustrationWhenNeeded
                 ),
             ]
         ))
@@ -146,7 +149,7 @@ struct SettingsInfoView: View {
                             Multihop routes your traffic into one WireGuard server and out another, making it \
                             harder to trace. This results in increased latency but increases anonymity online.
                             """,
-                        image: .multihopIllustration
+                        image: .multihopIllustrationGeneral
                     )
                 ]
             ))
