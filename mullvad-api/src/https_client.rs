@@ -345,7 +345,6 @@ impl HttpsConnector {
             notify,
             requests,
         };
-        // TODO: There should be some uniqueness check. What happens if start() is called twice ??
         tokio::spawn(request_handler.run());
         HttpsConnectorHandle { tx }
     }
