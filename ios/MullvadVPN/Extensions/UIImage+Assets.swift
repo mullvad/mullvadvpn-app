@@ -94,6 +94,12 @@ extension UIImage {
         static var success: UIImage { UIImage(named: "IconSuccess")! }
     }
 
+    enum Multihop {
+        static var whenNeeded: UIImage {
+            UIImage(named: "IconMultihopWhenNeeded")!
+        }
+    }
+
     // miscellaneous images
     static var backTransitionMask: UIImage {
         UIImage(named: "IconBackTransitionMask")!

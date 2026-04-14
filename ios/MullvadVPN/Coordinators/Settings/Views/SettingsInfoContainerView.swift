@@ -30,6 +30,6 @@ struct SettingsInfoContainerView<Content: View>: View {
 
 #Preview {
     SettingsInfoContainerView {
-        SettingsMultihopView(tunnelViewModel: MockMultihopTunnelSettingsViewModel())
+        SettingsDAITAView(tunnelViewModel: MockDAITATunnelSettingsViewModel())
     }
 }
