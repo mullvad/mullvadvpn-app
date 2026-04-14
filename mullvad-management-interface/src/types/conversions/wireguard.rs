@@ -21,16 +21,16 @@ impl TryFrom<proto::PublicKey> for mullvad_types::wireguard::PublicKey {
     fn try_from(public_key: proto::PublicKey) -> Result<Self, Self::Error> {
         let created = public_key
             .created
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing 'created' timestamp",
             ))?;
 
         let created = DateTime::from_timestamp(created.seconds, created.nanos as u32)
-            .ok_or(FromProtobufTypeError::InvalidArgument("invalid timestamp"))?;
+            .ok_or(FromProtobufTypeError::invalid_argument("invalid timestamp"))?;
 
         Ok(mullvad_types::wireguard::PublicKey {
             key: talpid_types::net::wireguard::PublicKey::try_from(public_key.key.as_slice())
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid wireguard key"))?,
+                .map_err(|_| FromProtobufTypeError::invalid_argument("invalid wireguard key"))?,
             created,
         })
     }
@@ -60,7 +60,7 @@ impl TryFrom<proto::QuantumResistantState> for mullvad_types::wireguard::Quantum
             Ok(proto::quantum_resistant_state::State::Off) => {
                 Ok(mullvad_types::wireguard::QuantumResistantState::Off)
             }
-            Err(_) => Err(FromProtobufTypeError::InvalidArgument(
+            Err(_) => Err(FromProtobufTypeError::invalid_argument(
                 "invalid quantum resistance state",
             )),
         }

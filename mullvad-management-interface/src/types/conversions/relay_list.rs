@@ -12,6 +12,7 @@ use mullvad_types::{
         WireguardRelay,
     },
 };
+use talpid_types::net::proxy::ShadowsocksCipher;
 use vec1::Vec1;
 
 use super::net::try_transport_protocol_from_i32;
@@ -47,7 +48,7 @@ impl From<mullvad_types::relay_list::BridgeEndpointData> for proto::BridgeEndpoi
                 .into_iter()
                 .map(|endpoint| proto::ShadowsocksEndpointData {
                     port: u32::from(endpoint.port),
-                    cipher: endpoint.cipher,
+                    cipher: endpoint.cipher.to_string(),
                     password: endpoint.password,
                     protocol: proto::TransportProtocol::from(endpoint.protocol) as i32,
                 })
@@ -76,7 +77,7 @@ impl TryFrom<proto::RelayList> for mullvad_types::relay_list::RelayList {
     fn try_from(value: proto::RelayList) -> Result<Self, Self::Error> {
         let wireguard = value
             .endpoint_data
-            .ok_or(FromProtobufTypeError::InvalidArgument(
+            .ok_or(FromProtobufTypeError::invalid_argument(
                 "missing wireguard data",
             ))?;
 
@@ -124,7 +125,7 @@ impl TryFrom<proto::BridgeList> for BridgeList {
         let bridge_endpoint = bridge_list
             .endpoint_data
             .map(BridgeEndpointData::try_from)
-            .ok_or(FromProtobufTypeError::InvalidArgument("missing bridges"))??;
+            .ok_or(FromProtobufTypeError::invalid_argument("missing bridges"))??;
 
         Ok(BridgeList {
             bridges,
@@ -140,13 +141,13 @@ impl TryFrom<proto::Bridge> for Bridge {
         let r = Relay {
             hostname: bridge.hostname.clone(),
             ipv4_addr_in: bridge.ipv4_addr_in.parse().map_err(|_err| {
-                FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
+                FromProtobufTypeError::invalid_argument("invalid relay IPv4 address")
             })?,
             ipv6_addr_in: bridge
                 .ipv6_addr_in
                 .map(|addr| {
                     addr.parse().map_err(|_err| {
-                        FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+                        FromProtobufTypeError::invalid_argument("invalid relay IPv6 address")
                     })
                 })
                 .transpose()?,
@@ -163,7 +164,7 @@ impl TryFrom<proto::Bridge> for Bridge {
                     longitude: location.longitude,
                 })
                 .ok_or("missing relay location")
-                .map_err(FromProtobufTypeError::InvalidArgument)?,
+                .map_err(FromProtobufTypeError::invalid_argument)?,
         };
 
         Ok(Bridge(r))
@@ -319,7 +320,7 @@ impl TryFrom<proto::relay::wireguard_endpoint::Quic> for mullvad_types::relay_li
         let token = value.token;
         fn parse_addr(addr: String) -> Result<IpAddr, FromProtobufTypeError> {
             addr.parse()
-                .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))
+                .map_err(|_err| FromProtobufTypeError::invalid_argument("Invalid IP address"))
         }
         let addr_in = value
             .addr_in
@@ -327,7 +328,7 @@ impl TryFrom<proto::relay::wireguard_endpoint::Quic> for mullvad_types::relay_li
             .map(parse_addr)
             .collect::<Result<Vec<IpAddr>, FromProtobufTypeError>>()?;
         let addr_in = Vec1::try_from_vec(addr_in)
-            .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid QUIC object"))?;
+            .map_err(|_err| FromProtobufTypeError::invalid_argument("Invalid QUIC object"))?;
         Ok(Self::new(addr_in, token, domain))
     }
 }
@@ -375,7 +376,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
     fn try_from(relay: proto::Relay) -> Result<Self, Self::Error> {
         let endpoint_data = {
             let Some(wireguard) = relay.endpoint_data else {
-                return Err(FromProtobufTypeError::InvalidArgument(
+                return Err(FromProtobufTypeError::invalid_argument(
                     "invalid relay endpoint type",
                 ));
             };
@@ -393,7 +394,9 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
                     .into_iter()
                     .map(|addr| addr.parse())
                     .collect::<Result<HashSet<IpAddr>, _>>()
-                    .map_err(|_err| FromProtobufTypeError::InvalidArgument("Invalid IP address"))?,
+                    .map_err(|_err| {
+                        FromProtobufTypeError::invalid_argument("Invalid IP address")
+                    })?,
             }
         };
 
@@ -407,13 +410,13 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
             Relay {
                 hostname: relay.hostname.clone(),
                 ipv4_addr_in: relay.ipv4_addr_in.parse().map_err(|_err| {
-                    FromProtobufTypeError::InvalidArgument("invalid relay IPv4 address")
+                    FromProtobufTypeError::invalid_argument("invalid relay IPv4 address")
                 })?,
                 ipv6_addr_in: relay
                     .ipv6_addr_in
                     .map(|addr| {
                         addr.parse().map_err(|_err| {
-                            FromProtobufTypeError::InvalidArgument("invalid relay IPv6 address")
+                            FromProtobufTypeError::invalid_argument("invalid relay IPv6 address")
                         })
                     })
                     .transpose()?,
@@ -430,7 +433,7 @@ impl TryFrom<proto::Relay> for mullvad_types::relay_list::WireguardRelay {
                         longitude: location.longitude,
                     })
                     .ok_or("missing relay location")
-                    .map_err(FromProtobufTypeError::InvalidArgument)?,
+                    .map_err(FromProtobufTypeError::invalid_argument)?,
             },
         );
         Ok(relay)
@@ -447,8 +450,13 @@ impl TryFrom<proto::ShadowsocksEndpointData>
     ) -> Result<Self, FromProtobufTypeError> {
         Ok(mullvad_types::relay_list::ShadowsocksEndpointData {
             port: u16::try_from(shadowsocks.port)
-                .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?,
-            cipher: shadowsocks.cipher,
+                .map_err(|_| FromProtobufTypeError::invalid_argument("invalid port"))?,
+            cipher: ShadowsocksCipher::new(&shadowsocks.cipher).map_err(|_| {
+                FromProtobufTypeError::invalid_argument(format!(
+                    "invalid shadowsocks cipher: {cipher}",
+                    cipher = shadowsocks.cipher,
+                ))
+            })?,
             password: shadowsocks.password,
             protocol: try_transport_protocol_from_i32(shadowsocks.protocol)?,
         })
@@ -466,9 +474,9 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Endpoi
             .collect::<Result<Vec<_>, FromProtobufTypeError>>()?;
 
         let ipv4_gateway = Ipv4Addr::from_str(&wireguard.ipv4_gateway)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid IPv4 gateway"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("Invalid IPv4 gateway"))?;
         let ipv6_gateway = Ipv6Addr::from_str(&wireguard.ipv6_gateway)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("Invalid IPv6 gateway"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("Invalid IPv6 gateway"))?;
 
         let shadowsocks_port_ranges = wireguard
             .shadowsocks_port_ranges
@@ -481,7 +489,7 @@ impl TryFrom<proto::WireguardEndpointData> for mullvad_types::relay_list::Endpoi
             .into_iter()
             .map(|port| {
                 u16::try_from(port)
-                    .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid udp2tcp port"))
+                    .map_err(|_| FromProtobufTypeError::invalid_argument("invalid udp2tcp port"))
             })
             .collect::<Result<Vec<u16>, FromProtobufTypeError>>()?;
 
@@ -500,9 +508,9 @@ impl TryFrom<proto::PortRange> for RangeInclusive<u16> {
 
     fn try_from(range: proto::PortRange) -> Result<Self, Self::Error> {
         let first = u16::try_from(range.first)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid port"))?;
         let last = u16::try_from(range.last)
-            .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid port"))?;
+            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid port"))?;
         Ok(first..=last)
     }
 }

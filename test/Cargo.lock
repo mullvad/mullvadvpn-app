@@ -3485,6 +3485,7 @@ dependencies = [
  "jnix",
  "log",
  "serde",
+ "shadowsocks-crypto",
  "thiserror 2.0.3",
  "x25519-dalek",
  "zeroize",

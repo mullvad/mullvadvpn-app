@@ -28,12 +28,12 @@ use std::{
     io,
     net::{IpAddr, SocketAddr},
     pin::Pin,
-    str::{self, FromStr},
+    str,
     sync::{Arc, Mutex},
     task::{Context, Poll},
     time::Duration,
 };
-use talpid_types::{ErrorExt, net::proxy};
+use talpid_types::net::proxy;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpSocket, TcpStream},
@@ -256,19 +256,10 @@ pub(crate) struct SocksConfig {
     authentication: Option<proxy::SocksAuth>,
 }
 
-#[derive(thiserror::Error, Debug)]
-pub(crate) enum ProxyConfigError {
-    // TODO: The goal is to get rid of this error kind.
-    #[error("Unrecognized cipher selected: {0}")]
-    InvalidCipher(String),
-}
-
-impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
-    type Error = ProxyConfigError;
-
-    fn try_from(config: ApiConnectionMode) -> Result<Self, Self::Error> {
+impl From<ApiConnectionMode> for InnerConnectionMode {
+    fn from(config: ApiConnectionMode) -> Self {
         use std::net::Ipv4Addr;
-        Ok(match config {
+        match config {
             ApiConnectionMode::Direct => InnerConnectionMode::Direct,
             ApiConnectionMode::Proxied(proxy_settings) => match proxy_settings {
                 ProxyConfig::Shadowsocks(config) => {
@@ -276,8 +267,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                         params: ParsedShadowsocksConfig {
                             peer: config.endpoint,
                             password: config.password,
-                            cipher: CipherKind::from_str(&config.cipher)
-                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                            cipher: config.cipher.kind(),
                         },
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })
@@ -294,7 +284,7 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     InnerConnectionMode::EncryptedDnsProxy(config)
                 }
             },
-        })
+        }
     }
 }
 
@@ -514,18 +504,7 @@ impl RequestHandler {
                 HttpsConnectorRequest::Reset => return,
                 HttpsConnectorRequest::SetConnectionMode(config) => {
                     let mut inner = self.connector.lock().unwrap();
-                    match InnerConnectionMode::try_from(config) {
-                        Ok(config) => {
-                            inner.proxy_config = config;
-                        }
-                        Err(error) => {
-                            log::error!(
-                                "{}",
-                                error
-                                    .display_chain_with_msg("Failed to parse new API proxy config")
-                            );
-                        }
-                    }
+                    inner.proxy_config = InnerConnectionMode::from(config);
                     std::mem::take(&mut inner.stream_handles)
                 }
             }

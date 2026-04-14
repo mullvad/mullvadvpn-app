@@ -96,7 +96,7 @@ impl TryFrom<proto::ObfuscationEndpoint> for talpid_types::net::ObfuscationEndpo
 
         Ok(talpid_net::ObfuscationEndpoint {
             endpoint: talpid_net::Endpoint::try_from(endpoint.endpoint.ok_or(
-                FromProtobufTypeError::InvalidArgument("missing obfuscation endpoint"),
+                FromProtobufTypeError::invalid_argument("missing obfuscation endpoint"),
             )?)?,
             obfuscation_type: match proto::obfuscation_endpoint::ObfuscationType::try_from(
                 endpoint.obfuscation_type,
@@ -114,7 +114,7 @@ impl TryFrom<proto::ObfuscationEndpoint> for talpid_types::net::ObfuscationEndpo
                     talpid_net::ObfuscationType::Lwo
                 }
                 Err(_) => {
-                    return Err(FromProtobufTypeError::InvalidArgument(
+                    return Err(FromProtobufTypeError::invalid_argument(
                         "unknown obfuscation type",
                     ));
                 }
@@ -158,7 +158,7 @@ impl TryFrom<proto::TunnelEndpoint> for talpid_types::net::TunnelEndpoint {
                             obfuscators,
                         })
                     }
-                    None => Err(FromProtobufTypeError::InvalidArgument(
+                    None => Err(FromProtobufTypeError::invalid_argument(
                         "unknown obfuscation info type",
                     )),
                 })
@@ -221,7 +221,7 @@ pub fn try_transport_protocol_from_i32(
     protocol: i32,
 ) -> Result<talpid_types::net::TransportProtocol, FromProtobufTypeError> {
     Ok(proto::TransportProtocol::try_from(protocol)
-        .map_err(|_| FromProtobufTypeError::InvalidArgument("invalid transport protocol"))?
+        .map_err(|_| FromProtobufTypeError::invalid_argument("invalid transport protocol"))?
         .into())
 }
 
@@ -230,7 +230,7 @@ mod proxy {
 
     use crate::types::{FromProtobufTypeError, proto};
     use talpid_types::net::proxy::{
-        CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth,
+        CustomProxy, Shadowsocks, ShadowsocksCipher, Socks5Local, Socks5Remote, SocksAuth,
     };
 
     impl TryFrom<proto::CustomProxy> for CustomProxy {
@@ -248,7 +248,7 @@ mod proxy {
                     CustomProxy::Shadowsocks(Shadowsocks::try_from(shadowsocks)?)
                 }
                 None => {
-                    return Err(FromProtobufTypeError::InvalidArgument(
+                    return Err(FromProtobufTypeError::invalid_argument(
                         "CustomProxy missing proxy_method field",
                     ));
                 }
@@ -262,7 +262,7 @@ mod proxy {
         fn try_from(value: proto::Socks5Local) -> Result<Self, Self::Error> {
             use crate::types::conversions::net::try_transport_protocol_from_i32;
             let remote_ip = value.remote_ip.parse::<Ipv4Addr>().map_err(|_| {
-                FromProtobufTypeError::InvalidArgument(
+                FromProtobufTypeError::invalid_argument(
                     "Could not parse Socks5 (local) message from protobuf",
                 )
             })?;
@@ -279,7 +279,7 @@ mod proxy {
 
         fn try_from(value: proto::Socks5Remote) -> Result<Self, Self::Error> {
             let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
-                FromProtobufTypeError::InvalidArgument(
+                FromProtobufTypeError::invalid_argument(
                     "Could not parse Socks5 (remote) message from protobuf",
                 )
             })?;
@@ -301,14 +301,21 @@ mod proxy {
 
         fn try_from(value: proto::Shadowsocks) -> Result<Self, Self::Error> {
             let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
-                FromProtobufTypeError::InvalidArgument(
+                FromProtobufTypeError::invalid_argument(
                     "Could not parse Socks5 (remote) message from protobuf",
                 )
             })?;
 
+            let cipher = ShadowsocksCipher::new(&value.cipher).map_err(|_| {
+                FromProtobufTypeError::invalid_argument(format!(
+                    "invalid shadowsocks cipher: {cipher}",
+                    cipher = value.cipher,
+                ))
+            })?;
+
             Ok(Shadowsocks::new(
                 (ip, value.port as u16),
-                value.cipher,
+                cipher,
                 value.password,
             ))
         }
@@ -344,7 +351,7 @@ mod proxy {
                 ip: value.endpoint.ip().to_string(),
                 port: value.endpoint.port() as u32,
                 password: value.password,
-                cipher: value.cipher,
+                cipher: value.cipher.to_string(),
             }
         }
     }
@@ -386,7 +393,7 @@ mod proxy {
 
         fn try_from(value: proto::SocksAuth) -> Result<Self, Self::Error> {
             SocksAuth::new(value.username, value.password).map_err(|_| {
-                FromProtobufTypeError::InvalidArgument(
+                FromProtobufTypeError::invalid_argument(
                     "Failed to parse Socks5 with authentication. \
                      Make sure the credentials are valid.",
                 )

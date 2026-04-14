@@ -166,8 +166,7 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     ) -> RequestServiceHandle {
         let proxy_config = {
             let api_connection_mode = connection_mode_provider.initial();
-            // TODO: Do not unwrap
-            InnerConnectionMode::try_from(api_connection_mode).unwrap()
+            InnerConnectionMode::from(api_connection_mode)
         };
         let connector = HttpsConnector::new(
             dns_resolver,

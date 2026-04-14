@@ -22,13 +22,15 @@ mod wireguard;
 #[derive(thiserror::Error, Debug)]
 pub enum FromProtobufTypeError {
     #[error("Invalid argument for type conversion: {0}")]
-    InvalidArgument(&'static str),
+    InvalidArgument(String),
 }
 
-/// Shorthand for `FromProtobufTypeError::InvalidArgument`.
-#[inline(always)]
-pub(crate) fn invalid_argument(msg: &'static str) -> FromProtobufTypeError {
-    FromProtobufTypeError::InvalidArgument(msg)
+impl FromProtobufTypeError {
+    /// Shorthand for `FromProtobufTypeError::invalid_argument(String::from(<msg>))`.
+    #[inline(always)]
+    pub fn invalid_argument(msg: impl Into<String>) -> FromProtobufTypeError {
+        FromProtobufTypeError::InvalidArgument(msg.into())
+    }
 }
 
 fn bytes_to_pubkey(
@@ -51,14 +53,14 @@ fn bytes_to_wg_key<'a>(
     bytes: &'a [u8],
     error_msg: &'static str,
 ) -> Result<&'a [u8; 32], FromProtobufTypeError> {
-    <&[u8; 32]>::try_from(bytes).map_err(|_| FromProtobufTypeError::InvalidArgument(error_msg))
+    <&[u8; 32]>::try_from(bytes).map_err(|_| FromProtobufTypeError::invalid_argument(error_msg))
 }
 
 fn arg_from_str<T: FromStr<Err = E>, E>(
     s: &str,
     invalid_arg_msg: &'static str,
 ) -> Result<T, FromProtobufTypeError> {
-    T::from_str(s).map_err(|_err| FromProtobufTypeError::InvalidArgument(invalid_arg_msg))
+    T::from_str(s).map_err(|_err| FromProtobufTypeError::invalid_argument(invalid_arg_msg))
 }
 
 impl From<FromProtobufTypeError> for crate::Status {

@@ -9,6 +9,7 @@ use talpid_types::net::{
     IpVersion,
     TransportProtocol::{Tcp, Udp},
     obfuscation::{ObfuscatorConfig, Obfuscators},
+    proxy::ShadowsocksCipher,
     wireguard::PublicKey,
 };
 
@@ -150,19 +151,19 @@ static BRIDGES: LazyLock<BridgeList> = LazyLock::new(|| BridgeList {
         shadowsocks: vec![
             ShadowsocksEndpointData {
                 port: 443,
-                cipher: "aes-256-gcm".to_string(),
+                cipher: ShadowsocksCipher::new("aes-256-gcm").unwrap(),
                 password: "mullvad".to_string(),
                 protocol: Tcp,
             },
             ShadowsocksEndpointData {
                 port: 1234,
-                cipher: "aes-256-cfb".to_string(),
+                cipher: ShadowsocksCipher::new("aes-256-cfb").unwrap(),
                 password: "mullvad".to_string(),
                 protocol: Udp,
             },
             ShadowsocksEndpointData {
                 port: 1236,
-                cipher: "aes-256-gcm".to_string(),
+                cipher: ShadowsocksCipher::new("aes-256-gcm").unwrap(),
                 password: "mullvad".to_string(),
                 protocol: Udp,
             },
