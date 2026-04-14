@@ -4,7 +4,7 @@ use std::{
 };
 
 use shadowsocks::crypto::available_ciphers;
-use talpid_types::net::proxy::{Shadowsocks, Socks5Remote, SocksAuth};
+use talpid_types::net::proxy::{Shadowsocks, ShadowsocksCipher, Socks5Remote, SocksAuth};
 
 use super::get_string;
 
@@ -56,6 +56,7 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
 
     let password = unsafe { get_string(c_password) };
     let cipher = unsafe { get_string(c_cipher) };
+    let cipher = ShadowsocksCipher::new(&cipher).unwrap();
 
     let shadowsocks_configuration = Shadowsocks {
         endpoint,
