@@ -10,6 +10,10 @@ license.workspace = true
 harness = false
 name = "lwo"
 
+[[bench]]
+harness = false
+name = "obfuscation_throughput"
+
 [dependencies]
 async-trait = "0.1"
 futures = { workspace = true }

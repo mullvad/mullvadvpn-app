@@ -22,20 +22,29 @@ use tunnel_obfuscation::{
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
-/// to point to an endpoint on localhost
+/// to point to an endpoint on localhost.
 ///
 /// # Arguments
 ///
 /// * obfuscation_mtu - "MTU" including obfuscation overhead
+/// * is_gotatun - `true` when the userspace GotaTun implementation is in use
 pub async fn apply_obfuscation_config(
     config: &mut Config,
     obfuscation_mtu: u16,
     close_msg_sender: sync_mpsc::Sender<CloseMsg>,
+    is_gotatun: bool,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
     let Some(ref obfuscator_config) = config.obfuscator_config else {
         return Ok(None);
     };
+
+    // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
+    // MaybeObfuscatingTransportFactory.
+    if is_gotatun && is_single_lwo(obfuscator_config) {
+        log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
+        return Ok(None);
+    }
 
     let settings = settings_from_config(
         config,
@@ -78,6 +87,14 @@ pub async fn apply_obfuscation_config(
         obfuscation_task,
         packet_overhead,
     }))
+}
+
+/// Returns `true` when the obfuscation config is a single LWO method.
+pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+    matches!(
+        obfuscators,
+        Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
+    )
 }
 
 /// Patch the first peer in the WireGuard configuration to use the local proxy endpoint

@@ -6,7 +6,7 @@ use std::{
 };
 
 use async_trait::async_trait;
-use rand::{RngCore, SeedableRng};
+use rand::RngCore;
 use talpid_types::net::wireguard::PublicKey;
 use tokio::{io, net::UdpSocket, task::JoinHandle};
 use tokio_util::sync::CancellationToken;
@@ -184,9 +184,8 @@ async fn run_obfuscation(
     write_socket: Arc<UdpSocket>,
 ) {
     if sending {
-        let mut rng = new_rng();
         run_obfuscation_inner(
-            move |buf| obfuscate(&mut rng, buf, key.as_bytes()),
+            move |buf| obfuscate(&mut rand::thread_rng(), buf, key.as_bytes()),
             read_socket,
             write_socket,
         )
@@ -321,8 +320,12 @@ impl Obfuscator for Lwo {
     }
 }
 
-pub fn new_rng() -> impl RngCore {
-    rand::rngs::SmallRng::from_entropy()
+/// Obfuscate a packet using a thread-local RNG.
+///
+/// This is a convenience function for callers that do not want to manage their own RNG.
+/// Uses a per-thread [`rand::rngs::SmallRng`] initialized lazily on first use.
+pub fn obfuscate_thread_local(packet: &mut [u8], key: &[u8; 32]) {
+    obfuscate(&mut rand::thread_rng(), packet, key);
 }
 
 #[cfg(test)]
@@ -342,7 +345,7 @@ mod test {
         let mut packet = fake_packet();
         let original_packet = packet.clone();
 
-        let mut rng = new_rng();
+        let mut rng = &mut rand::thread_rng();
 
         obfuscate(&mut rng, &mut packet, &key);
         assert_ne!(packet, original_packet);
@@ -379,7 +382,7 @@ mod test {
 
         tokio::spawn(Box::new(lwo).run());
 
-        let mut rng = new_rng();
+        let mut rng = &mut rand::thread_rng();
 
         // Send a test message, verify it on the server
         let packet = fake_packet();

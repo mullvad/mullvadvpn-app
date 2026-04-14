@@ -23,13 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-
 #### Linux
 - Make it possible to build for RISC-V from source.
 - Add `--daemon-only` build option for deb and rpm packages for CLI usage.
 - GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
 
 ### Changed
+- Optimize LWO performance when using GotaTun. This gives a 1.5 to 3 times speedup in our
+  benchmarks.
 - Location setting no longer defaults to Sweden, instead it uses your current location if it
   has available relays, and falls back to Sweden otherwise.
 - `mullvad-daemon` now defaults to `ERROR` log level when `-v` is not specified.
