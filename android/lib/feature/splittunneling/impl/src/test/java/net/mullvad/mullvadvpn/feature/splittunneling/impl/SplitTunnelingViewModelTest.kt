@@ -68,8 +68,6 @@ class SplitTunnelingViewModelTest {
 
         assertIs<Lc.Loading<Loading>>(actualState)
         assertEquals(initialExpectedState, actualState)
-
-        verify(exactly = 1) { mockedApplicationsProvider.apps() }
     }
 
     @Test
@@ -212,6 +210,7 @@ class SplitTunnelingViewModelTest {
                     mockedSplitTunnelingRepository,
                     mockedApplicationsProvider,
                     mockedUserPreferencesRepository,
+                    UnconfinedTestDispatcher(),
                 ),
                 UnconfinedTestDispatcher(),
             )

@@ -155,7 +155,7 @@ val uiModule = module {
     single { RelayListFilterRepository(get()) }
     single { VoucherRepository(get(), get()) }
     single { SplitTunnelingRepository(get()) }
-    single { SplitTunnelingUseCase(get(), get(), get()) }
+    single { SplitTunnelingUseCase(get(), get(), get(), Dispatchers.IO) }
     single { ApiAccessRepository(get()) }
     single { NewDeviceRepository() }
     single { SplashCompleteRepository() }
