@@ -75,7 +75,7 @@ enum HttpsConnectorRequest {
 }
 
 #[derive(Clone)]
-enum InnerConnectionMode {
+pub(crate) enum InnerConnectionMode {
     /// Connect directly to the target.
     Direct,
     /// Connect to the destination via a Shadowsocks proxy.
@@ -230,7 +230,7 @@ impl InnerConnectionMode {
 }
 
 #[derive(Clone)]
-struct ShadowsocksConfig {
+pub(crate) struct ShadowsocksConfig {
     proxy_context: SharedContext,
     params: ParsedShadowsocksConfig,
 }
@@ -251,13 +251,14 @@ impl TryFrom<ParsedShadowsocksConfig> for ServerConfig {
 }
 
 #[derive(Clone)]
-struct SocksConfig {
+pub(crate) struct SocksConfig {
     peer: SocketAddr,
     authentication: Option<proxy::SocksAuth>,
 }
 
 #[derive(thiserror::Error, Debug)]
-enum ProxyConfigError {
+pub(crate) enum ProxyConfigError {
+    // TODO: The goal is to get rid of this error kind.
     #[error("Unrecognized cipher selected: {0}")]
     InvalidCipher(String),
 }
@@ -323,13 +324,14 @@ impl HttpsConnector {
     /// Call [HttpsConnector::spawn] to start listening for [events](HttpsConnectorRequest).
     pub fn new(
         dns_resolver: Arc<dyn DnsResolver>,
+        proxy_config: InnerConnectionMode,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
         #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Self {
         let abort_notify = Arc::new(tokio::sync::Notify::new());
         let connector = Arc::new(Mutex::new(HttpsConnectorInner {
-            stream_handles: vec![],
-            proxy_config: InnerConnectionMode::Direct,
+            proxy_config,
+            stream_handles: Default::default(),
         }));
 
         HttpsConnector {
