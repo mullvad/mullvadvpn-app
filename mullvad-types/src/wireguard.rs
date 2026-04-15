@@ -10,7 +10,7 @@ pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_hours(24);
 pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_hours(30 * 24);
 pub const DEFAULT_ROTATION_INTERVAL: Duration = MAX_ROTATION_INTERVAL;
 
-#[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Serialize, Deserialize, Default, Copy, Clone, Debug, PartialEq, Eq, Intersection)]
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
 pub enum QuantumResistantState {
@@ -26,12 +26,6 @@ impl QuantumResistantState {
             On => true,
             Off => false,
         }
-    }
-}
-
-impl Intersection for QuantumResistantState {
-    fn intersection(self, other: Self) -> Option<Self> {
-        if self == other { Some(self) } else { None }
     }
 }
 
