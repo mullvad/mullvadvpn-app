@@ -159,6 +159,13 @@ function build_sign_and_publish_ref {
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
+    # TODO Check if production version
+    local upload_dir="$BUILD_DIR/$publish"
+    mkdir -p "$upload_dir"
+    upload_fdroid "$version" "$artifact_dir" "$publish_dir" || echo "Failed deploy f-droid repo"
+
+    # TODO call rsync or rsync script here
+
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
 
@@ -168,13 +175,11 @@ function build_sign_and_publish_ref {
 }
 
 function upload_fdroid {
-    # shellcheck source=ci/buildserver-config.sh
-    source "$SCRIPT_DIR/buildserver-config.sh"
-
-    local fdroid-local-release = "$BUILD_DIR/android/fdroid-repo/"
-    fdroid-local-release --update $1
-    fdroid-local-release --sign
-    fdroid-local-release --push "${PRODUCTION_UPLOAD_SERVERS[0]}/android/fdroid/"
+    local version_name=$1
+    local version_code="$(run_in_linux_container 'stty -echo && cargo run -q --bin mullvad-version versionCode' | tr -d "\r" || return 1)"
+    local artifact="$2/MullvadVPN-$versionName.apk"
+    local upload_dir=$3
+    "./android/scripts/containerized-fdroid-build.sh" "$version_name" "$version_code" "$artifact" "$upload_dir"
 }
 
 cd "$BUILD_DIR"
