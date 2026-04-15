@@ -133,3 +133,71 @@ impl_intersection_partialeq!(relay_constraints::Ownership);
 impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
 impl_intersection_partialeq!(talpid_types::net::IpVersion);
 impl_intersection_partialeq!(relay_constraints::AllowedIps);
+
+#[cfg(test)]
+mod tests {
+    use crate::Intersection;
+
+    // ── Struct derive ─────────────────────────────────────────────────────────
+
+    /// A simple struct where every field implements `Intersection` via `PartialEq`.
+    #[derive(Debug, PartialEq, Intersection)]
+    struct Point {
+        x: u16,
+        y: u16,
+    }
+
+    #[test]
+    fn struct_same_fields_intersect() {
+        let a = Point { x: 1, y: 2 };
+        let b = Point { x: 1, y: 2 };
+        assert_eq!(a.intersection(b), Some(Point { x: 1, y: 2 }));
+    }
+
+    #[test]
+    fn struct_differing_field_yields_none() {
+        let a = Point { x: 1, y: 2 };
+        let b = Point { x: 1, y: 99 };
+        assert_eq!(a.intersection(b), None);
+    }
+
+    // ── Enum derive ───────────────────────────────────────────────────────────
+
+    #[derive(Debug, Clone, PartialEq, Intersection)]
+    enum Color {
+        /// Unit variant — no inner data.
+        Red,
+        Green,
+        /// Newtype variant — inner value must itself implement `Intersection`.
+        Custom(u16),
+    }
+
+    /// Same unit variant × same unit variant → `Some`.
+    #[test]
+    fn enum_unit_same_variant_intersects() {
+        assert_eq!(Color::Red.intersection(Color::Red), Some(Color::Red));
+        assert_eq!(Color::Green.intersection(Color::Green), Some(Color::Green));
+    }
+
+    /// Different variants → `None`.
+    #[test]
+    fn enum_different_variants_yield_none() {
+        assert_eq!(Color::Red.intersection(Color::Green), None);
+        assert_eq!(Color::Green.intersection(Color::Custom(1)), None);
+    }
+
+    /// Same newtype variant, same inner value → `Some`.
+    #[test]
+    fn enum_newtype_same_value_intersects() {
+        assert_eq!(
+            Color::Custom(42).intersection(Color::Custom(42)),
+            Some(Color::Custom(42))
+        );
+    }
+
+    /// Same newtype variant, differing inner value → `None`.
+    #[test]
+    fn enum_newtype_different_value_yields_none() {
+        assert_eq!(Color::Custom(1).intersection(Color::Custom(2)), None);
+    }
+}
