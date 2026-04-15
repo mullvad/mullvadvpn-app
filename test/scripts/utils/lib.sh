@@ -222,7 +222,6 @@ function run_tests_for_os {
         "${upgrade_package_arg[@]}" \
         "${test_report_arg[@]}" \
         --package-dir "${package_dir}" \
-        --vnc 5933 \
         --vm "$vm" \
         "${mullvad_host_arg[@]}" \
         "${test_filters_arg[@]}" \
