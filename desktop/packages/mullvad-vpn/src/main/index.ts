@@ -1112,6 +1112,7 @@ class ApplicationMain
           } else {
             log.error(
               `Error while checking launch daemon authorization status.
+                Status: ${error.code}
                 Stdout: ${stdout.toString()}
                 Stderr: ${stderr.toString()}`,
             );
