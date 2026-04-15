@@ -40,23 +40,25 @@ function verify_repository_versions {
     print_versions_args+=( --beta )
   fi
 
+  deb_product_version=${PRODUCT_VERSION/-/\~}
   deb_version_output=$(./print-package-versions --deb "${print_versions_args[@]}")
-  deb_version=$(echo "$deb_version_output" | grep mullvad-vpn | awk '{print $2}' | sed 's/~/-/')
+  for arch in amd64 arm64; do
+    if ! echo "$deb_version_output" | grep -q "^mullvad-vpn/.* $deb_product_version $arch\$"; then
+      log_error "Missing or incorrect deb $arch version in repository (expected $deb_product_version)"
+      echo "$deb_version_output"
+      exit 1
+    fi
+  done
 
-  if [[ "$deb_version" != "$PRODUCT_VERSION" ]]; then
-    log_error "Incorrect deb version in repository ($deb_version)"
-    echo "$deb_version_output"
-    exit 1
-  fi
-
+  rpm_product_version=${PRODUCT_VERSION/-/\~}-1
   rpm_version_output=$(./print-package-versions --rpm "${print_versions_args[@]}")
-  rpm_version=$(echo "$rpm_version_output" | grep mullvad-vpn | awk '{print $2}' | sed 's/~/-/')
-
-  if [[ "$rpm_version" != "$PRODUCT_VERSION-1" ]]; then
-    log_error "Incorrect rpm version in repository ($rpm_version)"
-    echo "$rpm_version_output"
-    exit 1
-  fi
+  for arch in x86_64 aarch64; do
+    if ! echo "$rpm_version_output" | grep -q "^mullvad-vpn\.$arch .* $rpm_product_version "; then
+      log_error "Missing or incorrect rpm $arch version in repository (expected $rpm_product_version)"
+      echo "$rpm_version_output"
+      exit 1
+    fi
+  done
 }
 
 function wait_for_workflow_result {
