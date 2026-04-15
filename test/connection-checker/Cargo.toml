@@ -9,7 +9,7 @@ license.workspace = true
 [dependencies]
 anyhow = "1.0.99"
 clap = { workspace = true, features = ["derive"] }
-ping = "0.5.2"
+ping = { workspace = true }
 reqwest = { version = "0.12.23", default-features = false, features = [
   "blocking",
   "json",
