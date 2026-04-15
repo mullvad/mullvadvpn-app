@@ -22,3 +22,9 @@ reason = "The faraday vulnerability is safe to ignore because fastlane will not 
 id = "CVE-2026-33210"  # GHSA-3m6g-2423-7cp3
 ignoreUntil = 2026-09-19
 reason = "This option isn't the default, and since we don't opt-in to use it, we are not impacted."
+
+# Addressable has a Regular Expression Denial of Service in Addressable templates.
+[[IgnoredVulns]]
+id = "CVE-2026-35611"  # GHSA-h27x-rffw-24p4
+ignoreUntil = 2026-10-15
+reason = "This gem is part of Fastlane, but Fastlane uses 'addressable >= 2.8, < 3.0.0'. Once they've updated we can update Fastlane."
