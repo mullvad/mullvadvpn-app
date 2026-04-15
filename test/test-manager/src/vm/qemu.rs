@@ -23,7 +23,7 @@ use super::{VmInstance, network};
 const LOG_PREFIX: &str = "[qemu] ";
 const STDERR_LOG_LEVEL: log::Level = log::Level::Error;
 const STDOUT_LOG_LEVEL: log::Level = log::Level::Debug;
-const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(180);
+const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(360);
 
 /// Default number of VCPU cores (passed to -smp)
 const DEFAULT_NUM_VCPUS: usize = 2;

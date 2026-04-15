@@ -411,7 +411,7 @@ async fn inner_main() -> Result<()> {
                 .await
                 .context("Tests failed");
 
-            if display {
+            if display || true {
                 instance.wait().await;
             }
             socks.close();
