@@ -29,7 +29,6 @@ tokio = { workspace = true }
 tokio-rustls = { version = "0.26.0", default-features = false, features = [
   "logging",
   "ring",
-  "tls12"
 ] }
 
 [dependencies.tokio-util]
