@@ -2,7 +2,6 @@ package utilities
 
 import utilities.BuildTypes.BENCHMARK
 import utilities.BuildTypes.DEBUG
-import utilities.BuildTypes.FDROID
 import utilities.BuildTypes.LEAK_CANARY
 import utilities.BuildTypes.NON_MINIFIED
 import utilities.BuildTypes.RELEASE
@@ -19,7 +18,6 @@ val ossProdAnyBuildType =
             when (it) {
                 DEBUG,
                 RELEASE,
-                FDROID,
                 LEAK_CANARY -> true
                 else -> false
             }
