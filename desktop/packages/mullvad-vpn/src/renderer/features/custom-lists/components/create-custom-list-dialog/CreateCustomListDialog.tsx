@@ -4,6 +4,7 @@ import { messages } from '../../../../../shared/gettext';
 import { Dialog, type DialogProps } from '../../../../lib/components/dialog';
 import { FlexColumn } from '../../../../lib/components/flex-column';
 import { TextField } from '../../../../lib/components/text-field';
+import type { GeographicalLocation } from '../../../locations/types';
 import {
   CreateCustomListDialogProvider,
   useCreateCustomListDialogContext,
@@ -15,6 +16,7 @@ import {
 } from './hooks';
 
 export type CreateCustomListDialogProps = Omit<DialogProps, 'children'> & {
+  location?: GeographicalLocation;
   loading?: boolean;
   onLoadingChange?: (loading: boolean) => void;
 };
@@ -74,7 +76,7 @@ function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
                   <TextField.Label color="whiteAlpha60">
                     {
                       // TRANSLATORS: Label for the input where the user can enter the name of a new custom list.
-                      messages.pgettext('custom-list-feature', 'Create custom list')
+                      messages.pgettext('custom-list-feature', 'Create list')
                     }
                   </TextField.Label>
                   <FlexColumn gap="small">
@@ -90,10 +92,7 @@ function CreateCustomListDialogImpl(props: CreateCustomListDialogImplProps) {
                       {invalidReason
                         ? invalidReason
                         : // TRANSLATORS: Helper text under input for creating a custom list.
-                          messages.pgettext(
-                            'custom-list-feature',
-                            'Enter a name for the custom list',
-                          )}
+                          messages.pgettext('custom-list-feature', 'Enter a name for the list')}
                     </Dialog.Text>
                   </FlexColumn>
                 </Dialog.TextGroup>
@@ -119,6 +118,7 @@ export function CreateCustomListDialog({
   onOpenChange,
   loading,
   onLoadingChange,
+  location,
   ...props
 }: CreateCustomListDialogProps) {
   return (
@@ -126,7 +126,8 @@ export function CreateCustomListDialog({
       open={open}
       onOpenChange={onOpenChange}
       loading={loading}
-      onLoadingChange={onLoadingChange}>
+      onLoadingChange={onLoadingChange}
+      location={location}>
       <CreateCustomListDialogImpl {...props} />
     </CreateCustomListDialogProvider>
   );

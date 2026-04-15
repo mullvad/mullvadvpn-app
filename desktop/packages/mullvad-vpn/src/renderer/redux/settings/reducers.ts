@@ -13,6 +13,7 @@ import {
   ObfuscationType,
   Ownership,
   Quic,
+  type Recents,
   RelayLocation,
   RelayOverride,
   RelayProtocol,
@@ -91,6 +92,7 @@ export interface ISettingsReduxState {
   splitTunnelingSupported: boolean;
   obfuscationSettings: ObfuscationSettings;
   customLists: CustomLists;
+  recents?: Recents;
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
@@ -160,6 +162,7 @@ const initialState: ISettingsReduxState = {
     },
   },
   customLists: [],
+  recents: undefined,
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],
@@ -284,6 +287,12 @@ export default function (
       return {
         ...state,
         customLists: action.customLists,
+      };
+
+    case 'SET_RECENTS':
+      return {
+        ...state,
+        recents: action.recents,
       };
 
     case 'SET_API_ACCESS_METHODS':

@@ -13,18 +13,29 @@ export type MenuProps = React.PropsWithChildren<{
 
 function MenuImpl({ children }: Omit<MenuProps, 'triggerRef' | 'open' | 'onOpenChange'>) {
   useEffectSetTriggerAttributes();
-  const { open } = useMenuContext();
+  const { mounted } = useMenuContext();
 
-  if (!open) {
-    return null;
-  }
+  if (!mounted) return null;
 
   return <>{children}</>;
 }
 
 function Menu({ triggerRef, open, onOpenChange, ...props }: MenuProps) {
+  const [mounted, setMounted] = React.useState(open);
+
+  React.useEffect(() => {
+    if (open) {
+      setMounted(true);
+    }
+  }, [open]);
+
   return (
-    <MenuProvider triggerRef={triggerRef} open={open} onOpenChange={onOpenChange}>
+    <MenuProvider
+      triggerRef={triggerRef}
+      open={open}
+      onOpenChange={onOpenChange}
+      mounted={mounted}
+      setMounted={setMounted}>
       <MenuImpl {...props} />
     </MenuProvider>
   );

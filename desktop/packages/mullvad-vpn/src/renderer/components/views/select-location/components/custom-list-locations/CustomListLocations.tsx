@@ -1,10 +1,10 @@
+import React from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../../../../shared/gettext';
 import { Container, Text } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
-import { spacings } from '../../../../../lib/foundations';
 import { useHasCustomLists } from '../../hooks';
 import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
@@ -20,29 +20,26 @@ const StyledAnimatedList = styled(AnimatedList)`
   flex-direction: column;
 `;
 
-const StyledAnimatedListItem = styled(AnimatedList.Item)`
-  margin-bottom: ${spacings.tiny};
-`;
-
 function CustomListLocationsImpl() {
   const { addingCustomList } = useCustomListLocationsContext();
   const { customListLocations } = useSelectLocationViewContext();
+  const titleId = React.useId();
 
   const hasCustomLists = useHasCustomLists();
   const showAddCustomListText = !hasCustomLists && !addingCustomList;
   const showAddLocationToCustomListText = hasCustomLists;
 
   return (
-    <FlexColumn gap="tiny">
-      <CustomListsSectionTitle />
+    <FlexColumn as="section" aria-labelledby={titleId} gap="tiny">
+      <CustomListsSectionTitle id={titleId} />
       <FlexColumn>
         <StyledAnimatedList>
           {customListLocations.map((customList) => {
             const { key } = getLocationListItemMapProps(customList, undefined);
             return (
-              <StyledAnimatedListItem key={key}>
+              <AnimatedList.Item key={key}>
                 <CustomListLocation customList={customList} />
-              </StyledAnimatedListItem>
+              </AnimatedList.Item>
             );
           })}
         </StyledAnimatedList>

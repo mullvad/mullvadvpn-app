@@ -3,14 +3,13 @@ import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../../../shared/gettext';
 import {
-  DeleteCustomListDialog,
-  EditCustomListDialog,
+  CustomListMenu,
+  CustomListMenuButton,
 } from '../../../../../../../features/custom-lists/components';
 import { type CustomListLocation } from '../../../../../../../features/locations/types';
 import { useAccordionContext } from '../../../../../../../lib/components/accordion/AccordionContext';
-import { LocationListItem } from '../../../location-list-item';
+import { Location } from '../../../location-list-item';
 import { useCustomListLocationContext } from '../../CustomListLocationContext';
-import { DeleteCustomListButton, EditCustomListButton } from './components';
 
 export type CustomListTrailingActionsProps = React.PropsWithChildren<{
   customList: CustomListLocation;
@@ -20,51 +19,40 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
   const { expanded } = useAccordionContext();
   const { loading, setLoading } = useCustomListLocationContext();
 
-  const [editCustomListDialogOpen, setEditCustomListDialogOpen] = React.useState(false);
-  const showEditCustomListDialog = React.useCallback(() => {
-    setEditCustomListDialogOpen(true);
-  }, []);
-
-  const [deleteCustomListDialogOpen, setDeleteCustomListDialogOpen] = React.useState(false);
-  const showDeleteCustomListDialog = React.useCallback(() => {
-    setDeleteCustomListDialogOpen(true);
+  const customListMenuButtonRef = React.useRef<HTMLButtonElement>(null);
+  const [customListMenuOpen, setCustomMenuOpen] = React.useState(false);
+  const toggleCustomListMenu = React.useCallback(() => {
+    setCustomMenuOpen((prev) => !prev);
   }, []);
 
   return (
-    <LocationListItem.Accordion.Header.TrailingActions>
-      <LocationListItem.Accordion.Header.TrailingActions.Action>
-        <EditCustomListButton customList={customList} onClick={showEditCustomListDialog} />
-        <EditCustomListDialog
+    <Location.Accordion.Header.TrailingActions>
+      <Location.Accordion.Header.TrailingActions.Action>
+        <CustomListMenuButton
+          ref={customListMenuButtonRef}
           customList={customList}
-          open={editCustomListDialogOpen}
-          onOpenChange={setEditCustomListDialogOpen}
-          loading={loading}
-          onLoadingChange={setLoading}
+          onClick={toggleCustomListMenu}
         />
-      </LocationListItem.Accordion.Header.TrailingActions.Action>
-      <LocationListItem.Accordion.Header.TrailingActions.Action>
-        <DeleteCustomListButton customList={customList} onClick={showDeleteCustomListDialog} />
-        <DeleteCustomListDialog
+        <CustomListMenu
+          triggerRef={customListMenuButtonRef}
+          open={customListMenuOpen}
+          onOpenChange={setCustomMenuOpen}
           customList={customList}
-          open={deleteCustomListDialogOpen}
-          onOpenChange={setDeleteCustomListDialogOpen}
           loading={loading}
-          onLoadingChange={setLoading}
+          setLoading={setLoading}
         />
-      </LocationListItem.Accordion.Header.TrailingActions.Action>
-      <LocationListItem.Accordion.Trigger
+      </Location.Accordion.Header.TrailingActions.Action>
+      <Location.Accordion.Header.AccordionTrigger
         aria-label={sprintf(
           expanded
             ? messages.pgettext('accessibility', 'Collapse %(location)s')
             : messages.pgettext('accessibility', 'Expand %(location)s'),
           { location: customList.label },
         )}>
-        <LocationListItem.Accordion.Header.TrailingActions.Action>
-          <LocationListItem.Accordion.Header.TrailingActions.Action.Icon
-            icon={expanded ? 'chevron-up' : 'chevron-down'}
-          />
-        </LocationListItem.Accordion.Header.TrailingActions.Action>
-      </LocationListItem.Accordion.Trigger>
-    </LocationListItem.Accordion.Header.TrailingActions>
+        <Location.Accordion.Header.TrailingActions.Action>
+          <Location.Accordion.Header.TrailingActions.Action.Chevron />
+        </Location.Accordion.Header.TrailingActions.Action>
+      </Location.Accordion.Header.AccordionTrigger>
+    </Location.Accordion.Header.TrailingActions>
   );
 }

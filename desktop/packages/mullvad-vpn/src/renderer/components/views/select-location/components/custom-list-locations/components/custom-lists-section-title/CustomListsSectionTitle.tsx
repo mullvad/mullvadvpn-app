@@ -10,7 +10,7 @@ import { useCustomListLocationsContext } from '../../CustomListLocationsContext'
 
 export type CustomListsSectionTitleProps = SectionTitleProps;
 
-export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitleProps) {
+export function CustomListsSectionTitle({ id, ...props }: CustomListsSectionTitleProps) {
   const {
     addingCustomList,
     setAddingCustomList,
@@ -24,7 +24,7 @@ export function CustomListsSectionTitle({ ...props }: CustomListsSectionTitlePro
 
   return (
     <SectionTitle {...props}>
-      <SectionTitle.Title>
+      <SectionTitle.Title as="h3" id={id}>
         {messages.pgettext('select-location-view', 'Custom lists')}
       </SectionTitle.Title>
       <SectionTitle.Divider />

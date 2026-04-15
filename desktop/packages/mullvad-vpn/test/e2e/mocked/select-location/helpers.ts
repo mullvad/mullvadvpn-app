@@ -2,12 +2,14 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../../src/main/default-settings';
 import {
+  type CustomLists,
   IRelayList,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
   ISettings,
   Ownership,
+  type Recents,
 } from '../../../../src/shared/daemon-rpc-types';
 import { RoutePath } from '../../../../src/shared/routes';
 import { RoutesObjectModel } from '../../route-object-models';
@@ -154,7 +156,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     await utils.ipc.settings[''].notify(settings);
   };
 
-  const updateMockSettings = async (
+  const mockSettings = async (
     {
       daita,
       directOnly,
@@ -181,7 +183,7 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
-  const updateEntryLocation = async (relay: RelaySelectionPath, settings?: ISettings) => {
+  const mockEntryLocation = async (relay: RelaySelectionPath, settings?: ISettings) => {
     if (!settings) {
       settings = getDefaultSettings();
     }
@@ -200,6 +202,34 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     return settings;
   };
 
+  const mockCustomLists = async (customLists: CustomLists, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    const newSettings: ISettings = {
+      ...settings,
+      customLists,
+    };
+    await utils.ipc.settings[''].notify(newSettings);
+
+    return newSettings;
+  };
+
+  const mockRecents = async (recents?: Recents, settings?: ISettings) => {
+    if (!settings) {
+      settings = getDefaultSettings();
+    }
+
+    const newSettings: ISettings = {
+      ...settings,
+      recents,
+    };
+    await utils.ipc.settings[''].notify(newSettings);
+
+    return newSettings;
+  };
+
   return {
     areAllCheckboxesChecked,
     expandLocatedRelays,
@@ -212,8 +242,10 @@ export const createHelpers = (page: Page, routes: RoutesObjectModel, utils: Mock
     resetProviders,
     resetView,
     updateMockRelayFilter,
-    updateMockSettings,
-    updateEntryLocation,
+    updateMockSettings: mockSettings,
+    updateEntryLocation: mockEntryLocation,
+    mockCustomLists,
+    mockRecents,
   };
 };
 

@@ -18,10 +18,10 @@ export function useEffectHideOnOutsideClick() {
       }
     };
 
-    document.addEventListener('pointerdown', handleClick);
+    document.addEventListener('pointerup', handleClick);
 
     return () => {
-      document.removeEventListener('pointerdown', handleClick);
+      document.removeEventListener('pointerup', handleClick);
     };
   }, [onOpenChange, popoverRef, triggerRef]);
 }

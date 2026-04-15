@@ -5,7 +5,7 @@ import { useCreateCustomListDialogContext } from '../CreateCustomListDialogConte
 
 export function useHandleSubmitAddCustomList() {
   const createCustomList = useCreateCustomList();
-  const { onLoadingChange } = useCreateCustomListDialogContext();
+  const { location, onLoadingChange } = useCreateCustomListDialogContext();
   const {
     onOpenChange,
     form: {
@@ -17,7 +17,8 @@ export function useHandleSubmitAddCustomList() {
   const submitCustomList = React.useCallback(
     async (name: string) => {
       onLoadingChange?.(true);
-      const { success } = await createCustomList(name);
+      const locationDetails = location ? [location.details] : [];
+      const { success } = await createCustomList(name, locationDetails);
       if (success) {
         reset();
         onOpenChange?.(false);
@@ -26,7 +27,7 @@ export function useHandleSubmitAddCustomList() {
       }
       onLoadingChange?.(false);
     },
-    [createCustomList, onOpenChange, reset, onLoadingChange, setError],
+    [onLoadingChange, createCustomList, location, reset, onOpenChange, setError],
   );
 
   return React.useCallback(

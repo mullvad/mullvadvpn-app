@@ -63,7 +63,7 @@ function EditCustomListDialogImpl(props: EditListImplProps) {
   const textFieldDescription = showTextFieldInvalidReason
     ? invalidReason
     : // TRANSLATORS: Helper text under input for editing the name of a custom list.
-      messages.pgettext('custom-list-feature', 'Enter a new name for the custom list');
+      messages.pgettext('custom-list-feature', 'Enter a new name for the list');
   const saveButtonDisabled = error || invalid || loading || !open || !dirty;
 
   return (

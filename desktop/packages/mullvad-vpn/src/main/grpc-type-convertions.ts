@@ -46,6 +46,7 @@ import {
   ObfuscationType,
   Ownership,
   Quic,
+  type Recents,
   RelayLocation,
   RelayLocationGeographical,
   RelayProtocol,
@@ -440,6 +441,7 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const customLists = convertFromCustomListSettings(settings.getCustomLists());
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   const relayOverrides = settingsObject.relayOverridesList;
+  const recents = convertFromRecents(settings.getRecents());
   return {
     ...settings.toObject(),
     relaySettings,
@@ -449,7 +451,35 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     customLists,
     apiAccessMethods,
     relayOverrides,
+    recents,
   };
+}
+
+function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | undefined {
+  if (!recents) {
+    return undefined;
+  }
+  return recents
+    .getRecentsList()
+    .map((recent) => {
+      const multihop = recent.getMultihop();
+      const singlehop = recent.getSinglehop();
+      if (multihop) {
+        const entry = convertFromLocationConstraint(multihop.getEntry());
+        const exit = convertFromLocationConstraint(multihop.getExit());
+        return {
+          type: 'multihop',
+          entry,
+          exit,
+        };
+      } else if (singlehop) {
+        const location = convertFromLocationConstraint(singlehop);
+        return location ? { type: 'singlehop', location } : undefined;
+      } else {
+        return undefined;
+      }
+    })
+    .filter((recent) => recent !== undefined) as Recents;
 }
 
 function convertFromRelaySettings(

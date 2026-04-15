@@ -8,12 +8,14 @@ export const StyledMenuOptionItem = styled.div<{ $disabled?: boolean }>`
     return css`
       display: flex;
       flex-direction: row;
+      align-items: center;
       gap: ${spacings.tiny};
       width: 100%;
 
       background-color: ${colors.blue40};
       padding: ${spacings.tiny} ${spacings.small};
       border-radius: ${Radius.radius4};
+      overflow-wrap: anywhere;
 
       ${() => {
         if ($disabled) {

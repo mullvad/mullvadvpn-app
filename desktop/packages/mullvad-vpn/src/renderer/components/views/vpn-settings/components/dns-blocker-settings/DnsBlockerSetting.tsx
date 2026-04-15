@@ -22,7 +22,7 @@ import { CustomDnsEnabledFooter } from './components';
 export type DnsBlockerSettingsProps = Omit<AccordionProps, 'children'> &
   Pick<ListItemProps, 'position'>;
 
-const StyledAccordionTrigger = styled(SettingsAccordion.Header.Trigger)`
+const StyledAccordionTrigger = styled(SettingsAccordion.Header.AccordionTrigger)`
   display: grid;
   place-items: center;
 `;

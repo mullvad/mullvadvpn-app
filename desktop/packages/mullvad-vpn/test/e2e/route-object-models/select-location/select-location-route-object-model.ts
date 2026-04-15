@@ -1,4 +1,4 @@
-import { Page } from 'playwright';
+import { type Locator, Page } from 'playwright';
 
 import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
@@ -40,8 +40,52 @@ export class SelectLocationRouteObjectModel {
     return this.selectors.filterChip(label);
   }
 
+  getAllLocationsSection() {
+    return this.selectors.allLocationsSection();
+  }
+
+  getRecentsSection() {
+    return this.selectors.recentSection();
+  }
+
+  getLocationsInLocator(locator: Locator) {
+    return this.selectors.locations(locator);
+  }
+
+  getLocationsInAllLocations() {
+    const allLocationsSection = this.getAllLocationsSection();
+    return this.getLocationsInLocator(allLocationsSection);
+  }
+
+  getLocationsInRecents() {
+    const recentsSection = this.selectors.recentSection();
+    return this.selectors.locations(recentsSection);
+  }
+
+  getRecentMenuButton(locationName: string) {
+    const recentsSection = this.selectors.recentSection();
+    return this.selectors.locationMenuButton(locationName, recentsSection);
+  }
+
+  getAddToCustomListButton(locationName: string, customListName: string) {
+    return this.selectors.addToCustomListButton(locationName, customListName);
+  }
+
+  getAddToNewCustomListButton(locationName: string) {
+    return this.selectors.addToNewCustomListButton(locationName);
+  }
+
+  getEditCustomListButton() {
+    return this.selectors.editCustomListButton();
+  }
+
+  getDeleteCustomListButton() {
+    return this.selectors.deleteCustomListButton();
+  }
+
   async gotoFilter() {
-    await this.selectors.filterButton().click();
+    await this.selectors.selectLocationMenuButton().click();
+    await this.selectors.filterMenuOption().click();
     await this.utils.expectRoute(RoutePath.filter);
   }
 }
