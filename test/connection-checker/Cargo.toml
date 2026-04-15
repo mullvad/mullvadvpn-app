@@ -13,7 +13,7 @@ ping = { workspace = true }
 reqwest = { version = "0.12.23", default-features = false, features = [
   "blocking",
   "json",
-  "rustls-tls"
+  "rustls-tls-webpki-roots-no-provider"
 ] }
 serde = { workspace = true, features = ["derive"] }
 socket2 = { workspace = true, features = ["all"] }
