@@ -138,7 +138,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
     for (i, disk) in vm_config.disks.iter().enumerate() {
         qemu_cmd.args([
             "-drive",
-            &format!("if=none,id=disk{i},file={disk}"),
+            &format!("if=none,id=disk{i},file={disk},format=raw"),
             "-device",
             &format!("usb-storage,drive=disk{i},bus=xhci.0"),
         ]);
