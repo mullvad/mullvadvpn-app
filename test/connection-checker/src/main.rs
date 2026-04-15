@@ -1,8 +1,7 @@
 use anyhow::{Context, anyhow};
 use clap::Parser;
-use reqwest::blocking::Client;
 use serde::Deserialize;
-use std::{io::stdin, time::Duration};
+use std::{io::stdin, sync::Arc, time::Duration};
 
 use connection_checker::{
     cli::Opt,
@@ -40,6 +39,18 @@ fn test_connection(opt: &Opt) {
     am_i_mullvad(opt);
 }
 
+fn build_tls_config() -> rustls::ClientConfig {
+    let mut root_store = rustls::RootCertStore::empty();
+    root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
+    rustls::ClientConfig::builder_with_provider(Arc::new(
+        rustls::crypto::aws_lc_rs::default_provider(),
+    ))
+    .with_safe_default_protocol_versions()
+    .expect("aws-lc-rs should support default TLS versions")
+    .with_root_certificates(root_store)
+    .with_no_client_auth()
+}
+
 /// Check if connected to Mullvad and print the result to stdout
 fn am_i_mullvad(opt: &Opt) {
     #[derive(Debug, Deserialize)]
@@ -50,7 +61,10 @@ fn am_i_mullvad(opt: &Opt) {
 
     let url = &opt.url;
 
-    let client = Client::new();
+    let client = reqwest::blocking::Client::builder()
+        .use_preconfigured_tls(build_tls_config())
+        .build()
+        .expect("Failed to build HTTP client");
     let result: Result<Response, _> = client
         .get(url)
         .timeout(Duration::from_secs(opt.timeout))

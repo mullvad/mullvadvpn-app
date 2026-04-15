@@ -13,10 +13,12 @@ ping = { workspace = true }
 reqwest = { version = "0.12.23", default-features = false, features = [
   "blocking",
   "json",
-  "rustls-tls"
+  "rustls-tls-webpki-roots-no-provider",
 ] }
+rustls = { workspace = true, features = ["aws-lc-rs"] }
 serde = { workspace = true, features = ["derive"] }
 socket2 = { workspace = true, features = ["all"] }
+webpki-roots = { workspace = true }
 
 [lints]
 workspace = true
