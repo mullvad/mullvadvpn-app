@@ -19,8 +19,8 @@ const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pe
 
 static CLIENT_CONFIG: LazyLock<ClientConfig> = LazyLock::new(|| {
     ClientConfig::builder_with_provider(Arc::new(rustls::crypto::ring::default_provider()))
-        .with_safe_default_protocol_versions()
-        .unwrap()
+        .with_protocol_versions(&[&rustls::version::TLS13])
+        .expect("ring crypto provider should support TLS 1.3")
         .with_root_certificates(read_cert_store().expect("Failed to parse pem file"))
         .with_no_client_auth()
 });
