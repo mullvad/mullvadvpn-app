@@ -139,11 +139,7 @@ impl RelayQuery {
     /// end to end tests where you must use the management interface
     /// to apply settings to the daemon.
     pub fn into_settings(self) -> (RelayConstraints, ObfuscationSettings) {
-        let obfuscation = self
-            .wireguard_constraints
-            .obfuscation
-            .clone()
-            .into_settings();
+        let obfuscation = obfuscation_to_settings(self.wireguard_constraints.obfuscation.clone());
         let constraints = RelayConstraints {
             location: self.location,
             providers: self.providers,
@@ -203,17 +199,22 @@ pub struct WireguardRelayQuery {
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
-    pub obfuscation: ObfuscationQuery,
+    pub obfuscation: Constraint<ObfuscationMode>,
     pub daita: Constraint<bool>,
     pub daita_use_multihop_if_necessary: Constraint<bool>,
     pub quantum_resistant: Constraint<QuantumResistantState>,
 }
 
-#[derive(Default, Debug, Clone, Eq, PartialEq)]
-pub enum ObfuscationQuery {
+/// Represents a specific obfuscation method (or explicit "off").
+///
+/// This enum does *not* have an `Auto` variant — that role is played by
+/// `Constraint::Any` on the wrapping `Constraint<ObfuscationMode>`.
+///
+/// `Intersection` is derived via the proc macro: same-variant pairs intersect
+/// their inner fields, different variants yield `None`.
+#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
+pub enum ObfuscationMode {
     Off,
-    #[default]
-    Auto,
     Port(WireguardPortSettings),
     Udp2tcp(Udp2TcpObfuscationSettings),
     Shadowsocks(ShadowsocksSettings),
@@ -221,34 +222,33 @@ pub enum ObfuscationQuery {
     Lwo(LwoSettings),
 }
 
-impl ObfuscationQuery {
-    fn into_settings(self) -> ObfuscationSettings {
+impl ObfuscationMode {
+    pub(crate) fn into_settings(self) -> ObfuscationSettings {
         let selected_obfuscation = match self {
-            ObfuscationQuery::Off => SelectedObfuscation::Off,
-            ObfuscationQuery::Auto => SelectedObfuscation::Auto,
-            ObfuscationQuery::Quic => SelectedObfuscation::Quic,
-            ObfuscationQuery::Lwo(settings) => {
+            ObfuscationMode::Off => SelectedObfuscation::Off,
+            ObfuscationMode::Quic => SelectedObfuscation::Quic,
+            ObfuscationMode::Lwo(settings) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::Lwo,
                     lwo: settings,
                     ..Default::default()
                 };
             }
-            ObfuscationQuery::Port(wireguard_port) => {
+            ObfuscationMode::Port(wireguard_port) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::WireguardPort,
                     wireguard_port,
                     ..Default::default()
                 };
             }
-            ObfuscationQuery::Udp2tcp(settings) => {
+            ObfuscationMode::Udp2tcp(settings) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::Udp2Tcp,
                     udp2tcp: settings,
                     ..Default::default()
                 };
             }
-            ObfuscationQuery::Shadowsocks(settings) => {
+            ObfuscationMode::Shadowsocks(settings) => {
                 return ObfuscationSettings {
                     selected_obfuscation: SelectedObfuscation::Shadowsocks,
                     shadowsocks: settings,
@@ -263,41 +263,36 @@ impl ObfuscationQuery {
     }
 }
 
-impl From<ObfuscationSettings> for ObfuscationQuery {
-    /// A query for obfuscation settings.
-    ///
-    /// Note that this drops obfuscation protocol specific constraints from [`ObfuscationSettings`]
-    /// when the selected obfuscation type is auto.
-    fn from(obfuscation: ObfuscationSettings) -> Self {
-        use SelectedObfuscation::*;
-        match obfuscation.selected_obfuscation {
-            Off => ObfuscationQuery::Off,
-            Auto => ObfuscationQuery::Auto,
-            WireguardPort => ObfuscationQuery::Port(obfuscation.wireguard_port),
-            Udp2Tcp => ObfuscationQuery::Udp2tcp(obfuscation.udp2tcp),
-            Shadowsocks => ObfuscationQuery::Shadowsocks(obfuscation.shadowsocks),
-            Quic => ObfuscationQuery::Quic,
-            Lwo => ObfuscationQuery::Lwo(obfuscation.lwo),
-        }
+pub(crate) fn obfuscation_to_settings(
+    constraint: Constraint<ObfuscationMode>,
+) -> ObfuscationSettings {
+    match constraint {
+        Constraint::Any => ObfuscationSettings {
+            selected_obfuscation: SelectedObfuscation::Auto,
+            ..Default::default()
+        },
+        Constraint::Only(mode) => mode.into_settings(),
     }
 }
 
-impl Intersection for ObfuscationQuery {
-    fn intersection(self, other: Self) -> Option<Self> {
-        match (self, other) {
-            (ObfuscationQuery::Off, _) | (_, ObfuscationQuery::Off) => Some(ObfuscationQuery::Off),
-            (ObfuscationQuery::Auto, other) | (other, ObfuscationQuery::Auto) => Some(other),
-            (ObfuscationQuery::Udp2tcp(a), ObfuscationQuery::Udp2tcp(b)) => {
-                Some(ObfuscationQuery::Udp2tcp(a.intersection(b)?))
-            }
-            (ObfuscationQuery::Shadowsocks(a), ObfuscationQuery::Shadowsocks(b)) => {
-                Some(ObfuscationQuery::Shadowsocks(a.intersection(b)?))
-            }
-            (ObfuscationQuery::Lwo(a), ObfuscationQuery::Lwo(b)) => {
-                Some(ObfuscationQuery::Lwo(a.intersection(b)?))
-            }
-            _ => None,
-        }
+/// Convert [`ObfuscationSettings`] into a `Constraint<ObfuscationMode>`.
+///
+/// `SelectedObfuscation::Auto` maps to `Constraint::Any`.
+///
+/// Note: this drops protocol-specific constraints from [`ObfuscationSettings`]
+/// when the selected obfuscation type is auto.
+pub fn obfuscation_constraint_from_settings(
+    obfuscation: ObfuscationSettings,
+) -> Constraint<ObfuscationMode> {
+    use SelectedObfuscation::*;
+    match obfuscation.selected_obfuscation {
+        Auto => Constraint::Any,
+        Off => Constraint::Only(ObfuscationMode::Off),
+        WireguardPort => Constraint::Only(ObfuscationMode::Port(obfuscation.wireguard_port)),
+        Udp2Tcp => Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation.udp2tcp)),
+        Shadowsocks => Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation.shadowsocks)),
+        Quic => Constraint::Only(ObfuscationMode::Quic),
+        Lwo => Constraint::Only(ObfuscationMode::Lwo(obfuscation.lwo)),
     }
 }
 
@@ -316,7 +311,7 @@ impl WireguardRelayQuery {
             entry_location: Constraint::Any,
             entry_providers: Constraint::Any,
             entry_ownership: Constraint::Any,
-            obfuscation: ObfuscationQuery::Auto,
+            obfuscation: Constraint::Any,
             daita: Constraint::Any,
             daita_use_multihop_if_necessary: Constraint::Any,
             quantum_resistant: Constraint::Any,
@@ -369,7 +364,7 @@ pub mod builder {
         wireguard::QuantumResistantState,
     };
 
-    use super::{ObfuscationQuery, RelayQuery};
+    use super::{ObfuscationMode, RelayQuery};
 
     // Re-exports
     pub use mullvad_types::relay_constraints::{
@@ -608,7 +603,8 @@ pub mod builder {
                 daita: self.settings.daita,
                 quantum_resistant: self.settings.quantum_resistant,
             };
-            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Port(port);
+            self.query.wireguard_constraints.obfuscation =
+                Constraint::Only(ObfuscationMode::Port(port));
             RelayQueryBuilder {
                 query: self.query,
                 settings,
@@ -630,7 +626,8 @@ pub mod builder {
                 daita: self.settings.daita,
                 quantum_resistant: self.settings.quantum_resistant,
             };
-            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Udp2tcp(obfuscation);
+            self.query.wireguard_constraints.obfuscation =
+                Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation));
             RelayQueryBuilder {
                 query: self.query,
                 settings: protocol,
@@ -652,7 +649,7 @@ pub mod builder {
                 quantum_resistant: self.settings.quantum_resistant,
             };
             self.query.wireguard_constraints.obfuscation =
-                ObfuscationQuery::Shadowsocks(obfuscation);
+                Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation));
             RelayQueryBuilder {
                 query: self.query,
                 settings: protocol,
@@ -661,7 +658,7 @@ pub mod builder {
 
         /// Enable QUIC obfuscation.
         pub fn quic(mut self) -> RelayQueryBuilder<Multihop, Quic, Daita, QuantumResistant> {
-            self.query.wireguard_constraints.obfuscation = ObfuscationQuery::Quic;
+            self.query.wireguard_constraints.obfuscation = Constraint::Only(ObfuscationMode::Quic);
             RelayQueryBuilder {
                 query: self.query,
                 settings: Settings {
@@ -676,7 +673,7 @@ pub mod builder {
         /// Enable LWO obfuscation.
         pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo, Daita, QuantumResistant> {
             self.query.wireguard_constraints.obfuscation =
-                ObfuscationQuery::Lwo(LwoSettings::default());
+                Constraint::Only(ObfuscationMode::Lwo(LwoSettings::default()));
             RelayQueryBuilder {
                 query: self.query,
                 settings: Settings {
@@ -697,7 +694,7 @@ pub mod builder {
         pub fn udp2tcp_port(mut self, port: u16) -> Self {
             self.settings.obfuscation.port = Constraint::Only(port);
             self.query.wireguard_constraints.obfuscation =
-                ObfuscationQuery::Udp2tcp(self.settings.obfuscation.clone());
+                Constraint::Only(ObfuscationMode::Udp2tcp(self.settings.obfuscation.clone()));
             self
         }
     }
@@ -742,7 +739,7 @@ mod test {
     };
     use proptest::prelude::*;
 
-    use super::{Intersection, ObfuscationQuery};
+    use super::Intersection;
 
     // Define proptest combinators for the `Constraint` type.
 
@@ -820,11 +817,11 @@ mod test {
             prop_assert_eq!(left, right);
         }
 
-        /// When obfuscation is set to automatic in [`ObfuscationSettings`], the query should not
-        /// contain any specific obfuscation protocol settings.
+        /// When obfuscation is set to automatic in [`ObfuscationSettings`], the query should
+        /// convert to `Constraint::Any`.
         #[test]
         fn test_auto_obfuscation_settings(port1 in constraint(proptest::arbitrary::any::<u16>()), port2 in constraint(proptest::arbitrary::any::<u16>())) {
-            let query = ObfuscationQuery::from(ObfuscationSettings {
+            let query = super::obfuscation_constraint_from_settings(ObfuscationSettings {
                 selected_obfuscation: SelectedObfuscation::Auto,
                 udp2tcp: Udp2TcpObfuscationSettings {
                     port: port1,
@@ -835,7 +832,7 @@ mod test {
                 wireguard_port: port1.into(),
                 lwo: LwoSettings { port: port1 },
             });
-            assert_eq!(query, ObfuscationQuery::Auto);
+            assert_eq!(query, Constraint::Any);
         }
     }
 }

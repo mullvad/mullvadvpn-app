@@ -16,9 +16,10 @@ use talpid_types::net::{
 use mullvad_relay_selector::{
     Config, Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason, RelaySelector,
     SelectedObfuscator, WireguardConfig,
-    query::{ObfuscationQuery, builder::RelayQueryBuilder},
+    query::{ObfuscationMode, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
+    constraints::Constraint,
     endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{GeographicLocationConstraint, Ownership, Providers, RelayOverride},
@@ -334,12 +335,15 @@ fn test_retry_order() {
                 ));
 
                 assert!(match &query.wireguard_constraints().obfuscation {
-                    ObfuscationQuery::Auto => true,
-                    ObfuscationQuery::Off | ObfuscationQuery::Port(_) => obfuscator.is_none(),
-                    ObfuscationQuery::Quic
-                    | ObfuscationQuery::Udp2tcp(_)
-                    | ObfuscationQuery::Shadowsocks(_)
-                    | ObfuscationQuery::Lwo(_) => obfuscator.is_some(),
+                    Constraint::Any => true,
+                    Constraint::Only(ObfuscationMode::Off | ObfuscationMode::Port(_)) =>
+                        obfuscator.is_none(),
+                    Constraint::Only(
+                        ObfuscationMode::Quic
+                        | ObfuscationMode::Udp2tcp(_)
+                        | ObfuscationMode::Shadowsocks(_)
+                        | ObfuscationMode::Lwo(_),
+                    ) => obfuscator.is_some(),
                 });
             }
             _ => unreachable!(),
@@ -789,10 +793,7 @@ fn test_selecting_endpoint_with_auto_obfuscation() {
     let relay_selector = default_relay_selector();
 
     let query = RelayQueryBuilder::new().build();
-    assert_eq!(
-        query.wireguard_constraints().obfuscation,
-        ObfuscationQuery::Auto
-    );
+    assert_eq!(query.wireguard_constraints().obfuscation, Constraint::Any);
 
     for _ in 0..100 {
         let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();

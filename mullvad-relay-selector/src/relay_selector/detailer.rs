@@ -23,7 +23,7 @@ use talpid_types::net::{
     wireguard::{PeerConfig, PublicKey},
 };
 
-use crate::query::ObfuscationQuery;
+use crate::query::ObfuscationMode;
 
 use super::{WireguardConfig, query::WireguardRelayQuery};
 
@@ -184,7 +184,7 @@ fn get_port_for_wireguard_relay(
     query: &WireguardRelayQuery,
     data: &EndpointData,
 ) -> Result<u16, Error> {
-    let port = if let ObfuscationQuery::Port(port) = query.obfuscation {
+    let port = if let Constraint::Only(ObfuscationMode::Port(port)) = query.obfuscation {
         port.get()
     } else {
         Constraint::Any
