@@ -11,7 +11,7 @@ use mullvad_types::{
 };
 use talpid_types::net::IpVersion;
 
-use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
+use super::query::{ObfuscationMode, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
@@ -94,31 +94,34 @@ fn filter_on_obfuscation(
     relay_list: &RelayList,
     relay: &WireguardRelay,
 ) -> bool {
-    use ObfuscationQuery::*;
+    use ObfuscationMode::*;
     match &query.obfuscation {
-        // Shadowsocks has relay-specific constraints
-        Shadowsocks(settings) => {
-            let wg_data = &relay_list.wireguard;
-            filter_on_shadowsocks(
-                &wg_data.shadowsocks_port_ranges,
-                query.ip_version.as_ref(),
-                settings,
-                relay.endpoint(),
-            )
-        }
-        // QUIC is only enabled on some relays
-        Quic => match relay.endpoint().quic() {
-            Some(quic) => match query.ip_version {
-                Constraint::Any => true,
-                Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
-                Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
+        Constraint::Any => true,
+        Constraint::Only(mode) => match mode {
+            // Shadowsocks has relay-specific constraints
+            Shadowsocks(settings) => {
+                let wg_data = &relay_list.wireguard;
+                filter_on_shadowsocks(
+                    &wg_data.shadowsocks_port_ranges,
+                    query.ip_version.as_ref(),
+                    settings,
+                    relay.endpoint(),
+                )
+            }
+            // QUIC is only enabled on some relays
+            Quic => match relay.endpoint().quic() {
+                Some(quic) => match query.ip_version {
+                    Constraint::Any => true,
+                    Constraint::Only(IpVersion::V4) => quic.in_ipv4().next().is_some(),
+                    Constraint::Only(IpVersion::V6) => quic.in_ipv6().next().is_some(),
+                },
+                None => false,
             },
-            None => false,
+            // LWO is only enabled on some relays
+            Lwo(_) => relay.endpoint().lwo,
+            // Other relays are compatible with this query
+            Off | Port(_) | Udp2tcp(_) => true,
         },
-        // LWO is only enabled on some relays
-        Lwo(_) => relay.endpoint().lwo,
-        // Other relays are compatible with this query
-        Off | Auto | Port(_) | Udp2tcp(_) => true,
     }
 }
 
