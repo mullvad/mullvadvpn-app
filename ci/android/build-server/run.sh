@@ -62,6 +62,10 @@ function run_in_linux_container {
     ./building/container-run.sh linux "$@"
 }
 
+function run_in_android_container {
+    ./building/container-run.sh android "$@"
+}
+
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
@@ -159,12 +163,12 @@ function build_sign_and_publish_ref {
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
-    # TODO Check if production version
-    local upload_dir="$BUILD_DIR/$publish"
-    mkdir -p "$upload_dir"
-    upload_fdroid "$version" "$artifact_dir" "$publish_dir" || echo "Failed deploy f-droid repo"
-
-    # TODO call rsync or rsync script here
+    if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
+        local upload_dir="$BUILD_DIR/$publish"
+        mkdir -p "$upload_dir"
+        upload_fdroid "$version" "$artifact_dir" "$publish_dir" || yes | rm -r "$upload_dir" && echo "Failed deploy f-droid repo"
+        # TODO call rsync or rsync script here
+    fi
 
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
@@ -179,7 +183,14 @@ function upload_fdroid {
     local version_code="$(run_in_linux_container 'stty -echo && cargo run -q --bin mullvad-version versionCode' | tr -d "\r" || return 1)"
     local artifact="$2/MullvadVPN-$versionName.apk"
     local upload_dir=$3
-    "./android/scripts/containerized-fdroid-build.sh" "$version_name" "$version_code" "$artifact" "$upload_dir"
+
+    local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
+
+    # Update the fdroid repo
+    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --update $versionName $versionCode"
+
+    # Sign the the fdroid repo
+    "./android/scripts/containerized-sign.sh" "$fdroid_repo"
 }
 
 cd "$BUILD_DIR"
