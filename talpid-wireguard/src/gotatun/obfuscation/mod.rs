@@ -12,7 +12,7 @@ use gotatun::{
 
 use crate::config::Config;
 
-use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory, lwo_keys_from_config};
+use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory, lwo_config};
 
 /// A [`UdpSend`] wrapper that optionally obfuscates outgoing packets.
 #[derive(Clone)]
@@ -111,11 +111,12 @@ pub enum MaybeObfuscatingTransportFactory<F: UdpTransportFactory> {
 impl<F: UdpTransportFactory> MaybeObfuscatingTransportFactory<F> {
     /// Create a transport factory from the tunnel config.
     pub fn from_config(inner: F, config: &Config) -> Self {
-        match lwo_keys_from_config(config) {
-            Some((tx_key, rx_key)) => Self::Lwo(LwoUdpTransportFactory {
+        match lwo_config(config) {
+            Some((tx_key, rx_key, endpoint)) => Self::Lwo(LwoUdpTransportFactory {
                 inner,
                 tx_key,
                 rx_key,
+                endpoint,
             }),
             // Use `Self::Plain` for proxy socket obfuscation or no obfuscation
             None => Self::Plain(inner),
