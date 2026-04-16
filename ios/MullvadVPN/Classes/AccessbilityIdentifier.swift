@@ -114,6 +114,8 @@ public enum AccessibilityIdentifier: Equatable {
     case customListLocationCell
     case daitaConfirmAlertBackButton
     case daitaConfirmAlertEnableButton
+    case obfuscationConfirmAlertEnableButton
+    case multihopConfirmAlertEnableButton
     case includeAllNetworksNotificationsAlertEnableButton
     case includeAllNetworksNotificationsAlertDismissButton
     case includeAllNetworksNotificationsAlertSystemSettingsButton
@@ -276,6 +278,7 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationUdpOverTcpTable
     case wireGuardObfuscationShadowsocksTable
     case wireGuardObfuscationLwoTable
+    case wireGuardObfuscationIncompatibilityAlert
 
     // Error
     case unknown

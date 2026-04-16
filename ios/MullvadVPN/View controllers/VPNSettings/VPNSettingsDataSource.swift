@@ -339,22 +339,16 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             getCustomPortCell()?.textField.becomeFirstResponder()
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationUdpOverTcp:
             selectObfuscationState(.udpOverTcp)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationShadowsocks:
             selectObfuscationState(.shadowsocks)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationQuic:
             selectObfuscationState(.quic)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationLwo:
             selectObfuscationState(.lwo)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
-            delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
         case .quantumResistanceOn:
             selectQuantumResistance(.on)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.quantumResistance(viewModel.quantumResistance))
@@ -713,7 +707,21 @@ extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
     }
 
     func selectObfuscationState(_ state: WireGuardObfuscationState) {
-        viewModel.setWireGuardObfuscationState(state)
+        delegate?.obfuscationSettingsAreValid(
+            .init(
+                state: state,
+                udpOverTcpPort: viewModel.obfuscationUpdOverTcpPort,
+                shadowsocksPort: viewModel.obfuscationShadowsocksPort,
+                lwoPort: viewModel.obfuscationLwoPort
+            )
+        ) { [weak self] settingsAreValid in
+            guard let self else { return }
+
+            if settingsAreValid {
+                viewModel.setWireGuardObfuscationState(state)
+                delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
+            }
+        }
     }
 
     func selectQuantumResistance(_ state: TunnelQuantumResistance) {
