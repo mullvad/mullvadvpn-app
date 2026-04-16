@@ -152,6 +152,10 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         }
     }
 
+    func multihopStateIsIncompatible(_ state: MultihopState) -> Bool {
+        false
+    }
+
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
     }
