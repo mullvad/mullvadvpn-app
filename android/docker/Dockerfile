@@ -70,11 +70,12 @@ ENV JAVA_HOME=/opt/jdk-21
 
 ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
 
-# Make adb,apk signer and other tools accessible
+# Make adb,apk signer, apk analyzer and other tools accessible
 ENV PATH="\
 ${JAVA_HOME}/bin\
 :${ANDROID_SDK_ROOT}/platform-tools\
 :${ANDROID_SDK_ROOT}/build-tools/${BUILD_TOOLS_VERSION}\
+:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin\
 :${PATH}"
 
 # === Install/set up the image ===
@@ -89,6 +90,7 @@ RUN apt-get update -y && apt-get install -y \
     ca-certificates-java \
     tidy \
     pcscd \
+    fdroidserver \
     && rm -rf /var/lib/apt/lists/*
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
