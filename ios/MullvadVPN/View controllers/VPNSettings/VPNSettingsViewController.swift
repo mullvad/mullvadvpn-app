@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadSettings
 import SwiftUI
 import UIKit
@@ -80,6 +81,23 @@ class VPNSettingsViewController: UITableViewController {
 }
 
 extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelegate {
+    func obfuscationSettingsAreValid(
+        _ settings: MullvadSettings.WireGuardObfuscationSettings,
+        completion: @escaping (Bool) -> Void
+    ) {
+        var tunnelSettings = interactor.tunnelManager.settings
+        tunnelSettings.wireGuardObfuscation = settings
+
+        do {
+            _ = try interactor.tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+            completion(true)
+        } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noObfuscatedRelaysFound {
+            showObfuscationSettingsIncompatibilityWarning(for: settings.state, completion: completion)
+        } catch {
+            completion(true)
+        }
+    }
+
     func humanReadablePortRepresentation() -> String {
         let ranges = interactor.cachedRelays?.relays.wireguard.portRanges ?? []
         return
@@ -92,6 +110,32 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
                 }
             }
             .joined(separator: ", ")
+    }
+
+    func showObfuscationSettingsIncompatibilityWarning(
+        for state: WireGuardObfuscationState,
+        completion: @escaping ((Bool) -> Void)
+    ) {
+        let presentation = AlertPresentation(
+            id: "vpn-settings-obfuscation-alert",
+            accessibilityIdentifier: .wireGuardObfuscationIncompatibilityAlert,
+            icon: .warning,
+            message: "Warning message here",
+            buttons: [
+                AlertAction(
+                    title: "\(NSLocalizedString("Enable", comment: "")) \"\(state.description)\"",
+                    style: .default,
+                    accessibilityId: .obfuscationConfirmAlertEnableButton,
+                    handler: { completion(true) }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default,
+                    handler: { completion(false) }
+                ),
+            ]
+        )
+        alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
     func didUpdateTunnelSettings(_ update: TunnelSettingsUpdate) {

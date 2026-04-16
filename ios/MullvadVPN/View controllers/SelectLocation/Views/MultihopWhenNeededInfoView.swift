@@ -1,7 +1,9 @@
 import SwiftUI
 
-struct MultihopWhenNeededInfoView: View {
-    let onSetMultihopToAlways: () -> Void
+struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
+    @ObservedObject var viewModel: ViewModel
+    @State private var multihopBlockedStateWarningAlert: MullvadAlert?
+
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
@@ -26,14 +28,54 @@ struct MultihopWhenNeededInfoView: View {
             Spacer()
 
             MainButton(text: "Set multihop to “\("Always")“", style: .default) {
-                onSetMultihopToAlways()
+                if viewModel.multihopStateIsIncompatible(.always) {
+                    multihopBlockedStateWarningAlert = getMultihopBlockedStateWarningAlert()
+                } else {
+                    viewModel.multihopState = .always
+                }
             }
         }
         .padding()
+        .mullvadAlert(item: $multihopBlockedStateWarningAlert)
+    }
+
+    private func getMultihopBlockedStateWarningAlert() -> MullvadAlert? {
+        MullvadAlert(
+            type: .warning,
+            messages: [
+                LocalizedStringKey(
+                    String(
+                        format: NSLocalizedString(
+                            "Enabling “%@” will block your Internet connection due to "
+                                + "incompatible settings. Do you wish to continue?", comment: ""
+                        ),
+                        NSLocalizedString("Always", comment: "The “Always“ multihop state")
+                    )
+                )
+            ],
+            actions: [
+                MullvadAlert.Action(
+                    type: .danger,
+                    title: "Enable",
+                    identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
+                    handler: {
+                        viewModel.multihopState = .always
+                        multihopBlockedStateWarningAlert = nil
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        multihopBlockedStateWarningAlert = nil
+                    }
+                ),
+            ]
+        )
     }
 }
 
 #Preview {
-    MultihopWhenNeededInfoView(onSetMultihopToAlways: {})
+    MultihopWhenNeededInfoView(viewModel: MockSelectLocationViewModel())
         .background(Color.mullvadBackground)
 }
