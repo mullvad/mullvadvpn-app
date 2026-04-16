@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix Shadowsocks being configurable by Mullvad VPN clients while not being supported by the system
   service.
 
+#### Linux
+- Fix 'mullvad split-tunnel clear' getting stuck.
+
 ### Security
 - Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
   measure to ensure that the renderer process does not have any capabilities beyond that of a
