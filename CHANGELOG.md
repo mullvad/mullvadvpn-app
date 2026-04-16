@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add port setting for LWO obfuscation.
+- Add list of recent server selections in the select location view.
 
 ### Changed
 - Optimize LWO performance when using GotaTun. This gives a 1.5 to 3 times speedup in our

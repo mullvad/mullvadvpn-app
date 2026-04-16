@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
 import { messages } from '../../../../../../shared/gettext';
+import { useRecents } from '../../../../../features/locations/hooks';
 import { type GeographicalLocation } from '../../../../../features/locations/types';
 import { getLocationChildren } from '../../../../../features/locations/utils';
 import { type ListItemProps } from '../../../../../lib/components/list-item';
@@ -35,6 +36,7 @@ function GeographicalLocationImpl({
   const [expanded, setExpanded] = useState(location.expanded);
   const locationChildren = getLocationChildren(location);
   const { selectedLocationRef } = useScrollPositionContext();
+  const { hasRecents } = useRecents();
 
   useEffect(() => {
     setExpanded(location.expanded);
@@ -70,13 +72,14 @@ function GeographicalLocationImpl({
     });
   };
 
+  // Only scroll to the selected location when the recents feature is disabled
+  const shouldScrollToLocation = location.selected && !hasRecents;
+  const refToScrollTo = shouldScrollToLocation ? selectedLocationRef : null;
+
   return (
     <Location selected={location.selected} root={root}>
       <Location.Accordion expanded={expanded} onExpandedChange={setExpanded} disabled={disabled}>
-        <Location.Accordion.Header
-          ref={location.selected ? selectedLocationRef : null}
-          level={level}
-          position={position}>
+        <Location.Accordion.Header ref={refToScrollTo} level={level} position={position}>
           <Location.Accordion.Header.ItemTrigger
             onClick={handleClick}
             aria-label={sprintf(
