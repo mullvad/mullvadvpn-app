@@ -102,12 +102,9 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     const applications = await this.getApplications();
     // If applicationPaths is supplied the returnvalue should only contain the applications
     // corresponding to those paths.
+    const pathSet = new Set(applicationPaths.map(p => p.toLowerCase()));
     applications.applications = applications.applications.filter(
-      (application) =>
-        applicationPaths.find(
-          (applicationPath) =>
-            applicationPath.toLowerCase() === application.absolutepath.toLowerCase(),
-        ) !== undefined,
+      (application) => pathSet.has(application.absolutepath.toLowerCase()),
     );
 
     return applications;
