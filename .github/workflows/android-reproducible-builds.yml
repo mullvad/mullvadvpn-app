@@ -209,9 +209,10 @@ jobs:
 
       - name: Compare apk against source of truth
         working-directory: ./artifacts
-        run: diff \
-          apk-container/app-oss-prod-release-unsigned.apk \
-          ${{ matrix.artifact}}/app-oss-prod-release-unsigned.apk
+        run: >-
+          diff
+          apk-container/app-oss-prod-release-unsigned.apk
+          ${{ matrix.artifact }}/app-oss-prod-release-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.
