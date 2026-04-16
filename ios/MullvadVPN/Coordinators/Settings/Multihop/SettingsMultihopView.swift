@@ -92,7 +92,7 @@ struct SettingsMultihopView: View {
                                     },
                                     groupedContent: {},
                                     onSelect: {
-                                        viewModel.multihopState = option.id
+                                        viewModel.evaluate(setting: option.id)
                                     }
                                 )
                             }
