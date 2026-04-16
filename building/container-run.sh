@@ -16,6 +16,7 @@ CARGO_REGISTRY_VOLUME_NAME=${CARGO_REGISTRY_VOLUME_NAME:-"cargo-registry"}
 GRADLE_CACHE_VOLUME_NAME=${GRADLE_CACHE_VOLUME_NAME:-"gradle-cache"}
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 PLAY_CREDENTIALS_PATH=${PLAY_CREDENTIALS_PATH:-""}
+GRADLE_OPTS=${GRADLE_OPTS:-""}
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 REPO_DIR="$( cd "$SCRIPT_DIR/.." && pwd )"
@@ -53,4 +54,5 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_play_credentials_file[@]}" \
+    ${GRADLE_OPTS:+-e GRADLE_OPTS="$GRADLE_OPTS"} \
     "$container_image_name" bash -c "$*"
