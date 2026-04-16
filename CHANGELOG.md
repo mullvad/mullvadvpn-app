@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
 
 ### Fixed
+- Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
+  multiple consecutive tunnel state events for the same state.
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
 - Fix a bug with Shadowsocks-based API access methods where some ciphers were configurable by
   Mullvad VPN clients while not being supported by the system service.
