@@ -45,8 +45,8 @@ pub enum SetCommands {
         port: Constraint<u16>,
     },
 
-    /// Configure LWO port.
-    LwoPort {
+    /// Configure LWO settings.
+    Lwo {
         /// Port to use
         #[arg(long, short = 'p')]
         port: Constraint<u16>,
@@ -112,7 +112,7 @@ impl AntiCensorship {
                 })
                 .await?;
             }
-            SetCommands::LwoPort { port } => {
+            SetCommands::Lwo { port } => {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let wireguard = rpc.get_relay_locations().await?.wireguard;
                 let lwo = LwoSettings { port };
