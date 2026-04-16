@@ -19,14 +19,15 @@ use crate::config::Config;
 pub struct LwoSend<S: UdpSend> {
     inner: S,
     tx_key: [u8; 32],
+    endpoint: SocketAddr,
 }
 
 impl<S: UdpSend> UdpSend for LwoSend<S> {
     type SendManyBuf = S::SendManyBuf;
 
-    async fn send_to(&self, mut packet: Packet, destination: SocketAddr) -> io::Result<()> {
+    async fn send_to(&self, mut packet: Packet, _destination: SocketAddr) -> io::Result<()> {
         lwo::obfuscate_thread_local(&mut packet, &self.tx_key);
-        self.inner.send_to(packet, destination).await
+        self.inner.send_to(packet, self.endpoint).await
     }
 
     fn max_number_of_packets_to_send(&self) -> usize {
@@ -103,17 +104,13 @@ fn deobfuscate_all(packets: &mut [(Packet, SocketAddr)], rx_key: &[u8; 32]) {
     }
 }
 
-/// Extract LWO obfuscation keys from the tunnel config.
-///
-/// Returns `(tx_key, rx_key)` where:
-/// - `tx_key` is the server public key (used to obfuscate outgoing packets)
-/// - `rx_key` is the client public key (used to deobfuscate incoming packets)
-pub fn lwo_keys_from_config(config: &Config) -> Option<([u8; 32], [u8; 32])> {
+/// Extract LWO obfuscation settings from the tunnel config.
+pub fn lwo_config(config: &Config) -> Option<([u8; 32], [u8; 32], SocketAddr)> {
     match &config.obfuscator_config {
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. })) => {
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { endpoint })) => {
             let tx_key = *config.entry_peer.public_key.as_bytes();
             let rx_key = *config.tunnel.private_key.public_key().as_bytes();
-            Some((tx_key, rx_key))
+            Some((tx_key, rx_key, *endpoint))
         }
         _ => None,
     }
@@ -123,10 +120,12 @@ pub fn lwo_keys_from_config(config: &Config) -> Option<([u8; 32], [u8; 32])> {
 ///
 /// * `tx_key` - server public key bytes, used to obfuscate outgoing packets.
 /// * `rx_key` - client public key bytes, used to deobfuscate incoming packets.
+/// * `endpoint` - endpoint to forward traffic to.
 pub struct LwoUdpTransportFactory<F: UdpTransportFactory> {
     pub inner: F,
     pub tx_key: [u8; 32],
     pub rx_key: [u8; 32],
+    pub endpoint: SocketAddr,
 }
 
 impl<F: UdpTransportFactory> UdpTransportFactory for LwoUdpTransportFactory<F> {
@@ -145,6 +144,7 @@ impl<F: UdpTransportFactory> UdpTransportFactory for LwoUdpTransportFactory<F> {
                 LwoSend {
                     inner: send_v4,
                     tx_key: self.tx_key,
+                    endpoint: self.endpoint,
                 },
                 LwoRecv {
                     inner: recv_v4,
@@ -155,6 +155,7 @@ impl<F: UdpTransportFactory> UdpTransportFactory for LwoUdpTransportFactory<F> {
                 LwoSend {
                     inner: send_v6,
                     tx_key: self.tx_key,
+                    endpoint: self.endpoint,
                 },
                 LwoRecv {
                     inner: recv_v6,
