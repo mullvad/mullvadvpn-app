@@ -26,6 +26,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func showAddCustomListView(locations: [LocationNode])
     func showFilterView()
     func toggleMultihop()
+    func evaluateMultihopSetting(_ state: MultihopState) -> Bool
     func toggleRecents()
     func manuallyFetchRelayList()
 }
@@ -215,7 +216,20 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     func toggleMultihop() {
-        tunnelManager.updateSettings([.multihop(isMultihopEnabled ? .never : .always)])
+        let multihopState: MultihopState = isMultihopEnabled ? .never : .always
+        tunnelManager.updateSettings([.multihop(multihopState)])
+    }
+
+    func evaluateMultihopSetting(_ state: MultihopState) -> Bool {
+        var tunnelSettings = tunnelManager.settings
+        tunnelSettings.tunnelMultihopState = state
+
+        if !tunnelSettings.automaticMultihopIsEnabled {
+            let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+            return relays != nil
+        }
+
+        return true
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {

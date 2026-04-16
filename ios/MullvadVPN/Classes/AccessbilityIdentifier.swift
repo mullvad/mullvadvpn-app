@@ -112,6 +112,7 @@ public enum AccessibilityIdentifier: Equatable {
     case customListLocationCell
     case daitaConfirmAlertBackButton
     case daitaConfirmAlertEnableButton
+    case multihopConfirmAlertEnableButton
     case includeAllNetworksNotificationsAlertEnableButton
     case includeAllNetworksNotificationsAlertDismissButton
     case includeAllNetworksNotificationsAlertSystemSettingsButton

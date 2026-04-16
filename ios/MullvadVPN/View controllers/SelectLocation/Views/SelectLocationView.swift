@@ -1,3 +1,4 @@
+import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
@@ -6,6 +7,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @State private var headerIsExpandedForEntry: Bool = false
     @State private var headerIsExpandedForExit: Bool = false
     @State private var disablingRecentConnectionsAlert: MullvadAlert?
+    @State private var multihopBlockedStateWarningAlert: MullvadAlert?
     @FocusState private var focusSearchField: Bool
     @State private var headerHeight: CGFloat = 0
 
@@ -150,7 +152,13 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                         .accessibilityIdentifier(.selectLocationFilterButton)
 
                         Button {
-                            viewModel.toggleMultihop()
+                            let newState: MultihopState = viewModel.isMultihopEnabled ? .never : .always
+                            if viewModel.evaluateMultihopSetting(newState) {
+                                viewModel.toggleMultihop()
+                            } else {
+                                multihopBlockedStateWarningAlert =
+                                    getMultihopBlockedStateWarningAlert(multihopState: newState)
+                            }
                         } label: {
                             var title: LocalizedStringKey {
                                 viewModel.isMultihopEnabled ? "Disable multihop" : "Enable multihop"
@@ -168,33 +176,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
 
                         Button {
                             if viewModel.isRecentsEnabled {
-                                disablingRecentConnectionsAlert = MullvadAlert(
-                                    type: .warning,
-                                    messages: ["Disabling recents will also clear history."],
-                                    actions: [
-                                        MullvadAlert.Action(
-                                            type: .danger,
-                                            title: "Disable",
-                                            identifier: AccessibilityIdentifier.disableRecentConnectionsButton,
-                                            handler: {
-                                                disablingRecentConnectionsAlert = nil
-                                                viewModel.toggleRecents()
-                                            }
-                                        ),
-                                        MullvadAlert.Action(
-                                            type: .default,
-                                            title: "Cancel",
-                                            handler: {
-                                                disablingRecentConnectionsAlert = nil
-                                            }
-                                        ),
-                                    ]
-                                )
-
+                                disablingRecentConnectionsAlert = getDisableRecentsWarningAlert()
                             } else {
                                 viewModel.toggleRecents()
                             }
-
                         } label: {
                             HStack {
                                 Text(viewModel.isRecentsEnabled ? "Disable recents" : "Enable recents")
@@ -224,6 +209,67 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             )
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
+        .mullvadAlert(item: $multihopBlockedStateWarningAlert)
+    }
+
+    private func getMultihopBlockedStateWarningAlert(multihopState: MultihopState) -> MullvadAlert {
+        MullvadAlert(
+            type: .warning,
+            messages: [
+                LocalizedStringKey(
+                    String(
+                        format: NSLocalizedString(
+                            "Enabling “%@” will block your Internet connection due to "
+                                + "incompatible settings. Do you wish to continue?", comment: ""
+                        ),
+                        NSLocalizedString("Multihop", comment: "")
+                    )
+                )
+            ],
+            actions: [
+                MullvadAlert.Action(
+                    type: .danger,
+                    title: "Enable",
+                    identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
+                    handler: {
+                        multihopBlockedStateWarningAlert = nil
+                        viewModel.toggleMultihop()
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        multihopBlockedStateWarningAlert = nil
+                    }
+                ),
+            ]
+        )
+    }
+
+    private func getDisableRecentsWarningAlert() -> MullvadAlert {
+        MullvadAlert(
+            type: .warning,
+            messages: ["Disabling recents will also clear history."],
+            actions: [
+                MullvadAlert.Action(
+                    type: .danger,
+                    title: "Disable",
+                    identifier: AccessibilityIdentifier.disableRecentConnectionsButton,
+                    handler: {
+                        disablingRecentConnectionsAlert = nil
+                        viewModel.toggleRecents()
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        disablingRecentConnectionsAlert = nil
+                    }
+                ),
+            ]
+        )
     }
 }
 

@@ -14,6 +14,8 @@ class MultihopTunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject 
     let tunnelManager: TunnelManager
     var tunnelObserver: TunnelObserver?
 
+    var didFailValidation: ((MultihopState) -> Void)?
+
     var value: MultihopState {
         willSet(newValue) {
             guard newValue != value else { return }
@@ -33,7 +35,24 @@ class MultihopTunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject 
     }
 
     func evaluate(setting: MultihopState) {
-        // No op.
+        if settingsAreIncompatible(setting) {
+            didFailValidation?((setting))
+            return
+        }
+
+        value = setting
+    }
+
+    private func settingsAreIncompatible(_ settings: MultihopState) -> Bool {
+        var tunnelSettings = tunnelManager.settings
+        tunnelSettings.tunnelMultihopState = settings
+
+        if !tunnelSettings.automaticMultihopIsEnabled {
+            let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
+            return relays == nil
+        }
+
+        return false
     }
 }
 
