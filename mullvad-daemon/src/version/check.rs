@@ -187,7 +187,12 @@ impl VersionUpdaterInner {
             log::warn!(
                 "Not checking for updates because this is a development build and MULLVAD_ENABLE_DEV_UPDATES is not set"
             );
-            while let Some(()) = refresh_rx.next().await {}
+            // Send the initial dev cache so the router has a version immediately
+            let _ = update.update_sender.send(dev_version_cache());
+            // Respond to every refresh request with the same dev cache
+            while let Some(()) = refresh_rx.next().await {
+                let _ = update.update_sender.send(dev_version_cache());
+            }
             return;
         }
 
