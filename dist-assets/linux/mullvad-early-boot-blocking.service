@@ -7,6 +7,9 @@
 Description=Mullvad early boot network blocker
 DefaultDependencies=no
 Before=basic.target mullvad-daemon.service
+# Mount local filesystems (/var) before starting the early-boot service,
+# else persisting logs will fail.
+After=local-fs.target
 
 [Service]
 Type=oneshot
