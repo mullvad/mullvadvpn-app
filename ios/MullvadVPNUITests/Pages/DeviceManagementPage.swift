@@ -51,7 +51,8 @@ class DeviceManagementPage: Page {
     }
 
     @discardableResult func tapContinueWithLoginButton() -> Self {
-        app.buttons[AccessibilityIdentifier.continueWithLoginButton].tap()
+        app.buttons[AccessibilityIdentifier.continueWithLoginButton]
+            .tapWhenHittable(timeout: .longerThanMullvadAPITimeout)
         return self
     }
 

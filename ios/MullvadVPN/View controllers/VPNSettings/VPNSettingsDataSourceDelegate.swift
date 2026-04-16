@@ -22,4 +22,8 @@ protocol VPNSettingsDataSourceDelegate: AnyObject {
     func showIPOverrides()
     func didSelectWireGuardPort(_ port: UInt16?)
     func humanReadablePortRepresentation() -> String
+    func obfuscationSettingsAreValid(
+        _ settings: WireGuardObfuscationSettings,
+        completion: @escaping (Bool) -> Void
+    )
 }

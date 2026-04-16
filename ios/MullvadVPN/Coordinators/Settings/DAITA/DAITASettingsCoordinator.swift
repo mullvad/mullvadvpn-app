@@ -38,11 +38,10 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
     func start(animated: Bool) {
         let view = SettingsDAITAView(tunnelViewModel: self.viewModel)
 
-        viewModel.didFailDAITAValidation = { [weak self] result in
+        viewModel.didFailDAITAValidation = { [weak self] in
             guard let self else { return }
 
             showPrompt(
-                for: result,
                 onSave: {
                     self.viewModel.value = .init(daitaState: .on)
                 },
@@ -75,7 +74,6 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
     }
 
     private func showPrompt(
-        for item: DAITASettingsPromptItem,
         onSave: @escaping () -> Void,
         onDiscard: @escaping () -> Void
     ) {
@@ -83,10 +81,10 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             id: "settings-daita-prompt",
             accessibilityIdentifier: .daitaPromptAlert,
             icon: .warning,
-            message: item.description,
+            message: BlockedStateString.Message.daita.description,
             buttons: [
                 AlertAction(
-                    title: "\(NSLocalizedString("Enable", comment: "")) \"DAITA\"",
+                    title: BlockedStateString.Button.daita.description,
                     style: .default,
                     accessibilityId: .daitaConfirmAlertEnableButton,
                     handler: { onSave() }

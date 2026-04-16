@@ -622,6 +622,7 @@
 		7A9246AB2EB0C765008FE31A /* StorePaymentManagerInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9246AA2EB0C75A008FE31A /* StorePaymentManagerInteractor.swift */; };
 		7A9246AC2EB0C765008FE31A /* StorePaymentManagerInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9246AA2EB0C75A008FE31A /* StorePaymentManagerInteractor.swift */; };
 		7A9519952EBE1FA200AA8B19 /* PaymentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9519942EBDDE6F00AA8B19 /* PaymentTests.swift */; };
+		7A95A9E72FADC1760096009A /* BlockedStateString.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95A9E62FADC1670096009A /* BlockedStateString.swift */; };
 		7A95B67B2D5F758300687524 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A95B67A2D5F758300687524 /* relays.json */; };
 		7A95B67D2D5F7C5B00687524 /* DAITASettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */; };
 		7A964BB92E699A3F00C6A4EC /* ShadowsocksObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A964BB72E6999A500C6A4EC /* ShadowsocksObfuscator.swift */; };
@@ -978,7 +979,6 @@
 		F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */; };
 		F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */; };
 		F03A69F92C2AD414000E2E7E /* FormsheetPresentationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */; };
-		F041BE4F2C983C2B0083EC28 /* DAITASettingsPromptItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */; };
 		F041BE532C9878B60083EC28 /* ConnectionConfigurationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */; };
 		F04413612BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
@@ -2293,6 +2293,7 @@
 		7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewControllerFactory.swift; sourceTree = "<group>"; };
 		7A9246AA2EB0C75A008FE31A /* StorePaymentManagerInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorePaymentManagerInteractor.swift; sourceTree = "<group>"; };
 		7A9519942EBDDE6F00AA8B19 /* PaymentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentTests.swift; sourceTree = "<group>"; };
+		7A95A9E62FADC1670096009A /* BlockedStateString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockedStateString.swift; sourceTree = "<group>"; };
 		7A95B6742D5DF86400687524 /* APIRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequestProxy.swift; sourceTree = "<group>"; };
 		7A95B67A2D5F758300687524 /* relays.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsCoordinator.swift; sourceTree = "<group>"; };
@@ -2559,7 +2560,6 @@
 		F03A69F62C2AD2D5000E2E7E /* TimeInterval+Timeout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Timeout.swift"; sourceTree = "<group>"; };
 		F03A69F82C2AD413000E2E7E /* FormsheetPresentationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FormsheetPresentationController.swift; sourceTree = "<group>"; };
 		F03B95342E4A3280005A80C9 /* pt */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = pt.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsPromptItem.swift; sourceTree = "<group>"; };
 		F041BE522C9878B60083EC28 /* ConnectionConfigurationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionConfigurationBuilder.swift; sourceTree = "<group>"; };
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
@@ -4372,6 +4372,8 @@
 				7ABBE0122F1A2CDE00AD8176 /* IncludeAllNetworks */,
 				7A5869A92B55516700640D27 /* IPOverride */,
 				7A8A18F72CE34E8F000BCB5B /* Multihop */,
+				7A8A18FE2CE4C7FA000BCB5B /* Views */,
+				7A95A9E62FADC1670096009A /* BlockedStateString.swift */,
 				F0AC64412F3B51BB0024427C /* NotificationSettingsCoordinator.swift */,
 				58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */,
 				7A9CCCAD2A96302800DD6A34 /* SettingsCoordinator.swift */,
@@ -4380,7 +4382,6 @@
 				7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */,
 				7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */,
 				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
-				7A8A18FE2CE4C7FA000BCB5B /* Views */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -4599,7 +4600,6 @@
 			children = (
 				7AF822C62DF0663B00BA4255 /* DAITAMultihopNotice.swift */,
 				7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */,
-				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */,
 				7A8A19092CE5FFDF000BCB5B /* SettingsDAITAView.swift */,
 			);
@@ -6556,7 +6556,6 @@
 				7AC8A3AF2ABC71D600DC4939 /* TermsOfServiceCoordinator.swift in Sources */,
 				7A8A191A2CEF41AF000BCB5B /* GroupedRowView.swift in Sources */,
 				58FF9FE22B075BA600E4C97D /* EditAccessMethodSectionIdentifier.swift in Sources */,
-				F041BE4F2C983C2B0083EC28 /* DAITASettingsPromptItem.swift in Sources */,
 				7A58699B2B482FE200640D27 /* UITableViewCell+Disable.swift in Sources */,
 				7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
@@ -6603,6 +6602,7 @@
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */,
 				F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
+				7A95A9E72FADC1760096009A /* BlockedStateString.swift in Sources */,
 				F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */,
 				7A8A19282CF603EB000BCB5B /* SettingsViewControllerFactory.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,

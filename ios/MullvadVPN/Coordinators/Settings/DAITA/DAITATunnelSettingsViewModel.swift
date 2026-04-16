@@ -17,7 +17,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
 
     var isAutomaticRoutingActive: Bool
 
-    var didFailDAITAValidation: ((DAITASettingsPromptItem) -> Void)?
+    var didFailDAITAValidation: (() -> Void)?
 
     @Published var value: DAITASettings {
         willSet {
@@ -48,9 +48,7 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
 
     func evaluate(setting: DAITASettings) {
         if let error = evaluateDaitaSettingsCompatibility(setting) {
-            let promptItem = promptItem(from: error)
-
-            didFailDAITAValidation?(promptItem)
+            didFailDAITAValidation?()
             return
         }
 
@@ -59,15 +57,6 @@ class DAITATunnelSettingsViewModel: TunnelSettingsObserver {
 }
 
 extension DAITATunnelSettingsViewModel {
-    private func promptItem(from error: DAITASettingsCompatibilityError) -> DAITASettingsPromptItem {
-        switch error {
-        case .singlehop:
-            .daitaSettingIncompatibleWithSinglehop
-        case .multihop:
-            .daitaSettingIncompatibleWithMultihop
-        }
-    }
-
     private func evaluateDaitaSettingsCompatibility(_ settings: DAITASettings) -> DAITASettingsCompatibilityError? {
         guard settings.isEnabled else { return nil }
 
