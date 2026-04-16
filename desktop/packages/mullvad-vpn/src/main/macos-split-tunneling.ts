@@ -59,11 +59,9 @@ export class MacOsSplitTunnelingAppListRetriever implements ISplitTunnelingAppLi
 
     const applications = await this.getApplications();
 
+    const pathSet = new Set(applicationPaths.map((p) => p.toLowerCase()));
     applications.applications = applications.applications.filter((application) =>
-      applicationPaths.some(
-        (applicationPath) =>
-          applicationPath.toLowerCase() === application.absolutepath.toLowerCase(),
-      ),
+      pathSet.has(application.absolutepath.toLowerCase()),
     );
 
     return applications;
