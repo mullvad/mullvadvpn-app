@@ -37,8 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
-- Fix Shadowsocks being configurable by Mullvad VPN clients while not being supported by the system
-  service.
+- Fix a bug with Shadowsocks-based API access methods where some ciphers were configurable by
+  Mullvad VPN clients while not being supported by the system service.
 
 ### Security
 - Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
