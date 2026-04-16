@@ -166,8 +166,10 @@ function build_sign_and_publish_ref {
     if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
         local upload_dir="$BUILD_DIR/$publish"
         mkdir -p "$upload_dir"
-        upload_fdroid "$version" "$artifact_dir" "$publish_dir" || yes | rm -r "$upload_dir" && echo "Failed deploy f-droid repo"
+        upload_fdroid "$artifact_dir" "$upload_dir" || yes | rm -r "$upload_dir" && echo "Failed deploy f-droid repo"
         # TODO call rsync or rsync script here
+
+        rm -r "$upload_dir"
     fi
 
     # shellcheck disable=SC2216
@@ -179,18 +181,19 @@ function build_sign_and_publish_ref {
 }
 
 function upload_fdroid {
-    local version_name=$1
-    local version_code="$(run_in_linux_container 'stty -echo && cargo run -q --bin mullvad-version versionCode' | tr -d "\r" || return 1)"
-    local artifact="$2/MullvadVPN-$versionName.apk"
-    local upload_dir=$3
+    local artifact="$1/MullvadVPN-$versionName.apk"
+    local upload_dir=$2
 
     local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
 
     # Update the fdroid repo
-    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --update $versionName $versionCode"
+    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --update $artifact"
 
     # Sign the the fdroid repo
-    "./android/scripts/containerized-sign.sh" "$fdroid_repo"
+    "./android/scripts/containerized-sign.sh" "$fdroid_repo" "$fdroid_repo/fdroid-deploy.sh --sign"
+
+    # Move the repo to the upload folder
+    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --publish $upload_dir"
 }
 
 cd "$BUILD_DIR"
