@@ -212,8 +212,8 @@ fn add_missing_plurals(
         gettext::append_to_template(
             template_path,
             missing_plurals
-                .into_iter()
-                .filter_map(|(_, p)| plural_resources.iter().find(|plural| plural.name == p.name))
+                .into_values()
+                .filter_map(|p| plural_resources.iter().find(|plural| plural.name == p.name))
                 .cloned()
                 .inspect(|plural| {
                     let other_item = &plural

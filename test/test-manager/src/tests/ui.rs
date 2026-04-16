@@ -67,11 +67,7 @@ pub async fn run_test_env<
     log::info!("Running UI tests: {params:?}");
 
     let result = rpc
-        .exec_env(
-            bin_path.to_string_lossy().into_owned(),
-            new_params.into_iter(),
-            env,
-        )
+        .exec_env(bin_path.to_string_lossy().into_owned(), new_params, env)
         .await?;
 
     if !result.success() {
