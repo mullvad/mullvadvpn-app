@@ -46,6 +46,9 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
@@ -59,6 +62,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -384,23 +388,10 @@ private fun ColumnScope.LoginInput(
     AnimatedVisibility(
         visible = state.lastUsedAccount != null && state.loginState is LoginState.Idle
     ) {
-        val token = state.lastUsedAccount?.value.orEmpty()
-        val accountTransformation =
-            remember(showPassword) {
-                accountNumberVisualTransformation(
-                    showPassword,
-                    showLastX = ACCOUNT_NUMBER_CHUNK_SIZE,
-                )
-            }
-        val transformedText =
-            remember(token, accountTransformation) {
-                accountTransformation.filter(AnnotatedString(token)).text
-            }
-
-        // Since content is number we should always do Ltr
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             AccountDropDownItem(
-                accountNumber = transformedText.toString(),
+                accountNumber = state.lastUsedAccount?.value.orEmpty(),
+                showPassword = showPassword,
                 onClick = {
                     state.lastUsedAccount?.let {
                         onAccountNumberChange(it.value)
@@ -535,11 +526,21 @@ private fun Int.toAnnotatedString(): AnnotatedString = AnnotatedString(stringRes
 @Composable
 private fun AccountDropDownItem(
     modifier: Modifier = Modifier,
+    showPassword: Boolean,
     accountNumber: String,
     enabled: Boolean,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit,
 ) {
+    val accountTransformation =
+        remember(showPassword) {
+            accountNumberVisualTransformation(showPassword, showLastX = ACCOUNT_NUMBER_CHUNK_SIZE)
+        }
+    val transformedText =
+        remember(accountNumber, accountTransformation) {
+            accountTransformation.filter(AnnotatedString(accountNumber)).text
+        }
+
     Row(
         modifier =
             modifier
@@ -553,6 +554,19 @@ private fun AccountDropDownItem(
                 .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+
+        // Hack, our PASSWORD_UNICODE '●' changes the baseline height, so this workaround
+        // ensures we always place it at the same baseline
+        val textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace)
+        // Measure the digit baseline once to use as a fixed reference
+        val textMeasurer = rememberTextMeasurer()
+        val digitBaseline =
+            remember(textStyle) {
+                textMeasurer
+                    .measure(text = AnnotatedString("0"), style = textStyle, maxLines = 1)
+                    .firstBaseline
+            }
+
         Box(
             modifier =
                 Modifier.clickable(enabled = enabled, onClick = onClick)
@@ -562,10 +576,24 @@ private fun AccountDropDownItem(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = accountNumber,
+                text = transformedText,
                 overflow = TextOverflow.Clip,
-                style = MaterialTheme.typography.bodyLarge,
-                fontFamily = FontFamily.Monospace,
+                style = textStyle,
+                maxLines = 1,
+                // Place text according to baseline so text does not jump as user hide/show password
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val actualBaseline = placeable[FirstBaseline]
+                        // Shift the text so its baseline aligns with the digit baseline
+                        val yOffset =
+                            if (actualBaseline != AlignmentLine.Unspecified) {
+                                digitBaseline.toInt() - actualBaseline
+                            } else {
+                                0
+                            }
+                        layout(placeable.width, placeable.height) { placeable.place(0, yOffset) }
+                    },
             )
         }
         IconButton(
