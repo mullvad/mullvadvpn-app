@@ -450,7 +450,7 @@ async fn check_tunnel_psk(
                 .await
                 .expect("failed to get tun name");
             let output = rpc
-                .exec("wg", vec!["show", &name].into_iter())
+                .exec("wg", vec!["show", &name])
                 .await
                 .expect("failed to run wg");
             let parsed_output = std::str::from_utf8(&output.stdout).expect("non-utf8 output");

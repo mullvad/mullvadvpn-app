@@ -500,7 +500,7 @@ impl Relay {
         let providers = if providers[0].eq_ignore_ascii_case("any") {
             Constraint::Any
         } else {
-            Constraint::Only(Providers::new(providers.into_iter()).unwrap())
+            Constraint::Only(Providers::new(providers).unwrap())
         };
         Self::update_constraints(|constraints| {
             constraints.providers = providers;
