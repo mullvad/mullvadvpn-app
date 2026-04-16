@@ -68,6 +68,8 @@ ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 # Set Java home for the downloaded JDK
 ENV JAVA_HOME=/opt/jdk-21
 
+ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
+
 # Make adb,apk signer and other tools accessible
 ENV PATH="\
 ${JAVA_HOME}/bin\
@@ -91,6 +93,7 @@ RUN apt-get update -y && apt-get install -y \
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
 RUN curl -sfLo /tmp/openjdk-21.tar.gz https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz && \
+    echo "$JDK_SHA256_CHECKSUM /tmp/openjdk-21.tar.gz" | sha256sum -c && \
     tar -xf /tmp/openjdk-21.tar.gz -C /tmp/ && \
     mv /tmp/jdk-21.0.2 /opt/jdk-21 && \
     rm /tmp/openjdk-21.tar.gz
