@@ -12,7 +12,7 @@ use relays::{Multihop, Singlehop, WireguardConfig};
 use crate::{
     detailer::wireguard_endpoint,
     error::{EndpointErrorDetails, Error},
-    query::{ObfuscationQuery, RelayQuery, RelayQueryExt, WireguardRelayQuery},
+    query::{ObfuscationMode, RelayQuery, RelayQueryExt, WireguardRelayQuery},
 };
 
 use either::Either;
@@ -277,7 +277,7 @@ impl<'a> TryFrom<NormalConfig<'a>> for RelayQuery {
                 entry_location,
                 entry_providers,
                 entry_ownership,
-                obfuscation: ObfuscationQuery::from(obfuscation_settings),
+                obfuscation: query::obfuscation_constraint_from_settings(obfuscation_settings),
                 daita: Constraint::Only(daita),
                 daita_use_multihop_if_necessary: Constraint::Only(daita_use_multihop_if_necessary),
                 quantum_resistant: Constraint::Only(quantum_resistant),
@@ -544,7 +544,7 @@ impl RelaySelector {
         // DAITA & obfuscation should only be enabled for the entry relay
         let mut wireguard_constraints = exit_relay_query.wireguard_constraints().clone();
         wireguard_constraints.daita = Constraint::Only(false);
-        wireguard_constraints.obfuscation = ObfuscationQuery::Off;
+        wireguard_constraints.obfuscation = Constraint::Only(ObfuscationMode::Off);
         exit_relay_query.set_wireguard_constraints(wireguard_constraints);
 
         let exit_candidates =
@@ -608,7 +608,7 @@ impl RelaySelector {
         // DAITA & Obfuscation should only be enabled for the entry relay
         let mut wg_constraints = exit_relay_query.wireguard_constraints().clone();
         wg_constraints.daita = Constraint::Only(false);
-        wg_constraints.obfuscation = ObfuscationQuery::Off;
+        wg_constraints.obfuscation = Constraint::Only(ObfuscationMode::Off);
         exit_relay_query.set_wireguard_constraints(wg_constraints);
 
         // Opportunistically filter on `include_in_country`.
@@ -711,32 +711,36 @@ impl RelaySelector {
         };
         let box_obfuscation_error = |error: helpers::Error| Error::NoObfuscator(Box::new(error));
 
-        match &query.wireguard_constraints().obfuscation {
-            ObfuscationQuery::Off => Ok(None),
+        let mode = match &query.wireguard_constraints().obfuscation {
+            Constraint::Only(mode) => mode,
             #[cfg(not(feature = "staggered-obfuscation"))]
-            ObfuscationQuery::Auto => Ok(None),
-            ObfuscationQuery::Port(_) => Ok(None),
+            Constraint::Any => return Ok(None),
             #[cfg(feature = "staggered-obfuscation")]
-            ObfuscationQuery::Auto => {
+            Constraint::Any => {
                 let shadowsocks_ports = &parsed_relays.wireguard.shadowsocks_port_ranges;
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
-                helpers::get_multiplexer_obfuscator(
+                return helpers::get_multiplexer_obfuscator(
                     udp2tcp_ports,
                     shadowsocks_ports,
                     obfuscator_relay,
                     endpoint,
                 )
                 .map(Some)
-                .map_err(box_obfuscation_error)
+                .map_err(box_obfuscation_error);
             }
-            ObfuscationQuery::Udp2tcp(settings) => {
+        };
+
+        match mode {
+            ObfuscationMode::Off => Ok(None),
+            ObfuscationMode::Port(_) => Ok(None),
+            ObfuscationMode::Udp2tcp(settings) => {
                 let udp2tcp_ports = &parsed_relays.wireguard.udp2tcp_ports;
 
                 helpers::get_udp2tcp_obfuscator(settings, udp2tcp_ports, obfuscator_relay, endpoint)
                     .map(|obfs| Some(obfs.into()))
                     .map_err(box_obfuscation_error)
             }
-            ObfuscationQuery::Shadowsocks(settings) => {
+            ObfuscationMode::Shadowsocks(settings) => {
                 let port_ranges = &parsed_relays.wireguard.shadowsocks_port_ranges;
                 let obfuscation = helpers::get_shadowsocks_obfuscator(
                     settings,
@@ -749,11 +753,11 @@ impl RelaySelector {
 
                 Ok(Some(obfuscation))
             }
-            ObfuscationQuery::Quic => {
+            ObfuscationMode::Quic => {
                 let ip_version = query.wireguard_constraints().ip_version;
                 Ok(helpers::get_quic_obfuscator(obfuscator_relay, ip_version).map(Into::into))
             }
-            ObfuscationQuery::Lwo(settings) => {
+            ObfuscationMode::Lwo(settings) => {
                 let port_ranges = &parsed_relays.wireguard.port_ranges;
                 let obfuscation =
                     helpers::get_lwo_obfuscator(obfuscator_relay, endpoint, port_ranges, *settings)
