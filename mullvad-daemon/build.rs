@@ -39,6 +39,15 @@ fn main() {
     if matches!(target_os(), Os::Windows | Os::Macos) {
         println!(r#"cargo::rustc-cfg=in_app_upgrade"#);
     }
+
+    if matches!(target_os(), Os::Macos) {
+        // Set the minimum version of macOS on which mullvad-daemon can run.
+        if cfg!(target_arch = "x86_64") {
+            println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.12");
+        } else if cfg!(target_arch = "aarch64") {
+            println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=11.0");
+        }
+    }
 }
 
 fn commit_date() -> String {

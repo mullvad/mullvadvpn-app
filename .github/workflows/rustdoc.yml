@@ -9,7 +9,6 @@ on:
       - "rust-toolchain.toml"
       - "rustfmt.toml"
       - "ci/cargo-ci.sh"
-      - "env.sh"
 
   workflow_dispatch:
     inputs:
