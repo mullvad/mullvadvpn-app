@@ -290,11 +290,6 @@ TARGETS="riscv64gc-unknown-linux-gnu" ./build.sh --daemon-only --optimize
 
 This section is for building the system service individually.
 
-1. On macOS, source `env.sh` to set the default environment variables:
-    ```bash
-    source env.sh
-    ```
-
 1. On Windows, build the C++ libraries:
     ```bash
     ./build-windows-modules.sh

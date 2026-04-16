@@ -370,7 +370,6 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
 fi
 
 for t in "${TARGETS[@]:-""}"; do
-    source env.sh "$t"
     build "$t"
 done
 
