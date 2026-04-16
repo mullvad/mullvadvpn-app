@@ -84,7 +84,7 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
                                     },
                                     groupedContent: {},
                                     onSelect: {
-                                        tunnelViewModel.value = option.id
+                                        tunnelViewModel.evaluate(setting: option.id)
                                     }
                                 )
                             }
