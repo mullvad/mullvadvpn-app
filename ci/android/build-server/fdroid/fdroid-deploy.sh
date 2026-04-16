@@ -19,6 +19,8 @@ function print_usage {
     echo "              Update the repo with the given version name and code"
     echo "    -s, --sign"
     echo "              Sign the index and entry files"
+    echo "    -d, --deploy"
+    echo "              Deploy the fdroid repo to the given folder"
     echo "    -h, --help"
     echo "              Show this help page."
 }
@@ -43,6 +45,9 @@ function main {
 
         sign
         ;;
+    "-d"|"--deploy")
+        publish "$2"
+        ;;
     "-h"|"--help")
         print_usage
         exit 0
@@ -55,29 +60,42 @@ function main {
     esac
 }
 
+function publish {
+    local upload_dir="$1"
+
+    # Set upload dir in the config file
+    echo "local_copy_dir: ${upload_dir}/fdroid" >> "$CONFIG_FILE"
+
+    fdroid deploy
+}
+
 function sign {
     # This is an approximation of fdroid signindex
-
     pushd "repo"
+
     # Sign and rename index_unsigned.jar
     local index_unsigned_jar="index_unsigned.jar"
     local signed_index_jar="index.jar"
-    apksigner_sign "$index_unsigned_jar"
+    jarsigner_sign "$index_unsigned_jar"
     mv "$index_unsigned_jar" "$signed_index_jar"
     echo "Unsigned index jar signed"
 
     # Place index-v1 in a jar and sign
-    # This uses jarsigner as that is what fdroid does, unclear if we actually need to
     local index_v1_json="index-v1.json"
     local index_v1_jar="index-v1.jar"
     zip -r "$index_v1_jar" "$index_v1_json"
     jarsigner_sign "$index_v1_jar"
+    echo "Index v1 jar signed"
 
     # Place entry.json in a jar and sign
+    # This uses apksigner as that is what fdroid does, unclear if we actually need to
     local entry_json="entry.json"
     local entry_jar="entry.jar"
     zip -r "$entry_jar" "$entry_json"
     apksigner_sign "$entry_jar"
+    echo "Entry jar signed"
+
+    popd
 }
 
 function apksigner_sign {
@@ -86,8 +104,8 @@ function apksigner_sign {
     apksigner -J-add-exports="jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" sign \
     --ks NONE --ks-type PKCS11 --ks-key-alias "$KEY_ALIAS" \
     --provider-class sun.security.pkcs11.SunPKCS11 --provider-arg "$PROVIDER_ARG" \
-    --min-sdk-version 23 --max-sdk-version 24 \ 
-    --v2-signing-enabled false --v3-signing-enabled false --v4-signing-enabled false \
+    --min-sdk-version 23 --max-sdk-version 24 \
+    --v4-signing-enabled false --v3-signing-enabled false --v2-signing-enabled false --v1-signing-enabled true \
     --in "$file" <<< "$YUBIKEY_PIN"
 }
 
@@ -110,22 +128,26 @@ function setup_repo {
     local version_name=$(apkanalyzer manifest version-name "$apk")
     local version_code=$(apkanalyzer manifest version-code "$apk")
 
-    # Install fdroid server
-    # apt update
-    # apt install -y fdroidserver
+    # Copy the metadata file from android/fdroid-build
+    cp "../../../../android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml" "$METADATA_FILE"
 
     # Replace builds
-    sed "s/^versionName: .*/versionName: ${version_name}/" "$METADATA_FILE" > \
-    /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
-    sed "s/^versionCode: .*/versionCode: ${version_code}/" "$METADATA_FILE" > \
-    /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
+    sed "s/^[[:space:]]*- versionName: .*/  - versionName: '${version_name}'/" \
+    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
+    sed "s/^[[:space:]]*versionCode: .*/    versionCode: ${version_code}/" \
+    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
 
-    # Set upload dir in the config file
-    #sed "s|^local_copy_dir: .*|local_copy_dir: ${UPLOAD_DIR}|" \
-    #"$CONFIG_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$CONFIG_FILE"
+    # Replace current version
+    sed "s/^CurrentVersion: .*/CurrentVersion: '${version_name}'/" \
+    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
+    sed "s/^CurrentVersionCode: .*/CurrentVersionCode: ${version_code}/" \
+    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
 
-    # Move the apk file into the repo
+    # Copy the apk file into the repo
     cp "$apk" "repo/net.mullvad.mullvadvpn_$version_code.apk"
+
+    # Copy the release notes into the repo
+    cp "../../../../android/src/main/play/release-notes/en-US/default.txt" "metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
 }
 
 main "$@"
