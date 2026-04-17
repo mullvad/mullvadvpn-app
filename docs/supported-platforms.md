@@ -67,7 +67,7 @@ DEs, but we don't regularly test those.
 
 ## Android
 
-Supported versions: 8 and newer.
+Supported versions: 9 and newer.
 
 ### Tested versions
 
