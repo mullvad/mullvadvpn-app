@@ -166,7 +166,7 @@ function build_sign_and_publish_ref {
     if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
         local upload_dir="$BUILD_DIR/dist/publish/fdroid"
         mkdir -p "$upload_dir"
-        upload_fdroid "$artifact_dir/MullvadVPN-$versionName.apk" "$upload_dir" || clean_fdroid_repo "$upload_dir" && echo "Failed deploy f-droid repo"
+        upload_fdroid "$artifact_dir/MullvadVPN-$version.apk" "$upload_dir" || clean_fdroid_repo "$upload_dir" && echo "Failed deploy f-droid repo"
         # TODO call rsync or rsync script here
 
         clean_fdroid_repo "$upload_dir"
@@ -205,7 +205,7 @@ function clean_fdroid_repo {
     yes | rm -r "$upload_dir"
     pushd "$fdroid_repo"
     git clean -fd
-    pop
+    popd
 }
 
 cd "$BUILD_DIR"

@@ -129,12 +129,13 @@ function setup_repo {
         exit 1
     fi
 
-    local apk="$1"
+    local apk="/build/$1"
 
     local version_name=$(apkanalyzer manifest version-name "$apk")
     local version_code=$(apkanalyzer manifest version-code "$apk")
 
     # Copy the metadata file from android/fdroid-build
+    mkdir "../../../../android/fdroid-build/metadata"
     cp "../../../../android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml" "$METADATA_FILE"
 
     # Replace builds
