@@ -16,7 +16,7 @@ public protocol MultihopStateMigrating {
 }
 
 /// In which circumstances Multihop is enabled
-public enum MultihopStateV2: Codable, Sendable {
+public enum MultihopStateV2: Codable, Sendable, CustomStringConvertible {
     case always
     case never
     case whenNeeded
@@ -31,6 +31,14 @@ public enum MultihopStateV2: Codable, Sendable {
             // once .whenNeeded is used, the .never value below should
             // perhaps be replaced with .whenNeeded
             self = newValue ? .always : .never
+        }
+    }
+
+    public var description: String {
+        switch self {
+        case .always: NSLocalizedString("Always", comment: "")
+        case .whenNeeded: NSLocalizedString("When needed", comment: "")
+        case .never: NSLocalizedString("Never", comment: "")
         }
     }
 }
