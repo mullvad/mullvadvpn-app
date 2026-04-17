@@ -270,26 +270,29 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 title: "Finish unfinished sandbox purchases",
                 style: .default,
                 handler: { _ in
-                    Task {
-                        await StorePaymentManager.finishOutstandingSandboxAndOldAPITransactions()
+                    Task { [weak self] in
+                        guard let self else { return }
+                        let paymentInteractor = StorePaymentManagerInteractor(
+                            tunnelManager: interactor.tunnelManager,
+                            apiProxy: interactor.apiProxy,
+                            accountProxy: interactor.accountsProxy
+                        )
+                        await StorePaymentManager(interactor: paymentInteractor).finishAllOutstandingTransactions()
                     }
                 }
             )
         )
 
-        #if DEBUG
-            let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
-            sheetController.addAction(
-                UIAlertAction(
-                    title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
-                    style: .default,
-                    handler: { [weak self] _ in
-                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                        self?.interactor.tunnelManager.reapplyTunnelConfiguration()
-                    }
-                )
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Use GotaTun: \(PacketTunnelDebugSettings.useGotaTun ? "ON" : "OFF")",
+                style: .default,
+                handler: { [weak self] _ in
+                    PacketTunnelDebugSettings.useGotaTun.toggle()
+                    self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                }
             )
-        #endif
+        )
 
         sheetController.addAction(
             UIAlertAction(

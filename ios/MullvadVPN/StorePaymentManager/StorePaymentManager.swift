@@ -30,27 +30,25 @@ final actor StorePaymentManager: @unchecked Sendable {
 
     /// Start listening for transaction updates.
     func start() async {
-        logger.debug("Starting StoreKit transaction listener")
+        Task(priority: .background) {
+            logger.debug("Starting StoreKit transaction listener")
 
-        #if !DEBUG
-            // Always clean up non-production transactions immediately. Reason for this is that if there
-            // are any old unfinished sandbox transactions that has spilled over from TestFlight, they
+            // Always clean transactions, including non-production ones, immediately. Reason for this is that
+            // if there are any old unfinished sandbox transactions that has spilled over from TestFlight, they
             // will clog up the pipeline since they can never be finished or removed in production.
-            await Self.finishOutstandingSandboxAndOldAPITransactions()
-        #endif
-
-        _ = try? await processOutstandingTransactions()
+            await finishAllOutstandingTransactions()
+        }
 
         updateListenerTask?.cancel()
-        updateListenerTask = Task { [weak self] in
+        updateListenerTask = Task(priority: .background) { [weak self] in
             guard let self else { return }
 
             // If the purchase was made out-of-band, we need not upload the receipt.
             for await verification in Transaction.updates {
+                print("Transaction.updates")
                 guard await shouldProcessPayment(verification: verification) else {
                     continue
                 }
-
                 await updateAccountData()
             }
         }
@@ -89,7 +87,8 @@ final actor StorePaymentManager: @unchecked Sendable {
 
         switch result {
         case let .success(.verified(transaction)):
-            await purchaseWasSuccessful(transaction: transaction)
+            didFailPurchase(error: StorePaymentError.receiptUpload)
+//            await purchaseWasSuccessful(transaction: transaction)
         case let .success(.unverified(transaction, verificationFailure)):
             await didFailVerification(transaction: transaction, error: verificationFailure)
         case .userCancelled:
@@ -139,13 +138,12 @@ final actor StorePaymentManager: @unchecked Sendable {
         }
     }
 
-    static func finishOutstandingSandboxAndOldAPITransactions() async {
+    func finishAllOutstandingTransactions() async {
         for await verification in Transaction.unfinished {
             guard let payload = try? verification.payloadValue else {
                 continue
             }
 
-            let logger = Logger(label: "StorePaymentManager")
             logger.debug("Unfinished transaction environment is \(payload.environment)")
 
             let isStagingEnvironment = payload.environment != .production
@@ -154,8 +152,24 @@ final actor StorePaymentManager: @unchecked Sendable {
                 .contains(payload.productID)
 
             if isStagingEnvironment || isOldAPI {
+                #if !DEBUG
+                    logger.debug(
+                        "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)")
+                    await payload.finish()
+                #else
+                    logger.debug(
+                        "Skipped transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)")
+                #endif
+            } else {
+                do {
+                    try await uploadReceipt(verification: verification)
+                } catch {
+                    logger.debug("Failed to upload receipt")
+                    continue
+                }
+
                 logger.debug(
-                    "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)")
+                    "Finishing transaction in production environment")
                 await payload.finish()
             }
         }

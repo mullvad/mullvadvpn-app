@@ -61,7 +61,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     func handlePaymentAction(_ action: PaymentAction) async {
         switch action {
         case .purchase:
-            await startRestorationBeforePurchaseFlow()
+            await startPaymentFlow()
         case .restorePurchase:
             spinnerView.startAnimating()
 
@@ -76,31 +76,6 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
                 errorPresenter.showAlertForError(.restorationError, context: .restoration) {
                     self.didFinish?()
                 }
-            }
-        }
-    }
-
-    func startRestorationBeforePurchaseFlow() async {
-        spinnerView.startAnimating()
-
-        do {
-            let outcome = try await storePaymentManager.processOutstandingTransactions()
-            spinnerView.stopAnimating()
-
-            if case .timeAdded = outcome {
-                await withCheckedContinuation { continuation in
-                    errorPresenter.showAlertForOutcome(outcome, context: .restorationBeforePurchase) {
-                        continuation.resume()
-                    }
-                }
-            }
-
-            await startPaymentFlow()
-        } catch {
-            spinnerView.stopAnimating()
-
-            errorPresenter.showAlertForError(.restorationError, context: .purchase) {
-                self.didFinish?()
             }
         }
     }
