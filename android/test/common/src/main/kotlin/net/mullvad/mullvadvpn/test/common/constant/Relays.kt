@@ -5,13 +5,15 @@ import net.mullvad.mullvadvpn.test.common.misc.TestRelay
 object Stagemole {
     val DEFAULT_RELAY = Relays.gotWg001
     val DAITA_RELAY = Relays.gotWg002RelaySoftware
+    val NON_DAITA_RELAY = Relays.gotWg001
     val QUIC_RELAY = Relays.stoWg001
     val LWO_RELAY = Relays.stoWg001
 }
 
 object Production {
     val DEFAULT_RELAY = Relays.gotWg001
-    val DAITA_RELAY = Relays.gotWg002
+    val DAITA_RELAY = Relays.saoWg201
+    val NON_DAITA_RELAY = Relays.tiaWg004
     val QUIC_RELAY = Relays.stoWg204
     val LWO_RELAY = Relays.stoWg204
     val OVERRIDE_RELAY = Relays.tiaWg004
@@ -19,6 +21,8 @@ object Production {
 
 private object Relays {
     val tiaWg004 = TestRelay(relay = "al-tia-wg-004", country = "Albania", city = "Tirana")
+
+    val saoWg201 = TestRelay(relay = "br-sao-wg-201", country = "Brazil", city = "Sao Paulo")
 
     val gotWg001 = TestRelay(relay = "se-got-wg-001", country = "Sweden", city = "Gothenburg")
     val gotWg002 = TestRelay(relay = "se-got-wg-002", country = "Sweden", city = "Gothenburg")

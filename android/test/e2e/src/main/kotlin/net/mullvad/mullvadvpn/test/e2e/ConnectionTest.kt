@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
+import net.mullvad.mullvadvpn.test.common.interactor.DaitaOption
 import net.mullvad.mullvadvpn.test.common.misc.RelayProvider
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.ObfuscationOption
@@ -190,6 +191,39 @@ class ConnectionTest : EndToEndTest() {
                 waitForConnectingLabel()
                 clickCancel()
             }
+        }
+
+    @Test
+    fun testDaita() =
+        runTest(timeout = 2.minutes) {
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
+            app.applySettings(daita = DaitaOption.Auto(true))
+
+            on<ConnectPage> { clickSelectLocation() }
+
+            on<SelectLocationPage> {
+                clickLocationExpandButton(relayProvider.getNonDaitaRelay().country)
+                clickLocationExpandButton(relayProvider.getNonDaitaRelay().city)
+                clickLocationCell(relayProvider.getNonDaitaRelay().relay)
+            }
+
+            device.acceptVpnPermissionDialog()
+
+            on<ConnectPage> {
+                waitForConnectedLabel()
+                app.applySettings(daita = DaitaOption.DirectOnly(true))
+                waitForBlockedLabel()
+                clickSelectLocation()
+            }
+
+            on<SelectLocationPage> {
+                assertDaitaChipVisible()
+                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
+                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
+                clickLocationCell(relayProvider.getDaitaRelay().relay)
+            }
+
+            on<ConnectPage> { waitForConnectedLabel() }
         }
 
     @Test
