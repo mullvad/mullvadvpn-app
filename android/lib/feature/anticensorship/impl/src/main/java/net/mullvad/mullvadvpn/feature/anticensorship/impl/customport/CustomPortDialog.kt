@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavResult
 import net.mullvad.mullvadvpn.lib.common.util.asString
+import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.PortType
 import net.mullvad.mullvadvpn.lib.ui.component.annotatedStringResource
@@ -32,7 +33,7 @@ private fun PreviewWireguardCustomPortDialog() {
         CustomPortDialog(
             title = "Custom port",
             portInput = "",
-            isValidInput = false,
+            inputError = null,
             allowedPortRanges = listOf(PortRange(10..10), PortRange(40..50)),
             recommendedPortRanges = listOf(PortRange(10..10)),
             showResetToDefault = false,
@@ -68,7 +69,7 @@ fun CustomPort(navArg: CustomPortNavKey, navigator: Navigator) {
     CustomPortDialog(
         title = title,
         portInput = uiState.portInput,
-        isValidInput = uiState.isValidInput,
+        inputError = uiState.portInputError,
         showResetToDefault = uiState.showResetToDefault,
         allowedPortRanges = uiState.allowedPortRanges,
         recommendedPortRanges = uiState.recommendedPortRanges,
@@ -83,7 +84,7 @@ fun CustomPort(navArg: CustomPortNavKey, navigator: Navigator) {
 fun CustomPortDialog(
     title: String,
     portInput: String,
-    isValidInput: Boolean,
+    inputError: ParsePortError?,
     allowedPortRanges: List<PortRange>,
     recommendedPortRanges: List<PortRange>,
     showResetToDefault: Boolean,
@@ -112,7 +113,6 @@ fun CustomPortDialog(
                     )
                 }
             },
-        confirmButtonEnabled = isValidInput,
         confirmButtonText = stringResource(id = R.string.custom_port_dialog_submit),
         onResetButtonText = stringResource(R.string.custom_port_dialog_remove),
         onBack = onDismiss,
@@ -123,9 +123,18 @@ fun CustomPortDialog(
                 value = portInput,
                 onValueChanged = onInputChanged,
                 onSubmit = onSavePort,
-                isValidValue = isValidInput,
+                isValidValue = inputError == null,
                 maxCharLength = 5,
                 modifier = Modifier.testTag(CUSTOM_PORT_DIALOG_INPUT_TEST_TAG).fillMaxWidth(),
+                errorText =
+                    when (inputError) {
+                        ParsePortError.Blank ->
+                            stringResource(R.string.custom_port_input_error_blank)
+                        is ParsePortError.NotANumber,
+                        is ParsePortError.OutOfRange ->
+                            stringResource(R.string.custom_port_input_error_out_of_range)
+                        null -> null
+                    },
             )
         },
     )

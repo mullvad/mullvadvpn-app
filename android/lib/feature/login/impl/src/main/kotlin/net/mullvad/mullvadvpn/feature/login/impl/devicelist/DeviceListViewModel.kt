@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.feature.login.impl.devicelist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.compareTo
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -89,17 +90,27 @@ class DeviceListViewModel(
     }
 
     fun continueToLogin() = viewModelScope.launch {
-        _uiSideEffect.send(DeviceListSideEffect.NavigateToLogin(accountNumber = accountNumber))
+        if (deviceList.value.size < MAXIMUM_DEVICES) {
+            _uiSideEffect.send(DeviceListSideEffect.NavigateToLogin(accountNumber = accountNumber))
+        } else {
+            _uiSideEffect.send(DeviceListSideEffect.FailedToLogin)
+        }
     }
 
     private fun removeDeviceFromState(deviceId: DeviceId) {
         deviceList.update { devices -> devices.filter { item -> item.id != deviceId } }
         loadingDevices.update { it - deviceId }
     }
+
+    companion object {
+        const val MAXIMUM_DEVICES = 5
+    }
 }
 
 sealed interface DeviceListSideEffect {
     data object FailedToRemoveDevice : DeviceListSideEffect
+
+    data object FailedToLogin : DeviceListSideEffect
 
     data class NavigateToLogin(val accountNumber: AccountNumber) : DeviceListSideEffect
 }

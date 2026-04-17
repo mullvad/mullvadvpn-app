@@ -134,7 +134,6 @@ fun RedeemVoucherDialog(
                         text = stringResource(id = R.string.redeem),
                         onClick = { onRedeem(state.voucherInput) },
                         modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
-                        isEnabled = state.voucherInput.length == VOUCHER_LENGTH,
                     )
                 }
                 PrimaryButton(
@@ -302,9 +301,9 @@ private fun EnterVoucherBody(
 
 private fun RedeemVoucherError.message(): Int =
     when (this) {
-        RedeemVoucherError.TooShortVoucher,
         RedeemVoucherError.EnteredAccountNumber,
         RedeemVoucherError.InvalidVoucher -> R.string.invalid_voucher
+        RedeemVoucherError.TooShortVoucher -> R.string.voucher_too_short
         RedeemVoucherError.VoucherAlreadyUsed -> R.string.voucher_already_used
         RedeemVoucherError.ApiUnreachable -> R.string.api_unreachable
         is RedeemVoucherError.Unknown -> R.string.error_occurred

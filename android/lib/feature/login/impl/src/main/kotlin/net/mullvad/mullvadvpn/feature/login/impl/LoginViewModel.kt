@@ -121,6 +121,14 @@ class LoginViewModel(
     }
 
     fun login(accountNumber: String) {
+        if (accountNumber.length < MIN_ACCOUNT_LOGIN_LENGTH) {
+            _loginState.value =
+                LoginState.Idle(
+                    LoginUiStateError.LoginError.InvalidInput.TooShort(AccountNumber(accountNumber))
+                )
+            return
+        }
+
         _loginState.value = LoginState.Loading.LoggingIn
         viewModelScope.launch(dispatcher) {
             val uiState =
@@ -179,7 +187,7 @@ class LoginViewModel(
             is LoginAccountError.MaxDevicesReached ->
                 LoginState.Idle().also { _uiSideEffect.send(TooManyDevices(accountNumber)) }
             is LoginAccountError.InvalidInput ->
-                LoginState.Idle(LoginUiStateError.LoginError.InvalidInput(accountNumber))
+                LoginState.Idle(LoginUiStateError.LoginError.InvalidInput.TooLong(accountNumber))
             LoginAccountError.Timeout,
             LoginAccountError.ApiUnreachable ->
                 if (isInternetAvailable()) {
@@ -219,6 +227,7 @@ class LoginViewModel(
     private fun hasPreviouslyCreatedAccount(): Boolean = uiState.value.lastUsedAccount != null
 
     companion object {
+        private const val MIN_ACCOUNT_LOGIN_LENGTH = 8
         private const val SHOW_SUCCESSFUL_LOGIN_MILLIS = 1000L
     }
 }

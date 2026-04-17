@@ -524,4 +524,16 @@
     <string name="language">Language</string>
     <string name="system_default">System default</string>
     <string name="app_icon">App icon</string>
+    <string name="custom_list_error_list_is_empty">Please enter a name</string>
+    <string name="report_problem_message_is_empty">Please enter a message</string>
+    <string name="login_error_invalid_input_short">Account number is too short</string>
+    <string name="voucher_too_short">Voucher code is too short</string>
+    <string name="invalid_address_blank_warning">Please enter an IP address</string>
+    <string name="invalid_address_invalid_warning">Invalid IP address</string>
+    <string name="mtu_input_error_invalid">Invalid MTU value</string>
+    <string name="mtu_input_error_blank">Please enter a value</string>
+    <string name="custom_port_input_error_blank">Please enter a port</string>
+    <string name="custom_port_input_error_out_of_range">Port is out of range</string>
+    <string name="import_overrides_empty_text_error">Please enter an IP override text</string>
+    <string name="remove_a_device_before_logging_in">Please remove a device before continuing logging in</string>
 </resources>

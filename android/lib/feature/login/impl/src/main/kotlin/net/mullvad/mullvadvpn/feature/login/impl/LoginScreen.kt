@@ -481,7 +481,10 @@ private fun LoginState.supportingText(
         is LoginState.Idle -> {
             when (loginUiStateError) {
                 LoginUiStateError.LoginError.InvalidCredentials -> R.string.login_fail_description
-                is LoginUiStateError.LoginError.InvalidInput -> R.string.login_error_invalid_input
+                is LoginUiStateError.LoginError.InvalidInput.TooShort ->
+                    R.string.login_error_invalid_input_short
+                is LoginUiStateError.LoginError.InvalidInput.TooLong ->
+                    R.string.login_error_invalid_input
                 LoginUiStateError.LoginError.NoInternetConnection,
                 LoginUiStateError.CreateAccountError.NoInternetConnection ->
                     R.string.no_internet_connection
