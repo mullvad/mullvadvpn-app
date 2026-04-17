@@ -154,6 +154,7 @@ function setup_repo {
     cp "$apk" "repo/net.mullvad.mullvadvpn_$version_code.apk"
 
     # Copy the release notes into the repo
+    mkdir -p "metadata/net.mullvad.mullvadvpn/en-US/changelogs"
     cp "../../../../android/src/main/play/release-notes/en-US/default.txt" "metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
 }
 
