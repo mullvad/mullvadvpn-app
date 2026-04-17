@@ -6,9 +6,9 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-METADATA_FILE="$SCRIPT_DIR/metadata/net.mullvad.mullvadvpn.yml"
+REPO_DIR="dist/fdroid"
+METADATA_FILE="$REPO_DIR/metadata/net.mullvad.mullvadvpn.yml"
 CONFIG_FILE="$SCRIPT_DIR/config.yml"
-UPLOAD_DIR="/upload"
 PROVIDER_ARG="${PROVIDER_ARG:-/usr/local/etc/pkcs11_java.cfg}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
 cd "$SCRIPT_DIR"
@@ -46,9 +46,6 @@ function main {
 
         sign
         ;;
-    "-d"|"--deploy")
-        deploy "$2"
-        ;;
     "-h"|"--help")
         print_usage
         exit 0
@@ -59,20 +56,6 @@ function main {
         exit 1
         ;;
     esac
-}
-
-function deploy {
-    if (( $# < 1 )); then
-        echo "Provide the path to an upload directory" >&2
-        exit 1
-    fi
-
-    local upload_dir="$1"
-
-    # Set upload dir in the config file
-    echo "local_copy_dir: ${upload_dir}/fdroid" >> "$CONFIG_FILE"
-
-    fdroid deploy
 }
 
 function sign {
@@ -131,31 +114,36 @@ function setup_repo {
 
     local apk="/build/$1"
 
-    local version_name=$(apkanalyzer manifest version-name "$apk")
     local version_code=$(apkanalyzer manifest version-code "$apk")
 
-    # Copy the metadata file from android/fdroid-build
-    mkdir -p "../../../../android/fdroid-build/metadata"
-    cp "../../../../android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml" "$METADATA_FILE"
+    # Create repo folder if needed
+    mkdir -p "/build/$REPO_DIR"
 
-    # Replace builds
-    sed "s/^[[:space:]]*- versionName: .*/  - versionName: '${version_name}'/" \
-    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
-    sed "s/^[[:space:]]*versionCode: .*/    versionCode: ${version_code}/" \
-    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
+    # Copy the config file if required
+    if [ ! -f "/build/$REPO_DIR/config.yml" ]; then
+        cp "config.yml" "/build/$REPO_DIR/config.yml"
+    fi
 
-    # Replace current version
-    sed "s/^CurrentVersion: .*/CurrentVersion: '${version_name}'/" \
-    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
-    sed "s/^CurrentVersionCode: .*/CurrentVersionCode: ${version_code}/" \
-    "$METADATA_FILE" > /tmp/tmpfile && mv /tmp/tmpfile "$METADATA_FILE"
+    # Copy the metadata file if required
+    if [ ! -f "/build/$METADATA_FILE" ]; then
+        mkdir -p "/build/$REPO_DIR/metadata"
+        cp "metadata/net.mullvad.mullvadvpn.yml" "/build/$METADATA_FILE"
+    fi
+
+    # Copy the icon file if required
+    if [ ! -f "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images/icon.png" ]; then
+        mkdir -p "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images"
+        cp "metadata/net.mullvad.mullvadvpn/en-US/images/icon.png" \
+        "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images/icon.png"
+    fi
 
     # Copy the apk file into the repo
     cp "$apk" "repo/net.mullvad.mullvadvpn_$version_code.apk"
 
     # Copy the release notes into the repo
-    mkdir -p "metadata/net.mullvad.mullvadvpn/en-US/changelogs"
-    cp "../../../../android/src/main/play/release-notes/en-US/default.txt" "metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
+    mkdir -p "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs"
+    cp "../../../../android/src/main/play/release-notes/en-US/default.txt" \
+    "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
 }
 
 main "$@"

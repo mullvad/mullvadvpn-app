@@ -164,12 +164,10 @@ function build_sign_and_publish_ref {
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
     if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
-        local upload_dir="$BUILD_DIR/dist/publish/fdroid"
-        mkdir -p "$upload_dir"
-        upload_fdroid "$artifact_dir/MullvadVPN-$version.apk" "$upload_dir" || clean_fdroid_repo "$upload_dir" && echo "Failed deploy f-droid repo"
+        update_fdroid "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed deploy f-droid repo"
+        
         # TODO call rsync or rsync script here
-
-        clean_fdroid_repo "$upload_dir"
+        # We should send the fdroid repo to the upload somehow
     fi
 
     # shellcheck disable=SC2216
@@ -180,32 +178,18 @@ function build_sign_and_publish_ref {
     echo ""
 }
 
-function upload_fdroid {
+function update_fdroid {
     local artifact="$1"
-    local upload_dir=$2
 
-    local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
+    local fdroid_repo="$BUILD_DIR/dist/fdroid"
 
     # Update the fdroid repo
-    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --update $artifact"
+    run_in_android_container "./ci/android/build-server/fdroid/fdroid.sh --update $artifact"
 
     # Sign the the fdroid repo
     YUBIKEY_PIN=$YUBIKEY_PIN \
     YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
     "./android/scripts/containerized-sign.sh" "$fdroid_repo" '/fdroid-deploy.sh --sign'
-
-    # Move the repo to the upload folder
-    run_in_android_container "$fdroid_repo/fdroid-deploy.sh --publish $upload_dir"
-}
-
-function clean_fdroid_repo {
-    local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
-    local upload_dir="$1"
-
-    yes | rm -r "$upload_dir"
-    pushd "$fdroid_repo"
-    git clean -fd
-    popd
 }
 
 cd "$BUILD_DIR"

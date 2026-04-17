@@ -5,6 +5,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 CONTAINER_IMAGE_NAME=$(cat "$SCRIPT_DIR/../../building/android-container-image.txt")
+FDROID_DIR="$SCRIPT_DIR/../../ci/android/build-server/fdroid"
 
 SIGN_DIR=${1:?'Usage: containerized-sign.sh <sign-dir> <bash-command>'}
 
@@ -41,6 +42,7 @@ trap cleanup EXIT
     --secret YUBIKEY_PIN,type=env \
     -v "$SCRIPT_DIR/wait-for-pcscd.sh:/wait-for-pcscd.sh:Z" \
     -v "$SCRIPT_DIR/sign.sh:/sign.sh:Z" \
+    -v "$FDROID_DIR/fdroid.sh:/fdroid.sh:Z"
     -v "$SIGN_DIR:/sign_dir:Z" \
     "${optional_override_provider_config[@]}" \
     -w "/sign_dir" \
