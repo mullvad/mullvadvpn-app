@@ -10,12 +10,6 @@ class TooManyDevicesPage internal constructor() : Page() {
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(tooManyDevicesSelector)
-
-        // Assert that we have too many devices
-        // And that the continue with login button is disabled
-        uiDevice.findObjectWithTimeout(
-            By.text("Continue with login").hasParent(By.enabled((false)))
-        )
     }
 
     fun clickRemoveDevice(deviceName: String) {

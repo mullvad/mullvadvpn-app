@@ -102,20 +102,6 @@ class CreateCustomListDialogTest {
     }
 
     @Test
-    fun givenEmptyTextInputWhenSubmitIsClickedThenShouldNotCallOnCreate() = composeExtension.use {
-        // Arrange
-        val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)
-        val state = CreateCustomListUiState()
-        initDialog(state, createCustomList = mockedCreateCustomList)
-
-        // Act
-        onNodeWithText(CREATE_BUTTON_TEXT).performClick()
-
-        // Assert
-        verify(exactly = 0) { mockedCreateCustomList.invoke(any()) }
-    }
-
-    @Test
     fun givenValidTextInputWhenSubmitIsClickedThenShouldCallOnCreate() = composeExtension.use {
         // Arrange
         val mockedCreateCustomList: (String) -> Unit = mockk(relaxed = true)

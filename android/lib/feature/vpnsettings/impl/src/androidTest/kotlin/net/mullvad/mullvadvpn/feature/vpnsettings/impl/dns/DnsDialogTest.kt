@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns
 
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import de.mannodermaus.junit5.compose.ComposeContext
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -82,40 +81,11 @@ class DnsDialogTest {
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
         }
 
-    @Test
-    fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() = composeExtension.use {
-        // Arrange
-        initDialog(
-            defaultState.copy(
-                input = invalidIpAddress,
-                validationError = ValidationError.InvalidAddress,
-            )
-        )
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
-    @Test
-    fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() = composeExtension.use {
-        // Arrange
-        initDialog(
-            defaultState.copy(
-                input = localIpAddress,
-                validationError = ValidationError.DuplicateAddress,
-            )
-        )
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
     companion object {
         private const val LOCAL_DNS_SERVER_WARNING =
             "The local DNS server will not work unless you enable " +
                 "\"Local Network Sharing\" under VPN settings."
 
-        private const val invalidIpAddress = "300.300.300.300"
         private const val localIpAddress = "192.168.0.1"
         private const val publicIpAddress = "1.1.1.1"
     }

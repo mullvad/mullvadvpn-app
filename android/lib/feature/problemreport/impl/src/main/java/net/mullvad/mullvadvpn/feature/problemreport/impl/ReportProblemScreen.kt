@@ -62,6 +62,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
@@ -223,7 +224,11 @@ private fun InputContent(
             ),
     )
 
-    ProblemMessageTextField(value = state.description, onDescriptionChanged = onDescriptionChanged)
+    ProblemMessageTextField(
+        value = state.description,
+        isError = state.descriptionError != null,
+        onDescriptionChanged = onDescriptionChanged,
+    )
 
     if (state.showIncludeAccountId) {
         IncludeAccountInformationCheckBox(
@@ -244,11 +249,7 @@ private fun InputContent(
             isLoading = state.logCollectingState == LogCollectingState.Loading,
         )
         Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-        VariantButton(
-            onClick = onSendReport,
-            isEnabled = state.description.isNotEmpty(),
-            text = stringResource(id = R.string.send),
-        )
+        VariantButton(onClick = onSendReport, text = stringResource(id = R.string.send))
     }
 }
 
@@ -377,6 +378,7 @@ private fun AccountInformationWarning(
 private fun ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
+    isError: Boolean,
     onDescriptionChanged: (String) -> Unit,
 ) {
 
@@ -388,6 +390,11 @@ private fun ProblemMessageTextField(
         value = value,
         onValueChange = onDescriptionChanged,
         placeholder = { Text(stringResource(R.string.user_message_hint)) },
+        isError = isError,
+        supportingText =
+            if (isError) {
+                { ErrorSupportingText(stringResource(R.string.report_problem_message_is_empty)) }
+            } else null,
         colors = mullvadDarkTextFieldColors(),
         keyboardOptions =
             KeyboardOptions(

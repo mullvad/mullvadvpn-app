@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
+import net.mullvad.mullvadvpn.lib.model.ParseMtuError
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.MtuTextField
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -26,7 +27,7 @@ private fun PreviewMtuDialog() {
     AppTheme {
         MtuDialog(
             state =
-                MtuDialogUiState(mtuInput = "1300", isValidInput = true, showResetToDefault = true),
+                MtuDialogUiState(mtuInput = "1300", inputError = null, showResetToDefault = true),
             onInputChanged = {},
             onSaveMtu = {},
             onResetMtu = {},
@@ -70,7 +71,6 @@ fun MtuDialog(
             AnnotatedString(
                 stringResource(id = R.string.wireguard_mtu_footer, MTU_MIN_VALUE, MTU_MAX_VALUE)
             ),
-        confirmButtonEnabled = state.isValidInput,
         onBack = onDismiss,
         onConfirm = { onSaveMtu(state.mtuInput) },
         onReset =
@@ -87,8 +87,16 @@ fun MtuDialog(
                 isEnabled = true,
                 placeholderText = stringResource(R.string.enter_value_placeholder),
                 maxCharLength = 4,
-                isValidValue = state.isValidInput,
+                isValidValue = state.inputError == null,
                 modifier = Modifier.fillMaxWidth(),
+                errorText =
+                    when (state.inputError) {
+                        ParseMtuError.Blank -> stringResource(id = R.string.mtu_input_error_blank)
+                        ParseMtuError.NotANumber,
+                        is ParseMtuError.OutOfRange ->
+                            stringResource(id = R.string.mtu_input_error_invalid)
+                        null -> null
+                    },
             )
         },
     )
