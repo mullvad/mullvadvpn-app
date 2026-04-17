@@ -2,6 +2,15 @@ import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/c
 import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { Scheduler } from '../shared/scheduler';
 
+// Returns true if `to` is a valid completion of an optimistic `from` state.
+function completesTransition(from: TunnelState['state'], to: TunnelState['state']): boolean {
+  return (
+    (from === 'connecting' && to === 'connected') ||
+    (from === 'disconnecting' && to === 'disconnected') ||
+    to === 'error'
+  );
+}
+
 export interface TunnelStateProvider {
   getTunnelState(): TunnelState;
 }
@@ -56,7 +65,10 @@ export default class TunnelStateHandler {
     // If there's a fallback state set then the app is in an assumed next state and need to check
     // if it's now reached or if the current state should be ignored and set as the fallback state.
     if (this.tunnelStateFallback) {
-      if (this.tunnelState.state === newState.state || newState.state === 'error') {
+      if (
+        this.tunnelState.state === newState.state ||
+        completesTransition(this.tunnelState.state, newState.state)
+      ) {
         this.tunnelStateFallbackScheduler.cancel();
         this.tunnelStateFallback = undefined;
       } else {
