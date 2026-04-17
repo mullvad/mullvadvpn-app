@@ -3350,7 +3350,13 @@ msgstr ""
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
+msgid "Invalid IP address"
+msgstr ""
+
 msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr ""
+
+msgid "Invalid MTU value"
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
@@ -3464,19 +3470,43 @@ msgstr ""
 msgid "Patch not matching specification"
 msgstr ""
 
+msgid "Please enter a message"
+msgstr ""
+
+msgid "Please enter a name"
+msgstr ""
+
+msgid "Please enter a port"
+msgstr ""
+
 msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr ""
 
 msgid "Please enter a valid remote server port"
 msgstr ""
 
+msgid "Please enter a value"
+msgstr ""
+
+msgid "Please enter an IP address"
+msgstr ""
+
+msgid "Please enter an IP override text"
+msgstr ""
+
 msgid "Please press connect to request VPN permission"
+msgstr ""
+
+msgid "Please remove a device before continuing logging in"
 msgstr ""
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr ""
 
 msgid "Please try changing your filters."
+msgstr ""
+
+msgid "Port is out of range"
 msgstr ""
 
 msgid "Privacy"
@@ -3720,6 +3750,9 @@ msgid "Verifying purchase..."
 msgstr ""
 
 msgid "Verifying voucher…"
+msgstr ""
+
+msgid "Voucher code is too short"
 msgstr ""
 
 msgid "Warning"

@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
@@ -88,15 +87,6 @@ class CustomPortDialogTest {
     }
 
     @Test
-    fun testEmptyInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
-        // Arrange
-        initDialog(isValidInput = false)
-
-        // Assert
-        onNodeWithText("Set port").assertIsNotEnabled()
-    }
-
-    @Test
     fun testValidInputResultsInSetPortButtonBeingEnabled() = composeExtension.use {
         // Arrange
         initDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
@@ -104,15 +94,6 @@ class CustomPortDialogTest {
         // Assert
         onNodeWithText("Set port").assertIsEnabled()
         onNodeWithText(VALID_CUSTOM_PORT).assertExists()
-    }
-
-    @Test
-    fun testInvalidInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
-        // Arrange
-        initDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
-
-        // Assert
-        onNodeWithText("Set port").assertIsNotEnabled()
     }
 
     @Test

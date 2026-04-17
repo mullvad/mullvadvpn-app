@@ -23,6 +23,7 @@ data class ReportProblemUiState(
     val sendingState: SendingReportUiState? = null,
     val email: String = "",
     val description: String = "",
+    val descriptionError: DescriptionError? = null,
     val showIncludeAccountId: Boolean = false,
     val includeAccountId: Boolean = false,
     val showIncludeAccountWarningMessage: Boolean = false,
@@ -50,6 +51,10 @@ sealed interface ReportProblemSideEffect {
     data object ShowConfirmNoEmail : ReportProblemSideEffect
 }
 
+sealed interface DescriptionError {
+    data object Empty : DescriptionError
+}
+
 class ReportProblemViewModel(
     private val mullvadProblemReporter: ProblemReportRepository,
     private val problemReportRepository: ProblemReportRepository,
@@ -63,6 +68,7 @@ class ReportProblemViewModel(
         MutableStateFlow(false)
     private val areLogsCollected: MutableStateFlow<LogCollectingState> =
         MutableStateFlow(LogCollectingState.Loading)
+    private val descriptionError: MutableStateFlow<DescriptionError?> = MutableStateFlow(null)
 
     val uiState =
         combine(
@@ -72,13 +78,15 @@ class ReportProblemViewModel(
                 problemReportRepository.problemReport,
                 accountRepository.accountData,
                 areLogsCollected,
+                descriptionError,
             ) {
                 sendingState,
                 includeAccountToken,
                 showIncludeAccountWarningMessage,
                 userReport,
                 accountData,
-                areLogsCollected ->
+                areLogsCollected,
+                descriptionError ->
                 ReportProblemUiState(
                     sendingState = sendingState,
                     email = userReport.email ?: "",
@@ -88,6 +96,7 @@ class ReportProblemViewModel(
                     showIncludeAccountWarningMessage = showIncludeAccountWarningMessage,
                     logCollectingState = areLogsCollected,
                     isPlayBuild = isPlayBuild,
+                    descriptionError = descriptionError,
                 )
             }
             .stateIn(
@@ -101,6 +110,11 @@ class ReportProblemViewModel(
 
     fun sendReport(email: String, description: String, skipEmptyEmailCheck: Boolean = false) {
         viewModelScope.launch {
+            if (description.isBlank()) {
+                descriptionError.emit(DescriptionError.Empty)
+                return@launch
+            }
+
             val userEmail = email.trim()
             val nullableEmail = if (email.isEmpty()) null else userEmail
             if (!skipEmptyEmailCheck && shouldShowConfirmNoEmail(nullableEmail)) {
@@ -138,6 +152,7 @@ class ReportProblemViewModel(
 
     fun updateDescription(description: String) {
         problemReportRepository.setDescription(description)
+        descriptionError.tryEmit(null)
     }
 
     fun onIncludeAccountIdCheckChange(checked: Boolean) {
