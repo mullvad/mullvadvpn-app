@@ -1,1 +1,1 @@
-ghcr.io/mullvad/mullvadvpn-app-build-android:849aa759bf
+ghcr.io/mullvad/mullvadvpn-app-build-android:6103dbf051
