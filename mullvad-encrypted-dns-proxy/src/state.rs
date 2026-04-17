@@ -62,7 +62,7 @@ impl EncryptedDnsProxyState {
     pub async fn fetch_configs(&mut self, domain: &str) -> Result<(), FetchConfigError> {
         match resolve_default_config(domain).await {
             Ok(new_configs) => {
-                self.configurations = HashSet::from_iter(new_configs.into_iter());
+                self.configurations = HashSet::from_iter(new_configs);
             }
             Err(err) => {
                 log::error!("Failed to fetch a new proxy configuration: {err:?}");

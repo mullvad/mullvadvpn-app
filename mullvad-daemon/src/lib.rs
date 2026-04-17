@@ -1681,12 +1681,12 @@ impl Daemon {
                 log::info!("Disconnecting because account number was cleared");
                 self.set_target_state(TargetState::Unsecured).await;
             }
-            AccountEvent::Device(PrivateDeviceEvent::Revoked) => {
-                // If we're currently in a secured state, reconnect to make sure we immediately
-                // enter the error state.
-                if *self.target_state == TargetState::Secured {
-                    self.connect_tunnel();
-                }
+            // If we're currently in a secured state, reconnect to make sure we immediately
+            // enter the error state.
+            AccountEvent::Device(PrivateDeviceEvent::Revoked)
+                if *self.target_state == TargetState::Secured =>
+            {
+                self.connect_tunnel();
             }
             AccountEvent::Device(PrivateDeviceEvent::RotatedKey(_)) => {
                 self.schedule_reconnect(WG_RECONNECT_DELAY);

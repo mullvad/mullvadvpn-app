@@ -47,12 +47,10 @@ impl log::Log for StdOutBuffer {
                         .send(Output::Warning(format!("{}", record.args())))
                         .unwrap();
                 }
-                Level::Info => {
-                    if !record.metadata().target().contains("tarpc") {
-                        self.1
-                            .send(Output::Info(format!("{}", record.args())))
-                            .unwrap();
-                    }
+                Level::Info if !record.metadata().target().contains("tarpc") => {
+                    self.1
+                        .send(Output::Info(format!("{}", record.args())))
+                        .unwrap();
                 }
                 _ => (),
             }
