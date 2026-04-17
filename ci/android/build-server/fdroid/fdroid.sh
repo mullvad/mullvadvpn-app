@@ -138,7 +138,7 @@ function setup_repo {
     fi
 
     # Copy the apk file into the repo
-    cp "$apk" "$REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk"
+    cp "$apk" "/build/$REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk"
 
     # Copy the release notes into the repo
     mkdir -p "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs"
