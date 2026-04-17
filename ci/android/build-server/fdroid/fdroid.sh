@@ -35,6 +35,7 @@ function main {
     case "$1" in
     "-u"|"--update")
         setup_repo "$2"
+        cd "/build/$REPO_DIR"
         fdroid update --nosign
         ;;
     "-s"|"--sign")
