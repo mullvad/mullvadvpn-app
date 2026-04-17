@@ -159,10 +159,10 @@ fn start_event_monitor(
                     }
                     _ => (),
                 },
-                ServiceControl::SessionChange(details) => {
-                    if details.reason == SessionChangeReason::SessionLogoff {
-                        hibernation_detector.register_logoff(details.notification.session_id);
-                    }
+                ServiceControl::SessionChange(details)
+                    if details.reason == SessionChangeReason::SessionLogoff =>
+                {
+                    hibernation_detector.register_logoff(details.notification.session_id);
                 }
                 _ => (),
             }
