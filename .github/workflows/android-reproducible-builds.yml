@@ -169,6 +169,8 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - name: Build app
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
         run: nix develop .#android -c buildRelease
 
       - name: Upload apks
