@@ -2,11 +2,13 @@ package net.mullvad.mullvadvpn.lib.usecase.customlists
 
 import arrow.core.Either
 import arrow.core.raise.either
+import arrow.core.raise.ensure
 import kotlinx.coroutines.flow.firstOrNull
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.getRelayItemsByCodes
 import net.mullvad.mullvadvpn.lib.model.CreateCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
+import net.mullvad.mullvadvpn.lib.model.NameIsEmpty
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListLocationsError
 import net.mullvad.mullvadvpn.lib.model.UpdateCustomListNameError
 import net.mullvad.mullvadvpn.lib.model.communication.Created
@@ -42,14 +44,23 @@ class CustomListActionUseCase(
     }
 
     suspend operator fun invoke(action: CustomListAction.Rename): Either<RenameError, Renamed> =
-        customListsRepository
-            .updateCustomListName(action.id, action.newName)
-            .map { Renamed(undo = action.not()) }
-            .mapLeft(::RenameError)
+        either {
+            ensure(action.newName.value.isNotBlank()) { RenameError(NameIsEmpty(action.name)) }
+
+            customListsRepository
+                .updateCustomListName(action.id, action.newName)
+                .map { Renamed(undo = action.not()) }
+                .mapLeft(::RenameError)
+                .bind()
+        }
 
     suspend operator fun invoke(
         action: CustomListAction.Create
     ): Either<CreateWithLocationsError, Created> = either {
+        ensure(action.name.value.isNotBlank()) {
+            CreateWithLocationsError.Create(NameIsEmpty(action.name))
+        }
+
         val customListId =
             customListsRepository
                 .createCustomList(action.name, action.locations)

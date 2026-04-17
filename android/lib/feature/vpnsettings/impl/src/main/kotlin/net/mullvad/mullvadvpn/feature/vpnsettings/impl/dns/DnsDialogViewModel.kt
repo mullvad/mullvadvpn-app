@@ -55,10 +55,13 @@ data class DnsDialogViewState(
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 }
 
-sealed class ValidationError {
-    data object InvalidAddress : ValidationError()
+sealed interface ValidationError {
+    sealed interface InvalidAddress : ValidationError {
+        data object Blank : InvalidAddress
+        data object InvalidIp : InvalidAddress
+    }
 
-    data object DuplicateAddress : ValidationError()
+    data object DuplicateAddress : ValidationError
 }
 
 class DnsDialogViewModel(
@@ -112,8 +115,8 @@ class DnsDialogViewModel(
         index: Int?,
         dnsList: List<InetAddress>,
     ): Either<ValidationError, InetAddress> = either {
-        ensure(isNotBlank()) { ValidationError.InvalidAddress }
-        ensure(isValidIp()) { ValidationError.InvalidAddress }
+        ensure(isNotBlank()) { ValidationError.InvalidAddress.Blank }
+        ensure(isValidIp()) { ValidationError.InvalidAddress.InvalidIp }
         val inetAddress = InetAddress.getByName(this@validateDnsEntry)
         ensure(!inetAddress.isDuplicateDnsEntry(index, dnsList)) {
             ValidationError.DuplicateAddress

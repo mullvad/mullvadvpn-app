@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.ParseMtuError
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class MtuDialogViewModel(
@@ -25,34 +26,42 @@ class MtuDialogViewModel(
 ) : ViewModel() {
 
     private val _mtuInput = MutableStateFlow(navArgs.initialMtu?.value?.toString() ?: "")
-    private val _isValidMtu = MutableStateFlow(Mtu.fromString(_mtuInput.value).isRight())
+    private val _inputError = MutableStateFlow<ParseMtuError?>(null)
 
     val uiState: StateFlow<MtuDialogUiState> =
-        combine(_mtuInput, _isValidMtu, ::createState)
+        combine(_mtuInput, _inputError, ::createState)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                createState(_mtuInput.value, _isValidMtu.value),
+                createState(_mtuInput.value, _inputError.value),
             )
 
     private val _uiSideEffect = Channel<MtuDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private fun createState(mtuInput: String, isValidMtuInput: Boolean) =
+    private fun createState(mtuInput: String, parseMtuError: ParseMtuError?) =
         MtuDialogUiState(
             mtuInput = mtuInput,
-            isValidInput = isValidMtuInput,
+            inputError = parseMtuError,
             showResetToDefault = navArgs.initialMtu != null,
         )
 
     fun onInputChanged(value: String) {
         _mtuInput.value = value
-        _isValidMtu.value = Mtu.fromString(value).isRight()
+        _inputError.value = null
     }
 
     fun onSaveClick(mtuValue: String) =
         viewModelScope.launch(dispatcher) {
-            val mtu = Mtu.fromString(mtuValue).getOrNull() ?: return@launch
+            val mtu =
+                Mtu.fromString(mtuValue)
+                    .fold(
+                        {
+                            _inputError.value = it
+                            return@launch
+                        },
+                        { it },
+                    )
             repository
                 .setWireguardMtu(mtu)
                 .fold(
@@ -80,6 +89,6 @@ sealed interface MtuDialogSideEffect {
 
 data class MtuDialogUiState(
     val mtuInput: String,
-    val isValidInput: Boolean,
+    val inputError: ParseMtuError?,
     val showResetToDefault: Boolean,
 )

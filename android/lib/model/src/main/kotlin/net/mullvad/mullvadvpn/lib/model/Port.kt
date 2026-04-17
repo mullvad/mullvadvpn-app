@@ -16,6 +16,7 @@ value class Port(val value: Int) : Parcelable {
 
     companion object {
         fun fromString(value: String): Either<ParsePortError, Port> = either {
+            ensure(value.isNotBlank()) { ParsePortError.Blank }
             val number = value.toIntOrNull() ?: raise(ParsePortError.NotANumber(value))
             ensure(number in MIN_VALUE..MAX_VALUE) { ParsePortError.OutOfRange(number) }
             Port(number)
@@ -27,6 +28,8 @@ value class Port(val value: Int) : Parcelable {
 }
 
 sealed interface ParsePortError {
+    data object Blank : ParsePortError
+
     data class NotANumber(val input: String) : ParsePortError
 
     data class OutOfRange(val value: Int) : ParsePortError

@@ -8,6 +8,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.CustomTextField
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 @Composable
@@ -18,6 +19,7 @@ fun CustomPortTextField(
     onValueChanged: (String) -> Unit,
     isValidValue: Boolean,
     maxCharLength: Int,
+    errorText: String?,
 ) {
     CustomTextField(
         value = value,
@@ -35,5 +37,6 @@ fun CustomPortTextField(
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = true,
         textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
+        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
     )
 }
