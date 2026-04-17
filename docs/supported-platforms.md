@@ -23,7 +23,9 @@ Supported versions: 10 (Version 19H2 and newer) and 11. Both x64 and arm64.
 
 | Version        | Architecture | Type of test |
 |----------------|--------------|--------------|
-| 10 (21H2)     | x64          | e2e, manual  |
+| 10 (21H2)      | x64          | e2e, manual  |
+| 11 (22h2)      | x64          | e2e, manual  |
+| 11 (25h2)      | ARM          | manual       |
 
 ## macOS
 
@@ -33,8 +35,10 @@ Supported versions: The three most recent major releases. Both 64-bit Intel, and
 
 | Version          | Architecture | Type of test |
 |------------------|--------------|--------------|
-| 14 (Sonoma)     | Intel        | e2e          |
-| 15 (Sequoia)    | ARM          | e2e, manual  |
+| 14 (Sonoma)      | Intel        | e2e          |
+| 14 (Sonoma)      | ARM          | e2e, manual  |
+| 15 (Sequoia)     | ARM          | e2e, manual  |
+| 26 (Tahoe)       | ARM          | e2e, manual  |
 
 ## Linux
 
@@ -52,7 +56,14 @@ DEs, but we don't regularly test those.
 
 | Distribution + version | Architecture | Type of test |
 |------------------------|--------------|--------------|
-| Debian 12              | x86_64       | e2e, manual  |
+| Debian 12              | x86_64       | manual       |
+| Debian 13              | x86_64       | e2e, manual  |
+| Ubuntu 22.04           | x86_64       | e2e, manual  |
+| Ubuntu 24.04           | x86_64       | e2e, manual  |
+| Ubuntu 25.04           | x86_64       | e2e, manual  |
+| Ubuntu 25.10           | x86_64       | e2e, manual  |
+| Fedora 42              | x86_64       | e2e, manual  |
+| Fedora 43              | x86_64       | e2e, manual  |
 
 ## Android
 
