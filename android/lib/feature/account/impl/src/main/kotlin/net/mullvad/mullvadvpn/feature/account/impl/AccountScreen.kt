@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.account.impl
 
+import android.content.Intent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -166,6 +169,16 @@ fun AccountScreen(
                 verticalArrangement = Arrangement.spacedBy(Dimens.accountRowSpacing),
                 modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize(),
             ) {
+                val context = LocalContext.current
+
+                Button (onClick = {
+                    val intent = Intent("android.settings.VPN_APP_EXCLUSION_SETTINGS")
+                    context.startActivity(intent)
+                }) {
+                    Text("Launch system VPN app exclusion settings")
+                }
+
+
                 DeviceNameRow(
                     deviceName = state?.deviceName ?: "",
                     onManageDevicesClick = onManageDevicesClick,
