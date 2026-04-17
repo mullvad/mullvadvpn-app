@@ -151,7 +151,7 @@ function build_sign_and_publish_ref {
     if [[ "$ENABLE_SIGNING" == "true" ]]; then
         YUBIKEY_PIN=$YUBIKEY_PIN \
         YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" || return 1
+        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" 'shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk' || return 1
     else
         echo "WARNING: Signing skipped for $version"
     fi
@@ -164,12 +164,12 @@ function build_sign_and_publish_ref {
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
     if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
-        local upload_dir="$BUILD_DIR/$publish"
+        local upload_dir="$BUILD_DIR/dist/publish/fdroid"
         mkdir -p "$upload_dir"
-        upload_fdroid "$artifact_dir" "$upload_dir" || yes | rm -r "$upload_dir" && echo "Failed deploy f-droid repo"
+        upload_fdroid "$artifact_dir/MullvadVPN-$versionName.apk" "$upload_dir" || clean_fdroid_repo "$upload_dir" && echo "Failed deploy f-droid repo"
         # TODO call rsync or rsync script here
 
-        rm -r "$upload_dir"
+        clean_fdroid_repo "$upload_dir"
     fi
 
     # shellcheck disable=SC2216
@@ -181,7 +181,7 @@ function build_sign_and_publish_ref {
 }
 
 function upload_fdroid {
-    local artifact="$1/MullvadVPN-$versionName.apk"
+    local artifact="$1"
     local upload_dir=$2
 
     local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
@@ -190,10 +190,22 @@ function upload_fdroid {
     run_in_android_container "$fdroid_repo/fdroid-deploy.sh --update $artifact"
 
     # Sign the the fdroid repo
-    "./android/scripts/containerized-sign.sh" "$fdroid_repo" "$fdroid_repo/fdroid-deploy.sh --sign"
+    YUBIKEY_PIN=$YUBIKEY_PIN \
+    YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
+    "./android/scripts/containerized-sign.sh" "$fdroid_repo" '/fdroid-deploy.sh --sign'
 
     # Move the repo to the upload folder
     run_in_android_container "$fdroid_repo/fdroid-deploy.sh --publish $upload_dir"
+}
+
+function clean_fdroid_repo {
+    local fdroid_repo="$BUILD_DIR/ci/android/build-server/fdroid"
+    local upload_dir="$1"
+
+    yes | rm -r "$upload_dir"
+    pushd "$fdroid_repo"
+    git clean -fd
+    pop
 }
 
 cd "$BUILD_DIR"

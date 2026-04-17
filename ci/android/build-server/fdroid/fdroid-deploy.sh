@@ -47,7 +47,7 @@ function main {
         sign
         ;;
     "-d"|"--deploy")
-        publish "$2"
+        deploy "$2"
         ;;
     "-h"|"--help")
         print_usage
@@ -61,7 +61,12 @@ function main {
     esac
 }
 
-function publish {
+function deploy {
+    if (( $# < 1 )); then
+        echo "Provide the path to an upload directory" >&2
+        exit 1
+    fi
+
     local upload_dir="$1"
 
     # Set upload dir in the config file
