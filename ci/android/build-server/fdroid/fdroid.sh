@@ -127,13 +127,13 @@ function setup_repo {
     # Copy the metadata file if required
     if [ ! -f "/build/$METADATA_FILE" ]; then
         mkdir -p "/build/$REPO_DIR/metadata"
-        cp "metadata/net.mullvad.mullvadvpn.yml" "/build/$METADATA_FILE"
+        cp "net.mullvad.mullvadvpn.yml" "/build/$METADATA_FILE"
     fi
 
     # Copy the icon file if required
     if [ ! -f "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images/icon.png" ]; then
         mkdir -p "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images"
-        cp "metadata/net.mullvad.mullvadvpn/en-US/images/icon.png" \
+        cp "icon.png" \
         "/build/$REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/images/icon.png"
     fi
 
