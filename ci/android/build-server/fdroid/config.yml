@@ -10,11 +10,4 @@ repo_description: >-
    is unavailable. Currently the apps are signed differently
    from the main repo so an uninstall is needed.
 #
-keystore: NONE
-repo_keyalias: "X.509 Certificate for PIV Authentication"
-smartcardoptions: |
-   -providerClass sun.security.pkcs11.SunPKCS11
-   -providerArg /usr/local/etc/pkcs11_java.cfg
-   -storetype PKCS11
-keystorepass: {env: FDROID_KEYSTORE_PASS}
 repo_pubkey: 69de4054e017364efc99d40bd625aa812c9513110ccb5453e6df1f5c77c081df
