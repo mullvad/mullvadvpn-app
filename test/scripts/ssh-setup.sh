@@ -113,8 +113,13 @@ EOF
 }
 
 function create_test_user_linux {
-    echo "Adding test user account"
-    useradd -m "$UNPRIVILEGED_USER"
+    # Only create user if it does not yet exist.
+    if [[ id "$UNPRIVILEGED_USER" >/dev/null 2>&1 -ne 0 ]]; then
+        echo "Adding test user account"
+        useradd -m "$UNPRIVILEGED_USER"
+    else
+        echo "User $UNPRIVILEGED_USER already exists. Updating its password"
+    fi
     echo "$UNPRIVILEGED_USER:$UNPRIVILEGED_USER" | chpasswd
 }
 
