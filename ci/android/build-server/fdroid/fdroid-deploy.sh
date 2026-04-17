@@ -89,7 +89,7 @@ function sign {
     # Place index-v1 in a jar and sign
     local index_v1_json="index-v1.json"
     local index_v1_jar="index-v1.jar"
-    tar -cf "$index_v1_jar" "$index_v1_json"
+    zip -r "$index_v1_jar" "$index_v1_json"
     jarsigner_sign "$index_v1_jar"
     echo "Index v1 jar signed"
 
@@ -97,7 +97,7 @@ function sign {
     # This uses apksigner as that is what fdroid does, unclear if we actually need to
     local entry_json="entry.json"
     local entry_jar="entry.jar"
-    tar -cf "$entry_jar" "$entry_json"
+    zip -r "$entry_jar" "$entry_json"
     apksigner_sign "$entry_jar"
     echo "Entry jar signed"
 
