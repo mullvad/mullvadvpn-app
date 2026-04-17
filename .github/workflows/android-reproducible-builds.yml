@@ -63,12 +63,9 @@ jobs:
         run: |
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
-      - name: Lower available memory for gradle
-        run: |
-          sed -i 's|^org\.gradle\.jvmargs=.*|org.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options\\="-Xmx4096M"|' \
-          android/gradle.properties
-
       - name: Build app
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
         run: ./building/containerized-build.sh android --oss-only
 
       - name: Upload apks
@@ -172,6 +169,8 @@ jobs:
       - uses: cachix/install-nix-action@v31
 
       - name: Build app
+        env:
+          GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
         run: nix develop .#android -c buildRelease
 
       - name: Upload apks
@@ -209,9 +208,10 @@ jobs:
 
       - name: Compare apk against source of truth
         working-directory: ./artifacts
-        run: diff \
-          apk-container/app-oss-prod-release-unsigned.apk \
-          ${{ matrix.artifact}}/app-oss-prod-release-unsigned.apk
+        run: >-
+          diff
+          apk-container/app-oss-prod-release-unsigned.apk
+          ${{ matrix.artifact }}/app-oss-prod-release-unsigned.apk
 
   # Included in this workflow since it's the only place
   # release artifacts are built. Should eventually be moved.

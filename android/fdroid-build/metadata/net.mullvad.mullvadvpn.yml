@@ -44,13 +44,13 @@ Builds:
       - sed -i -e '/billing/d' ../settings.gradle.kts
       - sed -i -e '/projects.lib.billing/d' build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
-      # This is to increase stability of verification builds, not required for official fdroid builds
-      - sed -i 's/8192M/4096M/g' ../gradle.properties
     scanignore:
       - android/rust-android-gradle-plugin/plugin/build.gradle.kts
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
+      # This is to increase stability of verification builds, not required for official fdroid builds
+      - export GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
       - ../build.sh --oss-only --skip-clean-check
     ndk: 27.3.13750724
 
