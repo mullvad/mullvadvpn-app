@@ -49,19 +49,14 @@ fn get_status_for_url(url: &NSURL) -> LaunchDaemonStatus {
     // (1.) is upheld by the virtue of url being a reference, since references are always valid.
     // (2.) is trivially upheld since Apple does not state safety requirements.
     let status = unsafe { SMAppService::statusForLegacyURL(url) };
-    let log_status = || log::debug!("SMAppService::statusForLegacyUrl returned {status:?}");
     match status {
         SMAppServiceStatus::NotRegistered | SMAppServiceStatus::NotFound => {
-            log_status();
             LaunchDaemonStatus::NotFound
         }
         SMAppServiceStatus::Enabled => LaunchDaemonStatus::Ok,
         SMAppServiceStatus::RequiresApproval => LaunchDaemonStatus::NotAuthorized,
         // Unknown status
-        _ => {
-            log_status();
-            LaunchDaemonStatus::Unknown
-        }
+        _ => LaunchDaemonStatus::Unknown,
     }
 }
 
