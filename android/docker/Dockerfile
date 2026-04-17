@@ -90,8 +90,12 @@ RUN apt-get update -y && apt-get install -y \
     ca-certificates-java \
     tidy \
     pcscd \
-    fdroidserver \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# Install fdroid server using pip instead to get a version that is using a later versions of androguard
+# This and installing pip can be removed when updating to a newer version of debian
+RUN pip install fdroidserver
 
 # Install openjdk-21 (this cannot be done with apt-get as it would require the image to be updated to Debian 13)
 RUN curl -sfLo /tmp/openjdk-21.tar.gz https://download.java.net/java/GA/jdk21.0.2/f2283984656d49d69e91c558476027ac/13/GPL/openjdk-21.0.2_linux-x64_bin.tar.gz && \

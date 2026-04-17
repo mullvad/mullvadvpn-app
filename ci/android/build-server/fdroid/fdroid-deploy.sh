@@ -11,6 +11,7 @@ CONFIG_FILE="$SCRIPT_DIR/config.yml"
 UPLOAD_DIR="/upload"
 PROVIDER_ARG="${PROVIDER_ARG:-/usr/local/etc/pkcs11_java.cfg}"
 KEY_ALIAS="X.509 Certificate for PIV Authentication"
+cd "$SCRIPT_DIR"
 
 function print_usage {
     echo "Usage: fdroid-deploy <option>"
