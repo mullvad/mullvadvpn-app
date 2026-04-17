@@ -38,6 +38,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
   multiple consecutive tunnel state events for the same state.
+- Fix GUI appearing stuck in "Disconnecting" state when daemon transitions directly from error to
+  disconnected.
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
 - Fix a bug with Shadowsocks-based API access methods where some ciphers were configurable by
   Mullvad VPN clients while not being supported by the system service.
