@@ -83,5 +83,6 @@ Supported versions: 17.0 and newer.
 
 | Version        | Type of test |
 |----------------|--------------|
+| 17             | manual       |
 | 18             | manual       |
 | 26             | e2e, manual  |
