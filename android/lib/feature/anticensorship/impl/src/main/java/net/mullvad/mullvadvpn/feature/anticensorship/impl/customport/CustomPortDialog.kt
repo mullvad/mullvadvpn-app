@@ -112,7 +112,6 @@ fun CustomPortDialog(
                     )
                 }
             },
-        confirmButtonEnabled = isValidInput,
         confirmButtonText = stringResource(id = R.string.custom_port_dialog_submit),
         onResetButtonText = stringResource(R.string.custom_port_dialog_remove),
         onBack = onDismiss,

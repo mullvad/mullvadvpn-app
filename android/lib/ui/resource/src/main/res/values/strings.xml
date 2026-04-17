@@ -523,4 +523,7 @@
     <string name="language">Language</string>
     <string name="system_default">System default</string>
     <string name="app_icon">App icon</string>
+    <string name="custom_list_error_list_is_empty">Name can not be empty</string>
+    <string name="report_problem_message_is_empty">Message can not be empty</string>
+    <string name="login_error_invalid_input_short">Account number is too short, please enter a valid number</string>
 </resources>

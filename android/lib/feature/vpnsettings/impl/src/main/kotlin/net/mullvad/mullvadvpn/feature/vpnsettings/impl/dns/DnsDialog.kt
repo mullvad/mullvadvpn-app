@@ -107,7 +107,6 @@ fun DnsDialog(
             } else {
                 stringResource(R.string.update_dns_server_dialog_title)
             },
-        confirmButtonEnabled = state.isValid(),
         onResetButtonText = stringResource(id = R.string.remove_button),
         messageTextColor = MaterialTheme.colorScheme.error,
         onBack = onDismiss,

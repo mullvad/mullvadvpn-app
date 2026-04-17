@@ -2,15 +2,12 @@ package net.mullvad.mullvadvpn.feature.login.impl
 
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 
-const val MIN_ACCOUNT_LOGIN_LENGTH = 8
-
 data class LoginUiState(
     val accountNumberInput: String = "",
     val lastUsedAccount: AccountNumber? = null,
     val loginState: LoginState = LoginState.Idle(null),
 ) {
-    val loginButtonEnabled =
-        accountNumberInput.length >= MIN_ACCOUNT_LOGIN_LENGTH && loginState is LoginState.Idle
+    val loginButtonEnabled = loginState is LoginState.Idle
 
     companion object {
         val INITIAL = LoginUiState()
@@ -45,7 +42,13 @@ sealed interface LoginUiStateError {
     sealed interface LoginError : LoginUiStateError {
         data object InvalidCredentials : LoginError
 
-        data class InvalidInput(val accountNumber: AccountNumber) : LoginError
+        sealed class InvalidInput : LoginError {
+            abstract val accountNumber: AccountNumber
+
+            data class TooShort(override val accountNumber: AccountNumber) : InvalidInput()
+
+            data class TooLong(override val accountNumber: AccountNumber) : InvalidInput()
+        }
 
         data object TooManyAttempts : LoginError
 
