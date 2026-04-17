@@ -117,7 +117,7 @@ function setup_repo {
     local version_code=$(apkanalyzer manifest version-code "$apk")
 
     # Create repo folder if needed
-    mkdir -p "/build/$REPO_DIR"
+    mkdir -p "/build/$REPO_DIR/repo"
 
     # Copy the config file if required
     if [ ! -f "/build/$REPO_DIR/config.yml" ]; then
