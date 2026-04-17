@@ -118,9 +118,9 @@ extension IncludeAllNetworksSettingsView {
 extension IncludeAllNetworksSettingsView {
     private var dataViewModel: SettingsInfoViewModel {
         let blogUrl = URL(
-            string: "https://\(ApplicationConfiguration.hostName)/"
-                + "\(ApplicationLanguage.currentLanguage.id)"
-                + "/blog/why-we-still-dont-use-includeallnetworks"
+            // Todo: Update language?
+            string: "https://\(ApplicationConfiguration.hostName)"
+                + "/en/blog/force-all-app-traffic-into-the-tunnel"
         )!
 
         return SettingsInfoViewModel(
