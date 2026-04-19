@@ -189,7 +189,7 @@ function update_fdroid {
     # Sign the the fdroid repo
     YUBIKEY_PIN=$YUBIKEY_PIN \
     YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-    "./android/scripts/containerized-sign.sh" "$fdroid_repo" '/fdroid-deploy.sh --sign'
+    "./android/scripts/containerized-sign.sh" "$fdroid_repo" '/fdroid.sh --sign'
 }
 
 cd "$BUILD_DIR"

@@ -20,8 +20,6 @@ function print_usage {
     echo "              Update the repo with the given version name and code"
     echo "    -s, --sign"
     echo "              Sign the index and entry files"
-    echo "    -d, --deploy"
-    echo "              Deploy the fdroid repo to the given folder"
     echo "    -h, --help"
     echo "              Show this help page."
 }
@@ -61,7 +59,7 @@ function main {
 
 function sign {
     # This is an approximation of fdroid signindex
-    pushd "repo"
+    pushd "/sign_dir/repo"
 
     # Sign and rename index_unsigned.jar
     local index_unsigned_jar="index_unsigned.jar"
