@@ -372,6 +372,8 @@ dependencies {
     implementation(projects.lib.feature.appicon.impl)
     implementation(projects.lib.feature.appinfo.impl)
     implementation(projects.lib.feature.appinfo.api)
+    implementation(projects.lib.feature.applisting.impl)
+    implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.feature.appearance.impl)
     implementation(projects.lib.feature.autoconnect.impl)
     implementation(projects.lib.feature.customlist.impl)
