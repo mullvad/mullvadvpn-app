@@ -24,11 +24,10 @@ mod inner {
             .expect("failed to create tokio runtime");
         let _guard = rt.enter();
 
-        #[cfg(target_os = "windows")]
-        super::winapi_impl::main();
-
-        #[cfg(target_os = "macos")]
-        super::cacao_impl::main();
+        cfg_select! {
+            target_os = "windows" => { super::winapi_impl::main(); }
+            target_os = "macos"   => { super::cacao_impl::main(); }
+        }
     }
 }
 

@@ -27,14 +27,11 @@ pub enum MetaRepositoryPlatform {
 impl MetaRepositoryPlatform {
     /// Return the current platform
     pub fn current() -> Option<Self> {
-        if cfg!(target_os = "windows") {
-            Some(Self::Windows)
-        } else if cfg!(target_os = "linux") {
-            Some(Self::Linux)
-        } else if cfg!(target_os = "macos") {
-            Some(Self::Macos)
-        } else {
-            None
+        cfg_select! {
+            target_os = "windows" => { Some(Self::Windows) }
+            target_os = "linux"   => { Some(Self::Linux) }
+            target_os = "macos"   => { Some(Self::Macos) }
+            _ => { None }
         }
     }
 

@@ -44,14 +44,10 @@ enum Arch {
 const fn host_os() -> Os {
     // this ugliness is a limitation of rust, where we can't directly
     // access the target triple of the build script.
-    const HOST: Os = if cfg!(target_os = "windows") {
-        Os::Windows
-    } else if cfg!(target_os = "linux") {
-        Os::Linux
-    } else if cfg!(target_os = "macos") {
-        Os::Macos
-    } else {
-        panic!("Unsupported host OS")
+    const HOST: Os = cfg_select! {
+        target_os = "windows" => { Os::Windows }
+        target_os = "linux"   => { Os::Linux }
+        target_os = "macos"   => { Os::Macos }
     };
     HOST
 }
@@ -68,12 +64,9 @@ fn target_os() -> anyhow::Result<Os> {
 }
 
 const fn host_arch() -> Arch {
-    const ARCH: Arch = if cfg!(target_arch = "x86_64") {
-        Arch::Amd64
-    } else if cfg!(target_arch = "aarch64") {
-        Arch::Arm64
-    } else {
-        panic!("Unsupported host architecture")
+    const ARCH: Arch = cfg_select! {
+        target_arch = "x86_64"  => { Arch::Amd64 }
+        target_arch = "aarch64" => { Arch::Arm64 }
     };
     ARCH
 }

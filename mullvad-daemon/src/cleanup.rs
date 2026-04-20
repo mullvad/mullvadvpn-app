@@ -44,38 +44,38 @@ async fn clear_cache_directory() -> Result<(), Error> {
 }
 
 async fn clear_directory(path: &Path) -> Result<(), Error> {
-    #[cfg(not(target_os = "windows"))]
-    {
-        fs::remove_dir_all(path)
-            .await
-            .map_err(|e| Error::RemoveDir(path.display().to_string(), e))?;
-        fs::create_dir_all(path)
-            .await
-            .map_err(|e| Error::CreateDir(path.display().to_string(), e))
-    }
-    #[cfg(target_os = "windows")]
-    {
-        let mut dir = fs::read_dir(&path).await.map_err(Error::ReadDir)?;
+    cfg_select! {
+        target_os = "windows" => {
+            let mut dir = fs::read_dir(&path).await.map_err(Error::ReadDir)?;
 
-        let mut result = Ok(());
+            let mut result = Ok(());
 
-        while let Some(entry) = dir.next_entry().await.map_err(Error::FileEntry)? {
-            let entry_type = match entry.file_type().await {
-                Ok(entry_type) => entry_type,
-                Err(error) => {
-                    result = result.and(Err(Error::FileType(error)));
-                    continue;
-                }
-            };
+            while let Some(entry) = dir.next_entry().await.map_err(Error::FileEntry)? {
+                let entry_type = match entry.file_type().await {
+                    Ok(entry_type) => entry_type,
+                    Err(error) => {
+                        result = result.and(Err(Error::FileType(error)));
+                        continue;
+                    }
+                };
 
-            let removal = if entry_type.is_file() || entry_type.is_symlink() {
-                fs::remove_file(entry.path()).await
-            } else {
-                fs::remove_dir_all(entry.path()).await
-            };
-            result = result
-                .and(removal.map_err(|e| Error::RemoveDir(entry.path().display().to_string(), e)));
+                let removal = if entry_type.is_file() || entry_type.is_symlink() {
+                    fs::remove_file(entry.path()).await
+                } else {
+                    fs::remove_dir_all(entry.path()).await
+                };
+                result = result
+                    .and(removal.map_err(|e| Error::RemoveDir(entry.path().display().to_string(), e)));
+            }
+            result
         }
-        result
+        _ => {
+            fs::remove_dir_all(path)
+                .await
+                .map_err(|e| Error::RemoveDir(path.display().to_string(), e))?;
+            fs::create_dir_all(path)
+                .await
+                .map_err(|e| Error::CreateDir(path.display().to_string(), e))
+        }
     }
 }

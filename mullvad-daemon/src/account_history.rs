@@ -39,14 +39,13 @@ impl AccountHistory {
         current_number: Option<AccountNumber>,
     ) -> Result<AccountHistory> {
         let mut options = fs::OpenOptions::new();
-        #[cfg(unix)]
-        {
-            options.mode(0o600);
-        }
-        #[cfg(windows)]
-        {
-            // a share mode of zero ensures exclusive access to the file to *this* process
-            options.share_mode(0);
+        cfg_select! {
+            unix    => { options.mode(0o600); }
+            windows => {
+                // a share mode of zero ensures exclusive access to the file to *this* process
+                options.share_mode(0);
+            }
+            _ => {}
         }
 
         let path = settings_dir.join(ACCOUNT_HISTORY_FILE);

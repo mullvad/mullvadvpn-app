@@ -249,18 +249,12 @@ fn parse_daita_response(daita: proto::DaitaResponseV2) -> Result<DaitaSettings, 
 
 const fn get_platform() -> proto::DaitaPlatform {
     use proto::DaitaPlatform;
-    const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
-        DaitaPlatform::WindowsWgGo
-    } else if cfg!(target_os = "linux") {
-        DaitaPlatform::LinuxWgGo
-    } else if cfg!(target_os = "macos") {
-        DaitaPlatform::MacosWgGo
-    } else if cfg!(target_os = "android") {
-        DaitaPlatform::AndroidWgGo
-    } else if cfg!(target_os = "ios") {
-        DaitaPlatform::IosWgGo
-    } else {
-        panic!("This platform does not support DAITA V2")
+    const PLATFORM: DaitaPlatform = cfg_select! {
+        target_os = "windows" => { DaitaPlatform::WindowsWgGo }
+        target_os = "linux"   => { DaitaPlatform::LinuxWgGo }
+        target_os = "macos"   => { DaitaPlatform::MacosWgGo }
+        target_os = "android" => { DaitaPlatform::AndroidWgGo }
+        target_os = "ios"     => { DaitaPlatform::IosWgGo }
     };
     PLATFORM
 }
