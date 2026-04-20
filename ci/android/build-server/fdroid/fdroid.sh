@@ -113,14 +113,15 @@ function setup_repo {
 
     local apk="/build/$1"
 
-    local version_code=$(apkanalyzer manifest version-code "$apk")
+    local version_code=""
+    version_code="$(apkanalyzer manifest version-code "$apk")"
 
     # Create repo folder if needed
     mkdir -p "/build/$REPO_DIR/repo"
 
     # Copy the config file if required
     if [ ! -f "/build/$REPO_DIR/config.yml" ]; then
-        cp "config.yml" "/build/$REPO_DIR/config.yml"
+        cp "$CONFIG_FILE" "/build/$REPO_DIR/config.yml"
     fi
 
     # Copy the metadata file if required

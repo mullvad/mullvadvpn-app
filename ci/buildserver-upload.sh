@@ -52,7 +52,7 @@ while true; do
             upload_path="desktop/installer-downloader"
         elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
-        elif [[ $version == *"fdroid"* ]]
+        elif [[ $version == *"fdroid"* ]]; then
             upload_path="$platform/fdroid/repo"
             should_invalidate_bunny_cdn_cache="true"
         else
