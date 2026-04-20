@@ -17,4 +17,3 @@ smartcardoptions: |
    -providerArg /usr/local/etc/pkcs11_java.cfg
    -storetype PKCS11
 keystorepass: {env: YUBIKEY_PIN}
-repo_pubkey: 69de4054e017364efc99d40bd625aa812c9513110ccb5453e6df1f5c77c081df
