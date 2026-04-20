@@ -56,6 +56,30 @@
     # Enable the GNOME Desktop Environment.
     displayManager.gdm.enable = true;
     desktopManager.gnome.enable = true;
+
+    udev = {
+      # Setup udev rules for our E2E test runner devices. When a device is plugged in the corresponding
+      # github runner service is started, and if the device is removed the service is stopped.
+      # Each runner will only execute on a specific devices as specified with ATTR{serial}.
+      extraRules =
+      ''
+      SUBSYSTEM=="usb", ATTR{serial}=="29121FDH200A6G", ACTION=="add|bind", \
+        TAG+="systemd", SYMLINK="android1", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-05.service" \
+        OWNER="runner05", MODE="0660"
+
+      SUBSYSTEM=="usb", ATTR{serial}=="3B111JEHN07568", ACTION=="add|bind", \
+        TAG+="systemd", SYMLINK="android2", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-06.service" \
+        OWNER="runner06", MODE="0660"
+
+      SUBSYSTEM=="usb", ATTR{serial}=="43151JEKB14933", ACTION=="add|bind", \
+        TAG+="systemd", SYMLINK="android3", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-07.service" \
+        OWNER="runner07", MODE="0660"
+
+      SUBSYSTEM=="usb", ATTR{serial}=="", ACTION=="add|bind", \
+        TAG+="systemd", SYMLINK="android4", ENV{SYSTEMD_WANTS}+="github-runner-android-bender-08.service" \
+        OWNER="runner08", MODE="0660"
+      '';
+    };
   };
 
   # Configure console keymap
@@ -213,6 +237,87 @@
         # needed for podman
         linger = true;
       };
+
+      runner06 = {
+        isNormalUser = true;
+        description = "Runner user 06";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner07 = {
+        isNormalUser = true;
+        description = "Runner user 07";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
+
+      runner08 = {
+        isNormalUser = true;
+        description = "Runner user 08";
+        extraGroups = [
+          "podman"
+          "networkmanager"
+          "wheel"
+          "runners"
+          "docker"
+        ];
+        group = "runner";
+        subUidRanges = [
+          {
+            startUid = 100000;
+            count = 65536;
+          }
+        ];
+        subGidRanges = [
+          {
+            startGid = 100000;
+            count = 65536;
+          }
+        ];
+        # needed for podman
+        linger = true;
+      };
     };
 
     groups = {
@@ -242,6 +347,7 @@
     git
     strace
     findutils
+    android-tools
 
     # Temp tests
     lm_sensors
@@ -315,6 +421,7 @@
         "android-build"
       ];
     };
+
     android-bender-02 = {
       enable = true;
       name = "android-bender-02";
@@ -331,6 +438,7 @@
         "android-build"
       ];
     };
+
     android-bender-03 = {
       enable = true;
       name = "android-bender-03";
@@ -347,6 +455,7 @@
         "android-build"
       ];
     };
+
     android-bender-04 = {
       enable = true;
       name = "android-bender-04";
@@ -363,6 +472,7 @@
         "android-build"
       ];
     };
+
     android-bender-05 = {
       enable = true;
       name = "android-bender-05";
@@ -379,7 +489,67 @@
       };
       extraLabels = [
         "android-bender-05"
-        "android-device-test"
+        "android-device"
+      ];
+    };
+
+    android-bender-06 = {
+      enable = true;
+      name = "android-bender-06";
+      tokenFile = "/home/runner06/.registration-token/android-bender-06.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner06";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner06/android-bender-06";
+      extraEnvironment = {
+        ANDROID_SERIAL = "3B111JEHN07568";
+      };
+      extraLabels = [
+        "android-bender-06"
+        "android-device"
+      ];
+    };
+
+    android-bender-07 = {
+      enable = true;
+      name = "android-bender-07";
+      tokenFile = "/home/runner07/.registration-token/android-bender-07.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner07";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner07/android-bender-07";
+      extraEnvironment = {
+        ANDROID_SERIAL = "43151JEKB14933";
+      };
+      extraLabels = [
+        "android-bender-07"
+        "android-device"
+      ];
+    };
+
+    android-bender-08 = {
+      enable = true;
+      name = "android-bender-08";
+      tokenFile = "/home/runner08/.registration-token/android-bender-08.token";
+      url = "https://github.com/mullvad/mullvadvpn-app";
+      user = "runner08";
+      group = "runner";
+      extraPackages = with pkgs; [
+        podman
+      ];
+      workDir = "/home/runner08/android-bender-08";
+      extraEnvironment = {
+        ANDROID_SERIAL = "";
+      };
+      extraLabels = [
+        "android-bender-08"
+        "android-device"
       ];
     };
   };
@@ -406,8 +576,29 @@
       "github-runner-android-bender-04" = import ./runner-systemd-config.nix {
         inherit lib;
       };
-      "github-runner-android-bender-05" = import ./runner-systemd-config.nix {
-        inherit lib;
+      "github-runner-android-bender-05" =
+        (import ./runner-systemd-config.nix { inherit lib; }) // {
+          wantedBy = lib.mkForce[];
+          bindsTo = [ "dev-android1.device" ];
+          after = [ "dev-android1.device" ];
+      };
+      "github-runner-android-bender-06" =
+        (import ./runner-systemd-config.nix { inherit lib; }) // {
+          wantedBy = lib.mkForce[];
+          bindsTo = [ "dev-android2.device" ];
+          after = [ "dev-android2.device" ];
+      };
+      "github-runner-android-bender-07" =
+        (import ./runner-systemd-config.nix { inherit lib; }) // {
+          wantedBy = lib.mkForce[];
+          bindsTo = [ "dev-android3.device" ];
+          after = [ "dev-android3.device" ];
+      };
+      "github-runner-android-bender-08" =
+        (import ./runner-systemd-config.nix { inherit lib; }) // {
+          wantedBy = lib.mkForce[];
+          bindsTo = [ "dev-android4.device" ];
+          after = [ "dev-android4.device" ];
       };
     };
   };
