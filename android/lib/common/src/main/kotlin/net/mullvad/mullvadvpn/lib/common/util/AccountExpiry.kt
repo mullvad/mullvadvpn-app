@@ -15,7 +15,7 @@ val ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD: Duration = Duration.ofDays(3)
 val ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL: Duration = Duration.ofDays(1)
 
 // Calculate when the alarm that triggers the account expiry notification should be set.
-fun accountExpiryNotificationTriggerAt(now: ZonedDateTime, expiry: ZonedDateTime): ZonedDateTime {
+fun accountExpiryNotificationTriggerAt(now: ZonedDateTime, expiry: ZonedDateTime): ZonedDateTime? {
     val untilExpiry = Duration.between(now, expiry)
 
     return if (untilExpiry > ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD) {
@@ -24,7 +24,8 @@ fun accountExpiryNotificationTriggerAt(now: ZonedDateTime, expiry: ZonedDateTime
     } else {
         val wait = untilExpiry.toMillis() % ACCOUNT_EXPIRY_NOTIFICATION_UPDATE_INTERVAL.toMillis()
 
-        // If the expiry is in the past we just return it as it is.
-        if (wait >= 0) now + Duration.ofMillis(wait) else expiry
+        // If the expiry is in the past we will return null so that we do not schedule a
+        // notification in the past.
+        if (wait >= 0) now + Duration.ofMillis(wait) else null
     }
 }

@@ -28,6 +28,13 @@ class ScheduleNotificationAlarmUseCase(
 
         val triggerAt =
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
+
+        if (triggerAt == null) {
+            Logger.d("Account expiry is in the past, not scheduling an alarm")
+            userPreferencesRepository.setAccountExpiry(accountExpiry)
+            return
+        }
+
         val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
 
         val intent = alarmIntent(context)
