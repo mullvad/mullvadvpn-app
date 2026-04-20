@@ -1,7 +1,5 @@
 sdk_path: $ANDROID_HOME
 repo_url: https://releases.mullvad.net/android/fdroid/repo
-# Use for local testing
-#repo_url: http://10.0.2.2:8000/fdroid/repo
 #
 repo_name: Mullvad VPN Fdroid repo
 repo_description: >-
