@@ -9,5 +9,3 @@ repo_description: >-
    Its primary to be used as backup when the main Fdroid repo
    is unavailable. Currently the apps are signed differently
    from the main repo so an uninstall is needed.
-#
-repo_pubkey: 69de4054e017364efc99d40bd625aa812c9513110ccb5453e6df1f5c77c081df
