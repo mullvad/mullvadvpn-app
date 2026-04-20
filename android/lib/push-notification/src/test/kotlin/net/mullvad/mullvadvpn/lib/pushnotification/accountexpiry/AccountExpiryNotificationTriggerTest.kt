@@ -62,11 +62,11 @@ class AccountExpiryNotificationTriggerTest {
     }
 
     @Test
-    fun `account expiry that is in the past should return the account expiry date`() {
+    fun `account expiry that is in the past should return null`() {
         val now = ZonedDateTime.now()
         val expiry = now.minusDays(1).minusHours(17).minusMinutes(3).minusSeconds(40)
         val trigger = accountExpiryNotificationTriggerAt(now, expiry)
 
-        assertEquals(expiry, trigger)
+        assertEquals(null, trigger)
     }
 }
