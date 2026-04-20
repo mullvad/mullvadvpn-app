@@ -163,11 +163,8 @@ function build_sign_and_publish_ref {
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
-    if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
-        update_fdroid "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed deploy f-droid repo"
-        
-        local fdroid_repo_dir="$BUILD_DIR/dist/fdroid/repo"
-        (cd "$fdroid_repo_dir" && prepare_for_cdn_upload "fdroid") || return 1
+    if [[ $version != *"-dev-"* ]]; then
+        "$SCRIPT_DIR/fdroid.sh" "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed to update f-droid repo"
     fi
 
     # shellcheck disable=SC2216
@@ -176,20 +173,6 @@ function build_sign_and_publish_ref {
     echo ""
     echo "Successfully finished building $version at $(date)"
     echo ""
-}
-
-function update_fdroid {
-    local artifact="$1"
-
-    local fdroid_repo="$BUILD_DIR/dist/fdroid"
-
-    # Update the fdroid repo
-    run_in_android_container "./ci/android/build-server/fdroid/fdroid.sh --update $artifact"
-
-    # Sign the the fdroid repo
-    YUBIKEY_PIN=$YUBIKEY_PIN \
-    YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-    "./android/scripts/containerized-sign.sh" "$fdroid_repo" '/fdroid.sh --sign'
 }
 
 cd "$BUILD_DIR"
