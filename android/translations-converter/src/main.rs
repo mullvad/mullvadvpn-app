@@ -406,25 +406,26 @@ fn generate_translations(
 
     for translation in translations {
         match translation.value {
-            MsgValue::Invariant(translation_value, arg_ordering) => {
-                if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
-                    localized_strings.push(StringResource::new(
-                        android_key.name,
-                        &translation_value.normalize(),
-                        arg_ordering.as_ref(),
-                    ));
-                }
+            MsgValue::Invariant(translation_value, arg_ordering)
+                if let Some(android_key) = known_strings.remove(&translation.id.normalize()) =>
+            {
+                localized_strings.push(StringResource::new(
+                    android_key.name,
+                    &translation_value.normalize(),
+                    arg_ordering.as_ref(),
+                ));
             }
-            MsgValue::Plural { values, .. } => {
-                if let Some(android_key) = known_plurals.remove(&translation.id.normalize()) {
-                    let values = values.into_iter().map(|message| message.normalize());
+            MsgValue::Plural { values, .. }
+                if let Some(android_key) = known_plurals.remove(&translation.id.normalize()) =>
+            {
+                let values = values.into_iter().map(|message| message.normalize());
 
-                    localized_plurals.push(PluralResource::new(
-                        android_key.name.clone(),
-                        plural_quantities.clone().zip(values),
-                    ));
-                }
+                localized_plurals.push(PluralResource::new(
+                    android_key.name.clone(),
+                    plural_quantities.clone().zip(values),
+                ));
             }
+            _ => {}
         }
     }
 

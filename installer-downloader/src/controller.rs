@@ -58,11 +58,10 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     let platform = MetaRepositoryPlatform::current().expect("current platform must be supported");
     let version_provider = HttpVersionInfoProvider::from(platform);
 
-    #[cfg(target_os = "windows")]
-    type CacheDir = mullvad_update::local::AppCacheDir;
-
-    #[cfg(target_os = "macos")]
-    type CacheDir = mullvad_update::local::NoopAppCacheDir;
+    type CacheDir = cfg_select! {
+        target_os = "windows" => { mullvad_update::local::AppCacheDir }
+        target_os = "macos"   => { mullvad_update::local::NoopAppCacheDir }
+    };
 
     AppController::initialize::<_, Downloader<T>, CacheDir, DirProvider>(
         delegate,
