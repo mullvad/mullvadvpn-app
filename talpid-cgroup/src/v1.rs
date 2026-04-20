@@ -24,7 +24,7 @@ pub struct CGroup1 {
     /// Absolute path of the cgroup, e.g. `/sys/fs/cgroup/net_cls/foobar`
     path: PathBuf,
 
-    /// `cgroup.procs` is used to add and list PIDs in the cgroup2.
+    /// `cgroup.procs` is used to add and list PIDs in the cgroup.
     procs: File,
 }
 
@@ -89,7 +89,7 @@ impl CGroup1 {
         Self::open(child_path)
     }
 
-    /// Try to clone the cgroup2 handle.
+    /// Try to clone the cgroup handle.
     ///
     /// This is fallible because cloning file descriptors can fail.
     pub fn try_clone(&self) -> Result<Self, super::Error> {
@@ -102,7 +102,7 @@ impl CGroup1 {
         })
     }
 
-    /// Assign a process to this cgroup2.
+    /// Assign a process to this cgroup.
     pub fn add_pid(&self, pid: Pid) -> Result<(), super::Error> {
         // Format the PID as a string
         let mut pid_buf = [0u8; 16];
@@ -111,12 +111,12 @@ impl CGroup1 {
 
         // Write PID to `cgroup.procs`.
         nix::unistd::write(&self.procs, pid_str.to_bytes())
-            .with_context(|| anyhow!("Failed to add process {pid} to cgroup2"))?;
+            .with_context(|| anyhow!("Failed to add process {pid} to cgroup"))?;
 
         Ok(())
     }
 
-    /// List all PIDs in this cgroup2.
+    /// List all PIDs in this cgroup.
     pub fn list_pids(&mut self) -> Result<Vec<pid_t>, super::Error> {
         let mut file = &self.procs;
         let mut pids = String::new();

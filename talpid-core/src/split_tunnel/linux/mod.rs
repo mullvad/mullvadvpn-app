@@ -218,13 +218,9 @@ impl Inner {
 
     /// Removes all PIDs from the Cgroup.
     fn clear(&mut self) -> Result<(), Error> {
-        let mut pids = self.list()?;
-        while !pids.is_empty() {
-            for pid in pids {
-                let pid = Pid::from_raw(pid);
-                self.remove(pid)?;
-            }
-            pids = self.list()?;
+        for pid in self.list()? {
+            let pid = Pid::from_raw(pid);
+            self.remove(pid)?;
         }
         Ok(())
     }
