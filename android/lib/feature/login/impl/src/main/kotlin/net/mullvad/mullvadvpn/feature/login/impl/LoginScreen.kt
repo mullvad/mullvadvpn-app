@@ -46,6 +46,9 @@ import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.FirstBaseline
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalResources
@@ -56,8 +59,10 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextOverflow
@@ -157,6 +162,7 @@ fun Login(
                         message = resources.getString(R.string.error_occurred)
                     )
                 }
+
             is ApiUnreachableInfoDialogResult.Success -> {
                 when (it.arg.action) {
                     LoginAction.LOGIN -> vm.login(state.accountNumberInput)
@@ -170,14 +176,19 @@ fun Login(
         when (it) {
             LoginUiSideEffect.NavigateToWelcome ->
                 navigator.navigate(WelcomeNavKey, clearBackStack = true)
+
             is LoginUiSideEffect.NavigateToConnect ->
                 navigator.navigate(ConnectNavKey, clearBackStack = true)
+
             is LoginUiSideEffect.TooManyDevices ->
                 navigator.navigate(DeviceListNavKey(it.accountNumber))
+
             LoginUiSideEffect.NavigateToOutOfTime ->
                 navigator.navigate(OutOfTimeNavKey, clearBackStack = true)
+
             LoginUiSideEffect.NavigateToCreateAccountConfirmation ->
                 navigator.navigate(CreateAccountConfirmationNavKey)
+
             LoginUiSideEffect.GenericError ->
                 snackbarHostState.showSnackbarImmediately(
                     message = resources.getString(R.string.error_occurred)
@@ -366,30 +377,21 @@ private fun ColumnScope.LoginInput(
             accountNumberVisualTransformation(showPassword, if (showLastChar) 1 else 0),
         enabled = state.loginState is LoginState.Idle,
         colors = mullvadWhiteTextFieldColors(),
-        textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
+        textStyle =
+            MaterialTheme.typography.bodyLarge.copy(
+                textDirection = TextDirection.Ltr,
+                fontFamily = FontFamily.Monospace,
+            ),
         isError = state.loginState.isError(),
     )
 
     AnimatedVisibility(
         visible = state.lastUsedAccount != null && state.loginState is LoginState.Idle
     ) {
-        val token = state.lastUsedAccount?.value.orEmpty()
-        val accountTransformation =
-            remember(showPassword) {
-                accountNumberVisualTransformation(
-                    showPassword,
-                    showLastX = ACCOUNT_NUMBER_CHUNK_SIZE,
-                )
-            }
-        val transformedText =
-            remember(token, accountTransformation) {
-                accountTransformation.filter(AnnotatedString(token)).text
-            }
-
-        // Since content is number we should always do Ltr
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
             AccountDropDownItem(
-                accountNumber = transformedText.toString(),
+                accountNumber = state.lastUsedAccount?.value.orEmpty(),
+                showPassword = showPassword,
                 onClick = {
                     state.lastUsedAccount?.let {
                         onAccountNumberChange(it.value)
@@ -416,6 +418,7 @@ private fun LoginIcon(loginState: LoginState, modifier: Modifier = Modifier) {
                 } else {
                     // If view is Idle, we display empty box to keep the same size as other states
                 }
+
             is LoginState.Loading -> MullvadCircularProgressIndicatorLarge()
             LoginState.Success ->
                 Image(
@@ -436,8 +439,10 @@ private fun LoginState.title(): String =
                         is LoginUiStateError.LoginError -> R.string.login_fail_title
                         is LoginUiStateError.CreateAccountError ->
                             R.string.create_account_fail_title
+
                         null -> R.string.log_in
                     }
+
                 is LoginState.Loading -> R.string.logging_in_title
                 LoginState.Success -> R.string.logged_in_title
             }
@@ -472,6 +477,7 @@ private fun LoginState.supportingText(
             (loginUiStateError is LoginUiStateError.LoginError.ApiUnreachable ||
                 loginUiStateError is LoginUiStateError.CreateAccountError.ApiUnreachable)
          -> apiUnreachableText(loginUiStateError, onShowApiUnreachableDialog)
+
         is LoginState.Idle -> {
             when (loginUiStateError) {
                 LoginUiStateError.LoginError.InvalidCredentials -> R.string.login_fail_description
@@ -479,16 +485,20 @@ private fun LoginState.supportingText(
                 LoginUiStateError.LoginError.NoInternetConnection,
                 LoginUiStateError.CreateAccountError.NoInternetConnection ->
                     R.string.no_internet_connection
+
                 LoginUiStateError.LoginError.ApiUnreachable,
                 LoginUiStateError.CreateAccountError.ApiUnreachable -> R.string.api_unreachable
+
                 LoginUiStateError.LoginError.TooManyAttempts,
                 LoginUiStateError.CreateAccountError.TooManyAttempts ->
                     R.string.login_error_too_many_attempts
+
                 is LoginUiStateError.LoginError.Unknown -> R.string.error_occurred
                 LoginUiStateError.CreateAccountError.Unknown -> R.string.failed_to_create_account
                 null -> null
             }?.toAnnotatedString()
         }
+
         is LoginState.Loading.CreatingAccount -> R.string.creating_new_account.toAnnotatedString()
         is LoginState.Loading.LoggingIn -> R.string.logging_in_description.toAnnotatedString()
         LoginState.Success -> R.string.logged_in_description.toAnnotatedString()
@@ -516,11 +526,21 @@ private fun Int.toAnnotatedString(): AnnotatedString = AnnotatedString(stringRes
 @Composable
 private fun AccountDropDownItem(
     modifier: Modifier = Modifier,
+    showPassword: Boolean,
     accountNumber: String,
     enabled: Boolean,
     onClick: () -> Unit,
     onDeleteClick: () -> Unit,
 ) {
+    val accountTransformation =
+        remember(showPassword) {
+            accountNumberVisualTransformation(showPassword, showLastX = ACCOUNT_NUMBER_CHUNK_SIZE)
+        }
+    val transformedText =
+        remember(accountNumber, accountTransformation) {
+            accountTransformation.filter(AnnotatedString(accountNumber)).text
+        }
+
     Row(
         modifier =
             modifier
@@ -534,6 +554,19 @@ private fun AccountDropDownItem(
                 .height(IntrinsicSize.Min),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+
+        // Hack, our PASSWORD_UNICODE dot char changes the baseline height, so this workaround
+        // ensures we always place it at the same baseline
+        val textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace)
+        // Measure the digit baseline once to use as a fixed reference
+        val textMeasurer = rememberTextMeasurer()
+        val digitBaseline =
+            remember(textStyle) {
+                textMeasurer
+                    .measure(text = AnnotatedString("0"), style = textStyle, maxLines = 1)
+                    .firstBaseline
+            }
+
         Box(
             modifier =
                 Modifier.clickable(enabled = enabled, onClick = onClick)
@@ -543,9 +576,24 @@ private fun AccountDropDownItem(
             contentAlignment = Alignment.CenterStart,
         ) {
             Text(
-                text = accountNumber,
+                text = transformedText,
                 overflow = TextOverflow.Clip,
-                style = MaterialTheme.typography.bodyLarge,
+                style = textStyle,
+                maxLines = 1,
+                // Place text according to baseline so text does not jump as user hide/show password
+                modifier =
+                    Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val actualBaseline = placeable[FirstBaseline]
+                        // Shift the text so its baseline aligns with the digit baseline
+                        val yOffset =
+                            if (actualBaseline != AlignmentLine.Unspecified) {
+                                digitBaseline.toInt() - actualBaseline
+                            } else {
+                                0
+                            }
+                        layout(placeable.width, placeable.height) { placeable.place(0, yOffset) }
+                    },
             )
         }
         IconButton(

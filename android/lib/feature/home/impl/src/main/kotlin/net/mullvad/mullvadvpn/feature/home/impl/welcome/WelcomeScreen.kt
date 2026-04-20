@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -280,6 +281,7 @@ private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: Welcom
             text = state.accountNumber?.value?.groupWithSpaces() ?: "",
             modifier = Modifier.weight(1f),
             style = MaterialTheme.typography.headlineSmall,
+            fontFamily = FontFamily.Monospace,
             color = MaterialTheme.colorScheme.onSurface,
         )
 
