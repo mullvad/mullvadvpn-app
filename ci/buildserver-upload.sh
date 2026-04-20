@@ -81,7 +81,7 @@ while true; do
             fi
 
             # Relies on should_invalidate_bunny_cdn_cache already being set since it's a non-dev build.
-            if [[ "$platform" == "android" && $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
+            if [[ "$platform" == "android" && $version != *"-dev-"* ]]; then
                 for server in "${PRODUCTION_UPLOAD_SERVERS[@]}"; do
                     rsync -av --mkpath --rsh='ssh -p 1122' "$FDROID_REPO_DIR/" "$server:android/fdroid/repo/" || \
                         echo "Failed to sync F-Droid repo to $server"
