@@ -43,10 +43,10 @@ function setup_repo {
 
     local version_code=""
     # podman appends a trailing carriage return to the output. So we use `tr` to strip it
-    "$("$BUILD_DIR/building/container-run.sh" android "apkanalyzer manifest version-code /build/$apk" | tr -d "\r" || return 1)"
+    version_code="$("$BUILD_DIR/building/container-run.sh" android "apkanalyzer manifest version-code /build/$apk" | tr -d "\r" || return 1)"
 
     # Copy the apk file into the repo
-    cp $("$BUILD_DIR/$apk" "$FDROID_REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk")
+    cp "$BUILD_DIR/$apk" "$FDROID_REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk"
 
     # Copy the release notes into the repo
     mkdir -p "$FDROID_REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs"
