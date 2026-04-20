@@ -144,7 +144,7 @@ nix = { workspace = true, features = ["signal", "user"] }
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
-ctrlc = "3.0"
+ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
