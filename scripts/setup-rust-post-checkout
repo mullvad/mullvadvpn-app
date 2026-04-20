@@ -13,10 +13,17 @@ if [[ ! -f "$SETUP_RUST_SCRIPT" ]]; then
     exit 0
 fi
 
-if [[ -z ${MULLVAD_SETUP_PLATFORM+x} ]]; then
-    echo "MULLVAD_SETUP_PLATFORM is not set, must be set to one of the following: " >&2
-    echo "\`android\`, \`ios\`, \`windows\`, \`linux\`, \`macos\`" >&2
-    exit 1
+if [[ -z "$MULLVAD_SETUP_PLATFORM" ]]; then
+    case "$(uname -s)" in
+        Linux) MULLVAD_SETUP_PLATFORM="linux" ;;
+        Darwin) MULLVAD_SETUP_PLATFORM="macos" ;;
+        MINGW*|CYGWIN*|MSYS*) MULLVAD_SETUP_PLATFORM="windows" ;;
+        *)
+            echo "Unable to detect current platform, MULLVAD_SETUP_PLATFORM must be set to one of: " >&2
+            echo "\`android\`, \`ios\`, \`windows\`, \`linux\`, \`macos\`" >&2
+            exit 1
+            ;;
+    esac
 fi
 
 git diff-tree --exit-code "$1".."$2" --quiet -- rust-toolchain.toml
