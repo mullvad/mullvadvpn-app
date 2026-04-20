@@ -28,9 +28,6 @@ LABEL org.opencontainers.image.licenses=GPL-3.0-or-later
 
 ENV CARGO_TARGET_DIR=/cargo-target/target
 
-ARG GOLANG_VERSION=1.21.3 \
-    GOLANG_HASH=1241381b2843fae5a9707eec1f8fb2ef94d827990582c7c7c32f5bdfbfd420c8
-
 # Pinned to commit hash for tag v4.24.3
 ARG PROTOBUF_COMMIT_REF=ee1355459c9ce7ffe264bc40cfdc7b7623d37e99
 
@@ -89,16 +86,5 @@ ENV PATH=/root/.volta/bin:$PATH
 # versions from package.json, but `node --version` triggers an install
 COPY desktop/package.json .
 RUN curl https://get.volta.sh | bash && node --version && rm package.json
-
-# === Golang ===
-
-# Install golang
-# Checksum from: https://go.dev/dl/
-RUN curl -Lo go.tgz https://go.dev/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-    echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
-    tar -C /usr/local -xzf go.tgz && \
-    rm go.tgz
-ENV PATH=/usr/local/go/bin:$PATH
-
 
 WORKDIR /build
