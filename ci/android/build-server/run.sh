@@ -156,16 +156,17 @@ function build_sign_and_publish_ref {
         echo "WARNING: Signing skipped for $version"
     fi
 
+    # Update the fdroid repo
+    if [[ $version != *"-dev-"* ]]; then
+        "$SCRIPT_DIR/fdroid.sh" "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed to update f-droid repo"
+    fi
+
     (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
 
     touch "$LAST_BUILT_DIR/$current_hash"
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
-
-    if [[ $version != *"-dev-"* ]]; then
-        "$SCRIPT_DIR/fdroid.sh" "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed to update f-droid repo"
-    fi
 
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
