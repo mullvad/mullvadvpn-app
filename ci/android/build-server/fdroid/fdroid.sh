@@ -29,7 +29,8 @@ function main {
 
     YUBIKEY_PIN=$YUBIKEY_PIN \
     YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-    "$BUILD_DIR/android/scripts/containerized-sign.sh" "$FDROID_REPO_DIR" 'fdroid update'
+    "$BUILD_DIR/android/scripts/containerized-sign.sh" "$FDROID_REPO_DIR" \
+    'export JAVA_TOOL_OPTIONS="--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" && fdroid update'
 }
 
 function setup_repo {
@@ -41,10 +42,11 @@ function setup_repo {
     local apk="$1"
 
     local version_code=""
-    version_code="$(apkanalyzer manifest version-code "$apk")"
+    # podman appends a trailing carriage return to the output. So we use `tr` to strip it
+    "$("$BUILD_DIR/building/container-run.sh" android "apkanalyzer manifest version-code /build/$apk" | tr -d "\r" || return 1)"
 
     # Copy the apk file into the repo
-    cp "$apk" "$FDROID_REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk"
+    cp $("$BUILD_DIR/$apk" "$FDROID_REPO_DIR/repo/net.mullvad.mullvadvpn_$version_code.apk")
 
     # Copy the release notes into the repo
     mkdir -p "$FDROID_REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs"
