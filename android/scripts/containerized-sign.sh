@@ -5,7 +5,6 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 CONTAINER_IMAGE_NAME=$(cat "$SCRIPT_DIR/../../building/android-container-image.txt")
-FDROID_DIR="$SCRIPT_DIR/../../ci/android/build-server/fdroid"
 
 SIGN_DIR=${1:?'Usage: containerized-sign.sh <sign-dir> <bash-command>'}
 
