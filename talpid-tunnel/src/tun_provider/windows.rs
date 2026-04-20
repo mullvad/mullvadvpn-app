@@ -80,6 +80,7 @@ impl WindowsTunProvider {
             const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
 
             builder.config.tun_name(ADAPTER_NAME);
+            builder.config.mtu(self.config.mtu);
             builder
                 .config
                 .platform_config(|cfg: &mut tun08::PlatformConfig| {
