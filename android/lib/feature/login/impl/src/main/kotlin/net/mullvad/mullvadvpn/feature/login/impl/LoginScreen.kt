@@ -555,7 +555,7 @@ private fun AccountDropDownItem(
         verticalAlignment = Alignment.CenterVertically,
     ) {
 
-        // Hack, our PASSWORD_UNICODE '●' changes the baseline height, so this workaround
+        // Hack, our PASSWORD_UNICODE dot char changes the baseline height, so this workaround
         // ensures we always place it at the same baseline
         val textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = FontFamily.Monospace)
         // Measure the digit baseline once to use as a fixed reference
