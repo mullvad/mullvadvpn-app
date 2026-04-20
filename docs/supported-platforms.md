@@ -15,11 +15,16 @@ what extent.
   automatically, both nightly and before releases.
 - **manual** - Thorough human testing of the app prior to making a release.
 
-## Windows
+## Desktop
+
+Some desktop OS versions go through e2e testing every day.
+These are defined in [the following workflow](../.github/workflows/desktop-e2e.yml).
+
+### Windows
 
 Supported versions: 10 (Version 22H2) and 11 (Version 22H2 and newer). Both x86-64 and ARM64.
 
-### Tested versions
+#### Tested versions
 
 | Version        | Architecture | Type of test |
 |----------------|--------------|--------------|
@@ -27,11 +32,11 @@ Supported versions: 10 (Version 22H2) and 11 (Version 22H2 and newer). Both x86-
 | 11 (22h2)      | x86-64       | e2e, manual  |
 | 11 (25h2)      | ARM64        | manual       |
 
-## macOS
+### macOS
 
 Supported versions: The three most recent major releases. Both Intel (x86-64) and Apple Silicon (ARM64).
 
-### Tested versions
+#### Tested versions
 
 | Version          | Architecture   | Type of test |
 |------------------|----------------|--------------|
@@ -40,7 +45,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 | 15 (Sequoia)     | ARM64          | e2e, manual  |
 | 26 (Tahoe)       | ARM64          | e2e, manual  |
 
-## Linux
+### Linux
 
 Supported versions:
 - **Ubuntu**: The two latest LTS releases and the latest non-LTS releases
@@ -52,7 +57,7 @@ Both x86-64 and ARM64 is supported on all supported distributions.
 On Linux, we test using the Gnome desktop environment. The app should work in other
 DEs, but we don't regularly test those.
 
-### Tested versions
+#### Tested versions
 
 | Distribution + version | Architecture | Type of test |
 |------------------------|--------------|--------------|
