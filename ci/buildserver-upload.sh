@@ -6,6 +6,7 @@ shopt -s nullglob globstar
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+FDROID_REPO_DIR="$SCRIPT_DIR/fdroid/repo"
 
 # shellcheck source=ci/buildserver-config.sh
 source "$SCRIPT_DIR/buildserver-config.sh"
@@ -52,9 +53,6 @@ while true; do
             upload_path="desktop/installer-downloader"
         elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
-        elif [[ $version == *"fdroid"* ]]; then
-            upload_path="$platform/fdroid/repo"
-            should_invalidate_bunny_cdn_cache="true"
         else
             upload_path="$platform/releases"
             should_invalidate_bunny_cdn_cache="true"
@@ -80,6 +78,14 @@ while true; do
                 gpg -u $CODE_SIGNING_KEY_FINGERPRINT --pinentry-mode loopback --sign --armor --detach-sign "$file"
                 rsync_upload "$file.asc" "$file_upload_dir/" || continue
                 rm -f "$file.asc"
+            fi
+
+            # Relies on should_invalidate_bunny_cdn_cache already being set since it's a non-dev build.
+            if [[ "$platform" == "android" && $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
+                for server in "${PRODUCTION_UPLOAD_SERVERS[@]}"; do
+                    rsync -av --mkpath --rsh='ssh -p 1122' "$FDROID_REPO_DIR/" "$server:android/fdroid/repo/" || \
+                        echo "Failed to sync F-Droid repo to $server"
+                done
             fi
 
             # shellcheck disable=SC2216
