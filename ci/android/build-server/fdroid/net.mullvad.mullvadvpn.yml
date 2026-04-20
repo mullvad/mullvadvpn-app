@@ -1,0 +1,24 @@
+AntiFeatures:
+  NonFreeNet:
+    en-US: Depends on the Mullvad VPN service.
+Categories:
+  - Connectivity
+  - Internet
+  - Security
+  - System
+License: GPL-3.0-or-later
+WebSite: https://mullvad.net
+SourceCode: https://github.com/mullvad/mullvadvpn-app
+IssueTracker: https://github.com/mullvad/mullvadvpn-app/issues
+Translation: https://github.com/mullvad/mullvadvpn-app/blob/HEAD/CONTRIBUTING.md#localization--translations
+Changelog: https://github.com/mullvad/mullvadvpn-app/blob/HEAD/android/CHANGELOG.md
+
+AutoName: Mullvad VPN
+
+Summary: >-
+   Protect your online privacy with a fast, trustworthy, and easy-to-use VPN.
+
+Description: >-
+   Free the internet from data collection with Mullvad VPN
+    – a service that helps keep your online activity, identity, and location private.
+   Only €5/month.

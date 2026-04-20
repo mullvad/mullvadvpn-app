@@ -13,6 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
+FDROID_REPO_DIR="$SCRIPT_DIR/fdroid"
 PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
@@ -60,6 +61,10 @@ function prepare_for_cdn_upload {
 
 function run_in_linux_container {
     ./building/container-run.sh linux "$@"
+}
+
+function run_in_android_container {
+    ./building/container-run.sh android "$@"
 }
 
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
@@ -147,9 +152,28 @@ function build_sign_and_publish_ref {
     if [[ "$ENABLE_SIGNING" == "true" ]]; then
         YUBIKEY_PIN=$YUBIKEY_PIN \
         YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" || return 1
+        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" 'shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk' || return 1
     else
         echo "WARNING: Signing skipped for $version"
+    fi
+
+    # Update the fdroid repo
+    if [[ $version != *"-dev-"* ]]; then
+        # Copy the apk file into the repo
+        cp "$artifact_dir/MullvadVPN-$version.apk" "$FDROID_REPO_DIR/repo/"
+
+        # Copy the release notes into the repo
+        local version_code=""
+        version_code="$(cat dist-assets/android-version-code.txt)"
+        cp "android/src/main/play/release-notes/en-US/default.txt" \
+        "$FDROID_REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
+
+        # Update and sign the repo
+        YUBIKEY_PIN=$YUBIKEY_PIN \
+        YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
+        "./android/scripts/containerized-sign.sh" "$FDROID_REPO_DIR" \
+        'export JAVA_TOOL_OPTIONS="--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" && fdroid update' \
+        || echo "Failed to update f-droid repo"
     fi
 
     (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
