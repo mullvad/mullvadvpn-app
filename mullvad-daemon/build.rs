@@ -42,10 +42,10 @@ fn main() {
 
     if matches!(target_os(), Os::Macos) {
         // Set the minimum version of macOS on which mullvad-daemon can run.
-        if cfg!(target_arch = "x86_64") {
-            println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.12");
-        } else if cfg!(target_arch = "aarch64") {
-            println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=11.0");
+        cfg_select! {
+            target_arch = "x86_64"  => { println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=10.12"); }
+            target_arch = "aarch64" => { println!("cargo:rustc-env=MACOSX_DEPLOYMENT_TARGET=11.0"); }
+            _ => {}
         }
     }
 }
