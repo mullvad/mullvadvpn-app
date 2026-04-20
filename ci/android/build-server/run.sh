@@ -166,8 +166,8 @@ function build_sign_and_publish_ref {
     if [[ $version != *"-dev-"* && $version != *"-beta"* && $version != *"-alpha"* ]]; then
         update_fdroid "$artifact_dir/MullvadVPN-$version.apk" || echo "Failed deploy f-droid repo"
         
-        # TODO call rsync or rsync script here
-        # We should send the fdroid repo to the upload somehow
+        local fdroid_repo_dir="$BUILD_DIR/dist/fdroid/repo"
+        (cd "$fdroid_repo_dir" && prepare_for_cdn_upload "fdroid") || return 1
     fi
 
     # shellcheck disable=SC2216
