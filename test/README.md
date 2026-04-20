@@ -117,33 +117,33 @@ Next: build the `test-runner`
 
 ### Building the test runner
 
-Building the `test-runner` binary is done with the `build/test-runner.sh` script.
+Building the `test-runner` binary is done with the `build-scripts/test-runner.sh` script.
 Currently, only `x86_64` platforms are supported for Windows/Linux and `ARM64` (Apple Silicon) for macOS.
 
 For example, building `test-runner` for Windows would look like this:
 
 ``` bash
-./scripts/container-run.sh ./scripts/build/test-runner.sh windows
+./scripts/container-run.sh ./scripts/build-scripts/test-runner.sh windows
 ```
 
 #### Linux
 Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisities](#prerequisites) for more details.
 
 ``` bash
-./scripts/container-run.sh ./scripts/build/test-runner.sh linux
+./scripts/container-run.sh ./scripts/build-scripts/test-runner.sh linux
 ```
 
 #### macOS
 
 ``` bash
-./scripts/build/test-runner.sh macos
+./scripts/build-scripts/test-runner.sh macos
 ```
 
 #### Windows
 The `test-runner` binary for Windows may be cross-compiled from a Linux host.
 
 ``` bash
-./scripts/container-run.sh ./scripts/build/test-runner.sh windows
+./scripts/container-run.sh ./scripts/build-scripts/test-runner.sh windows
 ```
 
 ### Running the tests
