@@ -65,11 +65,10 @@ pub async fn config_ephemeral_peers(
 fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
     use talpid_windows::net::*;
     match luid_from_alias(alias) {
-        Ok(luid) => {
-            if let Err(error) = set_mtu(u32::from(mtu), luid, AddressFamily::Ipv4) {
-                log::error!("Failed to set tunnel interface MTU: {error}");
-            }
+        Ok(luid) if let Err(error) = set_mtu(u32::from(mtu), luid, AddressFamily::Ipv4) => {
+            log::error!("Failed to set tunnel interface MTU: {error}");
         }
+        Ok(_) => {}
         Err(error) => {
             log::error!("Failed to obtain tunnel interface LUID: {error}")
         }

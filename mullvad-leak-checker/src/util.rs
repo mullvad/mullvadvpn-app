@@ -71,16 +71,13 @@ pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result
         };
 
         match ip_version {
-            Ip::V4(()) => {
-                if let Some(address) = address.as_sockaddr_in() {
-                    return Ok(IpAddr::V4(address.ip()));
-                };
+            Ip::V4(()) if let Some(address) = address.as_sockaddr_in() => {
+                return Ok(IpAddr::V4(address.ip()));
             }
-            Ip::V6(()) => {
-                if let Some(address) = address.as_sockaddr_in6() {
-                    return Ok(IpAddr::V6(address.ip()));
-                };
+            Ip::V6(()) if let Some(address) = address.as_sockaddr_in6() => {
+                return Ok(IpAddr::V6(address.ip()));
             }
+            _ => {}
         }
     }
 

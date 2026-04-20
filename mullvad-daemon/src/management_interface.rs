@@ -1412,11 +1412,10 @@ impl ManagementInterfaceServer {
             Err(timeout) => {
                 log::error!("Timed out while shutting down management server: {timeout}");
             }
-            Ok(join_result) => {
-                if let Err(_error) = join_result {
-                    log::error!("Management server task failed to execute until completion");
-                }
+            Ok(join_result) if let Err(_error) = &join_result => {
+                log::error!("Management server task failed to execute until completion");
             }
+            Ok(_) => {}
         }
     }
 

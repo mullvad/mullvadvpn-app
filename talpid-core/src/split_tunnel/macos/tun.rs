@@ -744,25 +744,25 @@ fn fix_ipv4_checksums(
     let destination_ip = ip.get_destination();
 
     match ip.get_next_level_protocol() {
-        IpNextHeaderProtocols::Tcp => {
-            if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) {
-                use pnet_packet::tcp::ipv4_checksum;
-                tcp.set_checksum(ipv4_checksum(
-                    &tcp.to_immutable(),
-                    &source_ip,
-                    &destination_ip,
-                ));
-            }
+        IpNextHeaderProtocols::Tcp
+            if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) =>
+        {
+            use pnet_packet::tcp::ipv4_checksum;
+            tcp.set_checksum(ipv4_checksum(
+                &tcp.to_immutable(),
+                &source_ip,
+                &destination_ip,
+            ));
         }
-        IpNextHeaderProtocols::Udp => {
-            if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) {
-                use pnet_packet::udp::ipv4_checksum;
-                udp.set_checksum(ipv4_checksum(
-                    &udp.to_immutable(),
-                    &source_ip,
-                    &destination_ip,
-                ));
-            }
+        IpNextHeaderProtocols::Udp
+            if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) =>
+        {
+            use pnet_packet::udp::ipv4_checksum;
+            udp.set_checksum(ipv4_checksum(
+                &udp.to_immutable(),
+                &source_ip,
+                &destination_ip,
+            ));
         }
         _ => (),
     }
@@ -788,25 +788,25 @@ fn fix_ipv6_checksums(
     let destination_ip = ip.get_destination();
 
     match ip.get_next_header() {
-        IpNextHeaderProtocols::Tcp => {
-            if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) {
-                use pnet_packet::tcp::ipv6_checksum;
-                tcp.set_checksum(ipv6_checksum(
-                    &tcp.to_immutable(),
-                    &source_ip,
-                    &destination_ip,
-                ));
-            }
+        IpNextHeaderProtocols::Tcp
+            if let Some(mut tcp) = MutableTcpPacket::new(ip.payload_mut()) =>
+        {
+            use pnet_packet::tcp::ipv6_checksum;
+            tcp.set_checksum(ipv6_checksum(
+                &tcp.to_immutable(),
+                &source_ip,
+                &destination_ip,
+            ));
         }
-        IpNextHeaderProtocols::Udp => {
-            if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) {
-                use pnet_packet::udp::ipv6_checksum;
-                udp.set_checksum(ipv6_checksum(
-                    &udp.to_immutable(),
-                    &source_ip,
-                    &destination_ip,
-                ));
-            }
+        IpNextHeaderProtocols::Udp
+            if let Some(mut udp) = MutableUdpPacket::new(ip.payload_mut()) =>
+        {
+            use pnet_packet::udp::ipv6_checksum;
+            udp.set_checksum(ipv6_checksum(
+                &udp.to_immutable(),
+                &source_ip,
+                &destination_ip,
+            ));
         }
         _ => (),
     }

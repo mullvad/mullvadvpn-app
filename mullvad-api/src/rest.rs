@@ -100,14 +100,12 @@ impl Error {
     /// Return true if there was no route to the destination
     pub fn is_offline(&self) -> bool {
         match self {
-            Error::LegacyHyperError(error) if error.is_connect() => {
-                if let Some(cause) = error.source()
-                    && let Some(err) = cause.downcast_ref::<std::io::Error>()
-                {
-                    return err.raw_os_error() == Some(libc::ENETUNREACH);
-                }
-
-                false
+            Error::LegacyHyperError(error)
+                if error.is_connect()
+                    && let Some(cause) = error.source()
+                    && let Some(err) = cause.downcast_ref::<std::io::Error>() =>
+            {
+                err.raw_os_error() == Some(libc::ENETUNREACH)
             }
             // TODO: Currently, we use the legacy hyper client for all REST requests. If this
             // changes in the future, we likely need to match on `Error::HyperError` here and
