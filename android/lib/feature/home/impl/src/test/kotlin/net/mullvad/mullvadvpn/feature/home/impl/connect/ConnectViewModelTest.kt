@@ -26,7 +26,6 @@ import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -124,10 +123,8 @@ class ConnectViewModelTest {
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
-                resources = mockk(),
                 isPlayBuild = false,
-                isFdroidBuild = false,
-                self = PackageName("net.mullvad.mullvadvpn"),
+                resolveAppListing = mockk(),
             )
     }
 

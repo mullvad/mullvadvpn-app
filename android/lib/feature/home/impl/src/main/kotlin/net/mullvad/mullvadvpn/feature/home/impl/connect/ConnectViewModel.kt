@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
-import android.content.res.Resources
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.applisting.api.ResolveAppListingUseCase
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
@@ -27,7 +27,6 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
-import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
@@ -39,7 +38,6 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
-import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
@@ -59,10 +57,8 @@ class ConnectViewModel(
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
-    private val resources: Resources,
     private val isPlayBuild: Boolean,
-    private val isFdroidBuild: Boolean,
-    private val self: PackageName,
+    private val resolveAppListing: ResolveAppListingUseCase,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -198,18 +194,12 @@ class ConnectViewModel(
     }
 
     fun openAppListing() = viewModelScope.launch {
+        val target = resolveAppListing()
         val sideEffect =
-            if (isPlayBuild || isFdroidBuild) {
-                UiSideEffect.OpenUri(
-                    uri = resources.getString(R.string.market_uri, self.value).toUri(),
-                    errorMessage = resources.getString(R.string.uri_market_app_not_found),
-                )
-            } else {
-                UiSideEffect.OpenUri(
-                    uri = resources.getString(R.string.download_url).toUri(),
-                    errorMessage = resources.getString(R.string.uri_browser_app_not_found),
-                )
-            }
+            UiSideEffect.OpenUri(
+                uri = target.listingUri.toUri(),
+                errorMessage = target.errorMessage,
+            )
         _uiSideEffect.send(sideEffect)
     }
 
