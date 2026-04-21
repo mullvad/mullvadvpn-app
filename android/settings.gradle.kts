@@ -19,8 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("rust-android-gradle-plugin")
-
 includeBuild("gradle/build-logic")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
