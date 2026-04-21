@@ -29,21 +29,20 @@ class ScheduleNotificationAlarmUseCase(
         val triggerAt =
             accountExpiryNotificationTriggerAt(now = ZonedDateTime.now(), expiry = accountExpiry)
 
-        if (triggerAt == null) {
-            Logger.d("Account expiry is in the past, not scheduling an alarm")
-            userPreferencesRepository.setAccountExpiry(accountExpiry)
-            return
+        // If the triggerAt time is null, it means that the account has already expired, so we do
+        // not schedule a new notification.
+        if (triggerAt != null) {
+            val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
+
+            val intent = alarmIntent(context)
+            alarmManager.set(AlarmManager.RTC, triggerAtMillis, intent)
+
+            // Change to UTC to avoid leaking the user's time zone in the logs
+            Logger.d(
+                "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}"
+            )
         }
 
-        val triggerAtMillis = triggerAt.toInstant().toEpochMilli()
-
-        val intent = alarmIntent(context)
-        alarmManager.set(AlarmManager.RTC, triggerAtMillis, intent)
-
-        // Change to UTC to avoid leaking the user's time zone in the logs
-        Logger.d(
-            "Scheduling next account expiry alarm for ${triggerAt.withZoneSameInstant(ZoneOffset.UTC)}"
-        )
         userPreferencesRepository.setAccountExpiry(accountExpiry)
     }
 
