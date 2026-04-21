@@ -9,11 +9,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776372445,
-        "narHash": "sha256-M44H8dZuMVz1HeWD49fjBQuHv/ZoOjTLUqHonyhlDSw=",
+        "lastModified": 1776717890,
+        "narHash": "sha256-Sa+pki/B361TigSv2Ipkj0qSoJw8P44c4rUjqhmiUQs=",
         "owner": "tadfisher",
         "repo": "android-nixpkgs",
-        "rev": "3d137a15a65cbc5985fc9bd97d672e930a9a10a8",
+        "rev": "77f1c65db15624af98a6b670e386f4cb57b2d62b",
         "type": "github"
       },
       "original": {
@@ -115,11 +115,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1776221942,
-        "narHash": "sha256-FbQAeVNi7G4v3QCSThrSAAvzQTmrmyDLiHNPvTF2qFM=",
+        "lastModified": 1776434932,
+        "narHash": "sha256-gyqXNMgk3sh+ogY5svd2eNLJ6oEwzbAeaoBrrxD0lKk=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1766437c5509f444c1b15331e82b8b6a9b967000",
+        "rev": "c7f47036d3df2add644c46d712d14262b7d86c0c",
         "type": "github"
       },
       "original": {
@@ -144,11 +144,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776395632,
-        "narHash": "sha256-Mi1uF5f2FsdBIvy+v7MtsqxD3Xjhd0ARJdwoqqqPtJo=",
+        "lastModified": 1776741231,
+        "narHash": "sha256-k9G98qzn+7npROUaks8VqCFm7cFtEG8ulQLBBo5lItg=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "8087ff1f47fff983a1fba70fa88b759f2fd8ae97",
+        "rev": "02061303f7c4c964f7b4584dabd9e985b4cd442b",
         "type": "github"
       },
       "original": {
