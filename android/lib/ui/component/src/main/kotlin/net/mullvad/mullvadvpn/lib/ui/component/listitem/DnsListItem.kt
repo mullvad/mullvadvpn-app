@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.ui.component.listitem
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -71,5 +72,6 @@ fun DnsListItem(
                 )
             }
         },
+        trailingContent = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
     )
 }

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.vpnsettings.api
+package net.mullvad.mullvadvpn.feature.dns.api
 
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.core.NavKey2

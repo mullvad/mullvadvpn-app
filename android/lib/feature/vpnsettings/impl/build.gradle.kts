@@ -11,6 +11,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.vpnsettings.impl" }
 dependencies {
     implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.autoconnect.api)
+    implementation(projects.lib.feature.dns.api)
     implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.vpnsettings.api)
     implementation(projects.lib.navigation)

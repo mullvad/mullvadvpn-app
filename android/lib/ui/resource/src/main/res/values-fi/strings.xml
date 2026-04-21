@@ -123,7 +123,6 @@
     <string name="current_device">Nykyinen laite</string>
     <string name="current_method">Nykyinen: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki %1$s käytöstä yllä.</string>
-    <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
     <string name="custom_list_error_list_exists">Nimi on jo olemassa.</string>
     <string name="custom_lists">Mukautetut luettelot</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Jätä huomiotta</string>
     <string name="divier_or">tai</string>
     <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
-    <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
-    <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Poista \"%1$s\" käytöstä alla näiden asetusten aktivoimiseksi.</string>
-    <string name="dns_content_blockers_warning">Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa.</string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>
@@ -427,7 +423,6 @@
     <string name="settings">Asetukset</string>
     <string name="settings_account">Tili</string>
     <string name="settings_api_access">Ohjelmointirajapinnan käyttö</string>
-    <string name="settings_changes_effect_warning_content_blocker">DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi.</string>
     <string name="settings_changes_effect_warning_short">Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi</string>
     <string name="settings_notifications">Ilmoitukset</string>
     <string name="settings_patch_error_failed_to_apply_patch">Muutostiedoston käyttöönotto ei onnistunut</string>

@@ -123,7 +123,6 @@
     <string name="current_device">Gjeldende enhet</string>
     <string name="current_method">Gjeldende: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle «%1$s» ovenfor for å aktivere denne innstillingen.</string>
-    <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Skriv inn IP</string>
     <string name="custom_list_error_list_exists">Navn allerede i bruk.</string>
     <string name="custom_lists">Tilpassede lister</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Ignorer</string>
     <string name="divier_or">Eller</string>
     <string name="dns_content_blockers">DNS-innholdsblokkering</string>
-    <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server».</string>
-    <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver «%1$s» nedenfor for å aktivere innstillingene.</string>
-    <string name="dns_content_blockers_warning">Dette kan føre til problemer på enkelte nettsteder, tjenester og apper.</string>
     <string name="duplicate_address_warning">Denne adressen er allerede skrevet inn.</string>
     <string name="edit_custom_lists">Endre egendefinerte lister</string>
     <string name="edit_list">Endre liste</string>
@@ -427,7 +423,6 @@
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-tilgang</string>
-    <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
     <string name="settings_notifications">Meldinger</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
