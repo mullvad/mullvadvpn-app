@@ -71,7 +71,7 @@ fun Context.getOtherAlwaysOnVpnAppName(): String? {
     val currentAlwaysOnPackageName =
         try {
             Settings.Secure.getString(contentResolver, ALWAYS_ON_VPN_APP)
-        } catch (ex: SecurityException) {
+        } catch (_: SecurityException) {
             return null
         }
 
@@ -114,6 +114,7 @@ fun VpnService.Builder.establishSafe(): Either<EstablishError, ParcelFileDescrip
     vpnInterfaceFd
 }
 
+@Suppress("QueryPermissionsNeeded")
 private fun PackageManager.getInstalledPackagesList(flags: Int = 0): List<PackageInfo> =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getInstalledPackages(PackageManager.PackageInfoFlags.of(flags.toLong()))

@@ -1,4 +1,4 @@
-import com.android.build.gradle.LibraryExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.internal.Actions.with
@@ -12,7 +12,6 @@ class AndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             apply(plugin = "com.android.library")
-            apply(plugin = "org.jetbrains.kotlin.android")
             apply(plugin = "mullvad.kotlin-toolchain")
 
             extensions.configure<LibraryExtension> {
@@ -23,6 +22,8 @@ class AndroidLibraryPlugin : Plugin<Project> {
 
                 lint {
                     lintConfig = file("${project.rootDir}/config/lint.xml")
+                    baseline =
+                        file("${rootProject.projectDir.absolutePath}/config/lint-baseline.xml")
                     abortOnError = true
                     warningsAsErrors = true
                 }
