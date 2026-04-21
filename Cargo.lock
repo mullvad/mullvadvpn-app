@@ -5302,7 +5302,6 @@ dependencies = [
  "typed-builder 0.20.1",
  "widestring",
  "windows 0.58.0",
- "windows-core 0.58.0",
  "windows-service",
  "windows-sys 0.61.2",
  "winreg 0.55.0",
@@ -7235,17 +7234,17 @@ dependencies = [
 
 [[package]]
 name = "wmi"
-version = "0.14.0"
+version = "0.18.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbdda506bdee26ba617bd814538b690e14f59e8185345344cff113a8be21c005"
+checksum = "7c81b85c57a57500e56669586496bf2abd5cf082b9d32995251185d105208b64"
 dependencies = [
  "chrono",
  "futures",
  "log",
  "serde",
- "thiserror 1.0.59",
- "windows 0.58.0",
- "windows-core 0.58.0",
+ "thiserror 2.0.18",
+ "windows 0.62.2",
+ "windows-core 0.62.2",
 ]
 
 [[package]]
