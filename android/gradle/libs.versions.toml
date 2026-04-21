@@ -188,7 +188,9 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+#noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+#noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 junit5-android = { id = "de.mannodermaus.android-junit5", version.ref = "junit5-android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -197,7 +199,9 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
+#noinspection SimilarGradleDependency
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
+#noinspection SimilarGradleDependency
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
 rust-android = { id = "net.mullvad.rust-android", version.ref = "rust-android" }
 # Convention plugins
