@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix 'mullvad split-tunnel clear' getting stuck.
 
+#### Windows
+- Fix potential access violation during cleanup on ARM64.
+
 ### Security
 - Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
   measure to ensure that the renderer process does not have any capabilities beyond that of a
