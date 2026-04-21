@@ -57,7 +57,7 @@ Run the following command to trigger a full debug build:
 ```
 3. Sign the release artifacts using apksigner with the following command:
 ```bash
-apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
+apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
 ```
 
 ## Build without the provided container
@@ -143,11 +143,6 @@ environment variables:
   .scripts/setup-rust install-hook
   ```
 
-#### 5. Checkout required submodules
-```bash
-git submodule update --init android/rust-android-gradle-plugin
-```
-
 ### Debug build
 Run the following command to build a debug build:
 ```bash
@@ -162,7 +157,7 @@ Run the following command to build a debug build:
    ```
 3. Sign the release artifacts using apksigner with the following command:
    ```bash
-   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
+   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
    ```
 
 ## Build using nix devshell
