@@ -1,4 +1,4 @@
-# Supported platforms
+ Supported platforms
 
 These are the operating systems, versions and architectures that the app officially
 supports and actively tests. It might work on many more versions, but we don't
@@ -72,13 +72,21 @@ DEs, but we don't regularly test those.
 
 ## Android
 
-Supported versions: 9 and newer.
+Supported versions: Android 9 and newer.
+Supported targets: Mobile, TV, and tablets.
+Architectures: ARM32, ARM64, x86, and x86-64.
+
+The Android ecosystem is broad in terms of versions, flavors, and manufacturers. Our goal is to
+support all versions within the version constraint. However, some manufacturer-specific flavors may
+remove system components that our app relies on, which can affect functionality.
 
 ### Tested versions
 
 | Version        | Architecture | Type of test |
 |----------------|--------------|--------------|
-| ...            |              |              |
+| Android 16     | ARM64        | e2e, manual  |
+
+Manual tests are performed on a set of devices that varies between releases.
 
 ## iOS
 
