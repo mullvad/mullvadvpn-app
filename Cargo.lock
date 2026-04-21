@@ -346,6 +346,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ce2b2dcc879c3bae0d371e77c99f2238400ef24ec001394befa67b6e543add9e"
 dependencies = [
  "aws-lc-sys",
+ "untrusted 0.7.1",
  "zeroize",
 ]
 
@@ -1916,6 +1917,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "121650b305d0ee6d45b08bbec1d5781a43b915a0a89a2fd869028647eb475cc9"
 dependencies = [
  "aead",
+ "aws-lc-rs",
  "base64",
  "bitfield-struct",
  "blake2",
@@ -1939,7 +1941,6 @@ dependencies = [
  "rand 0.9.4",
  "rand_chacha",
  "rand_core 0.6.4",
- "ring",
  "socket2",
  "thiserror 1.0.69",
  "tokio",
@@ -5142,7 +5143,7 @@ dependencies = [
  "cfg-if",
  "getrandom 0.2.17",
  "libc",
- "untrusted",
+ "untrusted 0.9.0",
  "windows-sys 0.52.0",
 ]
 
@@ -5259,7 +5260,7 @@ dependencies = [
  "aws-lc-rs",
  "ring",
  "rustls-pki-types",
- "untrusted",
+ "untrusted 0.9.0",
 ]
 
 [[package]]
@@ -7057,6 +7058,12 @@ dependencies = [
  "crypto-common",
  "subtle",
 ]
+
+[[package]]
+name = "untrusted"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a156c684c91ea7d62626509bce3cb4e1d9ed5c4d978f7b4352658f96a4c26b4a"
 
 [[package]]
 name = "untrusted"
