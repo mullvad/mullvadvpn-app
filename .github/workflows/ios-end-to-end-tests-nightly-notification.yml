@@ -13,7 +13,10 @@ jobs:
   notify-on-failed-workflow:
     # Payload of workflow_run:
     # https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2026-03-10#get-a-workflow-run
-    if: "${{ github.event.workflow_run.conclusion != 'successful' }}"
+    #
+    # Valid values for conclusion are listed on:
+    # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks#check-statuses-and-conclusions
+    if: "${{ github.event.workflow_run.conclusion != 'success' }}"
     name: Notify team on nightly E2E failure
     runs-on: [ubuntu-latest]
     timeout-minutes: 5
