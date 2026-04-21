@@ -60,12 +60,7 @@ export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-and
 export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
 ```
 
-## 3. Checkout required submodules
-```bash
-git submodule update --init android/rust-android-gradle-plugin
-```
-
-## 4. Debug build
+## 3. Debug build
 
 ### Android Studio
 
