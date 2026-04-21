@@ -33,6 +33,8 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editname.EditCustom
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.lists.CustomListsViewModel
 import net.mullvad.mullvadvpn.feature.daita.impl.DaitaViewModel
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.deleteaccountconfirmation.DeleteAccountConfirmationViewModel
+import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsDialogViewModel
+import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsViewModel
 import net.mullvad.mullvadvpn.feature.filter.impl.FilterViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.InAppNotificationController
@@ -63,7 +65,6 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.ApplicationsPr
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.search.SearchSplitTunnelingViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.VpnSettingsViewModel
-import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
 import net.mullvad.mullvadvpn.lib.model.PackageName
@@ -304,7 +305,7 @@ val uiModule = module {
     }
     viewModel { DeviceRevokedViewModel(get(), get(), get(), get()) }
     viewModel { params -> MtuDialogViewModel(navArgs = params.get(), get()) }
-    viewModel { params -> DnsDialogViewModel(navArgs = params.get(), get(), get(), get()) }
+    viewModel { params -> CustomDnsDialogViewModel(navArgs = params.get(), get(), get(), get()) }
     viewModel { params -> CustomPortDialogViewModel(navArgs = params.get()) }
     viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
@@ -431,8 +432,14 @@ val uiModule = module {
     viewModel { params ->
         SplitTunnelingViewModel(isModal = params.get(), get(), get(), get(), Dispatchers.IO)
     }
-
     viewModel { SearchSplitTunnelingViewModel(get(), get(), Dispatchers.IO) }
+    viewModel { params ->
+        DnsSettingsViewModel(
+            isModal = params.get(),
+            settingsRepository = get(),
+            dispatcher = Dispatchers.IO,
+        )
+    }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { MullvadAppViewModel(get(), get()) }

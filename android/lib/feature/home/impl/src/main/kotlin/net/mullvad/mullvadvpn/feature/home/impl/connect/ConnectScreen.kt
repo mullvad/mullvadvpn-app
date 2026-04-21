@@ -83,6 +83,7 @@ import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
+import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.home.api.Android16UpgradeInfoNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceRevokedNavKey
 import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
@@ -805,9 +806,10 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.SHADOWSOCKS,
         FeatureIndicator.LWO -> AntiCensorshipNavKey(selectedFeature = this, isModal = true)
 
+        FeatureIndicator.DNS_CONTENT_BLOCKERS,
+        FeatureIndicator.CUSTOM_DNS -> DnsSettingsNavKey(selectedFeature = this, isModal = true)
+
         FeatureIndicator.QUANTUM_RESISTANCE,
         FeatureIndicator.LAN_SHARING,
-        FeatureIndicator.DNS_CONTENT_BLOCKERS,
-        FeatureIndicator.CUSTOM_DNS,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }

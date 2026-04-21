@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns
+package net.mullvad.mullvadvpn.feature.dns.impl
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -11,8 +11,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.core.Navigator
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavResult
+import net.mullvad.mullvadvpn.feature.dns.api.CustomDnsNavKey
+import net.mullvad.mullvadvpn.feature.dns.api.CustomDnsNavResult
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.DnsTextField
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -22,10 +22,10 @@ import org.koin.core.parameter.parametersOf
 
 @Preview
 @Composable
-private fun PreviewDnsDialogNew() {
+private fun PreviewCustomDnsDialogNew() {
     AppTheme {
-        DnsDialog(
-            state = DnsDialogViewState("1.1.1.1", null, false, false, null),
+        CustomDnsDialog(
+            state = CustomDnsDialogViewState("1.1.1.1", null, false, false, null),
             onDnsInputChange = {},
             onSaveDnsClick = {},
             onRemoveDnsClick = {},
@@ -36,11 +36,11 @@ private fun PreviewDnsDialogNew() {
 
 @Preview
 @Composable
-private fun PreviewDnsDialogEdit() {
+private fun PreviewCustomDnsDialogEdit() {
     AppTheme {
-        DnsDialog(
+        CustomDnsDialog(
             state =
-                DnsDialogViewState(
+                CustomDnsDialogViewState(
                     input = "1.1.1.1",
                     validationError = null,
                     isAllowLanEnabled = false,
@@ -57,10 +57,10 @@ private fun PreviewDnsDialogEdit() {
 
 @Preview
 @Composable
-private fun PreviewDnsDialogEditAllowLanDisabled() {
+private fun PreviewCustomDnsDialogEditAllowLanDisabled() {
     AppTheme {
-        DnsDialog(
-            state = DnsDialogViewState("192.168.1.1", null, false, false, 0),
+        CustomDnsDialog(
+            state = CustomDnsDialogViewState("192.168.1.1", null, false, false, 0),
             onDnsInputChange = {},
             onSaveDnsClick = {},
             onRemoveDnsClick = {},
@@ -70,20 +70,20 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
 }
 
 @Composable
-fun Dns(navArgs: DnsNavKey, navigator: Navigator) {
-    val viewModel = koinViewModel<DnsDialogViewModel> { parametersOf(navArgs) }
+fun CustomDns(navArgs: CustomDnsNavKey, navigator: Navigator) {
+    val viewModel = koinViewModel<CustomDnsDialogViewModel> { parametersOf(navArgs) }
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            is DnsDialogSideEffect.Complete ->
-                navigator.goBack(result = DnsNavResult.Success(it.isDnsListEmpty))
+            is CustomDnsDialogSideEffect.Complete ->
+                navigator.goBack(result = CustomDnsNavResult.Success(it.isDnsListEmpty))
 
-            DnsDialogSideEffect.Error -> navigator.goBack(result = DnsNavResult.Error)
+            CustomDnsDialogSideEffect.Error -> navigator.goBack(result = CustomDnsNavResult.Error)
         }
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
-    DnsDialog(
+    CustomDnsDialog(
         state = state,
         onDnsInputChange = viewModel::onDnsInputChange,
         onSaveDnsClick = viewModel::onSaveDnsClick,
@@ -93,8 +93,8 @@ fun Dns(navArgs: DnsNavKey, navigator: Navigator) {
 }
 
 @Composable
-fun DnsDialog(
-    state: DnsDialogViewState,
+fun CustomDnsDialog(
+    state: CustomDnsDialogViewState,
     onDnsInputChange: (String) -> Unit,
     onSaveDnsClick: () -> Unit,
     onRemoveDnsClick: (Int) -> Unit,
