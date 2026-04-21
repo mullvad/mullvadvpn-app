@@ -17,6 +17,7 @@ dependencies {
     implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.feature.daita.api)
+    implementation(projects.lib.feature.dns.api)
     implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.location.api)
     implementation(projects.lib.feature.login.api)
