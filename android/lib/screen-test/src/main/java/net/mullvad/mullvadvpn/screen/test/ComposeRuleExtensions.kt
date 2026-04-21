@@ -15,10 +15,11 @@ fun ComposeContext.setContentWithTheme(content: @Composable () -> Unit) {
 
 @ExperimentalTestApi
 fun createEdgeToEdgeComposeExtension() =
-    createAndroidComposeExtension<ComponentActivity>(
+    createAndroidComposeExtension(
+        activityClass = ComponentActivity::class.java,
         scenarioSupplier = {
             ActivityScenario.launch(ComponentActivity::class.java).onActivity {
                 WindowCompat.setDecorFitsSystemWindows(it.window, false)
-            } as ActivityScenario<ComponentActivity>
+            }
         }
     )
