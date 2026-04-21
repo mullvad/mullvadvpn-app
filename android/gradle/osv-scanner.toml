@@ -114,3 +114,9 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-5588"  # GHSA-wg6q-6289-32hp
 ignoreUntil = 2026-08-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs
+[[IgnoredVulns]]
+id = "CVE-2025-48924"  # GHSA-j288-q9x7-2f5v
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
