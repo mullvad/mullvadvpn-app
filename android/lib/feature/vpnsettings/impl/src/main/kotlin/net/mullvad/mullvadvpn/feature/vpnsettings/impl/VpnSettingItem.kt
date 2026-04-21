@@ -7,6 +7,8 @@ sealed interface VpnSettingItem {
 
     data object AntiCensorshipHeader : VpnSettingItem
 
+    data object DnsHeader : VpnSettingItem
+
     // Not available on TV devices
     data object AutoConnectAndLockdownMode : VpnSettingItem
 
@@ -16,60 +18,6 @@ sealed interface VpnSettingItem {
     data class ConnectDeviceOnStartUpSetting(val enabled: Boolean) : VpnSettingItem
 
     data class LocalNetworkSharingSetting(val enabled: Boolean) : VpnSettingItem
-
-    data class DnsContentBlockersHeader(
-        val featureEnabled: Boolean,
-        val expanded: Boolean,
-        val numberOfContentBlockersEnabled: Int,
-    ) : VpnSettingItem
-
-    sealed interface DnsContentBlockerItem : VpnSettingItem {
-        val enabled: Boolean
-        val featureEnabled: Boolean
-
-        data class All(override val enabled: Boolean, override val featureEnabled: Boolean) :
-            DnsContentBlockerItem
-
-        data class Ads(override val enabled: Boolean, override val featureEnabled: Boolean) :
-            DnsContentBlockerItem
-
-        data class Trackers(override val enabled: Boolean, override val featureEnabled: Boolean) :
-            DnsContentBlockerItem
-
-        data class Malware(override val enabled: Boolean, override val featureEnabled: Boolean) :
-            DnsContentBlockerItem
-
-        data class Gambling(override val enabled: Boolean, override val featureEnabled: Boolean) :
-            DnsContentBlockerItem
-
-        data class AdultContent(
-            override val enabled: Boolean,
-            override val featureEnabled: Boolean,
-        ) : DnsContentBlockerItem
-
-        data class SocialMedia(
-            override val enabled: Boolean,
-            override val featureEnabled: Boolean,
-        ) : DnsContentBlockerItem
-    }
-
-    data object DnsContentBlockersUnavailable : VpnSettingItem
-
-    data class CustomDnsServerSetting(val enabled: Boolean, val isOptionEnabled: Boolean) :
-        VpnSettingItem
-
-    data class CustomDnsEntry(
-        val index: Int,
-        val customDnsItem: CustomDnsItem,
-        val showUnreachableLocalDnsWarning: Boolean,
-        val showUnreachableIpv6DnsWarning: Boolean,
-    ) : VpnSettingItem
-
-    data object CustomDnsAdd : VpnSettingItem
-
-    data object CustomDnsUnavailable : VpnSettingItem
-
-    data object CustomDnsInfo : VpnSettingItem
 
     data class EnableIpv6Setting(val enabled: Boolean) : VpnSettingItem
 

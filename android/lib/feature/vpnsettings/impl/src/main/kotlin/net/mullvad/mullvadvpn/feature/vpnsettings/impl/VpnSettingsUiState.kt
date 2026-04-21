@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.vpnsettings.impl
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -18,16 +17,12 @@ data class VpnSettingsUiState(
         fun from(
             mtu: Mtu?,
             isLocalNetworkSharingEnabled: Boolean,
-            isCustomDnsEnabled: Boolean,
-            customDnsItems: List<CustomDnsItem>,
-            contentBlockersOptions: DefaultDnsOptions,
             obfuscationMode: ObfuscationMode,
             quantumResistant: QuantumResistantState,
             systemVpnSettingsAvailable: Boolean,
             autoStartAndConnectOnBoot: Boolean,
             deviceIpVersion: Constraint<IpVersion>,
             isIpv6Enabled: Boolean,
-            isContentBlockersExpanded: Boolean,
             isModal: Boolean,
         ) =
             VpnSettingsUiState(
@@ -44,107 +39,9 @@ data class VpnSettingsUiState(
                     add(VpnSettingItem.LocalNetworkSharingSetting(isLocalNetworkSharingEnabled))
                     add(VpnSettingItem.Spacer)
 
-                    // Dns Content Blockers
-                    add(
-                        VpnSettingItem.DnsContentBlockersHeader(
-                            featureEnabled = true,
-                            expanded = isContentBlockersExpanded,
-                            numberOfContentBlockersEnabled =
-                                contentBlockersOptions.numberOfBlockersEnabled(),
-                        )
-                    )
-                    add(VpnSettingItem.Divider)
-
-                    if (isContentBlockersExpanded) {
-                        with(contentBlockersOptions) {
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.All(
-                                    enabled = isAllBlockersEnabled,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.Ads(
-                                    blockAds,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.Trackers(
-                                    blockTrackers,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.Malware(
-                                    blockMalware,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.Gambling(
-                                    blockGambling,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.AdultContent(
-                                    blockAdultContent,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                            add(
-                                VpnSettingItem.DnsContentBlockerItem.SocialMedia(
-                                    blockSocialMedia,
-                                    !isCustomDnsEnabled,
-                                )
-                            )
-                        }
-                    }
-                    if (isCustomDnsEnabled) {
-                        add(VpnSettingItem.DnsContentBlockersUnavailable)
-                    } else {
-                        add(VpnSettingItem.SmallSpacer)
-                    }
-
-                    // Custom DNS
-                    add(
-                        VpnSettingItem.CustomDnsServerSetting(
-                            isCustomDnsEnabled,
-                            !contentBlockersOptions.isAnyBlockerEnabled,
-                        )
-                    )
-                    if (isCustomDnsEnabled) {
-                        customDnsItems.forEachIndexed { index, item ->
-                            add(
-                                VpnSettingItem.CustomDnsEntry(
-                                    index,
-                                    item,
-                                    showUnreachableLocalDnsWarning =
-                                        item.isLocal && !isLocalNetworkSharingEnabled,
-                                    showUnreachableIpv6DnsWarning = item.isIpv6 && !isIpv6Enabled,
-                                )
-                            )
-                            add(VpnSettingItem.Divider)
-                        }
-                        if (customDnsItems.isNotEmpty()) {
-                            add(VpnSettingItem.CustomDnsAdd)
-                        }
-                    }
-
-                    if (contentBlockersOptions.isAnyBlockerEnabled) {
-                        add(VpnSettingItem.CustomDnsUnavailable)
-                    } else if (customDnsItems.isEmpty()) {
-                        add(VpnSettingItem.CustomDnsInfo)
-                    } else {
-                        add(VpnSettingItem.Spacer)
-                    }
+                    // Dns Settings item
+                    add(VpnSettingItem.DnsHeader)
+                    add(VpnSettingItem.Spacer)
 
                     // IPv6
                     add(VpnSettingItem.EnableIpv6Setting(isIpv6Enabled))
@@ -186,15 +83,5 @@ data class VpnSettingsUiState(
                 isModal = isModal,
                 obfuscationMode = obfuscationMode,
             )
-    }
-}
-
-data class CustomDnsItem(val address: String, val isLocal: Boolean, val isIpv6: Boolean) {
-    companion object {
-        private const val EMPTY_STRING = ""
-
-        fun default(): CustomDnsItem {
-            return CustomDnsItem(address = EMPTY_STRING, isLocal = false, isIpv6 = false)
-        }
     }
 }

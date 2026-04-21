@@ -6,17 +6,13 @@ plugins {
     alias(libs.plugins.kotlin.ksp)
 }
 
-android { namespace = "net.mullvad.mullvadvpn.feature.vpnsettings.impl" }
+android { namespace = "net.mullvad.mullvadvpn.feature.dns.impl" }
 
 dependencies {
-    implementation(projects.lib.feature.anticensorship.api)
-    implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.dns.api)
-    implementation(projects.lib.feature.serveripoverride.api)
-    implementation(projects.lib.feature.vpnsettings.api)
-    implementation(projects.lib.navigation)
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

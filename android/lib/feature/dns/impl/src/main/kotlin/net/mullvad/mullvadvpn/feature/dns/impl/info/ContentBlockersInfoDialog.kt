@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.vpnsettings.impl.info
+package net.mullvad.mullvadvpn.feature.dns.impl.info
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
