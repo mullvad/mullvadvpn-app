@@ -55,8 +55,7 @@ export default class TunnelStateHandler {
   }
 
   public handleNewTunnelState(newState: TunnelState) {
-    // If there's a fallback state set then the app is in an assumed next state and need to check
-    // if it's now reached or if the current state should be ignored and set as the fallback state.
+    // Remove fallback state since we know the real state now
     if (this.tunnelStateFallback) {
       this.tunnelStateFallbackScheduler.cancel();
       this.tunnelStateFallback = undefined;
