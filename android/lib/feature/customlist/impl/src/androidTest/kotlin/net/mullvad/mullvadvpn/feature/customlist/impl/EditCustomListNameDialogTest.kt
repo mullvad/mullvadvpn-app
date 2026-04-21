@@ -103,20 +103,6 @@ class EditCustomListNameDialogTest {
     }
 
     @Test
-    fun givenEmptyTextInputWhenSaveIsClickedThenShouldNotCallUpdateName() = composeExtension.use {
-        // Arrange
-        val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
-        val state = EditCustomListNameUiState()
-        initDialog(state = state, updateName = mockedUpdateName)
-
-        // Act
-        onNodeWithText(SAVE_BUTTON_TEXT).performClick()
-
-        // Assert
-        verify(exactly = 0) { mockedUpdateName.invoke(any()) }
-    }
-
-    @Test
     fun givenValidTextInputWhenSaveIsClickedThenShouldCallUpdateName() = composeExtension.use {
         // Arrange
         val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)

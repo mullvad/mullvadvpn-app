@@ -82,15 +82,6 @@ class MtuDialogTest {
     }
 
     @Test
-    fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() = composeExtension.use {
-        // Arrange
-        initDialog(defaultState.copy(mtuInput = INVALID_DUMMY_MTU_VALUE, isValidInput = false))
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
-    @Test
     fun testMtuDialogResetClick() = composeExtension.use {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)

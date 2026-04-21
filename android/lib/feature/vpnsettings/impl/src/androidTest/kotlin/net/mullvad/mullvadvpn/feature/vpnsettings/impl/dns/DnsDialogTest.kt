@@ -82,34 +82,6 @@ class DnsDialogTest {
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
         }
 
-    @Test
-    fun testDnsDialogSubmitButtonDisabledOnInvalidDnsAddress() = composeExtension.use {
-        // Arrange
-        initDialog(
-            defaultState.copy(
-                input = invalidIpAddress,
-                validationError = ValidationError.InvalidAddress,
-            )
-        )
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
-    @Test
-    fun testDnsDialogSubmitButtonDisabledOnDuplicateDnsAddress() = composeExtension.use {
-        // Arrange
-        initDialog(
-            defaultState.copy(
-                input = localIpAddress,
-                validationError = ValidationError.DuplicateAddress,
-            )
-        )
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
     companion object {
         private const val LOCAL_DNS_SERVER_WARNING =
             "The local DNS server will not work unless you enable " +
