@@ -3103,12 +3103,9 @@ dependencies = [
  "log",
  "nix 0.30.1",
  "pnet_packet 0.35.0",
- "reqwest",
- "serde",
  "socket2 0.5.8",
  "talpid-windows",
  "tokio",
- "tracing-subscriber",
  "windows-sys 0.61.2",
 ]
 

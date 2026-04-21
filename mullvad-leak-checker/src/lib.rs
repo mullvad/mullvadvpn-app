@@ -1,7 +1,5 @@
 use std::{fmt, net::IpAddr};
 
-#[cfg(feature = "am-i-mullvad")]
-pub mod am_i_mullvad;
 pub mod traceroute;
 mod util;
 
@@ -20,10 +18,6 @@ pub enum LeakInfo {
         reachable_nodes: Vec<IpAddr>,
         interface: Interface,
     },
-
-    /// Queried a <https://am.i.mullvad.net>, and was not mullvad.
-    #[cfg(feature = "am-i-mullvad")]
-    AmIMullvad { ip: IpAddr },
 }
 
 #[derive(Clone)]
