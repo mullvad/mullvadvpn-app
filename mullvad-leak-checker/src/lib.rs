@@ -9,15 +9,13 @@ pub enum LeakStatus {
     LeakDetected(LeakInfo),
 }
 
-/// Details about how a leak happened
+/// Details about how a leak happened.
+///
+/// Managed to reach another network node on the physical interface, bypassing firewall rules.
 #[derive(Clone, Debug)]
-#[non_exhaustive]
-pub enum LeakInfo {
-    /// Managed to reach another network node on the physical interface, bypassing firewall rules.
-    NodeReachableOnInterface {
-        reachable_nodes: Vec<IpAddr>,
-        interface: Interface,
-    },
+pub struct LeakInfo {
+    pub reachable_nodes: Vec<IpAddr>,
+    pub interface: Interface,
 }
 
 #[derive(Clone)]

@@ -1485,17 +1485,11 @@ impl ManagementInterfaceEventBroadcaster {
 
     /// Notify clients about a potential leak.
     pub(crate) fn notify_leak(&self, leak: mullvad_leak_checker::LeakInfo) {
-        use mullvad_leak_checker::LeakInfo;
-        let LeakInfo::NodeReachableOnInterface {
+        log::trace!("Broadcasting leak info: {leak:#?}");
+        let mullvad_leak_checker::LeakInfo {
             reachable_nodes,
             interface,
-        } = &leak
-        else {
-            log::trace!("Matched on unexpected leak checker event: {leak:#?}");
-            return;
-        };
-
-        log::trace!("Broadcasting leak info: {leak:#?}");
+        } = &leak;
         let interface = match interface {
             mullvad_leak_checker::Interface::Name(name) => name.to_owned(),
             #[cfg(target_os = "macos")]
