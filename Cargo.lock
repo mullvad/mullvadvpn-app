@@ -5302,7 +5302,6 @@ dependencies = [
  "typed-builder 0.20.1",
  "widestring",
  "windows 0.58.0",
- "windows-core 0.58.0",
  "windows-service",
  "windows-sys 0.61.2",
  "winreg 0.55.0",
