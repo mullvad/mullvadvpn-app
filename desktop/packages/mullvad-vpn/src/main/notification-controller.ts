@@ -55,6 +55,7 @@ enum NotificationSuppressReason {
 
 export default class NotificationController {
   private reconnecting = false;
+  private lastTunnelState?: TunnelState['state'];
 
   private presentedNotifications: { [key: string]: boolean } = {};
   private activeNotifications: Set<Notification> = new Set();
@@ -111,10 +112,16 @@ export default class NotificationController {
     this.reconnecting =
       tunnelState.state === 'disconnecting' && tunnelState.details === 'reconnect';
 
+    const suppress = this.shouldSuppressDuplicateTunnelState(tunnelState);
+    this.lastTunnelState = tunnelState.state;
+
     if (notificationProvider) {
       const notification = notificationProvider.getSystemNotification();
 
       if (notification) {
+        if (suppress) {
+          return false;
+        }
         return this.notify(notification, isWindowVisible, areSystemNotificationsEnabled);
       } else {
         log.error(
@@ -211,6 +218,16 @@ export default class NotificationController {
       this.notifyImpl(systemNotification);
       return true;
     }
+  }
+
+  // The daemon can emit multiple consecutive events for the same tunnel state (e.g. a second
+  // 'connected' event once the exit IP becomes known). Suppress the repeat to avoid duplicate
+  // desktop notifications.
+  private shouldSuppressDuplicateTunnelState(tunnelState: TunnelState): boolean {
+    if (tunnelState.state !== this.lastTunnelState) {
+      return false;
+    }
+    return tunnelState.state === 'connected' || tunnelState.state === 'disconnected';
   }
 
   private notifyImpl(systemNotification: SystemNotification): Notification {

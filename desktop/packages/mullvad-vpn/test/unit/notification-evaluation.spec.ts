@@ -109,6 +109,63 @@ describe('System notifications', () => {
     expect(result).toBe(false);
   });
 
+  it('should only show one notification when two consecutive connected events arrive', () => {
+    const controller = createController();
+
+    const connectedState: TunnelState = {
+      state: 'connected',
+      details: {
+        endpoint: {
+          address: '1.2.3.4:1234',
+          protocol: 'udp',
+          quantumResistant: false,
+          daita: false,
+        },
+      },
+    };
+
+    const result1 = controller.notifyTunnelState(connectedState, false, false, true, true);
+    const result2 = controller.notifyTunnelState(connectedState, false, false, true, true);
+
+    expect(result1).toBe(true); // first transition: notify
+    expect(result2).toBe(false); // still connected: suppress
+  });
+
+  it('should only show one notification when two consecutive disconnected events arrive', () => {
+    const controller = createController();
+
+    const disconnectedState: TunnelState = { state: 'disconnected', lockedDown: false };
+
+    const result1 = controller.notifyTunnelState(disconnectedState, false, false, true, true);
+    const result2 = controller.notifyTunnelState(disconnectedState, false, false, true, true);
+
+    expect(result1).toBe(true);
+    expect(result2).toBe(false);
+  });
+
+  it('should notify again after reconnecting', () => {
+    const controller = createController();
+
+    const connectedState: TunnelState = {
+      state: 'connected',
+      details: {
+        endpoint: {
+          address: '1.2.3.4:1234',
+          protocol: 'udp',
+          quantumResistant: false,
+          daita: false,
+        },
+      },
+    };
+    const connectingState: TunnelState = { state: 'connecting', featureIndicators: undefined };
+
+    controller.notifyTunnelState(connectedState, false, false, true, true);
+    controller.notifyTunnelState(connectingState, false, false, true, true); // leaves connected
+    const result = controller.notifyTunnelState(connectedState, false, false, true, true);
+
+    expect(result).toBe(true); // new connection: notify again
+  });
+
   it('Tunnel state notifications should respect notification setting', () => {
     const controller = createController();
 
