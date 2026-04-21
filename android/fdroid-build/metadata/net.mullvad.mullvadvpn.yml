@@ -37,15 +37,11 @@ Builds:
       - building/sigstore
       - android/lib/billing
     prebuild:
-      - git -C ../.. submodule update --init android/rust-android-gradle-plugin
       - sed -i -e 's|Repositories.GradlePlugins|"https://plugins.gradle.org/m2/"|'
         ../build.gradle.kts
-      - sed -i -e '/foojay/d' ../rust-android-gradle-plugin/settings.gradle.kts
       - sed -i -e '/billing/d' ../settings.gradle.kts
       - sed -i -e '/projects.lib.billing/d' build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
-    scanignore:
-      - android/rust-android-gradle-plugin/plugin/build.gradle.kts
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"

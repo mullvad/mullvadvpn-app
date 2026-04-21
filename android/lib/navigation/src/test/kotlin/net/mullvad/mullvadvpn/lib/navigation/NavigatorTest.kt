@@ -24,12 +24,12 @@ class NavigatorTestTest {
         val navigator = createNavigator(listOf(Key1, Key2, Key3))
 
         assertEquals(listOf(Key1, Key2, Key3), navigator.previousBackStack)
-        assertEquals(listOf(Key1, Key2, Key3), navigator.backStack)
+        assertEquals(listOf(Key1, Key2, Key3), navigator.backStack.toList())
 
         navigator.navigate(Key4)
 
         assertEquals(listOf(Key1, Key2, Key3), navigator.previousBackStack)
-        assertEquals(listOf(Key1, Key2, Key3, Key4), navigator.backStack)
+        assertEquals(listOf(Key1, Key2, Key3, Key4), navigator.backStack.toList())
     }
 
     @Test
@@ -39,7 +39,7 @@ class NavigatorTestTest {
         navigator.navigateReplaceTop(Key4)
 
         assertEquals(listOf(Key1, Key2, Key3), navigator.previousBackStack)
-        assertEquals(listOf(Key1, Key2, Key4), navigator.backStack)
+        assertEquals(listOf(Key1, Key2, Key4), navigator.backStack.toList())
     }
 
     @Test
@@ -49,7 +49,7 @@ class NavigatorTestTest {
         navigator.navigate(Key4, clearBackStack = true)
 
         assertEquals(listOf(Key1, Key2, Key3), navigator.previousBackStack)
-        assertEquals(listOf(Key4), navigator.backStack)
+        assertEquals(listOf(Key4), navigator.backStack.toList())
     }
 
     @Test
@@ -59,7 +59,7 @@ class NavigatorTestTest {
         navigator.goBack()
 
         assertEquals(listOf(Key1, Key2, Key3), navigator.previousBackStack)
-        assertEquals(listOf(Key1, Key2), navigator.backStack)
+        assertEquals(listOf(Key1, Key2), navigator.backStack.toList())
     }
 
     @Test
@@ -69,7 +69,7 @@ class NavigatorTestTest {
         navigator.goBack()
 
         assertEquals(listOf(Key1), navigator.previousBackStack)
-        assertEquals(listOf(Key1), navigator.backStack)
+        assertEquals(listOf(Key1), navigator.backStack.toList())
     }
 
     @Test
@@ -77,7 +77,7 @@ class NavigatorTestTest {
         val navigator = createNavigator(listOf(Key1, Key2, Key3, Key2, Key4))
 
         navigator.goBackUntil(Key2)
-        assertEquals(listOf(Key1, Key2, Key3, Key2), navigator.backStack)
+        assertEquals(listOf(Key1, Key2, Key3, Key2), navigator.backStack.toList())
     }
 
     @Test
@@ -85,7 +85,7 @@ class NavigatorTestTest {
         val navigator = createNavigator(listOf(Key1, Key2, Key3, Key2, Key4))
 
         navigator.goBackUntil(Key2, inclusive = true)
-        assertEquals(listOf(Key1, Key2, Key3), navigator.backStack)
+        assertEquals(listOf(Key1, Key2, Key3), navigator.backStack.toList())
     }
 
     @Test
@@ -94,15 +94,15 @@ class NavigatorTestTest {
         navigator.navigate(Key2)
         navigator.goBack()
 
-        assertEquals(listOf(Key1), navigator.backStack)
+        assertEquals(listOf(Key1), navigator.backStack.toList())
         assertEquals(listOf(Key1, Key2), navigator.previousBackStack)
 
         navigator.goBack()
-        assertEquals(listOf(Key1), navigator.backStack)
+        assertEquals(listOf(Key1), navigator.backStack.toList())
         assertEquals(listOf(Key1, Key2), navigator.previousBackStack)
 
         navigator.goBackUntil(Key1, inclusive = true)
-        assertEquals(listOf(Key1), navigator.backStack)
+        assertEquals(listOf(Key1), navigator.backStack.toList())
         assertEquals(listOf(Key1, Key2), navigator.previousBackStack)
     }
 
