@@ -154,10 +154,9 @@ fn remove_blocking_rule(
 }
 
 fn map_deletion_err(element_name: &'static str, err: WMIError) -> Result<(), Error> {
-    if matches!(err, WMIError::HResultError { hres } if hres == WBEM_E_NOT_FOUND) {
+    match err {
         // If the rule doesn't exist, do nothing
-        Ok(())
-    } else {
-        Err(Error::DeleteInstance(element_name, err))
+        WMIError::HResultError { hres } if hres == WBEM_E_NOT_FOUND => Ok(()),
+        _ => Err(Error::DeleteInstance(element_name, err)),
     }
 }
