@@ -20,6 +20,8 @@ on:
 permissions: {}
 
 jobs:
+  with:
+    xcode-version: '26.4'
   swift-format:
     name: Run swift format lint
     runs-on: macos-15
