@@ -4,8 +4,6 @@ import utilities.Flavors
 plugins {
     alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
-    id("de.mannodermaus.android-junit5")
 }
 
 android {
@@ -17,8 +15,6 @@ android {
         minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.mockapi"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["runnerBuilder"] =
-            "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
         missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)
