@@ -2,7 +2,8 @@
 # Core
 # Updating the sdk version requires updating the version used in the build container.
 # See Bump SDK or container image template in Linear for more details.
-compile-sdk = "36"
+compile-sdk-major = "36"
+compile-sdk-minor = "1"
 build-tools = "36.1.0"
 min-sdk = "28"
 target-sdk = "36"

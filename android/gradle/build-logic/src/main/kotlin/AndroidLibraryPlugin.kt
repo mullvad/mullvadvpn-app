@@ -15,7 +15,8 @@ class AndroidLibraryPlugin : Plugin<Project> {
             apply(plugin = "mullvad.kotlin-toolchain")
 
             extensions.configure<LibraryExtension> {
-                compileSdk = libs.findVersion("compile-sdk").get().toString().toInt()
+                compileSdk = libs.findVersion("compile-sdk-major").get().toString().toInt()
+                compileSdkMinor = libs.findVersion("compile-sdk-minor").get().toString().toInt()
                 buildToolsVersion = libs.findVersion("build-tools").get().toString()
 
                 defaultConfig { minSdk = libs.findVersion("min-sdk").get().toString().toInt() }

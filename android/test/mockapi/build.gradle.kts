@@ -8,7 +8,8 @@ plugins {
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.mockapi"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
