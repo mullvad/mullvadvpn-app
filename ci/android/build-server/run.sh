@@ -13,7 +13,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
-FDROID_REPO_DIR="$SCRIPT_DIR/fdroid"
+FDROID_ROOT_DIR="$SCRIPT_DIR/fdroid"
 PLAY_CREDENTIALS_PATH="$SCRIPT_DIR/credentials-android/play-api-key.json"
 
 BRANCHES_TO_BUILD=("origin/main")
@@ -160,18 +160,18 @@ function build_sign_and_publish_ref {
     # Update the fdroid repo
     if [[ $version != *"-dev-"* ]]; then
         # Copy the apk file into the repo
-        cp "$artifact_dir/MullvadVPN-$version.apk" "$FDROID_REPO_DIR/repo/"
+        cp "$artifact_dir/MullvadVPN-$version.apk" "$FDROID_ROOT_DIR/repo/"
 
         # Copy the release notes into the repo
         local version_code=""
         version_code="$(cat dist-assets/android-version-code.txt)"
         cp "android/src/main/play/release-notes/en-US/default.txt" \
-        "$FDROID_REPO_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
+        "$FDROID_ROOT_DIR/metadata/net.mullvad.mullvadvpn/en-US/changelogs/${version_code}.txt"
 
         # Update and sign the repo
         YUBIKEY_PIN=$YUBIKEY_PIN \
         YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-        "./android/scripts/containerized-sign.sh" "$FDROID_REPO_DIR" \
+        "./android/scripts/containerized-sign.sh" "$FDROID_ROOT_DIR" \
         'export JAVA_TOOL_OPTIONS="--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED" && fdroid update' \
         || echo "Failed to update f-droid repo"
     fi
