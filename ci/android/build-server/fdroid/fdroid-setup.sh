@@ -5,7 +5,6 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR"
 
 FDROID_ROOT_DIR=${1:?'Usage: fdroid-setup.sh <fdroid-repo-dir>'}
 
@@ -15,6 +14,8 @@ if [[ ! -d "$FDROID_ROOT_DIR" ]]; then
 fi
 
 FDROID_ROOT_DIR="$(cd "$FDROID_ROOT_DIR" && pwd)"
+
+cd "$SCRIPT_DIR"
 
 # Copy config file
 cp "config.yml" "$FDROID_ROOT_DIR"
