@@ -2,15 +2,6 @@ import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/c
 import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { Scheduler } from '../shared/scheduler';
 
-// Returns true if `to` is a valid completion of an optimistic `from` state.
-function completesTransition(from: TunnelState['state'], to: TunnelState['state']): boolean {
-  return (
-    (from === 'connecting' && to === 'connected') ||
-    (from === 'disconnecting' && to === 'disconnected') ||
-    to === 'error'
-  );
-}
-
 export interface TunnelStateProvider {
   getTunnelState(): TunnelState;
 }
