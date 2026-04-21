@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-hickory-resolver = { workspace = true, features = ["https-ring", "tls-ring"] }
+hickory-resolver = { workspace = true, features = ["https-aws-lc-rs", "tls-aws-lc-rs"] }
 log = { workspace = true }
 rustls.workspace = true
 serde = { workspace = true, features = ["derive"] }
