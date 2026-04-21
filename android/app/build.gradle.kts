@@ -40,7 +40,8 @@ val appVersion = appVersionProvider.get()
 
 android {
     namespace = "net.mullvad.mullvadvpn"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
     ndkVersion = libs.versions.ndk.get()
 
