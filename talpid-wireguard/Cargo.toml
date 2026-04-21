@@ -66,7 +66,8 @@ multihop-pcap = ["gotatun/pcap"]
 wireguard-go = [
   "dep:chrono",
   "dep:wireguard-go-rs",
-  "talpid-tunnel/wireguard-go"
+  "talpid-tunnel/wireguard-go",
+  "talpid-types/wireguard-go"
 ]
 
 [lints]

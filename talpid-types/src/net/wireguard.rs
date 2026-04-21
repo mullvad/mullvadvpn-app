@@ -56,7 +56,11 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
-        cfg!(target_os = "macos") || self.options.userspace || self.options.daita
+        cfg!(target_os = "macos")
+            || self.options.userspace
+            || self.options.daita
+            // Always prefer GotaTun for multihop on Windows
+            || (cfg!(target_os = "windows") && cfg!(not(feature = "wireguard-go")) && self.connection.exit_peer.is_some())
     }
 }
 
