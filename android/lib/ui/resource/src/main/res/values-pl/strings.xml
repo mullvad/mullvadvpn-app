@@ -123,7 +123,6 @@
     <string name="current_device">Bieżące urządzenie</string>
     <string name="current_method">Bieżąca: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Aby aktywować to ustawienie, wyłącz powyżej wszystkie „%1$s”.</string>
-    <string name="custom_dns_footer">Włącz, aby dodać co najmniej jeden serwer DNS.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_list_error_list_exists">Nazwa jest już zajęta.</string>
     <string name="custom_lists">Listy niestandardowe</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Odrzuć</string>
     <string name="divier_or">Lub</string>
     <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”.</string>
-    <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
     <string name="dns_content_blockers_subtitle">Wyłącz poniżej funkcję „%1$s”, aby aktywować te ustawienia.</string>
-    <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami.</string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_custom_lists">Edytuj listy niestandardowe</string>
     <string name="edit_list">Edytuj listę</string>
@@ -427,7 +423,6 @@
     <string name="settings">Ustawienia</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">Dostęp do API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki.</string>
     <string name="settings_changes_effect_warning_short">Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast</string>
     <string name="settings_notifications">Powiadomienia</string>
     <string name="settings_patch_error_failed_to_apply_patch">Nie udało się zastosować poprawki</string>

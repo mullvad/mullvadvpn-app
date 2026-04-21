@@ -123,7 +123,6 @@
     <string name="current_device">Aktuell enhet</string>
     <string name="current_method">Aktuell: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Inaktivera alla \"%1$s\" ovan för att aktivera inställningen.</string>
-    <string name="custom_dns_footer">Aktivera för att lägga till minst en DNS-server.</string>
     <string name="custom_dns_hint">Ange IP</string>
     <string name="custom_list_error_list_exists">Namnet används redan.</string>
     <string name="custom_lists">Anpassade listor</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Ignorera</string>
     <string name="divier_or">eller</string>
     <string name="dns_content_blockers">DNS-innehållsblockerare</string>
-    <string name="dns_content_blockers_custom_dns_warning">Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\".</string>
-    <string name="dns_content_blockers_info">När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera.</string>
     <string name="dns_content_blockers_subtitle">Inaktivera \"%1$s\" nedan för att aktivera dessa inställningar.</string>
-    <string name="dns_content_blockers_warning">Detta kan orsaka problem på vissa webbplatser, tjänster och appar.</string>
     <string name="duplicate_address_warning">Adressen har redan angetts.</string>
     <string name="edit_custom_lists">Redigera anpassade listor</string>
     <string name="edit_list">Redigera lista</string>
@@ -427,7 +423,6 @@
     <string name="settings">Inställningar</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-åtkomst</string>
-    <string name="settings_changes_effect_warning_content_blocker">Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat.</string>
     <string name="settings_changes_effect_warning_short">DNS-inställningarna kanske inte börjar gälla direkt</string>
     <string name="settings_notifications">Meddelanden</string>
     <string name="settings_patch_error_failed_to_apply_patch">Konfigurationsfilen kunde inte tillämpas</string>

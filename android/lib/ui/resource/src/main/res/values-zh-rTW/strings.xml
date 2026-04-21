@@ -123,7 +123,6 @@
     <string name="current_device">目前裝置</string>
     <string name="current_method">目前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">停用上方所有「%1$s」以啟動此設定。</string>
-    <string name="custom_dns_footer">啟用以新增至少一個 DNS 伺服器。</string>
     <string name="custom_dns_hint">輸入 IP</string>
     <string name="custom_list_error_list_exists">名稱已在別處使用。</string>
     <string name="custom_lists">自訂清單</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">取消</string>
     <string name="divier_or">還是</string>
     <string name="dns_content_blockers">DNS 內容封鎖程式</string>
-    <string name="dns_content_blockers_custom_dns_warning">注意：此設定不能與「使用自訂 DNS 伺服器」共同使用。</string>
-    <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的「%1$s」以啟動這些設定。</string>
-    <string name="dns_content_blockers_warning">這可能會導致某些網站、服務和應用程式出現問題。</string>
     <string name="duplicate_address_warning">此地址已輸入過。</string>
     <string name="edit_custom_lists">編輯自訂清單</string>
     <string name="edit_list">編輯清單</string>
@@ -427,7 +423,6 @@
     <string name="settings">設定</string>
     <string name="settings_account">帳戶</string>
     <string name="settings_api_access">API 存取</string>
-    <string name="settings_changes_effect_warning_content_blocker">由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 設定可能不會立即生效</string>
     <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">無法套用修補檔</string>

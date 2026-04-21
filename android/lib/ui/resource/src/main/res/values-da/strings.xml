@@ -123,7 +123,6 @@
     <string name="current_device">Nuværende enhed</string>
     <string name="current_method">Aktuel: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deaktiver alle \"%1$s\" ovenfor for at aktivere denne indstilling.</string>
-    <string name="custom_dns_footer">Aktiver for at tilføje mindst én DNS-server.</string>
     <string name="custom_dns_hint">Indtast IP</string>
     <string name="custom_list_error_list_exists">Navnet er allerede taget.</string>
     <string name="custom_lists">Brugerdefinerede lister</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Afvis</string>
     <string name="divier_or">Eller</string>
     <string name="dns_content_blockers">DNS-indholdsblokkere</string>
-    <string name="dns_content_blockers_custom_dns_warning">Bemærk: Denne indstilling kan ikke bruges i kombination med \"Brug brugerdefineret DNS-server\".</string>
-    <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver \"%1$s\" nedenfor for at aktivere disse indstillinger.</string>
-    <string name="dns_content_blockers_warning">Dette kan forårsage problemer på visse websteder, tjenester og apps.</string>
     <string name="duplicate_address_warning">Denne adresse er allerede blevet indtastet.</string>
     <string name="edit_custom_lists">Rediger tilpassede lister</string>
     <string name="edit_list">Rediger liste</string>
@@ -427,7 +423,6 @@
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-adgang</string>
-    <string name="settings_changes_effect_warning_content_blocker">Ændringer af DNS-relaterede indstillinger træder muligvis ikke i kraft med det samme på grund af cachelagrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-indstillinger træder muligvis ikke i kraft med det samme</string>
     <string name="settings_notifications">Meddelelser</string>
     <string name="settings_patch_error_failed_to_apply_patch">Det lykkedes ikke at anvende patch</string>

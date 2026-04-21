@@ -123,7 +123,6 @@
     <string name="current_device">دستگاه فعلی</string>
     <string name="current_method">فعلی: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">برای فعال‌سازی این تنظیم، تمام «%1$s» بالا را غیرفعال کنید.</string>
-    <string name="custom_dns_footer">برای افزودن حداقل یک سرور DNS، این گزینه را فعال کنید.</string>
     <string name="custom_dns_hint">IP را وارد کنید</string>
     <string name="custom_list_error_list_exists">این نام قبلاً استفاده شده است.</string>
     <string name="custom_lists">فهرست‌های سفارشی</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">رد کردن</string>
     <string name="divier_or">یا</string>
     <string name="dns_content_blockers">مسدودکننده‌های محتوای DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">توجه: این تنظیم نمی‌تواند همراه با «استفاده از سرور DNS سفارشی» به‌کار برود.</string>
-    <string name="dns_content_blockers_info">وقتی این ویژگی فعال باشد، دستگاه از تماس با برخی دامنه‌ها یا وب‌سایت‌هایی که به توزیع تبلیغات، بدافزار، ردیاب‌ها و موارد دیگر شناخته می‌شوند جلوگیری می‌کند.</string>
     <string name="dns_content_blockers_subtitle">برای فعال کردن این تنظیمات، «%1$s» را در بخش زیر غیرفعال کنید.</string>
-    <string name="dns_content_blockers_warning">این ممکن است باعث بروز مشکل در برخی وب‌سایت‌ها، سرویس‌ها و اپلیکیشن‌ها شود.</string>
     <string name="duplicate_address_warning">این نشانی قبلاً وارد شده است.</string>
     <string name="edit_custom_lists">ویرایش فهرست‌های سفارشی</string>
     <string name="edit_list">ویرایش فهرست</string>
@@ -427,7 +423,6 @@
     <string name="settings">تنظیمات</string>
     <string name="settings_account">حساب</string>
     <string name="settings_api_access">دسترسی به API</string>
-    <string name="settings_changes_effect_warning_content_blocker">تغییرات مربوط به تنظیمات DNS ممکن است به‌دلیل نتایج ذخیره‌شده (cache) بلافاصله اعمال نشوند.</string>
     <string name="settings_changes_effect_warning_short">تنظیمات DNS ممکن است بلافاصله اعمال نشوند</string>
     <string name="settings_notifications">اعلان‌ها</string>
     <string name="settings_patch_error_failed_to_apply_patch">اعمالِ متنِ تغییرات انجام نشد</string>

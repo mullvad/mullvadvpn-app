@@ -123,7 +123,6 @@
     <string name="current_device">Huidig apparaat</string>
     <string name="current_method">Huidig: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Schakel alle \"%1$s\" hierboven uit om deze instelling te activeren.</string>
-    <string name="custom_dns_footer">Schakel in om minimaal één DNS-server toe te voegen.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
     <string name="custom_list_error_list_exists">Naam wordt al gebruikt.</string>
     <string name="custom_lists">Aangepaste lijsten</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Negeren</string>
     <string name="divier_or">of</string>
     <string name="dns_content_blockers">DNS-contentblokkeringen</string>
-    <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\".</string>
-    <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel hieronder \"%1$s\" uit om deze instellingen te activeren.</string>
-    <string name="dns_content_blockers_warning">Dit kan problemen veroorzaken met bepaalde websites, diensten en apps.</string>
     <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
     <string name="edit_custom_lists">Aangepaste lijsten bewerken</string>
     <string name="edit_list">Lijst bewerken</string>
@@ -427,7 +423,6 @@
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">API-toegang</string>
-    <string name="settings_changes_effect_warning_content_blocker">Wijzigingen in DNS-gerelateerde instellingen worden mogelijk niet onmiddellijk van kracht vanwege gecachete resultaten.</string>
     <string name="settings_changes_effect_warning_short">DNS-instellingen worden mogelijk niet onmiddellijk van kracht</string>
     <string name="settings_notifications">Notificaties</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch toepassen mislukt</string>

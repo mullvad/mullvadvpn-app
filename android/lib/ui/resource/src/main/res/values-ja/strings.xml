@@ -123,7 +123,6 @@
     <string name="current_device">現在のデバイス</string>
     <string name="current_method">現在の設定: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上の [%1$s] をすべて無効にしてください。</string>
-    <string name="custom_dns_footer">1つ以上のDNSサーバーを追加するには有効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
     <string name="custom_list_error_list_exists">名前はすでに使用されています。</string>
     <string name="custom_lists">カスタムリスト</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">閉じる</string>
     <string name="divier_or">または</string>
     <string name="dns_content_blockers">DNSコンテンツブロッカー</string>
-    <string name="dns_content_blockers_custom_dns_warning">注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。</string>
-    <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>
     <string name="dns_content_blockers_subtitle">これらの設定を有効にするには、下の [%1$s] を無効にしてください。</string>
-    <string name="dns_content_blockers_warning">これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。</string>
     <string name="duplicate_address_warning">このアドレスは入力済みです。</string>
     <string name="edit_custom_lists">カスタムリストを編集する</string>
     <string name="edit_list">リストの編集</string>
@@ -427,7 +423,6 @@
     <string name="settings">設定</string>
     <string name="settings_account">アカウント</string>
     <string name="settings_api_access">APIアクセス</string>
-    <string name="settings_changes_effect_warning_content_blocker">結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。</string>
     <string name="settings_changes_effect_warning_short">DNS設定はすぐに適用されない可能性があります</string>
     <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">パッチを適用できませんでした</string>

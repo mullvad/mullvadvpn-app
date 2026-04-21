@@ -123,7 +123,6 @@
     <string name="current_device">الجهاز الحالي</string>
     <string name="current_method">الحالي: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">إيقاف كل \"%1$s\" أعلاه لتنشيط هذا الإعداد.</string>
-    <string name="custom_dns_footer">قم بالتفعيل لإضافة خادم DNS واحد على الأقل.</string>
     <string name="custom_dns_hint">أدخل IP</string>
     <string name="custom_list_error_list_exists">الاسم مُستخدَم بالفعل.</string>
     <string name="custom_lists">قوائم مُخصَّصة</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">تجاهل</string>
     <string name="divier_or">أو</string>
     <string name="dns_content_blockers">أدوات حظر محتوى DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">انتبه: لا يمكن استخدام هذا الإعداد مع \"استخدام خادم DNS مُخصَّص\".</string>
-    <string name="dns_content_blockers_info">عندما يتم تفعيل هذه الميزة، فإنها تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها.</string>
     <string name="dns_content_blockers_subtitle">أوقف \"%1$s\" أدناه لتنشيط هذه الإعدادات.</string>
-    <string name="dns_content_blockers_warning">قد يؤدي ذلك إلى حدوث مشكلات في بعض المواقع الإلكترونية والخدمات والتطبيقات.</string>
     <string name="duplicate_address_warning">لقد تم إدخال هذا العنوان بالفعل.</string>
     <string name="edit_custom_lists">تعديل القوائم المُخصَّصة</string>
     <string name="edit_list">تعديل القائمة</string>
@@ -427,7 +423,6 @@
     <string name="settings">الإعدادات</string>
     <string name="settings_account">الحساب</string>
     <string name="settings_api_access">الوصول إلى واجهة API</string>
-    <string name="settings_changes_effect_warning_content_blocker">قد لا تدخل التغييرات المتعلقة بإعدادات DNS حيز التنفيذ فورًا بسبب النتائج المُخزَّنة مؤقتًا.</string>
     <string name="settings_changes_effect_warning_short">قد لا يتم تطبيق إعدادات DNS على الفور</string>
     <string name="settings_notifications">الإشعارات</string>
     <string name="settings_patch_error_failed_to_apply_patch">فشل تطبيق التصحيح</string>

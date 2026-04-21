@@ -123,7 +123,6 @@
     <string name="current_device">อุปกรณ์ปัจจุบัน</string>
     <string name="current_method">ปัจจุบัน: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน \"%1$s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้</string>
-    <string name="custom_dns_footer">เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ</string>
     <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_list_error_list_exists">ชื่อนี้ถูกใช้ไปแล้ว</string>
     <string name="custom_lists">รายการกำหนดเอง</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">ละทิ้ง</string>
     <string name="divier_or">หรือ</string>
     <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
-    <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่างเพื่อเปิดใช้งานการตั้งค่าเหล่านี้</string>
-    <string name="dns_content_blockers_warning">นี่อาจก่อให้เกิดปัญหากับบางเว็บไซต์ บริการ และแอปได้</string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
     <string name="edit_custom_lists">แก้ไขรายการแบบกำหนดเอง</string>
     <string name="edit_list">แก้ไขรายการ</string>
@@ -427,7 +423,6 @@
     <string name="settings">การตั้งค่า</string>
     <string name="settings_account">บัญชี</string>
     <string name="settings_api_access">การเข้าถึง API</string>
-    <string name="settings_changes_effect_warning_content_blocker">การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้</string>
     <string name="settings_changes_effect_warning_short">การตั้งค่า DNS อาจไม่มีผลทันที</string>
     <string name="settings_notifications">การแจ้งเตือน</string>
     <string name="settings_patch_error_failed_to_apply_patch">ล้มเหลวในการปรับใช้แพตช์</string>
