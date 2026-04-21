@@ -73,7 +73,7 @@ ctrlc = "3.5"
 dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
-gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
+gotatun = { version = "0.6.0", default-features = false, features = ["aws-lc-rs"] }
 hickory-proto = "0.25.2"
 hickory-resolver = "0.25.2"
 hickory-server = { version = "0.25.2", features = ["resolver"] }
