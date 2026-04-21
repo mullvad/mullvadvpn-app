@@ -228,16 +228,6 @@ fn unwrap_entry_relay(get_result: GetRelay) -> WireguardRelay {
     }
 }
 
-fn unwrap_multihop_entry_exit_relays(get_result: GetRelay) -> (WireguardRelay, WireguardRelay) {
-    let crate::WireguardConfig::Multihop { entry, exit } = get_result.inner else {
-        panic!(
-            "Relay is not a Wireguard multihop relay: {:?}",
-            get_result.inner
-        )
-    };
-    (entry, exit)
-}
-
 fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
     get_result.endpoint
 }
@@ -250,597 +240,509 @@ fn supports_daita(relay: &WireguardRelay) -> bool {
     relay.endpoint_data.daita
 }
 
-/// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
-/// modified, the programmer should be made aware to update all external documents which rely on the
-/// retry order to be correct.
-///
-/// When all necessary changes have been made, feel free to update this test to mirror the new
-/// [`RETRY_ORDER`].
-#[test]
-fn assert_retry_order() {
-    use talpid_types::net::IpVersion;
-    let expected_retry_order = vec![
-        // 1 (wireguard)
-        RelayQueryBuilder::new().build(),
-        // 2
-        RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
-        // 3
-        RelayQueryBuilder::new().shadowsocks().build(),
-        // 4
-        RelayQueryBuilder::new().quic().build(),
-        // 5
-        RelayQueryBuilder::new().udp2tcp().build(),
-        // 6
-        RelayQueryBuilder::new()
-            .udp2tcp()
-            .ip_version(IpVersion::V6)
-            .build(),
-        // 7
-        RelayQueryBuilder::new().lwo().build(),
-    ];
+/// Tests that exercise the full relay-selection pipeline via
+/// [`RelaySelector::get_relay`] and [`RelaySelector::get_relay_by_query`].
+mod relay_selection {
+    use super::*;
 
-    assert!(
-        *RETRY_ORDER == expected_retry_order,
-        "
+    /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
+    /// modified, the programmer should be made aware to update all external documents which rely on the
+    /// retry order to be correct.
+    ///
+    /// When all necessary changes have been made, feel free to update this test to mirror the new
+    /// [`RETRY_ORDER`].
+    #[test]
+    fn assert_retry_order() {
+        use talpid_types::net::IpVersion;
+        let expected_retry_order = vec![
+            // 1 (wireguard)
+            RelayQueryBuilder::new().build(),
+            // 2
+            RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
+            // 3
+            RelayQueryBuilder::new().shadowsocks().build(),
+            // 4
+            RelayQueryBuilder::new().quic().build(),
+            // 5
+            RelayQueryBuilder::new().udp2tcp().build(),
+            // 6
+            RelayQueryBuilder::new()
+                .udp2tcp()
+                .ip_version(IpVersion::V6)
+                .build(),
+            // 7
+            RelayQueryBuilder::new().lwo().build(),
+        ];
+
+        assert!(
+            *RETRY_ORDER == expected_retry_order,
+            "
     The relay selector's retry order has been modified!
     Make sure to update `docs/relay-selector.md` with these changes.
     Lastly, you may go ahead and fix this test to reflect the new retry order.
     "
-    );
-}
-
-/// Test whether the relay selector seems to respect the order as defined by
-/// [`RETRY_ORDER`].
-#[test]
-fn test_retry_order() {
-    // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
-    // the user settings need to be 'neutral' on the type of relay that it wants to connect to.
-    // A default config *should* have this property, but a more robust way to guarantee
-    // this would be to create a neutral relay query and supply it to the relay selector at every
-    // call to the `get_relay` function.
-    let relay_selector = default_relay_selector();
-    for (retry_attempt, query) in RETRY_ORDER.iter().enumerate() {
-        let relay = relay_selector
-            .get_relay(
-                retry_attempt,
-                talpid_types::net::IpAvailability::Ipv4AndIpv6,
-            )
-            .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
-        // Then perform some protocol-specific probing as well.
-        let GetRelay {
-            endpoint,
-            obfuscator,
-            ..
-        } = relay;
-        assert!(query.wireguard_constraints().ip_version.matches_eq(
-            &match endpoint.peer.endpoint.ip() {
-                std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
-                std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
-            }
-        ));
-        assert!(match &query.wireguard_constraints().obfuscation {
-            Constraint::Any => true,
-            Constraint::Only(ObfuscationMode::Off | ObfuscationMode::Port(_)) =>
-                obfuscator.is_none(),
-            Constraint::Only(
-                ObfuscationMode::Quic
-                | ObfuscationMode::Udp2tcp(_)
-                | ObfuscationMode::Shadowsocks(_)
-                | ObfuscationMode::Lwo(_),
-            ) => obfuscator.is_some(),
-        });
-    }
-}
-
-/// Assert that the relay selector does *not* return a multihop configuration where the exit and
-/// entry relay are the same, even if the constraints would allow for it. Also verify that the relay
-/// selector is smart enough to pick either the entry or exit relay first depending on which one
-/// ends up yielding a valid configuration.
-#[test]
-fn test_entry() {
-    // Define a relay list containing exactly two Wireguard relays in Gothenburg.
-    let relays = RelayList {
-        countries: vec![RelayListCountry {
-            name: "Sweden".to_string(),
-            code: "se".to_string(),
-            cities: vec![RelayListCity {
-                name: "Gothenburg".to_string(),
-                code: "got".to_string(),
-                latitude: 57.70887,
-                longitude: 11.97456,
-                relays: vec![
-                    WireguardRelay {
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: true,
-                        owned: true,
-                        provider: "provider0".to_string(),
-                        endpoint_data: WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
-                        inner: Relay {
-                            hostname: "se9-wireguard".to_string(),
-                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-                            active: true,
-                            weight: 1,
-                            location: DUMMY_LOCATION.clone(),
-                        },
-                    },
-                    WireguardRelay {
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: true,
-                        owned: false,
-                        provider: "provider1".to_string(),
-                        endpoint_data: WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
-                        inner: Relay {
-                            hostname: "se10-wireguard".to_string(),
-                            ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                            ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                            active: true,
-                            location: DUMMY_LOCATION.clone(),
-                            weight: 1,
-                        },
-                    },
-                ],
-            }],
-        }],
-        wireguard: EndpointData {
-            port_ranges: vec![
-                53..=53,
-                443..=443,
-                4000..=33433,
-                33565..=51820,
-                52000..=60000,
-            ],
-            ipv4_gateway: "10.64.0.1".parse().unwrap(),
-            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-            udp2tcp_ports: vec![],
-            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
-        },
-    };
-
-    let bridges = BridgeList::default();
-
-    let relay_selector = RelaySelector::from_settings(&Settings::default(), relays, bridges);
-    let specific_hostname = "se10-wireguard";
-    let specific_location = GeographicLocationConstraint::hostname("se", "got", specific_hostname);
-    let general_location = GeographicLocationConstraint::city("se", "got");
-
-    // general_location candidates: [se-09-wireguard, se-10-wireguard]
-    // specific_location candidates: [se-10-wireguard]
-    for _ in 0..100 {
-        // Because the entry location constraint is more specific than the exit loation constraint,
-        // the entry location should always become `specific_location`
-        let query = RelayQueryBuilder::new()
-            .location(general_location.clone())
-            .multihop()
-            .entry(specific_location.clone())
-            .build();
-
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        let WireguardConfig::Multihop { exit, entry } = relay.inner else {
-            panic!(
-                "Relay selector returned unexpected relay: {:?}",
-                relay.inner
-            );
-        };
-        assert_eq!(entry.hostname, specific_hostname);
-        assert_ne!(exit.hostname, entry.hostname);
-        assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
+        );
     }
 
-    // general_location candidates: [se-09-wireguard, se-10-wireguard]
-    // specific_location candidates: [se-10-wireguard]
-    for _ in 0..100 {
-        // Because the exit location constraint is more specific than the entry loation constraint,
-        // the exit location should always become `specific_location`
-        let query = RelayQueryBuilder::new()
-            .location(specific_location.clone())
-            .multihop()
-            .entry(general_location.clone())
-            .build();
-
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        let WireguardConfig::Multihop { exit, entry } = relay.inner else {
-            panic!(
-                "Relay selector returned unexpected relay: {:?}",
-                relay.inner
-            );
-        };
-        assert_eq!(exit.hostname, specific_hostname);
-        assert_ne!(exit.hostname, entry.hostname);
-        assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
-    }
-}
-
-/// If a multihop constraint has the same entry and exit relay, the relay selector
-/// should fail to come up with a valid configuration.
-///
-/// If instead the entry and exit relay are distinct, and assuming that the relays exist, the relay
-/// selector should instead always return a valid configuration.
-#[test]
-fn test_entry_hostname_collision() {
-    let relay_selector = default_relay_selector();
-    // Define two distinct Wireguard relays.
-    let host1 = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
-    let host2 = GeographicLocationConstraint::hostname("se", "got", "se10-wireguard");
-
-    let invalid_multihop_query = RelayQueryBuilder::new()
-        // Here we set `host1` to be the exit relay
-        .location(host1.clone())
-        .multihop()
-        // .. and here we set `host1` to also be the entry relay!
-        .entry(host1.clone())
-        .build();
-
-    // Assert that the same host cannot be used for entry and exit
-    assert!(
-        relay_selector
-            .get_relay_by_query(invalid_multihop_query)
-            .is_err()
-    );
-
-    let valid_multihop_query = RelayQueryBuilder::new()
-        .location(host1)
-        .multihop()
-        // We correct the erroneous query by setting `host2` as the entry relay
-        .entry(host2)
-        .build();
-
-    // Assert that the new query succeeds when the entry and exit hosts differ
-    assert!(
-        relay_selector
-            .get_relay_by_query(valid_multihop_query)
-            .is_ok()
-    )
-}
-
-/// Construct a query for multihop configuration and assert that the relay selector picks an
-/// accompanying entry relay.
-#[test]
-fn test_selecting_location_will_consider_multihop() {
-    let relay_selector = default_relay_selector();
-
-    for _ in 0..100 {
-        let query = RelayQueryBuilder::new().multihop().build();
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-        assert!(matches!(
-            relay,
-            GetRelay {
-                inner: WireguardConfig::Multihop { .. },
+    /// Test whether the relay selector seems to respect the order as defined by
+    /// [`RETRY_ORDER`].
+    #[test]
+    fn test_retry_order() {
+        // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
+        // the user settings need to be 'neutral' on the type of relay that it wants to connect to.
+        // A default config *should* have this property, but a more robust way to guarantee
+        // this would be to create a neutral relay query and supply it to the relay selector at every
+        // call to the `get_relay` function.
+        let relay_selector = default_relay_selector();
+        for (retry_attempt, query) in RETRY_ORDER.iter().enumerate() {
+            let relay = relay_selector
+                .get_relay(
+                    retry_attempt,
+                    talpid_types::net::IpAvailability::Ipv4AndIpv6,
+                )
+                .unwrap_or_else(|_| {
+                    panic!("Retry attempt {retry_attempt} did not yield any relay")
+                });
+            // Then perform some protocol-specific probing as well.
+            let GetRelay {
+                endpoint,
+                obfuscator,
                 ..
-            }
-        ))
+            } = relay;
+            assert!(query.wireguard_constraints().ip_version.matches_eq(
+                &match endpoint.peer.endpoint.ip() {
+                    std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
+                    std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
+                }
+            ));
+            assert!(match &query.wireguard_constraints().obfuscation {
+                Constraint::Any => true,
+                Constraint::Only(ObfuscationMode::Off | ObfuscationMode::Port(_)) =>
+                    obfuscator.is_none(),
+                Constraint::Only(
+                    ObfuscationMode::Quic
+                    | ObfuscationMode::Udp2tcp(_)
+                    | ObfuscationMode::Shadowsocks(_)
+                    | ObfuscationMode::Lwo(_),
+                ) => obfuscator.is_some(),
+            });
+        }
     }
-}
 
-/// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is
-/// selected.
-#[test]
-fn test_selecting_over_shadowsocks() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+    /// Assert that the relay selector does *not* return a multihop configuration where the exit and
+    /// entry relay are the same, even if the constraints would allow for it. Also verify that the relay
+    /// selector is smart enough to pick either the entry or exit relay first depending on which one
+    /// ends up yielding a valid configuration.
+    #[test]
+    fn test_entry() {
+        // Define a relay list containing exactly two Wireguard relays in Gothenburg.
+        let relays = RelayList {
+            countries: vec![RelayListCountry {
+                name: "Sweden".to_string(),
+                code: "se".to_string(),
+                cities: vec![RelayListCity {
+                    name: "Gothenburg".to_string(),
+                    code: "got".to_string(),
+                    latitude: 57.70887,
+                    longitude: 11.97456,
+                    relays: vec![
+                        WireguardRelay {
+                            overridden_ipv4: false,
+                            overridden_ipv6: false,
+                            include_in_country: true,
+                            owned: true,
+                            provider: "provider0".to_string(),
+                            endpoint_data: WireguardRelayEndpointData::new(
+                                WIREGUARD_PUBKEY.clone(),
+                            ),
+                            inner: Relay {
+                                hostname: "se9-wireguard".to_string(),
+                                ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                                ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                                active: true,
+                                weight: 1,
+                                location: DUMMY_LOCATION.clone(),
+                            },
+                        },
+                        WireguardRelay {
+                            overridden_ipv4: false,
+                            overridden_ipv6: false,
+                            include_in_country: true,
+                            owned: false,
+                            provider: "provider1".to_string(),
+                            endpoint_data: WireguardRelayEndpointData::new(
+                                WIREGUARD_PUBKEY.clone(),
+                            ),
+                            inner: Relay {
+                                hostname: "se10-wireguard".to_string(),
+                                ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                                ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                                active: true,
+                                location: DUMMY_LOCATION.clone(),
+                                weight: 1,
+                            },
+                        },
+                    ],
+                }],
+            }],
+            wireguard: EndpointData {
+                port_ranges: vec![
+                    53..=53,
+                    443..=443,
+                    4000..=33433,
+                    33565..=51820,
+                    52000..=60000,
+                ],
+                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                udp2tcp_ports: vec![],
+                shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
+            },
+        };
 
-    let query = RelayQueryBuilder::new().shadowsocks().build();
-    assert!(!query.wireguard_constraints().multihop());
+        let bridges = BridgeList::default();
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    let WireguardConfig::Singlehop { .. } = relay.inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {:?}",
-            relay.inner
-        )
-    };
-    assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-        obfuscator,
-        Obfuscators::Single(ObfuscatorConfig::Shadowsocks { .. })
-    )));
-}
+        let relay_selector = RelaySelector::from_settings(&Settings::default(), relays, bridges);
+        let specific_hostname = "se10-wireguard";
+        let specific_location =
+            GeographicLocationConstraint::hostname("se", "got", specific_hostname);
+        let general_location = GeographicLocationConstraint::city("se", "got");
 
-/// Test whether extra Shadowsocks IPs are selected when available
-#[test]
-fn test_selecting_over_shadowsocks_extra_ips() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        // general_location candidates: [se-09-wireguard, se-10-wireguard]
+        // specific_location candidates: [se-10-wireguard]
+        for _ in 0..100 {
+            // Because the entry location constraint is more specific than the exit loation constraint,
+            // the entry location should always become `specific_location`
+            let query = RelayQueryBuilder::new()
+                .location(general_location.clone())
+                .multihop()
+                .entry(specific_location.clone())
+                .build();
 
-    let query = RelayQueryBuilder::new()
-        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
-        .shadowsocks()
-        .build();
-    assert!(!query.wireguard_constraints().multihop());
+            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            let WireguardConfig::Multihop { exit, entry } = relay.inner else {
+                panic!(
+                    "Relay selector returned unexpected relay: {:?}",
+                    relay.inner
+                );
+            };
+            assert_eq!(entry.hostname, specific_hostname);
+            assert_ne!(exit.hostname, entry.hostname);
+            assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
+        }
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    let GetRelay {
-        inner, obfuscator, ..
-    } = relay;
-    let WireguardConfig::Singlehop { exit } = inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
-        )
-    };
-    let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator else {
-        panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-    };
-    assert!(!exit.overridden_ipv4);
-    assert!(!exit.overridden_ipv6);
-    assert!(
-        SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
-        "{endpoint} is not an additional IP"
-    );
-}
+        // general_location candidates: [se-09-wireguard, se-10-wireguard]
+        // specific_location candidates: [se-10-wireguard]
+        for _ in 0..100 {
+            // Because the exit location constraint is more specific than the entry loation constraint,
+            // the exit location should always become `specific_location`
+            let query = RelayQueryBuilder::new()
+                .location(specific_location.clone())
+                .multihop()
+                .entry(general_location.clone())
+                .build();
 
-/// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
-#[test]
-fn test_selecting_over_quic() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            let WireguardConfig::Multihop { exit, entry } = relay.inner else {
+                panic!(
+                    "Relay selector returned unexpected relay: {:?}",
+                    relay.inner
+                );
+            };
+            assert_eq!(exit.hostname, specific_hostname);
+            assert_ne!(exit.hostname, entry.hostname);
+            assert_ne!(exit.ipv4_addr_in, entry.ipv4_addr_in);
+        }
+    }
 
-    let query = RelayQueryBuilder::new().quic().build();
-    assert!(!query.wireguard_constraints().multihop());
+    /// Construct a query for multihop configuration and assert that the relay selector picks an
+    /// accompanying entry relay.
+    #[test]
+    fn test_selecting_location_will_consider_multihop() {
+        let relay_selector = default_relay_selector();
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    let WireguardConfig::Singlehop { .. } = relay.inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with Quic obfuscation, got: {:?}",
-            relay.inner
-        )
-    };
-    assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-        obfuscator,
-        Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
-    )));
-}
+        for _ in 0..100 {
+            let query = RelayQueryBuilder::new().multihop().build();
+            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+            assert!(matches!(
+                relay,
+                GetRelay {
+                    inner: WireguardConfig::Multihop { .. },
+                    ..
+                }
+            ))
+        }
+    }
 
-/// Test LWO relay selection
-#[test]
-fn test_selecting_over_lwo() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+    /// Test whether Shadowsocks is always selected as the obfuscation protocol when Shadowsocks is
+    /// selected.
+    #[test]
+    fn test_selecting_over_shadowsocks() {
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
-    let query = RelayQueryBuilder::new().lwo().build();
-    assert!(!query.wireguard_constraints().multihop());
+        let query = RelayQueryBuilder::new().shadowsocks().build();
+        assert!(!query.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    let WireguardConfig::Singlehop { .. } = relay.inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with LWO obfuscation, got: {:?}",
-            relay.inner
-        )
-    };
-    assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-        obfuscator,
-        Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
-    )));
-}
-
-/// Ignore extra IPv4 addresses when overrides are set
-#[test]
-fn test_selecting_ignore_extra_ips_override_v4() {
-    const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
-
-    let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
-        hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
-        ipv4_addr_in: Some(OVERRIDE_IPV4),
-        ipv6_addr_in: None,
-    }]);
-
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
-
-    let query_v4 = RelayQueryBuilder::new()
-        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
-        .ip_version(IpVersion::V4)
-        .shadowsocks()
-        .build();
-    assert!(!query_v4.wireguard_constraints().multihop());
-
-    let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
-    let GetRelay {
-        inner, obfuscator, ..
-    } = relay;
-    let WireguardConfig::Singlehop { exit } = inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
-        )
-    };
-    let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator else {
-        panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-    };
-    assert!(exit.overridden_ipv4);
-    assert!(!exit.overridden_ipv6);
-    assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV4));
-}
-
-/// Ignore extra IPv6 addresses when overrides are set
-#[test]
-fn test_selecting_ignore_extra_ips_override_v6() {
-    const OVERRIDE_IPV6: Ipv6Addr = Ipv6Addr::new(1, 0, 0, 0, 0, 0, 10, 10);
-
-    let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
-        hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
-        ipv4_addr_in: None,
-        ipv6_addr_in: Some(OVERRIDE_IPV6),
-    }]);
-
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
-
-    let query_v6 = RelayQueryBuilder::new()
-        .location(SHADOWSOCKS_RELAY_LOCATION.clone())
-        .ip_version(IpVersion::V6)
-        .shadowsocks()
-        .build();
-    assert!(!query_v6.wireguard_constraints().multihop());
-
-    let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
-    let GetRelay {
-        inner, obfuscator, ..
-    } = relay;
-    let WireguardConfig::Singlehop { exit } = inner else {
-        panic!(
-            "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
-        )
-    };
-    let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator else {
-        panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
-    };
-    assert!(exit.overridden_ipv6);
-    assert!(!exit.overridden_ipv4);
-    assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV6));
-}
-
-/// Construct a query for a Wireguard relay with specific port choices.
-#[test]
-fn test_wg_port_selection() {
-    let relay_selector = default_relay_selector();
-    for port in [53, 51820] {
-        let query = RelayQueryBuilder::new().port(port).build();
         let relay = relay_selector.get_relay_by_query(query).unwrap();
-        assert_eq!(relay.endpoint.peer.endpoint.port(), port);
+        let WireguardConfig::Singlehop { .. } = relay.inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {:?}",
+                relay.inner
+            )
+        };
+        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
+            obfuscator,
+            Obfuscators::Single(ObfuscatorConfig::Shadowsocks { .. })
+        )));
     }
-}
 
-/// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
-/// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
-/// configuration.
-#[test]
-fn test_selecting_endpoint_with_udp2tcp_obfuscation() {
-    let relay_selector = default_relay_selector();
-    let query = RelayQueryBuilder::new().udp2tcp().build();
-    assert!(!query.wireguard_constraints().multihop());
+    /// Test whether extra Shadowsocks IPs are selected when available
+    #[test]
+    fn test_selecting_over_shadowsocks_extra_ips() {
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    let WireguardConfig::Singlehop { .. } = relay.inner else {
-        panic!(
-            "Relay selector returned unexpected relay: {:?}",
-            relay.inner
-        )
-    };
-    assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
-        obfuscator,
-        Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { .. })
-    )));
-}
+        let query = RelayQueryBuilder::new()
+            .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+            .shadowsocks()
+            .build();
+        assert!(!query.wireguard_constraints().multihop());
 
-/// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
-/// multihop is explicitly turned off. Assert that the relay selector does *not* return an
-/// obfuscator config.
-///
-/// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
-#[cfg(not(feature = "staggered-obfuscation"))]
-#[test]
-fn test_selecting_endpoint_with_auto_obfuscation() {
-    use mullvad_types::constraints::Constraint;
-
-    let relay_selector = default_relay_selector();
-
-    let query = RelayQueryBuilder::new().build();
-    assert_eq!(query.wireguard_constraints().obfuscation, Constraint::Any);
-
-    for _ in 0..100 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
-        assert!(relay.obfuscator.is_none());
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let GetRelay {
+            inner, obfuscator, ..
+        } = relay;
+        let WireguardConfig::Singlehop { exit } = inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
+            )
+        };
+        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
+        else {
+            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
+        };
+        assert!(!exit.overridden_ipv4);
+        assert!(!exit.overridden_ipv6);
+        assert!(
+            SHADOWSOCKS_RELAY_EXTRA_ADDRS.contains(&endpoint.ip()),
+            "{endpoint} is not an additional IP"
+        );
     }
-}
 
-/// Construct a query for a configuration with UDP2TCP obfuscation, and make sure that
-/// all configurations contain a valid port.
-#[test]
-fn test_udp2tcp_use_correct_port_ranges() {
-    const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
-    let relay_selector = default_relay_selector();
-    // Note that we do *not* specify any port here!
-    let query = RelayQueryBuilder::new().udp2tcp().build();
+    /// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
+    #[test]
+    fn test_selecting_over_quic() {
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
-    for _ in 0..1000 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let query = RelayQueryBuilder::new().quic().build();
+        assert!(!query.wireguard_constraints().multihop());
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let WireguardConfig::Singlehop { .. } = relay.inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with Quic obfuscation, got: {:?}",
+                relay.inner
+            )
+        };
+        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
+            obfuscator,
+            Obfuscators::Single(ObfuscatorConfig::Quic { .. }),
+        )));
+    }
+
+    /// Test LWO relay selection
+    #[test]
+    fn test_selecting_over_lwo() {
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+
+        let query = RelayQueryBuilder::new().lwo().build();
+        assert!(!query.wireguard_constraints().multihop());
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let WireguardConfig::Singlehop { .. } = relay.inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with LWO obfuscation, got: {:?}",
+                relay.inner
+            )
+        };
+        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
+            obfuscator,
+            Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
+        )));
+    }
+
+    /// Ignore extra IPv4 addresses when overrides are set
+    #[test]
+    fn test_selecting_ignore_extra_ips_override_v4() {
+        const OVERRIDE_IPV4: Ipv4Addr = Ipv4Addr::new(1, 3, 3, 7);
+
+        let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
+            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
+            ipv4_addr_in: Some(OVERRIDE_IPV4),
+            ipv6_addr_in: None,
+        }]);
+
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
+
+        let query_v4 = RelayQueryBuilder::new()
+            .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+            .ip_version(IpVersion::V4)
+            .shadowsocks()
+            .build();
+        assert!(!query_v4.wireguard_constraints().multihop());
+
+        let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
+        let GetRelay {
+            inner, obfuscator, ..
+        } = relay;
+        let WireguardConfig::Singlehop { exit } = inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
+            )
+        };
+        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
+        else {
+            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
+        };
+        assert!(exit.overridden_ipv4);
+        assert!(!exit.overridden_ipv6);
+        assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV4));
+    }
+
+    /// Ignore extra IPv6 addresses when overrides are set
+    #[test]
+    fn test_selecting_ignore_extra_ips_override_v6() {
+        const OVERRIDE_IPV6: Ipv6Addr = Ipv6Addr::new(1, 0, 0, 0, 0, 0, 10, 10);
+
+        let relay_list = RELAYS.clone().apply_overrides(vec![RelayOverride {
+            hostname: SHADOWSOCKS_RELAY_LOCATION.get_hostname().unwrap().clone(),
+            ipv4_addr_in: None,
+            ipv6_addr_in: Some(OVERRIDE_IPV6),
+        }]);
+
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
+
+        let query_v6 = RelayQueryBuilder::new()
+            .location(SHADOWSOCKS_RELAY_LOCATION.clone())
+            .ip_version(IpVersion::V6)
+            .shadowsocks()
+            .build();
+        assert!(!query_v6.wireguard_constraints().multihop());
+
+        let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
+        let GetRelay {
+            inner, obfuscator, ..
+        } = relay;
+        let WireguardConfig::Singlehop { exit } = inner else {
+            panic!(
+                "Relay selector expected a singlehop relay with Shadowsocks obfuscation, got: {inner:?}"
+            )
+        };
+        let Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks { endpoint })) = obfuscator
+        else {
+            panic!("Relay selector expected Shadowsocks obfuscation, got: {obfuscator:?}")
+        };
+        assert!(exit.overridden_ipv6);
+        assert!(!exit.overridden_ipv4);
+        assert_eq!(endpoint.ip(), IpAddr::from(OVERRIDE_IPV6));
+    }
+
+    /// Construct a query for a Wireguard relay with specific port choices.
+    #[test]
+    fn test_wg_port_selection() {
+        let relay_selector = default_relay_selector();
+        for port in [53, 51820] {
+            let query = RelayQueryBuilder::new().port(port).build();
+            let relay = relay_selector.get_relay_by_query(query).unwrap();
+            assert_eq!(relay.endpoint.peer.endpoint.port(), port);
+        }
+    }
+
+    /// Construct a query for a Wireguard configuration where UDP2TCP obfuscation is selected and
+    /// multihop is explicitly turned off. Assert that the relay selector always return an obfuscator
+    /// configuration.
+    #[test]
+    fn test_selecting_endpoint_with_udp2tcp_obfuscation() {
+        let relay_selector = default_relay_selector();
+        let query = RelayQueryBuilder::new().udp2tcp().build();
+        assert!(!query.wireguard_constraints().multihop());
+
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
             panic!(
                 "Relay selector returned unexpected relay: {:?}",
                 relay.inner
             )
         };
-        let Some(obfuscator) = relay.obfuscator else {
-            panic!("Relay selector should have picked an obfuscator")
-        };
-        assert!(matches!(
+        assert!(relay.obfuscator.is_some_and(|obfuscator| matches!(
             obfuscator,
-            Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
-                TCP2UDP_PORTS.contains(&endpoint.port()),
-        ));
-    }
-}
-
-/// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector.
-#[test]
-fn test_ownership() {
-    let relay_selector = default_relay_selector();
-
-    for _ in 0..100 {
-        // Construct an arbitrary query for owned relays.
-        let query = RelayQueryBuilder::new()
-            .ownership(Ownership::MullvadOwned)
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        // Check that the relay is owned by Mullvad.
-        assert!(unwrap_relay(relay).owned);
+            Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { .. })
+        )));
     }
 
-    for _ in 0..100 {
-        // Construct an arbitrary query for rented relays.
-        let query = RelayQueryBuilder::new()
-            .ownership(Ownership::Rented)
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        // Check that the relay is rented.
-        assert!(!unwrap_relay(relay).owned);
-    }
-}
+    /// Construct a query for a Wireguard configuration where obfuscation is set to "Auto" and
+    /// multihop is explicitly turned off. Assert that the relay selector does *not* return an
+    /// obfuscator config.
+    ///
+    /// [`RelaySelector::get_relay`] may still enable obfuscation if it is present in [`RETRY_ORDER`].
+    #[cfg(not(feature = "staggered-obfuscation"))]
+    #[test]
+    fn test_selecting_endpoint_with_auto_obfuscation() {
+        use mullvad_types::constraints::Constraint;
 
-/// Verify that any query which sets an explicit [`Ownership`] is respected by the relay selector
-/// and that it works to set separate entry and exit ownerships for a multihop.
-#[test]
-fn test_multihop_ownership() {
-    let relay_selector = default_relay_selector();
+        let relay_selector = default_relay_selector();
 
-    for _ in 0..100 {
-        // Construct an arbitrary query for owned relays.
-        let query = RelayQueryBuilder::new()
-            .multihop()
-            .ownership(Ownership::MullvadOwned)
-            .entry_ownership(Ownership::Rented)
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        // Check that the _exit_ relay is owned by Mullvad.
-        assert!(unwrap_relay(relay.clone()).owned);
-        // Check that the _entry_ relay is rented.
-        assert!(!unwrap_entry_relay(relay).owned);
+        let query = RelayQueryBuilder::new().build();
+        assert_eq!(query.wireguard_constraints().obfuscation, Constraint::Any);
+
+        for _ in 0..100 {
+            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+            assert!(relay.obfuscator.is_none());
+        }
     }
 
-    for _ in 0..100 {
-        // Construct an arbitrary query for rented relays.
-        let query = RelayQueryBuilder::new()
-            .multihop()
-            .ownership(Ownership::Rented)
-            .entry_ownership(Ownership::MullvadOwned)
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-        // Check that the _exit_ relay is rented.
-        assert!(!unwrap_relay(relay.clone()).owned);
-        // Check that the _entry_ relay is owned by Mullvad.
-        assert!(unwrap_entry_relay(relay).owned);
-    }
-}
+    /// Construct a query for a configuration with UDP2TCP obfuscation, and make sure that
+    /// all configurations contain a valid port.
+    #[test]
+    fn test_udp2tcp_use_correct_port_ranges() {
+        const TCP2UDP_PORTS: [u16; 3] = [80, 443, 5001];
+        let relay_selector = default_relay_selector();
+        // Note that we do *not* specify any port here!
+        let query = RelayQueryBuilder::new().udp2tcp().build();
 
-/// Verify that server and port selection varies between retry attempts.
-#[test]
-fn test_load_balancing() {
-    const ATTEMPTS: usize = 100;
-    let relay_selector = default_relay_selector();
-    let location = GeographicLocationConstraint::country("se");
-    let query = RelayQueryBuilder::new().location(location.clone()).build();
-    // Collect the range of unique relay ports and IP addresses over a large number of queries.
-    let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
+        for _ in 0..1000 {
+            let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+            let WireguardConfig::Singlehop { .. } = relay.inner else {
+                panic!(
+                    "Relay selector returned unexpected relay: {:?}",
+                    relay.inner
+                )
+            };
+            let Some(obfuscator) = relay.obfuscator else {
+                panic!("Relay selector should have picked an obfuscator")
+            };
+            assert!(matches!(
+                obfuscator,
+                Obfuscators::Single(ObfuscatorConfig::Udp2Tcp { endpoint }) if
+                    TCP2UDP_PORTS.contains(&endpoint.port()),
+            ));
+        }
+    }
+
+    /// Verify that server and port selection varies between retry attempts.
+    #[test]
+    fn test_load_balancing() {
+        const ATTEMPTS: usize = 100;
+        let relay_selector = default_relay_selector();
+        let location = GeographicLocationConstraint::country("se");
+        let query = RelayQueryBuilder::new().location(location.clone()).build();
+        // Collect the range of unique relay ports and IP addresses over a large number of queries.
+        let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat_n(query.clone(), ATTEMPTS)
         // Execute the query
         .map(|query| relay_selector.get_relay_by_query(query).unwrap())
         // Perform some plumbing ..
@@ -850,500 +752,357 @@ fn test_load_balancing() {
         .map(|endpoint| (endpoint.port(), endpoint.ip()))
         .unzip();
 
-    assert!(ports.len() > 1, "expected more than 1 port, got {ports:?}");
-    assert!(ips.len() > 1, "expected more than 1 server, got {ips:?}");
-}
-
-/// Construct a query for a relay with specific providers and verify that every chosen relay has
-/// the correct associated provider.
-#[test]
-fn test_providers() {
-    const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
-    let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
-    let relay_selector = default_relay_selector();
-
-    for _attempt in 0..100 {
-        let query = RelayQueryBuilder::new()
-            .providers(providers.clone())
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-
-        let exit = unwrap_relay(relay);
-        assert!(
-            EXPECTED_PROVIDERS.contains(&exit.provider.as_str()),
-            "cannot find provider {provider} in {EXPECTED_PROVIDERS:?}",
-            provider = exit.provider
-        );
-    }
-}
-
-/// Construct a query for a relay with specific providers and verify that every chosen relay has
-/// the correct associated provider and that it works to select a separate set of providers for
-/// entry and exit relays when doing a multihop.
-#[test]
-fn test_multihop_providers() {
-    const EXPECTED_PROVIDERS: [&str; 2] = ["provider0", "provider2"];
-    const EXPECTED_ENTRY_PROVIDERS: [&str; 2] = ["provider1", "provider3"];
-    let providers = Providers::new(EXPECTED_PROVIDERS).unwrap();
-    let entry_providers = Providers::new(EXPECTED_ENTRY_PROVIDERS).unwrap();
-    let relay_selector = default_relay_selector();
-
-    for _attempt in 0..100 {
-        let query = RelayQueryBuilder::new()
-            .multihop()
-            .providers(providers.clone())
-            .entry_providers(entry_providers.clone())
-            .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
-
-        let (entry, exit) = unwrap_multihop_entry_exit_relays(relay);
-
-        assert!(
-            EXPECTED_PROVIDERS.contains(&exit.provider.as_str()),
-            "cannot find exit provider {provider} in {EXPECTED_PROVIDERS:?}",
-            provider = exit.provider
-        );
-        assert!(
-            EXPECTED_ENTRY_PROVIDERS.contains(&entry.provider.as_str()),
-            "cannot find entry provider {provider} in {EXPECTED_ENTRY_PROVIDERS:?}",
-            provider = entry.provider
-        );
-    }
-}
-
-/// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
-/// relay is returned). Also ensure that `include_in_country` is respected if some relays
-/// have it set to true (i.e., that relay is never returned)
-#[test]
-fn test_include_in_country() {
-    let mut relay_list = RelayList {
-        countries: vec![RelayListCountry {
-            name: "Sweden".to_string(),
-            code: "se".to_string(),
-            cities: vec![RelayListCity {
-                name: "Gothenburg".to_string(),
-                code: "got".to_string(),
-                latitude: 57.70887,
-                longitude: 11.97456,
-                relays: vec![
-                    WireguardRelay {
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: false,
-                        owned: true,
-                        provider: "31173".to_string(),
-                        endpoint_data: WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
-                        inner: Relay {
-                            location: DUMMY_LOCATION.clone(),
-                            weight: 1,
-                            active: true,
-                            hostname: "se9-wireguard".to_string(),
-                            ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                            ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-                        },
-                    },
-                    WireguardRelay {
-                        overridden_ipv4: false,
-                        overridden_ipv6: false,
-                        include_in_country: false,
-                        owned: false,
-                        provider: "31173".to_string(),
-                        endpoint_data: WireguardRelayEndpointData::new(WIREGUARD_PUBKEY.clone()),
-                        inner: Relay {
-                            active: true,
-                            location: DUMMY_LOCATION.clone(),
-                            weight: 1,
-                            hostname: "se10-wireguard".to_string(),
-                            ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                            ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                        },
-                    },
-                ],
-            }],
-        }],
-        wireguard: EndpointData {
-            port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
-            ipv4_gateway: "10.64.0.1".parse().unwrap(),
-            ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-            udp2tcp_ports: vec![],
-            shadowsocks_port_ranges: vec![],
-        },
-    };
-
-    // If include_in_country is false for all relays, a relay must be selected anyway.
-    let relay_selector = RelaySelector::from_settings(
-        &Settings::default(),
-        relay_list.clone(),
-        BridgeList::default(),
-    );
-    assert!(
-        relay_selector
-            .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
-            .is_ok()
-    );
-
-    // If include_in_country is true for some relay, it must always be selected.
-    relay_list.countries[0].cities[0].relays[0].include_in_country = true;
-    let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), relay_list, BridgeList::default());
-    let relay = unwrap_relay(
-        relay_selector
-            .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
-            .expect("expected match"),
-    );
-
-    assert!(
-        matches!(relay.inner, Relay { ref hostname, .. } if hostname == &expected_hostname),
-        "found {relay:?}, expected {expected_hostname:?}",
-    )
-}
-
-/// Always use smart routing to select a DAITA-enabled entry relay if both smart routing and
-/// multihop is enabled. This applies even if the entry is set explicitly.
-/// DAITA is a core privacy feature
-#[test]
-fn test_daita_smart_routing_overrides_multihop() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
-    let query = RelayQueryBuilder::
-        new()
-        .daita()
-        .daita_use_multihop_if_necessary(true)
-        .multihop()
-        // Set the entry to a relay that explicitly does *not* support DAITA.
-        // Later, we check that the smart routing disregards this choice and selects a DAITA-enabled
-        // relay instead.
-        .entry(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-
-    for _ in 0..100 {
-        // Make sure a DAITA-enabled relay is always selected due to smart routing.
-        let relay = relay_selector
-            .get_relay_by_query(query.clone())
-            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
-        match relay {
-            GetRelay {
-                inner: WireguardConfig::Multihop { entry, exit: _ },
-                ..
-            } => {
-                assert!(supports_daita(&entry), "entry relay must support DAITA");
-            }
-            wrong_relay => panic!("Relay selector expected a multihop relay, got: {wrong_relay:?}"),
-        }
+        assert!(ports.len() > 1, "expected more than 1 port, got {ports:?}");
+        assert!(ips.len() > 1, "expected more than 1 server, got {ips:?}");
     }
 
-    // Assert that disabling smart routing for this query will fail to generate a valid multihop
-    // config, thus blocking the user.
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(false)
-        .multihop()
-        .entry(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-
-    let relay = relay_selector.get_relay_by_query(query);
-
-    assert!(
-        relay.is_err(),
-        "expected there to be no valid multihop configuration! Instead got {relay:#?}"
-    );
-}
-
-/// Return only entry relays that support DAITA when DAITA filtering is enabled. All relays that
-/// support DAITA also support NOT DAITA. Thus, disabling it should not cause any WireGuard relays
-/// to be filtered out.
-#[test]
-fn test_daita() {
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
-
-    // Only pick relays that support DAITA
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(false)
-        .build();
-    let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
-    assert!(
-        supports_daita(&relay),
-        "Selector supported relay that does not support DAITA: {relay:?}"
-    );
-
-    // Fail when only non-DAITA relays match constraints
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(false)
-        .location(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-    relay_selector
-        .get_relay_by_query(query)
-        .expect_err("Expected to find no matching relay");
-
-    // Should be able to connect to non-DAITA relay with use_multihop_if_necessary
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(true)
-        .location(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-    let relay = relay_selector
-        .get_relay_by_query(query)
-        .expect("Expected to find a relay with daita_use_multihop_if_necessary");
-    match relay {
-        GetRelay {
-            inner: WireguardConfig::Multihop { exit, entry },
-            ..
-        } => {
-            assert!(supports_daita(&entry), "entry relay must support DAITA");
-            assert!(!supports_daita(&exit), "exit relay must not support DAITA");
-        }
-        wrong_relay => panic!("Relay selector expected a multihop relay, got: {wrong_relay:?}"),
-    }
-
-    // Should be able to connect to DAITA relay with use_multihop_if_necessary
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(true)
-        .location(DAITA_RELAY_LOCATION.clone())
-        .build();
-    let relay = relay_selector
-        .get_relay_by_query(query)
-        .expect("Expected to find a relay with daita_use_multihop_if_necessary");
-    match relay {
-        GetRelay {
-            inner: WireguardConfig::Singlehop { exit },
-            ..
-        } => {
-            assert!(supports_daita(&exit), "entry relay must support DAITA");
-        }
-        wrong_relay => panic!("Relay selector expected a singlehop relay, got: {wrong_relay:?}"),
-    }
-
-    // DAITA-supporting relays can be picked even when it is disabled
-    let query = RelayQueryBuilder::new()
-        .location(DAITA_RELAY_LOCATION.clone())
-        .build();
-    relay_selector
-        .get_relay_by_query(query)
-        .expect("Expected DAITA-supporting relay to work without DAITA");
-
-    // Non DAITA-supporting relays can be picked when it is disabled
-    let query = RelayQueryBuilder::new()
-        .location(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-    relay_selector
-        .get_relay_by_query(query)
-        .expect("Expected DAITA-supporting relay to work without DAITA");
-
-    // Entry relay must support daita
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(false)
-        .multihop()
-        .build();
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    match relay {
-        GetRelay {
-            inner: WireguardConfig::Multihop { exit: _, entry },
-            ..
-        } => {
-            assert!(supports_daita(&entry), "entry relay must support DAITA");
-        }
-        wrong_relay => panic!("Relay selector returned unexpected relay: {wrong_relay:?}"),
-    }
-
-    // Exit relay does not have to support daita
-    let query = RelayQueryBuilder::new()
-        .daita()
-        .daita_use_multihop_if_necessary(false)
-        .multihop()
-        .location(NON_DAITA_RELAY_LOCATION.clone())
-        .build();
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
-    match relay {
-        GetRelay {
-            inner: WireguardConfig::Multihop { exit, entry: _ },
-            ..
-        } => {
-            assert!(
-                !supports_daita(&exit),
-                "expected non DAITA-supporting exit relay, got {exit:?}"
-            );
-        }
-        wrong_relay => panic!("Relay selector returned unexpected relay: {wrong_relay:?}"),
-    }
-}
-
-/// Check that if the original user query would yield a relay, the result of running the query
-/// which is the intersection between the user query and any of the default queries shall never
-/// fail.
-#[test]
-fn valid_user_setting_should_yield_relay() {
-    // Make a valid user relay constraint
-    let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
-    let user_query = RelayQueryBuilder::new().location(location.clone()).build();
-
-    let relay_selector =
-        RelaySelector::from_query(user_query.clone(), RELAYS.clone(), BRIDGES.clone());
-    let user_result = relay_selector.get_relay_by_query(user_query.clone());
-    for retry_attempt in 0..RETRY_ORDER.len() {
-        let post_unification_result =
-            relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
-        if user_result.is_ok() {
-            assert!(
-                post_unification_result.is_ok(),
-                "Expected Post-unification query to be valid because original query {user_query:#?} yielded a connection configuration"
-            )
-        }
-    }
-}
-
-/// Check that if IPv4 is not available and shadowsocks obfuscation is requested
-/// it should return a relay with IPv6 address.
-#[test]
-fn test_shadowsocks_runtime_ipv4_unavailable() {
-    let query = RelayQueryBuilder::new().shadowsocks().build();
-    let relay_selector = RelaySelector::from_query(query, RELAYS.clone(), BRIDGES.clone());
-    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
-    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
-    assert!(
-        matches!(user_result, GetRelay {
-        obfuscator: Some(Obfuscators::Single(ObfuscatorConfig::Shadowsocks {
-            endpoint,
-            ..
-        })),
-        ..
-    } if endpoint.is_ipv6()),
-        "expected IPv6 endpoint for Shadowsocks, got {user_result:?}"
-    );
-}
-
-/// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
-#[test]
-fn test_runtime_ipv4_unavailable() {
-    let relay_selector = RelaySelector::from_query(
-        RelayQueryBuilder::new().build(),
-        RELAYS.clone(),
-        BRIDGES.clone(),
-    );
-    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
-    let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
-    assert!(
-        relay.endpoint.peer.endpoint.is_ipv6(),
-        "expected IPv6 endpoint, got {:?}",
-        relay.endpoint,
-    );
-}
-
-/// Check that the relay selector is able to disregard `include_in_country` flag if necessary.
-///
-/// This test case prevents regressions to the `include_in_country` filtering logic.
-#[test]
-fn include_in_country_with_few_relays() -> Result<(), Error> {
-    let query = RelayQueryBuilder::new()
-        .multihop()
-        .location(GeographicLocationConstraint::country("se"))
-        .entry(GeographicLocationConstraint::country("se"))
-        .build();
-
-    // The relay selector ought to resolve the query to any of the following configurations
-    // {entry: se-sto-wg-009, exit: se-sto-wg-204}
-    // {entry: se-sto-wg-204, exit: se-sto-wg-009}
-    let relays = {
-        let stockholm = Location {
-            country: "Sweden".to_string(),
-            country_code: "se".to_string(),
-            city: "Stockholm".to_string(),
-            city_code: "sto".to_string(),
-            latitude: 59.3289,
-            longitude: 18.0649,
-        };
-        let wireguard = EndpointData {
-            port_ranges: vec![443..=443],
-            shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
-            ..Default::default()
-        };
-        RelayList {
+    /// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
+    /// relay is returned). Also ensure that `include_in_country` is respected if some relays
+    /// have it set to true (i.e., that relay is never returned)
+    #[test]
+    fn test_include_in_country() {
+        let mut relay_list = RelayList {
             countries: vec![RelayListCountry {
                 name: "Sweden".to_string(),
                 code: "se".to_string(),
                 cities: vec![RelayListCity {
-                    name: "Stockholm".to_string(),
-                    code: "sto".to_string(),
-                    latitude: 59.3289,
-                    longitude: 18.0649,
+                    name: "Gothenburg".to_string(),
+                    code: "got".to_string(),
+                    latitude: 57.70887,
+                    longitude: 11.97456,
                     relays: vec![
                         WireguardRelay {
                             overridden_ipv4: false,
                             overridden_ipv6: false,
-                            // This is the important part
                             include_in_country: false,
                             owned: true,
                             provider: "31173".to_string(),
                             endpoint_data: WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "t1XlQD7rER0JUPrmh3R5IpxjUP9YOqodJAwfRorNxl4=",
-                                )
-                                .unwrap(),
+                                WIREGUARD_PUBKEY.clone(),
                             ),
                             inner: Relay {
-                                hostname: "se-sto-wg-009".to_string(),
-                                ipv4_addr_in: "185.195.233.69".parse().unwrap(),
-                                ipv6_addr_in: "2a03:1b20:4:f011::a09f".parse().ok(),
-                                active: true,
+                                location: DUMMY_LOCATION.clone(),
                                 weight: 1,
-                                location: stockholm.clone(),
+                                active: true,
+                                hostname: "se9-wireguard".to_string(),
+                                ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                                ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
                             },
                         },
                         WireguardRelay {
                             overridden_ipv4: false,
                             overridden_ipv6: false,
-                            // This is the important part
-                            include_in_country: true,
+                            include_in_country: false,
                             owned: false,
-                            provider: "DataPacket".to_string(),
+                            provider: "31173".to_string(),
                             endpoint_data: WireguardRelayEndpointData::new(
-                                PublicKey::from_base64(
-                                    "cPhM7ShRWQmKiJtD9Wd1vDh0GwIlaMvFb/WPrP58FH8=",
-                                )
-                                .unwrap(),
+                                WIREGUARD_PUBKEY.clone(),
                             ),
                             inner: Relay {
-                                location: stockholm,
                                 active: true,
-                                weight: 200,
-                                hostname: "se-sto-wg-204".to_string(),
-                                ipv4_addr_in: "89.37.63.190".parse().unwrap(),
-                                ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
+                                location: DUMMY_LOCATION.clone(),
+                                weight: 1,
+                                hostname: "se10-wireguard".to_string(),
+                                ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                                ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
                             },
                         },
                     ],
                 }],
             }],
-            wireguard,
-        }
-    };
-    let relay_selector =
-        RelaySelector::from_settings(&Settings::default(), relays, BridgeList::default());
+            wireguard: EndpointData {
+                port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
+                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                udp2tcp_ports: vec![],
+                shadowsocks_port_ranges: vec![],
+            },
+        };
 
-    relay_selector.get_relay_by_query(query)?;
-    Ok(())
+        // If include_in_country is false for all relays, a relay must be selected anyway.
+        let relay_selector = RelaySelector::from_settings(
+            &Settings::default(),
+            relay_list.clone(),
+            BridgeList::default(),
+        );
+        assert!(
+            relay_selector
+                .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
+                .is_ok()
+        );
+
+        // If include_in_country is true for some relay, it must always be selected.
+        relay_list.countries[0].cities[0].relays[0].include_in_country = true;
+        let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), relay_list, BridgeList::default());
+        let relay = unwrap_relay(
+            relay_selector
+                .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
+                .expect("expected match"),
+        );
+
+        assert!(
+            matches!(relay.inner, Relay { ref hostname, .. } if hostname == &expected_hostname),
+            "found {relay:?}, expected {expected_hostname:?}",
+        )
+    }
+
+    /// Return only entry relays that support DAITA when DAITA filtering is enabled. All relays that
+    /// support DAITA also support NOT DAITA. Thus, disabling it should not cause any WireGuard relays
+    /// to be filtered out.
+    #[test]
+    fn test_daita() {
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+
+        // Only pick relays that support DAITA
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(false)
+            .build();
+        let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
+        assert!(
+            supports_daita(&relay),
+            "Selector supported relay that does not support DAITA: {relay:?}"
+        );
+
+        // Fail when only non-DAITA relays match constraints
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(false)
+            .location(NON_DAITA_RELAY_LOCATION.clone())
+            .build();
+        relay_selector
+            .get_relay_by_query(query)
+            .expect_err("Expected to find no matching relay");
+
+        // Should be able to connect to non-DAITA relay with use_multihop_if_necessary
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(true)
+            .location(NON_DAITA_RELAY_LOCATION.clone())
+            .build();
+        let relay = relay_selector
+            .get_relay_by_query(query)
+            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
+        match relay {
+            GetRelay {
+                inner: WireguardConfig::Multihop { exit, entry },
+                ..
+            } => {
+                assert!(supports_daita(&entry), "entry relay must support DAITA");
+                assert!(!supports_daita(&exit), "exit relay must not support DAITA");
+            }
+            wrong_relay => panic!("Relay selector expected a multihop relay, got: {wrong_relay:?}"),
+        }
+
+        // Should be able to connect to DAITA relay with use_multihop_if_necessary
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(true)
+            .location(DAITA_RELAY_LOCATION.clone())
+            .build();
+        let relay = relay_selector
+            .get_relay_by_query(query)
+            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
+        match relay {
+            GetRelay {
+                inner: WireguardConfig::Singlehop { exit },
+                ..
+            } => {
+                assert!(supports_daita(&exit), "entry relay must support DAITA");
+            }
+            wrong_relay => {
+                panic!("Relay selector expected a singlehop relay, got: {wrong_relay:?}")
+            }
+        }
+
+        // DAITA-supporting relays can be picked even when it is disabled
+        let query = RelayQueryBuilder::new()
+            .location(DAITA_RELAY_LOCATION.clone())
+            .build();
+        relay_selector
+            .get_relay_by_query(query)
+            .expect("Expected DAITA-supporting relay to work without DAITA");
+
+        // Non DAITA-supporting relays can be picked when it is disabled
+        let query = RelayQueryBuilder::new()
+            .location(NON_DAITA_RELAY_LOCATION.clone())
+            .build();
+        relay_selector
+            .get_relay_by_query(query)
+            .expect("Expected DAITA-supporting relay to work without DAITA");
+
+        // Entry relay must support daita
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(false)
+            .multihop()
+            .build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        match relay {
+            GetRelay {
+                inner: WireguardConfig::Multihop { exit: _, entry },
+                ..
+            } => {
+                assert!(supports_daita(&entry), "entry relay must support DAITA");
+            }
+            wrong_relay => panic!("Relay selector returned unexpected relay: {wrong_relay:?}"),
+        }
+
+        // Exit relay does not have to support daita
+        let query = RelayQueryBuilder::new()
+            .daita()
+            .daita_use_multihop_if_necessary(false)
+            .multihop()
+            .location(NON_DAITA_RELAY_LOCATION.clone())
+            .build();
+        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        match relay {
+            GetRelay {
+                inner: WireguardConfig::Multihop { exit, entry: _ },
+                ..
+            } => {
+                assert!(
+                    !supports_daita(&exit),
+                    "expected non DAITA-supporting exit relay, got {exit:?}"
+                );
+            }
+            wrong_relay => panic!("Relay selector returned unexpected relay: {wrong_relay:?}"),
+        }
+    }
+
+    /// Check that if the original user query would yield a relay, the result of running the query
+    /// which is the intersection between the user query and any of the default queries shall never
+    /// fail.
+    #[test]
+    fn valid_user_setting_should_yield_relay() {
+        // Make a valid user relay constraint
+        let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
+        let user_query = RelayQueryBuilder::new().location(location.clone()).build();
+
+        let relay_selector =
+            RelaySelector::from_query(user_query.clone(), RELAYS.clone(), BRIDGES.clone());
+        let user_result = relay_selector.get_relay_by_query(user_query.clone());
+        for retry_attempt in 0..RETRY_ORDER.len() {
+            let post_unification_result =
+                relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
+            if user_result.is_ok() {
+                assert!(
+                    post_unification_result.is_ok(),
+                    "Expected Post-unification query to be valid because original query {user_query:#?} yielded a connection configuration"
+                )
+            }
+        }
+    }
+
+    /// Check that the relay selector is able to disregard `include_in_country` flag if necessary.
+    ///
+    /// This test case prevents regressions to the `include_in_country` filtering logic.
+    #[test]
+    fn include_in_country_with_few_relays() -> Result<(), Error> {
+        let query = RelayQueryBuilder::new()
+            .multihop()
+            .location(GeographicLocationConstraint::country("se"))
+            .entry(GeographicLocationConstraint::country("se"))
+            .build();
+
+        // The relay selector ought to resolve the query to any of the following configurations
+        // {entry: se-sto-wg-009, exit: se-sto-wg-204}
+        // {entry: se-sto-wg-204, exit: se-sto-wg-009}
+        let relays = {
+            let stockholm = Location {
+                country: "Sweden".to_string(),
+                country_code: "se".to_string(),
+                city: "Stockholm".to_string(),
+                city_code: "sto".to_string(),
+                latitude: 59.3289,
+                longitude: 18.0649,
+            };
+            let wireguard = EndpointData {
+                port_ranges: vec![443..=443],
+                shadowsocks_port_ranges: vec![100..=200, 1000..=2000],
+                ..Default::default()
+            };
+            RelayList {
+                countries: vec![RelayListCountry {
+                    name: "Sweden".to_string(),
+                    code: "se".to_string(),
+                    cities: vec![RelayListCity {
+                        name: "Stockholm".to_string(),
+                        code: "sto".to_string(),
+                        latitude: 59.3289,
+                        longitude: 18.0649,
+                        relays: vec![
+                            WireguardRelay {
+                                overridden_ipv4: false,
+                                overridden_ipv6: false,
+                                // This is the important part
+                                include_in_country: false,
+                                owned: true,
+                                provider: "31173".to_string(),
+                                endpoint_data: WireguardRelayEndpointData::new(
+                                    PublicKey::from_base64(
+                                        "t1XlQD7rER0JUPrmh3R5IpxjUP9YOqodJAwfRorNxl4=",
+                                    )
+                                    .unwrap(),
+                                ),
+                                inner: Relay {
+                                    hostname: "se-sto-wg-009".to_string(),
+                                    ipv4_addr_in: "185.195.233.69".parse().unwrap(),
+                                    ipv6_addr_in: "2a03:1b20:4:f011::a09f".parse().ok(),
+                                    active: true,
+                                    weight: 1,
+                                    location: stockholm.clone(),
+                                },
+                            },
+                            WireguardRelay {
+                                overridden_ipv4: false,
+                                overridden_ipv6: false,
+                                // This is the important part
+                                include_in_country: true,
+                                owned: false,
+                                provider: "DataPacket".to_string(),
+                                endpoint_data: WireguardRelayEndpointData::new(
+                                    PublicKey::from_base64(
+                                        "cPhM7ShRWQmKiJtD9Wd1vDh0GwIlaMvFb/WPrP58FH8=",
+                                    )
+                                    .unwrap(),
+                                ),
+                                inner: Relay {
+                                    location: stockholm,
+                                    active: true,
+                                    weight: 200,
+                                    hostname: "se-sto-wg-204".to_string(),
+                                    ipv4_addr_in: "89.37.63.190".parse().unwrap(),
+                                    ipv6_addr_in: "2a02:6ea0:1508:4::f001".parse().ok(),
+                                },
+                            },
+                        ],
+                    }],
+                }],
+                wireguard,
+            }
+        };
+        let relay_selector =
+            RelaySelector::from_settings(&Settings::default(), relays, BridgeList::default());
+
+        relay_selector.get_relay_by_query(query)?;
+        Ok(())
+    }
 }
 
+/// Tests covering the [RelaySelector::partition_relays] algorithm.
+///
+/// # Snapshot tests
+/// The snapshot files live in `tests/snapshots/`. To review and accept changes after
+/// intentionally modifying the algorithm, run:
+///
+/// ```text
+/// cargo insta review -p mullvad-relay-selector
+/// ```
 mod partition_relays {
-    //! Tests covering the [RelaySelector::partition_relays] algorithm.
-    //!
-    //! # Snapshot tests
-    //! The snapshot files live in `tests/snapshots/`. To review and accept changes after
-    //! intentionally modifying the algorithm, run:
-    //!
-    //! ```text
-    //! cargo insta review -p mullvad-relay-selector
-    //! ```
-    //!
-    //! This is partly a port of pre-existing tests to prevent regressions in the relay selection logic.
-    //! The long term goal is to completely remove all old tests, but they will have to remain until
-    //! the relay selector internals have been refactored to use the new partition_relays algorithm.
-
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
     use mullvad_types::constraints::Constraint;
@@ -1381,36 +1140,6 @@ mod partition_relays {
             .flat_map(|(_relay, reasons)| reasons)
             .collect()
     }
-
-    // These are tests that should be ported from the old relay selector:
-    //
-    // - [status] <test> (port)
-    //
-    // - [x] test_entry_hostname_collision (entry_hostname_collision)
-    // - [x] test_runtime_ipv4_unavailable (runtime_ipv4_unavailable)
-    // - [-] test_selecting_endpoint_with_udp2tcp_obfuscation
-    // - [-] test_selecting_ignore_extra_ips_override_v4
-    // - [x] test_include_in_country (include_in_country)
-    // - [-] test_selecting_ignore_extra_ips_override_v6
-    // - [x] test_selecting_over_lwo (obfuscation)
-    // - [x] test_selecting_over_quic (obfuscation)
-    // - [x] test_shadowsocks_runtime_ipv4_unavailable (shadowsocks_runtime_ipv4_unavailable)
-    // - [x] test_selecting_over_shadowsocks (obfuscation)
-    // - [-] test_selecting_over_shadowsocks_extra_ips
-    // - [x] test_daita (daita)
-    // - [-] test_wg_port_selection
-    // - [-] test_retry_order
-    // - [-] valid_user_setting_should_yield_relay
-    // - [x] test_multihop_providers (multihop_ownership_and_provider)
-    // - [-] test_load_balancing
-    // - [x] test_daita_smart_routing_overrides_multihop (daita_smart_routing_overrides_multihop)
-    // - [-] test_selecting_endpoint_with_auto_obfuscation
-    // - [-] test_selecting_location_will_consider_multihop
-    // - [x] test_providers (multihop_ownership_and_provider)
-    // - [x] test_multihop_ownership (multihop_ownership_and_provider)
-    // - [x] test_entry (multihop)
-    // - [x] test_ownership (multihop_ownership_and_provider)
-    // - [-] test_udp2tcp_use_correct_port_ranges
 
     /// Verify that the results of constraining [`Ownership`] and/or [`Providers`], separately
     /// for the entry and exit in multihop case, is reflected in the chosen relay and in the
@@ -2036,8 +1765,6 @@ mod partition_relays {
     /// - Second scenario:
     ///     - Selecting one entry country with exactly one matching relay will remove it from the list of exit relays.
     ///     - Selecting one exit country with exactly one matching relay will remove it from the list of entry relays.
-    ///
-    /// Supersedes test_entry.
     #[test]
     fn multihop() {
         let relay_selector = {
