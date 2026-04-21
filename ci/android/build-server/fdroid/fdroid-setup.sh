@@ -6,7 +6,7 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-FDROID_ROOT_DIR=${1:?'Usage: fdroid-setup.sh <fdroid-repo-dir>'}
+FDROID_ROOT_DIR=${1:?'Usage: fdroid-setup.sh <fdroid-root-dir>'}
 
 if [[ ! -d "$FDROID_ROOT_DIR" ]]; then
     echo "Error: not a directory: $FDROID_ROOT_DIR"
