@@ -135,10 +135,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6.0.1
 
-      - name: Fetch submodules
-        run: |
-          git submodule update --init android/rust-android-gradle-plugin
-
       - name: Ensure correct container image is used
         run: echo "${{ needs.prepare.outputs.container_image }}" > ./building/android-container-image.txt
 
