@@ -17,14 +17,15 @@ let
     versions
     ;
 
-  compileSdkVersion = versions."compile-sdk";
+  compileSdkVersion = versions."compile-sdk-major";
+  compileSdkMinorVersion = versions."compile-sdk-minor" or "0";
   buildToolsVersion = versions."build-tools";
   minSdkVersion = versions."min-sdk";
   ndkVersion = versions.ndk;
 
   android-sdk = android-nixpkgs.sdk.${system} (
     sdkPkgs: with sdkPkgs; [
-      (builtins.getAttr "platforms-android-${compileSdkVersion}" sdkPkgs)
+      (builtins.getAttr "platforms-android-${compileSdkVersion}-${compileSdkMinorVersion}" sdkPkgs)
       (builtins.getAttr "build-tools-${builtins.replaceStrings [ "." ] [ "-" ] buildToolsVersion}" sdkPkgs)
       (builtins.getAttr "ndk-${builtins.replaceStrings [ "." ] [ "-" ] ndkVersion}" sdkPkgs)
       cmdline-tools-latest
