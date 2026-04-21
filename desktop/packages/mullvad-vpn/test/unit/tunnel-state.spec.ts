@@ -29,56 +29,7 @@ describe('Tunnel state', () => {
     expect(tunnelStateHandler.tunnelState.state).toEqual('disconnected');
   });
 
-  it('Should ignore non-expected state update', () => {
-    const stateUpdateSpy = vi.fn();
-    const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
-    const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
-
-    tunnelStateHandler.expectNextTunnelState('connecting');
-    tunnelStateHandler.handleNewTunnelState(disconnecting);
-    tunnelStateHandler.handleNewTunnelState(connecting);
-
-    expect(stateUpdateSpy).toHaveBeenCalledTimes(2);
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(1, 'connecting');
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'connecting');
-    expect(tunnelStateHandler.tunnelState.state).toEqual('connecting');
-  });
-
-  it('Should allow new states after expected state is reached', () => {
-    const stateUpdateSpy = vi.fn();
-    const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
-    const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
-
-    tunnelStateHandler.expectNextTunnelState('connecting');
-    tunnelStateHandler.handleNewTunnelState(disconnected);
-    tunnelStateHandler.handleNewTunnelState(connecting);
-    tunnelStateHandler.handleNewTunnelState(connected);
-
-    expect(stateUpdateSpy).toHaveBeenCalledTimes(3);
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(1, 'connecting');
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'connecting');
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(3, 'connected');
-    expect(tunnelStateHandler.tunnelState.state).toEqual('connected');
-  });
-
-  it('Should allow error state update', () => {
-    const stateUpdateSpy = vi.fn();
-    const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
-    const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
-
-    tunnelStateHandler.expectNextTunnelState('connecting');
-    tunnelStateHandler.handleNewTunnelState(disconnected);
-    tunnelStateHandler.handleNewTunnelState(error);
-    tunnelStateHandler.handleNewTunnelState(disconnected);
-
-    expect(stateUpdateSpy).toHaveBeenCalledTimes(3);
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(1, 'connecting');
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'error');
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(3, 'disconnected');
-    expect(tunnelStateHandler.tunnelState.state).toEqual('disconnected');
-  });
-
-  it('Should immediately accept disconnected while expecting disconnecting', () => {
+  it('Should accept any real state while expecting a predicted state', () => {
     const stateUpdateSpy = vi.fn();
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
@@ -87,6 +38,7 @@ describe('Tunnel state', () => {
     tunnelStateHandler.expectNextTunnelState('disconnecting');
     tunnelStateHandler.handleNewTunnelState(disconnected);
 
+    expect(stateUpdateSpy).toHaveBeenCalledTimes(3);
     expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'disconnecting');
     expect(stateUpdateSpy).toHaveBeenNthCalledWith(3, 'disconnected');
     expect(tunnelStateHandler.tunnelState.state).toEqual('disconnected');
@@ -98,17 +50,18 @@ describe('Tunnel state', () => {
     const handleTunnelStateUpdate = (tunnelState: TunnelState) => stateUpdateSpy(tunnelState.state);
     const tunnelStateHandler = new TunnelStateHandler({ handleTunnelStateUpdate });
 
-    tunnelStateHandler.expectNextTunnelState('connecting');
     tunnelStateHandler.handleNewTunnelState(disconnected);
+    tunnelStateHandler.expectNextTunnelState('connecting');
 
-    expect(stateUpdateSpy).toHaveBeenCalledTimes(1);
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(1, 'connecting');
+    expect(stateUpdateSpy).toHaveBeenCalledTimes(2);
+    expect(stateUpdateSpy).toHaveBeenNthCalledWith(1, 'disconnected');
+    expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'connecting');
     expect(tunnelStateHandler.tunnelState.state).toEqual('connecting');
 
     vi.advanceTimersByTime(3000);
 
-    expect(stateUpdateSpy).toHaveBeenCalledTimes(2);
-    expect(stateUpdateSpy).toHaveBeenNthCalledWith(2, 'disconnected');
+    expect(stateUpdateSpy).toHaveBeenCalledTimes(3);
+    expect(stateUpdateSpy).toHaveBeenNthCalledWith(3, 'disconnected');
     expect(tunnelStateHandler.tunnelState.state).toEqual('disconnected');
 
     vi.useRealTimers();
