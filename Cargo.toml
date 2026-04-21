@@ -107,8 +107,8 @@ rustls-pki-types = "1.13.1"
 serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
-shadowsocks = { version = "1.23.2", features = ["stream-cipher"] }
-shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
+shadowsocks = { git = "https://github.com/mullvad/shadowsocks-rust", rev = "82f0cb7333dd54e89f83bc3068af4a1e70cbe1d2", features = ["stream-cipher"] }
+shadowsocks-crypto = { git = "https://github.com/mullvad/shadowsocks-crypto", rev = "52add5fac44f7685f1b927103b8417437fcb6c27", features = ["v1-stream"] }
 socket2 = "0.5.7"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
@@ -173,6 +173,11 @@ unused_macro_rules = "warn"
 # The way prost is only used by generated code makes it really hard for dependency
 # usage checkers to see that it's not unused
 ignored = ["prost"]
+
+# The shadowsocks-rust fork's own [patch.crates-io] does not apply when we pull
+# it in as a git dep, so redirect shadowsocks-crypto to our fork here as well.
+[patch.crates-io]
+shadowsocks-crypto = { git = "https://github.com/mullvad/shadowsocks-crypto", rev = "52add5fac44f7685f1b927103b8417437fcb6c27" }
 
 [profile.release]
 opt-level = "s"
