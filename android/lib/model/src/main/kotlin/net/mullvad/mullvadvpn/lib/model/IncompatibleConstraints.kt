@@ -10,10 +10,9 @@ data class IncompatibleConstraints(
     val obfuscation: Boolean,
     val port: Boolean,
     val conflictWithOtherHop: Boolean,
-    val includeInCountry: Boolean,
 ) {
     val onlyInactive =
-        (conflictWithOtherHop or inactive or includeInCountry) &&
+        (conflictWithOtherHop or inactive) &&
             !location &&
             !providers &&
             !ownership &&
