@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.lib.feature.addtime.impl)
     implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.appinfo.api)
+    implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.feature.daita.api)
     implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.location.api)
