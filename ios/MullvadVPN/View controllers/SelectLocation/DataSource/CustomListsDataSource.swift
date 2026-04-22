@@ -23,7 +23,7 @@ class CustomListsDataSource: SearchableLocationDataSource {
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode]) {
         let expandedCodes = collectExpandedCodes()
-        nodes = repository.fetchAll().map { list in
+        nodes = repository.fetchAll().sorted { $0.name < $1.name }.map { list in
             let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
             let listNode = customListWrapper.customListLocationNode
             listNode.showsChildren = expandedCodes.contains(listNode.code)
