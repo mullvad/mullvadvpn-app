@@ -77,6 +77,7 @@ futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"
+mimalloc = { version = "0.1", optional = true }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
@@ -175,6 +176,8 @@ features = ["Win32_System_SystemServices"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
+# Use mimalloc as the global allocator.
+mimalloc = ["dep:mimalloc"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 wireguard-go = ["talpid-core/wireguard-go"]

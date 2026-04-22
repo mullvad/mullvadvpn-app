@@ -9,6 +9,10 @@ use mullvad_daemon::{
 };
 use talpid_types::ErrorExt;
 
+#[cfg(feature = "mimalloc")]
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 mod cli;
 #[cfg(target_os = "linux")]
 mod early_boot_firewall;
