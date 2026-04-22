@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
+- Switch memory allocator to mimalloc to reduce fragmentation.
 - `mullvad-early-boot-blocking.service` now waits for local file system to be mounted
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
 
