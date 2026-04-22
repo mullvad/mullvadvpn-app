@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.lib.pushNotification)
     implementation(projects.lib.repository)
     implementation(projects.lib.tv)
+    implementation(projects.lib.ui.util)
     implementation(projects.lib.usecase)
 
     implementation(libs.androidx.animation)

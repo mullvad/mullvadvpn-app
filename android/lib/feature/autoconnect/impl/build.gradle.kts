@@ -10,6 +10,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.autoconnect.impl" }
 
 dependencies {
     implementation(projects.lib.feature.autoconnect.api)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)
