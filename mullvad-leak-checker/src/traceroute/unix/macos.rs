@@ -142,7 +142,7 @@ async fn recv_ttl_responses(
                 .context("Failed to read from raw socket")?,
 
             _timeout = timer => {
-                return Ok(LeakStatus::LeakDetected(LeakInfo::NodeReachableOnInterface {
+                return Ok(LeakStatus::LeakDetected(LeakInfo {
                     reachable_nodes,
                     interface: interface.clone(),
                 }));

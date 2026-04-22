@@ -86,12 +86,10 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         while let Some(result) = ping_tasks.next().await {
             let Some(ip) = result? else { continue };
 
-            return Ok(LeakStatus::LeakDetected(
-                LeakInfo::NodeReachableOnInterface {
-                    reachable_nodes: vec![ip],
-                    interface: opt.interface.clone(),
-                },
-            ));
+            return Ok(LeakStatus::LeakDetected(LeakInfo {
+                reachable_nodes: vec![ip],
+                interface: opt.interface.clone(),
+            }));
         }
 
         anyhow::Ok(LeakStatus::NoLeak)
