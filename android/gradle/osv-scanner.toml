@@ -120,3 +120,9 @@ reason = "The app does not use dependency directly, it is used by AGP that build
 id = "CVE-2025-48924"  # GHSA-j288-q9x7-2f5v
 ignoreUntil = 2026-08-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Bouncy Castle has an LDAP injection
+[[IgnoredVulns]]
+id = "CVE-2026-0636"  # GHSA-c3fc-8qff-9hwx
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
