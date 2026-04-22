@@ -156,7 +156,7 @@ impl RelayEndpointSet {
         }: &EntrySpecificConstraints,
     ) -> Verdict {
         match obfuscation {
-            // Constraint::Any means "auto" — route traffic through the plain WireGuard endpoint.
+            // Constraint::Any means "auto" — we can always fallback to routing traffic through the plain WireGuard endpoint.
             Constraint::Any | Constraint::Only(ObfuscationMode::Off) => self
                 .wireguard
                 .supports_ip_version(*ip_version)
@@ -259,6 +259,7 @@ impl RelayEndpointSet {
         ip_version: Constraint<IpVersion>,
     ) -> Option<Obfuscators> {
         let configs: Vec<ObfuscatorConfig> = [
+            self.lwo_config(direct_endpoint.ip(), Constraint::Any),
             self.udp2tcp_config(direct_endpoint.ip(), Constraint::Any),
             self.shadowsocks_config(ip_version, Constraint::Any),
             self.quic_config(ip_version),
