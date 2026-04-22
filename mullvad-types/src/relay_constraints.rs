@@ -248,7 +248,7 @@ impl Ownership {
     }
 }
 
-impl Match<WireguardRelay> for &Ownership {
+impl Match<WireguardRelay> for Ownership {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         match self {
             Ownership::MullvadOwned => relay.owned,
@@ -321,7 +321,7 @@ impl Providers {
     }
 }
 
-impl Match<WireguardRelay> for &Providers {
+impl Match<WireguardRelay> for Providers {
     fn matches(&self, relay: &WireguardRelay) -> bool {
         self.providers.contains(&relay.provider)
     }
