@@ -77,9 +77,8 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.EDIT_API_ACCESS_NAME_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -341,10 +340,7 @@ private fun ApiAccessMethodTypeSelection(
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(
-                                    if (item == formData.apiAccessMethodTypes) AlphaVisible
-                                    else AlphaInvisible
-                                ),
+                                .visible(item == formData.apiAccessMethodTypes),
                     )
                 },
             )
@@ -564,7 +560,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                         contentDescription = null,
                         modifier =
                             Modifier.padding(end = Dimens.selectableCellTextMargin)
-                                .alpha(if (item == cipher) AlphaVisible else AlphaInvisible),
+                                .visible(item == cipher),
                     )
                 },
             )
@@ -602,7 +598,7 @@ private fun EnableAuthentication(
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(if (authenticationEnabled) AlphaVisible else AlphaInvisible),
+                            .visible(authenticationEnabled),
                 )
             },
         )
@@ -619,9 +615,7 @@ private fun EnableAuthentication(
                     contentDescription = null,
                     modifier =
                         Modifier.padding(end = Dimens.selectableCellTextMargin)
-                            .alpha(
-                                if (authenticationEnabled.not()) AlphaVisible else AlphaInvisible
-                            ),
+                            .visible(authenticationEnabled.not()),
                 )
             },
         )
