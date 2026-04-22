@@ -252,8 +252,6 @@ export class IncompatibleConstraints extends jspb.Message {
     setPort(value: boolean): IncompatibleConstraints;
     getConflictWithOtherHop(): boolean;
     setConflictWithOtherHop(value: boolean): IncompatibleConstraints;
-    getIncludeInCountry(): boolean;
-    setIncludeInCountry(value: boolean): IncompatibleConstraints;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): IncompatibleConstraints.AsObject;
@@ -276,7 +274,6 @@ export namespace IncompatibleConstraints {
         obfuscation: boolean,
         port: boolean,
         conflictWithOtherHop: boolean,
-        includeInCountry: boolean,
     }
 }
 

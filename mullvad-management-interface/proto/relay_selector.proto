@@ -128,10 +128,6 @@ message IncompatibleConstraints {
   bool port = 8;
   // This relay is already used for the other hop (entry/exit).
   bool conflict_with_other_hop = 9;
-  // The relay has opted out of country-level listings and the location constraint
-  // only targets its country (or is unconstrained). The relay will still be selected
-  // if no primary relay is available.
-  bool include_in_country = 10;
 }
 
 // A hosting provider.

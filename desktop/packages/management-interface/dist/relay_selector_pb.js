@@ -1865,8 +1865,7 @@ proto.mullvad_daemon.relay_selector.IncompatibleConstraints.toObject = function(
     daita: jspb.Message.getBooleanFieldWithDefault(msg, 6, false),
     obfuscation: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
     port: jspb.Message.getBooleanFieldWithDefault(msg, 8, false),
-    conflictWithOtherHop: jspb.Message.getBooleanFieldWithDefault(msg, 9, false),
-    includeInCountry: jspb.Message.getBooleanFieldWithDefault(msg, 10, false)
+    conflictWithOtherHop: jspb.Message.getBooleanFieldWithDefault(msg, 9, false)
   };
 
   if (includeInstance) {
@@ -1938,10 +1937,6 @@ proto.mullvad_daemon.relay_selector.IncompatibleConstraints.deserializeBinaryFro
     case 9:
       var value = /** @type {boolean} */ (reader.readBool());
       msg.setConflictWithOtherHop(value);
-      break;
-    case 10:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setIncludeInCountry(value);
       break;
     default:
       reader.skipField();
@@ -2032,13 +2027,6 @@ proto.mullvad_daemon.relay_selector.IncompatibleConstraints.serializeBinaryToWri
   if (f) {
     writer.writeBool(
       9,
-      f
-    );
-  }
-  f = message.getIncludeInCountry();
-  if (f) {
-    writer.writeBool(
-      10,
       f
     );
   }
@@ -2204,24 +2192,6 @@ proto.mullvad_daemon.relay_selector.IncompatibleConstraints.prototype.getConflic
  */
 proto.mullvad_daemon.relay_selector.IncompatibleConstraints.prototype.setConflictWithOtherHop = function(value) {
   return jspb.Message.setProto3BooleanField(this, 9, value);
-};
-
-
-/**
- * optional bool include_in_country = 10;
- * @return {boolean}
- */
-proto.mullvad_daemon.relay_selector.IncompatibleConstraints.prototype.getIncludeInCountry = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 10, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.mullvad_daemon.relay_selector.IncompatibleConstraints} returns this
- */
-proto.mullvad_daemon.relay_selector.IncompatibleConstraints.prototype.setIncludeInCountry = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 10, value);
 };
 
 
