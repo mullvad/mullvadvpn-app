@@ -129,10 +129,9 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.Shapes
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha20
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha80
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
-import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
+import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
@@ -444,7 +443,7 @@ private fun Content(
                             )
                         }
                     }
-                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible),
+                    .visible(state.showLoading),
         )
 
         Box(

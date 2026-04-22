@@ -64,6 +64,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -225,10 +226,12 @@ private fun LazyListScope.appList(
     onResolveIcon: (PackageName) -> Drawable?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
-        headerItem(
+        excludedAppsHeaderItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
             enabled = state.enabled,
+            exludedAppsCount = state.excludedApps.size,
+            includedAppsCount = state.includedApps.size,
         )
         appItems(
             apps = state.excludedApps,
@@ -320,16 +323,29 @@ internal fun LazyListScope.appItems(
 internal fun LazyListScope.headerItem(key: String, textId: Int, enabled: Boolean) {
     itemWithDivider(key = key, contentType = ContentType.HEADER) {
         ListHeader(
-            modifier =
-                Modifier.animateItem()
-                    .alpha(
-                        if (enabled) {
-                            AlphaVisible
-                        } else {
-                            AlphaDisabled
-                        }
-                    ),
+            modifier = Modifier.animateItem().visible(enabled),
             text = stringResource(id = textId),
+        )
+    }
+}
+
+internal fun LazyListScope.excludedAppsHeaderItem(
+    key: String,
+    textId: Int,
+    enabled: Boolean,
+    exludedAppsCount: Int,
+    includedAppsCount: Int,
+) {
+    itemWithDivider(key = key, contentType = ContentType.HEADER) {
+        ListHeader(
+            modifier = Modifier.animateItem().visible(enabled),
+            text = stringResource(id = textId),
+            trailingText =
+                stringResource(
+                    R.string.x_out_of_y,
+                    exludedAppsCount,
+                    exludedAppsCount + includedAppsCount,
+                ),
         )
     }
 }

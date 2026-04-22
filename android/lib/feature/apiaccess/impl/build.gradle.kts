@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.lib.feature.apiaccess.api)
     implementation(projects.lib.navigation)
     implementation(projects.lib.repository)
+    implementation(projects.lib.ui.util)
 
     implementation(libs.koin.compose)
     implementation(libs.arrow)

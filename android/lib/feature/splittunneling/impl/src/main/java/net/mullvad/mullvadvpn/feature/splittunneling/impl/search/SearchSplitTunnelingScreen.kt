@@ -40,6 +40,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.CommonContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.ContentType
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.appItems
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.excludedAppsHeaderItem
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.headerItem
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -158,10 +159,12 @@ private fun LazyListScope.appList(
         item { NoAppsMatchingSearch(state.searchTerm) }
     }
     if (state.excludedApps.isNotEmpty()) {
-        headerItem(
+        excludedAppsHeaderItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
             enabled = true,
+            exludedAppsCount = state.excludedApps.size,
+            includedAppsCount = state.includedApps.size,
         )
         appItems(
             apps = state.excludedApps,

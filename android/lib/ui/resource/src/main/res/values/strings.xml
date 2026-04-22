@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="disconnecting">Disconnecting...</string>
     <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
@@ -132,6 +132,7 @@
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
     <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings.</string>
     <string name="exclude_applications">Excluded applications</string>
+    <string name="x_out_of_y" tools:ignore="PluralsCandidate">%1$d out of %2$d</string>
     <string name="all_applications">All applications</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="toggle_vpn">Toggle VPN</string>

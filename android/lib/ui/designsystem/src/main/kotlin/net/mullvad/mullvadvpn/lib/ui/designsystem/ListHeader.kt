@@ -3,9 +3,11 @@ package net.mullvad.mullvadvpn.lib.ui.designsystem
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.HorizontalDivider
@@ -26,6 +28,22 @@ private val LIST_HEADER_MIN_HEIGHT = 48.dp
 @Composable
 fun ListHeader(text: String, modifier: Modifier = Modifier) {
     ListHeader(content = { Text(text = text) }, modifier = modifier)
+}
+
+@Composable
+fun ListHeader(modifier: Modifier = Modifier, text: String, trailingText: String) {
+    ListHeader(
+        modifier = modifier,
+        content = { Text(text = text) },
+        actions = {
+            Spacer(Modifier.width(Dimens.smallSpacer))
+            Text(
+                text = trailingText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+    )
 }
 
 @Composable
@@ -75,4 +93,5 @@ fun PreviewListHeader() =
                 }
             },
         )
+        ListHeader(text = "Header", trailingText = "3 out of 200")
     }
