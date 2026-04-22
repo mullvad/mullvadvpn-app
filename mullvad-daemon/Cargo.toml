@@ -77,7 +77,6 @@ futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"
-mimalloc = { version = "0.1", optional = true }
 mullvad-api = { path = "../mullvad-api" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
@@ -125,6 +124,7 @@ hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
+mimalloc = { version = "0.1", optional = true }
 talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os="macos")'.dependencies]
@@ -173,11 +173,12 @@ workspace = true
 features = ["Win32_System_SystemServices"]
 
 [features]
+default = ["default-allocator"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
-# Use mimalloc as the global allocator.
-mimalloc = ["dep:mimalloc"]
+# Use mimalloc as the global allocator. Only takes effect on Linux.
+default-allocator = ["dep:mimalloc"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 wireguard-go = ["talpid-core/wireguard-go"]

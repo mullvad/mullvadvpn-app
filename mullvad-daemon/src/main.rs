@@ -9,7 +9,7 @@ use mullvad_daemon::{
 };
 use talpid_types::ErrorExt;
 
-#[cfg(feature = "mimalloc")]
+#[cfg(all(feature = "default-allocator", target_os = "linux"))]
 #[global_allocator]
 static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 
