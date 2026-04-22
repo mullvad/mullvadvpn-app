@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
@@ -64,12 +66,14 @@ import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInvisible
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
 import org.koin.androidx.compose.koinViewModel
 
@@ -127,7 +131,17 @@ fun AutoConnectAndLockdownModeScreen(
             )
         },
         content = { modifier ->
-            Column(modifier = modifier, verticalArrangement = Arrangement.Center) {
+            val scrollState = rememberScrollState()
+            Column(
+                modifier =
+                    modifier
+                        .drawVerticalScrollbar(
+                            state = scrollState,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                        )
+                        .verticalScroll(state = scrollState),
+                verticalArrangement = Arrangement.Center,
+            ) {
                 val pagerState = rememberPagerState(pageCount = { PAGES.entries.size })
                 val scope = rememberCoroutineScope()
                 ConstraintLayout(modifier = Modifier.fillMaxSize()) {

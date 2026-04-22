@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Info
@@ -57,12 +59,14 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeOutlinedButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryTextButton
 import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -154,10 +158,16 @@ fun AccountScreen(
         snackbarHostState = snackbarHostState,
         actions = { AccountDropdownMenu(navigateToDeleteAccount) },
     ) { modifier ->
+        val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =
                 modifier
+                    .drawVerticalScrollbar(
+                        state = scrollState,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                    )
+                    .verticalScroll(state = scrollState)
                     .animateContentSize()
                     .padding(horizontal = Dimens.sideMargin)
                     .padding(bottom = Dimens.screenBottomMargin),

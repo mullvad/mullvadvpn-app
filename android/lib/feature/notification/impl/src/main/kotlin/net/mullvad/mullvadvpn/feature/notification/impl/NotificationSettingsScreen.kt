@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
@@ -29,11 +31,13 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.util.openAppInfoNotificationSettings
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
 
 @Preview("Loading|Normal")
@@ -111,9 +115,14 @@ fun NotificationSettingsScreen(
             }
         },
     ) { modifier ->
+        val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.padding(horizontal = Dimens.sideMarginNew),
+            modifier = modifier.drawVerticalScrollbar(
+                state = scrollState,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+            )
+                .verticalScroll(state = scrollState).padding(horizontal = Dimens.sideMarginNew),
         ) {
             when (state) {
                 is Lc.Loading -> Loading()
