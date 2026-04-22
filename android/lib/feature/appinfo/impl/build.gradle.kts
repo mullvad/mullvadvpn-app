@@ -10,6 +10,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.appinfo.impl" }
 
 dependencies {
     implementation(projects.lib.feature.appinfo.api)
+    implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.repository)
 
     implementation(libs.koin.compose)

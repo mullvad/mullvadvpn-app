@@ -46,6 +46,8 @@ include(
     ":lib:feature:appicon:api",
     ":lib:feature:appinfo:impl",
     ":lib:feature:appinfo:api",
+    ":lib:feature:applisting:impl",
+    ":lib:feature:applisting:api",
     ":lib:feature:appearance:impl",
     ":lib:feature:appearance:api",
     ":lib:feature:autoconnect:impl",

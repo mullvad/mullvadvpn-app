@@ -20,6 +20,10 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.save.SaveApiAccessMe
 import net.mullvad.mullvadvpn.feature.appicon.impl.AppIconViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.AppInfoViewModel
 import net.mullvad.mullvadvpn.feature.appinfo.impl.changelog.ChangelogViewModel
+import net.mullvad.mullvadvpn.feature.applisting.api.ResolveAppListingUseCase
+import net.mullvad.mullvadvpn.feature.applisting.impl.AndroidInstallSourceProvider
+import net.mullvad.mullvadvpn.feature.applisting.impl.InstallSourceProvider
+import net.mullvad.mullvadvpn.feature.applisting.impl.ResolveAppListingUseCaseImpl
 import net.mullvad.mullvadvpn.feature.autoconnect.impl.AutoConnectAndLockdownModeViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.create.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.delete.DeleteCustomListConfirmationViewModel
@@ -129,7 +133,15 @@ val uiModule = module {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
 
-    single { PackageName(androidContext().packageName) }
+    single<InstallSourceProvider> { AndroidInstallSourceProvider(androidContext()) }
+    single<ResolveAppListingUseCase> {
+        ResolveAppListingUseCaseImpl(
+            resources = androidContext().resources,
+            packageName = PackageName(androidContext().packageName),
+            isPlayBuild = IS_PLAY_BUILD,
+            installSourceProvider = get(),
+        )
+    }
     single { ApplicationsProvider(get(), get()) }
     scope<MainActivity> { scoped { ServiceConnectionManager(androidContext()) } }
     single { InetAddressValidator.getInstance() }
@@ -263,10 +275,8 @@ val uiModule = module {
     viewModel {
         AppInfoViewModel(
             appVersionInfoRepository = get(),
-            resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
-            isFdroidBuild = false,
-            self = get(),
+            resolveAppListing = get(),
         )
     }
     viewModel {
@@ -283,10 +293,8 @@ val uiModule = module {
             connectionProxy = get(),
             lastKnownLocationUseCase = get(),
             systemVpnSettingsUseCase = get(),
-            resources = get(),
             isPlayBuild = IS_PLAY_BUILD,
-            isFdroidBuild = false,
-            self = get(),
+            resolveAppListing = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
