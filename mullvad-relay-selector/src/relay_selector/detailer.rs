@@ -17,11 +17,7 @@ use mullvad_types::{
     relay_list::{Bridge, BridgeEndpointData, EndpointData, WireguardRelay},
 };
 use rand::seq::IndexedRandom;
-use talpid_types::net::{
-    IpVersion,
-    proxy::Shadowsocks,
-    wireguard::{PeerConfig, PublicKey},
-};
+use talpid_types::net::{IpVersion, proxy::Shadowsocks, wireguard::PeerConfig};
 
 use super::WireguardConfig;
 
@@ -66,7 +62,7 @@ fn wireguard_singlehop_endpoint(
     endpoint: SocketAddr,
 ) -> MullvadEndpoint {
     let peer_config = PeerConfig {
-        public_key: get_public_key(exit).clone(),
+        public_key: exit.get_public_key().clone(),
         endpoint,
         // The peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
@@ -112,7 +108,7 @@ fn wireguard_multihop_endpoint(
         SocketAddr::from((ip, port))
     };
     let exit = PeerConfig {
-        public_key: get_public_key(exit).clone(),
+        public_key: exit.get_public_key().clone(),
         endpoint: exit_endpoint,
         // The exit peer should be able to route incoming VPN traffic to the given user given IP
         // ranges, if any, else the rest of the internet.
@@ -129,7 +125,7 @@ fn wireguard_multihop_endpoint(
     };
 
     let entry = PeerConfig {
-        public_key: get_public_key(entry).clone(),
+        public_key: entry.get_public_key().clone(),
         endpoint: entry_endpoint,
         // The entry peer should only be able to route incoming VPN traffic to the
         // exit peer.
@@ -154,11 +150,6 @@ pub fn resolve_ip_version(ip_version: Constraint<&IpVersion>) -> IpVersion {
         Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
         Constraint::Only(IpVersion::V6) => IpVersion::V6,
     }
-}
-
-/// Read the [`PublicKey`] of a relay.
-const fn get_public_key(relay: &WireguardRelay) -> &PublicKey {
-    &relay.endpoint_data.public_key
 }
 
 /// Picks a random bridge from a relay.

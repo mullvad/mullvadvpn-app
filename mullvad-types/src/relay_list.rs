@@ -11,7 +11,7 @@ use std::{
 use talpid_types::net::{
     TransportProtocol,
     proxy::{Shadowsocks, ShadowsocksCipher},
-    wireguard,
+    wireguard::{self, PublicKey},
 };
 use vec1::Vec1;
 
@@ -216,6 +216,11 @@ impl WireguardRelay {
     /// Return if this relay has DAITA.
     pub fn daita(&self) -> bool {
         self.endpoint().daita
+    }
+
+    /// Read the [`PublicKey`] of a relay.
+    pub const fn get_public_key(&self) -> &PublicKey {
+        &self.endpoint_data.public_key
     }
 }
 
