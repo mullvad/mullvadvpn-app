@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -101,6 +102,7 @@ fun SearchSplitTunnelingScreen(
             val context = LocalContext.current
             val packageManager = remember(context) { context.packageManager }
             LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
                     Modifier.fillMaxSize()
                         .padding(horizontal = Dimens.mediumPadding)
