@@ -1,0 +1,404 @@
+use super::{
+    AnnotatedRelayList, RelaySelector,
+    endpoint_set::{RelayEndpointSet, Verdict, VerdictExt},
+};
+use mullvad_types::{
+    constraints::Constraint,
+    custom_list::CustomListsSettings,
+    relay_constraints::LocationConstraint,
+    relay_list::WireguardRelay,
+    relay_selector::{
+        EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
+        Predicate, Reason, RelayPartitions,
+    },
+};
+
+use either::Either;
+use itertools::Itertools;
+
+pub(crate) struct MultiHopPartitions {
+    pub(crate) entries: RelayPartitions,
+    pub(crate) exits: RelayPartitions,
+}
+
+/// The combined result of partitioning relays for autohop.
+///
+/// Contains both the singlehop and multihop partitions so that the caller can
+/// decide which configuration to use, or collapse the two with
+/// [`AutohopPartition::into_relay_partitions`].
+pub(super) struct AutohopPartition {
+    pub(super) singlehop: RelayPartitions,
+    pub(super) multihop: MultiHopPartitions,
+}
+
+impl AutohopPartition {
+    /// Collapse to a [`RelayPartitions`] where:
+    /// - `matches` = exits valid for singlehop **or** for multihop (requires valid entry)
+    /// - `discards` = exits valid for neither
+    pub(super) fn into_relay_partitions(self) -> RelayPartitions {
+        let AutohopPartition {
+            singlehop,
+            multihop,
+        } = self;
+
+        // Start with singlehop matches (exits that are also their own valid entry).
+        let mut matches = singlehop.matches;
+
+        // Add multihop exits only when at least one valid entry actually exists.
+        // Without any valid entry, no autohop configuration can be established.
+        let (multihop_exit_matches_added, multihop_exit_matches_stranded) =
+            if !multihop.entries.matches.is_empty() {
+                (multihop.exits.matches, vec![])
+            } else {
+                (vec![], multihop.exits.matches)
+            };
+
+        // Also covers the conflict edge-case: a relay valid as singlehop even
+        // though it was moved to multihop.exits.discards with Reason::Conflict.
+        for relay in multihop_exit_matches_added {
+            if !matches.contains(&relay) {
+                matches.push(relay);
+            }
+        }
+
+        // Discards = exits that appear in neither matches list.
+        // Includes exits stranded by empty entries (added with no reasons).
+        let mut discards: Vec<(WireguardRelay, Vec<Reason>)> = multihop
+            .exits
+            .discards
+            .into_iter()
+            .filter(|(r, _)| !matches.contains(r))
+            .collect();
+        discards.extend(
+            multihop_exit_matches_stranded
+                .into_iter()
+                .filter(|r| !matches.contains(r))
+                .map(|r| (r, vec![])),
+        );
+
+        RelayPartitions { matches, discards }
+    }
+}
+
+impl RelaySelector {
+    /// As opposed to the prior [`Self::get_relay_by_query`], this function is stateless with
+    /// regards to any particular config / settings, but is stateful in the sense that it works with
+    /// the [`RelaySelector`]s current relay list. [`RelaySelector::partition_relays`] is idempotent
+    /// if the relay list is pinned.
+    pub fn partition_relays(&self, predicate: Predicate) -> RelayPartitions {
+        let relays = self.relays.read().unwrap();
+        match predicate {
+            Predicate::Singlehop(constraints) => self.partition_entry(&relays, &constraints),
+            Predicate::Autohop(constraints) => self
+                .partition_autohop(&relays, constraints)
+                .into_relay_partitions(),
+            Predicate::Entry(multihop_constraints) => {
+                self.partition_multihop(&relays, multihop_constraints)
+                    .entries
+            }
+            Predicate::Exit(multihop_constraints) => {
+                self.partition_multihop(&relays, multihop_constraints).exits
+            }
+        }
+    }
+
+    // Evaluate a verdict function over every relay in the current relay list and partition the
+    // results into matches and discards.
+    pub(super) fn partition_by_verdict(
+        relays: &AnnotatedRelayList,
+        f: impl Fn(&WireguardRelay, &RelayEndpointSet) -> Verdict,
+    ) -> RelayPartitions {
+        let (matches, discards) = relays
+            .inner
+            .relays()
+            .filter_map(|relay| {
+                let set = relays.endpoint_set_for(relay).or_else(|| {
+                    log::warn!(
+                        "Relay {} has no valid WireGuard port ranges; skipping",
+                        relay.hostname
+                    );
+                    None
+                })?;
+                Some((relay, set))
+            })
+            .partition_map(|(relay, set)| match f(relay, set) {
+                Verdict::Accept => Either::Left(relay.clone()),
+                Verdict::Reject(reasons) => Either::Right((relay.clone(), reasons)),
+            });
+        let mut partitions = RelayPartitions { matches, discards };
+        rescue_fallbacks(&mut partitions);
+        partitions
+    }
+
+    pub(super) fn partition_entry(
+        &self,
+        relays: &AnnotatedRelayList,
+        constraints: &EntryConstraints,
+    ) -> RelayPartitions {
+        Self::partition_by_verdict(relays, |relay, endpoint_set| {
+            self.usable_as_entry(relay, endpoint_set, &constraints.entry_specific)
+                .and(self.usable_as_exit(relay, &constraints.general))
+        })
+    }
+
+    pub(super) fn partition_autohop(
+        &self,
+        relays: &AnnotatedRelayList,
+        constraints: EntryConstraints,
+    ) -> AutohopPartition {
+        AutohopPartition {
+            singlehop: self.partition_entry(relays, &constraints),
+            multihop: self.partition_multihop(relays, constraints.into_autohop()),
+        }
+    }
+
+    pub(super) fn partition_multihop(
+        &self,
+        relays: &AnnotatedRelayList,
+        MultihopConstraints { entry, exit }: MultihopConstraints,
+    ) -> MultiHopPartitions {
+        let mut entries = self.partition_entry(relays, &entry);
+        let mut exits = self.partition_exit(relays, &exit);
+
+        remove_conflicting_relay(&mut entries, &mut exits);
+
+        // Conflict removal may have emptied a side. Rescue IncludeInCountry fallbacks so
+        // that a pool where every relay has include_in_country=false can still form a
+        // valid pair.
+        rescue_fallbacks(&mut entries);
+        rescue_fallbacks(&mut exits);
+
+        MultiHopPartitions { entries, exits }
+    }
+
+    pub(super) fn partition_exit(
+        &self,
+        relays: &AnnotatedRelayList,
+        constraints: &ExitConstraints,
+    ) -> RelayPartitions {
+        Self::partition_by_verdict(relays, |relay, _endpoint_set| {
+            self.usable_as_exit(relay, constraints)
+        })
+    }
+
+    /// Check that the relay satisfies the entry specific criteria. Note that this does not check exit constraints.
+    ///
+    /// Here we consider only entry specific constraints, i.e. DAITA, obfuscation and IP version.
+    pub(crate) fn usable_as_entry(
+        &self,
+        relay: &WireguardRelay,
+        endpoint_set: &RelayEndpointSet,
+        constraints: &EntrySpecificConstraints,
+    ) -> Verdict {
+        let daita_on = constraints.daita;
+        let daita = matcher::filter_on_daita(daita_on, relay).if_false(Reason::Daita);
+
+        let obfuscation_verdict = endpoint_set.obfuscation_verdict(constraints);
+        daita.and(obfuscation_verdict)
+    }
+
+    /// Check that the relay satisfies the exit criteria.
+    pub(crate) fn usable_as_exit(
+        &self,
+        relay: &WireguardRelay,
+        ExitConstraints {
+            location,
+            providers,
+            ownership,
+        }: &ExitConstraints,
+    ) -> Verdict {
+        let ownership =
+            matcher::filter_on_ownership(ownership.as_ref(), relay).if_false(Reason::Ownership);
+        let providers =
+            matcher::filter_on_providers(providers.as_ref(), relay).if_false(Reason::Providers);
+        let location = self.location_criteria(relay, location);
+        let active = relay.active.if_false(Reason::Inactive);
+
+        ownership.and(providers).and(location).and(active)
+    }
+
+    pub(crate) fn location_criteria(
+        &self,
+        relay: &WireguardRelay,
+        location: &Constraint<LocationConstraint>,
+    ) -> Verdict {
+        let custom_lists: CustomListsSettings = self.custom_lists();
+
+        let resolved =
+            matcher::ResolvedLocationConstraint::from_constraint(location.as_ref(), &custom_lists);
+
+        if !matcher::filter_on_location(resolved.as_ref(), relay) {
+            return Verdict::reject(Reason::Location);
+        }
+
+        // Relays with `include_in_country = false` are deprioritized when the location
+        // constraint only targets the country (or is unconstrained). A city- or
+        // hostname-level constraint that matches the relay overrides this — the user
+        // has made an explicit, specific choice.
+        if !relay.include_in_country && matcher::is_country_only_match(resolved.as_ref(), relay) {
+            Verdict::reject(Reason::IncludeInCountry)
+        } else {
+            Verdict::Accept
+        }
+    }
+}
+
+/// Promote relays whose sole discard reason is [`Reason::IncludeInCountry`] into `matches`
+/// when no primary relay is available. This implements the "use only when necessary"
+/// semantics of `include_in_country = false`.
+pub(super) fn rescue_fallbacks(partitions: &mut RelayPartitions) {
+    if !partitions.matches.is_empty() {
+        return;
+    }
+    let mut rescued = vec![];
+    partitions.discards.retain(|(relay, reasons)| {
+        if reasons.as_slice() == [Reason::IncludeInCountry] {
+            rescued.push(relay.clone());
+            false
+        } else {
+            true
+        }
+    });
+    partitions.matches.extend(rescued);
+}
+
+/// Ensure the same relay cannot be chosen as both entry and exit.
+///
+/// If either side's `matches` contains a single relay that also appears in the other
+/// side's `matches`, that relay is moved to the other side's `discards` with
+/// [`Reason::Conflict`]. The two directions are evaluated sequentially, so when a relay
+/// is uniquely the match on both sides it is labeled `Conflict` on only one side and
+/// remains in the other side's `matches` — which keeps the multihop pair formable once
+/// the other side falls back to an [`Reason::IncludeInCountry`] relay via
+/// [`rescue_fallbacks`].
+pub(crate) fn remove_conflicting_relay(entries: &mut RelayPartitions, exits: &mut RelayPartitions) {
+    move_unique_conflict(entries, exits);
+    move_unique_conflict(exits, entries);
+}
+
+/// If `from.matches` is a singleton that also appears in `into.matches`, move that relay
+/// from `into.matches` into `into.discards` with [`Reason::Conflict`].
+fn move_unique_conflict(from: &RelayPartitions, into: &mut RelayPartitions) {
+    let [unique] = from.matches.as_slice() else {
+        return;
+    };
+    let Some(pos) = into.matches.iter().position(|r| r == unique) else {
+        return;
+    };
+    let relay = into.matches.remove(pos);
+    into.discards.push((relay, vec![Reason::Conflict]));
+}
+
+mod matcher {
+    use mullvad_types::constraints::Constraint;
+    use mullvad_types::constraints::Match;
+    use mullvad_types::custom_list::CustomListsSettings;
+    use mullvad_types::relay_constraints::GeographicLocationConstraint;
+    use mullvad_types::relay_constraints::LocationConstraint;
+    use mullvad_types::relay_constraints::Ownership;
+    use mullvad_types::relay_constraints::Providers;
+    use mullvad_types::relay_list::WireguardRelay;
+    use mullvad_types::relay_list::WireguardRelayEndpointData;
+
+    /// Returns whether `relay` satisfy the location constraint posed by `filter`.
+    pub fn filter_on_location(
+        filter: Constraint<&ResolvedLocationConstraint<'_>>,
+        relay: &WireguardRelay,
+    ) -> bool {
+        filter.matches(relay)
+    }
+
+    /// Returns whether `relay` satisfy the ownership constraint posed by `filter`.
+    pub fn filter_on_ownership(filter: Constraint<&Ownership>, relay: &WireguardRelay) -> bool {
+        filter.matches(relay)
+    }
+
+    /// Returns whether `relay` satisfy the providers constraint posed by `filter`.
+    pub fn filter_on_providers(filter: Constraint<&Providers>, relay: &WireguardRelay) -> bool {
+        filter.matches(relay)
+    }
+
+    /// Returns whether `relay` satisfy the daita constraint posed by `filter`.
+    pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool {
+        match (filter, &relay.endpoint_data) {
+            // Only a subset of relays support DAITA, so filter out ones that don't.
+            (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,
+            // If we don't require DAITA, any relay works.
+            _ => true,
+        }
+    }
+
+    /// Returns `true` if no city- or hostname-level [`GeographicLocationConstraint`] in `location`
+    /// matches `relay`. This covers both `Constraint::Any` (no constraint at all, meaning the relay
+    /// is not specifically targeted) and constraints that only mention the relay's country.
+    ///
+    /// Used to determine whether a relay with `include_in_country = false` should be treated as a
+    /// fallback: if the user has pinpointed a specific city or hostname that contains this relay,
+    /// we honour that explicit choice and promote it to a primary match.
+    pub fn is_country_only_match(
+        location: Constraint<&ResolvedLocationConstraint<'_>>,
+        relay: &WireguardRelay,
+    ) -> bool {
+        match location {
+            // No location constraint — relay is not specifically targeted.
+            Constraint::Any => true,
+            Constraint::Only(resolved) => {
+                // It is a country-only match as long as none of the matching constraints
+                // is more specific than a country (i.e. city or hostname).
+                !resolved
+                    .into_iter()
+                    .filter(|loc| loc.matches(relay))
+                    .any(|loc| !loc.is_country())
+            }
+        }
+    }
+
+    /// Wrapper around [`GeographicLocationConstraint`].
+    /// Useful for iterating over a set of [`GeographicLocationConstraint`] where custom lists
+    /// are considered.
+    #[derive(Debug, Clone)]
+    pub struct ResolvedLocationConstraint<'a>(Vec<&'a GeographicLocationConstraint>);
+
+    impl<'a> ResolvedLocationConstraint<'a> {
+        /// Define the mapping from a [location][`LocationConstraint`] and a set of
+        /// [custom lists][`CustomListsSettings`] to [`ResolvedLocationConstraint`].
+        pub fn from_constraint(
+            location_constraint: Constraint<&'a LocationConstraint>,
+            custom_lists: &'a CustomListsSettings,
+        ) -> Constraint<ResolvedLocationConstraint<'a>> {
+            match location_constraint {
+                Constraint::Any => Constraint::Any,
+                Constraint::Only(location) => Constraint::Only(match location {
+                    LocationConstraint::Location(location) => {
+                        ResolvedLocationConstraint(vec![location])
+                    }
+                    LocationConstraint::CustomList { list_id } => custom_lists
+                        .iter()
+                        .find(|list| list.id() == *list_id)
+                        .map(|custom_list| {
+                            ResolvedLocationConstraint(custom_list.locations.iter().collect())
+                        })
+                        .unwrap_or_else(|| {
+                            log::warn!("Resolved non-existent custom list with id {list_id:?}");
+                            ResolvedLocationConstraint(vec![])
+                        }),
+                }),
+            }
+        }
+    }
+
+    impl<'a> IntoIterator for &'a ResolvedLocationConstraint<'a> {
+        type Item = &'a GeographicLocationConstraint;
+        type IntoIter = std::iter::Copied<std::slice::Iter<'a, &'a GeographicLocationConstraint>>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.0.iter().copied()
+        }
+    }
+
+    impl Match<WireguardRelay> for &ResolvedLocationConstraint<'_> {
+        fn matches(&self, relay: &WireguardRelay) -> bool {
+            self.into_iter().any(|location| location.matches(relay))
+        }
+    }
+}
