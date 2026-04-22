@@ -32,4 +32,7 @@ extension Image {
     static let mullvadIconEnableRecents = Image("IconEnableRecents")
     static let mullvadIconDisableRecents = Image("IconDisableRecents")
     static let mullvadIconFilter = Image("IconFilter")
+
+    static let mullvadAutomaticMultihopBanner = Image("AutomaticMultihopBanner")
+    static let mullvadUniqueFilterBanner = Image("UniqueFilterBanner")
 }
