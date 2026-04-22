@@ -14,4 +14,5 @@ dependencies {
     implementation(libs.koin.compose)
     implementation(libs.arrow)
     implementation(projects.lib.feature.splittunneling.api)
+    implementation(projects.lib.ui.util)
 }
