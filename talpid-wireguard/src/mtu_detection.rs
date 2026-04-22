@@ -45,7 +45,7 @@ pub async fn automatic_mtu_correction(
     gateway: std::net::Ipv4Addr,
     iface_name: String,
     current_tunnel_mtu: u16,
-    #[cfg(windows)] ipv6: bool,
+    #[cfg(target_os = "windows")] ipv6: bool,
 ) -> Result<(), Error> {
     log::debug!("Starting MTU detection");
     let verified_mtu = detect_mtu(
@@ -61,7 +61,7 @@ pub async fn automatic_mtu_correction(
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         talpid_net::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
-        #[cfg(windows)]
+        #[cfg(target_os = "windows")]
         set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
     } else {
         log::debug!("MTU {verified_mtu} verified to not drop packets");
@@ -69,7 +69,7 @@ pub async fn automatic_mtu_correction(
     Ok(())
 }
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 fn set_mtu_windows(verified_mtu: u16, iface_name: String, ipv6: bool) -> io::Result<()> {
     use talpid_windows::net::{AddressFamily, set_mtu};
 

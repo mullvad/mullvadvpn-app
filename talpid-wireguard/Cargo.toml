@@ -54,7 +54,7 @@ zerocopy = { workspace = true, features = ["derive"] }
 libc = "0.2.150"
 nix = { workspace = true, features = ["fs"] }
 
-[target.'cfg(windows)'.dependencies]
+[target.'cfg(target_os = "windows")'.dependencies]
 bitflags = "1.2"
 chrono = { workspace = true, features = ["clock"] }
 talpid-windows = { path = "../talpid-windows" }

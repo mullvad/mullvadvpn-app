@@ -199,7 +199,7 @@ pub async fn open_gotatun_tunnel(
         {
             tun.into_inner().into_inner()
         }
-        #[cfg(windows)]
+        #[cfg(target_os = "windows")]
         {
             tun.into_inner()
         }
@@ -573,7 +573,7 @@ fn get_tunnel_for_userspace(
 
     let _ = routes;
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     tun_provider
         .open_tun()
         .map_err(TunnelError::SetupTunnelDevice)

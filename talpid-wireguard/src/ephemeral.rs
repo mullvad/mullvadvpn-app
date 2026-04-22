@@ -22,7 +22,7 @@ const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
@@ -61,7 +61,7 @@ pub async fn config_ephemeral_peers(
     Ok(())
 }
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
     use talpid_windows::net::*;
     match luid_from_alias(alias) {

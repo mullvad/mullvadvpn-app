@@ -3,11 +3,11 @@
 #![deny(missing_docs)]
 
 use self::config::Config;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 use futures::channel::mpsc;
 use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 use std::io;
 use std::{
     convert::Infallible,
@@ -46,7 +46,7 @@ mod obfuscation;
 mod stats;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 mod wireguard_nt;
 
 #[cfg(not(target_os = "android"))]
@@ -88,7 +88,7 @@ pub enum Error {
     EphemeralPeerNegotiationError(#[source] talpid_tunnel_config_client::Error),
 
     /// Failed to set up IP interfaces.
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     #[error("Failed to set up IP interfaces")]
     IpInterfacesError,
 
@@ -111,7 +111,7 @@ impl Error {
             #[cfg(target_os = "android")]
             Error::TunnelError(TunnelError::BypassError(_)) => true,
 
-            #[cfg(windows)]
+            #[cfg(target_os = "windows")]
             Error::TunnelError(TunnelError::SetupTunnelDevice(_)) => true,
 
             _ => false,
@@ -119,7 +119,7 @@ impl Error {
     }
 
     /// Get the inner tunnel device error, if there is one
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
         match self {
             Error::TunnelError(TunnelError::SetupTunnelDevice(tun_provider::Error::Io(error))) => {
@@ -253,7 +253,7 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-            #[cfg(windows)]
+            #[cfg(target_os = "windows")]
             if cfg!(not(feature = "wireguard-go")) && userspace_wireguard {
                 // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
                 // It will automatically configure the IP address and DNS servers using `netsh`.
@@ -333,7 +333,7 @@ impl WireguardMonitor {
                         gateway,
                         iface_name,
                         config.mtu,
-                        #[cfg(windows)]
+                        #[cfg(target_os = "windows")]
                         config.ipv6_gateway.is_some(),
                     )
                     .await
@@ -640,7 +640,7 @@ impl WireguardMonitor {
         AllowedTunnelTraffic::All
     }
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     async fn wait_for_ip_addresses(
         config: &Config,
         iface_name: &String,
@@ -666,7 +666,7 @@ impl WireguardMonitor {
         Ok(())
     }
 
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     async fn add_device_ip_addresses(
         iface_name: &str,
         addresses: &[std::net::IpAddr],
@@ -894,7 +894,7 @@ impl WireguardMonitor {
         iface_name: &str,
         config: &Config,
     ) -> (talpid_routing::Node, talpid_routing::Node) {
-        #[cfg(windows)]
+        #[cfg(target_os = "windows")]
         {
             let v4 = talpid_routing::Node::new(config.ipv4_gateway.into(), iface_name.to_string());
             let v6 = if let Some(ipv6_gateway) = config.ipv6_gateway.as_ref() {
@@ -905,7 +905,7 @@ impl WireguardMonitor {
             (v4, v6)
         }
 
-        #[cfg(not(windows))]
+        #[cfg(not(target_os = "windows"))]
         {
             let node = talpid_routing::Node::device(iface_name.to_string());
             (node.clone(), node)
@@ -1146,7 +1146,7 @@ pub enum TunnelError {
     SetupTunnelDevice(#[source] tun_provider::Error),
 
     /// Failed to setup a tunnel device.
-    #[cfg(windows)]
+    #[cfg(target_os = "windows")]
     #[error("Failed to config IP interfaces on tunnel device")]
     SetupIpInterfaces(#[source] io::Error),
 

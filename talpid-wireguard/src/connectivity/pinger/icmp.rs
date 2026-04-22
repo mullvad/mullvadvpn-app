@@ -128,7 +128,7 @@ impl Pinger {
     }
 }
 
-#[cfg(windows)]
+#[cfg(target_os = "windows")]
 fn should_retry_send(err: &io::Error) -> bool {
     // Winsock error for when there is no route
     // NOTE: It's unclear if we need to check this on Windows anymore, or why specifically on Windows

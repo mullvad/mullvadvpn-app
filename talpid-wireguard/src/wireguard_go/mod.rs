@@ -90,10 +90,10 @@ pub(crate) async fn open_wireguard_go_tunnel(
     log_path: Option<&Path>,
     #[cfg(unix)] tun_provider: Arc<std::sync::Mutex<talpid_tunnel::tun_provider::TunProvider>>,
     #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
-    #[cfg(windows)] setup_done_tx: futures::channel::mpsc::Sender<
+    #[cfg(target_os = "windows")] setup_done_tx: futures::channel::mpsc::Sender<
         std::result::Result<(), BoxedError>,
     >,
-    #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
+    #[cfg(target_os = "windows")] route_manager: talpid_routing::RouteManagerHandle,
     #[cfg(target_os = "android")] gateway_only: bool,
     #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
 ) -> Result<WgGoTunnel> {
