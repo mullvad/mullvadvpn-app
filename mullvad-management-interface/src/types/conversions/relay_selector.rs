@@ -122,16 +122,27 @@ impl TryFrom<proto::ExitConstraints> for ExitConstraints {
 
 impl From<RelayPartitions> for proto::RelayPartitions {
     fn from(RelayPartitions { matches, discards }: RelayPartitions) -> Self {
-        let matches = matches
+        let mut matches: Vec<proto::Relay> = matches
             .into_iter()
             .map(|relay| relay.inner)
             .map(proto::Relay::from)
             .collect();
-        let discards = discards
+
+        // Put relays that were discarded only because of `include_in_countries` back into
+        // the matches set. These relays do match the given constraints, but are still
+        // discarded to prioritize other relays.
+        // However, when presenting relays in the relay list we want to show
+        // relays that are individually selectable, which these are.
+        let (fallbacks, true_discards): (Vec<_>, Vec<_>) = discards
             .into_iter()
-            .map(|(relay, why)| (relay.inner, why))
+            .map(|(relay, why)| (proto::Relay::from(relay.inner), why))
+            .partition(|(_relay, why)| matches!(why.as_slice(), [Reason::IncludeInCountry]));
+        matches.extend(fallbacks.into_iter().map(|(relay, _)| relay));
+
+        let discards = true_discards
+            .into_iter()
             .map(|(relay, why)| proto::DiscardedRelay {
-                relay: Some(proto::Relay::from(relay)),
+                relay: Some(relay),
                 why: Some(proto::IncompatibleConstraints::from(why)),
             })
             .collect();
@@ -160,7 +171,7 @@ impl From<Vec<Reason>> for proto::IncompatibleConstraints {
                 Obfuscation => incompatible.obfuscation = true,
                 Port => incompatible.port = true,
                 Conflict => incompatible.conflict_with_other_hop = true,
-                IncludeInCountry => incompatible.include_in_country = true,
+                IncludeInCountry => continue,
             };
         }
         incompatible

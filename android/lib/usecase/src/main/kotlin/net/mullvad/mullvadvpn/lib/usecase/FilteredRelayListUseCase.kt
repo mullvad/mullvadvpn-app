@@ -80,7 +80,7 @@ class FilteredRelayListUseCase(
 
     private fun DiscardedRelay.shouldBeShown(): Boolean =
         with(why) {
-            (conflictWithOtherHop or inactive or includeInCountry) &&
+            (conflictWithOtherHop or inactive) &&
                 !location &&
                 !providers &&
                 !ownership &&
