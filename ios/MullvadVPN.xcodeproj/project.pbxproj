@@ -975,6 +975,15 @@
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
+		F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087C2F9275F800DEB09C /* MullvadStateView.swift */; };
+		F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087D2F9275F800DEB09C /* ResizableImageView.swift */; };
+		F04908822F976AED00DEB09C /* MultihopMigrationWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908812F976AD500DEB09C /* MultihopMigrationWizardView.swift */; };
+		F04908832F976AED00DEB09C /* MultihopMigrationWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908812F976AD500DEB09C /* MultihopMigrationWizardView.swift */; };
+		F04908852F976AFE00DEB09C /* MultihopMigrationWizardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908842F976AF800DEB09C /* MultihopMigrationWizardViewModel.swift */; };
+		F04908862F976AFE00DEB09C /* MultihopMigrationWizardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908842F976AF800DEB09C /* MultihopMigrationWizardViewModel.swift */; };
+		F04908892F97AA3800DEB09C /* PaginationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908882F97AA3400DEB09C /* PaginationView.swift */; };
+		F049088B2F97AE4C00DEB09C /* SettingsUpdateDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049088A2F97AE4A00DEB09C /* SettingsUpdateDescriptor.swift */; };
+		F049088C2F97AE4C00DEB09C /* SettingsUpdateDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049088A2F97AE4A00DEB09C /* SettingsUpdateDescriptor.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
 		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
 		F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */; };
@@ -2546,6 +2555,12 @@
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
 		F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogModel.swift; sourceTree = "<group>"; };
+		F049087C2F9275F800DEB09C /* MullvadStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadStateView.swift; sourceTree = "<group>"; };
+		F049087D2F9275F800DEB09C /* ResizableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableImageView.swift; sourceTree = "<group>"; };
+		F04908812F976AD500DEB09C /* MultihopMigrationWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationWizardView.swift; sourceTree = "<group>"; };
+		F04908842F976AF800DEB09C /* MultihopMigrationWizardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationWizardViewModel.swift; sourceTree = "<group>"; };
+		F04908882F97AA3400DEB09C /* PaginationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginationView.swift; sourceTree = "<group>"; };
+		F049088A2F97AE4A00DEB09C /* SettingsUpdateDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdateDescriptor.swift; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
@@ -3368,6 +3383,7 @@
 		583FE01629C196E8006E85F9 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F04908802F92763A00DEB09C /* MultihopMigration */,
 				583FE02029C1A0B1006E85F9 /* Account */,
 				F0E8E4BF2A602C7D00ED26A3 /* AccountDeletion */,
 				7A2960F72A964A3500389B82 /* Alert */,
@@ -3513,7 +3529,7 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				F9394EF12DC21D7B009595EA /* List */,
+				F04908882F97AA3400DEB09C /* PaginationView.swift */,
 				7ABBE01B2F1E263100AD8176 /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
@@ -3531,6 +3547,7 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
+				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
@@ -3540,7 +3557,9 @@
 				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
+				F049087C2F9275F800DEB09C /* MullvadStateView.swift */,
 				F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */,
+				F049087D2F9275F800DEB09C /* ResizableImageView.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
@@ -4132,7 +4151,6 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
-				F0E560D92F7EAF580027B900 /* MultihopMigration */,
 				01C981E72F43C3410002D284 /* Accessibility */,
 				5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */,
 				58D7E3D629C78A130044B058 /* AddressCacheUpdateScheduler */,
@@ -4839,6 +4857,17 @@
 			path = RedeemVoucher;
 			sourceTree = "<group>";
 		};
+		F04908802F92763A00DEB09C /* MultihopMigration */ = {
+			isa = PBXGroup;
+			children = (
+				F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */,
+				F04908812F976AD500DEB09C /* MultihopMigrationWizardView.swift */,
+				F04908842F976AF800DEB09C /* MultihopMigrationWizardViewModel.swift */,
+				F049088A2F97AE4A00DEB09C /* SettingsUpdateDescriptor.swift */,
+			);
+			path = MultihopMigration;
+			sourceTree = "<group>";
+		};
 		F059197A2C45404500C301F3 /* PostQuantum */ = {
 			isa = PBXGroup;
 			children = (
@@ -5028,14 +5057,6 @@
 				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
 			);
 			path = Welcome;
-			sourceTree = "<group>";
-		};
-		F0E560D92F7EAF580027B900 /* MultihopMigration */ = {
-			isa = PBXGroup;
-			children = (
-				F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */,
-			);
-			path = MultihopMigration;
 			sourceTree = "<group>";
 		};
 		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
@@ -6190,6 +6211,7 @@
 				F97C38DF2DEEDB0F006DCB08 /* Color+Mullvad.swift in Sources */,
 				F0AC644D2F3B52F60024427C /* NotificationSettings.swift in Sources */,
 				A9A5FA3A2ACB05910083449F /* UIEdgeInsets+Extensions.swift in Sources */,
+				F049088B2F97AE4C00DEB09C /* SettingsUpdateDescriptor.swift in Sources */,
 				A9A5FA3B2ACB05910083449F /* UIMetrics.swift in Sources */,
 				7A9246AB2EB0C765008FE31A /* StorePaymentManagerInteractor.swift in Sources */,
 				58B07C182AEFDD6C00A09625 /* StoreTransactionLog.swift in Sources */,
@@ -6217,6 +6239,7 @@
 				F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+Search.swift in Sources */,
 				F0E560DD2F865F280027B900 /* MultihopMigrationTracker.swift in Sources */,
+				F04908862F976AFE00DEB09C /* MultihopMigrationWizardViewModel.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
 				7A460FA02F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,
 				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
@@ -6302,6 +6325,7 @@
 				A9A5FA222ACB05160083449F /* TunnelObserver.swift in Sources */,
 				A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */,
 				A9E0317F2ACC331C0095D843 /* TunnelStatusBlockObserver.swift in Sources */,
+				F04908832F976AED00DEB09C /* MultihopMigrationWizardView.swift in Sources */,
 				7A9BE5A62B90762F00E2A7D0 /* CustomListsDataSource.swift in Sources */,
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
@@ -6534,6 +6558,8 @@
 				7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */,
+				F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */,
+				F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
 				F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */,
@@ -6591,6 +6617,7 @@
 				7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,
+				F049088C2F97AE4C00DEB09C /* SettingsUpdateDescriptor.swift in Sources */,
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				7ABBE01C2F1E263400AD8176 /* ActionBox.swift in Sources */,
@@ -6702,6 +6729,7 @@
 				7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */,
 				F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */,
 				7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */,
+				F04908892F97AA3800DEB09C /* PaginationView.swift in Sources */,
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */,
@@ -6767,6 +6795,7 @@
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
 				F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */,
+				F04908852F976AFE00DEB09C /* MultihopMigrationWizardViewModel.swift in Sources */,
 				7A81C3F42F6C1F0B008D7ADC /* SettingsNavigationRoute.swift in Sources */,
 				7A1A26452A29CEF700B978AA /* RelayFilterViewController.swift in Sources */,
 				F947DA002ED5AC9200C9D728 /* CGRect+Properties.swift in Sources */,
@@ -6894,6 +6923,7 @@
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				58F2E144276A13F300A79513 /* StartTunnelOperation.swift in Sources */,
+				F04908822F976AED00DEB09C /* MultihopMigrationWizardView.swift in Sources */,
 				F95CDDA82EE07F7F000E9D97 /* PressedExposingButton.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				586E54FB27A2DF6D0029B88B /* SendTunnelProviderMessageOperation.swift in Sources */,

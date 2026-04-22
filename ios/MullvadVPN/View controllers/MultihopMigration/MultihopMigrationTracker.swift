@@ -26,13 +26,8 @@ enum SettingsUpdate {
 
 struct Change {
     let path: SettingsUpdate
-    let before: Any?
-    let after: Any?
-}
-
-struct UniqueFilter: Sendable {
-    let entry: RelayConstraint<RelayFilter>
-    let exit: RelayConstraint<RelayFilter>
+    var before: Any? = nil
+    var after: Any? = nil
 }
 
 struct MultihopActionSuggestion: Sendable {
@@ -206,7 +201,7 @@ enum MultihopMigrationTrackerFactory {
             return MigrationOutput(
                 value: newValue,
                 changes: [
-                    Change(path: .directOnlyRemoved, before: nil, after: nil),
+                    Change(path: .directOnlyRemoved),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
                 ]
             )
@@ -261,10 +256,7 @@ enum MultihopMigrationTrackerFactory {
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .uniqueFilter),
                 ]
             )
         }
@@ -303,10 +295,7 @@ enum MultihopMigrationTrackerFactory {
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .uniqueFilter),
                 ],
                 action: MultihopActionSuggestion(
                     name: String(
@@ -351,10 +340,7 @@ enum MultihopMigrationTrackerFactory {
                 changes: [
                     Change(path: .directOnlyRemoved, before: nil, after: nil),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .uniqueFilter),
                 ],
                 action: MultihopActionSuggestion(
                     name: String(
