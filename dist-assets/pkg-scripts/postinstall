@@ -109,3 +109,20 @@ ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/_mullvad" "$ZSH_COMPLETI
 if [[ -d "$FISH_COMPLETIONS_DIR" ]]; then
     ln -sf "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad.fish" "$FISH_COMPLETIONS_DIR/mullvad.fish"
 fi
+
+# Relaunch the GUI if it was running before the upgrade.
+GUI_RUNNING_MARKER="/var/run/mullvad-gui-was-running"
+if [[ -f "$GUI_RUNNING_MARKER" ]]; then
+    rm -f "$GUI_RUNNING_MARKER"
+
+    # Identify the console user. $USER is not trustworthy as it may be root if `sudo installer` is used.
+    CONSOLE_USER=$(stat -f "%Su" /dev/console)
+    if [[ -n "$CONSOLE_USER" && "$CONSOLE_USER" != "root" && "$CONSOLE_USER" != "loginwindow" ]]; then
+        CONSOLE_UID=$(id -u "$CONSOLE_USER")
+        launchctl asuser "$CONSOLE_UID" sudo -u "$CONSOLE_USER" \
+            open -a "$INSTALL_DIR/Mullvad VPN.app" \
+            || echo "Failed to relaunch GUI as $CONSOLE_USER"
+    else
+        echo "No console user; skipping GUI relaunch"
+    fi
+fi
