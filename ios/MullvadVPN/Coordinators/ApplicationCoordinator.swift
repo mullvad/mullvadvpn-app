@@ -13,7 +13,6 @@ import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Routing
-import SwiftUI
 import UIKit
 
 /**
@@ -62,6 +61,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private var breadcrumbsObserver: BreadcrumbsBlockObserver?
     private let inAppLogObserver: InAppLogBlockObserver
 
+    private var isPresentingAccountExpiryBanner = false
     private var outOfTimeTimer: Timer?
 
     var rootViewController: UIViewController {
@@ -297,27 +297,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     // MARK: - Private
 
-    private var isPresentingAccountExpiryBanner = false
-
     private func setUpLogOverlay() {
         let logViewModel = LogViewModel(observer: inAppLogObserver)
-        let hostingController = UIHostingController(rootView: LogView(viewModel: logViewModel))
-        hostingController.view.backgroundColor = .clear
-        hostingController.view.isUserInteractionEnabled = false
+        let panelView = LogView(viewModel: logViewModel)
 
-        let containerView = navigationContainer.view!
-        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
-        containerView.addSubview(hostingController.view)
-
-        NSLayoutConstraint.activate([
-            hostingController.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
-            hostingController.view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
-            hostingController.view.topAnchor.constraint(equalTo: containerView.topAnchor),
-            hostingController.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
-        ])
-
-        navigationContainer.addChild(hostingController)
-        hostingController.didMove(toParent: navigationContainer)
+        // Defer to next run loop so the window is available after rootViewController is set.
+        DispatchQueue.main.async { [weak self] in
+            self?.navigationContainer.view.window?.addSubview(panelView)
+        }
     }
 
     /**

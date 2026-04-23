@@ -70,7 +70,7 @@ public struct InAppLogHandler: LogHandler {
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = Date().logFormatted
-        let formattedMessage = "[\(timestamp)][\(label)]\n\(message)\n"
+        let formattedMessage = "[\(timestamp)][\(label)]\n\(message)"
 
         observerList.notify {
             $0.didAddLogEntry(formattedMessage)

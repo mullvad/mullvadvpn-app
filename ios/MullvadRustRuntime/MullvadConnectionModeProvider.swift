@@ -28,8 +28,8 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     var rawCustomMethods = ContiguousArray<UnsafeRawPointer?>([])
     // 4. Convert the custom access methods (all takes different parameters)
     for method in customMethods {
-        let rawMethod = convertAccessMethod(accessMethod: method)
-        rawCustomMethods.append(rawMethod)
+//        let rawMethod = convertAccessMethod(accessMethod: method)
+//        rawCustomMethods.append(rawMethod)
     }
 
     // 5. Reunite them all in one, and pass it to rust
@@ -40,7 +40,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 bridgesMethodRaw,
                 encryptedDNSMethodRaw,
                 $0.baseAddress!,
-                UInt(customMethods.count)
+                UInt(0)
             )
         }
     )
