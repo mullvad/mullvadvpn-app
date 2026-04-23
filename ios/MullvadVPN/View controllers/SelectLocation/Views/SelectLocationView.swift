@@ -7,7 +7,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @State private var headerIsExpandedForExit: Bool = false
     @State private var disablingRecentConnectionsAlert: MullvadAlert?
     @FocusState private var focusSearchField: Bool
+    @State private var isSearchExpanded: Bool = false
     @State private var headerHeight: CGFloat = 0
+    @State private var floatingBarHeight: CGFloat = 0
+    @ScaledMetric(relativeTo: .body) private var listBottomInset: CGFloat = 56
 
     private var headerIsExpanded: Bool {
         switch viewModel.multihopContext {
@@ -48,16 +51,6 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     isExpanded: headerIsExpanded
                 )
                 .padding(.horizontal, 16)
-                if showSearchField {
-                    MullvadSecondaryTextField(
-                        placeholder: "Search for locations or servers",
-                        text: $viewModel.searchText
-                    )
-                    .focused($focusSearchField)
-                    .accessibilityAddTraits(.isSearchField)
-                    .padding(.horizontal)
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                }
             }
             .padding(.vertical)
             .background(Color.mullvadDarkBackground)
@@ -109,13 +102,34 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             focusSearchField = false
                         }
                 )
+                .environment(\.dismissSearchFocus, { focusSearchField = false })
                 .geometryGroup()
                 // Adds margin to the top of the scroll content. The scroll views size stays untouched
                 // which seems to be the solution to animation issues.
                 .contentMargins(.top, headerHeight - 1)
+                .contentMargins(.bottom, showSearchField ? floatingBarHeight + listBottomInset : 0)
                 .zIndex(0)
             }
         }
+        .overlay(alignment: .bottom) {
+            FloatingSearchBar(
+                searchText: $viewModel.searchText,
+                isExpanded: $isSearchExpanded,
+                isFocused: $focusSearchField
+            )
+            .showIf(showSearchField)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 16)
+            .sizeOfView { floatingBarHeight = $0.height }
+            .accessibilitySortPriority(1)
+        }
+        .onChange(of: showSearchField) { _, newValue in
+            if !newValue {
+                isSearchExpanded = false
+                viewModel.searchText = ""
+            }
+        }
+        .animation(.default, value: isSearchExpanded)
         .animation(.default, value: showSearchField)
         .animation(.default, value: viewModel.multihopContext)
         .animation(.default, value: viewModel.isMultihopEnabled)

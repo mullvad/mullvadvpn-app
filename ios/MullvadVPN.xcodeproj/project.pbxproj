@@ -1133,6 +1133,8 @@
 		F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
+		BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */; };
+		C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */; };
 		F90052522E6B06AD0085C80E /* SelectLocationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90052512E6B06AA0085C80E /* SelectLocationView.swift */; };
 		F90052562E6EEB290085C80E /* SelectLocationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */; };
 		F90A988A2E042D040020F64F /* ClearBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90A98892E042D040020F64F /* ClearBackgroundView.swift */; };
@@ -2681,6 +2683,8 @@
 		F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelayCache.swift; sourceTree = "<group>"; };
 		F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModelTests.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
+		323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EnvironmentValues+DismissSearchFocus.swift"; sourceTree = "<group>"; };
+		B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSearchBar.swift; sourceTree = "<group>"; };
 		F90052512E6B06AA0085C80E /* SelectLocationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationView.swift; sourceTree = "<group>"; };
 		F90052552E6EEB290085C80E /* SelectLocationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewModel.swift; sourceTree = "<group>"; };
 		F90A98892E042D040020F64F /* ClearBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClearBackgroundView.swift; sourceTree = "<group>"; };
@@ -3595,6 +3599,7 @@
 				7A0EAE9F2D0333CB00D3EB8B /* Color+Helpers.swift */,
 				F95CDD9F2EE02B2F000E9D97 /* CoordinateSpace+Names.swift */,
 				7A0C0F622A979C4A0058EFCE /* Coordinator+Router.swift */,
+				323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */,
 				F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				58DFF7CF2B02560400F864E0 /* NSAttributedString+Extensions.swift */,
@@ -5097,6 +5102,7 @@
 				F9C579BC2E8E9ADE00C90C50 /* DaitaWarningView.swift */,
 				F96D04EC2EC318D8004A4D48 /* EntryLocationView.swift */,
 				F96D04E82EC317B9004A4D48 /* ExitLocationView.swift */,
+				B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */,
 				7A81C3F52F6C26EF008D7ADC /* ListItem.swift */,
 				7A81C3F12F6BE4E3008D7ADC /* ListItemFactory.swift */,
 				F96D04E62EC31743004A4D48 /* LocationContextMenu.swift */,
@@ -6808,6 +6814,8 @@
 				440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */,
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
+				BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */,
+				C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */,
 				F90052522E6B06AD0085C80E /* SelectLocationView.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
 				F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */,
