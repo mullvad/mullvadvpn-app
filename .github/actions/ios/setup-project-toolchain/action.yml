@@ -36,15 +36,17 @@ runs:
       run: rustup target add ${{ inputs.ios_rust_target }}
       shell: bash
 
+    - name: Update brew's internal repository
+      run: brew update
+      shell: bash
+
     - name: Install xcbeautify
       run: |
-        brew update
         brew install xcbeautify
       shell: bash
 
     - name: Install protobuf
       run: |
-        brew update
         brew install protobuf
       shell: bash
 
