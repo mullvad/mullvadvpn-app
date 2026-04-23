@@ -1674,6 +1674,7 @@ checksum = "a8d1add55171497b4705a648c6b583acafb01d58050a51727785f0b2c8e0a2b2"
 [[package]]
 name = "gotatun"
 version = "0.5.1"
+source = "git+https://github.com/mullvad/gotatun?rev=f5382ab29e418fc5f69ec2b863094927a57c87df#f5382ab29e418fc5f69ec2b863094927a57c87df"
 dependencies = [
  "aead",
  "base64",

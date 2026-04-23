@@ -74,7 +74,8 @@ either = "1.15.0"
 futures = "0.3.15"
 # branch: add-split-multihop
 #gotatun = { git = "https://github.com/mullvad/gotatun", rev = "e0e8d2e79ddb3d9bf343bcf0ad70eb12b3dcbbec", default-features = false }
-gotatun = { path = "../gotatun/gotatun", default-features = false }
+gotatun = { git = "https://github.com/mullvad/gotatun", rev = "f5382ab29e418fc5f69ec2b863094927a57c87df", default-features = false }
+#gotatun = { path = "../gotatun/gotatun", default-features = false }
 hickory-proto = "0.25.2"
 hickory-resolver = "0.25.2"
 hickory-server = { version = "0.25.2", features = ["resolver"] }
