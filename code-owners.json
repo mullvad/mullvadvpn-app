@@ -34,6 +34,7 @@
     "building/android-container-image.txt",
     "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
+    "scripts/check-apostrophe-style",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
