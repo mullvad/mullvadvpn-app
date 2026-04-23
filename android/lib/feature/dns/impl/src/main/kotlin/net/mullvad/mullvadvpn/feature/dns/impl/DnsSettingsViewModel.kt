@@ -57,7 +57,7 @@ class DnsSettingsViewModel(
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
-    private val _contentBlockersExpanded = MutableStateFlow(false)
+    private val _contentBlockersExpanded = MutableStateFlow(true)
 
     private val _uiSideEffect = Channel<DnsSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
