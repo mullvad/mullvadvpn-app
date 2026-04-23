@@ -42,9 +42,9 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
 import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
-import net.mullvad.mullvadvpn.feature.personalvpn.api.PersonalVpnNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.ConnectOnStartupInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.DeviceIpInfoNavKey
@@ -181,7 +181,7 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
         navigateToLocalNetworkSharing =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingNavKey()) },
-        navigateToPersonalVpn = dropUnlessResumed { navigator.navigate(PersonalVpnNavKey()) },
+        navigateToPersonalVpn = dropUnlessResumed { navigator.navigate(CustomTunnelsListNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },

@@ -132,6 +132,7 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
+import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError

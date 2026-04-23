@@ -71,7 +71,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
-import net.mullvad.mullvadvpn.lib.feature.impl.personalVpnEntry
+import net.mullvad.mullvadvpn.lib.feature.customvpn.impl.navigation.customTunnelsEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
@@ -141,7 +141,7 @@ fun MullvadApp() {
         multihopMigrationEntry(nav3)
         noDaemonEntry(nav3)
         notificationEntry(nav3)
-        personalVpnEntry(nav3)
+        customTunnelsEntry(nav3)
         problemReportEntry(nav3)
         redeemVoucherEntry(nav3)
         removeDeviceConfirmationDialogEntry(nav3)

@@ -79,6 +79,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
+import net.mullvad.mullvadvpn.feature.customvpn.api.CustomTunnelsListNavKey
 import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.home.api.Android16UpgradeInfoNavKey
@@ -95,7 +96,6 @@ import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
-import net.mullvad.mullvadvpn.feature.personalvpn.api.PersonalVpnNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
@@ -932,5 +932,5 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
 
         FeatureIndicator.PERSONAL_VPN,
-        FeatureIndicator.PERSONAL_VPN_ACTIVE -> PersonalVpnNavKey(isModal = true)
+        FeatureIndicator.PERSONAL_VPN_ACTIVE -> CustomTunnelsListNavKey(isModal = true)
     }

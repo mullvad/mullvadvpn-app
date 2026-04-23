@@ -599,4 +599,13 @@
     <string name="dns_settings_issues_second_paragraph">Turn off Private DNS in %s as it might interfere with Mullvad’s DNS settings.</string>
     <string name="system_network_settings">System network settings</string>
     <string name="connected_server">Connected server</string>
+    <string name="custom_tunnels">Custom tunnels</string>
+    <string name="custom_tunnels_description_first_paragraph">Allows you to connect to another WireGuard peer while using Mullvad VPN. The entire connection will be tunneled through your Mullvad connection.</string>
+    <string name="custom_tunnels_description_second_paragraph">This hides your custom tunnel IP and you can connect to it without having to disconnect.</string>
+    <string name="custom_tunnels_description_info">Using Multihop with a custom WireGuard tunnel might result in connection instability</string>
+    <string name="configurations">Configurations</string>
+    <string name="custom_tunnels_tap_to_add">Tap “+” to add a custom tunnel profile</string>
+    <string name="add_new_configuration">Add new configuration</string>
+    <string name="import_wireguard_configuration">Import WireGuard configuration</string>
+    <string name="custom_tunnels_experimental_warning">Experimental feature: May not work as expected.</string>
 </resources>
