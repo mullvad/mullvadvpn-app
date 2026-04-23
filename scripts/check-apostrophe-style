@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -eu
+
+CURLY_APOSTROPHE_STYLE="’"
+STRAIGHT_APOSTROPHE_STYLE="'"
+ERROR_MESSAGE="Error: Use curly apostrophes ($CURLY_APOSTROPHE_STYLE) \
+instead of straight ($STRAIGHT_APOSTROPHE_STYLE)."
+
+# Check English strings used by desktop and Android.
+if grep -E "^msgid|<string" \
+    desktop/packages/mullvad-vpn/locales/messages.pot \
+    android/lib/ui/resource/src/main/res/values/strings.xml | \
+    grep "$STRAIGHT_APOSTROPHE_STYLE"; then
+  echo "$ERROR_MESSAGE"
+  exit 1
+fi
+
+# Check English strings used by iOS.
+if jq -r '.strings | keys[]' ios/Assets/Localizable.xcstrings | \
+    grep "$STRAIGHT_APOSTROPHE_STYLE"; then
+  echo "$ERROR_MESSAGE"
+  exit 1
+fi
