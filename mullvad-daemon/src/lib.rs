@@ -763,7 +763,7 @@ impl Daemon {
         };
 
         #[cfg(feature = "personal-vpn")]
-        let (personal_vpn_stats_tx, personal_vpn_stats_rx) = tokio::sync::broadcast::channel(32);
+        let personal_vpn_stats_tx = tokio::sync::broadcast::channel(32).0;
 
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
@@ -773,8 +773,6 @@ impl Daemon {
             app_upgrade_broadcast.clone(),
             config.log_handle,
             relay_selector.clone(),
-            #[cfg(feature = "personal-vpn")]
-            personal_vpn_stats_rx,
         )
         .map_err(Error::ManagementInterfaceError)?;
 
@@ -1265,10 +1263,18 @@ impl Daemon {
             }
             #[cfg(feature = "personal-vpn")]
             PersonalVpnUpdate(stats) => {
-                // TODO: set to none if setting is disabled
-                // TODO: stop sending this event needlessly
-                self.last_personal_handshake = stats.last_handshake_time;
-                self.update_feature_indicators_on_settings_changed();
+                let enabled = self.settings.personal_vpn_enabled
+                    && self.settings.personal_vpn_config.is_some();
+                let new_handshake = enabled.then_some(stats.last_handshake_time).flatten();
+                if self.last_personal_handshake != new_handshake {
+                    self.last_personal_handshake = new_handshake;
+                    self.update_feature_indicators_on_settings_changed();
+                }
+                if enabled {
+                    self.management_interface
+                        .notifier()
+                        .notify_personal_vpn_stats(stats);
+                }
             }
         }
         should_stop

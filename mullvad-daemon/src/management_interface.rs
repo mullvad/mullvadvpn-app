@@ -24,7 +24,7 @@ use mullvad_types::{
     version,
     wireguard::{RotationInterval, RotationIntervalError},
 };
-use std::{collections::BTreeSet, time::SystemTime};
+use std::collections::BTreeSet;
 use std::{
     path::PathBuf,
     str::FromStr,
@@ -46,13 +46,16 @@ pub enum Error {
 
 pub type AppUpgradeBroadcast = tokio::sync::broadcast::Sender<version::AppUpgradeEvent>;
 
+#[cfg(feature = "personal-vpn")]
+pub type PersonalVpnStatsBroadcast = tokio::sync::broadcast::Sender<types::PersonalVpnStats>;
+
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
     log_reload_handle: crate::logging::LogHandle,
     #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats: tokio::sync::broadcast::Receiver<talpid_types::Stats>,
+    personal_vpn_stats: PersonalVpnStatsBroadcast,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -61,6 +64,9 @@ type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::Dae
 
 type AppUpgradeEventListenerReceiver =
     Box<dyn futures::Stream<Item = Result<types::AppUpgradeEvent, Status>> + Send + Unpin>;
+
+type PersonalVpnStatsListenerReceiver =
+    Box<dyn futures::Stream<Item = Result<types::PersonalVpnStats, Status>> + Send + Unpin>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -71,8 +77,7 @@ impl ManagementService for ManagementServiceImpl {
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
-    type GetPersonalVpnStatsStream =
-        UnboundedReceiverStream<Result<types::PersonalVpnStats, Status>>;
+    type GetPersonalVpnStatsStream = PersonalVpnStatsListenerReceiver;
 
     // Control and get the tunnel state
     //
@@ -1363,42 +1368,19 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         _: Request<()>,
     ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
-        // TODO: not implemented
         log::debug!("get_personal_vpn_stats");
-        let mut broadcast_rx = self.personal_vpn_stats.resubscribe();
-
-        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-        tokio::spawn(async move {
-            loop {
-                match broadcast_rx.recv().await {
-                    Ok(stats) => {
-                        let stats = types::PersonalVpnStats {
-                            last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
-                                Some(types::Timestamp {
-                                    seconds: handshake
-                                        .duration_since(SystemTime::UNIX_EPOCH)
-                                        .ok()?
-                                        .as_secs()
-                                        as _,
-                                    nanos: 0,
-                                })
-                            }),
-                            tx_bytes: stats.tx_bytes,
-                            rx_bytes: stats.rx_bytes,
-                        };
-                        let _ = tx.send(Ok(stats));
-                    }
-                    Err(tokio::sync::broadcast::error::RecvError::Lagged(n)) => {
-                        let _ = tx.send(Err(Status::internal(format!("{n} lagged messages"))));
-                    }
-                    Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                        break;
-                    }
-                }
-            }
-        });
-
-        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+        let rx = self.personal_vpn_stats.subscribe();
+        #[expect(clippy::result_large_err)]
+        let stream =
+            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+                Ok(stats) => Ok(stats),
+                Err(error) => Err(Status::internal(format!(
+                    "Failed to receive personal VPN stats: {error}"
+                ))),
+            });
+        Ok(Response::new(
+            Box::new(stream) as Self::GetPersonalVpnStatsStream
+        ))
     }
 
     #[cfg(not(feature = "personal-vpn"))]
@@ -1425,8 +1407,8 @@ impl ManagementService for ManagementServiceImpl {
         _: Request<()>,
     ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
         log::debug!("get_personal_vpn_stats");
-        let (_tx, rx) = tokio::sync::mpsc::unbounded_channel();
-        Ok(Response::new(UnboundedReceiverStream::new(rx)))
+        Ok(Response::new(Box::new(futures::stream::empty())
+            as Self::GetPersonalVpnStatsStream))
     }
 }
 
@@ -1464,11 +1446,12 @@ impl ManagementInterfaceServer {
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
         relay_selector: mullvad_relay_selector::RelaySelector,
-        #[cfg(feature = "personal-vpn")] personal_vpn_stats: tokio::sync::broadcast::Receiver<
-            talpid_types::Stats,
-        >,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
+
+        #[cfg(feature = "personal-vpn")]
+        let personal_vpn_stats: PersonalVpnStatsBroadcast =
+            tokio::sync::broadcast::channel(32).0;
 
         // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
         // to abort the gRPC server, the sender can be awaited to know when the gRPC server has
@@ -1481,7 +1464,7 @@ impl ManagementInterfaceServer {
             app_upgrade_broadcast,
             log_reload_handle,
             #[cfg(feature = "personal-vpn")]
-            personal_vpn_stats,
+            personal_vpn_stats: personal_vpn_stats.clone(),
         };
 
         let relay_selector_service = RelaySelectorServiceImpl::new(relay_selector);
@@ -1501,7 +1484,11 @@ impl ManagementInterfaceServer {
             rpc_socket_path.display()
         );
 
-        let broadcast = ManagementInterfaceEventBroadcaster { subscriptions };
+        let broadcast = ManagementInterfaceEventBroadcaster {
+            subscriptions,
+            #[cfg(feature = "personal-vpn")]
+            personal_vpn_stats,
+        };
 
         Ok(ManagementInterfaceServer {
             rpc_server_join_handle,
@@ -1540,12 +1527,34 @@ impl ManagementInterfaceServer {
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
     subscriptions: Arc<Mutex<Vec<EventsListenerSender>>>,
+    #[cfg(feature = "personal-vpn")]
+    personal_vpn_stats: PersonalVpnStatsBroadcast,
 }
 
 impl ManagementInterfaceEventBroadcaster {
     fn notify(&self, value: types::DaemonEvent) {
         let mut subscriptions = self.subscriptions.lock().unwrap();
         subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
+    }
+
+    /// Send new personal VPN stats to all subscribed clients.
+    #[cfg(feature = "personal-vpn")]
+    pub(crate) fn notify_personal_vpn_stats(&self, stats: talpid_types::Stats) {
+        let stats = types::PersonalVpnStats {
+            last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
+                let duration = handshake
+                    .duration_since(std::time::SystemTime::UNIX_EPOCH)
+                    .ok()?;
+                Some(types::Timestamp {
+                    seconds: duration.as_secs() as _,
+                    nanos: 0,
+                })
+            }),
+            tx_bytes: stats.tx_bytes,
+            rx_bytes: stats.rx_bytes,
+        };
+        // An error here means no client is currently subscribed, which is fine.
+        let _ = self.personal_vpn_stats.send(stats);
     }
 
     /// Notify that the tunnel state changed.
