@@ -103,9 +103,9 @@ interface IManagementServiceService extends grpc.ServiceDefinition<grpc.UntypedS
     getAppUpgradeCacheDir: IManagementServiceService_IGetAppUpgradeCacheDir;
     setLogFilter: IManagementServiceService_ISetLogFilter;
     logListen: IManagementServiceService_ILogListen;
-    setCustomVpnConfig: IManagementServiceService_ISetCustomVpnConfig;
-    setCustomVpnConfigStatus: IManagementServiceService_ISetCustomVpnConfigStatus;
-    getCustomVpnStats: IManagementServiceService_IGetCustomVpnStats;
+    setPersonalVpnConfig: IManagementServiceService_ISetPersonalVpnConfig;
+    setPersonalVpnConfigStatus: IManagementServiceService_ISetPersonalVpnConfigStatus;
+    getPersonalVpnStats: IManagementServiceService_IGetPersonalVpnStats;
 }
 
 interface IManagementServiceService_IConnectTunnel extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.BoolValue> {
@@ -927,17 +927,17 @@ interface IManagementServiceService_ILogListen extends grpc.MethodDefinition<goo
     responseSerialize: grpc.serialize<management_interface_pb.LogMessage>;
     responseDeserialize: grpc.deserialize<management_interface_pb.LogMessage>;
 }
-interface IManagementServiceService_ISetCustomVpnConfig extends grpc.MethodDefinition<management_interface_pb.CustomVpnConfig, management_interface_pb.CustomVpnConfigError> {
-    path: "/mullvad_daemon.management_interface.ManagementService/SetCustomVpnConfig";
+interface IManagementServiceService_ISetPersonalVpnConfig extends grpc.MethodDefinition<management_interface_pb.PersonalVpnConfig, management_interface_pb.PersonalVpnConfigError> {
+    path: "/mullvad_daemon.management_interface.ManagementService/SetPersonalVpnConfig";
     requestStream: false;
     responseStream: false;
-    requestSerialize: grpc.serialize<management_interface_pb.CustomVpnConfig>;
-    requestDeserialize: grpc.deserialize<management_interface_pb.CustomVpnConfig>;
-    responseSerialize: grpc.serialize<management_interface_pb.CustomVpnConfigError>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.CustomVpnConfigError>;
+    requestSerialize: grpc.serialize<management_interface_pb.PersonalVpnConfig>;
+    requestDeserialize: grpc.deserialize<management_interface_pb.PersonalVpnConfig>;
+    responseSerialize: grpc.serialize<management_interface_pb.PersonalVpnConfigError>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.PersonalVpnConfigError>;
 }
-interface IManagementServiceService_ISetCustomVpnConfigStatus extends grpc.MethodDefinition<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty> {
-    path: "/mullvad_daemon.management_interface.ManagementService/SetCustomVpnConfigStatus";
+interface IManagementServiceService_ISetPersonalVpnConfigStatus extends grpc.MethodDefinition<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty> {
+    path: "/mullvad_daemon.management_interface.ManagementService/SetPersonalVpnConfigStatus";
     requestStream: false;
     responseStream: false;
     requestSerialize: grpc.serialize<google_protobuf_wrappers_pb.BoolValue>;
@@ -945,14 +945,14 @@ interface IManagementServiceService_ISetCustomVpnConfigStatus extends grpc.Metho
     responseSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     responseDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
 }
-interface IManagementServiceService_IGetCustomVpnStats extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.CustomVpnStats> {
-    path: "/mullvad_daemon.management_interface.ManagementService/GetCustomVpnStats";
+interface IManagementServiceService_IGetPersonalVpnStats extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.PersonalVpnStats> {
+    path: "/mullvad_daemon.management_interface.ManagementService/GetPersonalVpnStats";
     requestStream: false;
     responseStream: true;
     requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
     requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
-    responseSerialize: grpc.serialize<management_interface_pb.CustomVpnStats>;
-    responseDeserialize: grpc.deserialize<management_interface_pb.CustomVpnStats>;
+    responseSerialize: grpc.serialize<management_interface_pb.PersonalVpnStats>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.PersonalVpnStats>;
 }
 
 export const ManagementServiceService: IManagementServiceService;
@@ -1049,9 +1049,9 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     getAppUpgradeCacheDir: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.StringValue>;
     setLogFilter: grpc.handleUnaryCall<management_interface_pb.LogFilter, google_protobuf_empty_pb.Empty>;
     logListen: grpc.handleServerStreamingCall<google_protobuf_empty_pb.Empty, management_interface_pb.LogMessage>;
-    setCustomVpnConfig: grpc.handleUnaryCall<management_interface_pb.CustomVpnConfig, management_interface_pb.CustomVpnConfigError>;
-    setCustomVpnConfigStatus: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
-    getCustomVpnStats: grpc.handleServerStreamingCall<google_protobuf_empty_pb.Empty, management_interface_pb.CustomVpnStats>;
+    setPersonalVpnConfig: grpc.handleUnaryCall<management_interface_pb.PersonalVpnConfig, management_interface_pb.PersonalVpnConfigError>;
+    setPersonalVpnConfigStatus: grpc.handleUnaryCall<google_protobuf_wrappers_pb.BoolValue, google_protobuf_empty_pb.Empty>;
+    getPersonalVpnStats: grpc.handleServerStreamingCall<google_protobuf_empty_pb.Empty, management_interface_pb.PersonalVpnStats>;
 }
 
 export interface IManagementServiceClient {
@@ -1324,14 +1324,14 @@ export interface IManagementServiceClient {
     setLogFilter(request: management_interface_pb.LogFilter, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     logListen(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.LogMessage>;
     logListen(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.LogMessage>;
-    setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    getCustomVpnStats(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.CustomVpnStats>;
-    getCustomVpnStats(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.CustomVpnStats>;
+    setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    getPersonalVpnStats(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.PersonalVpnStats>;
+    getPersonalVpnStats(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.PersonalVpnStats>;
 }
 
 export class ManagementServiceClient extends grpc.Client implements IManagementServiceClient {
@@ -1605,12 +1605,12 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public setLogFilter(request: management_interface_pb.LogFilter, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
     public logListen(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.LogMessage>;
     public logListen(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.LogMessage>;
-    public setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    public setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    public setCustomVpnConfig(request: management_interface_pb.CustomVpnConfig, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.CustomVpnConfigError) => void): grpc.ClientUnaryCall;
-    public setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public setCustomVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
-    public getCustomVpnStats(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.CustomVpnStats>;
-    public getCustomVpnStats(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.CustomVpnStats>;
+    public setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    public setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    public setPersonalVpnConfig(request: management_interface_pb.PersonalVpnConfig, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.PersonalVpnConfigError) => void): grpc.ClientUnaryCall;
+    public setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public setPersonalVpnConfigStatus(request: google_protobuf_wrappers_pb.BoolValue, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_empty_pb.Empty) => void): grpc.ClientUnaryCall;
+    public getPersonalVpnStats(request: google_protobuf_empty_pb.Empty, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.PersonalVpnStats>;
+    public getPersonalVpnStats(request: google_protobuf_empty_pb.Empty, metadata?: grpc.Metadata, options?: Partial<grpc.CallOptions>): grpc.ClientReadableStream<management_interface_pb.PersonalVpnStats>;
 }
