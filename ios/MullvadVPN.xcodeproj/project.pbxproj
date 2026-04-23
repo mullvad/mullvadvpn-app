@@ -618,6 +618,7 @@
 		7A88DCF42A93471F00D2FF0E /* ApplicationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5893C6FB29C311E9009090D1 /* ApplicationRouter.swift */; };
 		7A88DCF52A93471F00D2FF0E /* ApplicationRouterTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802EBCA2A8E45DC00E5CE4C /* ApplicationRouterTypes.swift */; };
 		7A88DCF62A93471F00D2FF0E /* AppRouteProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802EBC62A8E457A00E5CE4C /* AppRouteProtocol.swift */; };
+		7A8924C7306268020000523D /* SceneDelegate+InAppLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8924C5306267730000523D /* SceneDelegate+InAppLog.swift */; };
 		7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */; };
 		7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */; };
 		7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */; };
@@ -737,6 +738,12 @@
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7AE16D802F97AEBE00A72A39 /* MultihopWhenNeededInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16D7F2F97AEBE00A72A39 /* MultihopWhenNeededInfoView.swift */; };
+		7AE16DC22F9A463600A72A39 /* InAppLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */; };
+		7AE16DC52F9A5C8200A72A39 /* InAppLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC42F9A5C7E00A72A39 /* InAppLogView.swift */; };
+		7AE16DC72F9A5EBA00A72A39 /* InAppLogViewInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC62F9A5EB700A72A39 /* InAppLogViewInteractor.swift */; };
+		7AE16DC92F9B53F400A72A39 /* InAppLogOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC82F9B53F200A72A39 /* InAppLogOverlayViewController.swift */; };
+		7AE16DCC2F9B911800A72A39 /* InAppLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */; };
+		7AE16DCE2F9B98EF00A72A39 /* InAppLogBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DCD2F9B98EF00A72A39 /* InAppLogBuffer.swift */; };
 		7AE16DD52FA0DF6300A72A39 /* MultihopDataGatherer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DD42FA0DF6300A72A39 /* MultihopDataGatherer.swift */; };
 		7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */; };
 		7AEB49352FBC9FBA0053FEFC /* CustomListLocationItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEB49342FBC9FAD0053FEFC /* CustomListLocationItemView.swift */; };
@@ -2363,6 +2370,7 @@
 		7A88DCD02A8FABBE00D2FF0E /* Routing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Routing.h; sourceTree = "<group>"; };
 		7A88DCD72A8FABBE00D2FF0E /* RoutingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RoutingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A88DCDE2A8FABBF00D2FF0E /* RoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingTests.swift; sourceTree = "<group>"; };
+		7A8924C5306267730000523D /* SceneDelegate+InAppLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SceneDelegate+InAppLog.swift"; sourceTree = "<group>"; };
 		7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMultihopView.swift; sourceTree = "<group>"; };
 		7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+TapAreaSize.swift"; sourceTree = "<group>"; };
 		7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomToggleStyle.swift; sourceTree = "<group>"; };
@@ -2470,6 +2478,12 @@
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE16D7F2F97AEBE00A72A39 /* MultihopWhenNeededInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopWhenNeededInfoView.swift; sourceTree = "<group>"; };
+		7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogHandler.swift; sourceTree = "<group>"; };
+		7AE16DC42F9A5C7E00A72A39 /* InAppLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogView.swift; sourceTree = "<group>"; };
+		7AE16DC62F9A5EB700A72A39 /* InAppLogViewInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogViewInteractor.swift; sourceTree = "<group>"; };
+		7AE16DC82F9B53F200A72A39 /* InAppLogOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogOverlayViewController.swift; sourceTree = "<group>"; };
+		7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogEntry.swift; sourceTree = "<group>"; };
+		7AE16DCD2F9B98EF00A72A39 /* InAppLogBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogBuffer.swift; sourceTree = "<group>"; };
 		7AE16DD42FA0DF6300A72A39 /* MultihopDataGatherer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopDataGatherer.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
 		7AEB49342FBC9FAD0053FEFC /* CustomListLocationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListLocationItemView.swift; sourceTree = "<group>"; };
@@ -4431,16 +4445,17 @@
 		58D223F4294C8FF00029F5F8 /* MullvadLogging */ = {
 			isa = PBXGroup;
 			children = (
+				7A8924C2306267280000523D /* InAppLogs */,
 				0064CB0EF9AACDC812F39635 /* LogRedacting.swift */,
 				58D223F5294C8FF00029F5F8 /* MullvadLogging.h */,
 				581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */,
 				581943E228F8010400B0CB5E /* Date+LogFormat.swift */,
 				581943E128F8010300B0CB5E /* Error+LogFormat.swift */,
+				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 				581943E028F8010300B0CB5E /* Logger+Errors.swift */,
 				581943DF28F8010300B0CB5E /* LoggerBuilder.swift */,
 				581943DD28F8010300B0CB5E /* LogRotation.swift */,
 				581943E428F8010400B0CB5E /* OSLogHandler.swift */,
-				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -4736,6 +4751,20 @@
 				7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */,
 			);
 			path = RoutingTests;
+			sourceTree = "<group>";
+		};
+		7A8924C2306267280000523D /* InAppLogs */ = {
+			isa = PBXGroup;
+			children = (
+				7AE16DCD2F9B98EF00A72A39 /* InAppLogBuffer.swift */,
+				7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */,
+				7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */,
+				7AE16DC82F9B53F200A72A39 /* InAppLogOverlayViewController.swift */,
+				7AE16DC42F9A5C7E00A72A39 /* InAppLogView.swift */,
+				7AE16DC62F9A5EB700A72A39 /* InAppLogViewInteractor.swift */,
+				7A8924C5306267730000523D /* SceneDelegate+InAppLog.swift */,
+			);
+			path = InAppLogs;
 			sourceTree = "<group>";
 		};
 		7A8A18F72CE34E8F000BCB5B /* Multihop */ = {
@@ -6908,6 +6937,7 @@
 				7A5869972B32EA4500640D27 /* AppButton.swift in Sources */,
 				586C0D8F2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift in Sources */,
 				7A27E3CF2CBD4A8C0088BCFF /* SelectableSettingsDetailsCell.swift in Sources */,
+				7AE16DC72F9A5EBA00A72A39 /* InAppLogViewInteractor.swift in Sources */,
 				7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,
@@ -7110,6 +7140,7 @@
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
+				7A8924C7306268020000523D /* SceneDelegate+InAppLog.swift in Sources */,
 				7ABBE0162F1A2D1A00AD8176 /* IncludeAllNetworksSettingsViewModel.swift in Sources */,
 				5807E2C02432038B00F5FF30 /* String+Helpers.swift in Sources */,
 				58B26E242943520C00D5980C /* NotificationProviderProtocol.swift in Sources */,
@@ -7243,9 +7274,11 @@
 				F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */,
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
+				7AE16DC92F9B53F400A72A39 /* InAppLogOverlayViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
+				7AE16DC52F9A5C8200A72A39 /* InAppLogView.swift in Sources */,
 				7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,
 				7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */,
@@ -7416,13 +7449,16 @@
 			files = (
 				4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */,
 				7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */,
+				7AE16DCE2F9B98EF00A72A39 /* InAppLogBuffer.swift in Sources */,
 				E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */,
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
+				7AE16DCC2F9B911800A72A39 /* InAppLogEntry.swift in Sources */,
 				58D22403294C90050029F5F8 /* LoggerBuilder.swift in Sources */,
 				58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */,
 				58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */,
+				7AE16DC22F9A463600A72A39 /* InAppLogHandler.swift in Sources */,
 				58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */,
 				58D22405294C90050029F5F8 /* LogRotation.swift in Sources */,
 				58D22401294C90050029F5F8 /* CustomFormatLogHandler.swift in Sources */,

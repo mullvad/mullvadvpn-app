@@ -9,6 +9,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
@@ -59,4 +60,11 @@ extension TunnelProtocol {
         return messageService.send(message: .privateKeyRotation, completionHandler: completionHandler)
     }
 
+    /// Request in-app log entries from the packet tunnel process.
+    func getInAppLogs(
+        completionHandler: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void
+    ) -> Cancellable {
+        let messageService = SendTunnelMessageService(tunnel: self)
+        return messageService.send(message: .getInAppLogs, completionHandler: completionHandler)
+    }
 }
