@@ -249,7 +249,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            domain: REST.encryptedDNSHostname,
+            encryptedDnsDomain: REST.encryptedDNSHostname,
+            domainFrontingFront: REST.domainFrontingFront,
+            domainFrontingProxyHost: REST.domainFrontingProxyHost,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
