@@ -43,13 +43,13 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unc
         AccessMethodRepositoryStub(accessMethods: [
             PersistentAccessMethod(
                 id: UUID(),
-                name: "direct",
+                name: "Direct",
                 isEnabled: true,
                 proxyConfiguration: .direct
             ),
             PersistentAccessMethod(
                 id: UUID(),
-                name: "bridges",
+                name: "Bridges",
                 isEnabled: true,
                 proxyConfiguration: .bridges
             ),
@@ -58,6 +58,12 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unc
                 name: "Encrypted DNS",
                 isEnabled: true,
                 proxyConfiguration: .encryptedDNS
+            ),
+            PersistentAccessMethod(
+                id: UUID(),
+                name: "Domain fronting",
+                isEnabled: true,
+                proxyConfiguration: .domainFronting
             ),
         ])
     }

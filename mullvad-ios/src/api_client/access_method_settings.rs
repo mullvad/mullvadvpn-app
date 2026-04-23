@@ -6,7 +6,7 @@ use std::{
 
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting,
-    BuiltInAccessMethod::{Bridge, Direct, EncryptedDnsProxy},
+    BuiltInAccessMethod::{Bridge, Direct, DomainFronting, EncryptedDnsProxy},
     Id, Settings,
 };
 use talpid_types::net::proxy::{self, Shadowsocks, Socks5Remote};
@@ -78,6 +78,13 @@ fn convert_builtin_access_method_setting_inner(
             AccessMethod::BuiltIn(EncryptedDnsProxy),
         )),
 
+        SwiftAccessMethodKind::KindDomainFronting => Some(AccessMethodSetting::with_id(
+            id,
+            name,
+            enabled,
+            AccessMethod::BuiltIn(DomainFronting),
+        )),
+
         SwiftAccessMethodKind::KindShadowsocks => match proxy_configuration.is_null() {
             true => None,
             false => {
@@ -118,34 +125,44 @@ pub enum SwiftAccessMethodKind {
     KindEncryptedDnsProxy,
     KindShadowsocks,
     KindSocks5Local,
+    KindDomainFronting,
 }
 
 /// Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
 ///
 /// # SAFETY
-/// `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
-/// resulting from a call to `convert_builtin_access_method_setting`
+/// `direct_method_raw`, `bridges_method_raw`, `encrypted_dns_method_raw` and
+/// `domain_fronting_method_raw` must be raw pointers resulting from a call to
+/// `convert_builtin_access_method_setting`.
 /// `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn init_access_method_settings_wrapper(
     direct_method_raw: *const c_void,
     bridges_method_raw: *const c_void,
     encrypted_dns_method_raw: *const c_void,
+    domain_fronting_method_raw: *const c_void,
     custom_methods_raw: *const c_void,
     custom_method_count: usize,
 ) -> SwiftAccessMethodSettingsWrapper {
     // SAFETY: See `init_access_method_settings_wrapper`
-    let (direct, mullvad_bridges, encrypted_dns_proxy) = unsafe {
+    let (direct, mullvad_bridges, encrypted_dns_proxy, domain_fronting) = unsafe {
         (
             *Box::from_raw(direct_method_raw as *mut _),
             *Box::from_raw(bridges_method_raw as *mut _),
             *Box::from_raw(encrypted_dns_method_raw as *mut _),
+            *Box::from_raw(domain_fronting_method_raw as *mut _),
         )
     };
 
     let custom =
         unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
-    let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, custom);
+    let settings = Settings::new(
+        direct,
+        mullvad_bridges,
+        encrypted_dns_proxy,
+        domain_fronting,
+        custom,
+    );
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)
 }
