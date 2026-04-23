@@ -133,11 +133,12 @@ val uiModule = module {
         ComponentName(androidContext(), AutoStartVpnBootCompletedReceiver::class.java)
     }
 
+    single<PackageName> { PackageName(androidContext().packageName) }
     single<InstallSourceProvider> { AndroidInstallSourceProvider(androidContext()) }
     single<ResolveAppListingUseCase> {
         ResolveAppListingUseCaseImpl(
             resources = androidContext().resources,
-            packageName = PackageName(androidContext().packageName),
+            packageName = get(),
             isPlayBuild = IS_PLAY_BUILD,
             installSourceProvider = get(),
         )
