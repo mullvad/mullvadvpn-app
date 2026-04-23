@@ -116,6 +116,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
