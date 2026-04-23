@@ -54,6 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
     let breadcrumbsProvider = BreadcrumbsProvider()
+    let inAppLogObserver = InAppLogBlockObserver()
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
@@ -420,6 +421,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
+            loggerBuilder.addInAppLogOutput(observer: inAppLogObserver)
         #endif
         loggerBuilder.install()
 

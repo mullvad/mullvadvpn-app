@@ -7,11 +7,13 @@
 //
 
 import Combine
+import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 import Routing
+import SwiftUI
 import UIKit
 
 /**
@@ -58,6 +60,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var breadcrumbsObserver: BreadcrumbsBlockObserver?
+    private let inAppLogObserver: InAppLogBlockObserver
 
     private var outOfTimeTimer: Timer?
 
@@ -77,7 +80,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         accessMethodRepository: AccessMethodRepositoryProtocol,
         ipOverrideRepository: IPOverrideRepository,
         relaySelectorWrapper: RelaySelectorWrapper,
-        breadcrumbsProvider: BreadcrumbsProvider
+        breadcrumbsProvider: BreadcrumbsProvider,
+        inAppLogObserver: InAppLogBlockObserver
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -91,6 +95,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.ipOverrideRepository = ipOverrideRepository
         self.relaySelectorWrapper = relaySelectorWrapper
         self.breadcrumbsProvider = breadcrumbsProvider
+        self.inAppLogObserver = inAppLogObserver
 
         super.init()
 
@@ -108,6 +113,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     func start() {
+        setUpLogOverlay()
+
         navigationContainer.notificationController = notificationController
         if !appPreferences.isNotificationPermissionAsked {
             Task {
@@ -291,6 +298,27 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     // MARK: - Private
 
     private var isPresentingAccountExpiryBanner = false
+
+    private func setUpLogOverlay() {
+        let logViewModel = LogViewModel(observer: inAppLogObserver)
+        let hostingController = UIHostingController(rootView: LogView(viewModel: logViewModel))
+        hostingController.view.backgroundColor = .clear
+        hostingController.view.isUserInteractionEnabled = false
+
+        let containerView = navigationContainer.view!
+        hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+        containerView.addSubview(hostingController.view)
+
+        NSLayoutConstraint.activate([
+            hostingController.view.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
+            hostingController.view.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            hostingController.view.topAnchor.constraint(equalTo: containerView.topAnchor),
+            hostingController.view.bottomAnchor.constraint(equalTo: containerView.bottomAnchor),
+        ])
+
+        navigationContainer.addChild(hostingController)
+        hostingController.didMove(toParent: navigationContainer)
+    }
 
     /**
      Sets up breadcrumbs and observers for them.
