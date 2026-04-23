@@ -10743,7 +10743,7 @@
         }
       }
     },
-    "By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won't automatically be used to enable DAITA with any server." : {
+    "By enabling “%@” you will have to manually select a server that is %@-enabled. %@ won’t automatically be used to enable DAITA with any server." : {
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -17227,7 +17227,7 @@
         }
       }
     },
-    "DAITA isn't available at the currently selected location. After enabling, please go to the \"Select location\" view and select a location that supports DAITA." : {
+    "DAITA isn’t available at the currently selected location. After enabling, please go to the \"Select location\" view and select a location that supports DAITA." : {
       "localizations" : {
         "da" : {
           "stringUnit" : {
@@ -17351,7 +17351,7 @@
         }
       }
     },
-    "DAITA isn't available on the current entry server. After enabling, please go to the \"Select location\" view and select an entry location that supports DAITA." : {
+    "DAITA isn’t available on the current entry server. After enabling, please go to the \"Select location\" view and select an entry location that supports DAITA." : {
       "localizations" : {
         "da" : {
           "stringUnit" : {
