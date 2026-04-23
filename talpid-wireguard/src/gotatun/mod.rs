@@ -861,6 +861,15 @@ pub fn get_tunnel_for_userspace(
         vec!["0.0.0.0/0".parse().unwrap()]
     };
 
+    #[cfg(feature = "personal-vpn")]
+    {
+        tun_config.inner_tun_allowed_ips = config
+            .custom_vpn
+            .as_ref()
+            .map(|custom_vpn| custom_vpn.peer.allowed_ip.clone())
+            .unwrap_or_default();
+    }
+
     const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
     for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {

@@ -329,11 +329,33 @@ impl VpnServiceConfig {
                 .collect();
         }
 
-        let required_ipv4_routes = vec![IpNetwork::from(IpAddr::from(config.ipv4_gateway))];
+        // Private IP ranges reachable via the inner (personal VPN) tunnel must stay in the tun
+        // device, otherwise LAN sharing would route them outside the tunnel and break the
+        // inner tunnel's connectivity to those networks.
+        #[cfg(feature = "personal-vpn")]
+        let inner_tun_allowed_ips: &[IpNetwork] = &config.inner_tun_allowed_ips;
+        #[cfg(not(feature = "personal-vpn"))]
+        let inner_tun_allowed_ips: &[IpNetwork] = &[];
+
+        let required_ipv4_routes =
+            std::iter::once(IpNetwork::from(IpAddr::from(config.ipv4_gateway)))
+                .chain(
+                    inner_tun_allowed_ips
+                        .iter()
+                        .copied()
+                        .filter(IpNetwork::is_ipv4),
+                )
+                .collect::<Vec<IpNetwork>>();
         let required_ipv6_routes = config
             .ipv6_gateway
             .map(|addr| IpNetwork::from(IpAddr::from(addr)))
             .into_iter()
+            .chain(
+                inner_tun_allowed_ips
+                    .iter()
+                    .copied()
+                    .filter(|n| n.is_ipv6()),
+            )
             .collect::<Vec<IpNetwork>>();
 
         let (original_lan_ipv4_networks, original_lan_ipv6_networks) = Self::allowed_lan_networks()
