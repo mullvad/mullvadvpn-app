@@ -106,7 +106,7 @@ class RelayListCacheTests: XCTestCase {
         let context = try MullvadApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
-            domain: REST.encryptedDNSHostname,
+            encryptedDnsDomain: REST.encryptedDNSHostname,
             domainFrontingFront: "",
             domainFrontingProxyHost: "",
             disableTls: true,
