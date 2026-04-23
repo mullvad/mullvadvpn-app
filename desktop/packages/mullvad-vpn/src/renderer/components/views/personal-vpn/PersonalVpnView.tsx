@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { CustomVpnConfig } from '../../../../shared/daemon-rpc-types';
+import { PersonalVpnConfig } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import log from '../../../../shared/logging';
 import { usePersonalVpn } from '../../../features/personal-vpn/hooks';
@@ -44,7 +44,7 @@ type FormErrors = {
 
 const EMPTY_ERRORS: FormErrors = { allowedIps: {} };
 
-function fromConfig(config?: CustomVpnConfig): FormState {
+function fromConfig(config?: PersonalVpnConfig): FormState {
   return {
     privateKey: config?.tunnel?.privateKey ?? '',
     tunnelIp: config?.tunnel?.tunnelIp ?? '',
@@ -290,7 +290,7 @@ export function PersonalVpnView() {
       return;
     }
 
-    const payload: CustomVpnConfig = {
+    const payload: PersonalVpnConfig = {
       tunnel: { privateKey: form.privateKey, tunnelIp: form.tunnelIp.trim() },
       peer: {
         publicKey: form.publicKey,

@@ -96,14 +96,14 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetDaitaDirectOnly((value) => {
       return this.daemonRpc.setDaitaDirectOnly(value);
     });
-    IpcMainEventChannel.settings.handleSetCustomVpnConfig((config) => {
-      return this.daemonRpc.setCustomVpnConfig(config);
+    IpcMainEventChannel.settings.handleSetPersonalVpnConfig((config) => {
+      return this.daemonRpc.setPersonalVpnConfig(config);
     });
-    IpcMainEventChannel.settings.handleSetCustomVpnEnabled((enabled) => {
-      return this.daemonRpc.setCustomVpnEnabled(enabled);
+    IpcMainEventChannel.settings.handleSetPersonalVpnEnabled((enabled) => {
+      return this.daemonRpc.setPersonalVpnEnabled(enabled);
     });
-    IpcMainEventChannel.settings.handleClearCustomVpn(() => {
-      return this.daemonRpc.clearCustomVpn();
+    IpcMainEventChannel.settings.handleClearPersonalVpn(() => {
+      return this.daemonRpc.clearPersonalVpn();
     });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
@@ -182,11 +182,11 @@ export default class Settings implements Readonly<ISettings> {
   public get relayOverrides() {
     return this.settingsValue.relayOverrides;
   }
-  public get customVpnConfig() {
-    return this.settingsValue.customVpnConfig;
+  public get personalVpnConfig() {
+    return this.settingsValue.personalVpnConfig;
   }
-  public get customVpnEnabled() {
-    return this.settingsValue.customVpnEnabled;
+  public get personalVpnEnabled() {
+    return this.settingsValue.personalVpnEnabled;
   }
 
   public get gui() {

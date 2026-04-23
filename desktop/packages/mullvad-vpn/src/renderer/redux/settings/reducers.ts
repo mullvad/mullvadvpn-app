@@ -4,8 +4,8 @@ import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
   CustomLists,
-  CustomVpnConfig,
-  CustomVpnStats,
+  PersonalVpnConfig,
+  PersonalVpnStats,
   IDaitaSettings,
   IDnsOptions,
   IpVersion,
@@ -98,9 +98,9 @@ export interface ISettingsReduxState {
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
-  customVpnConfig?: CustomVpnConfig;
-  customVpnEnabled: boolean;
-  customVpnStats?: CustomVpnStats;
+  personalVpnConfig?: PersonalVpnConfig;
+  personalVpnEnabled: boolean;
+  personalVpnStats?: PersonalVpnStats;
 }
 
 const initialState: ISettingsReduxState = {
@@ -171,9 +171,9 @@ const initialState: ISettingsReduxState = {
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],
-  customVpnConfig: undefined,
-  customVpnEnabled: false,
-  customVpnStats: undefined,
+  personalVpnConfig: undefined,
+  personalVpnEnabled: false,
+  personalVpnStats: undefined,
 };
 
 export default function (
@@ -321,17 +321,17 @@ export default function (
         relayOverrides: action.relayOverrides,
       };
 
-    case 'SET_CUSTOM_VPN':
+    case 'SET_PERSONAL_VPN':
       return {
         ...state,
-        customVpnConfig: action.config,
-        customVpnEnabled: action.enabled,
+        personalVpnConfig: action.config,
+        personalVpnEnabled: action.enabled,
       };
 
-    case 'SET_CUSTOM_VPN_STATS':
+    case 'SET_PERSONAL_VPN_STATS':
       return {
         ...state,
-        customVpnStats: action.stats,
+        personalVpnStats: action.stats,
       };
 
     default:

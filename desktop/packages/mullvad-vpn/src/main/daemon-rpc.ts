@@ -11,8 +11,8 @@ import {
   AccountNumber,
   CustomListError,
   CustomProxy,
-  CustomVpnConfig,
-  CustomVpnStats,
+  PersonalVpnConfig,
+  PersonalVpnStats,
   DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceState,
@@ -30,17 +30,17 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   RelaySettings,
-  SetCustomVpnConfigError,
+  SetPersonalVpnConfigError,
   TunnelState,
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
 import { ConnectionObserver, GrpcClient, noConnectionError } from './grpc-client';
 import {
-  buildCustomVpnConfig,
+  buildPersonalVpnConfig,
   convertFromApiAccessMethodSetting,
   convertFromAppUpgradeEvent,
   convertFromAppVersionInfo,
-  convertFromCustomVpnStats,
+  convertFromPersonalVpnStats,
   convertFromDaemonEvent,
   convertFromDevice,
   convertFromDeviceState,
@@ -87,7 +87,7 @@ export class DaemonRpc extends GrpcClient {
   private subscriptions: Map<
     number,
     grpc.ClientReadableStream<
-      grpcTypes.DaemonEvent | grpcTypes.AppUpgradeEvent | grpcTypes.CustomVpnStats
+      grpcTypes.DaemonEvent | grpcTypes.AppUpgradeEvent | grpcTypes.PersonalVpnStats
     >
   > = new Map();
 
@@ -679,32 +679,32 @@ export class DaemonRpc extends GrpcClient {
     await this.call(this.client.setEnableRecents, boolValue);
   }
 
-  public async setCustomVpnConfig(config: CustomVpnConfig): Promise<SetCustomVpnConfigError> {
-    const grpcConfig = buildCustomVpnConfig(config);
-    const response = await this.call<grpcTypes.CustomVpnConfig, grpcTypes.CustomVpnConfigError>(
-      this.client.setCustomVpnConfig,
+  public async setPersonalVpnConfig(config: PersonalVpnConfig): Promise<SetPersonalVpnConfigError> {
+    const grpcConfig = buildPersonalVpnConfig(config);
+    const response = await this.call<grpcTypes.PersonalVpnConfig, grpcTypes.PersonalVpnConfigError>(
+      this.client.setPersonalVpnConfig,
       grpcConfig,
     );
     const message = response.getError();
     return message.length === 0 ? { type: 'success' } : { type: 'error', message };
   }
 
-  public async setCustomVpnEnabled(enabled: boolean): Promise<void> {
-    await this.callBool(this.client.setCustomVpnConfigStatus, enabled);
+  public async setPersonalVpnEnabled(enabled: boolean): Promise<void> {
+    await this.callBool(this.client.setPersonalVpnConfigStatus, enabled);
   }
 
-  public async clearCustomVpn(): Promise<SetCustomVpnConfigError> {
-    const grpcConfig = new grpcTypes.CustomVpnConfig();
-    const response = await this.call<grpcTypes.CustomVpnConfig, grpcTypes.CustomVpnConfigError>(
-      this.client.setCustomVpnConfig,
+  public async clearPersonalVpn(): Promise<SetPersonalVpnConfigError> {
+    const grpcConfig = new grpcTypes.PersonalVpnConfig();
+    const response = await this.call<grpcTypes.PersonalVpnConfig, grpcTypes.PersonalVpnConfigError>(
+      this.client.setPersonalVpnConfig,
       grpcConfig,
     );
     const message = response.getError();
     return message.length === 0 ? { type: 'success' } : { type: 'error', message };
   }
 
-  public subscribeCustomVpnStatsListener(listener: SubscriptionListener<CustomVpnStats>) {
-    const call = this.isConnected && this.client.getCustomVpnStats(new Empty());
+  public subscribePersonalVpnStatsListener(listener: SubscriptionListener<PersonalVpnStats>) {
+    const call = this.isConnected && this.client.getPersonalVpnStats(new Empty());
     if (!call) {
       throw noConnectionError;
     }
@@ -712,9 +712,9 @@ export class DaemonRpc extends GrpcClient {
     listener.subscriptionId = subscriptionId;
     this.subscriptions.set(subscriptionId, call);
 
-    call.on('data', (data: grpcTypes.CustomVpnStats) => {
+    call.on('data', (data: grpcTypes.PersonalVpnStats) => {
       try {
-        listener.onEvent(convertFromCustomVpnStats(data));
+        listener.onEvent(convertFromPersonalVpnStats(data));
       } catch (e) {
         listener.onError(e as Error);
       }
@@ -726,7 +726,7 @@ export class DaemonRpc extends GrpcClient {
     });
   }
 
-  public unsubscribeCustomVpnStatsListener(listener: SubscriptionListener<CustomVpnStats>) {
+  public unsubscribePersonalVpnStatsListener(listener: SubscriptionListener<PersonalVpnStats>) {
     const id = listener.subscriptionId;
     if (id !== undefined) {
       this.removeSubscription(id);

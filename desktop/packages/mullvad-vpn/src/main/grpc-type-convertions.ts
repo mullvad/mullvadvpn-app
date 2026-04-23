@@ -11,8 +11,8 @@ import {
   Constraint,
   CustomLists,
   CustomProxy,
-  CustomVpnConfig,
-  CustomVpnStats,
+  PersonalVpnConfig,
+  PersonalVpnStats,
   DaemonAppUpgradeError,
   DaemonAppUpgradeEvent,
   DaemonEvent,
@@ -448,8 +448,8 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   const relayOverrides = settingsObject.relayOverridesList;
   const recents = convertFromRecents(settings.getRecents());
-  const customVpnConfig = convertFromCustomVpnConfig(settings.getCustomVpnConfig());
-  const customVpnEnabled = settings.getCustomVpnEnabled();
+  const personalVpnConfig = convertFromPersonalVpnConfig(settings.getPersonalVpnConfig());
+  const personalVpnEnabled = settings.getPersonalVpnEnabled();
   return {
     ...settings.toObject(),
     relaySettings,
@@ -460,8 +460,8 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     apiAccessMethods,
     relayOverrides,
     recents,
-    customVpnConfig,
-    customVpnEnabled,
+    personalVpnConfig,
+    personalVpnEnabled,
   };
 }
 
@@ -492,13 +492,13 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
     .filter((recent) => recent !== undefined) as Recents;
 }
 
-export function convertFromCustomVpnConfig(
-  config?: grpcTypes.CustomVpnConfig,
-): CustomVpnConfig | undefined {
+export function convertFromPersonalVpnConfig(
+  config?: grpcTypes.PersonalVpnConfig,
+): PersonalVpnConfig | undefined {
   if (!config) {
     return undefined;
   }
-  const result: CustomVpnConfig = {};
+  const result: PersonalVpnConfig = {};
   const tunnel = config.getTunnel();
   if (tunnel) {
     result.tunnel = {
@@ -517,7 +517,7 @@ export function convertFromCustomVpnConfig(
   return result;
 }
 
-export function convertFromCustomVpnStats(stats: grpcTypes.CustomVpnStats): CustomVpnStats {
+export function convertFromPersonalVpnStats(stats: grpcTypes.PersonalVpnStats): PersonalVpnStats {
   const lastHandshake = stats.getLastHandshakeTime();
   return {
     txBytes: stats.getTxBytes(),
@@ -526,16 +526,16 @@ export function convertFromCustomVpnStats(stats: grpcTypes.CustomVpnStats): Cust
   };
 }
 
-export function buildCustomVpnConfig(config: CustomVpnConfig): grpcTypes.CustomVpnConfig {
-  const grpcConfig = new grpcTypes.CustomVpnConfig();
+export function buildPersonalVpnConfig(config: PersonalVpnConfig): grpcTypes.PersonalVpnConfig {
+  const grpcConfig = new grpcTypes.PersonalVpnConfig();
   if (config.tunnel) {
-    const tunnel = new grpcTypes.CustomVpnConfig.TunnelConfig();
+    const tunnel = new grpcTypes.PersonalVpnConfig.TunnelConfig();
     tunnel.setPrivateKey(Buffer.from(config.tunnel.privateKey, 'base64'));
     tunnel.setIp(config.tunnel.tunnelIp);
     grpcConfig.setTunnel(tunnel);
   }
   if (config.peer) {
-    const peer = new grpcTypes.CustomVpnConfig.PeerConfig();
+    const peer = new grpcTypes.PersonalVpnConfig.PeerConfig();
     peer.setPublicKey(Buffer.from(config.peer.publicKey, 'base64'));
     peer.setAllowedIpList(config.peer.allowedIps);
     peer.setEndpoint(config.peer.endpoint);

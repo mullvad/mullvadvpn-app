@@ -470,29 +470,29 @@ export type CustomListError = { type: 'name already exists' };
 
 export type AccessMethodExistsError = { type: 'name already exists' };
 
-export type CustomVpnTunnelConfig = {
+export type PersonalVpnTunnelConfig = {
   privateKey: string;
   tunnelIp: string;
 };
 
-export type CustomVpnPeerConfig = {
+export type PersonalVpnPeerConfig = {
   publicKey: string;
   allowedIps: string[];
   endpoint: string;
 };
 
-export type CustomVpnConfig = {
-  tunnel?: CustomVpnTunnelConfig;
-  peer?: CustomVpnPeerConfig;
+export type PersonalVpnConfig = {
+  tunnel?: PersonalVpnTunnelConfig;
+  peer?: PersonalVpnPeerConfig;
 };
 
-export type CustomVpnStats = {
+export type PersonalVpnStats = {
   txBytes: number;
   rxBytes: number;
   lastHandshakeTime?: string;
 };
 
-export type SetCustomVpnConfigError = { type: 'success' } | { type: 'error'; message: string };
+export type SetPersonalVpnConfigError = { type: 'success' } | { type: 'error'; message: string };
 
 export interface ISettings {
   allowLan: boolean;
@@ -507,8 +507,8 @@ export interface ISettings {
   recents?: Recents;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
-  customVpnConfig?: CustomVpnConfig;
-  customVpnEnabled: boolean;
+  personalVpnConfig?: PersonalVpnConfig;
+  personalVpnEnabled: boolean;
 }
 
 export type SplitTunnelSettings = {
