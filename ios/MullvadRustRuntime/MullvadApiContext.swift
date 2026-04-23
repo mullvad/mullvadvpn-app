@@ -29,7 +29,9 @@ public class MullvadApiContext: @unchecked Sendable {
     public init(
         host: String,
         address: String,
-        domain: String,
+        encryptedDnsDomain: String,
+        domainFrontingFront: String,
+        domainFrontingProxyHost: String,
         disableTls: Bool = false,
         shadowsocksProvider: SwiftShadowsocksBridgeProviding,
         accessMethodWrapper: SwiftAccessMethodSettingsWrapper,
@@ -41,6 +43,10 @@ public class MullvadApiContext: @unchecked Sendable {
 
         self.accessMethodChangeListeners = accessMethodChangeListeners
 
+        let domainFrontingConfig = new_domain_fronting_config(
+            domainFrontingFront,
+            domainFrontingProxyHost
+        )
         let selfPtr = Unmanaged.passUnretained(self).toOpaque()
         context =
             switch disableTls {
@@ -48,7 +54,8 @@ public class MullvadApiContext: @unchecked Sendable {
                 mullvad_api_init_new_tls_disabled(
                     host,
                     address,
-                    domain,
+                    encryptedDnsDomain,
+                    domainFrontingConfig,
                     shadowsocksBridgeProviderWrapper,
                     accessMethodWrapper,
                     onAccessChangeCallback,
@@ -58,7 +65,8 @@ public class MullvadApiContext: @unchecked Sendable {
                 mullvad_api_init_new(
                     host,
                     address,
-                    domain,
+                    encryptedDnsDomain,
+                    domainFrontingConfig,
                     shadowsocksBridgeProviderWrapper,
                     accessMethodWrapper,
                     onAccessChangeCallback,

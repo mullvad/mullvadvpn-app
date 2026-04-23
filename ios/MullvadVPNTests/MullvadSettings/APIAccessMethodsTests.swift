@@ -46,8 +46,14 @@ final class APIAccessMethodsTests: XCTestCase {
             method.kind == .encryptedDNS
         }
 
-        XCTAssertEqual(storedMethods.count, 3)
-        XCTAssertTrue(hasDirectMethod && hasBridgesMethod && hasEncryptedDNS)
+        let hasDomainFronting = storedMethods.contains { method in
+            method.kind == .domainFronting
+        }
+
+        XCTAssertEqual(storedMethods.count, 4)
+        XCTAssertTrue(
+            hasDirectMethod && hasBridgesMethod && hasEncryptedDNS && hasDomainFronting
+        )
     }
 
     func testAddingSocks5AccessMethod() throws {
@@ -85,7 +91,7 @@ final class APIAccessMethodsTests: XCTestCase {
         let storedMethods = repository.fetchAll()
 
         // Account for .direct, .bridges and .encryptedDNS that are always added by default.
-        XCTAssertEqual(storedMethods.count, 4)
+        XCTAssertEqual(storedMethods.count, 5)
     }
 
     func testUpdatingAccessMethod() throws {
