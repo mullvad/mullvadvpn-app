@@ -143,7 +143,7 @@ pub async fn spawn(
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
-    #[cfg(feature = "personal-vpn")] private_tunnel_stats_tx: Option<
+    #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
         tokio::sync::broadcast::Sender<talpid_types::Stats>,
     >,
     route_manager: RouteManagerHandle,
@@ -173,7 +173,7 @@ pub async fn spawn(
         command_tx: weak_command_tx,
         offline_state_tx: offline_state_listener,
         #[cfg(feature = "personal-vpn")]
-        private_tunnel_stats_tx,
+        personal_vpn_stats_tx,
         tunnel_parameters_generator,
         tun_provider,
         log_dir,
@@ -354,7 +354,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     resource_dir: PathBuf,
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
     #[cfg(feature = "personal-vpn")]
-    private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
@@ -475,7 +475,7 @@ impl TunnelStateMachine {
             route_manager: args.route_manager,
             _offline_monitor: offline_monitor,
             #[cfg(feature = "personal-vpn")]
-            private_tunnel_stats_tx: args.private_tunnel_stats_tx,
+            personal_vpn_stats_tx: args.personal_vpn_stats_tx,
             allow_lan: args.settings.allow_lan,
             #[cfg(not(target_os = "android"))]
             lockdown_mode: args.settings.lockdown_mode,
@@ -569,7 +569,7 @@ struct SharedTunnelStateValues {
     dns_monitor: DnsMonitor,
     route_manager: RouteManagerHandle,
     #[cfg(feature = "personal-vpn")]
-    private_tunnel_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
     _offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,

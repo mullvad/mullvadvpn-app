@@ -21,7 +21,7 @@ pub struct TunnelParameters {
     pub generic_options: GenericTunnelOptions,
     pub obfuscation: Option<super::obfuscation::Obfuscators>,
     #[cfg(feature = "personal-vpn")]
-    pub custom_vpn: Option<CustomVpnConfig>,
+    pub personal_vpn: Option<PersonalVpnConfig>,
 }
 
 impl TunnelParameters {
@@ -337,30 +337,30 @@ impl fmt::Debug for PresharedKey {
     }
 }
 
-/// Custom VPN tunnel interface configuration (WireGuard-based).
+/// Personal VPN tunnel interface configuration (WireGuard-based).
 #[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct CustomVpnTunnelConfig {
+pub struct PersonalVpnTunnelConfig {
     pub private_key: PrivateKey,
     pub ip: std::net::IpAddr,
 }
 
-/// Custom VPN peer configuration (WireGuard-based).
+/// Personal VPN peer configuration (WireGuard-based).
 #[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct CustomVpnPeerConfig {
+pub struct PersonalVpnPeerConfig {
     pub public_key: PublicKey,
     // TODO: Vec1?
     pub allowed_ip: Vec<IpNetwork>,
     pub endpoint: SocketAddr,
 }
 
-/// Custom VPN configuration (WireGuard-based).
+/// Personal VPN configuration (WireGuard-based).
 #[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct CustomVpnConfig {
-    pub tunnel: CustomVpnTunnelConfig,
-    pub peer: CustomVpnPeerConfig,
+pub struct PersonalVpnConfig {
+    pub tunnel: PersonalVpnTunnelConfig,
+    pub peer: PersonalVpnPeerConfig,
 }
 
 fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>

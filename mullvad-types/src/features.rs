@@ -172,7 +172,7 @@ pub fn compute_feature_indicators(
 
     let mtu = settings.tunnel_options.wireguard.mtu.is_some();
     #[cfg(feature = "personal-vpn")]
-    let personal_vpn = settings.custom_vpn_enabled && settings.custom_vpn_config.is_some();
+    let personal_vpn = settings.personal_vpn_enabled && settings.personal_vpn_config.is_some();
 
     #[cfg(feature = "personal-vpn")]
     let personal_vpn_active = if personal_vpn {

@@ -464,15 +464,15 @@ pub enum DaemonCommand {
     AppUpgradeAbort(ResponseTx<(), version::Error>),
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
-    /// Set custom VPN configuration
+    /// Set personal VPN configuration
     #[cfg(feature = "personal-vpn")]
-    SetCustomVpnConfig(
+    SetPersonalVpnConfig(
         oneshot::Sender<String>,
-        Option<talpid_types::net::wireguard::CustomVpnConfig>,
+        Option<talpid_types::net::wireguard::PersonalVpnConfig>,
     ),
-    /// Enable or disable the custom VPN
+    /// Enable or disable the personal VPN
     #[cfg(feature = "personal-vpn")]
-    SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
+    SetPersonalVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -763,8 +763,7 @@ impl Daemon {
         };
 
         #[cfg(feature = "personal-vpn")]
-        let (private_tunnel_stats_tx, private_tunnel_stats_rx) =
-            tokio::sync::broadcast::channel(32);
+        let (personal_vpn_stats_tx, personal_vpn_stats_rx) = tokio::sync::broadcast::channel(32);
 
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
@@ -775,7 +774,7 @@ impl Daemon {
             config.log_handle,
             relay_selector.clone(),
             #[cfg(feature = "personal-vpn")]
-            private_tunnel_stats_rx,
+            personal_vpn_stats_rx,
         )
         .map_err(Error::ManagementInterfaceError)?;
 
@@ -907,9 +906,9 @@ impl Daemon {
             settings.tunnel_options.clone(),
             #[cfg(feature = "personal-vpn")]
             settings
-                .custom_vpn_config
+                .personal_vpn_config
                 .clone()
-                .filter(|_| settings.custom_vpn_enabled),
+                .filter(|_| settings.personal_vpn_enabled),
         );
 
         let param_gen = parameters_generator.clone();
@@ -945,9 +944,9 @@ impl Daemon {
         {
             // Keep track of personal VPN tunnel handshake
             let internal_event_tx = internal_event_tx.clone();
-            let mut private_tunnel_stats_rx = private_tunnel_stats_tx.subscribe();
+            let mut personal_vpn_stats_rx = personal_vpn_stats_tx.subscribe();
             tokio::spawn(async move {
-                while let Ok(stats) = private_tunnel_stats_rx.recv().await {
+                while let Ok(stats) = personal_vpn_stats_rx.recv().await {
                     if internal_event_tx
                         .send(InternalDaemonEvent::PersonalVpnUpdate(stats))
                         .is_err()
@@ -982,7 +981,7 @@ impl Daemon {
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             #[cfg(feature = "personal-vpn")]
-            Some(private_tunnel_stats_tx),
+            Some(personal_vpn_stats_tx),
             route_manager.clone(),
             #[cfg(target_os = "windows")]
             volume_update_rx,
@@ -1702,10 +1701,10 @@ impl Daemon {
             #[cfg(target_os = "android")]
             DeleteAccount(tx) => self.on_delete_account(tx),
             #[cfg(feature = "personal-vpn")]
-            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            SetPersonalVpnConfig(tx, config) => self.on_set_personal_vpn_config(tx, config).await,
             #[cfg(feature = "personal-vpn")]
-            SetCustomVpnConfigStatus(tx, enabled) => {
-                self.on_set_custom_vpn_config_status(tx, enabled).await
+            SetPersonalVpnConfigStatus(tx, enabled) => {
+                self.on_set_personal_vpn_config_status(tx, enabled).await
             }
         }
     }
@@ -2729,65 +2728,65 @@ impl Daemon {
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn on_set_custom_vpn_config(
+    async fn on_set_personal_vpn_config(
         &mut self,
         tx: oneshot::Sender<String>,
-        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+        config: Option<talpid_types::net::wireguard::PersonalVpnConfig>,
     ) {
         match self
             .settings
-            .update(move |s| s.custom_vpn_config = config)
+            .update(move |s| s.personal_vpn_config = config)
             .await
         {
             Ok(_) => {
-                let effective = if self.settings.settings().custom_vpn_enabled {
-                    self.settings.settings().custom_vpn_config.clone()
+                let effective = if self.settings.settings().personal_vpn_enabled {
+                    self.settings.settings().personal_vpn_config.clone()
                 } else {
                     None
                 };
-                self.parameters_generator.set_custom_vpn(effective).await;
-                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.parameters_generator.set_personal_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_personal_vpn_config");
                 self.reconnect_tunnel();
             }
             Err(err) => {
                 log::error!(
                     "{}",
-                    err.display_chain_with_msg("Failed to set custom VPN config")
+                    err.display_chain_with_msg("Failed to set personal VPN config")
                 );
-                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
+                Self::oneshot_send(tx, err.to_string(), "set_personal_vpn_config");
             }
         }
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn on_set_custom_vpn_config_status(
+    async fn on_set_personal_vpn_config_status(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         enabled: bool,
     ) {
         match self
             .settings
-            .update(move |s| s.custom_vpn_enabled = enabled)
+            .update(move |s| s.personal_vpn_enabled = enabled)
             .await
         {
             Ok(changed) => {
                 if changed {
-                    let effective = if self.settings.settings().custom_vpn_enabled {
-                        self.settings.settings().custom_vpn_config.clone()
+                    let effective = if self.settings.settings().personal_vpn_enabled {
+                        self.settings.settings().personal_vpn_config.clone()
                     } else {
                         None
                     };
-                    self.parameters_generator.set_custom_vpn(effective).await;
+                    self.parameters_generator.set_personal_vpn(effective).await;
                     self.reconnect_tunnel();
                 }
-                Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");
+                Self::oneshot_send(tx, Ok(()), "set_personal_vpn_config_status");
             }
             Err(err) => {
                 log::error!(
                     "{}",
-                    err.display_chain_with_msg("Failed to set custom VPN config status")
+                    err.display_chain_with_msg("Failed to set personal VPN config status")
                 );
-                Self::oneshot_send(tx, Err(err), "set_custom_vpn_config_status");
+                Self::oneshot_send(tx, Err(err), "set_personal_vpn_config_status");
             }
         }
     }

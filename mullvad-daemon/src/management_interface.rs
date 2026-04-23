@@ -52,7 +52,7 @@ struct ManagementServiceImpl {
     pub app_upgrade_broadcast: AppUpgradeBroadcast,
     log_reload_handle: crate::logging::LogHandle,
     #[cfg(feature = "personal-vpn")]
-    private_tunnel_stats: tokio::sync::broadcast::Receiver<talpid_types::Stats>,
+    personal_vpn_stats: tokio::sync::broadcast::Receiver<talpid_types::Stats>,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
@@ -71,7 +71,8 @@ impl ManagementService for ManagementServiceImpl {
     type EventsListenStream = EventsListenerReceiver;
     type AppUpgradeEventsListenStream = AppUpgradeEventListenerReceiver;
     type LogListenStream = UnboundedReceiverStream<Result<types::LogMessage, Status>>;
-    type GetCustomVpnStatsStream = UnboundedReceiverStream<Result<types::CustomVpnStats, Status>>;
+    type GetPersonalVpnStatsStream =
+        UnboundedReceiverStream<Result<types::PersonalVpnStats, Status>>;
 
     // Control and get the tunnel state
     //
@@ -1327,51 +1328,51 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn set_custom_vpn_config(
+    async fn set_personal_vpn_config(
         &self,
-        request: Request<types::CustomVpnConfig>,
-    ) -> ServiceResult<types::CustomVpnConfigError> {
-        log::debug!("set_custom_vpn_config");
+        request: Request<types::PersonalVpnConfig>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("set_personal_vpn_config");
         let request = request.into_inner();
         let config = if request.peer.is_none() && request.tunnel.is_none() {
             None
         } else {
             Some(
-                talpid_types::net::wireguard::CustomVpnConfig::try_from(request)
+                talpid_types::net::wireguard::PersonalVpnConfig::try_from(request)
                     .map_err(map_protobuf_type_err)?,
             )
         };
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfig(tx, config))?;
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfig(tx, config))?;
         let error = self.wait_for_result(rx).await?;
-        Ok(Response::new(types::CustomVpnConfigError { error }))
+        Ok(Response::new(types::PersonalVpnConfigError { error }))
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+    async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
-        log::debug!("set_custom_vpn_config_status({})", enabled);
+        log::debug!("set_personal_vpn_config_status({})", enabled);
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomVpnConfigStatus(tx, enabled))?;
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfigStatus(tx, enabled))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn get_custom_vpn_stats(
+    async fn get_personal_vpn_stats(
         &self,
         _: Request<()>,
-    ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
+    ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
         // TODO: not implemented
-        log::debug!("get_custom_vpn_stats");
-        let mut broadcast_rx = self.private_tunnel_stats.resubscribe();
+        log::debug!("get_personal_vpn_stats");
+        let mut broadcast_rx = self.personal_vpn_stats.resubscribe();
 
         let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
         tokio::spawn(async move {
             loop {
                 match broadcast_rx.recv().await {
                     Ok(stats) => {
-                        let stats = types::CustomVpnStats {
+                        let stats = types::PersonalVpnStats {
                             last_handshake_time: stats.last_handshake_time.and_then(|handshake| {
                                 Some(types::Timestamp {
                                     seconds: handshake
@@ -1401,29 +1402,29 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(not(feature = "personal-vpn"))]
-    async fn set_custom_vpn_config(
+    async fn set_personal_vpn_config(
         &self,
-        _request: Request<types::CustomVpnConfig>,
-    ) -> ServiceResult<types::CustomVpnConfigError> {
-        log::debug!("set_custom_vpn_config");
-        Ok(Response::new(types::CustomVpnConfigError {
+        _request: Request<types::PersonalVpnConfig>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("set_personal_vpn_config");
+        Ok(Response::new(types::PersonalVpnConfigError {
             error: "".to_string(),
         }))
     }
 
     #[cfg(not(feature = "personal-vpn"))]
-    async fn set_custom_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
+    async fn set_personal_vpn_config_status(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
-        log::debug!("set_custom_vpn_config_status({})", enabled);
+        log::debug!("set_personal_vpn_config_status({})", enabled);
         Ok(Response::new(()))
     }
 
     #[cfg(not(feature = "personal-vpn"))]
-    async fn get_custom_vpn_stats(
+    async fn get_personal_vpn_stats(
         &self,
         _: Request<()>,
-    ) -> ServiceResult<Self::GetCustomVpnStatsStream> {
-        log::debug!("get_custom_vpn_stats");
+    ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
+        log::debug!("get_personal_vpn_stats");
         let (_tx, rx) = tokio::sync::mpsc::unbounded_channel();
         Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
@@ -1463,7 +1464,7 @@ impl ManagementInterfaceServer {
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
         relay_selector: mullvad_relay_selector::RelaySelector,
-        #[cfg(feature = "personal-vpn")] private_tunnel_stats: tokio::sync::broadcast::Receiver<
+        #[cfg(feature = "personal-vpn")] personal_vpn_stats: tokio::sync::broadcast::Receiver<
             talpid_types::Stats,
         >,
     ) -> Result<ManagementInterfaceServer, Error> {
@@ -1480,7 +1481,7 @@ impl ManagementInterfaceServer {
             app_upgrade_broadcast,
             log_reload_handle,
             #[cfg(feature = "personal-vpn")]
-            private_tunnel_stats,
+            personal_vpn_stats,
         };
 
         let relay_selector_service = RelaySelectorServiceImpl::new(relay_selector);

@@ -3,16 +3,18 @@ use crate::types::{
     conversions::{arg_from_str, bytes_to_privkey, bytes_to_pubkey},
     proto,
 };
-use talpid_types::net::wireguard::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
+use talpid_types::net::wireguard::{
+    PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig,
+};
 
-impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
+impl TryFrom<proto::PersonalVpnConfig> for PersonalVpnConfig {
     type Error = FromProtobufTypeError;
 
-    fn try_from(config: proto::CustomVpnConfig) -> Result<Self, Self::Error> {
+    fn try_from(config: proto::PersonalVpnConfig) -> Result<Self, Self::Error> {
         let tunnel = config
             .tunnel
             .map(|t| {
-                Ok::<_, FromProtobufTypeError>(CustomVpnTunnelConfig {
+                Ok::<_, FromProtobufTypeError>(PersonalVpnTunnelConfig {
                     private_key: bytes_to_privkey(&t.private_key)?,
                     ip: arg_from_str(&t.ip, "invalid tunnel IP address")?,
                 })
@@ -24,7 +26,7 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
         let peer = config
             .peer
             .map(|p| {
-                Ok::<_, FromProtobufTypeError>(CustomVpnPeerConfig {
+                Ok::<_, FromProtobufTypeError>(PersonalVpnPeerConfig {
                     public_key: bytes_to_pubkey(&p.public_key)?,
                     allowed_ip: p
                         .allowed_ip
@@ -38,18 +40,18 @@ impl TryFrom<proto::CustomVpnConfig> for CustomVpnConfig {
                 "missing peer config".to_owned(),
             ))??;
 
-        Ok(CustomVpnConfig { tunnel, peer })
+        Ok(PersonalVpnConfig { tunnel, peer })
     }
 }
 
-impl From<CustomVpnConfig> for proto::CustomVpnConfig {
-    fn from(config: CustomVpnConfig) -> Self {
-        proto::CustomVpnConfig {
-            tunnel: Some(proto::custom_vpn_config::TunnelConfig {
+impl From<PersonalVpnConfig> for proto::PersonalVpnConfig {
+    fn from(config: PersonalVpnConfig) -> Self {
+        proto::PersonalVpnConfig {
+            tunnel: Some(proto::personal_vpn_config::TunnelConfig {
                 private_key: config.tunnel.private_key.to_bytes().to_vec(),
                 ip: config.tunnel.ip.to_string(),
             }),
-            peer: Some(proto::custom_vpn_config::PeerConfig {
+            peer: Some(proto::personal_vpn_config::PeerConfig {
                 public_key: config.peer.public_key.as_bytes().to_vec(),
                 allowed_ip: config
                     .peer

@@ -332,14 +332,14 @@ impl WireguardMonitor {
                     }
 
                     // With a personal VPN, pings reach the outer gateway directly (bypassing
-                    // the inner custom tunnel), so the detected MTU only accounts for the
-                    // outer encapsulation. Inner-routed traffic needs an extra wireguard
+                    // the inner personal VPN tunnel), so the detected MTU only accounts for
+                    // the outer encapsulation. Inner-routed traffic needs an extra wireguard
                     // layer of headroom, so subtract that overhead when applying the result.
                     let extra_overhead = {
                         #[cfg(feature = "personal-vpn")]
                         {
                             config
-                                .custom_vpn
+                                .personal_vpn
                                 .as_ref()
                                 .map(|c| wireguard_overhead(c.tunnel.ip))
                                 .unwrap_or(0)
@@ -407,7 +407,7 @@ impl WireguardMonitor {
             if let Err(error) = connectivity::Monitor::init(
                 connectivity_monitor,
                 #[cfg(feature = "personal-vpn")]
-                args.private_tunnel_stats,
+                args.personal_vpn_stats,
             )
             .run(Arc::downgrade(&tunnel))
             .await
@@ -608,7 +608,7 @@ impl WireguardMonitor {
 
             // FIXME
             if let Err(error) =
-                connectivity::Monitor::init(connectivity_monitor, args.private_tunnel_stats)
+                connectivity::Monitor::init(connectivity_monitor, args.personal_vpn_stats)
                     .run(Arc::downgrade(&tunnel))
                     .await
             {
@@ -1123,7 +1123,7 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    async fn get_private_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
+    async fn get_personal_vpn_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         Ok(StatsMap::default())
     }
     fn set_config<'a>(
@@ -1287,7 +1287,7 @@ fn calculate_tunnel_mtu(
     }
 
     #[cfg(feature = "personal-vpn")]
-    if let Some(personal) = &params.custom_vpn {
+    if let Some(personal) = &params.personal_vpn {
         overhead += wireguard_overhead(personal.tunnel.ip);
     }
 

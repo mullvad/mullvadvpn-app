@@ -39,7 +39,7 @@ struct InnerParametersGenerator {
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
     #[cfg(feature = "personal-vpn")]
-    custom_vpn: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    personal_vpn: Option<talpid_types::net::wireguard::PersonalVpnConfig>,
 
     last_generated_relays: Option<LastSelectedRelays>,
 }
@@ -50,8 +50,8 @@ impl ParametersGenerator {
         account_manager: AccountManagerHandle,
         relay_selector: RelaySelector,
         tunnel_options: TunnelOptions,
-        #[cfg(feature = "personal-vpn")] custom_vpn: Option<
-            talpid_types::net::wireguard::CustomVpnConfig,
+        #[cfg(feature = "personal-vpn")] personal_vpn: Option<
+            talpid_types::net::wireguard::PersonalVpnConfig,
         >,
     ) -> Self {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
@@ -59,7 +59,7 @@ impl ParametersGenerator {
             relay_selector,
             account_manager,
             #[cfg(feature = "personal-vpn")]
-            custom_vpn,
+            personal_vpn,
 
             last_generated_relays: None,
         })))
@@ -70,13 +70,13 @@ impl ParametersGenerator {
         self.0.lock().await.tunnel_options = tunnel_options.clone();
     }
 
-    /// Sets the custom VPN config to use when generating new tunnel parameters.
+    /// Sets the personal VPN config to use when generating new tunnel parameters.
     #[cfg(feature = "personal-vpn")]
-    pub async fn set_custom_vpn(
+    pub async fn set_personal_vpn(
         &self,
-        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+        config: Option<talpid_types::net::wireguard::PersonalVpnConfig>,
     ) {
-        self.0.lock().await.custom_vpn = config;
+        self.0.lock().await.personal_vpn = config;
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
@@ -203,7 +203,7 @@ impl InnerParametersGenerator {
             generic_options: self.tunnel_options.generic.clone(),
             obfuscation: obfuscator_config,
             #[cfg(feature = "personal-vpn")]
-            custom_vpn: self.custom_vpn.clone(),
+            personal_vpn: self.personal_vpn.clone(),
         }
     }
 

@@ -6,7 +6,9 @@ use ipnetwork::IpNetwork;
 use mullvad_management_interface::MullvadProxyClient;
 use std::net::{IpAddr, SocketAddr};
 use talpid_types::net::wireguard;
-use talpid_types::net::wireguard::{CustomVpnConfig, CustomVpnPeerConfig, CustomVpnTunnelConfig};
+use talpid_types::net::wireguard::{
+    PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig,
+};
 
 use super::BooleanOption;
 
@@ -64,9 +66,9 @@ impl PersonalVpn {
     async fn get() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
         let settings = rpc.get_settings().await?;
-        let enabled = BooleanOption::from(settings.custom_vpn_enabled);
+        let enabled = BooleanOption::from(settings.personal_vpn_enabled);
         println!("Personal VPN: {enabled}");
-        match settings.custom_vpn_config {
+        match settings.personal_vpn_config {
             None => println!("Configuration: none"),
             Some(config) => {
                 // TODO: Do not print?
@@ -92,19 +94,19 @@ impl PersonalVpn {
         allowed_ip: Vec<IpNetwork>,
         endpoint: SocketAddr,
     ) -> Result<()> {
-        let config = CustomVpnConfig {
-            tunnel: CustomVpnTunnelConfig {
+        let config = PersonalVpnConfig {
+            tunnel: PersonalVpnTunnelConfig {
                 private_key,
                 ip: tunnel_ip,
             },
-            peer: CustomVpnPeerConfig {
+            peer: PersonalVpnPeerConfig {
                 public_key: peer_pubkey,
                 allowed_ip,
                 endpoint,
             },
         };
         let mut rpc = MullvadProxyClient::new().await?;
-        let error = rpc.set_custom_vpn_config(Some(config)).await?;
+        let error = rpc.set_personal_vpn_config(Some(config)).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
@@ -114,14 +116,14 @@ impl PersonalVpn {
 
     async fn enable(state: BooleanOption) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        rpc.set_custom_vpn_config_status(*state).await?;
+        rpc.set_personal_vpn_config_status(*state).await?;
         println!("Personal VPN: {state}");
         Ok(())
     }
 
     async fn unset() -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
-        let error = rpc.set_custom_vpn_config(None).await?;
+        let error = rpc.set_personal_vpn_config(None).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }

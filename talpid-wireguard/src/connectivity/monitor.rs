@@ -18,20 +18,20 @@ const SUSPEND_TIMEOUT: Duration = Duration::from_secs(6);
 pub struct Monitor {
     connectivity_check: Check,
     #[cfg(feature = "personal-vpn")]
-    private_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
 }
 
 impl Monitor {
     pub fn init(
         connectivity_check: Check,
-        #[cfg(feature = "personal-vpn")] private_stats_tx: Option<
+        #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
             tokio::sync::broadcast::Sender<talpid_types::Stats>,
         >,
     ) -> Self {
         Self {
             connectivity_check,
             #[cfg(feature = "personal-vpn")]
-            private_stats_tx,
+            personal_vpn_stats_tx,
         }
     }
 
@@ -60,7 +60,7 @@ impl Monitor {
             }
 
             #[cfg(feature = "personal-vpn")]
-            if let Some(tx) = &self.private_stats_tx {
+            if let Some(tx) = &self.personal_vpn_stats_tx {
                 let Some(tunnel) = tunnel_handle.upgrade() else {
                     continue;
                 };
@@ -69,7 +69,7 @@ impl Monitor {
                     continue;
                 };
 
-                match tunnel.get_private_tunnel_stats().await {
+                match tunnel.get_personal_vpn_stats().await {
                     Ok(peers) => {
                         // FIXME: hack
                         if let Some((_peer, stats)) = peers.iter().next() {
@@ -79,12 +79,12 @@ impl Monitor {
                                 tx_bytes: stats.tx_bytes,
                             };
                             if let Err(err) = tx.send(tun_stats) {
-                                log::error!("Failed to send inner tunnel stats update: {err}");
+                                log::error!("Failed to send personal VPN stats update: {err}");
                             }
                         }
                     }
                     Err(err) => {
-                        log::error!("Failed to get inner tunnel stats: {err:#?}");
+                        log::error!("Failed to get personal VPN stats: {err:#?}");
                     }
                 }
             }

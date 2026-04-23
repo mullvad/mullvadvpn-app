@@ -4,13 +4,13 @@ mod access_method;
 mod account;
 mod custom_list;
 mod custom_tunnel;
-#[cfg(feature = "personal-vpn")]
-mod custom_vpn;
 mod device;
 mod features;
 mod location;
 mod logging;
 mod net;
+#[cfg(feature = "personal-vpn")]
+mod personal_vpn;
 pub mod relay_constraints;
 mod relay_list;
 mod relay_selector;

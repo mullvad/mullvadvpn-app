@@ -70,13 +70,13 @@ type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, GotaTunDevice)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
 
 #[cfg(feature = "personal-vpn")]
-type CustomInnerDevice = gotatun::device::Device<(
+type PersonalInnerDevice = gotatun::device::Device<(
     UdpChannelFactory,
     NatIpSend<gotatun::tun::tun_async_device::TunDevice>,
     NatIpRecv<SplitIpRecv>,
 )>;
 #[cfg(feature = "personal-vpn")]
-type CustomOuterDevice = gotatun::device::Device<(
+type PersonalOuterDevice = gotatun::device::Device<(
     TransportFactory,
     TunTxRouter<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
     MergingIpRecv<SplitIpRecv, TunChannelRx>,
@@ -147,9 +147,9 @@ enum Devices {
     },
 
     #[cfg(feature = "personal-vpn")]
-    SinglehopWithCustom {
-        inner_device: CustomInnerDevice,
-        outer_device: CustomOuterDevice,
+    SinglehopWithPersonalVpn {
+        inner_device: PersonalInnerDevice,
+        outer_device: PersonalOuterDevice,
         router_task: tokio::task::JoinHandle<()>,
     },
 
@@ -166,7 +166,7 @@ impl Devices {
                 device.stop().await;
             }
             #[cfg(feature = "personal-vpn")]
-            Devices::SinglehopWithCustom {
+            Devices::SinglehopWithPersonalVpn {
                 inner_device,
                 outer_device,
                 router_task,
@@ -333,12 +333,12 @@ async fn create_devices(
     let factory = MaybeObfuscatingTransportFactory::from_config(base_factory, config);
 
     #[cfg(feature = "personal-vpn")]
-    if let Some(custom_vpn) = &config.custom_vpn
+    if let Some(personal_vpn) = &config.personal_vpn
         && config.exit_peer.is_none()
     {
         log::debug!("Configuring tunnel with personal VPN");
 
-        let multihop_overhead = match custom_vpn.peer.endpoint.ip() {
+        let multihop_overhead = match personal_vpn.peer.endpoint.ip() {
             IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
             IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
         };
@@ -357,11 +357,11 @@ async fn create_devices(
             .expect("missing IPv4 tun addr");
         let outer_private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
 
-        let inner_tun_ip = match custom_vpn.tunnel.ip {
+        let inner_tun_ip = match personal_vpn.tunnel.ip {
             IpAddr::V4(ip) => ip,
             _ => todo!("fixme: support IPv6"),
         };
-        let inner_private_key = StaticSecret::from(custom_vpn.tunnel.private_key.to_bytes());
+        let inner_private_key = StaticSecret::from(personal_vpn.tunnel.private_key.to_bytes());
 
         // Channel bridge (inner device UDP <-> outer device TUN)
         let (bridge_tun_tx, bridge_tun_rx, inner_udp) =
@@ -370,7 +370,7 @@ async fn create_devices(
         // TUN router (split real TUN reads by dest IP)
         let mut router = TunRxRouter::new(tun_dev.clone());
         let default_output = router.add_default_route(4000);
-        let alt_output = router.add_routes(&custom_vpn.peer.allowed_ip, 4000);
+        let alt_output = router.add_routes(&personal_vpn.peer.allowed_ip, 4000);
         // TODO: Do we need to drop explicitly?
         let router_task = tokio::spawn(router.run(PacketBufPool::new(100)));
 
@@ -382,8 +382,8 @@ async fn create_devices(
         let outer_ip_send = TunTxRouter::new(
             bridge_tun_tx,
             tun_dev.clone(),
-            custom_vpn.peer.endpoint,
-            &custom_vpn.peer.allowed_ip,
+            personal_vpn.peer.endpoint,
+            &personal_vpn.peer.allowed_ip,
         );
 
         // NAT: rewrite src/dst IPs between inner and outer tunnel addresses
@@ -397,14 +397,14 @@ async fn create_devices(
             .with_ip_pair(tun_send, alt_recv)
             .with_private_key(inner_private_key)
             .with_peer(
-                Peer::new((*custom_vpn.peer.public_key.as_bytes()).into())
-                    .with_endpoint(custom_vpn.peer.endpoint)
-                    .with_allowed_ips(custom_vpn.peer.allowed_ip.iter().cloned()),
+                Peer::new((*personal_vpn.peer.public_key.as_bytes()).into())
+                    .with_endpoint(personal_vpn.peer.endpoint)
+                    .with_allowed_ips(personal_vpn.peer.allowed_ip.iter().cloned()),
             )
             .build()
             .await
             .map_err(|err| {
-                log::error!("Failed to create custom VPN device: {err:#?}");
+                log::error!("Failed to create personal VPN device: {err:#?}");
                 TunnelError::SetConfigError
             })?;
 
@@ -418,7 +418,7 @@ async fn create_devices(
             .build()
             .await
             .map_err(|err| {
-                log::error!("Failed to create custom VPN device: {err:#?}");
+                log::error!("Failed to create personal VPN device: {err:#?}");
                 TunnelError::SetConfigError
             })?;
 
@@ -438,7 +438,7 @@ async fn create_devices(
             })?;
 
         // TODO: allow reconfigure
-        return Ok(Devices::SinglehopWithCustom {
+        return Ok(Devices::SinglehopWithPersonalVpn {
             outer_device,
             inner_device,
             router_task,
@@ -573,8 +573,8 @@ async fn configure_devices(
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
     #[cfg(feature = "personal-vpn")]
-    if config.custom_vpn.is_some() && config.exit_peer.is_none() {
-        let Devices::SinglehopWithCustom { outer_device, .. } = devices else {
+    if config.personal_vpn.is_some() && config.exit_peer.is_none() {
+        let Devices::SinglehopWithPersonalVpn { outer_device, .. } = devices else {
             return Err(TunnelError::ConfigureGotaTunDevice(
                 ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
             ));
@@ -688,7 +688,7 @@ impl Tunnel for GotaTun {
         let stats = match self.devices.as_ref() {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
             #[cfg(feature = "personal-vpn")]
-            Some(Devices::SinglehopWithCustom {
+            Some(Devices::SinglehopWithPersonalVpn {
                 inner_device: _,
                 outer_device,
                 ..
@@ -712,7 +712,7 @@ impl Tunnel for GotaTun {
     }
 
     #[cfg(feature = "personal-vpn")]
-    async fn get_private_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+    async fn get_personal_vpn_stats(&self) -> Result<StatsMap, TunnelError> {
         /// Read all peer stats from a gotatun [`Device`].
         async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
             let peers = device.read(async |device| device.peers().await).await;
@@ -728,7 +728,7 @@ impl Tunnel for GotaTun {
         }
 
         let stats = match self.devices.as_ref() {
-            Some(Devices::SinglehopWithCustom {
+            Some(Devices::SinglehopWithPersonalVpn {
                 inner_device,
                 outer_device: _,
                 ..
@@ -863,10 +863,10 @@ pub fn get_tunnel_for_userspace(
 
     #[cfg(feature = "personal-vpn")]
     {
-        tun_config.inner_tun_allowed_ips = config
-            .custom_vpn
+        tun_config.personal_vpn_allowed_ips = config
+            .personal_vpn
             .as_ref()
-            .map(|custom_vpn| custom_vpn.peer.allowed_ip.clone())
+            .map(|personal_vpn| personal_vpn.peer.allowed_ip.clone())
             .unwrap_or_default();
     }
 

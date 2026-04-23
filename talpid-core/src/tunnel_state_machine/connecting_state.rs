@@ -149,7 +149,7 @@ impl ConnectingState {
                         &shared_values.route_manager,
                         retry_attempt,
                         #[cfg(feature = "personal-vpn")]
-                        shared_values.private_tunnel_stats_tx.clone(),
+                        shared_values.personal_vpn_stats_tx.clone(),
                     );
 
                     let params = connecting_state.tunnel_parameters.clone();
@@ -232,7 +232,7 @@ impl ConnectingState {
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
-        #[cfg(feature = "personal-vpn")] private_tunnel_stats_tx: Option<
+        #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
             tokio::sync::broadcast::Sender<talpid_types::Stats>,
         >,
     ) -> Self {
@@ -263,7 +263,7 @@ impl ConnectingState {
                 retry_attempt,
                 route_manager,
                 #[cfg(feature = "personal-vpn")]
-                private_tunnel_stats: private_tunnel_stats_tx,
+                personal_vpn_stats: personal_vpn_stats_tx,
             };
 
             #[cfg(target_os = "windows")]
