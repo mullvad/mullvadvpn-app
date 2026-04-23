@@ -108,7 +108,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            domain: REST.encryptedDNSHostname,
+            encryptedDnsDomain: REST.encryptedDNSHostname,
             domainFrontingFront: REST.domainFrontingFront,
             domainFrontingProxyHost: REST.domainFrontingProxyHost,
             shadowsocksProvider: shadowsocksLoader,

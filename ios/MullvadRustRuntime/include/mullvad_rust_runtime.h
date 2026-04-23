@@ -38,6 +38,25 @@ typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
 
+/**
+ * Domain fronting configuration passed from Swift.
+ *
+ * # Safety
+ *
+ * Both `front` and `proxy_host` must be pointers to null-terminated strings.
+ * They are only read during the init call and copied into owned `String`s.
+ */
+typedef struct SwiftDomainFrontingConfig {
+  /**
+   * The domain to use as the TLS SNI (the "front").
+   */
+  const char *front;
+  /**
+   * The actual proxy host header sent inside the TLS connection.
+   */
+  const char *proxy_host;
+} SwiftDomainFrontingConfig;
+
 typedef struct SwiftShadowsocksLoaderWrapperContext {
   const void *shadowsocks_loader;
 } SwiftShadowsocksLoaderWrapperContext;
@@ -165,9 +184,8 @@ void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
  */
 struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *address,
-                                                         const char *domain,
-                                                         const char *domain_fronting_front,
-                                                         const char *domain_fronting_proxy_host,
+                                                         const char *encrypted_dns_domain,
+                                                         struct SwiftDomainFrontingConfig domain_fronting,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
                                                          void (*access_method_change_callback)(const void*,
@@ -183,7 +201,7 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
  * `address` must be a pointer to a null terminated string representing a socket address through which
  * the Mullvad API can be reached directly.
  *
- * address_method_change_callback is a function with the C calling convention which will be called
+ * access_method_change_callback is a function with the C calling convention which will be called
  * whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
  * of the access method's UUID. Note that this callback must remain valid for the lifetime of the
  * program.
@@ -198,9 +216,8 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
  */
 struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *address,
-                                            const char *domain,
-                                            const char *domain_fronting_front,
-                                            const char *domain_fronting_proxy_host,
+                                            const char *encrypted_dns_domain,
+                                            struct SwiftDomainFrontingConfig domain_fronting,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
                                             void (*access_method_change_callback)(const void*,
@@ -223,9 +240,8 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
  */
 struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               const char *address,
-                                              const char *domain,
-                                              const char *domain_fronting_front,
-                                              const char *domain_fronting_proxy_host,
+                                              const char *encrypted_dns_domain,
+                                              struct SwiftDomainFrontingConfig domain_fronting,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
