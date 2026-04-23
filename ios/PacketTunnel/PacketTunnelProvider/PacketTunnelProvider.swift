@@ -19,23 +19,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
 
-    private var actor: (any PacketTunnelActorProtocol)!
+    /// The selected tunnel implementation (WireGuardGo or GotaTun).
+    private var implementation: TunnelImplementation!
     private var appMessageHandler: AppMessageHandler!
-    private var stateObserverTask: AnyTask?
     private var deviceChecker: DeviceChecker!
-    private var adapter: WgAdapter!
-    private var relaySelector: RelaySelectorWrapper!
-    private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
     private var newAppVersionSystemNoticationHandler: NewAppVersionSystemNotificationHandler!
     private let tunnelSettingsUpdater: SettingsUpdater
-    private let defaultPathObserver: PacketTunnelPathObserver
     private var migrationManager: MigrationManager
     let migrationFailureIterator = REST.RetryStrategy.failedMigrationRecovery.makeDelayIterator()
 
     private let tunnelSettingsListener = TunnelSettingsListener()
-    private lazy var ephemeralPeerReceiver = {
-        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
-    }()
 
     var apiContext: MullvadApiContext!
     var accessMethodReceiver: MullvadAccessMethodReceiver!
@@ -54,8 +47,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
         migrationManager = MigrationManager(cacheDirectory: containerURL)
-
-        defaultPathObserver = PacketTunnelPathObserver(eventQueue: internalQueue)
 
         super.init()
 
@@ -99,29 +90,29 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         #if DEBUG
             if PacketTunnelDebugSettings.useGotaTun {
-                providerLogger.info("Using GotaTunActor (debug)")
-                actor = GotaTunActor()
+                providerLogger.info("Using GotaTun implementation (debug)")
+                implementation = GotaTunTunnelImplementation()
             } else {
-                setUpWireGuardActor(
-                    ipOverrideWrapper: ipOverrideWrapper,
-                    settingsReader: settingsReader,
-                    apiTransportProvider: apiTransportProvider
-                )
+                implementation = makeWireGuardGoImplementation()
             }
         #else
-            setUpWireGuardActor(
-                ipOverrideWrapper: ipOverrideWrapper,
-                settingsReader: settingsReader,
-                apiTransportProvider: apiTransportProvider
-            )
+            implementation = makeWireGuardGoImplementation()
         #endif
+
+        implementation.setUp(
+            provider: self,
+            internalQueue: internalQueue,
+            ipOverrideWrapper: ipOverrideWrapper,
+            settingsReader: settingsReader,
+            apiTransportProvider: apiTransportProvider
+        )
 
         let apiRequestProxy = APIRequestProxy(
             dispatchQueue: internalQueue,
             transportProvider: apiTransportProvider
         )
         appMessageHandler = AppMessageHandler(
-            packetTunnelActor: actor,
+            packetTunnelActor: implementation.actor,
             apiRequestProxy: apiRequestProxy
         )
 
@@ -142,8 +133,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     ) {
         let startOptions = parseStartOptions(options ?? [:])
 
-        startObservingActorState()
-
         // Run device check during tunnel startup.
         // This check is allowed to push new key to server if there are some issues with it.
         startDeviceCheck(rotateKeyOnMismatch: true)
@@ -157,8 +146,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
                             "Failed to configure tunnel with initial config: \(error)"
                         )
                 } else {
-                    self.providerLogger.debug("Starting actor after initial configuration is applied")
-                    self.actor.start(options: startOptions)
+                    self.providerLogger.debug("Starting tunnel implementation after initial configuration is applied")
+                    Task { await self.implementation.startTunnel(options: startOptions) }
                 }
                 self.internalQueue.async {
                     completionHandler(error)
@@ -169,10 +158,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     override func stopTunnel(with reason: NEProviderStopReason) async {
         providerLogger.debug("stopTunnel: \(ProviderStopReasonWrapper(reason: reason))")
 
-        actor.stop()
-        await actor.waitUntilDisconnected()
-
-        stopObservingActorState()
+        await implementation.stopTunnel()
     }
 
     override func handleAppMessage(_ messageData: Data) async -> Data? {
@@ -180,11 +166,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     override func sleep() async {
-        actor.onSleep()
+        await implementation.sleep()
     }
 
     override func wake() {
-        actor.onWake()
+        implementation.wake()
     }
 
     private func performSettingsMigration() {
@@ -267,58 +253,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         )
     }
 
-    private func setUpWireGuardActor(
-        ipOverrideWrapper: IPOverrideWrapper,
-        settingsReader: sending TunnelSettingsManager,
-        apiTransportProvider: APITransportProvider
-    ) {
-        adapter = WgAdapter(packetTunnelProvider: self)
-
-        let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
-
-        let tunnelMonitor = TunnelMonitor(
-            eventQueue: internalQueue,
-            pinger: pinger,
-            tunnelDeviceInfo: adapter,
-            timings: TunnelMonitorTimings()
-        )
-
-        relaySelector = RelaySelectorWrapper(
-            relayCache: ipOverrideWrapper
-        )
-
-        actor = PacketTunnelActor(
-            timings: PacketTunnelActorTimings(),
-            tunnelAdapter: adapter,
-            tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: defaultPathObserver,
-            blockedStateErrorMapper: BlockedStateErrorMapper(),
-            relaySelector: relaySelector,
-            settingsReader: settingsReader,
-            protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
-        )
-
-        // Since PacketTunnelActor depends on the path observer, start observing after actor has been initalized.
-        startDefaultPathObserver()
-
-        ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
-            EphemeralPeerExchangeActor(
-                packetTunnel: ephemeralPeerReceiver,
-                onFailure: self.ephemeralPeerExchangeFailed,
-                iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
-            ),
-            onUpdateConfiguration: { [unowned self] configuration in
-                let channel = OneshotChannel()
-                actor.changeEphemeralPeerNegotiationState(
-                    configuration: configuration,
-                    reconfigurationSemaphore: channel
-                )
-                await channel.receive()
-            },
-            onFinish: { [unowned self] in
-                actor.notifyEphemeralPeerNegotiated()
-            }
-        )
+    private func makeWireGuardGoImplementation() -> WireGuardGoTunnelImplementation {
+        let wgImpl = WireGuardGoTunnelImplementation()
+        wgImpl.onDeviceCheck = { [weak self] in self?.startDeviceCheck() }
+        return wgImpl
     }
 
     private func initialTunnelNetworkSettings() -> NETunnelNetworkSettings {
@@ -386,76 +324,6 @@ extension PacketTunnelProvider {
     }
 }
 
-// MARK: - Network path monitor observing
-
-extension PacketTunnelProvider {
-
-    private func startDefaultPathObserver() {
-        providerLogger.trace("Start default path observer.")
-
-        defaultPathObserver.start { [weak self] networkPath in
-            self?.actor.updateNetworkReachability(networkPathStatus: networkPath)
-        }
-    }
-
-    private func stopDefaultPathObserver() {
-        providerLogger.trace("Stop default path observer.")
-
-        defaultPathObserver.stop()
-    }
-}
-
-// MARK: - State observer
-
-extension PacketTunnelProvider {
-    private func startObservingActorState() {
-        stopObservingActorState()
-
-        stateObserverTask = Task {
-            let stateStream = await self.actor.observedStates
-            var lastConnectionAttempt: UInt = 0
-
-            for await newState in stateStream {
-                if case .connected = newState {
-                    // Instead of setting the `reasserting` flag to true when we lose connectivity, we can wait until we restore connectivity. This will decrease the amount of path updates that are issued. There's also no need to signal to the system that anything is broken - instead we just want to invalidate old sockets when a new relay connection is up - the only way to do that is to toggle this flag.
-                    self.reasserting = true
-                    self.reasserting = false
-                }
-
-                switch newState {
-                case let .reconnecting(observedConnectionState), let .connecting(observedConnectionState):
-                    let connectionAttempt = observedConnectionState.connectionAttemptCount
-
-                    // Start device check every second failure attempt to connect.
-                    if lastConnectionAttempt != connectionAttempt, connectionAttempt > 0,
-                        connectionAttempt.isMultiple(of: 2)
-                    {
-                        startDeviceCheck()
-                    }
-
-                    // Cache last connection attempt to filter out repeating calls.
-                    lastConnectionAttempt = connectionAttempt
-
-                case let .negotiatingEphemeralPeer(observedConnectionState, privateKey):
-                    await ephemeralPeerExchangingPipeline.startNegotiation(
-                        observedConnectionState,
-                        privateKey: privateKey
-                    )
-                case .disconnected:
-                    stopDefaultPathObserver()
-                case .initial, .connected, .disconnecting, .error:
-                    break
-                }
-            }
-        }
-    }
-
-    private func stopObservingActorState() {
-        stateObserverTask?.cancel()
-        stateObserverTask = nil
-    }
-}
-
 // MARK: - Device check
 
 extension PacketTunnelProvider {
@@ -473,7 +341,7 @@ extension PacketTunnelProvider {
             switch error {
             case is DeviceCheckError:
                 providerLogger.error("\(error.description) Forcing a log out")
-                actor.setErrorState(reason: .deviceLoggedOut)
+                implementation.actor.setErrorState(reason: .deviceLoggedOut)
             default:
                 providerLogger
                     .error(
@@ -484,46 +352,16 @@ extension PacketTunnelProvider {
         case let .success(keyRotationResult):
             if let blockedStateReason = keyRotationResult.blockedStateReason {
                 providerLogger.error("Entering blocked state after unsuccessful device check: \(blockedStateReason)")
-                actor.setErrorState(reason: blockedStateReason)
+                implementation.actor.setErrorState(reason: blockedStateReason)
                 return
             }
 
             switch keyRotationResult.keyRotationStatus {
             case let .attempted(date), let .succeeded(date):
-                actor.notifyKeyRotation(date: date)
+                implementation.actor.notifyKeyRotation(date: date)
             case .noAction:
                 break
             }
         }
-    }
-}
-
-extension PacketTunnelProvider: EphemeralPeerReceiving {
-    func receivePostQuantumKey(
-        _ key: WireGuard.PreSharedKey,
-        ephemeralKey: WireGuard.PrivateKey,
-        daitaParameters: MullvadTypes.DaitaV2Parameters?
-    ) async {
-        await ephemeralPeerExchangingPipeline.receivePostQuantumKey(
-            key,
-            ephemeralKey: ephemeralKey,
-            daitaParameters: daitaParameters
-        )
-    }
-
-    public func receiveEphemeralPeerPrivateKey(
-        _ ephemeralPeerPrivateKey: WireGuard.PrivateKey,
-        daitaParameters: MullvadTypes.DaitaV2Parameters?
-    ) async {
-        await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(
-            ephemeralPeerPrivateKey,
-            daitaParameters: daitaParameters
-        )
-    }
-
-    func ephemeralPeerExchangeFailed() {
-        // Do not try reconnecting to the `.current` relay, else the actor's `State` equality check will fail
-        // and it will not try to reconnect
-        actor.reconnect(to: .random, reconnectReason: .connectionLoss)
     }
 }
