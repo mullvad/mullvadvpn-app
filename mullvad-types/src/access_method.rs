@@ -214,7 +214,7 @@ impl Settings {
 
     fn create_domain_fronting() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::DomainFronting;
-        AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
+        AccessMethodSetting::new(method.canonical_name(), false, AccessMethod::from(method))
     }
 }
 
