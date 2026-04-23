@@ -54,6 +54,7 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
+import net.mullvad.mullvadvpn.feature.personalvpn.api.PersonalVpnNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.ConnectOnStartupInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.ContentBlockersInfoNavKey
@@ -141,6 +142,7 @@ private fun PreviewVpnSettings(
             navigateToCustomDnsInfo = {},
             navigateToQuantumResistanceInfo = {},
             navigateToLocalNetworkSharingInfo = {},
+            navigateToPersonalVpn = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -222,6 +224,7 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
+        navigateToPersonalVpn = dropUnlessResumed { navigator.navigate(PersonalVpnNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
         onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
@@ -268,6 +271,7 @@ fun VpnSettingsScreen(
     navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToPersonalVpn: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
     onToggleAllBlockers: (Boolean) -> Unit,
@@ -325,6 +329,7 @@ fun VpnSettingsScreen(
                             navigateToMalwareInfo,
                             navigateToQuantumResistanceInfo,
                             navigateToLocalNetworkSharingInfo,
+                            navigateToPersonalVpn,
                             navigateToServerIpOverrides,
                             navigateToAntiCensorship,
                             onToggleContentBlockersExpanded,
@@ -364,6 +369,7 @@ fun VpnSettingsContent(
     navigateToMalwareInfo: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToPersonalVpn: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     onToggleContentBlockersExpanded: () -> Unit,
@@ -776,6 +782,11 @@ fun VpnSettingsContent(
                         )
                     }
 
+                VpnSettingItem.PersonalVpn ->
+                    item(key = it::class.simpleName) {
+                        PersonalVpn(navigateToPersonalVpn, Modifier.animateItem())
+                    }
+
                 is VpnSettingItem.QuantumResistantSetting ->
                     item(key = it::class.simpleName) {
                         SwitchListItem(
@@ -827,6 +838,15 @@ fun VpnSettingsContent(
             }
         }
     }
+}
+
+@Composable
+private fun PersonalVpn(onPersonalVpnClick: () -> Unit, modifier: Modifier = Modifier) {
+    NavigationListItem(
+        title = stringResource(id = R.string.personal_vpn),
+        modifier = modifier,
+        onClick = onPersonalVpnClick,
+    )
 }
 
 @Composable

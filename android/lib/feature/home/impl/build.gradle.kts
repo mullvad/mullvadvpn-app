@@ -21,6 +21,7 @@ dependencies {
     implementation(projects.lib.feature.location.api)
     implementation(projects.lib.feature.login.api)
     implementation(projects.lib.feature.multihop.api)
+    implementation(projects.lib.feature.personalvpn.api)
     implementation(projects.lib.feature.redeemvoucher.api)
     implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.settings.api)

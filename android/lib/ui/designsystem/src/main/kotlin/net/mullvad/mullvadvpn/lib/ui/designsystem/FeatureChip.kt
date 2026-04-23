@@ -26,6 +26,7 @@ fun MullvadFeatureChip(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    trailingIcon: @Composable (() -> Unit)? = null,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainerLowest,
     borderColor: Color = MaterialTheme.colorScheme.primary,
     labelColor: Color = MaterialTheme.colorScheme.onPrimary,
@@ -49,6 +50,7 @@ fun MullvadFeatureChip(
             ),
         selected = false,
         onClick = onClick,
+        trailingIcon = trailingIcon,
         label = {
             Text(
                 text = text,

@@ -71,6 +71,7 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.navigation.serverIpO
 import net.mullvad.mullvadvpn.feature.settings.impl.navigation.settingsEntry
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnelingEntry
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
+import net.mullvad.mullvadvpn.lib.feature.impl.personalVpnEntry
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
@@ -142,6 +143,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         multihopEntry(nav3)
         noDaemonEntry(nav3)
         notificationEntry(nav3)
+        personalVpnEntry(nav3)
         privacyDisclaimerEntry(nav3)
         problemReportEntry(nav3)
         redeemVoucherEntry(nav3)

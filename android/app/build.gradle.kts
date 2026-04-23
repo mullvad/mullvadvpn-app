@@ -413,6 +413,8 @@ dependencies {
     implementation(projects.lib.feature.managedevices.impl)
     implementation(projects.lib.feature.multihop.impl)
     implementation(projects.lib.feature.notification.impl)
+    implementation(projects.lib.feature.personalvpn.api)
+    implementation(projects.lib.feature.personalvpn.impl)
     implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.redeemvoucher.impl)
     implementation(projects.lib.feature.serveripoverride.impl)

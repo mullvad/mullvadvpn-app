@@ -74,6 +74,8 @@ include(
     ":lib:feature:multihop:api",
     ":lib:feature:notification:impl",
     ":lib:feature:notification:api",
+    ":lib:feature:personalvpn:api",
+    ":lib:feature:personalvpn:impl",
     ":lib:feature:problemreport:impl",
     ":lib:feature:problemreport:api",
     ":lib:feature:redeemvoucher:impl",

@@ -8,8 +8,12 @@ import java.net.InetSocketAddress
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
+import kotlin.String
+import kotlin.io.encoding.Base64
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.customVpnConfigOrNull
 import mullvad_daemon.management_interface.entryLocationOrNull
+import mullvad_daemon.management_interface.lastHandshakeTimeOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
 import mullvad_daemon.relay_selector.RelaySelector
@@ -31,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -57,6 +62,8 @@ import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
+import net.mullvad.mullvadvpn.lib.model.PeerConfig
+import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -78,12 +85,15 @@ import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
+import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelOptions
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.model.TunnelStats
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
+import net.mullvad.mullvadvpn.lib.model.WireguardKey
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -357,6 +367,8 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
         recents = recentsOrNull.toDomain(),
+        customVpnEnabled = customVpnEnabled,
+        customVpnConfig = customVpnConfigOrNull?.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -762,6 +774,9 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT
+        ManagementInterface.FeatureIndicator.PERSONAL_VPN -> FeatureIndicator.PERSONAL_VPN
+        ManagementInterface.FeatureIndicator.PERSONAL_VPN_ACTIVE ->
+            FeatureIndicator.PERSONAL_VPN_ACTIVE
         ManagementInterface.FeatureIndicator.LOCKDOWN_MODE,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
@@ -815,4 +830,28 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
         obfuscation = obfuscation,
         port = port,
         conflictWithOtherHop = conflictWithOtherHop,
+    )
+
+internal fun ManagementInterface.CustomVpnConfig.toDomain() =
+    CustomVpnConfig(tunnelConfig = tunnel.toDomain(), peerConfig = peer.toDomain())
+
+internal fun ManagementInterface.CustomVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
+    TunnelConfig(
+        privateKey = WireguardKey.from(Base64.encode(privateKey.toByteArray())).getOrNull()!!,
+        tunnelIp = InetAddress.getByName(ip),
+    )
+
+internal fun ManagementInterface.CustomVpnConfig.PeerConfig.toDomain() =
+    PeerConfig(
+        publicKey = WireguardKey.from(Base64.encode(publicKey.toByteArray())).getOrNull()!!,
+        allowedIps = allowedIpList,
+        endpoint = endpoint.toInetSocketAddress(),
+    )
+
+internal fun ManagementInterface.CustomVpnStats.toDomain() =
+    TunnelStats(
+        rx = rxBytes,
+        tx = txBytes,
+        lastHandshake =
+            lastHandshakeTimeOrNull?.let { Instant.ofEpochSecond(lastHandshakeTime.seconds) },
     )

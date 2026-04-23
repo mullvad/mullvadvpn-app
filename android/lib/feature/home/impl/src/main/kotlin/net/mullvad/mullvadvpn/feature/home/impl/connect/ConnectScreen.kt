@@ -89,12 +89,14 @@ import net.mullvad.mullvadvpn.feature.home.api.OutOfTimeNavKey
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.ConnectionButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.ConnectionDetailPanel
+import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicators
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
+import net.mullvad.mullvadvpn.feature.personalvpn.api.PersonalVpnNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
@@ -810,4 +812,7 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
+
+        FeatureIndicator.PERSONAL_VPN,
+        FeatureIndicator.PERSONAL_VPN_ACTIVE -> PersonalVpnNavKey(isModal = true)
     }

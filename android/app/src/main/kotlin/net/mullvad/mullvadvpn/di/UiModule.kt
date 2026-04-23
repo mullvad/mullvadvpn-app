@@ -67,6 +67,8 @@ import net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns.DnsDialogViewModel
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu.MtuDialogViewModel
 import net.mullvad.mullvadvpn.lib.common.constant.BillingTypes
 import net.mullvad.mullvadvpn.lib.model.PackageName
+import net.mullvad.mullvadvpn.lib.common.constant.BuildTypes
+import net.mullvad.mullvadvpn.lib.feature.impl.PersonalVpnViewModel
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.repository.ApiAccessRepository
@@ -350,6 +352,7 @@ val uiModule = module {
     viewModel { params -> EditCustomListNameDialogViewModel(navArgs = params.get(), get()) }
     viewModel { CustomListsViewModel(get(), get()) }
     viewModel { params -> DeleteCustomListConfirmationViewModel(navArgs = params.get(), get()) }
+    viewModel { PersonalVpnViewModel(get(), get()) }
     viewModel { params -> ServerIpOverridesViewModel(navArgs = params.get(), get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
     viewModel { ApiAccessListViewModel(get()) }

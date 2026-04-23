@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.lib.feature.autoconnect.api)
     implementation(projects.lib.feature.serveripoverride.api)
     implementation(projects.lib.feature.vpnsettings.api)
+    implementation(projects.lib.feature.personalvpn.api)
     implementation(projects.lib.navigation)
     implementation(projects.lib.repository)
     implementation(projects.lib.usecase)

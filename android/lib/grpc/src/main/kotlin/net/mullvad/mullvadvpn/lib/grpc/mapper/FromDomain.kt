@@ -2,6 +2,8 @@
 
 package net.mullvad.mullvadvpn.lib.grpc.mapper
 
+import com.google.protobuf.ByteString
+import kotlin.io.encoding.Base64
 import mullvad_daemon.management_interface.ManagementInterface
 import mullvad_daemon.relay_selector.RelaySelector
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
@@ -11,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
@@ -25,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Ownership
+import net.mullvad.mullvadvpn.lib.model.PeerConfig
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -34,6 +38,7 @@ import net.mullvad.mullvadvpn.lib.model.RelaySelectorPredicate
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.TunnelConfig
 import net.mullvad.mullvadvpn.lib.model.Udp2TcpObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 
@@ -361,4 +366,23 @@ internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
                 is GeoLocationId -> it.setLocation(fromDomain())
             }
         }
+        .build()
+
+internal fun CustomVpnConfig.fromDomain(): ManagementInterface.CustomVpnConfig =
+    ManagementInterface.CustomVpnConfig.newBuilder()
+        .setTunnel(tunnelConfig.fromDomain())
+        .setPeer(peerConfig.fromDomain())
+        .build()
+
+internal fun TunnelConfig.fromDomain(): ManagementInterface.CustomVpnConfig.TunnelConfig =
+    ManagementInterface.CustomVpnConfig.TunnelConfig.newBuilder()
+        .setIp(tunnelIp.hostAddress!!)
+        .setPrivateKey(ByteString.copyFrom(Base64.decode(privateKey.value)))
+        .build()
+
+internal fun PeerConfig.fromDomain(): ManagementInterface.CustomVpnConfig.PeerConfig =
+    ManagementInterface.CustomVpnConfig.PeerConfig.newBuilder()
+        .setEndpoint("${endpoint.address.hostAddress}:${endpoint.port}")
+        .addAllAllowedIp(allowedIps)
+        .setPublicKey(ByteString.copyFrom(Base64.decode(publicKey.value)))
         .build()

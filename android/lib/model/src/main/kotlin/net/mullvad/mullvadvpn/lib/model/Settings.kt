@@ -14,6 +14,8 @@ data class Settings(
     val splitTunnelSettings: SplitTunnelSettings,
     val apiAccessMethodSettings: List<ApiAccessMethodSetting>,
     val recents: Recents,
+    val customVpnEnabled: Boolean,
+    val customVpnConfig: CustomVpnConfig?,
 ) {
     companion object
 }
