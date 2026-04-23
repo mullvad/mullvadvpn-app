@@ -464,6 +464,15 @@ pub enum DaemonCommand {
     AppUpgradeAbort(ResponseTx<(), version::Error>),
     /// Return the storage path for the installers during in-app upgrades.
     GetAppUpgradeCacheDir(ResponseTx<PathBuf, version::Error>),
+    /// Set custom VPN configuration
+    #[cfg(feature = "personal-vpn")]
+    SetCustomVpnConfig(
+        oneshot::Sender<String>,
+        Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ),
+    /// Enable or disable the custom VPN
+    #[cfg(feature = "personal-vpn")]
+    SetCustomVpnConfigStatus(ResponseTx<(), settings::Error>, bool),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -495,6 +504,9 @@ pub(crate) enum InternalDaemonEvent {
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
     /// A network leak was detected.
     LeakDetected(LeakInfo),
+    /// Personal VPN stats update.
+    #[cfg(feature = "personal-vpn")]
+    PersonalVpnUpdate(talpid_types::Stats),
 }
 
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -668,6 +680,8 @@ where
 
 pub struct Daemon {
     tunnel_state: TunnelState,
+    #[cfg(feature = "personal-vpn")]
+    last_personal_handshake: Option<std::time::SystemTime>,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -748,6 +762,10 @@ impl Daemon {
             )
         };
 
+        #[cfg(feature = "personal-vpn")]
+        let (private_tunnel_stats_tx, private_tunnel_stats_rx) =
+            tokio::sync::broadcast::channel(32);
+
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
         let management_interface = ManagementInterfaceServer::start(
@@ -756,6 +774,8 @@ impl Daemon {
             app_upgrade_broadcast.clone(),
             config.log_handle,
             relay_selector.clone(),
+            #[cfg(feature = "personal-vpn")]
+            private_tunnel_stats_rx,
         )
         .map_err(Error::ManagementInterfaceError)?;
 
@@ -885,6 +905,11 @@ impl Daemon {
             account_manager.clone(),
             relay_selector.clone(),
             settings.tunnel_options.clone(),
+            #[cfg(feature = "personal-vpn")]
+            settings
+                .custom_vpn_config
+                .clone()
+                .filter(|_| settings.custom_vpn_enabled),
         );
 
         let param_gen = parameters_generator.clone();
@@ -916,6 +941,23 @@ impl Daemon {
         .await
         .map_err(Error::RouteManager)?;
 
+        #[cfg(feature = "personal-vpn")]
+        {
+            // Keep track of personal VPN tunnel handshake
+            let internal_event_tx = internal_event_tx.clone();
+            let mut private_tunnel_stats_rx = private_tunnel_stats_tx.subscribe();
+            tokio::spawn(async move {
+                while let Ok(stats) = private_tunnel_stats_rx.recv().await {
+                    if internal_event_tx
+                        .send(InternalDaemonEvent::PersonalVpnUpdate(stats))
+                        .is_err()
+                    {
+                        break;
+                    }
+                }
+            });
+        }
+
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -939,6 +981,8 @@ impl Daemon {
             config.resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
+            #[cfg(feature = "personal-vpn")]
+            Some(private_tunnel_stats_tx),
             route_manager.clone(),
             #[cfg(target_os = "windows")]
             volume_update_rx,
@@ -1054,6 +1098,8 @@ impl Daemon {
                 #[cfg(not(target_os = "android"))]
                 locked_down: settings.lockdown_mode,
             },
+            #[cfg(feature = "personal-vpn")]
+            last_personal_handshake: None,
             target_state,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunneling_pid_manager,
@@ -1218,6 +1264,13 @@ impl Daemon {
                 log::warn!("{leak_info:?}");
                 self.handle_leak_event(leak_info)
             }
+            #[cfg(feature = "personal-vpn")]
+            PersonalVpnUpdate(stats) => {
+                // TODO: set to none if setting is disabled
+                // TODO: stop sending this event needlessly
+                self.last_personal_handshake = stats.last_handshake_time;
+                self.update_feature_indicators_on_settings_changed();
+            }
         }
         should_stop
     }
@@ -1246,6 +1299,8 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    #[cfg(feature = "personal-vpn")]
+                    self.last_personal_handshake,
                 );
                 TunnelState::Connecting {
                     endpoint,
@@ -1258,6 +1313,8 @@ impl Daemon {
                     self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
+                    #[cfg(feature = "personal-vpn")]
+                    self.last_personal_handshake,
                 );
                 TunnelState::Connected {
                     endpoint,
@@ -1266,6 +1323,12 @@ impl Daemon {
                 }
             }
             TunnelStateTransition::Disconnecting(after_disconnect) => {
+                // Reset personal VPN handshake if not connected
+                #[cfg(feature = "personal-vpn")]
+                {
+                    self.last_personal_handshake = None;
+                }
+
                 TunnelState::Disconnecting(after_disconnect)
             }
             TunnelStateTransition::Error(error_state) => TunnelState::Error(error_state),
@@ -1428,8 +1491,13 @@ impl Daemon {
                 let ip_override = feature_indicators
                     .active_features()
                     .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
-                let new_feature_indicators =
-                    compute_feature_indicators(self.settings.settings(), endpoint, ip_override);
+                let new_feature_indicators = compute_feature_indicators(
+                    self.settings.settings(),
+                    endpoint,
+                    ip_override,
+                    #[cfg(feature = "personal-vpn")]
+                    self.last_personal_handshake,
+                );
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
@@ -1633,6 +1701,12 @@ impl Daemon {
             GetBridges(tx) => self.on_get_bridges(tx),
             #[cfg(target_os = "android")]
             DeleteAccount(tx) => self.on_delete_account(tx),
+            #[cfg(feature = "personal-vpn")]
+            SetCustomVpnConfig(tx, config) => self.on_set_custom_vpn_config(tx, config).await,
+            #[cfg(feature = "personal-vpn")]
+            SetCustomVpnConfigStatus(tx, enabled) => {
+                self.on_set_custom_vpn_config_status(tx, enabled).await
+            }
         }
     }
 
@@ -2650,6 +2724,70 @@ impl Daemon {
                     err.display_chain_with_msg("Failed to set obfuscation settings")
                 );
                 Self::oneshot_send(tx, Err(err), "set_obfuscation_settings");
+            }
+        }
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn on_set_custom_vpn_config(
+        &mut self,
+        tx: oneshot::Sender<String>,
+        config: Option<talpid_types::net::wireguard::CustomVpnConfig>,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_config = config)
+            .await
+        {
+            Ok(_) => {
+                let effective = if self.settings.settings().custom_vpn_enabled {
+                    self.settings.settings().custom_vpn_config.clone()
+                } else {
+                    None
+                };
+                self.parameters_generator.set_custom_vpn(effective).await;
+                Self::oneshot_send(tx, String::new(), "set_custom_vpn_config");
+                self.reconnect_tunnel();
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config")
+                );
+                Self::oneshot_send(tx, err.to_string(), "set_custom_vpn_config");
+            }
+        }
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn on_set_custom_vpn_config_status(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        enabled: bool,
+    ) {
+        match self
+            .settings
+            .update(move |s| s.custom_vpn_enabled = enabled)
+            .await
+        {
+            Ok(changed) => {
+                if changed {
+                    let effective = if self.settings.settings().custom_vpn_enabled {
+                        self.settings.settings().custom_vpn_config.clone()
+                    } else {
+                        None
+                    };
+                    self.parameters_generator.set_custom_vpn(effective).await;
+                    self.reconnect_tunnel();
+                }
+                Self::oneshot_send(tx, Ok(()), "set_custom_vpn_config_status");
+            }
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to set custom VPN config status")
+                );
+                Self::oneshot_send(tx, Err(err), "set_custom_vpn_config_status");
             }
         }
     }

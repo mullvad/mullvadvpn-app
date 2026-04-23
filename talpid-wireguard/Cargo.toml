@@ -11,7 +11,7 @@ async-trait = "0.1"
 byteorder = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
 futures = { workspace = true }
-gotatun = { workspace = true, features = ["daita", "device", "tun"] }
+gotatun = { workspace = true, features = ["daita", "device", "tun", "ring"] }
 hex = "0.4"
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }
@@ -63,6 +63,7 @@ windows-sys = { workspace = true }
 
 [features]
 multihop-pcap = ["gotatun/pcap"]
+personal-vpn = ["talpid-types/personal-vpn", "talpid-tunnel/personal-vpn"]
 wireguard-go = [
   "dep:chrono",
   "dep:wireguard-go-rs",

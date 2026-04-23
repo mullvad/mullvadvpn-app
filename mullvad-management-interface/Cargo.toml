@@ -34,3 +34,6 @@ nix = { workspace = true, features = ["fs", "user"] }
 
 [lints]
 workspace = true
+
+[features]
+personal-vpn = ["mullvad-types/personal-vpn", "talpid-types/personal-vpn"]

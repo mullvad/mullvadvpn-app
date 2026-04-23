@@ -20,6 +20,8 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
             mullvad_types::features::FeatureIndicator::CustomMtu => CustomMtu,
             mullvad_types::features::FeatureIndicator::Daita => Daita,
             mullvad_types::features::FeatureIndicator::DaitaMultihop => DaitaMultihop,
+            mullvad_types::features::FeatureIndicator::PersonalVpn => PersonalVpn,
+            mullvad_types::features::FeatureIndicator::PersonalVpnActive => PersonalVpnActive,
         }
     }
 }
@@ -43,6 +45,8 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
             proto::FeatureIndicator::CustomMtu => Self::CustomMtu,
             proto::FeatureIndicator::Daita => Self::Daita,
             proto::FeatureIndicator::DaitaMultihop => Self::DaitaMultihop,
+            proto::FeatureIndicator::PersonalVpn => Self::PersonalVpn,
+            proto::FeatureIndicator::PersonalVpnActive => Self::PersonalVpnActive,
         }
     }
 }

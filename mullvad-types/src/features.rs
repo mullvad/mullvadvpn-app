@@ -87,6 +87,9 @@ pub enum FeatureIndicator {
     /// Whether DAITA (with multihop) is in use.
     /// Mutually exclusive with [FeatureIndicator::Daita] and [FeatureIndicator::Multihop].
     DaitaMultihop,
+
+    PersonalVpn,
+    PersonalVpnActive,
 }
 
 impl FeatureIndicator {
@@ -108,6 +111,8 @@ impl FeatureIndicator {
             FeatureIndicator::CustomMtu => "Custom MTU",
             FeatureIndicator::Daita => "DAITA",
             FeatureIndicator::DaitaMultihop => "DAITA: Multihop",
+            FeatureIndicator::PersonalVpn => "Personal VPN",
+            FeatureIndicator::PersonalVpnActive => "Personal VPN: Active",
         }
     }
 }
@@ -130,6 +135,7 @@ pub fn compute_feature_indicators(
     settings: &Settings,
     endpoint: &TunnelEndpoint,
     server_ip_override: bool,
+    #[cfg(feature = "personal-vpn")] personal_vpn_handshake: Option<std::time::SystemTime>,
 ) -> FeatureIndicators {
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     let split_tunneling = settings.split_tunnel.enable_exclusions;
@@ -165,6 +171,21 @@ pub fn compute_feature_indicators(
     let lwo = has_obfuscation(ObfuscationType::Lwo);
 
     let mtu = settings.tunnel_options.wireguard.mtu.is_some();
+    #[cfg(feature = "personal-vpn")]
+    let personal_vpn = settings.custom_vpn_enabled && settings.custom_vpn_config.is_some();
+
+    #[cfg(feature = "personal-vpn")]
+    let personal_vpn_active = if personal_vpn {
+        // TODO: Consider session active if handshake occurred less than T seconds ago
+        // TODO: Reset on reconnect
+        personal_vpn_handshake.is_some_and(|time| {
+            time.elapsed()
+                .map(|t| t < std::time::Duration::from_secs(150))
+                .unwrap_or(false)
+        })
+    } else {
+        false
+    };
 
     let mut daita_multihop = false;
     let mut multihop = false;
@@ -205,6 +226,13 @@ pub fn compute_feature_indicators(
         #[cfg(daita)]
         (daita, FeatureIndicator::Daita),
         (daita_multihop, FeatureIndicator::DaitaMultihop),
+        #[cfg(feature = "personal-vpn")]
+        (
+            personal_vpn && !personal_vpn_active,
+            FeatureIndicator::PersonalVpn,
+        ),
+        #[cfg(feature = "personal-vpn")]
+        (personal_vpn_active, FeatureIndicator::PersonalVpnActive),
     ];
 
     // use the booleans to filter into a list of only the active features

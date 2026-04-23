@@ -28,6 +28,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [features]
 wireguard-go = []
+personal-vpn = []
 
 [lints]
 workspace = true

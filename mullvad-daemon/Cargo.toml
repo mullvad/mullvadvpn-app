@@ -176,6 +176,7 @@ features = ["Win32_System_SystemServices"]
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
+personal-vpn = ["mullvad-types/personal-vpn", "talpid-types/personal-vpn", "talpid-core/personal-vpn", "mullvad-management-interface/personal-vpn"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 wireguard-go = ["talpid-core/wireguard-go"]
 

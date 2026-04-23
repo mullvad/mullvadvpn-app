@@ -41,6 +41,17 @@ use gotatun::tun::{
     pcap::{PcapSniffer, PcapStream},
 };
 
+#[cfg(feature = "personal-vpn")]
+use gotatun::{
+    device::Peer,
+    packet::PacketBufPool,
+    tun::{
+        merge::MergingIpRecv,
+        nat::{NatIpRecv, NatIpSend},
+        router::{SplitIpRecv, TunRxRouter, TunTxRouter},
+    },
+};
+
 mod conversions;
 mod obfuscation;
 
@@ -57,6 +68,19 @@ type TransportFactory = MaybeObfuscatingTransportFactory<UdpFactory>;
 
 type SinglehopDevice = Device<(TransportFactory, GotaTunDevice, GotaTunDevice)>;
 type ExitDevice = Device<(UdpChannelFactory, GotaTunDevice, GotaTunDevice)>;
+
+#[cfg(feature = "personal-vpn")]
+type CustomInnerDevice = gotatun::device::Device<(
+    UdpChannelFactory,
+    NatIpSend<gotatun::tun::tun_async_device::TunDevice>,
+    NatIpRecv<SplitIpRecv>,
+)>;
+#[cfg(feature = "personal-vpn")]
+type CustomOuterDevice = gotatun::device::Device<(
+    TransportFactory,
+    TunTxRouter<TunChannelTx, gotatun::tun::tun_async_device::TunDevice>,
+    MergingIpRecv<SplitIpRecv, TunChannelRx>,
+)>;
 
 #[cfg(not(all(feature = "multihop-pcap", target_os = "linux")))]
 type EntryDevice = Device<(TransportFactory, TunChannelTx, TunChannelRx)>;
@@ -122,6 +146,13 @@ enum Devices {
         device: SinglehopDevice,
     },
 
+    #[cfg(feature = "personal-vpn")]
+    SinglehopWithCustom {
+        inner_device: CustomInnerDevice,
+        outer_device: CustomOuterDevice,
+        router_task: tokio::task::JoinHandle<()>,
+    },
+
     Multihop {
         entry_device: EntryDevice,
         exit_device: ExitDevice,
@@ -133,6 +164,16 @@ impl Devices {
         match self {
             Devices::Singlehop { device } => {
                 device.stop().await;
+            }
+            #[cfg(feature = "personal-vpn")]
+            Devices::SinglehopWithCustom {
+                inner_device,
+                outer_device,
+                router_task,
+            } => {
+                inner_device.stop().await;
+                outer_device.stop().await;
+                router_task.abort();
             }
             Devices::Multihop {
                 entry_device,
@@ -291,6 +332,119 @@ async fn create_devices(
 
     let factory = MaybeObfuscatingTransportFactory::from_config(base_factory, config);
 
+    #[cfg(feature = "personal-vpn")]
+    if let Some(custom_vpn) = &config.custom_vpn
+        && config.exit_peer.is_none()
+    {
+        log::debug!("Configuring tunnel with personal VPN");
+
+        let multihop_overhead = match custom_vpn.peer.endpoint.ip() {
+            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+        };
+        let mtu = tun_dev.mtu().increase(multihop_overhead as u16).unwrap();
+
+        let outer_tun_ip = config
+            .tunnel
+            .addresses
+            .iter()
+            .find_map(|ip| match ip {
+                IpAddr::V4(ip) => Some(ip),
+                _ => None,
+            })
+            .copied()
+            // FIXME: don't hardcode
+            .expect("missing IPv4 tun addr");
+        let outer_private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+
+        let inner_tun_ip = match custom_vpn.tunnel.ip {
+            IpAddr::V4(ip) => ip,
+            _ => todo!("fixme: support IPv6"),
+        };
+        let inner_private_key = StaticSecret::from(custom_vpn.tunnel.private_key.to_bytes());
+
+        // Channel bridge (inner device UDP <-> outer device TUN)
+        let (bridge_tun_tx, bridge_tun_rx, inner_udp) =
+            new_udp_tun_channel(4000, outer_tun_ip, Ipv6Addr::UNSPECIFIED, mtu);
+
+        // TUN router (split real TUN reads by dest IP)
+        let mut router = TunRxRouter::new(tun_dev.clone());
+        let default_output = router.add_default_route(4000);
+        let alt_output = router.add_routes(&custom_vpn.peer.allowed_ip, 4000);
+        // TODO: Do we need to drop explicitly?
+        let router_task = tokio::spawn(router.run(PacketBufPool::new(100)));
+
+        // Outer device IpRecv: merge direct + inner encrypted
+        let outer_ip_recv =
+            MergingIpRecv::new(default_output, bridge_tun_rx, PacketBufPool::new(100));
+
+        // Outer device IpSend: demux decrypted packets
+        let outer_ip_send = TunTxRouter::new(
+            bridge_tun_tx,
+            tun_dev.clone(),
+            custom_vpn.peer.endpoint,
+            &custom_vpn.peer.allowed_ip,
+        );
+
+        // NAT: rewrite src/dst IPs between inner and outer tunnel addresses
+        let tun_send =
+            gotatun::tun::nat::NatIpSend::new(tun_dev.clone(), inner_tun_ip, outer_tun_ip);
+        let alt_recv = gotatun::tun::nat::NatIpRecv::new(alt_output, outer_tun_ip, inner_tun_ip);
+
+        // Inner device
+        let inner_device = DeviceBuilder::new()
+            .with_udp(inner_udp)
+            .with_ip_pair(tun_send, alt_recv)
+            .with_private_key(inner_private_key)
+            .with_peer(
+                Peer::new((*custom_vpn.peer.public_key.as_bytes()).into())
+                    .with_endpoint(custom_vpn.peer.endpoint)
+                    .with_allowed_ips(custom_vpn.peer.allowed_ip.iter().cloned()),
+            )
+            .build()
+            .await
+            .map_err(|err| {
+                log::error!("Failed to create custom VPN device: {err:#?}");
+                TunnelError::SetConfigError
+            })?;
+
+        // Outer device
+        let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+        let outer_device = DeviceBuilder::new()
+            .with_udp(factory)
+            .with_ip_pair(outer_ip_send, outer_ip_recv)
+            .with_private_key(outer_private_key)
+            .with_peer(entry_peer)
+            .build()
+            .await
+            .map_err(|err| {
+                log::error!("Failed to create custom VPN device: {err:#?}");
+                TunnelError::SetConfigError
+            })?;
+
+        #[cfg(target_os = "linux")]
+        outer_device
+            .write(async |device| {
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
+
+        // TODO: allow reconfigure
+        return Ok(Devices::SinglehopWithCustom {
+            outer_device,
+            inner_device,
+            router_task,
+        });
+    }
+
     let mut devices = if let Some(exit_peer) = &config.exit_peer {
         // Multihop setup
 
@@ -344,6 +498,7 @@ async fn create_devices(
             .build()
             .await
             .map_err(TunnelError::GotaTunDevice)?;
+
         Devices::Multihop {
             entry_device,
             exit_device,
@@ -417,6 +572,43 @@ async fn configure_devices(
     config: &Config,
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
+    #[cfg(feature = "personal-vpn")]
+    if config.custom_vpn.is_some() && config.exit_peer.is_none() {
+        let Devices::SinglehopWithCustom { outer_device, .. } = devices else {
+            return Err(TunnelError::ConfigureGotaTunDevice(
+                ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
+            ));
+        };
+
+        log::debug!("Reconfiguring outer tunnel with personal VPN");
+
+        // TODO: untested
+        // TODO: reconfig personal VPN? or make it clear that it's ignored here
+
+        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+        let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+
+        outer_device
+            .write(async |device| {
+                device.clear_peers();
+                device.set_private_key(private_key).await;
+                device.add_peer(entry_peer);
+                #[cfg(target_os = "linux")]
+                if let Some(fwmark) = config.fwmark {
+                    device.set_fwmark(fwmark)?;
+                }
+                Ok(())
+            })
+            .await
+            .flatten()
+            .map_err(|err| {
+                log::error!("Failed to set gotatun config: {err:#}");
+                TunnelError::SetConfigError
+            })?;
+
+        return Ok(());
+    }
+
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
             "configuring gotatun multihop device (daita={})",
@@ -495,6 +687,15 @@ impl Tunnel for GotaTun {
 
         let stats = match self.devices.as_ref() {
             Some(Devices::Singlehop { device }) => get_stats(device).await,
+            #[cfg(feature = "personal-vpn")]
+            Some(Devices::SinglehopWithCustom {
+                inner_device: _,
+                outer_device,
+                ..
+            }) => {
+                // For connectivity checks, we only care about the Mullvad relay
+                get_stats(outer_device).await
+            }
             Some(Devices::Multihop {
                 entry_device,
                 exit_device,
@@ -505,6 +706,37 @@ impl Tunnel for GotaTun {
             }
             None if cfg!(debug_assertions) => unreachable!("device must be Some"),
             None => StatsMap::default(),
+        };
+
+        Ok(stats)
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    async fn get_private_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+        /// Read all peer stats from a gotatun [`Device`].
+        async fn get_stats(device: &Device<impl DeviceTransports>) -> StatsMap {
+            let peers = device.read(async |device| device.peers().await).await;
+
+            peers
+                .into_iter()
+                .map(|peer| {
+                    let public_key = peer.peer.public_key.to_bytes();
+                    let stats = Stats::from(peer.stats);
+                    (public_key, stats)
+                })
+                .collect()
+        }
+
+        let stats = match self.devices.as_ref() {
+            Some(Devices::SinglehopWithCustom {
+                inner_device,
+                outer_device: _,
+                ..
+            }) => {
+                // For connectivity checks, we only care about the Mullvad relay
+                get_stats(inner_device).await
+            }
+            _ => StatsMap::default(),
         };
 
         Ok(stats)

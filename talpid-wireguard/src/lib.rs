@@ -2,6 +2,8 @@
 
 #![deny(missing_docs)]
 
+use crate::stats::StatsMap;
+
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
@@ -329,10 +331,30 @@ impl WireguardMonitor {
                         return;
                     }
 
+                    // With a personal VPN, pings reach the outer gateway directly (bypassing
+                    // the inner custom tunnel), so the detected MTU only accounts for the
+                    // outer encapsulation. Inner-routed traffic needs an extra wireguard
+                    // layer of headroom, so subtract that overhead when applying the result.
+                    let extra_overhead = {
+                        #[cfg(feature = "personal-vpn")]
+                        {
+                            config
+                                .custom_vpn
+                                .as_ref()
+                                .map(|c| wireguard_overhead(c.tunnel.ip))
+                                .unwrap_or(0)
+                        }
+                        #[cfg(not(feature = "personal-vpn"))]
+                        {
+                            0u16
+                        }
+                    };
+
                     if let Err(e) = mtu_detection::automatic_mtu_correction(
                         gateway,
                         iface_name,
                         config.mtu,
+                        extra_overhead,
                         #[cfg(windows)]
                         config.ipv6_gateway.is_some(),
                     )
@@ -382,9 +404,13 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
-                .run(Arc::downgrade(&tunnel))
-                .await
+            if let Err(error) = connectivity::Monitor::init(
+                connectivity_monitor,
+                #[cfg(feature = "personal-vpn")]
+                args.private_tunnel_stats,
+            )
+            .run(Arc::downgrade(&tunnel))
+            .await
             {
                 log::error!(
                     "{}",
@@ -580,9 +606,11 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
-                .run(Arc::downgrade(&tunnel))
-                .await
+            // FIXME
+            if let Err(error) =
+                connectivity::Monitor::init(connectivity_monitor, args.private_tunnel_stats)
+                    .run(Arc::downgrade(&tunnel))
+                    .await
             {
                 log::error!(
                     "{}",
@@ -1095,6 +1123,9 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
+    async fn get_private_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
+        Ok(StatsMap::default())
+    }
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
@@ -1253,6 +1284,11 @@ fn calculate_tunnel_mtu(
     // so the MTU on that link must be larger to account for multihop overhead
     if userspace_multihop && let Some(exit_peer) = &params.connection.exit_peer {
         overhead += wireguard_overhead(exit_peer.endpoint.ip());
+    }
+
+    #[cfg(feature = "personal-vpn")]
+    if let Some(personal) = &params.custom_vpn {
+        overhead += wireguard_overhead(personal.tunnel.ip);
     }
 
     clamp_tunnel_mtu(params, link_mtu_for_peer.saturating_sub(overhead))

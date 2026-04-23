@@ -2,7 +2,7 @@ use std::{io, net::IpAddr, time::Duration};
 
 use futures::{Future, TryStreamExt, future, stream::FuturesUnordered};
 use surge_ping::{Client, Config, PingIdentifier, PingSequence, SurgeError};
-use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU};
+use talpid_tunnel::{ICMP_HEADER_SIZE, IPV4_HEADER_SIZE, MIN_IPV4_MTU, MIN_IPV6_MTU};
 use tokio_stream::StreamExt;
 
 #[derive(thiserror::Error, Debug)]
@@ -41,10 +41,15 @@ const MTU_STEP_SIZE: u16 = 20;
 ///
 /// Note: This does not take fragmentation into account, so it should only be used as an extra
 /// safety measure after the normal MTU calculation using header sizes and safety margins.
+///
+/// `extra_overhead` is subtracted from the detected MTU before applying it. Use it when pings
+/// only traverse a subset of the encapsulation layers (e.g. personal VPN, where pings hit the
+/// outer gateway but inner-routed traffic needs extra headroom).
 pub async fn automatic_mtu_correction(
     gateway: std::net::Ipv4Addr,
     iface_name: String,
     current_tunnel_mtu: u16,
+    extra_overhead: u16,
     #[cfg(windows)] ipv6: bool,
 ) -> Result<(), Error> {
     log::debug!("Starting MTU detection");
@@ -57,12 +62,15 @@ pub async fn automatic_mtu_correction(
     .await?;
 
     if verified_mtu != current_tunnel_mtu {
-        log::warn!("Lowering MTU from {} to {verified_mtu}", current_tunnel_mtu);
+        let new_mtu = verified_mtu
+            .saturating_sub(extra_overhead)
+            .max(MIN_IPV6_MTU);
+        log::warn!("Lowering MTU from {} to {new_mtu}", current_tunnel_mtu);
 
         #[cfg(any(target_os = "linux", target_os = "macos"))]
-        talpid_net::unix::set_mtu(&iface_name, verified_mtu).map_err(Error::SetMtu)?;
+        talpid_net::unix::set_mtu(&iface_name, new_mtu).map_err(Error::SetMtu)?;
         #[cfg(windows)]
-        set_mtu_windows(verified_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
+        set_mtu_windows(new_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
     } else {
         log::debug!("MTU {verified_mtu} verified to not drop packets");
     };

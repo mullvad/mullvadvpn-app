@@ -55,6 +55,17 @@ impl From<&mullvad_types::settings::Settings> for proto::Settings {
                 .collect(),
             recents: settings.recents.clone().map(proto::Recents::from),
             update_default_location: settings.update_default_location,
+            #[cfg(feature = "personal-vpn")]
+            custom_vpn_config: settings
+                .custom_vpn_config
+                .as_ref()
+                .map(|config| proto::CustomVpnConfig::from(config.clone())),
+            #[cfg(not(feature = "personal-vpn"))]
+            custom_vpn_config: None,
+            #[cfg(feature = "personal-vpn")]
+            custom_vpn_enabled: settings.custom_vpn_enabled,
+            #[cfg(not(feature = "personal-vpn"))]
+            custom_vpn_enabled: false,
         }
     }
 }
@@ -180,6 +191,13 @@ impl TryFrom<proto::Settings> for mullvad_types::settings::Settings {
             )?,
             recents: Some(vec![]),
             update_default_location: settings.update_default_location,
+            #[cfg(feature = "personal-vpn")]
+            custom_vpn_config: settings
+                .custom_vpn_config
+                .map(talpid_types::net::wireguard::CustomVpnConfig::try_from)
+                .transpose()?,
+            #[cfg(feature = "personal-vpn")]
+            custom_vpn_enabled: settings.custom_vpn_enabled,
             // HACK: The deamon should never read this random settings blob from a random client.
             // We should look into separating the serializable settings object that pass accross
             // gRPC from the daemon's trusted settings. There are multiple fields that would not be
