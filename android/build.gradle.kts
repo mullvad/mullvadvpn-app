@@ -129,8 +129,8 @@ tasks.withType<DependencyUpdatesTask> {
 tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
 
 val preflightSkipDirtyCheck =
-    getBooleanPropertyOrNull("mullvad.app.release.skipDirtyCheck")
-        ?: gradle.startParameter.taskNames.any { it.endsWith("fdroidRelease") }
+    getBooleanPropertyOrNull("mullvad.app.release.skipDirtyCheck") == true ||
+        gradle.startParameter.taskNames.any { it.endsWith("fdroidRelease") }
 val releasePreflight =
     tasks.register<PreBuildTask>("releasePreflight") {
         this.skipDirtyCheck.set(preflightSkipDirtyCheck)
