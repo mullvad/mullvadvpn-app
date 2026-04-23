@@ -4976,7 +4976,7 @@ dependencies = [
 [[package]]
 name = "shadowsocks"
 version = "1.25.0"
-source = "git+https://github.com/mullvad/shadowsocks-rust?rev=82f0cb7333dd54e89f83bc3068af4a1e70cbe1d2#82f0cb7333dd54e89f83bc3068af4a1e70cbe1d2"
+source = "git+https://github.com/mullvad/shadowsocks-rust?branch=replace-ring-with-aws-lc-rs#19e7cb240f161f6344624bae5e3bcc83fec9fae8"
 dependencies = [
  "arc-swap",
  "base64",
@@ -5011,7 +5011,7 @@ dependencies = [
 [[package]]
 name = "shadowsocks-crypto"
 version = "0.6.2"
-source = "git+https://github.com/mullvad/shadowsocks-crypto?rev=52add5fac44f7685f1b927103b8417437fcb6c27#52add5fac44f7685f1b927103b8417437fcb6c27"
+source = "git+https://github.com/mullvad/shadowsocks-crypto?branch=replace-ring-with-aws-lc-rs#52add5fac44f7685f1b927103b8417437fcb6c27"
 dependencies = [
  "aes",
  "aes-gcm",
