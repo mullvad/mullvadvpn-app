@@ -329,7 +329,7 @@ This section is for building the desktop app individually.
 
 1. Install all the JavaScript dependencies by running:
     ```bash
-    npm install -w mullvad-vpn
+    npm run install
     ```
 
 1. Start the Electron app in development mode by running:
