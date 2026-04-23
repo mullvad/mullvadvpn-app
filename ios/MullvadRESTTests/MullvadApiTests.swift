@@ -44,6 +44,8 @@ class MullvadApiTests: XCTestCase {
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
             domain: REST.encryptedDNSHostname,
+            domainFrontingFront: "",
+            domainFrontingProxyHost: "",
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(

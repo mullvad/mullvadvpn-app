@@ -59,6 +59,12 @@ public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unc
                 isEnabled: true,
                 proxyConfiguration: .encryptedDNS
             ),
+            PersistentAccessMethod(
+                id: UUID(),
+                name: "Domain fronting",
+                isEnabled: true,
+                proxyConfiguration: .domainFronting
+            ),
         ])
     }
 }

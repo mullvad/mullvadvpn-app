@@ -181,6 +181,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
+    domain_fronting_front: *const c_char,
+    domain_fronting_proxy_host: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -190,6 +192,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
         host,
         address,
         domain,
+        domain_fronting_front,
+        domain_fronting_proxy_host,
         true,
         bridge_provider,
         settings_provider,
@@ -223,6 +227,8 @@ pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
+    domain_fronting_front: *const c_char,
+    domain_fronting_proxy_host: *const c_char,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -233,6 +239,8 @@ pub extern "C" fn mullvad_api_init_new(
         host,
         address,
         domain,
+        domain_fronting_front,
+        domain_fronting_proxy_host,
         false,
         bridge_provider,
         settings_provider,
@@ -244,6 +252,8 @@ pub extern "C" fn mullvad_api_init_new(
         host,
         address,
         domain,
+        domain_fronting_front,
+        domain_fronting_proxy_host,
         bridge_provider,
         settings_provider,
         access_method_change_callback,
@@ -268,6 +278,8 @@ pub extern "C" fn mullvad_api_init_inner(
     host: *const c_char,
     address: *const c_char,
     domain: *const c_char,
+    domain_fronting_front: *const c_char,
+    domain_fronting_proxy_host: *const c_char,
     #[cfg(feature = "api-override")] disable_tls: bool,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
@@ -275,8 +287,15 @@ pub extern "C" fn mullvad_api_init_inner(
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
     // Safety: See notes for `get_string`
-    let (host, address, domain) =
-        unsafe { (get_string(host), get_string(address), get_string(domain)) };
+    let (host, address, domain, df_front, df_proxy_host) = unsafe {
+        (
+            get_string(host),
+            get_string(address),
+            get_string(domain),
+            get_string(domain_fronting_front),
+            get_string(domain_fronting_proxy_host),
+        )
+    };
 
     // The iOS client provides a different default endpoint based on its configuration
     // Debug and Release builds use the standard endpoints
@@ -336,6 +355,8 @@ pub extern "C" fn mullvad_api_init_inner(
         let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
             endpoint.clone(),
             domain,
+            df_front,
+            df_proxy_host,
             encrypted_dns_proxy_state,
             bridge_provider,
             api_client.address_cache().clone(),

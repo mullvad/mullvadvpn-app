@@ -100,6 +100,14 @@ extension AccessMethodViewModel {
                 ),
                 link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Encrypted DNS proxy")
             )
+        case AccessMethodRepository.domainFrontingId:
+            InfoHeaderConfig(
+                body: NSLocalizedString(
+                    "The app communicates with a Mullvad API server via domain fronting.",
+                    comment: ""
+                ),
+                link: String(format: NSLocalizedString("About %@ method...", comment: ""), "Domain fronting")
+            )
         default:
             nil
         }
@@ -160,6 +168,33 @@ extension AccessMethodViewModel {
                         use your own non-VPN IP when connecting. The DoH servers are hosted by \
                         one of the following providers: Quad9 or Cloudflare.
                         """,
+                        comment: ""
+                    ),
+                ]
+            )
+        case AccessMethodRepository.domainFrontingId:
+            InfoModalConfig(
+                header: "Domain fronting",
+                preamble: NSLocalizedString(
+                    "The app communicates with a Mullvad API server via domain fronting.",
+                    comment: ""
+                ),
+                body: [
+                    String(
+                        format: NSLocalizedString(
+                            "With the Domain fronting access method, the app reaches the Mullvad API via a CDN, "
+                                + "mixing the traffic with a lot of other internet traffic, making it "
+                                + "more difficult to censor.",
+                            comment: ""
+                        ),
+                    ),
+                    NSLocalizedString(
+                        "This can be useful when direct access and other methods are blocked by censorship.",
+                        comment: ""
+                    ),
+                    NSLocalizedString(
+                        "The CDN used is Datapacket\u{2019}s CDN77. The CDN can only observe the "
+                            + "proxied TLS traffic, not the contents.",
                         comment: ""
                     ),
                 ]
