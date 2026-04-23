@@ -139,6 +139,12 @@ export const useGetFeatureIndicator = () => {
     });
   }, [history]);
 
+  const gotoPersonalVpn = React.useCallback(() => {
+    history.push(RoutePath.personalVpn, {
+      transition: TransitionType.show,
+    });
+  }, [history]);
+
   const featureMap: Record<FeatureIndicator, { label: string; onClick?: () => void }> = {
     [FeatureIndicator.daita]: { label: strings.daita, onClick: gotoEnableDaitaFeature },
     [FeatureIndicator.daitaMultihop]: {
@@ -218,6 +224,14 @@ export const useGetFeatureIndicator = () => {
     [FeatureIndicator.dnsContentBlockers]: {
       label: messages.pgettext('vpn-settings-view', 'DNS content blockers'),
       onClick: gotoDnsContentBlockersFeature,
+    },
+    [FeatureIndicator.personalVpn]: {
+      label: messages.pgettext('personal-vpn-view', 'Personal VPN'),
+      onClick: gotoPersonalVpn,
+    },
+    [FeatureIndicator.personalVpnActive]: {
+      label: messages.pgettext('personal-vpn-view', 'Personal VPN (active)'),
+      onClick: gotoPersonalVpn,
     },
   };
 

@@ -96,6 +96,15 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetDaitaDirectOnly((value) => {
       return this.daemonRpc.setDaitaDirectOnly(value);
     });
+    IpcMainEventChannel.settings.handleSetCustomVpnConfig((config) => {
+      return this.daemonRpc.setCustomVpnConfig(config);
+    });
+    IpcMainEventChannel.settings.handleSetCustomVpnEnabled((enabled) => {
+      return this.daemonRpc.setCustomVpnEnabled(enabled);
+    });
+    IpcMainEventChannel.settings.handleClearCustomVpn(() => {
+      return this.daemonRpc.clearCustomVpn();
+    });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
@@ -172,6 +181,12 @@ export default class Settings implements Readonly<ISettings> {
   }
   public get relayOverrides() {
     return this.settingsValue.relayOverrides;
+  }
+  public get customVpnConfig() {
+    return this.settingsValue.customVpnConfig;
+  }
+  public get customVpnEnabled() {
+    return this.settingsValue.customVpnEnabled;
   }
 
   public get gui() {

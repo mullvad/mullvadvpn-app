@@ -74,6 +74,8 @@ export function getDefaultSettings(): ISettings {
     apiAccessMethods: getDefaultApiAccessMethods(),
     relayOverrides: [],
     recents: [],
+    customVpnEnabled: false,
+    customVpnConfig: undefined,
   };
 }
 

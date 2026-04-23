@@ -3,6 +3,8 @@ import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
   CustomLists,
+  CustomVpnConfig,
+  CustomVpnStats,
   IDaitaSettings,
   IDnsOptions,
   IWireguardEndpointData,
@@ -123,6 +125,17 @@ export interface ISetRecents {
   recents?: Recents;
 }
 
+export interface ISetCustomVpn {
+  type: 'SET_CUSTOM_VPN';
+  config?: CustomVpnConfig;
+  enabled: boolean;
+}
+
+export interface ISetCustomVpnStats {
+  type: 'SET_CUSTOM_VPN_STATS';
+  stats: CustomVpnStats;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -145,7 +158,9 @@ export type SettingsAction =
   | ISetRecents
   | ISetApiAccessMethods
   | ISetCurrentApiAccessMethod
-  | ISetRelayOverrides;
+  | ISetRelayOverrides
+  | ISetCustomVpn
+  | ISetCustomVpnStats;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -311,6 +326,21 @@ function updateRecents(recents?: Recents): ISetRecents {
   };
 }
 
+function updateCustomVpn(config: CustomVpnConfig | undefined, enabled: boolean): ISetCustomVpn {
+  return {
+    type: 'SET_CUSTOM_VPN',
+    config,
+    enabled,
+  };
+}
+
+function updateCustomVpnStats(stats: CustomVpnStats): ISetCustomVpnStats {
+  return {
+    type: 'SET_CUSTOM_VPN_STATS',
+    stats,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -334,4 +364,6 @@ export default {
   updateCurrentApiAccessMethod,
   updateRelayOverrides,
   updateRecents,
+  updateCustomVpn,
+  updateCustomVpnStats,
 };

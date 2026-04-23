@@ -30,6 +30,7 @@ import {
   MainView,
   ManageDevicesView,
   MultihopSettingsView,
+  PersonalVpnView,
   ProblemReportView,
   SelectLanguageView,
   SelectLocationView,
@@ -99,6 +100,7 @@ export default function AppRouter() {
           <Route exact path={RoutePath.antiCensorship} component={AntiCensorshipView} />
           <Route exact path={RoutePath.wireguardPort} component={WireguardPortView} />
           <Route exact path={RoutePath.lwo} component={LwoSettingsView} />
+          <Route exact path={RoutePath.personalVpn} component={PersonalVpnView} />
         </Switch>
       </Focus>
     </>

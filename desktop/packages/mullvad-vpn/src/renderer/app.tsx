@@ -15,6 +15,8 @@ import {
   AccessMethodSetting,
   AccountNumber,
   CustomProxy,
+  CustomVpnConfig,
+  CustomVpnStats,
   DeviceEvent,
   DisconnectSource,
   IAccountData,
@@ -178,6 +180,10 @@ export default class AppRenderer {
 
     IpcRendererEventChannel.settings.listenApiAccessMethodSettingChange((setting) => {
       this.setCurrentApiAccessMethod(setting);
+    });
+
+    IpcRendererEventChannel.settings.listenCustomVpnStats((stats) => {
+      this.handleCustomVpnStats(stats);
     });
 
     IpcRendererEventChannel.relays.listen((relayListPair: IRelayListWithEndpointData) => {
@@ -444,6 +450,11 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.setEnableDaita(value);
   public setDaitaDirectOnly = (value: boolean) =>
     IpcRendererEventChannel.settings.setDaitaDirectOnly(value);
+  public setCustomVpnConfig = (config: CustomVpnConfig) =>
+    IpcRendererEventChannel.settings.setCustomVpnConfig(config);
+  public setCustomVpnEnabled = (enabled: boolean) =>
+    IpcRendererEventChannel.settings.setCustomVpnEnabled(enabled);
+  public clearCustomVpn = () => IpcRendererEventChannel.settings.clearCustomVpn();
   public collectProblemReport = (toRedact: string | undefined) =>
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
@@ -855,9 +866,14 @@ export default class AppRenderer {
     reduxSettings.updateApiAccessMethods(newSettings.apiAccessMethods);
     reduxSettings.updateRelayOverrides(newSettings.relayOverrides);
     reduxSettings.updateRecents(newSettings.recents);
+    reduxSettings.updateCustomVpn(newSettings.customVpnConfig, newSettings.customVpnEnabled);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
   }
+
+  private handleCustomVpnStats = (stats: CustomVpnStats) => {
+    this.reduxActions.settings.updateCustomVpnStats(stats);
+  };
 
   private setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean) {
     this.reduxActions.userInterface.setIsPerformingPostUpgrade(isPerformingPostUpgrade);

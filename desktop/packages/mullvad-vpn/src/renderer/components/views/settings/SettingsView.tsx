@@ -12,6 +12,7 @@ import {
   DaitaListItem,
   DebugListItem,
   MultihopListItem,
+  PersonalVpnListItem,
   QuitButton,
   SplitTunnelingListItem,
   SupportListItem,
@@ -48,6 +49,7 @@ export function SettingsView() {
                       <FlexColumn>
                         <DaitaListItem />
                         <MultihopListItem />
+                        {showDebug && <PersonalVpnListItem />}
                         <VpnSettingsListItem />
                         <UserInterfaceSettingsListItem />
                       </FlexColumn>

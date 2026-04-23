@@ -11,6 +11,8 @@ import {
   Constraint,
   CustomLists,
   CustomProxy,
+  CustomVpnConfig,
+  CustomVpnStats,
   DaemonAppUpgradeError,
   DaemonAppUpgradeEvent,
   DaemonEvent,
@@ -393,6 +395,10 @@ function convertFromFeatureIndicator(
       return FeatureIndicator.lwo;
     case grpcTypes.FeatureIndicator.WIREGUARD_PORT:
       return FeatureIndicator.wireGuardPort;
+    case grpcTypes.FeatureIndicator.PERSONAL_VPN:
+      return FeatureIndicator.personalVpn;
+    case grpcTypes.FeatureIndicator.PERSONAL_VPN_ACTIVE:
+      return FeatureIndicator.personalVpnActive;
   }
 }
 
@@ -442,6 +448,8 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
   const apiAccessMethods = convertFromApiAccessMethodSettings(settings.getApiAccessMethods()!);
   const relayOverrides = settingsObject.relayOverridesList;
   const recents = convertFromRecents(settings.getRecents());
+  const customVpnConfig = convertFromCustomVpnConfig(settings.getCustomVpnConfig());
+  const customVpnEnabled = settings.getCustomVpnEnabled();
   return {
     ...settings.toObject(),
     relaySettings,
@@ -452,6 +460,8 @@ export function convertFromSettings(settings: grpcTypes.Settings): ISettings | u
     apiAccessMethods,
     relayOverrides,
     recents,
+    customVpnConfig,
+    customVpnEnabled,
   };
 }
 
@@ -480,6 +490,58 @@ function convertFromRecents(recents: grpcTypes.Recents | undefined): Recents | u
       }
     })
     .filter((recent) => recent !== undefined) as Recents;
+}
+
+export function convertFromCustomVpnConfig(
+  config?: grpcTypes.CustomVpnConfig,
+): CustomVpnConfig | undefined {
+  if (!config) {
+    return undefined;
+  }
+  const result: CustomVpnConfig = {};
+  const tunnel = config.getTunnel();
+  if (tunnel) {
+    result.tunnel = {
+      privateKey: convertFromWireguardKey(tunnel.getPrivateKey()),
+      tunnelIp: tunnel.getIp(),
+    };
+  }
+  const peer = config.getPeer();
+  if (peer) {
+    result.peer = {
+      publicKey: convertFromWireguardKey(peer.getPublicKey()),
+      allowedIps: peer.getAllowedIpList(),
+      endpoint: peer.getEndpoint(),
+    };
+  }
+  return result;
+}
+
+export function convertFromCustomVpnStats(stats: grpcTypes.CustomVpnStats): CustomVpnStats {
+  const lastHandshake = stats.getLastHandshakeTime();
+  return {
+    txBytes: stats.getTxBytes(),
+    rxBytes: stats.getRxBytes(),
+    lastHandshakeTime: lastHandshake ? lastHandshake.toDate().toISOString() : undefined,
+  };
+}
+
+export function buildCustomVpnConfig(config: CustomVpnConfig): grpcTypes.CustomVpnConfig {
+  const grpcConfig = new grpcTypes.CustomVpnConfig();
+  if (config.tunnel) {
+    const tunnel = new grpcTypes.CustomVpnConfig.TunnelConfig();
+    tunnel.setPrivateKey(Buffer.from(config.tunnel.privateKey, 'base64'));
+    tunnel.setIp(config.tunnel.tunnelIp);
+    grpcConfig.setTunnel(tunnel);
+  }
+  if (config.peer) {
+    const peer = new grpcTypes.CustomVpnConfig.PeerConfig();
+    peer.setPublicKey(Buffer.from(config.peer.publicKey, 'base64'));
+    peer.setAllowedIpList(config.peer.allowedIps);
+    peer.setEndpoint(config.peer.endpoint);
+    grpcConfig.setPeer(peer);
+  }
+  return grpcConfig;
 }
 
 function convertFromRelaySettings(

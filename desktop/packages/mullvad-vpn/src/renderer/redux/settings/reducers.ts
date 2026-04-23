@@ -4,6 +4,8 @@ import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
   CustomLists,
+  CustomVpnConfig,
+  CustomVpnStats,
   IDaitaSettings,
   IDnsOptions,
   IpVersion,
@@ -96,6 +98,9 @@ export interface ISettingsReduxState {
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
+  customVpnConfig?: CustomVpnConfig;
+  customVpnEnabled: boolean;
+  customVpnStats?: CustomVpnStats;
 }
 
 const initialState: ISettingsReduxState = {
@@ -166,6 +171,9 @@ const initialState: ISettingsReduxState = {
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],
+  customVpnConfig: undefined,
+  customVpnEnabled: false,
+  customVpnStats: undefined,
 };
 
 export default function (
@@ -311,6 +319,19 @@ export default function (
       return {
         ...state,
         relayOverrides: action.relayOverrides,
+      };
+
+    case 'SET_CUSTOM_VPN':
+      return {
+        ...state,
+        customVpnConfig: action.config,
+        customVpnEnabled: action.enabled,
+      };
+
+    case 'SET_CUSTOM_VPN_STATS':
+      return {
+        ...state,
+        customVpnStats: action.stats,
       };
 
     default:

@@ -12,6 +12,7 @@ import {
 import { urls } from '../shared/constants';
 import {
   AccessMethodSetting,
+  CustomVpnStats,
   DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
@@ -105,6 +106,7 @@ class ApplicationMain
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private daemonAppUpgradeEventListener?: SubscriptionListener<DaemonAppUpgradeEvent>;
+  private customVpnStatsListener?: SubscriptionListener<CustomVpnStats>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
@@ -555,6 +557,14 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // subscribe to custom VPN stats
+    try {
+      this.customVpnStatsListener = this.subscribeCustomVpnStats();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to subscribe to custom VPN stats: ${error.message}`);
+    }
+
     if (firstDaemonConnection) {
       // check if daemon is performing post upgrade tasks the first time it's connected to
       try {
@@ -697,9 +707,13 @@ class ApplicationMain
     if (this.daemonAppUpgradeEventListener) {
       this.daemonRpc.unsubscribeAppUpgradeEventListener(this.daemonAppUpgradeEventListener);
     }
+    if (this.customVpnStatsListener) {
+      this.daemonRpc.unsubscribeCustomVpnStatsListener(this.customVpnStatsListener);
+    }
     // Reset the daemon and app upgrade event listeners since they're going to be invalidated on disconnect
     this.daemonEventListener = undefined;
     this.daemonAppUpgradeEventListener = undefined;
+    this.customVpnStatsListener = undefined;
 
     this.notificationController.closeNotificationsInCategory(
       SystemNotificationCategory.tunnelState,
@@ -786,6 +800,21 @@ class ApplicationMain
     this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
 
     return daemonEventListener;
+  }
+
+  private subscribeCustomVpnStats(): SubscriptionListener<CustomVpnStats> {
+    const listener = new SubscriptionListener<CustomVpnStats>(
+      (stats) => {
+        IpcMainEventChannel.settings.notifyCustomVpnStats?.(stats);
+      },
+      (error) => {
+        log.error(`Custom VPN stats stream error: ${error.message}`);
+      },
+    );
+
+    this.daemonRpc.subscribeCustomVpnStatsListener(listener);
+
+    return listener;
   }
 
   private setSettings(newSettings: ISettings) {

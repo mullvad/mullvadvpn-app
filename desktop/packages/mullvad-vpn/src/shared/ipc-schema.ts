@@ -10,6 +10,8 @@ import {
   AccountNumber,
   CustomListError,
   CustomProxy,
+  CustomVpnConfig,
+  CustomVpnStats,
   DeviceEvent,
   DeviceState,
   DisconnectSource,
@@ -26,6 +28,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  SetCustomVpnConfigError,
   TunnelState,
   VoucherResponse,
 } from './daemon-rpc-types';
@@ -211,6 +214,10 @@ export const ipcSchema = {
     setEnableDaita: invoke<boolean, void>(),
     setDaitaDirectOnly: invoke<boolean, void>(),
     setEnableRecents: invoke<boolean, void>(),
+    setCustomVpnConfig: invoke<CustomVpnConfig, SetCustomVpnConfigError>(),
+    setCustomVpnEnabled: invoke<boolean, void>(),
+    clearCustomVpn: invoke<void, SetCustomVpnConfigError>(),
+    customVpnStats: notifyRenderer<CustomVpnStats>(),
   },
   guiSettings: {
     '': notifyRenderer<IGuiSettingsState>(),

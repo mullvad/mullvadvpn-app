@@ -3,6 +3,7 @@ export * from './app-info-list-item';
 export * from './daita-list-item';
 export * from './debug-list-item';
 export * from './multihop-list-item';
+export * from './personal-vpn-list-item';
 export * from './quit-button';
 export * from './split-tunneling-list-item';
 export * from './support-list-item';

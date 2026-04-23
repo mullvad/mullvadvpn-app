@@ -235,6 +235,8 @@ export enum FeatureIndicator {
   customDns,
   serverIpOverride,
   customMtu,
+  personalVpn,
+  personalVpnActive,
 }
 
 export type DisconnectedState = {
@@ -468,6 +470,30 @@ export type CustomListError = { type: 'name already exists' };
 
 export type AccessMethodExistsError = { type: 'name already exists' };
 
+export type CustomVpnTunnelConfig = {
+  privateKey: string;
+  tunnelIp: string;
+};
+
+export type CustomVpnPeerConfig = {
+  publicKey: string;
+  allowedIps: string[];
+  endpoint: string;
+};
+
+export type CustomVpnConfig = {
+  tunnel?: CustomVpnTunnelConfig;
+  peer?: CustomVpnPeerConfig;
+};
+
+export type CustomVpnStats = {
+  txBytes: number;
+  rxBytes: number;
+  lastHandshakeTime?: string;
+};
+
+export type SetCustomVpnConfigError = { type: 'success' } | { type: 'error'; message: string };
+
 export interface ISettings {
   allowLan: boolean;
   autoConnect: boolean;
@@ -481,6 +507,8 @@ export interface ISettings {
   recents?: Recents;
   apiAccessMethods: ApiAccessMethodSettings;
   relayOverrides: Array<RelayOverride>;
+  customVpnConfig?: CustomVpnConfig;
+  customVpnEnabled: boolean;
 }
 
 export type SplitTunnelSettings = {
