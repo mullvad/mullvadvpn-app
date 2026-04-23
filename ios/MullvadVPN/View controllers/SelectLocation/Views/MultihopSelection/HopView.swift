@@ -1,4 +1,5 @@
 import MullvadTypes
+import MullvadLogging
 import SwiftUI
 
 struct HopView: View {
