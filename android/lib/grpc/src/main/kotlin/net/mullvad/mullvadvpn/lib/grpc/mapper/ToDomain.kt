@@ -11,7 +11,7 @@ import java.util.UUID
 import kotlin.String
 import kotlin.io.encoding.Base64
 import mullvad_daemon.management_interface.ManagementInterface
-import mullvad_daemon.management_interface.customVpnConfigOrNull
+import mullvad_daemon.management_interface.personalVpnConfigOrNull
 import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.lastHandshakeTimeOrNull
 import mullvad_daemon.management_interface.locationOrNull
@@ -35,7 +35,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -367,8 +367,8 @@ internal fun ManagementInterface.Settings.toDomain(): Settings =
         splitTunnelSettings = splitTunnel.toDomain(),
         apiAccessMethodSettings = apiAccessMethods.toDomain(),
         recents = recentsOrNull.toDomain(),
-        customVpnEnabled = customVpnEnabled,
-        customVpnConfig = customVpnConfigOrNull?.toDomain(),
+        personalVpnEnabled = personalVpnEnabled,
+        personalVpnConfig = personalVpnConfigOrNull?.toDomain(),
     )
 
 internal fun ManagementInterface.RelayOverride.toDomain(): RelayOverride =
@@ -832,23 +832,23 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
         conflictWithOtherHop = conflictWithOtherHop,
     )
 
-internal fun ManagementInterface.CustomVpnConfig.toDomain() =
-    CustomVpnConfig(tunnelConfig = tunnel.toDomain(), peerConfig = peer.toDomain())
+internal fun ManagementInterface.PersonalVpnConfig.toDomain() =
+    PersonalVpnConfig(tunnelConfig = tunnel.toDomain(), peerConfig = peer.toDomain())
 
-internal fun ManagementInterface.CustomVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
+internal fun ManagementInterface.PersonalVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
     TunnelConfig(
         privateKey = WireguardKey.from(Base64.encode(privateKey.toByteArray())).getOrNull()!!,
         tunnelIp = InetAddress.getByName(ip),
     )
 
-internal fun ManagementInterface.CustomVpnConfig.PeerConfig.toDomain() =
+internal fun ManagementInterface.PersonalVpnConfig.PeerConfig.toDomain() =
     PeerConfig(
         publicKey = WireguardKey.from(Base64.encode(publicKey.toByteArray())).getOrNull()!!,
         allowedIps = allowedIpList,
         endpoint = endpoint.toInetSocketAddress(),
     )
 
-internal fun ManagementInterface.CustomVpnStats.toDomain() =
+internal fun ManagementInterface.PersonalVpnStats.toDomain() =
     TunnelStats(
         rx = rxBytes,
         tx = txBytes,

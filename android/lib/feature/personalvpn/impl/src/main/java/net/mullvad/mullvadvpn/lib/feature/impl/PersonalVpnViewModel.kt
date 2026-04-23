@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.common.util.onFirst
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.KeyParseError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PeerConfig
@@ -50,22 +50,22 @@ class PersonalVpnViewModel(
         combine(
                 settingsRepository.settingsUpdates
                     .filterNotNull()
-                    .onFirst { _formData.value = PersonalVpnFormData.from(it.customVpnConfig) }
-                    .map { it.customVpnEnabled },
+                    .onFirst { _formData.value = PersonalVpnFormData.from(it.personalVpnConfig) }
+                    .map { it.personalVpnEnabled },
                 managementService.tunnelStats.onStart { emit(TunnelStats()) },
                 _formData.filterNotNull(),
                 formErrors,
                 _formData.map { it != PersonalVpnFormData() },
             ) {
-                customVpnEnabled: Boolean,
-                customVpnStats: TunnelStats,
+                personalVpnEnabled: Boolean,
+                personalVpnStats: TunnelStats,
                 formData: PersonalVpnFormData,
                 formErrors,
                 canClear ->
                 PersonalVpnUiState(
-                        enabled = customVpnEnabled,
+                        enabled = personalVpnEnabled,
                         canClear,
-                        tunnelStats = customVpnStats,
+                        tunnelStats = personalVpnStats,
                         formData,
                         formErrors.filterIsInstance<FormDataError.PrivateKey>().firstOrNull(),
                         formErrors.filterIsInstance<FormDataError.TunnelIp>().firstOrNull(),
@@ -84,7 +84,7 @@ class PersonalVpnViewModel(
             )
 
     fun onToggle(on: Boolean) {
-        viewModelScope.launch { managementService.toggleCustomVpn(on) }
+        viewModelScope.launch { managementService.togglePersonalVpn(on) }
     }
 
     fun onClearError(error: FormDataError) {
@@ -97,8 +97,8 @@ class PersonalVpnViewModel(
 
     fun clearConfig() {
         viewModelScope.launch {
-            managementService.clearCustomVpn()
-            managementService.toggleCustomVpn(false)
+            managementService.clearPersonalVpn()
+            managementService.togglePersonalVpn(false)
             _formData.value = PersonalVpnFormData.from(null)
         }
     }
@@ -114,7 +114,7 @@ class PersonalVpnViewModel(
                     formErrors.value = emptyList()
                     viewModelScope.launch {
                         managementService
-                            .setCustomVpnConfig(vpnConfig)
+                            .setPersonalVpnConfig(vpnConfig)
                             .fold(
                                 {
                                     _uiSideEffect.send(
@@ -133,7 +133,7 @@ class PersonalVpnViewModel(
 
     private fun parseFormData(
         formData: PersonalVpnFormData
-    ): Either<List<FormDataError>, CustomVpnConfig> {
+    ): Either<List<FormDataError>, PersonalVpnConfig> {
         val errors = mutableListOf<FormDataError>()
 
         val privateKey = parsePrivateKey(formData.privateKey).onLeft { errors.add(it) }.getOrNull()
@@ -146,7 +146,7 @@ class PersonalVpnViewModel(
         if (errors.isNotEmpty()) return Either.Left(errors)
 
         return Either.Right(
-            CustomVpnConfig(
+            PersonalVpnConfig(
                 tunnelConfig = TunnelConfig(privateKey = privateKey!!, tunnelIp = address!!),
                 peerConfig =
                     PeerConfig(
@@ -233,18 +233,18 @@ data class PersonalVpnFormData(
     val endpoint: String = "",
 ) {
     companion object {
-        fun from(customVpnConfig: CustomVpnConfig?) =
-            if (customVpnConfig == null) {
+        fun from(personalVpnConfig: PersonalVpnConfig?) =
+            if (personalVpnConfig == null) {
                 PersonalVpnFormData()
             } else {
                 PersonalVpnFormData(
-                    privateKey = customVpnConfig.tunnelConfig.privateKey.value,
-                    tunnelIp = customVpnConfig.tunnelConfig.tunnelIp.hostAddress ?: "",
-                    publicKey = customVpnConfig.peerConfig.publicKey.value,
+                    privateKey = personalVpnConfig.tunnelConfig.privateKey.value,
+                    tunnelIp = personalVpnConfig.tunnelConfig.tunnelIp.hostAddress ?: "",
+                    publicKey = personalVpnConfig.peerConfig.publicKey.value,
                     allowedIPs =
-                        customVpnConfig.peerConfig.allowedIps.ifEmpty { listOf("") },
+                        personalVpnConfig.peerConfig.allowedIps.ifEmpty { listOf("") },
                     endpoint =
-                        "${customVpnConfig.peerConfig.endpoint.hostString}:${customVpnConfig.peerConfig.endpoint.port}",
+                        "${personalVpnConfig.peerConfig.endpoint.hostString}:${personalVpnConfig.peerConfig.endpoint.port}",
                 )
             }
     }

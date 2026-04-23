@@ -67,7 +67,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
@@ -118,7 +118,7 @@ import net.mullvad.mullvadvpn.lib.model.RemoveApiAccessMethodError
 import net.mullvad.mullvadvpn.lib.model.RemoveSplitTunnelingAppError
 import net.mullvad.mullvadvpn.lib.model.SetAllowLanError
 import net.mullvad.mullvadvpn.lib.model.SetApiAccessMethodError
-import net.mullvad.mullvadvpn.lib.model.SetCustomVpnConfigError
+import net.mullvad.mullvadvpn.lib.model.SetPersonalVpnConfigError
 import net.mullvad.mullvadvpn.lib.model.SetDaitaSettingsError
 import net.mullvad.mullvadvpn.lib.model.SetDnsOptionsError
 import net.mullvad.mullvadvpn.lib.model.SetObfuscationOptionsError
@@ -275,7 +275,7 @@ class ManagementService(
             launch {
                 launch {
                     grpc
-                        .getCustomVpnStats(Empty.getDefaultInstance())
+                        .getPersonalVpnStats(Empty.getDefaultInstance())
                         .map { it.toDomain() }
                         .collect {
                             Logger.d("RECEIVED TUNNELSTATS: $it")
@@ -984,38 +984,38 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
-    suspend fun toggleCustomVpn(enable: Boolean): Unit {
-        grpc.setCustomVpnConfigStatus(BoolValue.of(enable))
+    suspend fun togglePersonalVpn(enable: Boolean): Unit {
+        grpc.setPersonalVpnConfigStatus(BoolValue.of(enable))
     }
 
-    suspend fun setCustomVpnConfig(config: CustomVpnConfig): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.setCustomVpnConfig(config.fromDomain()) }
+    suspend fun setPersonalVpnConfig(config: PersonalVpnConfig): Either<SetPersonalVpnConfigError, Unit> =
+        Either.catch { grpc.setPersonalVpnConfig(config.fromDomain()) }
             .mapLeft {
                 Logger.d("Random gRPC throwable error: $it")
-                SetCustomVpnConfigError.Unknown
+                SetPersonalVpnConfigError.Unknown
             }
             .map {
-                Logger.d("setCustomVpnConfig returned: $it")
+                Logger.d("setPersonalVpnConfig returned: $it")
                 // Assume nothing goes wrong now
                 Unit.right()
             }
             .flatten()
 
-    suspend fun clearCustomVpn(): Either<SetCustomVpnConfigError, Unit> =
-        Either.catch { grpc.setCustomVpnConfig(ManagementInterface.CustomVpnConfig.getDefaultInstance()) }
+    suspend fun clearPersonalVpn(): Either<SetPersonalVpnConfigError, Unit> =
+        Either.catch { grpc.setPersonalVpnConfig(ManagementInterface.PersonalVpnConfig.getDefaultInstance()) }
             .mapLeft {
                 Logger.d("Random gRPC throwable error: $it")
-                SetCustomVpnConfigError.Unknown
+                SetPersonalVpnConfigError.Unknown
             }
             .map {
-                Logger.d("setCustomVpnConfig returned: $it")
+                Logger.d("setPersonalVpnConfig returned: $it")
                 // Assume nothing goes wrong now
                 Unit.right()
             }
             .flatten()
 
-    fun customVpnStats(): Flow<TunnelStats> =
-        grpc.getCustomVpnStats(Empty.getDefaultInstance()).map { it.toDomain() }
+    fun personalVpnStats(): Flow<TunnelStats> =
+        grpc.getPersonalVpnStats(Empty.getDefaultInstance()).map { it.toDomain() }
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 

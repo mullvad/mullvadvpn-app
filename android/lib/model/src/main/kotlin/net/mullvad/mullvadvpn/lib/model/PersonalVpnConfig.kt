@@ -8,15 +8,15 @@ import java.net.InetSocketAddress
 import java.time.Instant
 import kotlin.io.encoding.Base64
 
-sealed interface SetCustomVpnConfigError {
-    object Unknown : SetCustomVpnConfigError
+sealed interface SetPersonalVpnConfigError {
+    object Unknown : SetPersonalVpnConfigError
 }
 
-sealed interface GetCustomVpnConfigError {
-    object Unknown : GetCustomVpnConfigError
+sealed interface GetPersonalVpnConfigError {
+    object Unknown : GetPersonalVpnConfigError
 }
 
-data class CustomVpnConfig(val tunnelConfig: TunnelConfig, val peerConfig: PeerConfig)
+data class PersonalVpnConfig(val tunnelConfig: TunnelConfig, val peerConfig: PeerConfig)
 
 data class TunnelConfig(val privateKey: WireguardKey, val tunnelIp: InetAddress)
 

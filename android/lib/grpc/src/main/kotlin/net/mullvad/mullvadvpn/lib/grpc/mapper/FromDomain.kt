@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
-import net.mullvad.mullvadvpn.lib.model.CustomVpnConfig
+import net.mullvad.mullvadvpn.lib.model.PersonalVpnConfig
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
@@ -368,20 +368,20 @@ internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
         }
         .build()
 
-internal fun CustomVpnConfig.fromDomain(): ManagementInterface.CustomVpnConfig =
-    ManagementInterface.CustomVpnConfig.newBuilder()
+internal fun PersonalVpnConfig.fromDomain(): ManagementInterface.PersonalVpnConfig =
+    ManagementInterface.PersonalVpnConfig.newBuilder()
         .setTunnel(tunnelConfig.fromDomain())
         .setPeer(peerConfig.fromDomain())
         .build()
 
-internal fun TunnelConfig.fromDomain(): ManagementInterface.CustomVpnConfig.TunnelConfig =
-    ManagementInterface.CustomVpnConfig.TunnelConfig.newBuilder()
+internal fun TunnelConfig.fromDomain(): ManagementInterface.PersonalVpnConfig.TunnelConfig =
+    ManagementInterface.PersonalVpnConfig.TunnelConfig.newBuilder()
         .setIp(tunnelIp.hostAddress!!)
         .setPrivateKey(ByteString.copyFrom(Base64.decode(privateKey.value)))
         .build()
 
-internal fun PeerConfig.fromDomain(): ManagementInterface.CustomVpnConfig.PeerConfig =
-    ManagementInterface.CustomVpnConfig.PeerConfig.newBuilder()
+internal fun PeerConfig.fromDomain(): ManagementInterface.PersonalVpnConfig.PeerConfig =
+    ManagementInterface.PersonalVpnConfig.PeerConfig.newBuilder()
         .setEndpoint("${endpoint.address.hostAddress}:${endpoint.port}")
         .addAllAllowedIp(allowedIps)
         .setPublicKey(ByteString.copyFrom(Base64.decode(publicKey.value)))
