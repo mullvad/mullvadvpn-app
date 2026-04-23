@@ -22,7 +22,7 @@ permissions: {}
 jobs:
   swift-format:
     name: Run swift format lint
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
 
   ui-test-build:
     name: Build for ui tests (staging)
-    runs-on: macos-15
+    runs-on: macos-26
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
@@ -58,7 +58,7 @@ jobs:
 
   test:
     name: Unit tests
-    runs-on: macos-15-xlarge
+    runs-on: macos-26-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
     steps:
