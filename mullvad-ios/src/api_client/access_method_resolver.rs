@@ -46,7 +46,7 @@ const SESSION_HEADER: &str = "X-Mullvad-Session";
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
-    domain: String,
+    encrypted_dns_domain: String,
     domain_fronting_front: String,
     domain_fronting_proxy_host: String,
     state: EncryptedDnsProxyState,
@@ -57,7 +57,7 @@ pub struct SwiftAccessMethodResolver {
 impl SwiftAccessMethodResolver {
     pub fn new(
         endpoint: ApiEndpoint,
-        domain: String,
+        encrypted_dns_domain: String,
         domain_fronting_front: String,
         domain_fronting_proxy_host: String,
         state: EncryptedDnsProxyState,
@@ -66,7 +66,7 @@ impl SwiftAccessMethodResolver {
     ) -> Self {
         Self {
             endpoint,
-            domain,
+            encrypted_dns_domain,
             domain_fronting_front,
             domain_fronting_proxy_host,
             state,
@@ -90,7 +90,7 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                if let Err(error) = self.state.fetch_configs(self.domain.as_str()).await {
+                if let Err(error) = self.state.fetch_configs(self.encrypted_dns_domain.as_str()).await {
                     log::error!("{error:#?}");
                 }
                 let Some(edp) = self.state.next_configuration() else {
