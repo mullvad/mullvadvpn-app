@@ -355,7 +355,7 @@ export function PersonalVpnView() {
                 <Text variant="labelTiny" color="whiteAlpha60">
                   {messages.pgettext(
                     'personal-vpn-view',
-                    'Manually configure a WireGuard tunnel to a server you control. When enabled, this replaces the Mullvad relay selection.',
+                    'Manually configure a WireGuard tunnel to a server you control, via the selected Mullvad relay.',
                   )}
                 </Text>
 
