@@ -8,7 +8,7 @@
 
 import MullvadTypes
 
-public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
+public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod], validShadowsocksCiphers: [String])
     -> SwiftAccessMethodSettingsWrapper
 {
     // 1. Get all the built in access methods, it is expected that they are always available
@@ -28,11 +28,19 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     var rawCustomMethods = ContiguousArray<UnsafeRawPointer?>([])
     // 4. Convert the custom access methods (all takes different parameters)
     for method in customMethods {
+        // Make sure we only use access methods with valud ciphers.
+        if case .shadowsocks(let config) = method.proxyConfiguration {
+            guard validShadowsocksCiphers.contains(config.cipher) else {
+                continue
+            }
+        }
+
         let rawMethod = convertAccessMethod(accessMethod: method)
         rawCustomMethods.append(rawMethod)
     }
 
     // 5. Reunite them all in one, and pass it to rust
+    let customMethodCount = rawCustomMethods.count
     return rawCustomMethods.withUnsafeMutableBufferPointer(
         {
             init_access_method_settings_wrapper(
@@ -40,7 +48,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 bridgesMethodRaw,
                 encryptedDNSMethodRaw,
                 $0.baseAddress!,
-                UInt(customMethods.count)
+                UInt(customMethodCount)
             )
         }
     )

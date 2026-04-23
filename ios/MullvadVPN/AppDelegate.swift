@@ -101,7 +101,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
-            methods: accessMethodRepository.fetchAll()
+            methods: accessMethodRepository.fetchAll(),
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers
         )
 
         // swift-format-ignore: NeverUseForceTry
@@ -116,6 +117,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )

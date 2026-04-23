@@ -242,7 +242,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
-            methods: accessMethodRepository.fetchAll()
+            methods: accessMethodRepository.fetchAll(),
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers
         )
 
         // swift-format-ignore: NeverUseForceTry
@@ -261,6 +262,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     ) {
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
