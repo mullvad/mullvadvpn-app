@@ -1186,6 +1186,9 @@
 		F9E3BCF72DD35B78009986C3 /* ListAccessViewModelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */; };
 		F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */; };
 		F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389DA2B7E3BD6008E77E1 /* CustomListInteractor.swift */; };
+		2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */; };
+		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; };
+		E79BD7E565693BF2BDA5D9E6 /* GotaTunTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F678736F5403E23B77CA9990 /* GotaTunTunnelImplementation.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2735,6 +2738,9 @@
 		F9C579C72E8FE10400C90C50 /* LocationItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationItemView.swift; sourceTree = "<group>"; };
 		F9E3BCF62DD35B78009986C3 /* ListAccessViewModelBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListAccessViewModelBridge.swift; sourceTree = "<group>"; };
 		F9EDB26B2EC4C0420015DE36 /* CustomListInteractorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListInteractorTests.swift; sourceTree = "<group>"; };
+		B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelImplementation.swift; sourceTree = "<group>"; };
+		DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireGuardGoTunnelImplementation.swift; sourceTree = "<group>"; };
+		F678736F5403E23B77CA9990 /* GotaTunTunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GotaTunTunnelImplementation.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3769,6 +3775,9 @@
 				58342C032AAB61FB003BA12D /* State+Extensions.swift */,
 				58DDA18E2ABC32380039C360 /* Timings.swift */,
 				F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */,
+				E10A0001000000000000AA01 /* GotaTunActor.swift */,
+				F678736F5403E23B77CA9990 /* GotaTunTunnelImplementation.swift */,
+				B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */,
 			);
 			path = Actor;
 			sourceTree = "<group>";
@@ -4166,7 +4175,6 @@
 			children = (
 				F09D616A2F5AD5E200C85C9E /* Localizable.xcstrings */,
 				58915D662A25F9F20066445B /* DeviceCheck */,
-				E10A0001000000000000AC01 /* GotaTunAdapter */,
 				7A9ED2A82F3CC057005BC0D9 /* Notifications */,
 				58F3F3682AA08E2200D3B0A4 /* PacketTunnelProvider */,
 				F059197A2C45404500C301F3 /* PostQuantum */,
@@ -4379,6 +4387,7 @@
 				58225D272A84F23B0083D7F1 /* PacketTunnelPathObserver.swift */,
 				58F3F3692AA08E3C00D3B0A4 /* PacketTunnelProvider.swift */,
 				5864AF7C2A9F4DC9008BC928 /* SettingsReader.swift */,
+				DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */,
 			);
 			path = PacketTunnelProvider;
 			sourceTree = "<group>";
@@ -4815,14 +4824,6 @@
 				016EE0392F850C5A0035B25C /* WireGuardKeyTests.swift */,
 			);
 			path = MullvadRustRuntimeTests;
-			sourceTree = "<group>";
-		};
-		E10A0001000000000000AC01 /* GotaTunAdapter */ = {
-			isa = PBXGroup;
-			children = (
-				E10A0001000000000000AA01 /* GotaTunActor.swift */,
-			);
-			path = GotaTunAdapter;
 			sourceTree = "<group>";
 		};
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
@@ -6461,6 +6462,9 @@
 				F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
+				E10A0001000000000000AB01 /* GotaTunActor.swift in Sources */,
+				E79BD7E565693BF2BDA5D9E6 /* GotaTunTunnelImplementation.swift in Sources */,
+				2F169CDAE6E8C601F85C543E /* TunnelImplementation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6994,7 +6998,7 @@
 				58C7A45B2A8640030060C66F /* PacketTunnelPathObserver.swift in Sources */,
 				580D6B8E2AB33BBF00B2D6E0 /* BlockedStateErrorMapper.swift in Sources */,
 				06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */,
-				E10A0001000000000000AB01 /* GotaTunActor.swift in Sources */,
+				D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */,
 				E10A0002000000000000AB04 /* PacketTunnelDebugSettings.swift in Sources */,
 				58CE38C728992C8700A6D6E5 /* WireGuardAdapterError+Localization.swift in Sources */,
 				58E511E828DDDF2400B0BCDE /* CodingErrors+CustomErrorDescription.swift in Sources */,
