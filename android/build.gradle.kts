@@ -1,7 +1,11 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import utilities.PreBuildTask
+import utilities.appVersionProvider
+import utilities.getBooleanPropertyOrNull
 import utilities.isNonStableVersion
+import utilities.isReleaseBuild
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -123,3 +127,18 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
+
+val preflightSkipDirtyCheck =
+    getBooleanPropertyOrNull("mullvad.app.release.skipDirtyCheck")
+        ?: gradle.startParameter.taskNames.any { it.endsWith("fdroidRelease") }
+val releasePreflight =
+    tasks.register<PreBuildTask>("releasePreflight") {
+        this.skipDirtyCheck.set(preflightSkipDirtyCheck)
+        this.versionName.set(appVersionProvider.map { it.name })
+    }
+
+if (isReleaseBuild()) {
+    allprojects {
+        tasks.configureEach { if (name != "releasePreflight") dependsOn(releasePreflight) }
+    }
+}
