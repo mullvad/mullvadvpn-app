@@ -65,12 +65,12 @@ class MullvadApi {
         let bridgeProvider = SwiftShadowsocksLoaderWrapper(
             _0: SwiftShadowsocksLoaderWrapperContext(shadowsocks_loader: nil)
         )
+        let domainFrontingConfig = SwiftDomainFrontingConfig(front: "", proxy_host: "")
         context = mullvad_api_init_inner(
             hostname,
             apiAddress,
             hostname,
-            "",
-            "",
+            domainFrontingConfig,
             false,
             bridgeProvider,
             settingsWrapper,

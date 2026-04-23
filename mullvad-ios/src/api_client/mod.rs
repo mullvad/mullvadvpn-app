@@ -163,6 +163,20 @@ pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: Swi
     });
 }
 
+/// Domain fronting configuration passed from Swift.
+///
+/// # Safety
+///
+/// Both `front` and `proxy_host` must be pointers to null-terminated strings.
+/// They are only read during the init call and copied into owned `String`s.
+#[repr(C)]
+pub struct SwiftDomainFrontingConfig {
+    /// The domain to use as the TLS SNI (the "front").
+    pub front: *const c_char,
+    /// The actual proxy host header sent inside the TLS connection.
+    pub proxy_host: *const c_char,
+}
+
 /// # Safety
 ///
 /// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
@@ -180,9 +194,8 @@ pub unsafe extern "C" fn mullvad_api_update_address_cache(swift_api_context: Swi
 pub extern "C" fn mullvad_api_init_new_tls_disabled(
     host: *const c_char,
     address: *const c_char,
-    domain: *const c_char,
-    domain_fronting_front: *const c_char,
-    domain_fronting_proxy_host: *const c_char,
+    encrypted_dns_domain: *const c_char,
+    domain_fronting: SwiftDomainFrontingConfig,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -191,9 +204,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
     mullvad_api_init_inner(
         host,
         address,
-        domain,
-        domain_fronting_front,
-        domain_fronting_proxy_host,
+        encrypted_dns_domain,
+        domain_fronting,
         true,
         bridge_provider,
         settings_provider,
@@ -210,7 +222,7 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 /// `address` must be a pointer to a null terminated string representing a socket address through which
 /// the Mullvad API can be reached directly.
 ///
-/// address_method_change_callback is a function with the C calling convention which will be called
+/// access_method_change_callback is a function with the C calling convention which will be called
 /// whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
 /// of the access method's UUID. Note that this callback must remain valid for the lifetime of the
 /// program.
@@ -226,9 +238,8 @@ pub extern "C" fn mullvad_api_init_new_tls_disabled(
 pub extern "C" fn mullvad_api_init_new(
     host: *const c_char,
     address: *const c_char,
-    domain: *const c_char,
-    domain_fronting_front: *const c_char,
-    domain_fronting_proxy_host: *const c_char,
+    encrypted_dns_domain: *const c_char,
+    domain_fronting: SwiftDomainFrontingConfig,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
     access_method_change_callback: Option<unsafe extern "C" fn(*const c_void, *const u8)>,
@@ -238,9 +249,8 @@ pub extern "C" fn mullvad_api_init_new(
     return mullvad_api_init_inner(
         host,
         address,
-        domain,
-        domain_fronting_front,
-        domain_fronting_proxy_host,
+        encrypted_dns_domain,
+        domain_fronting,
         false,
         bridge_provider,
         settings_provider,
@@ -251,9 +261,8 @@ pub extern "C" fn mullvad_api_init_new(
     mullvad_api_init_inner(
         host,
         address,
-        domain,
-        domain_fronting_front,
-        domain_fronting_proxy_host,
+        encrypted_dns_domain,
+        domain_fronting,
         bridge_provider,
         settings_provider,
         access_method_change_callback,
@@ -277,9 +286,8 @@ pub extern "C" fn mullvad_api_init_new(
 pub extern "C" fn mullvad_api_init_inner(
     host: *const c_char,
     address: *const c_char,
-    domain: *const c_char,
-    domain_fronting_front: *const c_char,
-    domain_fronting_proxy_host: *const c_char,
+    encrypted_dns_domain: *const c_char,
+    domain_fronting: SwiftDomainFrontingConfig,
     #[cfg(feature = "api-override")] disable_tls: bool,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     settings_provider: SwiftAccessMethodSettingsWrapper,
@@ -287,13 +295,13 @@ pub extern "C" fn mullvad_api_init_inner(
     access_method_change_context: *const c_void,
 ) -> SwiftApiContext {
     // Safety: See notes for `get_string`
-    let (host, address, domain, df_front, df_proxy_host) = unsafe {
+    let (host, address, encrypted_dns_domain, df_front, df_proxy_host) = unsafe {
         (
             get_string(host),
             get_string(address),
-            get_string(domain),
-            get_string(domain_fronting_front),
-            get_string(domain_fronting_proxy_host),
+            get_string(encrypted_dns_domain),
+            get_string(domain_fronting.front),
+            get_string(domain_fronting.proxy_host),
         )
     };
 
@@ -354,7 +362,7 @@ pub extern "C" fn mullvad_api_init_inner(
         .await;
         let method_resolver: SwiftAccessMethodResolver = SwiftAccessMethodResolver::new(
             endpoint.clone(),
-            domain,
+            encrypted_dns_domain,
             df_front,
             df_proxy_host,
             encrypted_dns_proxy_state,
