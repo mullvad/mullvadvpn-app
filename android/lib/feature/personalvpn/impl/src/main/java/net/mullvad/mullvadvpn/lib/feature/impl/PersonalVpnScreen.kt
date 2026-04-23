@@ -5,6 +5,8 @@ import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -263,7 +265,11 @@ fun PersonalVpnScreen(
         },
     ) { modifier ->
         Column(
-            modifier = modifier.animateContentSize().padding(horizontal = Dimens.sideMarginNew),
+            modifier =
+                modifier
+                    .verticalScroll(rememberScrollState())
+                    .animateContentSize()
+                    .padding(horizontal = Dimens.sideMarginNew),
             verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
         ) {
             // Scale image to fit width up to certain width
