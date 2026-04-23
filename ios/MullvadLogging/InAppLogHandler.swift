@@ -35,10 +35,10 @@ public struct InAppLogHandler: LogHandler {
     private let label: String
     private let observerList = ObserverList<InAppLogObserver>()
 
-    private struct RegistryKey: Hashable {
-        let subsystem: String
-        let category: String
-    }
+//    private struct RegistryKey: Hashable {
+//        let subsystem: String
+//        let category: String
+//    }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
@@ -63,21 +63,11 @@ public struct InAppLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
-        let mergedMetadata = self.metadata
-            .merging(metadata ?? [:]) { _, rhs -> Logger.MetadataValue in
-                rhs
-            }
-        let prettyMetadata = Self.formatMetadata(mergedMetadata)
-        let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = Date().logFormatted
         let formattedMessage = "[\(timestamp)][\(label)]\n\(message)"
 
         observerList.notify {
             $0.didAddLogEntry(formattedMessage)
         }
-    }
-
-    private static func formatMetadata(_ metadata: Logger.Metadata) -> String {
-        metadata.map { "\($0)=\($1)" }.joined(separator: " ")
     }
 }
