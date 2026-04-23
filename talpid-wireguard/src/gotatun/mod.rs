@@ -580,10 +580,8 @@ async fn configure_devices(
             ));
         };
 
+        // TODO: Make it clear that personal VPN tunnel is not reconfigured
         log::debug!("Reconfiguring outer tunnel with personal VPN");
-
-        // TODO: untested
-        // TODO: reconfig personal VPN? or make it clear that it's ignored here
 
         let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
         let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
