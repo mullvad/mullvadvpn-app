@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Når en VPN-app er blevet opdateret på Android 16, kan enheder ende i en tilstand, hvor VPN-apps ikke længere kan få kontakt til internettet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Genstart din enhed, og prøv at oprette forbindelse igen. Hvis det ikke hjælper, kan du skrive en e-mail til %1$s på svensk eller engelsk.</string>
     <string name="android_16_upgrade_warning_message">Android 16 har et kendt problem. Genstart din enhed, og prøv igen. For at få mere at vide</string>
-    <string name="android_16_upgrade_warning_title">Kan du ikke oprette forbindelse?</string>
     <string name="anti_censorship">Anti-censur</string>
     <string name="anti_censorship_info_first_paragraph">Disse metoder kan være nyttige i situationer, hvor du blokeres fra at nå Mullvad. Når \"Automatisk\" er valgt, vil appen forsøge alle metoder, indtil en virker.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Bemærk, at disse metoder ikke forbedrer præstationen og kan øge system- og batteriforbruget.</b></string>

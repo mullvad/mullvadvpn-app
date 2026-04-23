@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 更新 VPN 應用程式後，裝置可能會出現 VPN 應用程式無法連線至網際網路的情況。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">請重新啟動您的裝置並嘗試重新連線。若不成功，請以瑞典語或英語撰寫電子郵件並寄至 %1$s。</string>
     <string name="android_16_upgrade_warning_message">Android 16 存在已知問題。請重新啟動您的裝置並再試一次。如需更多資訊，</string>
-    <string name="android_16_upgrade_warning_title">無法連線嗎？</string>
     <string name="anti_censorship">反審查</string>
     <string name="anti_censorship_info_first_paragraph">當您無法連上 Mullvad 時，這些方式可能會派上用場。選擇「自動」時，應用程式會嘗試所有方式，直到其中一種成功為止。</string>
     <string name="anti_censorship_info_second_paragraph"><b>請注意，這些方式不會提升效能，還可能消耗更多系統資源與電力。</b></string>
