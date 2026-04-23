@@ -48,7 +48,9 @@ class TunnelManagerTests: XCTestCase {
         )
 
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
-            methods: AccessMethodRepositoryStub.stub.fetchAll())
+            methods: AccessMethodRepositoryStub.stub.fetchAll(),
+            validShadowsocksCiphers: []
+        )
 
         apiContext = try MullvadApiContext(
             host: REST.defaultAPIHostname,

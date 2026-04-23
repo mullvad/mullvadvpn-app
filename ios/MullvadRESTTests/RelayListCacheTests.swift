@@ -110,7 +110,8 @@ class RelayListCacheTests: XCTestCase {
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(
-                methods: accessMethodsRepository.fetchAll()
+                methods: accessMethodsRepository.fetchAll(),
+                validShadowsocksCiphers: []
             ),
             accessMethodChangeListeners: []
         )
