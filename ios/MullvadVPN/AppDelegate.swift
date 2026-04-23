@@ -109,6 +109,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
             domain: REST.encryptedDNSHostname,
+            domainFrontingFront: REST.domainFrontingFront,
+            domainFrontingProxyHost: REST.domainFrontingProxyHost,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
