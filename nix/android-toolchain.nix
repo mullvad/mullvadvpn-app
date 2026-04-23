@@ -23,15 +23,21 @@ let
   ndkVersion = versions.ndk;
   jdk = pkgs."jdk${versions."jvm-toolchain"}";
 
-  android-sdk = (import "${android-nixpkgs}" { pkgs = pkgs // { openjdk = jdk; }; }).sdk (
-    sdkPkgs: with sdkPkgs; [
-      (builtins.getAttr "platforms-android-${compileSdkVersion}-${compileSdkMinorVersion}" sdkPkgs)
-      (builtins.getAttr "build-tools-${builtins.replaceStrings [ "." ] [ "-" ] buildToolsVersion}" sdkPkgs)
-      (builtins.getAttr "ndk-${builtins.replaceStrings [ "." ] [ "-" ] ndkVersion}" sdkPkgs)
-      cmdline-tools-latest
-      platform-tools
-    ]
-  );
+  android-sdk =
+    (import "${android-nixpkgs}" {
+      pkgs = pkgs // {
+        openjdk = jdk;
+      };
+    }).sdk
+      (
+        sdkPkgs: with sdkPkgs; [
+          (builtins.getAttr "platforms-android-${compileSdkVersion}-${compileSdkMinorVersion}" sdkPkgs)
+          (builtins.getAttr "build-tools-${builtins.replaceStrings [ "." ] [ "-" ] buildToolsVersion}" sdkPkgs)
+          (builtins.getAttr "ndk-${builtins.replaceStrings [ "." ] [ "-" ] ndkVersion}" sdkPkgs)
+          cmdline-tools-latest
+          platform-tools
+        ]
+      );
 
   rust-toolchain = common-toolchain.rust-toolchain-base.override {
     extensions = [ "rust-analyzer" ];
