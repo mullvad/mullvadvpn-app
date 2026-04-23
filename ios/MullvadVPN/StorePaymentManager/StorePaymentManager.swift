@@ -229,7 +229,7 @@ final actor StorePaymentManager: @unchecked Sendable {
 
         switch result {
         case let .success(accountData):
-            logger.info("Successfully updated account data. New expiry: \(accountData.expiry.logFormatted)")
+            logger.info("Successfully updated account data. New expiry: \(accountData.expiry.safeLogFormatted)")
             await interactor.updateAccountData(for: accountData)
 
         case let .failure(error):
