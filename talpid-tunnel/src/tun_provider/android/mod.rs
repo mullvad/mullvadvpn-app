@@ -332,10 +332,10 @@ impl VpnServiceConfig {
         // Private IP ranges reachable via the personal VPN must stay in the tun device,
         // otherwise LAN sharing would route them outside the tunnel and break the personal
         // VPN's connectivity to those networks.
-        #[cfg(feature = "personal-vpn")]
-        let personal_vpn_allowed_ips: &[IpNetwork] = &config.personal_vpn_allowed_ips;
-        #[cfg(not(feature = "personal-vpn"))]
-        let personal_vpn_allowed_ips: &[IpNetwork] = &[];
+        let personal_vpn_allowed_ips: &[IpNetwork] = cfg_select! {
+            feature = "personal-vpn" => &config.personal_vpn_allowed_ips,
+            _ => &[],
+        };
 
         let required_ipv4_routes =
             std::iter::once(IpNetwork::from(IpAddr::from(config.ipv4_gateway)))

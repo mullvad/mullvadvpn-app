@@ -1371,13 +1371,12 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_personal_vpn_stats");
         let rx = self.personal_vpn_stats.subscribe();
         #[expect(clippy::result_large_err)]
-        let stream =
-            tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
-                Ok(stats) => Ok(stats),
-                Err(error) => Err(Status::internal(format!(
-                    "Failed to receive personal VPN stats: {error}"
-                ))),
-            });
+        let stream = tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
+            Ok(stats) => Ok(stats),
+            Err(error) => Err(Status::internal(format!(
+                "Failed to receive personal VPN stats: {error}"
+            ))),
+        });
         Ok(Response::new(
             Box::new(stream) as Self::GetPersonalVpnStatsStream
         ))
@@ -1407,8 +1406,9 @@ impl ManagementService for ManagementServiceImpl {
         _: Request<()>,
     ) -> ServiceResult<Self::GetPersonalVpnStatsStream> {
         log::debug!("get_personal_vpn_stats");
-        Ok(Response::new(Box::new(futures::stream::empty())
-            as Self::GetPersonalVpnStatsStream))
+        Ok(Response::new(
+            Box::new(futures::stream::empty()) as Self::GetPersonalVpnStatsStream
+        ))
     }
 }
 
@@ -1450,8 +1450,7 @@ impl ManagementInterfaceServer {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 
         #[cfg(feature = "personal-vpn")]
-        let personal_vpn_stats: PersonalVpnStatsBroadcast =
-            tokio::sync::broadcast::channel(32).0;
+        let personal_vpn_stats: PersonalVpnStatsBroadcast = tokio::sync::broadcast::channel(32).0;
 
         // NOTE: It is important that the channel buffer size is kept at 0. When sending a signal
         // to abort the gRPC server, the sender can be awaited to know when the gRPC server has

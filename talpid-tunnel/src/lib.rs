@@ -51,7 +51,7 @@ pub struct TunnelArgs<'a> {
     pub route_manager: RouteManagerHandle,
     /// Personal VPN tunnel stats
     #[cfg(feature = "personal-vpn")]
-    pub personal_vpn_stats: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    pub personal_vpn_stats: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
 }
 
 #[derive(Clone)]

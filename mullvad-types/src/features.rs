@@ -174,13 +174,16 @@ pub fn compute_feature_indicators(
     #[cfg(feature = "personal-vpn")]
     let personal_vpn = settings.personal_vpn_enabled && settings.personal_vpn_config.is_some();
 
+    // How long before the personal VPN session is considered idle.
+    #[cfg(feature = "personal-vpn")]
+    const PERSONAL_VPN_ACTIVE_HANDSHAKE_WINDOW: std::time::Duration =
+        std::time::Duration::from_secs(150);
+
     #[cfg(feature = "personal-vpn")]
     let personal_vpn_active = if personal_vpn {
-        // TODO: Consider session active if handshake occurred less than T seconds ago
-        // TODO: Reset on reconnect
         personal_vpn_handshake.is_some_and(|time| {
             time.elapsed()
-                .map(|t| t < std::time::Duration::from_secs(150))
+                .map(|t| t < PERSONAL_VPN_ACTIVE_HANDSHAKE_WINDOW)
                 .unwrap_or(false)
         })
     } else {

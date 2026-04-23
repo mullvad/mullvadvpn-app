@@ -15,23 +15,28 @@ const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 /// Reset the checker if the last check occurred this long ago
 const SUSPEND_TIMEOUT: Duration = Duration::from_secs(6);
 
+/// Identifies the personal VPN peer to poll stats for and where to send those stats.
+#[cfg(feature = "personal-vpn")]
+pub struct PersonalVpnStatsReporter {
+    pub peer_pubkey: [u8; 32],
+    pub stats_tx: tokio::sync::mpsc::Sender<talpid_types::Stats>,
+}
+
 pub struct Monitor {
     connectivity_check: Check,
     #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_reporter: Option<PersonalVpnStatsReporter>,
 }
 
 impl Monitor {
     pub fn init(
         connectivity_check: Check,
-        #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
-            tokio::sync::broadcast::Sender<talpid_types::Stats>,
-        >,
+        #[cfg(feature = "personal-vpn")] personal_vpn_reporter: Option<PersonalVpnStatsReporter>,
     ) -> Self {
         Self {
             connectivity_check,
             #[cfg(feature = "personal-vpn")]
-            personal_vpn_stats_tx,
+            personal_vpn_reporter,
         }
     }
 
@@ -60,7 +65,7 @@ impl Monitor {
             }
 
             #[cfg(feature = "personal-vpn")]
-            if let Some(tx) = &self.personal_vpn_stats_tx {
+            if let Some(reporter) = &self.personal_vpn_reporter {
                 let Some(tunnel) = tunnel_handle.upgrade() else {
                     continue;
                 };
@@ -71,14 +76,13 @@ impl Monitor {
 
                 match tunnel.get_personal_vpn_stats().await {
                     Ok(peers) => {
-                        // FIXME: hack
-                        if let Some((_peer, stats)) = peers.iter().next() {
+                        if let Some(stats) = peers.get(&reporter.peer_pubkey) {
                             let tun_stats = talpid_types::Stats {
                                 last_handshake_time: stats.last_handshake_time,
                                 rx_bytes: stats.rx_bytes,
                                 tx_bytes: stats.tx_bytes,
                             };
-                            if let Err(err) = tx.send(tun_stats) {
+                            if let Err(err) = reporter.stats_tx.send(tun_stats).await {
                                 log::error!("Failed to send personal VPN stats update: {err}");
                             }
                         }

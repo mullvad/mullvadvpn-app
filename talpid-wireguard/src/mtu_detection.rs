@@ -62,15 +62,25 @@ pub async fn automatic_mtu_correction(
     .await?;
 
     if verified_mtu != current_tunnel_mtu {
-        let new_mtu = verified_mtu
-            .saturating_sub(extra_overhead)
-            .max(MIN_IPV6_MTU);
+        // On Windows the MTU is set per address family, and `set_mtu_windows` applies its own
+        // IPv6 floor. On unix a single MTU is set for the interface, so we need to respect
+        // the IPv6 minimum here to avoid breaking IPv6.
+        const MIN_MTU: u16 = cfg_select! {
+            windows => MIN_IPV4_MTU,
+            _ => MIN_IPV6_MTU,
+        };
+        let new_mtu = verified_mtu.saturating_sub(extra_overhead).max(MIN_MTU);
         log::warn!("Lowering MTU from {} to {new_mtu}", current_tunnel_mtu);
 
-        #[cfg(any(target_os = "linux", target_os = "macos"))]
-        talpid_net::unix::set_mtu(&iface_name, new_mtu).map_err(Error::SetMtu)?;
-        #[cfg(windows)]
-        set_mtu_windows(new_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
+        cfg_select! {
+            any(target_os = "linux", target_os = "macos") => {
+                talpid_net::unix::set_mtu(&iface_name, new_mtu).map_err(Error::SetMtu)?;
+            }
+            windows => {
+                set_mtu_windows(new_mtu, iface_name, ipv6).map_err(Error::SetMtu)?;
+            }
+            _ => {}
+        }
     } else {
         log::debug!("MTU {verified_mtu} verified to not drop packets");
     };

@@ -335,19 +335,15 @@ impl WireguardMonitor {
                     // the inner personal VPN tunnel), so the detected MTU only accounts for
                     // the outer encapsulation. Inner-routed traffic needs an extra wireguard
                     // layer of headroom, so subtract that overhead when applying the result.
-                    let extra_overhead = {
-                        #[cfg(feature = "personal-vpn")]
-                        {
+                    let extra_overhead = cfg_select! {
+                        feature = "personal-vpn" => {
                             config
                                 .personal_vpn
                                 .as_ref()
                                 .map(|c| wireguard_overhead(c.tunnel.ip))
                                 .unwrap_or(0)
                         }
-                        #[cfg(not(feature = "personal-vpn"))]
-                        {
-                            0u16
-                        }
+                        _ => 0u16,
                     };
 
                     if let Err(e) = mtu_detection::automatic_mtu_correction(
@@ -407,7 +403,7 @@ impl WireguardMonitor {
             if let Err(error) = connectivity::Monitor::init(
                 connectivity_monitor,
                 #[cfg(feature = "personal-vpn")]
-                args.personal_vpn_stats,
+                personal_vpn_stats_reporter(args.personal_vpn_stats, &config),
             )
             .run(Arc::downgrade(&tunnel))
             .await
@@ -606,11 +602,13 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            // FIXME
-            if let Err(error) =
-                connectivity::Monitor::init(connectivity_monitor, args.personal_vpn_stats)
-                    .run(Arc::downgrade(&tunnel))
-                    .await
+            if let Err(error) = connectivity::Monitor::init(
+                connectivity_monitor,
+                #[cfg(feature = "personal-vpn")]
+                personal_vpn_stats_reporter(args.personal_vpn_stats, &config),
+            )
+            .run(Arc::downgrade(&tunnel))
+            .await
             {
                 log::error!(
                     "{}",
@@ -1324,4 +1322,20 @@ const fn wireguard_overhead(ip_version: IpAddr) -> u16 {
         IpAddr::V4(..) => IPV4_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
         IpAddr::V6(..) => IPV6_HEADER_SIZE + WIREGUARD_HEADER_SIZE,
     }
+}
+
+/// Build a `PersonalVpnStatsReporter` when both the stats channel and a personal VPN config are
+/// present. The personal VPN peer's public key is used to look up the correct stats entry,
+/// instead of blindly picking the first peer.
+#[cfg(feature = "personal-vpn")]
+fn personal_vpn_stats_reporter(
+    stats_tx: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
+    config: &Config,
+) -> Option<connectivity::PersonalVpnStatsReporter> {
+    let stats_tx = stats_tx?;
+    let pvpn = config.personal_vpn.as_ref()?;
+    Some(connectivity::PersonalVpnStatsReporter {
+        peer_pubkey: *pvpn.peer.public_key.as_bytes(),
+        stats_tx,
+    })
 }

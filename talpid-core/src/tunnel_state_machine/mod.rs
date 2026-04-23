@@ -144,7 +144,7 @@ pub async fn spawn(
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
     #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
-        tokio::sync::broadcast::Sender<talpid_types::Stats>,
+        tokio::sync::mpsc::Sender<talpid_types::Stats>,
     >,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
@@ -354,7 +354,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     resource_dir: PathBuf,
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
     #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_stats_tx: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
     route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
@@ -569,7 +569,7 @@ struct SharedTunnelStateValues {
     dns_monitor: DnsMonitor,
     route_manager: RouteManagerHandle,
     #[cfg(feature = "personal-vpn")]
-    personal_vpn_stats_tx: Option<tokio::sync::broadcast::Sender<talpid_types::Stats>>,
+    personal_vpn_stats_tx: Option<tokio::sync::mpsc::Sender<talpid_types::Stats>>,
     _offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,

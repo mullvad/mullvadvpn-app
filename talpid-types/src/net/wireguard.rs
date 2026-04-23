@@ -350,7 +350,6 @@ pub struct PersonalVpnTunnelConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PersonalVpnPeerConfig {
     pub public_key: PublicKey,
-    // TODO: Vec1?
     pub allowed_ip: Vec<IpNetwork>,
     pub endpoint: SocketAddr,
 }

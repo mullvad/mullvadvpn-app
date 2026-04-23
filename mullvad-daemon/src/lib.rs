@@ -763,7 +763,8 @@ impl Daemon {
         };
 
         #[cfg(feature = "personal-vpn")]
-        let personal_vpn_stats_tx = tokio::sync::broadcast::channel(32).0;
+        let (personal_vpn_stats_tx, mut personal_vpn_stats_rx) =
+            tokio::sync::mpsc::channel::<talpid_types::Stats>(32);
 
         let command_sender = daemon_command_channel.sender();
         let app_upgrade_broadcast = tokio::sync::broadcast::channel(32).0;
@@ -942,9 +943,8 @@ impl Daemon {
         {
             // Keep track of personal VPN tunnel handshake
             let internal_event_tx = internal_event_tx.clone();
-            let mut personal_vpn_stats_rx = personal_vpn_stats_tx.subscribe();
             tokio::spawn(async move {
-                while let Ok(stats) = personal_vpn_stats_rx.recv().await {
+                while let Some(stats) = personal_vpn_stats_rx.recv().await {
                     if internal_event_tx
                         .send(InternalDaemonEvent::PersonalVpnUpdate(stats))
                         .is_err()

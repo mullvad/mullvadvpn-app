@@ -11,3 +11,5 @@ pub use check::CancelReceiver;
 pub use check::{CancelToken, Check};
 pub use error::Error;
 pub use monitor::Monitor;
+#[cfg(feature = "personal-vpn")]
+pub use monitor::PersonalVpnStatsReporter;

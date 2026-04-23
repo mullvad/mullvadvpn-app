@@ -233,7 +233,7 @@ impl ConnectingState {
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
         #[cfg(feature = "personal-vpn")] personal_vpn_stats_tx: Option<
-            tokio::sync::broadcast::Sender<talpid_types::Stats>,
+            tokio::sync::mpsc::Sender<talpid_types::Stats>,
         >,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();

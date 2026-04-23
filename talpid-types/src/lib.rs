@@ -14,7 +14,6 @@ use std::time::SystemTime;
 pub use error::*;
 
 /// Contains bytes sent and received through a tunnel
-// FIXME: dedup
 #[derive(Default, PartialEq, Eq, Clone, Debug)]
 pub struct Stats {
     pub tx_bytes: u64,
