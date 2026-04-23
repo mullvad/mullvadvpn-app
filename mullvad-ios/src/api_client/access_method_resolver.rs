@@ -1,7 +1,7 @@
 use mullvad_api::{
     AddressCache, AddressCacheBacking, AddressCacheError, ApiEndpoint,
     access_mode::AccessMethodResolver,
-    proxy::{ApiConnectionMode, ProxyConfig},
+    proxy::{ApiConnectionMode, DomainFrontingConfig, ProxyConfig},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_types::access_method::{AccessMethod, BuiltInAccessMethod};
@@ -41,10 +41,14 @@ impl AddressCacheBacking for IOSAddressCacheBacking {
     }
 }
 
+const SESSION_HEADER: &str = "X-Mullvad-Session";
+
 #[derive(Debug)]
 pub struct SwiftAccessMethodResolver {
     endpoint: ApiEndpoint,
     domain: String,
+    domain_fronting_front: String,
+    domain_fronting_proxy_host: String,
     state: EncryptedDnsProxyState,
     bridge_provider: SwiftShadowsocksLoaderWrapper,
     address_cache: AddressCache<IOSAddressCacheBacking>,
@@ -54,6 +58,8 @@ impl SwiftAccessMethodResolver {
     pub fn new(
         endpoint: ApiEndpoint,
         domain: String,
+        domain_fronting_front: String,
+        domain_fronting_proxy_host: String,
         state: EncryptedDnsProxyState,
         bridge_provider: SwiftShadowsocksLoaderWrapper,
         address_cache: AddressCache<IOSAddressCacheBacking>,
@@ -61,6 +67,8 @@ impl SwiftAccessMethodResolver {
         Self {
             endpoint,
             domain,
+            domain_fronting_front,
+            domain_fronting_proxy_host,
             state,
             bridge_provider,
             address_cache,
@@ -92,7 +100,19 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 ApiConnectionMode::Proxied(ProxyConfig::from(edp))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::DomainFronting) => {
-                mullvad_api::domain_fronting::resolve().await?
+                match DomainFrontingConfig::resolve(
+                    self.domain_fronting_front.clone(),
+                    self.domain_fronting_proxy_host.clone(),
+                    SESSION_HEADER.to_string(),
+                )
+                .await
+                {
+                    Ok(config) => ApiConnectionMode::Proxied(ProxyConfig::DomainFronting(config)),
+                    Err(error) => {
+                        log::warn!("Failed to resolve domain fronting config: {error}");
+                        return None;
+                    }
+                }
             }
             AccessMethod::Custom(config) => {
                 ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
