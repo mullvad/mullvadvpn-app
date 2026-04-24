@@ -8,7 +8,7 @@
 
 import UIKit
 
-class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
+class LogView: UIView {
     private let panelHeight: CGFloat = 230
     private let safeTop: CGFloat = 60
     private let safeBottom: CGFloat = 40
@@ -16,9 +16,12 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
     private let viewModel: LogViewModel
     private let handleView = UIView()
     private let clearButton = IncreasedHitButton()
+    private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var entries: [String] = []
+    private var filteredEntries: [String] = []
+    private var searchText = ""
     private var dragStartY: CGFloat = 0
 
     // Snaps to top, middle and bottom.
@@ -56,6 +59,7 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
 
         setUpHandle()
         setUpClearButton()
+        setUpSearchField()
         setUpTableView()
 
         addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:))))
@@ -78,9 +82,55 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
         clearButton.addTarget(self, action: #selector(handleClearButton(_:)), for: .touchUpInside)
 
         addConstrainedSubviews([clearButton]) {
-            clearButton.pinEdgesToSuperview(.init([.top(4), .trailing(4)]))
+            clearButton.pinEdgeToSuperview(.trailing(8))
+            clearButton.centerYAnchor.constraint(equalTo: handleView.centerYAnchor)
             clearButton.widthAnchor.constraint(equalToConstant: 16)
             clearButton.heightAnchor.constraint(equalToConstant: 16)
+        }
+    }
+
+    private func setUpSearchField() {
+        let placeholder = "Search logs..."
+        searchField.placeholder = placeholder
+        searchField.attributedPlaceholder = NSAttributedString(
+            string: placeholder,
+            attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.4)]
+        )
+
+        searchField.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        searchField.textColor = .white
+        searchField.backgroundColor = .white.withAlphaComponent(0.1)
+        searchField.layer.cornerRadius = 6
+        searchField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 8, height: 0))
+        searchField.leftViewMode = .always
+        searchField.returnKeyType = .search
+        searchField.autocorrectionType = .no
+        searchField.autocapitalizationType = .none
+
+        let clearImage = UIImage(systemName: "xmark.circle.fill")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 10))
+        let clearButton = UIButton(type: .system)
+        clearButton.setImage(clearImage, for: .normal)
+        clearButton.tintColor = .white.withAlphaComponent(0.5)
+        clearButton.addTarget(self, action: #selector(clearSearchField), for: .touchUpInside)
+        clearButton.sizeToFit()
+
+        let clearButtonContainer = UIView(
+            frame: CGRect(x: 0, y: 0, width: clearButton.frame.width + 16, height: clearButton.frame.height)
+        )
+        clearButton.frame.origin = .init(x: 8, y: 0)
+        clearButtonContainer.addSubview(clearButton)
+
+        searchField.rightView = clearButtonContainer
+        searchField.rightViewMode = .whileEditing
+
+        searchField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
+        searchField.delegate = self
+
+        addConstrainedSubviews([searchField]) {
+            searchField.topAnchor.constraint(equalTo: handleView.bottomAnchor, constant: 8)
+            searchField.pinEdgesToSuperview(.init([.leading(8), .trailing(8)]))
+            searchField.heightAnchor.constraint(equalToConstant: 28)
         }
     }
 
@@ -97,27 +147,64 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
 
         addConstrainedSubviews([tableView]) {
             tableView.pinEdgesToSuperview(.all().excluding(.top))
-            tableView.topAnchor.constraint(equalTo: handleView.bottomAnchor, constant: 8)
+            tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 4)
         }
     }
 
     private func addEntry(_ entry: String) {
         entries.append(entry)
 
-        let indexPath = IndexPath(row: entries.count - 1, section: 0)
-        tableView.insertRows(at: [indexPath], with: .none)
-        tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        if matchesFilter(entry) {
+            filteredEntries.append(entry)
+
+            let indexPath = IndexPath(row: filteredEntries.count - 1, section: 0)
+            tableView.insertRows(at: [indexPath], with: .none)
+
+            scrollToBottom()
+        }
     }
 
     private func clearEntries() {
         entries.removeAll()
+        filteredEntries.removeAll()
+
         tableView.reloadData()
+        scrollToBottom()
     }
 
-    // MARK: - Button
+    private func applyFilter() {
+        filteredEntries = entries.filter { matchesFilter($0) }
+
+        tableView.reloadData()
+        scrollToBottom()
+    }
+
+    private func matchesFilter(_ entry: String) -> Bool {
+        searchText.isEmpty || entry.localizedCaseInsensitiveContains(searchText)
+    }
+
+    private func scrollToBottom() {
+        guard filteredEntries.count > 0 else { return }
+
+        let indexPath = IndexPath(row: filteredEntries.count - 1, section: 0)
+        tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+    }
+
+    // MARK: - Actions
 
     @objc private func handleClearButton(_ sender: UIButton) {
         clearEntries()
+    }
+
+    @objc private func searchTextChanged() {
+        searchText = searchField.text ?? ""
+        applyFilter()
+    }
+
+    @objc private func clearSearchField() {
+        searchField.text = ""
+//        searchField.resignFirstResponder()
+        searchTextChanged()
     }
 
     // MARK: - Dragging
@@ -146,18 +233,18 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
             break
         }
     }
+}
 
-    // MARK: - UITableViewDataSource
-
+extension LogView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        entries.count
+        filteredEntries.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LogCell", for: indexPath)
 
         var config = cell.defaultContentConfiguration()
-        config.text = entries[indexPath.row]
+        config.text = filteredEntries[indexPath.row]
         config.textProperties.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
         config.textProperties.color = .white
 
@@ -167,9 +254,9 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
 
         return cell
     }
+}
 
-    // MARK: - UITableViewDelegate
-
+extension LogView: UITableViewDelegate {
     func tableView(_ tableView: UITableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
         true
     }
@@ -189,6 +276,13 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
         forRowAt indexPath: IndexPath,
         withSender sender: Any?
     ) {
-        UIPasteboard.general.string = entries[indexPath.row]
+        UIPasteboard.general.string = filteredEntries[indexPath.row]
+    }
+}
+
+extension LogView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
