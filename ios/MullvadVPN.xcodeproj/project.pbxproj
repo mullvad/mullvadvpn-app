@@ -718,6 +718,7 @@
 		7AE16DC22F9A463600A72A39 /* InAppLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */; };
 		7AE16DC52F9A5C8200A72A39 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC42F9A5C7E00A72A39 /* LogView.swift */; };
 		7AE16DC72F9A5EBA00A72A39 /* LogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */; };
+		7AE16DC92F9B53F400A72A39 /* LogOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */; };
 		7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
@@ -2371,6 +2372,7 @@
 		7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogHandler.swift; sourceTree = "<group>"; };
 		7AE16DC42F9A5C7E00A72A39 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewModel.swift; sourceTree = "<group>"; };
+		7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogOverlayViewController.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
@@ -4636,6 +4638,7 @@
 		7AE16DC32F9A5C7300A72A39 /* Logging */ = {
 			isa = PBXGroup;
 			children = (
+				7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */,
 				7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */,
 				7AE16DC42F9A5C7E00A72A39 /* LogView.swift */,
 			);
@@ -6926,6 +6929,7 @@
 				F0ADF1D32D01B6B400299F09 /* FeatureIndicatorsViewModel.swift in Sources */,
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
+				7AE16DC92F9B53F400A72A39 /* LogOverlayViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				F0E560DA2F7EB0A70027B900 /* MultihopMigrationTracker.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,

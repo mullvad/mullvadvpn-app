@@ -18,6 +18,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
     var window: UIWindow?
     private var privacyOverlayWindow: UIWindow?
+    private var logWindow: UIWindow?
     private var isSceneConfigured = false
 
     private var appCoordinator: ApplicationCoordinator?
@@ -82,8 +83,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             accessMethodRepository: accessMethodRepository,
             ipOverrideRepository: appDelegate.ipOverrideRepository,
             relaySelectorWrapper: appDelegate.relaySelector,
-            breadcrumbsProvider: appDelegate.breadcrumbsProvider,
-            inAppLogObserver: appDelegate.inAppLogObserver
+            breadcrumbsProvider: appDelegate.breadcrumbsProvider
         )
 
         appCoordinator?.onShowSettings = { [weak self] in
@@ -104,6 +104,22 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
 
         window?.rootViewController = appCoordinator?.rootViewController
         appCoordinator?.start()
+
+        setUpLogOverlay()
+    }
+
+    private func setUpLogOverlay() {
+        guard let windowScene = window?.windowScene else { return }
+
+        let viewModel = LogViewModel(observer: appDelegate.inAppLogObserver)
+        let viewController = LogOverlayViewController(viewModel: viewModel)
+
+        let logWindow = PassthroughWindow(windowScene: windowScene)
+        logWindow.windowLevel = .statusBar + 1
+        logWindow.backgroundColor = .clear
+        logWindow.rootViewController = viewController
+        logWindow.isHidden = false
+        self.logWindow = logWindow
     }
 
     private func disableAnimationsIfNeeded() {

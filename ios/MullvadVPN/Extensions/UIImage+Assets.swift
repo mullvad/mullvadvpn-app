@@ -130,4 +130,8 @@ extension UIImage {
     static var stateIssue: UIImage {
         UIImage(named: "IconStateIssue")!
     }
+
+    static var cross: UIImage {
+        UIImage(named: "IconCross")!
+    }
 }
