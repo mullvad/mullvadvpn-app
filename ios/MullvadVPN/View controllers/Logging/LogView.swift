@@ -18,7 +18,7 @@ class LogView: UIView {
     private var dragStartY: CGFloat = 0
     private var resizeStartHeight: CGFloat = 0
 
-    private let viewModel: LogViewModel
+    private let interactor: LogViewInteractor
     private let topHandleView = UIView()
     private let topHandleBar = UIView()
     private let bottomHandleView = UIView()
@@ -28,17 +28,21 @@ class LogView: UIView {
     private let exportButton = IncreasedHitButton()
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let includeButton = IncreasedHitButton()
+    private let excludeButton = IncreasedHitButton()
 
     private var entries: [InAppLogEntry] = []
     private var filteredEntries: [InAppLogEntry] = []
     private var pausedEntries: [InAppLogEntry] = []
     private var searchText = ""
     private var logsArePaused: Bool = false
+    private var includedLabels: Set<String> = []
+    private var excludedLabels: Set<String> = []
 
     var onExportLogs: ((String) -> Void)?
 
-    init(viewModel: LogViewModel) {
-        self.viewModel = viewModel
+    init(interactor: LogViewInteractor) {
+        self.interactor = interactor
 
         super.init(frame: .zero)
 
@@ -73,7 +77,7 @@ class LogView: UIView {
         layer.cornerRadius = 12
         clipsToBounds = true
 
-        viewModel.didAddEntry = { [weak self] entry in
+        interactor.didAddEntry = { [weak self] entry in
             self?.addEntries([entry])
         }
 
@@ -177,10 +181,33 @@ class LogView: UIView {
         searchField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
         searchField.delegate = self
 
-        addConstrainedSubviews([searchField]) {
+        let includeImage = UIImage(systemName: "plus.circle")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
+        includeButton.setImage(includeImage, for: .normal)
+        includeButton.tintColor = .white.withAlphaComponent(0.5)
+        includeButton.showsMenuAsPrimaryAction = true
+        includeButton.menu = buildIncludeMenu()
+
+        let excludeImage = UIImage(systemName: "minus.circle")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
+        excludeButton.setImage(excludeImage, for: .normal)
+        excludeButton.tintColor = .white.withAlphaComponent(0.5)
+        excludeButton.showsMenuAsPrimaryAction = true
+        excludeButton.menu = buildExcludeMenu()
+
+        addConstrainedSubviews([searchField, includeButton, excludeButton]) {
+            searchField.pinEdgeToSuperview(.leading(8))
             searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor)
-            searchField.pinEdgesToSuperview(.init([.leading(8), .trailing(8)]))
             searchField.heightAnchor.constraint(equalToConstant: 28)
+
+            includeButton.leadingAnchor.constraint(equalTo: searchField.trailingAnchor, constant: 4)
+            includeButton.centerYAnchor.constraint(equalTo: searchField.centerYAnchor)
+            includeButton.widthAnchor.constraint(equalToConstant: 28)
+
+            excludeButton.pinEdgeToSuperview(.trailing(8))
+            excludeButton.leadingAnchor.constraint(equalTo: includeButton.trailingAnchor)
+            excludeButton.centerYAnchor.constraint(equalTo: searchField.centerYAnchor)
+            excludeButton.widthAnchor.constraint(equalToConstant: 28)
         }
     }
 
@@ -234,9 +261,10 @@ class LogView: UIView {
         }
 
         self.entries.append(contentsOf: entries)
+        rebuildFilterMenuIfNeeded()
 
         for entry in entries where matchesFilter(entry) {
-            filteredEntries.append(contentsOf: entries)
+            filteredEntries.append(entry)
         }
 
         tableView.reloadData()
@@ -260,7 +288,63 @@ class LogView: UIView {
     }
 
     private func matchesFilter(_ entry: InAppLogEntry) -> Bool {
-        searchText.isEmpty || entry.description.localizedCaseInsensitiveContains(searchText)
+        let matchesSearch = searchText.isEmpty || entry.description.localizedCaseInsensitiveContains(searchText)
+        let isIncluded = includedLabels.isEmpty || includedLabels.contains(entry.label)
+        let notExcluded = !excludedLabels.contains(entry.label)
+
+        return matchesSearch && isIncluded && notExcluded
+    }
+
+    private func buildIncludeMenu() -> UIMenu {
+        let uniqueLabels = Set(entries.map { $0.label }).sorted()
+
+        let actions = uniqueLabels.map { label in
+            UIAction(title: label, state: includedLabels.contains(label) ? .on : .off) { [weak self] _ in
+                guard let self else { return }
+
+                if includedLabels.contains(label) {
+                    includedLabels.remove(label)
+                } else {
+                    includedLabels.insert(label)
+                }
+
+                includeButton.menu = buildIncludeMenu()
+                applyFilter()
+            }
+        }
+
+        return UIMenu(title: "Include only", children: actions)
+    }
+
+    private func buildExcludeMenu() -> UIMenu {
+        let uniqueLabels = Set(entries.map { $0.label }).sorted()
+
+        let actions = uniqueLabels.map { label in
+            UIAction(title: label, state: excludedLabels.contains(label) ? .on : .off) { [weak self] _ in
+                guard let self else { return }
+
+                if excludedLabels.contains(label) {
+                    excludedLabels.remove(label)
+                } else {
+                    excludedLabels.insert(label)
+                }
+
+                excludeButton.menu = buildExcludeMenu()
+                applyFilter()
+            }
+        }
+
+        return UIMenu(title: "Exclude", children: actions)
+    }
+
+    private func rebuildFilterMenuIfNeeded() {
+        let uniqueLabels = Set(entries.map { $0.label })
+        let currentLabels = Set((excludeButton.menu?.children.compactMap { ($0 as? UIAction)?.title }) ?? [])
+
+        if uniqueLabels != currentLabels {
+            includeButton.menu = buildIncludeMenu()
+            excludeButton.menu = buildExcludeMenu()
+        }
     }
 
     private func scrollToBottom() {

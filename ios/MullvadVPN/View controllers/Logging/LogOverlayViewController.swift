@@ -10,11 +10,11 @@ import UIKit
 
 class LogOverlayViewController: UIViewController {
     private let logView: LogView
-    private let viewModel: LogViewModel
+    private let interactor: LogViewInteractor
 
-    init(viewModel: LogViewModel) {
-        self.viewModel = viewModel
-        logView = LogView(viewModel: viewModel)
+    init(interactor: LogViewInteractor) {
+        self.interactor = interactor
+        logView = LogView(interactor: interactor)
 
         super.init(nibName: nil, bundle: nil)
 

@@ -9,7 +9,7 @@
 import MullvadLogging
 
 @MainActor
-final class LogViewModel {
+final class LogViewInteractor {
     var didAddEntry: ((InAppLogEntry) -> Void)?
     private let observer: InAppLogBlockObserver
 
