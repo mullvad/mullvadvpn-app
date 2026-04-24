@@ -58,11 +58,18 @@ impl TunnelParameters {
 
     /// Whether to use userspace WireGuard.
     pub fn use_userspace_wg(&self) -> bool {
+        // Personal VPN requires the gotatun device graph; the kernel backend has no such path.
+        let pvpn = cfg_select! {
+            feature = "personal-vpn" => self.personal_vpn.is_some(),
+            _ => false,
+        };
+
         cfg!(target_os = "macos")
             || self.options.userspace
             || self.options.daita
             // Always prefer GotaTun for multihop on Windows
             || (cfg!(target_os = "windows") && cfg!(not(feature = "wireguard-go")) && self.connection.exit_peer.is_some())
+            || pvpn
     }
 }
 
