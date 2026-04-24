@@ -90,7 +90,11 @@ impl AccessMethodResolver for SwiftAccessMethodResolver {
                 ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
             }
             AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                if let Err(error) = self.state.fetch_configs(self.encrypted_dns_domain.as_str()).await {
+                if let Err(error) = self
+                    .state
+                    .fetch_configs(self.encrypted_dns_domain.as_str())
+                    .await
+                {
                     log::error!("{error:#?}");
                 }
                 let Some(edp) = self.state.next_configuration() else {
