@@ -128,9 +128,15 @@ tasks.withType<DependencyUpdatesTask> {
 
 tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
 
+// The preflight configuration is done at the project root level to ensure
+// it runs before any other build tasks. This is a known limitation:
+// https://github.com/gradle/gradle/issues/29064
+//
+// The substringAfterLast split is used in order to catch both the plain
+// and fully qualified task names ("fdroidRelease" and ":app:fdroidRelease").
 val preflightSkipDirtyCheck =
     getBooleanPropertyOrNull("mullvad.app.release.skipDirtyCheck") == true ||
-        gradle.startParameter.taskNames.any { it.endsWith("fdroidRelease") }
+        gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "fdroidRelease" }
 val releasePreflight =
     tasks.register<PreBuildTask>("releasePreflight") {
         this.skipDirtyCheck.set(preflightSkipDirtyCheck)
