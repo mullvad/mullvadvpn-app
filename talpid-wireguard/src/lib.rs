@@ -2,8 +2,6 @@
 
 #![deny(missing_docs)]
 
-use crate::stats::StatsMap;
-
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
@@ -1121,8 +1119,9 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    async fn get_personal_vpn_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
-        Ok(StatsMap::default())
+    #[cfg(feature = "personal-vpn")]
+    async fn get_personal_vpn_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError> {
+        Ok(stats::StatsMap::default())
     }
     fn set_config<'a>(
         &'a mut self,
