@@ -30,6 +30,15 @@ struct FloatingSearchBar: View {
                             }
                         }
                     }
+                    if !searchText.isEmpty {
+                        Button {
+                            searchText = ""
+                        } label: {
+                            Image.mullvadIconCross
+                                .foregroundColor(.mullvadTextSecondary)
+                        }
+                        .accessibilityLabel(Text("Clear search"))
+                    }
                 }
                 .padding(.horizontal, 8)
                 .frame(height: 48)
