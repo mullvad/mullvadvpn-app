@@ -313,6 +313,7 @@ extension PacketTunnelProvider {
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
             loggerBuilder.addInAppLogOutput(
+                process: .packetTunnel,
                 observer: InAppLogBlockObserver {
                     inAppLogBuffer.append($0)
                 }
