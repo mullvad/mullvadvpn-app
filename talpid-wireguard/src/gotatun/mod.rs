@@ -498,9 +498,11 @@ async fn create_devices(
 
     #[cfg(feature = "personal-vpn")]
     if let Some(pvpn_config) = &config.personal_vpn {
+        // Note: the inner personal VPN device is only (re)built here. A change in personal
+        // VPN config must trigger a full tunnel reconnect.
         let pvpn = build_personal_vpn(pvpn_config, config, &tun_dev).await?;
 
-        if let Some(exit_peer) = &config.exit_peer {
+        let mut devices = if let Some(exit_peer) = &config.exit_peer {
             log::debug!("Configuring multihop tunnel with personal VPN");
 
             // Outer UDP channel between entry and exit devices must hold the exit-encrypted
@@ -559,54 +561,31 @@ async fn create_devices(
                 .await
                 .map_err(TunnelError::GotaTunDevice)?;
 
-            let mut devices = Devices::MultihopWithPersonalVpn {
+            Devices::MultihopWithPersonalVpn {
                 inner_device: pvpn.inner_device,
                 entry_device,
                 exit_device,
                 router_task: pvpn.router_task,
-            };
-            configure_devices(&mut devices, config, daita).await?;
-            return Ok(devices);
+            }
         } else {
             log::debug!("Configuring tunnel with personal VPN");
 
-            let outer_private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-            let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
             let outer_device = DeviceBuilder::new()
                 .with_udp(factory)
                 .with_ip_pair(pvpn.outer_ip_send, pvpn.outer_ip_recv)
-                .with_private_key(outer_private_key)
-                .with_peer(entry_peer)
                 .build()
                 .await
-                .map_err(|err| {
-                    log::error!("Failed to create personal VPN device: {err:#?}");
-                    TunnelError::SetConfigError
-                })?;
+                .map_err(TunnelError::GotaTunDevice)?;
 
-            #[cfg(target_os = "linux")]
-            outer_device
-                .write(async |device| {
-                    if let Some(fwmark) = config.fwmark {
-                        device.set_fwmark(fwmark)?;
-                    }
-                    Ok(())
-                })
-                .await
-                .flatten()
-                .map_err(|err| {
-                    log::error!("Failed to set gotatun config: {err:#}");
-                    TunnelError::SetConfigError
-                })?;
-
-            // Note: the inner personal VPN device is only (re)built here. A change in personal
-            // VPN config must trigger a full tunnel reconnect.
-            return Ok(Devices::SinglehopWithPersonalVpn {
+            Devices::SinglehopWithPersonalVpn {
                 outer_device,
                 inner_device: pvpn.inner_device,
                 router_task: pvpn.router_task,
-            });
-        }
+            }
+        };
+
+        configure_devices(&mut devices, config, daita).await?;
+        return Ok(devices);
     }
 
     let mut devices = if let Some(exit_peer) = &config.exit_peer {
@@ -736,66 +715,8 @@ async fn configure_devices(
     config: &Config,
     daita: Option<&DaitaSettings>,
 ) -> Result<(), TunnelError> {
-    #[cfg(feature = "personal-vpn")]
-    if config.personal_vpn.is_some() && config.exit_peer.is_none() {
-        let Devices::SinglehopWithPersonalVpn { outer_device, .. } = devices else {
-            return Err(TunnelError::ConfigureGotaTunDevice(
-                ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
-            ));
-        };
-
-        log::debug!("Reconfiguring outer tunnel (personal VPN inner tunnel left unchanged)");
-
-        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-        let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
-
-        outer_device
-            .write(async |device| {
-                device.clear_peers();
-                device.set_private_key(private_key).await;
-                device.add_peer(entry_peer);
-                #[cfg(target_os = "linux")]
-                if let Some(fwmark) = config.fwmark {
-                    device.set_fwmark(fwmark)?;
-                }
-                Ok(())
-            })
-            .await
-            .flatten()
-            .map_err(|err| {
-                log::error!("Failed to set gotatun config: {err:#}");
-                TunnelError::SetConfigError
-            })?;
-
-        return Ok(());
-    }
-
-    #[cfg(feature = "personal-vpn")]
-    if let (Some(_), Some(exit_peer)) = (&config.personal_vpn, &config.exit_peer) {
-        let Devices::MultihopWithPersonalVpn {
-            entry_device,
-            exit_device,
-            ..
-        } = devices
-        else {
-            return Err(TunnelError::ConfigureGotaTunDevice(
-                ConfigureGotaTunDeviceError::ExpectedMultihopDevice,
-            ));
-        };
-
-        log::debug!(
-            "Reconfiguring multihop outer tunnel (personal VPN inner tunnel left unchanged)"
-        );
-
-        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-        let exit_peer = to_gotatun_peer(exit_peer, daita);
-
-        configure_entry_device(entry_device, config, daita).await?;
-        configure_exit_device(exit_device, private_key, exit_peer).await?;
-
-        return Ok(());
-    }
-
+    // Note: the inner personal VPN device is left untouched here. A change in personal VPN
+    // config must trigger a full tunnel reconnect via `create_devices`.
     if let Some(exit_peer) = &config.exit_peer {
         log::trace!(
             "configuring gotatun multihop device (daita={})",
@@ -809,6 +730,15 @@ async fn configure_devices(
             Devices::Multihop {
                 entry_device,
                 exit_device,
+            } => {
+                configure_entry_device(entry_device, config, daita).await?;
+                configure_exit_device(exit_device, private_key, exit_peer).await?;
+            }
+            #[cfg(feature = "personal-vpn")]
+            Devices::MultihopWithPersonalVpn {
+                entry_device,
+                exit_device,
+                ..
             } => {
                 configure_entry_device(entry_device, config, daita).await?;
                 configure_exit_device(exit_device, private_key, exit_peer).await?;
@@ -828,6 +758,10 @@ async fn configure_devices(
         match devices {
             Devices::Singlehop { device } => {
                 configure_entry_device(device, config, daita).await?;
+            }
+            #[cfg(feature = "personal-vpn")]
+            Devices::SinglehopWithPersonalVpn { outer_device, .. } => {
+                configure_entry_device(outer_device, config, daita).await?;
             }
             _ => {
                 return Err(TunnelError::ConfigureGotaTunDevice(
