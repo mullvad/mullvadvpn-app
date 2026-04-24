@@ -261,14 +261,29 @@ class LogView: UIView {
     // MARK: - Dragging
 
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        let screenHeight = UIScreen.main.bounds.height
+        let maxY = screenHeight - safeBottom
+
         switch gesture.state {
         case .began:
             dragStartY = frame.origin.y
         case .changed:
             let translation = gesture.translation(in: superview).y
-            let screenHeight = UIScreen.main.bounds.height
-            let maxY = screenHeight - safeBottom
             frame.origin.y = min(max(dragStartY + translation, safeTop), maxY)
+        case .ended, .cancelled:
+            let velocity = gesture.velocity(in: superview).y
+            let projectedY = frame.origin.y + velocity * 0.08
+            let targetY = min(max(projectedY, safeTop), maxY)
+
+            UIView.animate(
+                withDuration: 0.4,
+                delay: 0,
+                usingSpringWithDamping: 0.75,
+                initialSpringVelocity: abs(velocity) / max(abs(targetY - frame.origin.y), 1),
+                options: .curveEaseOut
+            ) {
+                self.frame.origin.y = targetY
+            }
         default:
             break
         }
