@@ -50,3 +50,16 @@ fun Variant.matches(filter: VariantFilter): Boolean =
     }
 
 fun Variant.matchesAny(vararg filters: VariantFilter): Boolean = filters.any { matches(it) }
+
+fun fullReleaseTasks(appVersion: AppVersion) =
+    buildList<String> {
+        add("createOssProdReleaseDistApk")
+        add("createPlayProdReleaseDistApk")
+        add("createPlayProdReleaseDistBundle")
+        if (appVersion.isAlpha || appVersion.isDev) {
+            add("createPlayDevmoleReleaseDistApk")
+            add("createPlayStagemoleReleaseDistApk")
+            add("createPlayDevmoleReleaseDistBundle")
+            add("createPlayStagemoleReleaseDistBundle")
+        }
+    }
