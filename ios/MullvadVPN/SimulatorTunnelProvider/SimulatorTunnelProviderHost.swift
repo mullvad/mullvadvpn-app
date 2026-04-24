@@ -179,6 +179,9 @@
 
             case .privateKeyRotation:
                 completionHandler?(try? TunnelProviderReply(TunnelReply.ok).encode())
+
+            case .getInAppLogs:
+                completionHandler?(nil)
             }
 
             onHandleProviderMessage?(message)

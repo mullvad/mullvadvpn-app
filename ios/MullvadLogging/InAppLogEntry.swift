@@ -6,7 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-public struct InAppLogEntry: Sendable, CustomStringConvertible {
+public struct InAppLogEntry: Sendable, Codable, CustomStringConvertible {
     public let timestamp: String
     public let label: String
     public let message: String
