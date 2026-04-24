@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import UIKit
 
 class LogView: UIView {
@@ -27,8 +28,8 @@ class LogView: UIView {
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
 
-    private var entries: [String] = []
-    private var filteredEntries: [String] = []
+    private var entries: [InAppLogEntry] = []
+    private var filteredEntries: [InAppLogEntry] = []
     private var searchText = ""
 
     var onExportLogs: ((String) -> Void)?
@@ -206,7 +207,7 @@ class LogView: UIView {
         bottomHandleView.addGestureRecognizer(resizeGesture)
     }
 
-    private func addEntry(_ entry: String) {
+    private func addEntry(_ entry: InAppLogEntry) {
         entries.append(entry)
 
         if matchesFilter(entry) {
@@ -234,8 +235,8 @@ class LogView: UIView {
         scrollToBottom()
     }
 
-    private func matchesFilter(_ entry: String) -> Bool {
-        searchText.isEmpty || entry.localizedCaseInsensitiveContains(searchText)
+    private func matchesFilter(_ entry: InAppLogEntry) -> Bool {
+        searchText.isEmpty || entry.description.localizedCaseInsensitiveContains(searchText)
     }
 
     private func scrollToBottom() {
@@ -252,7 +253,7 @@ class LogView: UIView {
     }
 
     @objc private func handleExportButton() {
-        onExportLogs?(filteredEntries.joinedParagraphs())
+        onExportLogs?(filteredEntries.description)
     }
 
     @objc private func searchTextChanged() {
@@ -323,10 +324,24 @@ extension LogView: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LogCell", for: indexPath)
 
+        let entry = filteredEntries[indexPath.row]
+        let font = UIFont.monospacedSystemFont(ofSize: 11, weight: .regular)
+
+        let attributed = NSMutableAttributedString()
+        attributed.append(
+            NSAttributedString(string: entry.timestamp, attributes: [.foregroundColor: UIColor.lightGray, .font: font])
+        )
+        attributed.append(NSAttributedString(string: " "))
+        attributed.append(
+            NSAttributedString(string: entry.label, attributes: [.foregroundColor: UIColor.systemYellow, .font: font])
+        )
+        attributed.append(NSAttributedString(string: "\n"))
+        attributed.append(
+            NSAttributedString(string: entry.message, attributes: [.foregroundColor: UIColor.white, .font: font])
+        )
+
         var config = cell.defaultContentConfiguration()
-        config.text = filteredEntries[indexPath.row]
-        config.textProperties.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
-        config.textProperties.color = .white
+        config.attributedText = attributed
 
         cell.contentConfiguration = config
         cell.backgroundColor = .clear
@@ -346,11 +361,11 @@ extension LogView: UITableViewDelegate {
 
         return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { [weak self] _ in
             let copy = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
-                UIPasteboard.general.string = entry
+                UIPasteboard.general.string = entry.description
             }
 
             let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { _ in
-                self?.onExportLogs?(entry)
+                self?.onExportLogs?(entry.description)
             }
 
             return UIMenu(children: [copy, share])

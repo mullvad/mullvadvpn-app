@@ -9,11 +9,11 @@
 import MullvadTypes
 
 public protocol InAppLogObserver: AnyObject {
-    func didAddLogEntry(_ entry: String)
+    func didAddLogEntry(_ entry: InAppLogEntry)
 }
 
 public final class InAppLogBlockObserver: InAppLogObserver, @unchecked Sendable {
-    public typealias DidAddLogEntryHandler = (String) -> Void
+    public typealias DidAddLogEntryHandler = (InAppLogEntry) -> Void
 
     public var didAddLogEntryHandler: DidAddLogEntryHandler?
 
@@ -21,10 +21,8 @@ public final class InAppLogBlockObserver: InAppLogObserver, @unchecked Sendable 
         self.didAddLogEntryHandler = didAddLogEntryHandler
     }
 
-    public func didAddLogEntry(_ entry: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.didAddLogEntryHandler?(entry)
-        }
+    public func didAddLogEntry(_ entry: InAppLogEntry) {
+        didAddLogEntryHandler?(entry)
     }
 }
 
@@ -34,11 +32,6 @@ public struct InAppLogHandler: LogHandler {
 
     private let label: String
     private let observerList = ObserverList<InAppLogObserver>()
-
-//    private struct RegistryKey: Hashable {
-//        let subsystem: String
-//        let category: String
-//    }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
@@ -63,11 +56,12 @@ public struct InAppLogHandler: LogHandler {
         function: String,
         line: UInt
     ) {
-        let timestamp = Date().logFormatted
-        let formattedMessage = "[\(timestamp)][\(label)]\n\(message)"
-
         observerList.notify {
-            $0.didAddLogEntry(formattedMessage)
+            $0.didAddLogEntry(InAppLogEntry(
+                timestamp: Date().logFormatted,
+                label: label,
+                message: message.description
+            ))
         }
     }
 }
