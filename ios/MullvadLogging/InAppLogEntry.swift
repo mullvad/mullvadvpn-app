@@ -7,9 +7,9 @@
 //
 
 public struct InAppLogEntry: Sendable, Codable, CustomStringConvertible {
-    public enum Process: String, Codable, Sendable {
-        case app
-        case packetTunnel
+    public enum Process: String, Codable, Sendable, CaseIterable {
+        case app = "App"
+        case packetTunnel = "PacketTunnel"
     }
 
     public let process: Process
