@@ -111,10 +111,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             self?.refreshLoginMetadata(forceUpdate: true)
         }
 
-        appCoordinator?.onShowLogOverlay = { [weak self] in
-            self?.logWindow?.isHidden.toggle()
-        }
-
         window?.rootViewController = appCoordinator?.rootViewController
         appCoordinator?.start()
 
@@ -133,7 +129,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         logWindow.windowLevel = .statusBar + 1
         logWindow.backgroundColor = .clear
         logWindow.rootViewController = viewController
+
         self.logWindow = logWindow
+
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(logOverlayTapSequenceActivated))
+        tapGesture.delegate = self
+        tapGesture.numberOfTapsRequired = 2
+
+        self.window?.addGestureRecognizer(tapGesture)
+    }
+
+    @objc private func logOverlayTapSequenceActivated() {
+        logWindow?.isHidden.toggle()
     }
 
     private func disableAnimationsIfNeeded() {
@@ -294,5 +301,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
                 comment: ""
             )
         }
+    }
+}
+
+// Pass taps on to regular controls so as not to block them.
+extension SceneDelegate: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        true
     }
 }
