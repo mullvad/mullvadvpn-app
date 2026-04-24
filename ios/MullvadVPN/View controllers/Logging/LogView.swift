@@ -9,11 +9,11 @@
 import UIKit
 
 class LogView: UIView {
-    private let maxPanelHeight: CGFloat
+    private var maxPanelHeight: CGFloat = 500
     private let minPanelHeight: CGFloat = 120
     private var panelHeight: CGFloat = 230
-    private let safeTop: CGFloat = 60
-    private let safeBottom: CGFloat = 40
+    private var safeTop: CGFloat = 60
+    private var safeBottom: CGFloat = 40
     private var dragStartY: CGFloat = 0
     private var resizeStartHeight: CGFloat = 0
 
@@ -23,7 +23,7 @@ class LogView: UIView {
     private let bottomHandleView = UIView()
     private let bottomHandleBar = UIView()
     private let clearButton = IncreasedHitButton()
-    private let shareButton = IncreasedHitButton()
+    private let exportButton = IncreasedHitButton()
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
 
@@ -31,15 +31,25 @@ class LogView: UIView {
     private var filteredEntries: [String] = []
     private var searchText = ""
 
-    var onShareLogs: ((String) -> Void)?
+    var onExportLogs: ((String) -> Void)?
 
     init(viewModel: LogViewModel) {
         self.viewModel = viewModel
-        maxPanelHeight = UIScreen.main.bounds.height - safeTop - safeBottom
 
         super.init(frame: .zero)
 
         setUp()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard let insets = window?.safeAreaInsets else { return }
+
+        safeTop = insets.top
+        safeBottom = insets.bottom
+        maxPanelHeight = UIScreen.main.bounds.height - safeTop - safeBottom
+
+        frame.origin.y = safeTop + 100
     }
 
     @available(*, unavailable)
@@ -50,7 +60,7 @@ class LogView: UIView {
     private func setUp() {
         frame = CGRect(
             x: 8,
-            y: 120,
+            y: safeTop,
             width: UIScreen.main.bounds.width - 16,
             height: panelHeight
         )
@@ -91,17 +101,17 @@ class LogView: UIView {
     }
 
     private func setUpButtons() {
-        shareButton.setTitle("[export]", for: .normal)
-        shareButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
-        shareButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
-        shareButton.addTarget(self, action: #selector(handleShareButton), for: .touchUpInside)
+        exportButton.setTitle("[export]", for: .normal)
+        exportButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        exportButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        exportButton.addTarget(self, action: #selector(handleExportButton), for: .touchUpInside)
 
         clearButton.setTitle("[clear]", for: .normal)
         clearButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
         clearButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
         clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
 
-        let container = UIStackView(arrangedSubviews: [shareButton, clearButton])
+        let container = UIStackView(arrangedSubviews: [exportButton, clearButton])
         container.spacing = 4
 
         addConstrainedSubviews([container]) {
@@ -241,8 +251,8 @@ class LogView: UIView {
         clearEntries()
     }
 
-    @objc private func handleShareButton() {
-        onShareLogs?(filteredEntries.joinedParagraphs())
+    @objc private func handleExportButton() {
+        onExportLogs?(filteredEntries.joinedParagraphs())
     }
 
     @objc private func searchTextChanged() {
@@ -340,7 +350,7 @@ extension LogView: UITableViewDelegate {
             }
 
             let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { _ in
-                self?.onShareLogs?(entry)
+                self?.onExportLogs?(entry)
             }
 
             return UIMenu(children: [copy, share])
