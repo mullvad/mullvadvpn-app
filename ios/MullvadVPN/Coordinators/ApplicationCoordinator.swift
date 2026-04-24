@@ -1101,9 +1101,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         router.isPresenting(route: .welcome)
     }
 
-    /// This closure is called each time log overlay should be toggled.
-    var onShowLogOverlay: (() -> Void)?
-
     // MARK: - UISplitViewControllerDelegate
 
     func primaryViewController(forExpanding splitViewController: UISplitViewController)
@@ -1152,13 +1149,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         animated: Bool
     ) {
         router.present(.settings(route), animated: animated)
-    }
-
-    func rootContainerViewControllerShouldShowLogOverlay(
-        _ controller: RootContainerViewController,
-        animated: Bool
-    ) {
-        onShowLogOverlay?()
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
