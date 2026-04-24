@@ -22,6 +22,14 @@ struct FloatingSearchBar: View {
                     .textInputAutocapitalization(.never)
                     .focused(isFocused)
                     .foregroundColor(.MullvadTextField.textInput)
+                    .onSubmit {
+                        if searchText.isEmpty {
+                            withAnimation {
+                                isExpanded = false
+                                isFocused.wrappedValue = false
+                            }
+                        }
+                    }
                 }
                 .padding(.horizontal, 16)
                 .frame(height: 56)
