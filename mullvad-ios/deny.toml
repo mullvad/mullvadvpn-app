@@ -20,6 +20,7 @@ allow = [
 ]
 # Allow GPL3 licensed crates with permission to relicense like Mullvads own.
 exceptions = [
+  { crate = "domain-fronting", allow = ["GPL-3.0-or-later"] },
   { crate = "intersection-derive", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-api", allow = ["GPL-3.0-or-later"] },
   { crate = "mullvad-api-constants", allow = ["GPL-3.0-or-later"] },
