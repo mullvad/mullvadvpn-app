@@ -8,15 +8,18 @@
 
 import MullvadLogging
 
+@MainActor
 final class LogViewModel {
-    var didAddEntry: ((String) -> Void)?
+    var didAddEntry: ((InAppLogEntry) -> Void)?
     private let observer: InAppLogBlockObserver
 
     init(observer: InAppLogBlockObserver) {
         self.observer = observer
 
-        self.observer.didAddLogEntryHandler = { [weak self] entry in
-            self?.didAddEntry?(entry)
+        self.observer.didAddLogEntryHandler = { entry in
+            Task { @MainActor [weak self] in
+                self?.didAddEntry?(entry)
+            }
         }
     }
 }
