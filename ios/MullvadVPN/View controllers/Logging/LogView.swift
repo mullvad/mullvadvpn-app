@@ -9,12 +9,16 @@
 import UIKit
 
 class LogView: UIView {
-    private let panelHeight: CGFloat = 230
+    private let maxPanelHeight: CGFloat
+    private let minPanelHeight: CGFloat = 120
+    private var panelHeight: CGFloat = 230
     private let safeTop: CGFloat = 60
     private let safeBottom: CGFloat = 40
 
     private let viewModel: LogViewModel
-    private let handleView = UIView()
+    private let topHandleView = UIView()
+    private let bottomHandleView = UIView()
+    private let bottomHandleBar = UIView()
     private let clearButton = IncreasedHitButton()
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
@@ -23,6 +27,7 @@ class LogView: UIView {
     private var filteredEntries: [String] = []
     private var searchText = ""
     private var dragStartY: CGFloat = 0
+    private var resizeStartHeight: CGFloat = 0
 
     // Snaps to top, middle and bottom.
     private lazy var snapYPositions: [CGFloat] = {
@@ -32,6 +37,7 @@ class LogView: UIView {
 
     init(viewModel: LogViewModel) {
         self.viewModel = viewModel
+        maxPanelHeight = UIScreen.main.bounds.height - safeTop - safeBottom
 
         super.init(frame: .zero)
 
@@ -57,23 +63,24 @@ class LogView: UIView {
 
         viewModel.didAddEntry = addEntry
 
-        setUpHandle()
+        setUpTopHandle()
         setUpClearButton()
         setUpSearchField()
         setUpTableView()
+        setUpBottomHandle()
 
         addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:))))
     }
 
-    private func setUpHandle() {
-        handleView.backgroundColor = .white.withAlphaComponent(0.5)
-        handleView.layer.cornerRadius = 2
+    private func setUpTopHandle() {
+        topHandleView.backgroundColor = .white.withAlphaComponent(0.5)
+        topHandleView.layer.cornerRadius = 2
 
-        addConstrainedSubviews([handleView]) {
-            handleView.pinEdgeToSuperview(.top(8))
-            handleView.centerXAnchor.constraint(equalTo: centerXAnchor)
-            handleView.widthAnchor.constraint(equalToConstant: 36)
-            handleView.heightAnchor.constraint(equalToConstant: 4)
+        addConstrainedSubviews([topHandleView]) {
+            topHandleView.pinEdgeToSuperview(.top(8))
+            topHandleView.centerXAnchor.constraint(equalTo: centerXAnchor)
+            topHandleView.widthAnchor.constraint(equalToConstant: 36)
+            topHandleView.heightAnchor.constraint(equalToConstant: 4)
         }
     }
 
@@ -83,7 +90,7 @@ class LogView: UIView {
 
         addConstrainedSubviews([clearButton]) {
             clearButton.pinEdgeToSuperview(.trailing(8))
-            clearButton.centerYAnchor.constraint(equalTo: handleView.centerYAnchor)
+            clearButton.centerYAnchor.constraint(equalTo: topHandleView.centerYAnchor)
             clearButton.widthAnchor.constraint(equalToConstant: 16)
             clearButton.heightAnchor.constraint(equalToConstant: 16)
         }
@@ -128,7 +135,7 @@ class LogView: UIView {
         searchField.delegate = self
 
         addConstrainedSubviews([searchField]) {
-            searchField.topAnchor.constraint(equalTo: handleView.bottomAnchor, constant: 8)
+            searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor, constant: 8)
             searchField.pinEdgesToSuperview(.init([.leading(8), .trailing(8)]))
             searchField.heightAnchor.constraint(equalToConstant: 28)
         }
@@ -146,9 +153,32 @@ class LogView: UIView {
         tableView.verticalScrollIndicatorInsets.right = 2
 
         addConstrainedSubviews([tableView]) {
-            tableView.pinEdgesToSuperview(.all().excluding(.top))
+            tableView.pinEdgesToSuperview(.all().excluding(.top).excluding(.bottom))
             tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 4)
         }
+    }
+
+    private func setUpBottomHandle() {
+        bottomHandleView.backgroundColor = .clear
+
+        addConstrainedSubviews([bottomHandleView]) {
+            bottomHandleView.topAnchor.constraint(equalTo: tableView.bottomAnchor)
+            bottomHandleView.pinEdgesToSuperview(.all().excluding(.top))
+            bottomHandleView.heightAnchor.constraint(equalToConstant: 20)
+        }
+
+        bottomHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
+        bottomHandleBar.layer.cornerRadius = 2
+
+        bottomHandleView.addConstrainedSubviews([bottomHandleBar]) {
+            bottomHandleBar.centerXAnchor.constraint(equalTo: bottomHandleView.centerXAnchor)
+            bottomHandleBar.centerYAnchor.constraint(equalTo: bottomHandleView.centerYAnchor)
+            bottomHandleBar.widthAnchor.constraint(equalToConstant: 36)
+            bottomHandleBar.heightAnchor.constraint(equalToConstant: 4)
+        }
+
+        let resizeGesture = UIPanGestureRecognizer(target: self, action: #selector(handleResize(_:)))
+        bottomHandleView.addGestureRecognizer(resizeGesture)
     }
 
     private func addEntry(_ entry: String) {
@@ -203,8 +233,26 @@ class LogView: UIView {
 
     @objc private func clearSearchField() {
         searchField.text = ""
-//        searchField.resignFirstResponder()
         searchTextChanged()
+    }
+
+    // MARK: - Resizing
+
+    @objc private func handleResize(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            resizeStartHeight = frame.height
+        case .changed:
+            let translation = gesture.translation(in: superview).y
+            let newHeight = min(max(resizeStartHeight + translation, minPanelHeight), maxPanelHeight)
+
+            frame.size.height = newHeight
+            panelHeight = newHeight
+        case .ended, .cancelled:
+            scrollToBottom()
+        default:
+            break
+        }
     }
 
     // MARK: - Dragging
