@@ -1,7 +1,8 @@
 // Validation mirrors the Android PersonalVpnViewModel.parseFormData logic:
 // - WireGuard keys are base64 strings decoding to exactly 32 bytes.
 // - Addresses are IP literals (hostnames are not accepted).
-// - Endpoints are "<host>:<port>" with port in 1..=65535.
+// - Endpoints are "<host>:<port>" where <host> is an IP or DNS name and the port is 1..=65535.
+//   DNS resolution happens in the daemon at save-time.
 // - Allowed IPs must be non-blank (CIDR validation is deferred to the daemon).
 
 const IPV4_REGEX = /^(\d{1,3}\.){3}\d{1,3}$/;
@@ -49,7 +50,6 @@ export function validateEndpoint(value: string): EndpointValidationError | undef
   const host = trimmed.slice(0, separator).replace(/^\[|\]$/g, '');
   const portStr = trimmed.slice(separator + 1);
   if (host.length === 0 || portStr.length === 0) return 'invalid-address';
-  if (validateIp(host) !== undefined) return 'invalid-address';
   const port = Number(portStr);
   if (!Number.isInteger(port) || port < 1 || port > 65535) return 'invalid-port';
   return undefined;
