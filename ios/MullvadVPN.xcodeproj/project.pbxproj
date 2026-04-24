@@ -719,6 +719,7 @@
 		7AE16DC52F9A5C8200A72A39 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC42F9A5C7E00A72A39 /* LogView.swift */; };
 		7AE16DC72F9A5EBA00A72A39 /* LogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */; };
 		7AE16DC92F9B53F400A72A39 /* LogOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */; };
+		7AE16DCC2F9B911800A72A39 /* InAppLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */; };
 		7AE90B682C2D726000375A60 /* NSParagraphStyle+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */; };
 		7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */; };
 		7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
@@ -2373,6 +2374,7 @@
 		7AE16DC42F9A5C7E00A72A39 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
 		7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewModel.swift; sourceTree = "<group>"; };
 		7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogOverlayViewController.swift; sourceTree = "<group>"; };
+		7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogEntry.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
 		7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelectorWrapper.swift; sourceTree = "<group>"; };
 		7AEF7F192AD00F52006FE45D /* AppMessageHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppMessageHandler.swift; sourceTree = "<group>"; };
@@ -4262,6 +4264,7 @@
 				581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */,
 				581943E228F8010400B0CB5E /* Date+LogFormat.swift */,
 				581943E128F8010300B0CB5E /* Error+LogFormat.swift */,
+				7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */,
 				7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */,
 				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 				581943E028F8010300B0CB5E /* Logger+Errors.swift */,
@@ -4639,8 +4642,8 @@
 			isa = PBXGroup;
 			children = (
 				7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */,
-				7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */,
 				7AE16DC42F9A5C7E00A72A39 /* LogView.swift */,
+				7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -7108,6 +7111,7 @@
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
+				7AE16DCC2F9B911800A72A39 /* InAppLogEntry.swift in Sources */,
 				58D22403294C90050029F5F8 /* LoggerBuilder.swift in Sources */,
 				58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */,
 				58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */,
