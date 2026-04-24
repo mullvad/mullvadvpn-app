@@ -17,6 +17,8 @@ class LogOverlayViewController: UIViewController {
         logView = LogView(viewModel: viewModel)
 
         super.init(nibName: nil, bundle: nil)
+
+        overrideUserInterfaceStyle = .light
     }
 
     @available(*, unavailable)
@@ -34,7 +36,16 @@ class LogOverlayViewController: UIViewController {
         view.backgroundColor = .clear
         view.addSubview(logView)
 
-        overrideUserInterfaceStyle = .light
+        logView.onShareLogs = { [weak self] logString in
+            let activityController = UIActivityViewController(
+                activityItems: [logString],
+                applicationActivities: nil
+            )
+
+//            activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
+
+            self?.present(activityController, animated: true)
+        }
     }
 }
 
