@@ -369,6 +369,73 @@ pub struct PersonalVpnConfig {
     pub peer: PersonalVpnPeerConfig,
 }
 
+/// Pre-resolution variant of [`PersonalVpnPeerConfig`] whose endpoint is a
+/// free-form `<host>:<port>` string. `<host>` may be an IP literal or a DNS
+/// name; [`UnresolvedPersonalVpnConfig::resolve`] turns it into a concrete
+/// [`SocketAddr`].
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedPersonalVpnPeerConfig {
+    pub public_key: PublicKey,
+    pub allowed_ip: Vec<IpNetwork>,
+    pub endpoint: String,
+}
+
+/// Pre-resolution variant of [`PersonalVpnConfig`].
+#[cfg(feature = "personal-vpn")]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct UnresolvedPersonalVpnConfig {
+    pub tunnel: PersonalVpnTunnelConfig,
+    pub peer: UnresolvedPersonalVpnPeerConfig,
+}
+
+#[cfg(feature = "personal-vpn")]
+impl UnresolvedPersonalVpnConfig {
+    const RESOLVE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
+
+    /// Resolve the peer endpoint via DNS (fast-pathing when the endpoint is
+    /// already an IP literal) and produce a concrete [`PersonalVpnConfig`].
+    ///
+    /// Blocks on a DNS lookup, capped at [`RESOLVE_TIMEOUT`]. Prefers IPv4 if
+    /// DNS returns both families.
+    pub async fn resolve(self) -> Result<PersonalVpnConfig, std::io::Error> {
+        let endpoint = if let Ok(addr) = self.peer.endpoint.parse::<SocketAddr>() {
+            addr
+        } else {
+            let lookup = tokio::net::lookup_host(&self.peer.endpoint);
+            let addrs = tokio::time::timeout(Self::RESOLVE_TIMEOUT, lookup)
+                .await
+                .map_err(|_| {
+                    std::io::Error::new(
+                        std::io::ErrorKind::TimedOut,
+                        format!(
+                            "DNS lookup for {} timed out after {:?}",
+                            self.peer.endpoint,
+                            Self::RESOLVE_TIMEOUT
+                        ),
+                    )
+                })??;
+            let mut addrs: Vec<SocketAddr> = addrs.collect();
+            if addrs.is_empty() {
+                return Err(std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    format!("no addresses found for {}", self.peer.endpoint),
+                ));
+            }
+            addrs.sort_by_key(|a| !a.is_ipv4());
+            addrs[0]
+        };
+        Ok(PersonalVpnConfig {
+            tunnel: self.tunnel,
+            peer: PersonalVpnPeerConfig {
+                public_key: self.peer.public_key,
+                allowed_ip: self.peer.allowed_ip,
+                endpoint,
+            },
+        })
+    }
+}
+
 fn serialize_key<S>(key: &[u8; 32], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,

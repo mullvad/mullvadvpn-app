@@ -13,6 +13,7 @@ log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 shadowsocks-crypto.workspace = true
 thiserror = { workspace = true }
+tokio = { workspace = true, features = ["net", "time"], optional = true }
 x25519-dalek = { version = "2.0.1", features = [
   "getrandom",
   "static_secrets",
@@ -28,7 +29,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 
 [features]
 wireguard-go = []
-personal-vpn = []
+personal-vpn = ["dep:tokio"]
 
 [lints]
 workspace = true

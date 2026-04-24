@@ -468,7 +468,7 @@ pub enum DaemonCommand {
     #[cfg(feature = "personal-vpn")]
     SetPersonalVpnConfig(
         oneshot::Sender<String>,
-        Option<talpid_types::net::wireguard::PersonalVpnConfig>,
+        Option<talpid_types::net::wireguard::UnresolvedPersonalVpnConfig>,
     ),
     /// Enable or disable the personal VPN
     #[cfg(feature = "personal-vpn")]
@@ -2737,8 +2737,24 @@ impl Daemon {
     async fn on_set_personal_vpn_config(
         &mut self,
         tx: oneshot::Sender<String>,
-        config: Option<talpid_types::net::wireguard::PersonalVpnConfig>,
+        config: Option<talpid_types::net::wireguard::UnresolvedPersonalVpnConfig>,
     ) {
+        let config = match config {
+            // TODO: Do not block daemon command channel
+            Some(unresolved) => match unresolved.resolve().await {
+                Ok(resolved) => Some(resolved),
+                Err(err) => {
+                    log::error!("Failed to resolve personal VPN endpoint: {err:#}");
+                    Self::oneshot_send(
+                        tx,
+                        format!("failed to resolve personal VPN endpoint: {err}"),
+                        "set_personal_vpn_config",
+                    );
+                    return;
+                }
+            },
+            None => None,
+        };
         match self
             .settings
             .update(move |s| s.personal_vpn_config = config)

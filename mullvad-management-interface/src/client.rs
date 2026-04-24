@@ -676,7 +676,7 @@ impl MullvadProxyClient {
     #[cfg(feature = "personal-vpn")]
     pub async fn set_personal_vpn_config(
         &mut self,
-        config: Option<talpid_types::net::wireguard::PersonalVpnConfig>,
+        config: Option<talpid_types::net::wireguard::UnresolvedPersonalVpnConfig>,
     ) -> Result<String> {
         let proto_config = match config {
             Some(c) => types::PersonalVpnConfig::from(c),

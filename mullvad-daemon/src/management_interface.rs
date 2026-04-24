@@ -1343,7 +1343,7 @@ impl ManagementService for ManagementServiceImpl {
             None
         } else {
             Some(
-                talpid_types::net::wireguard::PersonalVpnConfig::try_from(request)
+                talpid_types::net::wireguard::UnresolvedPersonalVpnConfig::try_from(request)
                     .map_err(map_protobuf_type_err)?,
             )
         };

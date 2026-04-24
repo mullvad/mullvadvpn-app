@@ -7,12 +7,12 @@ use mullvad_management_interface::MullvadProxyClient;
 use std::{
     fs,
     io::{self, Read},
-    net::{IpAddr, SocketAddr},
+    net::IpAddr,
     str::FromStr,
 };
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::{
-    PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig,
+    PersonalVpnTunnelConfig, UnresolvedPersonalVpnConfig, UnresolvedPersonalVpnPeerConfig,
 };
 
 use super::BooleanOption;
@@ -40,9 +40,10 @@ pub enum PersonalVpn {
         #[arg(long)]
         allowed_ip: Vec<IpNetwork>,
 
-        /// Endpoint of the VPN peer (e.g. 1.2.3.4:51820)
+        /// Endpoint of the VPN peer as `<host>:<port>` (host may be an IP or
+        /// DNS name, e.g. `1.2.3.4:51820` or `vpn.example.com:51820`)
         #[arg(long)]
-        endpoint: SocketAddr,
+        endpoint: String,
     },
 
     /// Enable or disable the personal VPN
@@ -105,14 +106,14 @@ impl PersonalVpn {
         tunnel_ip: IpAddr,
         peer_pubkey: wireguard::PublicKey,
         allowed_ip: Vec<IpNetwork>,
-        endpoint: SocketAddr,
+        endpoint: String,
     ) -> Result<()> {
-        let config = PersonalVpnConfig {
+        let config = UnresolvedPersonalVpnConfig {
             tunnel: PersonalVpnTunnelConfig {
                 private_key,
                 ip: tunnel_ip,
             },
-            peer: PersonalVpnPeerConfig {
+            peer: UnresolvedPersonalVpnPeerConfig {
                 public_key: peer_pubkey,
                 allowed_ip,
                 endpoint,
@@ -159,8 +160,8 @@ impl PersonalVpn {
         })
         .await??;
 
-        let config =
-            PersonalVpnConfig::from_str(&config_str).context("Failed to parse WireGuard config")?;
+        let config = UnresolvedPersonalVpnConfig::from_str(&config_str)
+            .context("Failed to parse WireGuard config")?;
 
         let mut rpc = MullvadProxyClient::new().await?;
         let error = rpc.set_personal_vpn_config(Some(config)).await?;

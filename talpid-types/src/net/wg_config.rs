@@ -1,16 +1,18 @@
 //! Parser for the `wg-quick` config file format (sans DNS and some other things).
 //!
-//! The parser is exposed as `impl FromStr for PersonalVpnConfig` so any crate
-//! in the workspace can call `PersonalVpnConfig::from_str(...)` on the contents
-//! of a `.conf` file.
+//! The parser is exposed as `impl FromStr for UnresolvedPersonalVpnConfig` so any
+//! crate in the workspace can call `UnresolvedUnresolvedPersonalVpnConfig::from_str(...)` on
+//! the contents of a `.conf` file. The peer `Endpoint` is stored as a free-form
+//! `<host>:<port>` string; hostname resolution is deferred to
+//! [`crate::net::wireguard::UnresolvedPersonalVpnConfig::resolve`].
 
-use std::{net::SocketAddr, str::FromStr};
+use std::str::FromStr;
 
 use ipnetwork::IpNetwork;
 
 use crate::net::wireguard::{
-    InvalidKey, PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig, PrivateKey,
-    PublicKey,
+    InvalidKey, PersonalVpnTunnelConfig, PrivateKey, PublicKey, UnresolvedPersonalVpnConfig,
+    UnresolvedPersonalVpnPeerConfig,
 };
 
 /// Errors produced when parsing a wg-quick config into a [`PersonalVpnConfig`].
@@ -46,12 +48,8 @@ pub enum WgConfigParseError {
         #[source]
         source: ipnetwork::IpNetworkError,
     },
-    #[error("Invalid Endpoint '{value}' (hostnames are not supported; use <ip>:<port>): {source}")]
-    InvalidEndpoint {
-        value: String,
-        #[source]
-        source: std::net::AddrParseError,
-    },
+    #[error("Invalid Endpoint '{0}' (expected <host>:<port>)")]
+    InvalidEndpoint(String),
 }
 
 #[derive(Default)]
@@ -64,7 +62,7 @@ struct InterfaceBuilder {
 struct PeerBuilder {
     public_key: Option<PublicKey>,
     allowed_ips: Vec<IpNetwork>,
-    endpoint: Option<SocketAddr>,
+    endpoint: Option<String>,
 }
 
 enum Section {
@@ -76,18 +74,19 @@ enum Section {
 /// Recognized fields:
 /// * `[Interface]`: `PrivateKey`, `Address` — the first address is taken as the
 ///   tunnel IP; any CIDR suffix is stripped.
-/// * `[Peer]`: `PublicKey`, `AllowedIPs`, `Endpoint` - `Endpoint` must be a
-///   numeric `<ip>:<port>` (hostnames would require DNS resolution and are
-///   rejected here).
+/// * `[Peer]`: `PublicKey`, `AllowedIPs`, `Endpoint` - `Endpoint` is stored as a
+///   `<host>:<port>` string. The host may be an IP literal or a DNS name; DNS
+///   resolution is deferred to
+///   [`UnresolvedPersonalVpnConfig::resolve`](super::wireguard::UnresolvedPersonalVpnConfig::resolve).
 ///
 /// Other wg-quick fields (`ListenPort`, `DNS`, `MTU`, `PresharedKey`,
 /// `PersistentKeepalive`, `PreUp`/`PostUp`/`PreDown`/`PostDown`, etc.) are
 /// accepted but ignored. Exactly one `[Peer]` section is required -
-/// `PersonalVpnConfig` only holds a single peer.
+/// the config only holds a single peer.
 ///
 /// Keys and section names are matched case-insensitively. Lines starting with
 /// `#` and trailing `#`-comments are stripped. Blank lines are ignored.
-impl FromStr for PersonalVpnConfig {
+impl FromStr for UnresolvedPersonalVpnConfig {
     type Err = WgConfigParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -207,14 +206,11 @@ fn handle_peer_line(
         if peer.endpoint.is_some() {
             return Err(E::DuplicateField("Endpoint"));
         }
-        peer.endpoint = Some(
-            value
-                .parse::<SocketAddr>()
-                .map_err(|source| E::InvalidEndpoint {
-                    value: value.to_owned(),
-                    source,
-                })?,
-        );
+        let trimmed = value.trim();
+        if trimmed.is_empty() || !trimmed.contains(':') {
+            return Err(E::InvalidEndpoint(trimmed.to_owned()));
+        }
+        peer.endpoint = Some(trimmed.to_owned());
     }
     Ok(())
 }
@@ -222,7 +218,7 @@ fn handle_peer_line(
 fn finalize(
     interface: InterfaceBuilder,
     peer: Option<PeerBuilder>,
-) -> Result<PersonalVpnConfig, WgConfigParseError> {
+) -> Result<UnresolvedPersonalVpnConfig, WgConfigParseError> {
     use WgConfigParseError as E;
 
     let private_key = interface.private_key.ok_or(E::MissingField("PrivateKey"))?;
@@ -240,12 +236,12 @@ fn finalize(
     }
     let endpoint = peer.endpoint.ok_or(E::MissingField("Endpoint"))?;
 
-    Ok(PersonalVpnConfig {
+    Ok(UnresolvedPersonalVpnConfig {
         tunnel: PersonalVpnTunnelConfig {
             private_key,
             ip: tunnel_ip,
         },
-        peer: PersonalVpnPeerConfig {
+        peer: UnresolvedPersonalVpnPeerConfig {
             public_key,
             allowed_ip: peer.allowed_ips,
             endpoint,
@@ -279,15 +275,15 @@ Endpoint = 1.2.3.4:51820
 
     #[test]
     fn happy_path() {
-        let config = PersonalVpnConfig::from_str(&sample_config()).unwrap();
+        let config = UnresolvedPersonalVpnConfig::from_str(&sample_config()).unwrap();
         assert_eq!(config.tunnel.ip.to_string(), "10.0.0.2");
         assert_eq!(config.peer.allowed_ip.len(), 2);
-        assert_eq!(config.peer.endpoint.to_string(), "1.2.3.4:51820");
+        assert_eq!(config.peer.endpoint, "1.2.3.4:51820");
     }
 
     #[test]
     fn address_cidr_is_stripped_for_tunnel_ip() {
-        let config = PersonalVpnConfig::from_str(&sample_config()).unwrap();
+        let config = UnresolvedPersonalVpnConfig::from_str(&sample_config()).unwrap();
         assert_eq!(config.tunnel.ip.to_string(), "10.0.0.2");
     }
 
@@ -305,7 +301,7 @@ allowedips = 0.0.0.0/0
 ENDPOINT = 1.2.3.4:51820
 "
         );
-        PersonalVpnConfig::from_str(&input).unwrap();
+        UnresolvedPersonalVpnConfig::from_str(&input).unwrap();
     }
 
     #[test]
@@ -325,7 +321,7 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = 1.2.3.4:51820
 "
         );
-        PersonalVpnConfig::from_str(&input).unwrap();
+        UnresolvedPersonalVpnConfig::from_str(&input).unwrap();
     }
 
     #[test]
@@ -346,7 +342,7 @@ Endpoint = 1.2.3.4:51820
 PersistentKeepalive = 25
 "
         );
-        PersonalVpnConfig::from_str(&input).unwrap();
+        UnresolvedPersonalVpnConfig::from_str(&input).unwrap();
     }
 
     #[test]
@@ -363,7 +359,7 @@ Endpoint = 1.2.3.4:51820
 "
         );
         assert!(matches!(
-            PersonalVpnConfig::from_str(&input).unwrap_err(),
+            UnresolvedPersonalVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::MissingField("Address"),
         ));
     }
@@ -384,7 +380,7 @@ Endpoint = 1.2.3.4:51820
 "
         );
         assert!(matches!(
-            PersonalVpnConfig::from_str(&input).unwrap_err(),
+            UnresolvedPersonalVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::DuplicateField("PrivateKey"),
         ));
     }
@@ -409,13 +405,13 @@ Endpoint = 5.6.7.8:51820
 "
         );
         assert!(matches!(
-            PersonalVpnConfig::from_str(&input).unwrap_err(),
+            UnresolvedPersonalVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::MultiplePeers,
         ));
     }
 
     #[test]
-    fn hostname_endpoint_is_rejected() {
+    fn hostname_endpoint_is_accepted() {
         let input = format!(
             "\
 [Interface]
@@ -428,9 +424,27 @@ AllowedIPs = 0.0.0.0/0
 Endpoint = vpn.example.com:51820
 "
         );
+        let config = UnresolvedPersonalVpnConfig::from_str(&input).unwrap();
+        assert_eq!(config.peer.endpoint, "vpn.example.com:51820");
+    }
+
+    #[test]
+    fn endpoint_without_port_is_rejected() {
+        let input = format!(
+            "\
+[Interface]
+PrivateKey = {PRIV}
+Address = 10.0.0.2
+
+[Peer]
+PublicKey = {PUB}
+AllowedIPs = 0.0.0.0/0
+Endpoint = vpn.example.com
+"
+        );
         assert!(matches!(
-            PersonalVpnConfig::from_str(&input).unwrap_err(),
-            WgConfigParseError::InvalidEndpoint { .. },
+            UnresolvedPersonalVpnConfig::from_str(&input).unwrap_err(),
+            WgConfigParseError::InvalidEndpoint(_),
         ));
     }
 
@@ -452,7 +466,7 @@ Endpoint = 1.2.3.4:51820
 "
         );
         assert!(matches!(
-            PersonalVpnConfig::from_str(&input).unwrap_err(),
+            UnresolvedPersonalVpnConfig::from_str(&input).unwrap_err(),
             WgConfigParseError::UnknownSection(ref s) if s == "Bogus",
         ));
     }
