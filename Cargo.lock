@@ -2953,7 +2953,6 @@ dependencies = [
  "tokio-rustls",
  "tokio-socks",
  "tower",
- "uuid",
  "vec1",
 ]
 
