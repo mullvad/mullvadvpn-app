@@ -359,9 +359,11 @@ extension PacketTunnelProvider {
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
-            loggerBuilder.addInAppLogOutput(observer: InAppLogBlockObserver {
-                print($0)
-            })
+            loggerBuilder.addInAppLogOutput(
+                observer: InAppLogBlockObserver {
+                    print($0)
+                }
+            )
         #endif
         loggerBuilder.install()
 
