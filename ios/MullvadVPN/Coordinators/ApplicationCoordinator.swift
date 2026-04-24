@@ -7,7 +7,6 @@
 //
 
 import Combine
-import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
@@ -87,7 +86,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         settingsManager: SettingsManager,
         logRedactor: LogRedacting? = nil,
         migratedSettingsListener: MigratedSettingsListener,
-        inAppLogObserver: InAppLogBlockObserver
+        inAppLogObserver: InAppLogBlockObserver,
+        breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -122,8 +122,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     func start() {
-        setUpLogOverlay()
-
         navigationContainer.notificationController = notificationController
         if !appPreferences.isNotificationPermissionAsked {
             Task {
@@ -308,16 +306,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     // MARK: - Private
-
-    private func setUpLogOverlay() {
-        let logViewModel = LogViewModel(observer: inAppLogObserver)
-        let panelView = LogView(viewModel: logViewModel)
-
-        // Defer to next run loop so the window is available after rootViewController is set.
-        DispatchQueue.main.async { [weak self] in
-            self?.navigationContainer.view.window?.addSubview(panelView)
-        }
-    }
 
     /**
      Sets up breadcrumbs and observers for them.
@@ -1315,3 +1303,5 @@ extension DeviceState {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
 }
+
+
