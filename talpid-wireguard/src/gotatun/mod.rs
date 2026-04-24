@@ -355,43 +355,36 @@ pub async fn open_gotatun_tunnel(
 /// device chained to an entry device). The [`build_personal_vpn_frontend`] helper
 /// returns this struct so each variant can construct its outer layer(s) on top.
 #[cfg(feature = "personal-vpn")]
-struct PersonalVpnFrontend {
+struct PersonalVpn {
     inner_device: PersonalInnerDevice,
     router_task: tokio::task::JoinHandle<()>,
     outer_ip_send: TunTxRouter<TunChannelTx, GotaTunDevice>,
     outer_ip_recv: MergingIpRecv<gotatun::tun::router::SplitIpRecv, TunChannelRx>,
     /// Per-packet overhead added by the personal VPN WireGuard encapsulation.
-    /// Callers combine this with any additional outer-layer overhead (e.g. the
-    /// multihop exit encapsulation) when sizing their outer UDP channel.
     personal_vpn_overhead: u16,
 }
 
-/// Build the shared pieces of a personal-VPN device graph.
+/// Build the shared components of a personal VPN device.
 ///
 /// Spawns a background [`TunRxRouter`] task; the returned `router_task`
 /// [`JoinHandle`] must be aborted during teardown (see [`Devices::stop`]).
-///
-/// Requires `config.personal_vpn` to be `Some`; returns [`TunnelError::SetConfigError`]
-/// otherwise, as well as on IPv4/IPv6 mismatches between the inner tunnel IP and the
-/// outer tunnel addresses.
 #[cfg(feature = "personal-vpn")]
-async fn build_personal_vpn_frontend(
+async fn build_personal_vpn(
+    personal_vpn: &talpid_types::net::wireguard::PersonalVpnConfig,
     config: &Config,
     tun_dev: &GotaTunDevice,
-) -> Result<PersonalVpnFrontend, TunnelError> {
-    let Some(personal_vpn) = &config.personal_vpn else {
-        log::error!("build_personal_vpn_frontend called without personal VPN config");
-        return Err(TunnelError::SetConfigError);
-    };
-
+) -> Result<PersonalVpn, TunnelError> {
     let personal_vpn_overhead = match personal_vpn.peer.endpoint.ip() {
         IpAddr::V4(..) => (Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
         IpAddr::V6(..) => (Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD) as u16,
     };
-    let bridge_mtu = tun_dev.mtu().increase(personal_vpn_overhead).ok_or_else(|| {
-        log::error!("MTU overflow while sizing personal-VPN bridge channel");
-        TunnelError::SetConfigError
-    })?;
+    let bridge_mtu = tun_dev
+        .mtu()
+        .increase(personal_vpn_overhead)
+        .ok_or_else(|| {
+            log::error!("MTU overflow while sizing personal-VPN bridge channel");
+            TunnelError::SetConfigError
+        })?;
 
     let outer_tun_ip_v4 = config.tunnel.addresses.iter().find_map(|ip| match ip {
         &IpAddr::V4(ip) => Some(ip),
@@ -476,7 +469,7 @@ async fn build_personal_vpn_frontend(
             TunnelError::SetConfigError
         })?;
 
-    Ok(PersonalVpnFrontend {
+    Ok(PersonalVpn {
         inner_device,
         router_task,
         outer_ip_send,
@@ -504,121 +497,116 @@ async fn create_devices(
     let factory = MaybeObfuscatingTransportFactory::from_config(base_factory, config);
 
     #[cfg(feature = "personal-vpn")]
-    if config.personal_vpn.is_some() && config.exit_peer.is_none() {
-        log::debug!("Configuring tunnel with personal VPN");
+    if let Some(pvpn_config) = &config.personal_vpn {
+        let pvpn = build_personal_vpn(pvpn_config, config, &tun_dev).await?;
 
-        let frontend = build_personal_vpn_frontend(config, &tun_dev).await?;
-        let outer_private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+        if let Some(exit_peer) = &config.exit_peer {
+            log::debug!("Configuring multihop tunnel with personal VPN");
 
-        // Outer device
-        let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
-        let outer_device = DeviceBuilder::new()
-            .with_udp(factory)
-            .with_ip_pair(frontend.outer_ip_send, frontend.outer_ip_recv)
-            .with_private_key(outer_private_key)
-            .with_peer(entry_peer)
-            .build()
-            .await
-            .map_err(|err| {
-                log::error!("Failed to create personal VPN device: {err:#?}");
-                TunnelError::SetConfigError
-            })?;
+            // Outer UDP channel between entry and exit devices must hold the exit-encrypted
+            // packets, which carry the inner personal-VPN-encrypted IP packets on top of the
+            // (inner tun mtu + personal VPN encapsulation) payload size.
+            let multihop_overhead = match exit_peer.endpoint.ip() {
+                IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+                IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            };
+            let entry_mtu = tun_dev
+                .mtu()
+                .increase(pvpn.personal_vpn_overhead)
+                .and_then(|mtu| mtu.increase(multihop_overhead as u16))
+                .ok_or_else(|| {
+                    log::error!("MTU overflow while sizing multihop+personal-VPN channel");
+                    TunnelError::SetConfigError
+                })?;
 
-        #[cfg(target_os = "linux")]
-        outer_device
-            .write(async |device| {
-                if let Some(fwmark) = config.fwmark {
-                    device.set_fwmark(fwmark)?;
-                }
-                Ok(())
-            })
-            .await
-            .flatten()
-            .map_err(|err| {
-                log::error!("Failed to set gotatun config: {err:#}");
-                TunnelError::SetConfigError
-            })?;
+            let source_v4 = config
+                .tunnel
+                .addresses
+                .iter()
+                .find_map(|ip| match ip {
+                    &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+                    IpAddr::V6(..) => None,
+                })
+                .unwrap_or(Ipv4Addr::UNSPECIFIED);
+            let source_v6 = config
+                .tunnel
+                .addresses
+                .iter()
+                .find_map(|ip| match ip {
+                    &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+                    IpAddr::V4(..) => None,
+                })
+                .unwrap_or(Ipv6Addr::UNSPECIFIED);
 
-        // Note: the inner personal VPN device is only (re)built here. A change in personal VPN
-        // config must trigger a full tunnel reconnect.
-        return Ok(Devices::SinglehopWithPersonalVpn {
-            outer_device,
-            inner_device: frontend.inner_device,
-            router_task: frontend.router_task,
-        });
-    }
+            let (tun_channel_tx, tun_channel_rx, udp_channels) =
+                new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
 
-    #[cfg(feature = "personal-vpn")]
-    if config.personal_vpn.is_some()
-        && let Some(exit_peer) = &config.exit_peer
-    {
-        log::debug!("Configuring multihop tunnel with personal VPN");
+            let exit_device = DeviceBuilder::new()
+                .with_udp(udp_channels)
+                .with_ip_pair(pvpn.outer_ip_send, pvpn.outer_ip_recv)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
 
-        let frontend = build_personal_vpn_frontend(config, &tun_dev).await?;
+            #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+            let (tun_channel_tx, tun_channel_rx) =
+                wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
 
-        // Outer UDP channel between entry and exit devices must hold the exit-encrypted
-        // packets, which carry the inner personal-VPN-encrypted IP packets on top of the
-        // (inner tun mtu + personal VPN encapsulation) payload size.
-        let multihop_overhead = match exit_peer.endpoint.ip() {
-            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-        };
-        let entry_mtu = tun_dev
-            .mtu()
-            .increase(frontend.personal_vpn_overhead)
-            .and_then(|mtu| mtu.increase(multihop_overhead as u16))
-            .ok_or_else(|| {
-                log::error!("MTU overflow while sizing multihop+personal-VPN channel");
-                TunnelError::SetConfigError
-            })?;
+            let entry_device = DeviceBuilder::new()
+                .with_udp(factory)
+                .with_ip_pair(tun_channel_tx, tun_channel_rx)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
 
-        let source_v4 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-                IpAddr::V6(..) => None,
-            })
-            .unwrap_or(Ipv4Addr::UNSPECIFIED);
-        let source_v6 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-                IpAddr::V4(..) => None,
-            })
-            .unwrap_or(Ipv6Addr::UNSPECIFIED);
+            let mut devices = Devices::MultihopWithPersonalVpn {
+                inner_device: pvpn.inner_device,
+                entry_device,
+                exit_device,
+                router_task: pvpn.router_task,
+            };
+            configure_devices(&mut devices, config, daita).await?;
+            return Ok(devices);
+        } else {
+            log::debug!("Configuring tunnel with personal VPN");
 
-        let (tun_channel_tx, tun_channel_rx, udp_channels) =
-            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
+            let outer_private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+            let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
+            let outer_device = DeviceBuilder::new()
+                .with_udp(factory)
+                .with_ip_pair(pvpn.outer_ip_send, pvpn.outer_ip_recv)
+                .with_private_key(outer_private_key)
+                .with_peer(entry_peer)
+                .build()
+                .await
+                .map_err(|err| {
+                    log::error!("Failed to create personal VPN device: {err:#?}");
+                    TunnelError::SetConfigError
+                })?;
 
-        let exit_device = DeviceBuilder::new()
-            .with_udp(udp_channels)
-            .with_ip_pair(frontend.outer_ip_send, frontend.outer_ip_recv)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
+            #[cfg(target_os = "linux")]
+            outer_device
+                .write(async |device| {
+                    if let Some(fwmark) = config.fwmark {
+                        device.set_fwmark(fwmark)?;
+                    }
+                    Ok(())
+                })
+                .await
+                .flatten()
+                .map_err(|err| {
+                    log::error!("Failed to set gotatun config: {err:#}");
+                    TunnelError::SetConfigError
+                })?;
 
-        #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
-        let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
-
-        let entry_device = DeviceBuilder::new()
-            .with_udp(factory)
-            .with_ip_pair(tun_channel_tx, tun_channel_rx)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        let mut devices = Devices::MultihopWithPersonalVpn {
-            inner_device: frontend.inner_device,
-            entry_device,
-            exit_device,
-            router_task: frontend.router_task,
-        };
-        configure_devices(&mut devices, config, daita).await?;
-        return Ok(devices);
+            // Note: the inner personal VPN device is only (re)built here. A change in personal
+            // VPN config must trigger a full tunnel reconnect.
+            return Ok(Devices::SinglehopWithPersonalVpn {
+                outer_device,
+                inner_device: pvpn.inner_device,
+                router_task: pvpn.router_task,
+            });
+        }
     }
 
     let mut devices = if let Some(exit_peer) = &config.exit_peer {
