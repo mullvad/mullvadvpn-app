@@ -68,11 +68,11 @@ function build {
     if [[ -f "android/build.sh" ]]; then
         CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
         CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        ./building/containerized-build.sh android-legacy --app-bundle || return 1
+        ./building/containerized-build.sh android --app-bundle || return 1
     else
         CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
         CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-        ./building/containerized-build.sh android fullRelease || return 1
+        ./building/containerized-build.sh android-gradle fullRelease || return 1
     fi
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1

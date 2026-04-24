@@ -18,12 +18,12 @@ case $platform in
         shift 1
     ;;
     android)
-        build_command=("./android/gradlew" "-p" "android" "--console" "plain" "${2:-debug}")
-        shift "$(( $# > 1 ? 2 : 1 ))"
-    ;;
-    android-legacy)
         build_command=("./android/build.sh")
         shift 1
+    ;;
+    android-gradle)
+        build_command=("./android/gradlew" "-p" "android" "--console" "plain" "${2:-debug}")
+        shift "$(( $# > 1 ? 2 : 1 ))"
     ;;
     *)
         log_error "Invalid platform. Specify 'linux' or 'android' as first argument"
