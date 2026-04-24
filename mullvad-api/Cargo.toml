@@ -50,7 +50,6 @@ tokio-rustls = { version = "0.26.0", default-features = false, features = [
 ] }
 tokio-socks = "0.5.1"
 tower = { workspace = true }
-uuid = { version = "1.4.1", features = ["v4"] }
 vec1 = { workspace = true, features = ["serde"] }
 
 
