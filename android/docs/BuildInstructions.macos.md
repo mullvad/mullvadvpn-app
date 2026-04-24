@@ -72,24 +72,12 @@ rust.pythonCommand=/opt/homebrew/bin/python3
 
 You should now be able to run the app directly from Android Studio.
 
-### `android/build.sh`
+### Command line
 
-Run the build script in the root of the project to assemble all the native libraries and the app:
+From the `android/` directory, run the following command to assemble all the native libraries and the app:
 
 ```bash
-./android/build.sh --dev-build
-```
-
-Once the build is complete you should receive a message looking similar to this:
-```
-**********************************
-
- The build finished successfully!
- You have built:
-
- 2023.5-dev-9ac934
-
-**********************************
+./gradlew debug
 ```
 
 # Build options and configuration
