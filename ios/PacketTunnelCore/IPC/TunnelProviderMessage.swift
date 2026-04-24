@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 
 /// Enum describing supported app messages handled by packet tunnel provider.
@@ -26,6 +27,9 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Notify tunnel about private key rotation.
     case privateKeyRotation
 
+    /// Request in-app log entries from the tunnel.
+    case getInAppLogs
+
     public var description: String {
         switch self {
         case .reconnectTunnel:
@@ -38,6 +42,8 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "cancel-api-request"
         case .privateKeyRotation:
             return "private-key-rotation"
+        case .getInAppLogs:
+            return "get-in-app-logs"
         }
     }
 
