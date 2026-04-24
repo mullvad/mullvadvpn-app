@@ -3477,19 +3477,6 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.23.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f3790c00a0150112de0f4cd161e3d7fc4b2d8a5542ffc35f099a2562aecb35c"
-dependencies = [
- "bitflags 1.3.2",
- "cc",
- "cfg-if",
- "libc",
- "memoffset 0.6.5",
-]
-
-[[package]]
-name = "nix"
 version = "0.28.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab2156c4fce2f8df6c499cc1c763e4394b7482525bf2a9701c9d79d215f519e4"
@@ -6202,14 +6189,13 @@ checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
 
 [[package]]
 name = "udp-over-tcp"
-version = "0.3.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=87936ac29b68b902565955f138ab02294bcc8593#87936ac29b68b902565955f138ab02294bcc8593"
+version = "0.4.0"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303#5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303"
 dependencies = [
  "err-context",
  "futures",
- "lazy_static",
  "log",
- "nix 0.23.2",
+ "nix 0.31.2",
  "tokio",
 ]
 
