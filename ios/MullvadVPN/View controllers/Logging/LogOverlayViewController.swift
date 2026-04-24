@@ -36,13 +36,11 @@ class LogOverlayViewController: UIViewController {
         view.backgroundColor = .clear
         view.addSubview(logView)
 
-        logView.onShareLogs = { [weak self] logString in
+        logView.onExportLogs = { [weak self] logString in
             let activityController = UIActivityViewController(
                 activityItems: [logString],
                 applicationActivities: nil
             )
-
-//            activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
 
             self?.present(activityController, animated: true)
         }
