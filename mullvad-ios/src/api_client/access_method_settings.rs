@@ -156,7 +156,13 @@ pub unsafe extern "C" fn init_access_method_settings_wrapper(
 
     let custom =
         unsafe { access_methods_from_raw_array(custom_methods_raw.cast(), custom_method_count) };
-    let settings = Settings::new(direct, mullvad_bridges, encrypted_dns_proxy, domain_fronting, custom);
+    let settings = Settings::new(
+        direct,
+        mullvad_bridges,
+        encrypted_dns_proxy,
+        domain_fronting,
+        custom,
+    );
     let context = SwiftAccessMethodSettingsContext { settings };
     SwiftAccessMethodSettingsWrapper::new(context)
 }
