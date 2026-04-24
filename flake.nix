@@ -48,7 +48,6 @@
             pkgs
             nixpkgs
             android-nixpkgs
-            system
             common-toolchain
             ;
         };
