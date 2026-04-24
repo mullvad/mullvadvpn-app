@@ -16,10 +16,7 @@ const SYSTEMD_BUS: &str = "org.freedesktop.systemd1";
 const SYSTEMD_PATH: &str = "/org/freedesktop/systemd1";
 const MANAGER_INTERFACE: &str = "org.freedesktop.systemd1.Manager";
 const SYSTEM_STATE: &str = "SystemState";
-const SYSTEM_STATE_STARTING: &str = "starting";
-const SYSTEM_STATE_INITIALIZING: &str = "initializing";
-const SYSTEM_STATE_RUNNING: &str = "running";
-const SYSTEM_STATE_DEGRADED: &str = "degraded";
+const SYSTEM_STATE_STOPPING: &str = "stopping";
 
 const RPC_TIMEOUT: Duration = Duration::from_secs(1);
 
@@ -43,15 +40,7 @@ impl Systemd {
     fn system_is_running(&self) -> Result<bool> {
         self.as_manager_object()
             .get(MANAGER_INTERFACE, SYSTEM_STATE)
-            .map(|state: String| {
-                ![
-                    SYSTEM_STATE_STARTING,
-                    SYSTEM_STATE_INITIALIZING,
-                    SYSTEM_STATE_RUNNING,
-                    SYSTEM_STATE_DEGRADED,
-                ]
-                .contains(&state.as_str())
-            })
+            .map(|state: String| SYSTEM_STATE_STOPPING != state.as_str())
             .map_err(Error::ReadSystemStateError)
     }
 
