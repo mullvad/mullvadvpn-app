@@ -31,11 +31,11 @@ struct FloatingSearchBar: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .frame(height: 56)
+                .padding(.horizontal, 8)
+                .frame(height: 48)
                 .background {
                     RoundedRectangle(cornerRadius: 28)
-                        .fill(Color.mullvadDarkBackground)
+                        .fill(Color.mullvadContainerBackground)
                         .matchedGeometryEffect(id: "searchBackground", in: animation)
                 }
                 .accessibilityAddTraits(.isSearchField)
@@ -50,8 +50,8 @@ struct FloatingSearchBar: View {
                 } label: {
                     Image.mullvadIconCross
                         .foregroundColor(.mullvadTextPrimary)
-                        .frame(width: 56, height: 56)
-                        .background(Color.mullvadDarkBackground)
+                        .frame(width: 48, height: 48)
+                        .background(Color.mullvadContainerBackground)
                         .clipShape(Circle())
                 }
                 .accessibilityLabel(Text("Close search"))
@@ -65,10 +65,10 @@ struct FloatingSearchBar: View {
                     }
                 } label: {
                     searchIcon
-                        .frame(width: 56, height: 56)
+                        .frame(width: 48, height: 48)
                         .background {
                             RoundedRectangle(cornerRadius: 28)
-                                .fill(Color.mullvadDarkBackground)
+                                .fill(Color.mullvadContainerBackground)
                                 .matchedGeometryEffect(id: "searchBackground", in: animation)
                         }
                 }

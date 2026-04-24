@@ -118,7 +118,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 isFocused: $focusSearchField
             )
             .showIf(showSearchField)
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 24)
             .padding(.bottom, 16)
             .sizeOfView { floatingBarHeight = $0.height }
             .accessibilitySortPriority(1)
