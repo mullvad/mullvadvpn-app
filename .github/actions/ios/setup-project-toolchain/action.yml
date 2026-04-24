@@ -45,6 +45,7 @@ runs:
     - name: Install protobuf
       run: |
         brew update
+        brew doctor
         brew install protobuf
       shell: bash
 
