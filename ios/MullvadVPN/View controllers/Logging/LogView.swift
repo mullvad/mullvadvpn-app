@@ -14,8 +14,9 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
     private let safeBottom: CGFloat = 40
 
     private let viewModel: LogViewModel
-    private let tableView = UITableView(frame: .zero, style: .plain)
     private let handleView = UIView()
+    private let clearButton = IncreasedHitButton()
+    private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var entries: [String] = []
     private var dragStartY: CGFloat = 0
@@ -54,6 +55,7 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
         viewModel.didAddEntry = addEntry
 
         setUpHandle()
+        setUpClearButton()
         setUpTableView()
 
         addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:))))
@@ -68,6 +70,17 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
             handleView.centerXAnchor.constraint(equalTo: centerXAnchor)
             handleView.widthAnchor.constraint(equalToConstant: 36)
             handleView.heightAnchor.constraint(equalToConstant: 4)
+        }
+    }
+
+    private func setUpClearButton() {
+        clearButton.setImage(.cross.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
+        clearButton.addTarget(self, action: #selector(handleClearButton(_:)), for: .touchUpInside)
+
+        addConstrainedSubviews([clearButton]) {
+            clearButton.pinEdgesToSuperview(.init([.top(4), .trailing(4)]))
+            clearButton.widthAnchor.constraint(equalToConstant: 16)
+            clearButton.heightAnchor.constraint(equalToConstant: 16)
         }
     }
 
@@ -94,6 +107,17 @@ class LogView: UIView, UITableViewDataSource, UITableViewDelegate {
         let indexPath = IndexPath(row: entries.count - 1, section: 0)
         tableView.insertRows(at: [indexPath], with: .none)
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+    }
+
+    private func clearEntries() {
+        entries.removeAll()
+        tableView.reloadData()
+    }
+
+    // MARK: - Button
+
+    @objc private func handleClearButton(_ sender: UIButton) {
+        clearEntries()
     }
 
     // MARK: - Dragging
