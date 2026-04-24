@@ -75,11 +75,6 @@ protocol RootContainerViewControllerDelegate: AnyObject, Sendable {
         animated: Bool
     )
 
-    func rootContainerViewControllerShouldShowLogOverlay(
-        _ controller: RootContainerViewController,
-        animated: Bool
-    )
-
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController)
         -> UIInterfaceOrientationMask
 
@@ -323,14 +318,6 @@ class RootContainerViewController: UIViewController {
         )
     }
 
-    /// Request to display log over controller
-    func showLogOverlay(animated: Bool) {
-        delegate?.rootContainerViewControllerShouldShowLogOverlay(
-            self,
-            animated: animated
-        )
-    }
-
     func setOverrideHeaderBarHidden(_ isHidden: Bool?, animated: Bool) {
         overrideHeaderBarHidden = isHidden
 
@@ -394,15 +381,6 @@ class RootContainerViewController: UIViewController {
             for: .touchUpInside
         )
 
-        #if DEBUG
-            headerBarView.logoImageView.isUserInteractionEnabled = true
-            headerBarView.logoImageView.addGestureRecognizer(
-                UITapGestureRecognizer(
-                    target: self,
-                    action: #selector(handleLogoTap(_:)))
-            )
-        #endif
-
         view.addSubview(headerBarView)
 
         NSLayoutConstraint.activate(constraints)
@@ -446,12 +424,6 @@ class RootContainerViewController: UIViewController {
         }
 
         return button
-    }
-
-    @objc private func handleLogoTap(_ gestureRecognizer: UIGestureRecognizer) {
-        if gestureRecognizer.state == .ended {
-            showLogOverlay(animated: false)
-        }
     }
 
     @objc private func handleAccountButtonTap() {
