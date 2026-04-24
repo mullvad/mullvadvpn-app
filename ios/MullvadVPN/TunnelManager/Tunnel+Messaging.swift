@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
@@ -119,6 +120,32 @@ extension TunnelProtocol {
             tunnel: self,
             message: .privateKeyRotation,
             decoderHandler: { _ in () },
+            completionHandler: completionHandler
+        )
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
+
+    /// Request in-app log entries from the packet tunnel process.
+    func getInAppLogs(
+        completionHandler: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void
+    ) -> Cancellable {
+        let decoderHandler: (Data?) throws -> [InAppLogEntry] = { data in
+            if let data {
+                return try TunnelProviderReply<[InAppLogEntry]>(messageData: data).value
+            } else {
+                throw EmptyTunnelProviderResponseError()
+            }
+        }
+
+        let operation = SendTunnelProviderMessageOperation(
+            dispatchQueue: dispatchQueue,
+            backgroundTaskProvider: backgroundTaskProvider,
+            tunnel: self,
+            message: .getInAppLogs,
+            decoderHandler: decoderHandler,
             completionHandler: completionHandler
         )
 

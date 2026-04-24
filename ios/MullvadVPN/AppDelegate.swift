@@ -154,6 +154,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         })
         tunnelManager.addObserver(settingsObserver)
 
+        #if DEBUG
+            tunnelManager.onInAppLogEntries = { [weak self] entries in
+                DispatchQueue.main.async {
+                    entries.forEach { self?.inAppLogObserver.didAddLogEntry($0) }
+                }
+            }
+        #endif
+
         storePaymentManager = StorePaymentManager(
             interactor: StorePaymentManagerInteractor(
                 tunnelManager: tunnelManager,

@@ -17,14 +17,17 @@ public final class AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActorProtocol
     private let apiRequestProxy: APIRequestProxyProtocol
+    private let inAppLogBuffer: InAppLogBuffer?
     private var lastGetTunnelStatusTimestamp: Date?
 
     public init(
         packetTunnelActor: PacketTunnelActorProtocol,
-        apiRequestProxy: APIRequestProxyProtocol
+        apiRequestProxy: APIRequestProxyProtocol,
+        inAppLogBuffer: InAppLogBuffer? = nil
     ) {
         self.packetTunnelActor = packetTunnelActor
         self.apiRequestProxy = apiRequestProxy
+        self.inAppLogBuffer = inAppLogBuffer
     }
 
     /**
@@ -65,6 +68,10 @@ public final class AppMessageHandler {
             guard let observedState = await packetTunnelActor.observedState.connectionState else { return nil }
             let reconnectingState = ObservedState.reconnecting(observedState)
             return encodeReply(reconnectingState)
+
+        case .getInAppLogs:
+            let entries = inAppLogBuffer?.drain() ?? []
+            return encodeReply(entries)
         }
     }
 

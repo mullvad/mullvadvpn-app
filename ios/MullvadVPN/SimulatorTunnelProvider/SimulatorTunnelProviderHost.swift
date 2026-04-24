@@ -171,6 +171,8 @@
 
             case .privateKeyRotation:
                 completionHandler?(nil)
+            case .getInAppLogs:
+                completionHandler?(nil)
             }
 
             onHandleProviderMessage?(message)
