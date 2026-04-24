@@ -717,7 +717,7 @@
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7AE16DC22F9A463600A72A39 /* InAppLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */; };
 		7AE16DC52F9A5C8200A72A39 /* LogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC42F9A5C7E00A72A39 /* LogView.swift */; };
-		7AE16DC72F9A5EBA00A72A39 /* LogViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */; };
+		7AE16DC72F9A5EBA00A72A39 /* LogViewInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC62F9A5EB700A72A39 /* LogViewInteractor.swift */; };
 		7AE16DC92F9B53F400A72A39 /* LogOverlayViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */; };
 		7AE16DCC2F9B911800A72A39 /* InAppLogEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */; };
 		7AE16DCE2F9B98EF00A72A39 /* InAppLogBuffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE16DCD2F9B98EF00A72A39 /* InAppLogBuffer.swift */; };
@@ -2373,7 +2373,7 @@
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE16DC12F9A45EF00A72A39 /* InAppLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogHandler.swift; sourceTree = "<group>"; };
 		7AE16DC42F9A5C7E00A72A39 /* LogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogView.swift; sourceTree = "<group>"; };
-		7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewModel.swift; sourceTree = "<group>"; };
+		7AE16DC62F9A5EB700A72A39 /* LogViewInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewInteractor.swift; sourceTree = "<group>"; };
 		7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogOverlayViewController.swift; sourceTree = "<group>"; };
 		7AE16DCA2F9B903500A72A39 /* InAppLogEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogEntry.swift; sourceTree = "<group>"; };
 		7AE16DCD2F9B98EF00A72A39 /* InAppLogBuffer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppLogBuffer.swift; sourceTree = "<group>"; };
@@ -4646,7 +4646,7 @@
 			children = (
 				7AE16DC82F9B53F200A72A39 /* LogOverlayViewController.swift */,
 				7AE16DC42F9A5C7E00A72A39 /* LogView.swift */,
-				7AE16DC62F9A5EB700A72A39 /* LogViewModel.swift */,
+				7AE16DC62F9A5EB700A72A39 /* LogViewInteractor.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -6606,7 +6606,7 @@
 				7A5869972B32EA4500640D27 /* AppButton.swift in Sources */,
 				586C0D8F2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift in Sources */,
 				7A27E3CF2CBD4A8C0088BCFF /* SelectableSettingsDetailsCell.swift in Sources */,
-				7AE16DC72F9A5EBA00A72A39 /* LogViewModel.swift in Sources */,
+				7AE16DC72F9A5EBA00A72A39 /* LogViewInteractor.swift in Sources */,
 				7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,

@@ -113,8 +113,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
     private func setUpLogOverlay() {
         guard let windowScene = window?.windowScene else { return }
 
-        let viewModel = LogViewModel(observer: appDelegate.inAppLogObserver)
-        let viewController = LogOverlayViewController(viewModel: viewModel)
+        let interactor = LogViewInteractor(observer: appDelegate.inAppLogObserver)
+        let viewController = LogOverlayViewController(interactor: interactor)
 
         let logWindow = PassthroughWindow(windowScene: windowScene)
         logWindow.windowLevel = .statusBar + 1
