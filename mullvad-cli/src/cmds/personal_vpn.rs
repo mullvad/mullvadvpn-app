@@ -1,10 +1,15 @@
 #![cfg(feature = "personal-vpn")]
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use clap::Subcommand;
 use ipnetwork::IpNetwork;
 use mullvad_management_interface::MullvadProxyClient;
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    fs,
+    io::{self, Read},
+    net::{IpAddr, SocketAddr},
+    str::FromStr,
+};
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::{
     PersonalVpnConfig, PersonalVpnPeerConfig, PersonalVpnTunnelConfig,
@@ -45,6 +50,13 @@ pub enum PersonalVpn {
 
     /// Remove the personal VPN configuration
     Unset,
+
+    /// Import a WireGuard config file.
+    /// If PATH is "-", read from standard input.
+    Import {
+        /// Path to the config file, or "-" for stdin
+        path: String,
+    },
 }
 
 impl PersonalVpn {
@@ -60,6 +72,7 @@ impl PersonalVpn {
             } => Self::set(private_key, tunnel_ip, peer_pubkey, allowed_ip, endpoint).await,
             PersonalVpn::Enable { state } => Self::enable(state).await,
             PersonalVpn::Unset => Self::unset().await,
+            PersonalVpn::Import { path } => Self::import(path).await,
         }
     }
 
@@ -128,6 +141,33 @@ impl PersonalVpn {
             anyhow::bail!("Daemon returned error: {error}");
         }
         println!("Personal VPN configuration removed");
+        Ok(())
+    }
+
+    /// Blocking: reads the entire file or stdin before returning.
+    async fn import(path: String) -> Result<()> {
+        let config_str = tokio::task::spawn_blocking(move || -> Result<String> {
+            if path == "-" {
+                let mut buf = String::new();
+                io::stdin()
+                    .read_to_string(&mut buf)
+                    .context("Failed to read from stdin")?;
+                Ok(buf)
+            } else {
+                fs::read_to_string(&path).with_context(|| format!("Failed to read {path}"))
+            }
+        })
+        .await??;
+
+        let config =
+            PersonalVpnConfig::from_str(&config_str).context("Failed to parse WireGuard config")?;
+
+        let mut rpc = MullvadProxyClient::new().await?;
+        let error = rpc.set_personal_vpn_config(Some(config)).await?;
+        if !error.is_empty() {
+            anyhow::bail!("Daemon returned error: {error}");
+        }
+        println!("Personal VPN configuration imported");
         Ok(())
     }
 }

@@ -14,6 +14,8 @@ use std::{
 
 pub mod obfuscation;
 pub mod proxy;
+#[cfg(feature = "personal-vpn")]
+pub mod wg_config;
 pub mod wireguard;
 
 mod allowed_nets;
