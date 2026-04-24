@@ -34,7 +34,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 mnl = { version = "0.3.1", features = ["mnl-1-0-4"] }
 # NOTE: the libnftnl version specified in `features`
 # MUST match the version we link in /.cargo/config.toml
-nftnl = { version = "0.9.1", features = ["nftnl-1-2-0"] }
+nftnl = { version = "0.9.2", features = ["nftnl-1-2-0"] }
 nix = { workspace = true, features = ["fs", "mount", "process"] }
 talpid-cgroup = { path = "../talpid-cgroup" }
 talpid-dbus = { workspace = true }
