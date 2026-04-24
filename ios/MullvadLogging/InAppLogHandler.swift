@@ -26,6 +26,7 @@ public struct InAppLogHandler: LogHandler {
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
 
+    private let process: InAppLogEntry.Process
     private let label: String
     private let observerList = ObserverList<InAppLogBlockObserver>()
 
@@ -38,7 +39,8 @@ public struct InAppLogHandler: LogHandler {
         }
     }
 
-    init(label: String, observer: InAppLogBlockObserver) {
+    init(process: InAppLogEntry.Process, label: String, observer: InAppLogBlockObserver) {
+        self.process = process
         self.label = label
         self.observerList.append(observer)
     }
@@ -55,6 +57,7 @@ public struct InAppLogHandler: LogHandler {
         observerList.notify {
             $0.didAddLogEntry(
                 InAppLogEntry(
+                    process: process,
                     timestamp: Date().logFormatted,
                     label: label,
                     message: message.description

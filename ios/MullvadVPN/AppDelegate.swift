@@ -429,7 +429,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
-            loggerBuilder.addInAppLogOutput(observer: inAppLogObserver)
+            loggerBuilder.addInAppLogOutput(
+                process: .app,
+                observer: inAppLogObserver
+            )
         #endif
         loggerBuilder.install()
 

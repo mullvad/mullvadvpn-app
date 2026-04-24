@@ -7,15 +7,22 @@
 //
 
 public struct InAppLogEntry: Sendable, Codable, CustomStringConvertible {
+    public enum Process: String, Codable, Sendable {
+        case app
+        case packetTunnel
+    }
+
+    public let process: Process
     public let timestamp: String
     public let label: String
     public let message: String
 
     public var description: String {
-        "\(timestamp) \(label)\n\(message)"
+        "[\(timestamp)][\(process)][\(label)]\n\(message)"
     }
 
-    public init(timestamp: String, label: String, message: String) {
+    public init(process: Process, timestamp: String, label: String, message: String) {
+        self.process = process
         self.timestamp = timestamp
         self.label = label
         self.message = message
