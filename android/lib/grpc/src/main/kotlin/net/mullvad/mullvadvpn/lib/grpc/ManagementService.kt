@@ -2,7 +2,9 @@ package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
 import arrow.core.Either
+import arrow.core.flatMap
 import arrow.core.flatten
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.core.right
@@ -1013,6 +1015,28 @@ class ManagementService(
                 Unit.right()
             }
             .flatten()
+
+    /**
+     * Parse and store a wg-quick formatted personal VPN config on the daemon side.
+     *
+     * The daemon parses the `wg-quick` body, resolves any DNS hostname in `Endpoint`,
+     * and persists the resulting config. Returns the daemon's error string if the
+     * config is invalid or DNS resolution fails.
+     */
+    suspend fun importPersonalVpnConfig(body: String): Either<SetPersonalVpnConfigError, Unit> =
+        Either.catch { grpc.importPersonalVpnConfig(StringValue.of(body)) }
+            .mapLeft {
+                Logger.d("importPersonalVpnConfig failed: $it")
+                SetPersonalVpnConfigError.Unknown
+            }
+            .flatMap { response ->
+                if (response.error.isEmpty()) {
+                    Unit.right()
+                } else {
+                    Logger.d("importPersonalVpnConfig daemon error: ${response.error}")
+                    SetPersonalVpnConfigError.Unknown.left()
+                }
+            }
 
     fun personalVpnStats(): Flow<TunnelStats> =
         grpc.getPersonalVpnStats(Empty.getDefaultInstance()).map { it.toDomain() }

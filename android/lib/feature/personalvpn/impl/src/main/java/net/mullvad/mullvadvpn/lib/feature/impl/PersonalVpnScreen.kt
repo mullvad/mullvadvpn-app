@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.lib.feature.impl
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.animateContentSize
@@ -51,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,6 +61,7 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -124,6 +128,7 @@ fun SharedTransitionScope.PersonalVpn(
         onClearAllowedIpErrors = vm::onClearAllowedIpErrors,
         vm::save,
         clearConfig = vm::clearConfig,
+        importConfig = vm::import,
         modifier =
             Modifier.sharedBounds(
                 rememberSharedContentState(key = FeatureIndicator.PERSONAL_VPN),
@@ -151,6 +156,7 @@ private fun PreviewPersonalVpnScreen() {
             onTogglePersonalVpn = {},
             saveConfig = {},
             clearConfig = {},
+            importConfig = {},
         )
     }
 }
@@ -166,29 +172,33 @@ fun PersonalVpnScreen(
     onClearAllowedIpErrors: () -> Unit = {},
     saveConfig: (PersonalVpnFormData) -> Unit,
     clearConfig: () -> Unit,
+    importConfig: (String) -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     if (state !is Lc.Content) return
 
     val initialFormData = state.value.initialFormData
-    val privateKeyTextFieldState = rememberTextFieldState(initialFormData.privateKey)
+    val privateKeyTextFieldState =
+        key(initialFormData) { rememberTextFieldState(initialFormData.privateKey) }
     LaunchedEffect(privateKeyTextFieldState.text) {
         val error = state.value.privateKeyDataError ?: return@LaunchedEffect
         onClearError(error)
     }
-    val addressTextFieldState = rememberTextFieldState(initialFormData.tunnelIp)
+    val addressTextFieldState =
+        key(initialFormData) { rememberTextFieldState(initialFormData.tunnelIp) }
     LaunchedEffect(addressTextFieldState.text) {
         val error = state.value.tunnelIpDataError ?: return@LaunchedEffect
         onClearError(error)
     }
-    val publicKeyTextFieldState = rememberTextFieldState(initialFormData.publicKey)
+    val publicKeyTextFieldState =
+        key(initialFormData) { rememberTextFieldState(initialFormData.publicKey) }
     LaunchedEffect(publicKeyTextFieldState.text) {
         val error = state.value.publicKeyDataError ?: return@LaunchedEffect
         onClearError(error)
     }
 
-    val allowedIpTextFieldStates = remember {
+    val allowedIpTextFieldStates = remember(initialFormData) {
         initialFormData.allowedIPs.map { TextFieldState(it) }.toMutableStateList()
     }
 
@@ -200,7 +210,8 @@ fun PersonalVpnScreen(
         }
     }
 
-    val endpointTextFieldState = rememberTextFieldState(initialFormData.endpoint)
+    val endpointTextFieldState =
+        key(initialFormData) { rememberTextFieldState(initialFormData.endpoint) }
     LaunchedEffect(endpointTextFieldState.text) {
         val error = state.value.endpointDataError ?: return@LaunchedEffect
         onClearError(error)
@@ -213,6 +224,18 @@ fun PersonalVpnScreen(
             publicKeyTextFieldState.text != initialFormData.publicKey ||
             currentAllowedIps != initialFormData.allowedIPs ||
             endpointTextFieldState.text != initialFormData.endpoint
+
+    val context = LocalContext.current
+    val openFileLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) {
+                val body =
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        stream.reader(Charsets.UTF_8).readText()
+                    }
+                if (body != null) importConfig(body)
+            }
+        }
 
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.personal_vpn),
@@ -246,6 +269,11 @@ fun PersonalVpnScreen(
                             )
                         )
                     },
+                )
+
+                PrimaryButton(
+                    text = "Import from file",
+                    onClick = { openFileLauncher.launch(arrayOf("*/*")) },
                 )
 
                 NegativeButton(

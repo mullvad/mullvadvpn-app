@@ -694,6 +694,13 @@ impl MullvadProxyClient {
         self.0.set_personal_vpn_config_status(enabled).await?;
         Ok(())
     }
+
+    /// Import a personal VPN configuration from the contents of a wg-quick file.
+    #[cfg(feature = "personal-vpn")]
+    pub async fn import_personal_vpn_config(&mut self, body: String) -> Result<String> {
+        let response = self.0.import_personal_vpn_config(body).await?;
+        Ok(response.into_inner().error)
+    }
 }
 
 #[cfg(not(target_os = "android"))]

@@ -1364,6 +1364,21 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(feature = "personal-vpn")]
+    async fn import_personal_vpn_config(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("import_personal_vpn_config");
+        let body = request.into_inner();
+        let config = <talpid_types::net::wireguard::UnresolvedPersonalVpnConfig as std::str::FromStr>::from_str(&body)
+            .map_err(|err| Status::invalid_argument(format!("failed to parse config: {err}")))?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetPersonalVpnConfig(tx, Some(config)))?;
+        let error = self.wait_for_result(rx).await?;
+        Ok(Response::new(types::PersonalVpnConfigError { error }))
+    }
+
+    #[cfg(feature = "personal-vpn")]
     async fn get_personal_vpn_stats(
         &self,
         _: Request<()>,
@@ -1398,6 +1413,17 @@ impl ManagementService for ManagementServiceImpl {
         let enabled = request.into_inner();
         log::debug!("set_personal_vpn_config_status({})", enabled);
         Ok(Response::new(()))
+    }
+
+    #[cfg(not(feature = "personal-vpn"))]
+    async fn import_personal_vpn_config(
+        &self,
+        _request: Request<String>,
+    ) -> ServiceResult<types::PersonalVpnConfigError> {
+        log::debug!("import_personal_vpn_config");
+        Ok(Response::new(types::PersonalVpnConfigError {
+            error: "".to_string(),
+        }))
     }
 
     #[cfg(not(feature = "personal-vpn"))]

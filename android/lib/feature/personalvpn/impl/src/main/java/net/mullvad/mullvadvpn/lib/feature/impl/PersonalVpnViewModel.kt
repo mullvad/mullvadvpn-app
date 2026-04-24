@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
@@ -37,7 +38,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardKey
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
 class PersonalVpnViewModel(
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     val managementService: ManagementService,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<PersonalVpnSideEffect>()
@@ -100,6 +101,27 @@ class PersonalVpnViewModel(
             managementService.clearPersonalVpn()
             managementService.togglePersonalVpn(false)
             _formData.value = PersonalVpnFormData.from(null)
+        }
+    }
+
+    fun import(body: String) {
+        viewModelScope.launch {
+            managementService
+                .importPersonalVpnConfig(body)
+                .fold(
+                    {
+                        _uiSideEffect.send(
+                            PersonalVpnSideEffect.FailedToSave(it.toString())
+                        )
+                    },
+                    {
+                        val settings =
+                            settingsRepository.settingsUpdates.filterNotNull().first()
+                        _formData.value =
+                            PersonalVpnFormData.from(settings.personalVpnConfig)
+                        _uiSideEffect.send(PersonalVpnSideEffect.ConfigurationSaved)
+                    },
+                )
         }
     }
 

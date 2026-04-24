@@ -157,6 +157,8 @@ service ManagementService {
   // Personal VPN
   rpc SetPersonalVpnConfig(PersonalVpnConfig) returns (PersonalVpnConfigError) {}
   rpc SetPersonalVpnConfigStatus(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+  // Parse a wg-quick config file and store it as the personal VPN config.
+  rpc ImportPersonalVpnConfig(google.protobuf.StringValue) returns (PersonalVpnConfigError) {}
   // Always exists
   rpc GetPersonalVpnStats(google.protobuf.Empty) returns (stream PersonalVpnStats) {}
 }

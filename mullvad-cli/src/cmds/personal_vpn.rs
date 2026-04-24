@@ -8,7 +8,6 @@ use std::{
     fs,
     io::{self, Read},
     net::IpAddr,
-    str::FromStr,
 };
 use talpid_types::net::wireguard;
 use talpid_types::net::wireguard::{
@@ -160,11 +159,8 @@ impl PersonalVpn {
         })
         .await??;
 
-        let config = UnresolvedPersonalVpnConfig::from_str(&config_str)
-            .context("Failed to parse WireGuard config")?;
-
         let mut rpc = MullvadProxyClient::new().await?;
-        let error = rpc.set_personal_vpn_config(Some(config)).await?;
+        let error = rpc.import_personal_vpn_config(config_str).await?;
         if !error.is_empty() {
             anyhow::bail!("Daemon returned error: {error}");
         }
