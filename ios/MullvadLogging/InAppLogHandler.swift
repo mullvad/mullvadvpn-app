@@ -8,11 +8,7 @@
 
 import MullvadTypes
 
-public protocol InAppLogObserver: AnyObject {
-    func didAddLogEntry(_ entry: InAppLogEntry)
-}
-
-public final class InAppLogBlockObserver: InAppLogObserver, @unchecked Sendable {
+public final class InAppLogBlockObserver: @unchecked Sendable {
     public typealias DidAddLogEntryHandler = (InAppLogEntry) -> Void
 
     public var didAddLogEntryHandler: DidAddLogEntryHandler?
@@ -31,7 +27,7 @@ public struct InAppLogHandler: LogHandler {
     public var logLevel: Logger.Level = .debug
 
     private let label: String
-    private let observerList = ObserverList<InAppLogObserver>()
+    private let observerList = ObserverList<InAppLogBlockObserver>()
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
         get {
@@ -42,7 +38,7 @@ public struct InAppLogHandler: LogHandler {
         }
     }
 
-    init(label: String, observer: InAppLogObserver) {
+    init(label: String, observer: InAppLogBlockObserver) {
         self.label = label
         self.observerList.append(observer)
     }
@@ -57,11 +53,13 @@ public struct InAppLogHandler: LogHandler {
         line: UInt
     ) {
         observerList.notify {
-            $0.didAddLogEntry(InAppLogEntry(
-                timestamp: Date().logFormatted,
-                label: label,
-                message: message.description
-            ))
+            $0.didAddLogEntry(
+                InAppLogEntry(
+                    timestamp: Date().logFormatted,
+                    label: label,
+                    message: message.description
+                )
+            )
         }
     }
 }
