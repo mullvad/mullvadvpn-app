@@ -23,12 +23,15 @@ class LogView: UIView {
     private let bottomHandleView = UIView()
     private let bottomHandleBar = UIView()
     private let clearButton = IncreasedHitButton()
+    private let shareButton = IncreasedHitButton()
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
 
     private var entries: [String] = []
     private var filteredEntries: [String] = []
     private var searchText = ""
+
+    var onShareLogs: ((String) -> Void)?
 
     init(viewModel: LogViewModel) {
         self.viewModel = viewModel
@@ -47,7 +50,7 @@ class LogView: UIView {
     private func setUp() {
         frame = CGRect(
             x: 8,
-            y: safeTop,
+            y: 120,
             width: UIScreen.main.bounds.width - 16,
             height: panelHeight
         )
@@ -59,7 +62,7 @@ class LogView: UIView {
         viewModel.didAddEntry = addEntry
 
         setUpTopHandle()
-        setUpClearButton()
+        setUpButtons()
         setUpSearchField()
         setUpTableView()
         setUpBottomHandle()
@@ -87,15 +90,23 @@ class LogView: UIView {
         topHandleView.addGestureRecognizer(panGesture)
     }
 
-    private func setUpClearButton() {
-        clearButton.setTitle("[x] clear logs", for: .normal)
+    private func setUpButtons() {
+        shareButton.setTitle("[export]", for: .normal)
+        shareButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        shareButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        shareButton.addTarget(self, action: #selector(handleShareButton), for: .touchUpInside)
+
+        clearButton.setTitle("[clear]", for: .normal)
         clearButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
         clearButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
-        clearButton.addTarget(self, action: #selector(handleClearButton(_:)), for: .touchUpInside)
+        clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
 
-        addConstrainedSubviews([clearButton]) {
-            clearButton.pinEdgeToSuperview(.trailing(8))
-            clearButton.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
+        let container = UIStackView(arrangedSubviews: [shareButton, clearButton])
+        container.spacing = 4
+
+        addConstrainedSubviews([container]) {
+            container.pinEdgeToSuperview(.trailing(8))
+            container.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
         }
     }
 
@@ -230,6 +241,10 @@ class LogView: UIView {
         clearEntries()
     }
 
+    @objc private func handleShareButton() {
+        onShareLogs?(filteredEntries.joinedParagraphs())
+    }
+
     @objc private func searchTextChanged() {
         searchText = searchField.text ?? ""
         applyFilter()
@@ -312,26 +327,56 @@ extension LogView: UITableViewDataSource {
 }
 
 extension LogView: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, shouldShowMenuForRowAt indexPath: IndexPath) -> Bool {
-        true
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        let entry = filteredEntries[indexPath.row]
+
+        return UIContextMenuConfiguration(identifier: indexPath as NSIndexPath, previewProvider: nil) { [weak self] _ in
+            let copy = UIAction(title: "Copy", image: UIImage(systemName: "doc.on.doc")) { _ in
+                UIPasteboard.general.string = entry
+            }
+
+            let share = UIAction(title: "Share", image: UIImage(systemName: "square.and.arrow.up")) { _ in
+                self?.onShareLogs?(entry)
+            }
+
+            return UIMenu(children: [copy, share])
+        }
     }
 
     func tableView(
         _ tableView: UITableView,
-        canPerformAction action: Selector,
-        forRowAt indexPath: IndexPath,
-        withSender sender: Any?
-    ) -> Bool {
-        action == #selector(copy(_:))
+        previewForHighlightingContextMenuWithConfiguration configuration: UIContextMenuConfiguration
+    ) -> UITargetedPreview? {
+        clearTargetedPreview(for: configuration, in: tableView)
     }
 
     func tableView(
         _ tableView: UITableView,
-        performAction action: Selector,
-        forRowAt indexPath: IndexPath,
-        withSender sender: Any?
-    ) {
-        UIPasteboard.general.string = filteredEntries[indexPath.row]
+        previewForDismissingContextMenuWithConfiguration configuration: UIContextMenuConfiguration
+    ) -> UITargetedPreview? {
+        clearTargetedPreview(for: configuration, in: tableView)
+    }
+
+    private func clearTargetedPreview(
+        for configuration: UIContextMenuConfiguration,
+        in tableView: UITableView
+    ) -> UITargetedPreview? {
+        guard
+            let indexPath = configuration.identifier as? NSIndexPath,
+            let cell = tableView.cellForRow(at: indexPath as IndexPath)
+        else {
+            return nil
+        }
+
+        let parameters = UIPreviewParameters()
+        parameters.backgroundColor = .clear
+        parameters.shadowPath = UIBezierPath()
+
+        return UITargetedPreview(view: cell, parameters: parameters)
     }
 }
 
