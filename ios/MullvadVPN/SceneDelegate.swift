@@ -111,10 +111,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             self?.refreshLoginMetadata(forceUpdate: true)
         }
 
+        appCoordinator?.onShowLogOverlay = { [weak self] in
+            self?.logWindow?.isHidden.toggle()
+        }
+
         window?.rootViewController = appCoordinator?.rootViewController
         appCoordinator?.start()
 
-        setUpLogOverlay()
+        #if DEBUG
+            setUpLogOverlay()
+        #endif
     }
 
     private func setUpLogOverlay() {
@@ -127,7 +133,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         logWindow.windowLevel = .statusBar + 1
         logWindow.backgroundColor = .clear
         logWindow.rootViewController = viewController
-        logWindow.isHidden = false
         self.logWindow = logWindow
     }
 
