@@ -3,7 +3,11 @@ use super::{
     SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition, connecting_state::TunnelCloseEvent,
 };
-use futures::{StreamExt, channel::oneshot, future::FusedFuture};
+use futures::{
+    StreamExt,
+    channel::{mpsc::TryRecvError, oneshot},
+    future::FusedFuture,
+};
 use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause};
 
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
@@ -145,10 +149,12 @@ impl TunnelState for DisconnectingState {
         let result = if self.tunnel_close_event.is_terminated() {
             if commands.is_done() {
                 EventResult::Close(Ok(None))
-            } else if let Ok(command) = commands.get_mut().try_next() {
-                EventResult::Command(command)
             } else {
-                EventResult::Close(Ok(None))
+                match commands.get_mut().try_recv() {
+                    Ok(command) => EventResult::Command(Some(command)),
+                    Err(TryRecvError::Empty) => EventResult::Command(None),
+                    Err(TryRecvError::Closed) => EventResult::Close(Ok(None)),
+                }
             }
         } else {
             runtime.block_on(async {
