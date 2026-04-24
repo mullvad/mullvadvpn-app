@@ -52,7 +52,6 @@ tokio-socks = "0.5.1"
 tower = { workspace = true }
 vec1 = { workspace = true, features = ["serde"] }
 
-
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util", "time"] }
