@@ -43,19 +43,17 @@ impl Udp2Tcp {
             SocketAddr::new("::1".parse().unwrap(), 0)
         };
 
-        let instance = Udp2TcpImpl::new(
-            listen_addr,
-            settings.peer,
-            TcpOptions {
-                #[cfg(target_os = "linux")]
-                fwmark: settings.fwmark,
-                // Disables the Nagle algorithm on the TCP socket. Improves performance
-                nodelay: true,
-                ..TcpOptions::default()
-            },
-        )
-        .await
-        .map_err(Error::CreateObfuscator)?;
+        let mut tcp_options = TcpOptions::default();
+        #[cfg(target_os = "linux")]
+        {
+            tcp_options.fwmark = settings.fwmark;
+        }
+        // Disables the Nagle algorithm on the TCP socket. Improves performance
+        tcp_options.nodelay = true;
+
+        let instance = Udp2TcpImpl::new(listen_addr, settings.peer, tcp_options)
+            .await
+            .map_err(Error::CreateObfuscator)?;
         let local_addr = instance
             .local_udp_addr()
             .map_err(Error::GetUdpSocketDetails)?;
