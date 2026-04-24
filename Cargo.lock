@@ -2956,7 +2956,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
- "nix 0.30.1",
+ "nix 0.31.2",
  "serde",
  "serde_json",
  "talpid-types",
@@ -2994,7 +2994,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "nix 0.30.1",
+ "nix 0.31.2",
  "notify",
  "objc2-foundation 0.3.2",
  "objc2-service-management",
@@ -3043,7 +3043,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
- "nix 0.30.1",
+ "nix 0.31.2",
  "talpid-cgroup",
  "thiserror 2.0.18",
 ]
@@ -3109,7 +3109,7 @@ dependencies = [
  "clap",
  "futures",
  "log",
- "nix 0.30.1",
+ "nix 0.31.2",
  "pnet_packet 0.35.0",
  "socket2 0.5.10",
  "talpid-windows",
@@ -3134,7 +3134,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.30.1",
+ "nix 0.31.2",
  "prost",
  "prost-types",
  "talpid-types",
@@ -3494,7 +3494,6 @@ dependencies = [
  "cfg-if",
  "cfg_aliases",
  "libc",
- "memoffset 0.9.1",
 ]
 
 [[package]]
@@ -5351,7 +5350,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "log",
- "nix 0.30.1",
+ "nix 0.31.2",
  "thiserror 2.0.18",
 ]
 
@@ -5377,7 +5376,7 @@ dependencies = [
  "memoffset 0.6.5",
  "mnl",
  "nftnl",
- "nix 0.30.1",
+ "nix 0.31.2",
  "parking_lot",
  "pcap",
  "pfctl",
@@ -5431,7 +5430,7 @@ dependencies = [
  "futures",
  "inotify 0.10.2",
  "log",
- "nix 0.30.1",
+ "nix 0.31.2",
  "once_cell",
  "parking_lot",
  "resolv-conf",
@@ -5474,7 +5473,7 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "log",
- "nix 0.30.1",
+ "nix 0.31.2",
  "socket2 0.5.10",
  "talpid-types",
  "thiserror 2.0.18",
@@ -5503,7 +5502,7 @@ dependencies = [
  "netlink-packet-core",
  "netlink-packet-route",
  "netlink-sys",
- "nix 0.30.1",
+ "nix 0.31.2",
  "rtnetlink",
  "system-configuration",
  "talpid-types",
@@ -5518,7 +5517,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "nix 0.30.1",
+ "nix 0.31.2",
  "tokio",
 ]
 
@@ -5549,7 +5548,7 @@ dependencies = [
  "hyper-util",
  "log",
  "ml-kem",
- "nix 0.30.1",
+ "nix 0.31.2",
  "pqcrypto-hqc",
  "pqcrypto-traits",
  "prost",
@@ -5609,7 +5608,7 @@ dependencies = [
  "netlink-packet-core",
  "netlink-packet-route",
  "netlink-proto",
- "nix 0.30.1",
+ "nix 0.31.2",
  "once_cell",
  "parking_lot",
  "proptest",
@@ -6265,7 +6264,7 @@ dependencies = [
  "futures",
  "log",
  "mullvad-masque-proxy",
- "nix 0.30.1",
+ "nix 0.31.2",
  "rand",
  "shadowsocks",
  "talpid-types",
