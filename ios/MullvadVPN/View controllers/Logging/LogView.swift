@@ -14,9 +14,12 @@ class LogView: UIView {
     private var panelHeight: CGFloat = 230
     private let safeTop: CGFloat = 60
     private let safeBottom: CGFloat = 40
+    private var dragStartY: CGFloat = 0
+    private var resizeStartHeight: CGFloat = 0
 
     private let viewModel: LogViewModel
     private let topHandleView = UIView()
+    private let topHandleBar = UIView()
     private let bottomHandleView = UIView()
     private let bottomHandleBar = UIView()
     private let clearButton = IncreasedHitButton()
@@ -26,14 +29,6 @@ class LogView: UIView {
     private var entries: [String] = []
     private var filteredEntries: [String] = []
     private var searchText = ""
-    private var dragStartY: CGFloat = 0
-    private var resizeStartHeight: CGFloat = 0
-
-    // Snaps to top, middle and bottom.
-    private lazy var snapYPositions: [CGFloat] = {
-        let screenHeight = UIScreen.main.bounds.height
-        return [safeTop, (screenHeight - panelHeight) / 2, screenHeight - panelHeight - safeBottom]
-    }()
 
     init(viewModel: LogViewModel) {
         self.viewModel = viewModel
@@ -52,7 +47,7 @@ class LogView: UIView {
     private func setUp() {
         frame = CGRect(
             x: 8,
-            y: snapYPositions.first!,
+            y: safeTop,
             width: UIScreen.main.bounds.width - 16,
             height: panelHeight
         )
@@ -68,31 +63,39 @@ class LogView: UIView {
         setUpSearchField()
         setUpTableView()
         setUpBottomHandle()
-
-        addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:))))
     }
 
     private func setUpTopHandle() {
-        topHandleView.backgroundColor = .white.withAlphaComponent(0.5)
-        topHandleView.layer.cornerRadius = 2
+        topHandleView.backgroundColor = .clear
 
         addConstrainedSubviews([topHandleView]) {
-            topHandleView.pinEdgeToSuperview(.top(8))
-            topHandleView.centerXAnchor.constraint(equalTo: centerXAnchor)
-            topHandleView.widthAnchor.constraint(equalToConstant: 36)
-            topHandleView.heightAnchor.constraint(equalToConstant: 4)
+            topHandleView.pinEdgesToSuperview(.all().excluding(.bottom))
+            topHandleView.heightAnchor.constraint(equalToConstant: 28)
         }
+
+        topHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
+        topHandleBar.layer.cornerRadius = 2
+
+        topHandleView.addConstrainedSubviews([topHandleBar]) {
+            topHandleBar.centerXAnchor.constraint(equalTo: topHandleView.centerXAnchor)
+            topHandleBar.centerYAnchor.constraint(equalTo: topHandleView.centerYAnchor)
+            topHandleBar.widthAnchor.constraint(equalToConstant: 36)
+            topHandleBar.heightAnchor.constraint(equalToConstant: 4)
+        }
+
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        topHandleView.addGestureRecognizer(panGesture)
     }
 
     private func setUpClearButton() {
-        clearButton.setImage(.cross.withRenderingMode(.alwaysOriginal).withTintColor(.white), for: .normal)
+        clearButton.setTitle("[x] clear logs", for: .normal)
+        clearButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        clearButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
         clearButton.addTarget(self, action: #selector(handleClearButton(_:)), for: .touchUpInside)
 
         addConstrainedSubviews([clearButton]) {
             clearButton.pinEdgeToSuperview(.trailing(8))
-            clearButton.centerYAnchor.constraint(equalTo: topHandleView.centerYAnchor)
-            clearButton.widthAnchor.constraint(equalToConstant: 16)
-            clearButton.heightAnchor.constraint(equalToConstant: 16)
+            clearButton.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
         }
     }
 
@@ -135,7 +138,7 @@ class LogView: UIView {
         searchField.delegate = self
 
         addConstrainedSubviews([searchField]) {
-            searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor, constant: 8)
+            searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor)
             searchField.pinEdgesToSuperview(.init([.leading(8), .trailing(8)]))
             searchField.heightAnchor.constraint(equalToConstant: 28)
         }
@@ -151,10 +154,11 @@ class LogView: UIView {
         tableView.showsVerticalScrollIndicator = true
         tableView.indicatorStyle = .white
         tableView.verticalScrollIndicatorInsets.right = 2
+        tableView.keyboardDismissMode = .onDrag
 
         addConstrainedSubviews([tableView]) {
             tableView.pinEdgesToSuperview(.all().excluding(.top).excluding(.bottom))
-            tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 4)
+            tableView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 8)
         }
     }
 
@@ -245,7 +249,6 @@ class LogView: UIView {
         case .changed:
             let translation = gesture.translation(in: superview).y
             let newHeight = min(max(resizeStartHeight + translation, minPanelHeight), maxPanelHeight)
-
             frame.size.height = newHeight
             panelHeight = newHeight
         case .ended, .cancelled:
@@ -263,20 +266,9 @@ class LogView: UIView {
             dragStartY = frame.origin.y
         case .changed:
             let translation = gesture.translation(in: superview).y
-            frame.origin.y = dragStartY + translation
-        case .ended, .cancelled:
-            let currentY = frame.origin.y
-            let targetY = snapYPositions.min(by: { abs($0 - currentY) < abs($1 - currentY) }) ?? safeTop
-
-            UIView.animate(
-                withDuration: 0.35,
-                delay: 0,
-                usingSpringWithDamping: 0.8,
-                initialSpringVelocity: 0,
-                options: .curveEaseOut
-            ) {
-                self.frame.origin.y = targetY
-            }
+            let screenHeight = UIScreen.main.bounds.height
+            let maxY = screenHeight - safeBottom
+            frame.origin.y = min(max(dragStartY + translation, safeTop), maxY)
         default:
             break
         }
