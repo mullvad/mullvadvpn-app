@@ -23,6 +23,7 @@ class LogView: UIView {
     private let topHandleBar = UIView()
     private let bottomHandleView = UIView()
     private let bottomHandleBar = UIView()
+    private let pauseButton = IncreasedHitButton()
     private let clearButton = IncreasedHitButton()
     private let exportButton = IncreasedHitButton()
     private let searchField = UITextField()
@@ -30,7 +31,9 @@ class LogView: UIView {
 
     private var entries: [InAppLogEntry] = []
     private var filteredEntries: [InAppLogEntry] = []
+    private var pausedEntries: [InAppLogEntry] = []
     private var searchText = ""
+    private var logsArePaused: Bool = false
 
     var onExportLogs: ((String) -> Void)?
 
@@ -70,7 +73,9 @@ class LogView: UIView {
         layer.cornerRadius = 12
         clipsToBounds = true
 
-        viewModel.didAddEntry = addEntry
+        viewModel.didAddEntry = { [weak self] entry in
+            self?.addEntries([entry])
+        }
 
         setUpTopHandle()
         setUpButtons()
@@ -102,6 +107,11 @@ class LogView: UIView {
     }
 
     private func setUpButtons() {
+        pauseButton.setTitle("[pause]", for: .normal)
+        pauseButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
+        pauseButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        pauseButton.addTarget(self, action: #selector(handlePauseButton), for: .touchUpInside)
+
         exportButton.setTitle("[export]", for: .normal)
         exportButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
         exportButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
@@ -112,12 +122,20 @@ class LogView: UIView {
         clearButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
         clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
 
-        let container = UIStackView(arrangedSubviews: [exportButton, clearButton])
-        container.spacing = 4
+        let leadingContainer = UIStackView(arrangedSubviews: [pauseButton])
+        leadingContainer.spacing = 4
 
-        addConstrainedSubviews([container]) {
-            container.pinEdgeToSuperview(.trailing(8))
-            container.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
+        addConstrainedSubviews([leadingContainer]) {
+            leadingContainer.pinEdgeToSuperview(.leading(8))
+            leadingContainer.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
+        }
+
+        let trailingContainer = UIStackView(arrangedSubviews: [exportButton, clearButton])
+        trailingContainer.spacing = 4
+
+        addConstrainedSubviews([trailingContainer]) {
+            trailingContainer.pinEdgeToSuperview(.trailing(8))
+            trailingContainer.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
         }
     }
 
@@ -207,22 +225,28 @@ class LogView: UIView {
         bottomHandleView.addGestureRecognizer(resizeGesture)
     }
 
-    private func addEntry(_ entry: InAppLogEntry) {
-        entries.append(entry)
+    private func addEntries(_ entries: [InAppLogEntry]) {
+        guard !entries.isEmpty else { return }
 
-        if matchesFilter(entry) {
-            filteredEntries.append(entry)
-
-            let indexPath = IndexPath(row: filteredEntries.count - 1, section: 0)
-            tableView.insertRows(at: [indexPath], with: .none)
-
-            scrollToBottom()
+        guard !logsArePaused else {
+            pausedEntries.append(contentsOf: entries)
+            return
         }
+
+        self.entries.append(contentsOf: entries)
+
+        for entry in entries where matchesFilter(entry) {
+            filteredEntries.append(contentsOf: entries)
+        }
+
+        tableView.reloadData()
+        scrollToBottom()
     }
 
     private func clearEntries() {
         entries.removeAll()
         filteredEntries.removeAll()
+        pausedEntries.removeAll()
 
         tableView.reloadData()
         scrollToBottom()
@@ -240,13 +264,21 @@ class LogView: UIView {
     }
 
     private func scrollToBottom() {
-        guard filteredEntries.count > 0 else { return }
+        guard !filteredEntries.isEmpty else { return }
 
         let indexPath = IndexPath(row: filteredEntries.count - 1, section: 0)
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
     }
 
     // MARK: - Actions
+
+    @objc private func handlePauseButton(_ sender: UIButton) {
+        logsArePaused.toggle()
+        pauseButton.setTitle(logsArePaused ? "[resume]" : "[pause]", for: .normal)
+
+        addEntries(pausedEntries)
+        pausedEntries.removeAll()
+    }
 
     @objc private func handleClearButton(_ sender: UIButton) {
         clearEntries()
