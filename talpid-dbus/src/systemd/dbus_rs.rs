@@ -44,7 +44,7 @@ impl Systemd {
         self.as_manager_object()
             .get(MANAGER_INTERFACE, SYSTEM_STATE)
             .map(|state: String| {
-                ![
+                [
                     SYSTEM_STATE_STARTING,
                     SYSTEM_STATE_INITIALIZING,
                     SYSTEM_STATE_RUNNING,
