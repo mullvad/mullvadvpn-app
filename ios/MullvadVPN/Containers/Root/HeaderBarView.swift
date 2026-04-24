@@ -14,8 +14,6 @@ class HeaderBarView: UIView {
     private let brandNameImage = UIImage(named: "LogoText")?
         .withTintColor(UIColor.HeaderBar.brandNameColor, renderingMode: .alwaysOriginal)
 
-    private let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
-
     private lazy var brandNameImageView: UIImageView = {
         let imageView = UIImageView(image: brandNameImage)
         imageView.contentMode = .scaleAspectFill
@@ -69,6 +67,8 @@ class HeaderBarView: UIView {
         imageView.heightAnchor.constraint(equalTo: imageView.widthAnchor).isActive = true
         return imageView
     }()
+
+    let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
 
     let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage.Buttons.account)
