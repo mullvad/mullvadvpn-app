@@ -60,7 +60,7 @@ ignore = false
 
 [[licenses.exceptions]]
 crate = "domain-fronting"
-allow = ["GPL-3.0"]
+allow = ["GPL-3.0-or-later"]
 
 
 # This section is considered when running `cargo deny check bans`.
