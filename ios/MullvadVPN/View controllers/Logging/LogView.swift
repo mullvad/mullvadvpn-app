@@ -91,13 +91,13 @@ class LogView: UIView {
     private func setUpTopHandle() {
         topHandleView.backgroundColor = .clear
 
+        topHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
+        topHandleBar.layer.cornerRadius = 2
+
         addConstrainedSubviews([topHandleView]) {
             topHandleView.pinEdgesToSuperview(.all().excluding(.bottom))
             topHandleView.heightAnchor.constraint(equalToConstant: 28)
         }
-
-        topHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
-        topHandleBar.layer.cornerRadius = 2
 
         topHandleView.addConstrainedSubviews([topHandleBar]) {
             topHandleBar.centerXAnchor.constraint(equalTo: topHandleView.centerXAnchor)
@@ -129,15 +129,13 @@ class LogView: UIView {
         let leadingContainer = UIStackView(arrangedSubviews: [pauseButton])
         leadingContainer.spacing = 4
 
-        addConstrainedSubviews([leadingContainer]) {
-            leadingContainer.pinEdgeToSuperview(.leading(8))
-            leadingContainer.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
-        }
-
         let trailingContainer = UIStackView(arrangedSubviews: [exportButton, clearButton])
         trailingContainer.spacing = 4
 
-        addConstrainedSubviews([trailingContainer]) {
+        addConstrainedSubviews([leadingContainer, trailingContainer]) {
+            leadingContainer.pinEdgeToSuperview(.leading(8))
+            leadingContainer.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
+
             trailingContainer.pinEdgeToSuperview(.trailing(8))
             trailingContainer.centerYAnchor.constraint(equalTo: topHandleBar.centerYAnchor)
         }
@@ -232,14 +230,14 @@ class LogView: UIView {
     private func setUpBottomHandle() {
         bottomHandleView.backgroundColor = .clear
 
+        bottomHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
+        bottomHandleBar.layer.cornerRadius = 2
+
         addConstrainedSubviews([bottomHandleView]) {
             bottomHandleView.topAnchor.constraint(equalTo: tableView.bottomAnchor)
             bottomHandleView.pinEdgesToSuperview(.all().excluding(.top))
             bottomHandleView.heightAnchor.constraint(equalToConstant: 20)
         }
-
-        bottomHandleBar.backgroundColor = .white.withAlphaComponent(0.5)
-        bottomHandleBar.layer.cornerRadius = 2
 
         bottomHandleView.addConstrainedSubviews([bottomHandleBar]) {
             bottomHandleBar.centerXAnchor.constraint(equalTo: bottomHandleView.centerXAnchor)
@@ -449,7 +447,13 @@ extension LogView: UITableViewDataSource {
         )
         attributed.append(NSAttributedString(string: " "))
         attributed.append(
-            NSAttributedString(string: entry.label, attributes: [.foregroundColor: UIColor.systemYellow, .font: font])
+            NSAttributedString(
+                string: entry.label,
+                attributes: [
+                    .foregroundColor: entry.process == .app ? UIColor.systemYellow : UIColor.systemCyan,
+                    .font: font,
+                ]
+            )
         )
         attributed.append(NSAttributedString(string: "\n"))
         attributed.append(
