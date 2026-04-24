@@ -33,6 +33,8 @@ class LogOverlayViewController: UIViewController {
 
         view.backgroundColor = .clear
         view.addSubview(logView)
+
+        overrideUserInterfaceStyle = .light
     }
 }
 
