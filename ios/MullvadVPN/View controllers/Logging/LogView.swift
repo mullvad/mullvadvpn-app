@@ -10,9 +10,9 @@ import MullvadLogging
 import UIKit
 
 class LogView: UIView {
-    private var maxPanelHeight: CGFloat = 500
     private let minPanelHeight: CGFloat = 120
-    private var panelHeight: CGFloat = 230
+    private var maxPanelHeight: CGFloat = 500
+    private var panelHeight: CGFloat = 350
     private var safeTop: CGFloat = 60
     private var safeBottom: CGFloat = 40
     private var dragStartY: CGFloat = 0
@@ -28,6 +28,7 @@ class LogView: UIView {
     private let exportButton = IncreasedHitButton()
     private let searchField = UITextField()
     private let tableView = UITableView(frame: .zero, style: .plain)
+    private let processButton = IncreasedHitButton()
     private let includeButton = IncreasedHitButton()
     private let excludeButton = IncreasedHitButton()
 
@@ -36,6 +37,7 @@ class LogView: UIView {
     private var pausedEntries: [InAppLogEntry] = []
     private var searchText = ""
     private var logsArePaused: Bool = false
+    private var selectedProcess: InAppLogEntry.Process?
     private var includedLabels: Set<String> = []
     private var excludedLabels: Set<String> = []
 
@@ -179,6 +181,13 @@ class LogView: UIView {
         searchField.addTarget(self, action: #selector(searchTextChanged), for: .editingChanged)
         searchField.delegate = self
 
+        let processImage = UIImage(systemName: "app.connected.to.app.below.fill")?
+            .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
+        processButton.setImage(processImage, for: .normal)
+        processButton.tintColor = .white.withAlphaComponent(0.5)
+        processButton.showsMenuAsPrimaryAction = true
+        processButton.menu = buildProcessMenu()
+
         let includeImage = UIImage(systemName: "plus.circle")?
             .withConfiguration(UIImage.SymbolConfiguration(pointSize: 12, weight: .medium))
         includeButton.setImage(includeImage, for: .normal)
@@ -193,12 +202,16 @@ class LogView: UIView {
         excludeButton.showsMenuAsPrimaryAction = true
         excludeButton.menu = buildExcludeMenu()
 
-        addConstrainedSubviews([searchField, includeButton, excludeButton]) {
+        addConstrainedSubviews([searchField, processButton, includeButton, excludeButton]) {
             searchField.pinEdgeToSuperview(.leading(8))
             searchField.topAnchor.constraint(equalTo: topHandleView.bottomAnchor)
             searchField.heightAnchor.constraint(equalToConstant: 28)
 
-            includeButton.leadingAnchor.constraint(equalTo: searchField.trailingAnchor, constant: 4)
+            processButton.leadingAnchor.constraint(equalTo: searchField.trailingAnchor, constant: 4)
+            processButton.centerYAnchor.constraint(equalTo: searchField.centerYAnchor)
+            processButton.widthAnchor.constraint(equalToConstant: 28)
+
+            includeButton.leadingAnchor.constraint(equalTo: processButton.trailingAnchor)
             includeButton.centerYAnchor.constraint(equalTo: searchField.centerYAnchor)
             includeButton.widthAnchor.constraint(equalToConstant: 28)
 
@@ -287,10 +300,36 @@ class LogView: UIView {
 
     private func matchesFilter(_ entry: InAppLogEntry) -> Bool {
         let matchesSearch = searchText.isEmpty || entry.description.localizedCaseInsensitiveContains(searchText)
+        let matchesProcess = selectedProcess == nil || entry.process == selectedProcess
         let isIncluded = includedLabels.isEmpty || includedLabels.contains(entry.label)
         let notExcluded = !excludedLabels.contains(entry.label)
 
-        return matchesSearch && isIncluded && notExcluded
+        return matchesSearch && matchesProcess && isIncluded && notExcluded
+    }
+
+    private func buildProcessMenu() -> UIMenu {
+        let allAction = UIAction(title: "All", state: selectedProcess == nil ? .on : .off) { [weak self] _ in
+            guard let self else { return }
+
+            selectedProcess = nil
+            processButton.menu = buildProcessMenu()
+            applyFilter()
+        }
+
+        let processActions = InAppLogEntry.Process.allCases.map { process in
+            UIAction(
+                title: process.rawValue,
+                state: selectedProcess == process ? .on : .off
+            ) { [weak self] _ in
+                guard let self else { return }
+
+                selectedProcess = process
+                processButton.menu = buildProcessMenu()
+                applyFilter()
+            }
+        }
+
+        return UIMenu(title: "Process", children: [allAction] + processActions)
     }
 
     private func buildIncludeMenu() -> UIMenu {
@@ -367,7 +406,7 @@ class LogView: UIView {
     }
 
     @objc private func handleExportButton() {
-        onExportLogs?(filteredEntries.description)
+        onExportLogs?(filteredEntries.map { $0.description }.joinedParagraphs())
     }
 
     @objc private func searchTextChanged() {
