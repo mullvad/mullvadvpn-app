@@ -3171,7 +3171,6 @@ name = "mullvad-nsis"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cbindgen",
  "mullvad-paths",
  "talpid-platform-metadata",
  "widestring",
