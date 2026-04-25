@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -28,7 +28,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVi
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
-import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
@@ -45,7 +44,7 @@ private fun PreviewSelectableRelayLocationItem(
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            relayItems.map {
+            relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
                 SelectableRelayListItem(relayListItem = it, onClick = {}, onToggleExpand = {})
             }
@@ -109,9 +108,8 @@ fun SelectableRelayListItem(
         },
         content = {
             Name(
-                name = relayListItem.item.name,
-                state = relayListItem.state,
-                colors.headlineColor(enabled = active, selected = selected),
+                name = relayListItem.titleAnnotated,
+                textColor = colors.headlineColor(enabled = active, selected = selected),
             )
         },
         trailingContent = {
@@ -127,21 +125,9 @@ fun SelectableRelayListItem(
 }
 
 @Composable
-internal fun Name(name: String, state: RelayListItemState?, textColor: Color) {
-    Text(
-        text = state?.let { name.withSuffix(state) } ?: name,
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        color = textColor,
-    )
+internal fun Name(name: AnnotatedString, textColor: Color) {
+    Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis, color = textColor)
 }
-
-@Composable
-private fun String.withSuffix(state: RelayListItemState) =
-    when (state) {
-        RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
-        RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
-    }
 
 @Composable
 fun InactiveRelayIndicator(modifier: Modifier = Modifier, tint: Color) {

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.AppItem
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
@@ -29,13 +30,25 @@ class SearchSplitTunnelingViewModel(
                     SearchSplitTunnelingUiState(
                         searchTerm = searchTerm,
                         excludedApps =
-                            splitApps.excludedApps.filter {
-                                it.name.contains(searchTerm, ignoreCase = true)
-                            },
+                            splitApps.excludedApps
+                                .filter { it.name.contains(searchTerm, ignoreCase = true) }
+                                .map {
+                                    AppItem(
+                                        title = it.name,
+                                        packageName = it.packageName,
+                                        highlight = searchTerm,
+                                    )
+                                },
                         includedApps =
-                            splitApps.includedApps.filter {
-                                it.name.contains(searchTerm, ignoreCase = true)
-                            },
+                            splitApps.includedApps
+                                .filter { it.name.contains(searchTerm, ignoreCase = true) }
+                                .map {
+                                    AppItem(
+                                        title = it.name,
+                                        packageName = it.packageName,
+                                        highlight = searchTerm,
+                                    )
+                                },
                     )
                 )
             }
