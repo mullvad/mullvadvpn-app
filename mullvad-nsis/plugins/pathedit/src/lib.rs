@@ -26,9 +26,9 @@ use windows_sys::Win32::System::Registry::{
     RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
 };
 use windows_sys::Win32::UI::WindowsAndMessaging::{
-    HWND_BROADCAST, SMTO_ABORTIFHUNG, SendMessageTimeoutA, SendMessageTimeoutW, WM_SETTINGCHANGE,
+    HWND_BROADCAST, SMTO_ABORTIFHUNG, SendMessageTimeoutW, WM_SETTINGCHANGE,
 };
-use windows_sys::{s, w};
+use windows_sys::w;
 
 /// Registry key for the system environment variables.
 const PATH_KEY_NAME: &str = "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
@@ -36,10 +36,8 @@ const PATH_KEY_NAME: &str = "SYSTEM\\CurrentControlSet\\Control\\Session Manager
 /// Registry value name for the system PATH.
 const PATH_VAL_NAME: &str = "Path";
 
-/// "Environment" as ANSI string (null-terminated).
-const ENVIRONMENT_A: *const u8 = s!("Environment");
-
-/// "Environment" as wide string (null-terminated).
+/// "Environment" as wide string (null-terminated). Identifies the setting
+/// changed in the WM_SETTINGCHANGE broadcast.
 const ENVIRONMENT_W: *const u16 = w!("Environment");
 
 const MESSAGE_TIMEOUT_MS: u32 = 5000;
@@ -157,21 +155,6 @@ fn broadcast_setting_change() -> io::Result<()> {
 
     // SAFETY: `ENVIRONMENT_W` is a static null-terminated wide string from
     // `w!()`. `&mut result` points to a stack-local for the API to fill in.
-    let status = unsafe {
-        SendMessageTimeoutA(
-            HWND_BROADCAST,
-            WM_SETTINGCHANGE,
-            0,
-            ENVIRONMENT_A as isize,
-            SMTO_ABORTIFHUNG,
-            MESSAGE_TIMEOUT_MS,
-            &mut result,
-        )
-    };
-    if status == 0 {
-        return Err(io::Error::last_os_error());
-    }
-
     let status = unsafe {
         SendMessageTimeoutW(
             HWND_BROADCAST,
