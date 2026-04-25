@@ -141,8 +141,7 @@ function build_nsis_plugins {
         -p nsis-registry \
         -p nsis-pathedit \
         -p nsis-cleanup \
-        -p nsis-log \
-        -p nsis-tray
+        -p nsis-log
 }
 
 function clean_all {
@@ -150,8 +149,7 @@ function clean_all {
         -p nsis-registry \
         -p nsis-pathedit \
         -p nsis-cleanup \
-        -p nsis-log \
-        -p nsis-tray
+        -p nsis-log
 
     clean_solution "./windows/libshared"
     clean_solution "./windows/windows-libraries"

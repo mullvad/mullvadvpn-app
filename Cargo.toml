@@ -22,7 +22,6 @@ members = [
   "mullvad-nsis/plugins/log",
   "mullvad-nsis/plugins/pathedit",
   "mullvad-nsis/plugins/registry",
-  "mullvad-nsis/plugins/tray",
   "mullvad-paths",
   "mullvad-problem-report",
   "mullvad-relay-selector",
