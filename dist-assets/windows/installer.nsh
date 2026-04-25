@@ -62,12 +62,12 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	Push $0
 
-	log::SetLogTarget ${LOG_VOID}
+	mullvad_nsis::SetLogTarget ${LOG_VOID}
 
-	# Horrendous hack for unpinning log.dll. Since we do not know the reference count
+	# Horrendous hack for unpinning mullvad_nsis.dll. Since we do not know the reference count
 	# it is safest to unload it from here.
 	UnloadPlugins_free_logger:
-	System::Call "KERNEL32::GetModuleHandle(t $\"$PLUGINSDIR\log.dll$\")p.r0"
+	System::Call "KERNEL32::GetModuleHandle(t $\"$PLUGINSDIR\mullvad_nsis.dll$\")p.r0"
 	${If} $0 P<> 0
 		System::Call "KERNEL32::FreeLibrary(pr0)"
 		Goto UnloadPlugins_free_logger
@@ -123,7 +123,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Push $0
 	Push $1
 
-	log::Log "RemoveWintun()"
+	mullvad_nsis::Log "RemoveWintun()"
 
 	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun'
 	Pop $0
@@ -131,11 +131,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	${If} $0 != ${MVSETUP_OK}
 		StrCpy $R0 "Failed to remove Wintun driver. It may be in use."
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
 	${EndIf}
 
-	log::Log "RemoveWintun() completed successfully"
+	mullvad_nsis::Log "RemoveWintun() completed successfully"
 
 	Push 0
 	Pop $R0
@@ -158,7 +158,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Push $0
 	Push $1
 
-	log::Log "RemoveWireGuardNt()"
+	mullvad_nsis::Log "RemoveWireGuardNt()"
 
 	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt'
 	Pop $0
@@ -167,11 +167,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove WireGuardNT pool: error $0"
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 		Goto RemoveWireGuardNt_return_only
 	${EndIf}
 
-	log::Log "RemoveWireGuardNt() completed successfully"
+	mullvad_nsis::Log "RemoveWireGuardNt() completed successfully"
 
 	Push 0
 	Pop $R0
@@ -193,7 +193,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Push $0
 	Push $1
 
-	log::Log "RemoveAbandonedWintunAdapter()"
+	mullvad_nsis::Log "RemoveAbandonedWintunAdapter()"
 
 	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wintun-abandoned-device'
 	Pop $0
@@ -202,11 +202,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove network adapter: error $0"
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 		Goto RemoveAbandonedWintunAdapter_return_only
 	${EndIf}
 
-	log::Log "RemoveAbandonedWintunAdapter() completed successfully"
+	mullvad_nsis::Log "RemoveAbandonedWintunAdapter() completed successfully"
 
 	Push 0
 	Pop $R0
@@ -229,13 +229,13 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro InstallService
 
-	log::Log "InstallService()"
+	mullvad_nsis::Log "InstallService()"
 
 	Push $0
 	Push $1
 	Push $2
 
-	log::Log "Running $\"mullvad-daemon$\" for it to self-register as a service"
+	mullvad_nsis::Log "Running $\"mullvad-daemon$\" for it to self-register as a service"
 	nsExec::ExecToStack '"$INSTDIR\resources\mullvad-daemon.exe" --register-service'
 
 	Pop $0
@@ -243,7 +243,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	${If} $0 != 0
 		StrCpy $R0 "Failed to install Mullvad service"
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 
 		#
 		# NSIS documentation indicates that failure to launch the target will return
@@ -253,14 +253,14 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		# And naturally, comparing to 0xC0000139 fails because... NSIS
 		#
 		${If} $0 == -1073741511
-			log::Log "Failed to launch $\"mullvad-daemon$\" (API issue)"
+			mullvad_nsis::Log "Failed to launch $\"mullvad-daemon$\" (API issue)"
 			Goto InstallService_return
 		${EndIf}
 
 		Goto InstallService_return
 	${EndIf}
 
-	log::Log "Starting service"
+	mullvad_nsis::Log "Starting service"
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" start mullvadvpn'
 
 	Pop $0
@@ -273,11 +273,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		${Else}
 			StrCpy $R0 "Failed to start Mullvad service: error $0"
 		${EndIf}
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 		Goto InstallService_return
 	${EndIf}
 
-	log::Log "InstallService() completed successfully"
+	mullvad_nsis::Log "InstallService() completed successfully"
 
 	Push 0
 	Pop $R0
@@ -299,12 +299,12 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro RemoveSplitTunnelDriver
 
-	log::Log "RemoveSplitTunnelDriver()"
+	mullvad_nsis::Log "RemoveSplitTunnelDriver()"
 
 	Push $0
 	Push $1
 
-	log::Log "Removing Split Tunneling driver"
+	mullvad_nsis::Log "Removing Split Tunneling driver"
 	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove split-tunnel'
 
 	Pop $0
@@ -313,11 +313,11 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	${If} $0 != ${MVSETUP_OK}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove driver: error $0"
-		log::LogWithDetails $R0 $1
+		mullvad_nsis::LogWithDetails $R0 $1
 		Goto RemoveSplitTunnelDriver_return
 	${EndIf}
 
-	log::Log "RemoveSplitTunnelDriver() completed successfully"
+	mullvad_nsis::Log "RemoveSplitTunnelDriver() completed successfully"
 
 	Push 0
 	Pop $R0
@@ -341,7 +341,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	Push $0
 
-	cleanup::RemoveLogsAndCache
+	mullvad_nsis::RemoveLogsAndCache
 
 	# Discard return value
 	Pop $0
@@ -362,7 +362,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	Push $0
 
-	cleanup::RemoveSettings
+	mullvad_nsis::RemoveSettings
 
 	# Discard return value
 	Pop $0
@@ -381,22 +381,22 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro RemoveRelayCache
 
-	log::Log "RemoveRelayCache()"
+	mullvad_nsis::Log "RemoveRelayCache()"
 
 	Push $0
 	Push $1
 
-	cleanup::RemoveRelayCache
+	mullvad_nsis::RemoveRelayCache
 
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::Log "Failed to remove relay cache: $1"
+		mullvad_nsis::Log "Failed to remove relay cache: $1"
 		Goto RemoveRelayCache_return
 	${EndIf}
 
-	log::Log "RemoveRelayCache() completed successfully"
+	mullvad_nsis::Log "RemoveRelayCache() completed successfully"
 
 	RemoveRelayCache_return:
 
@@ -415,22 +415,22 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro RemoveApiAddressCache
 
-	log::Log "RemoveApiAddressCache()"
+	mullvad_nsis::Log "RemoveApiAddressCache()"
 
 	Push $0
 	Push $1
 
-	cleanup::RemoveApiAddressCache
+	mullvad_nsis::RemoveApiAddressCache
 
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::Log "Failed to remove address cache: $1"
+		mullvad_nsis::Log "Failed to remove address cache: $1"
 		Goto RemoveApiAddressCache_return
 	${EndIf}
 
-	log::Log "RemoveApiAddressCache() completed successfully"
+	mullvad_nsis::Log "RemoveApiAddressCache() completed successfully"
 
 	RemoveApiAddressCache_return:
 
@@ -449,22 +449,22 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro AddCLIToEnvironPath
 
-	log::Log "AddCLIToEnvironPath()"
+	mullvad_nsis::Log "AddCLIToEnvironPath()"
 
 	Push $0
 	Push $1
 
-	pathedit::AddSysEnvPath "$INSTDIR\resources"
+	mullvad_nsis::AddSysEnvPath "$INSTDIR\resources"
 
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::LogWithDetails "Failed to add the CLI tools to the system PATH" $1
+		mullvad_nsis::LogWithDetails "Failed to add the CLI tools to the system PATH" $1
 		Goto UpdatePath_return
 	${EndIf}
 
-	log::Log "AddCLIToEnvironPath() completed successfully"
+	mullvad_nsis::Log "AddCLIToEnvironPath() completed successfully"
 
 	UpdatePath_return:
 
@@ -482,22 +482,22 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro RemoveCLIFromEnvironPath
 
-	log::Log "RemoveCLIFromEnvironPath()"
+	mullvad_nsis::Log "RemoveCLIFromEnvironPath()"
 
 	Push $0
 	Push $1
 
-	pathedit::RemoveSysEnvPath "$INSTDIR\resources"
+	mullvad_nsis::RemoveSysEnvPath "$INSTDIR\resources"
 
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MULLVAD_SUCCESS}
-		log::LogWithDetails "Failed to remove the CLI tools from the system PATH" $1
+		mullvad_nsis::LogWithDetails "Failed to remove the CLI tools from the system PATH" $1
 		Goto RemovePath_return
 	${EndIf}
 
-	log::Log "RemoveCLIFromEnvironPath() completed successfully"
+	mullvad_nsis::Log "RemoveCLIFromEnvironPath() completed successfully"
 
 	RemovePath_return:
 
@@ -516,7 +516,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro ClearFirewallRules
 
-	log::Log "ClearFirewallRules()"
+	mullvad_nsis::Log "ClearFirewallRules()"
 
 	Push $0
 	Push $1
@@ -526,9 +526,9 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Pop $1
 
 	${If} $0 != ${MVSETUP_OK}
-		log::LogWithDetails "ClearFirewallRules() failed" $1
+		mullvad_nsis::LogWithDetails "ClearFirewallRules() failed" $1
 	${Else}
-		log::Log "ClearFirewallRules() completed successfully"
+		mullvad_nsis::Log "ClearFirewallRules() completed successfully"
 	${EndIf}
 
 	Pop $1
@@ -572,7 +572,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro RemoveCurrentDevice
 
-	log::Log "RemoveCurrentDevice()"
+	mullvad_nsis::Log "RemoveCurrentDevice()"
 
 	Push $0
 	Push $1
@@ -582,9 +582,9 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Pop $1
 
 	${If} $0 != ${MVSETUP_OK}
-		log::LogWithDetails "RemoveCurrentDevice() failed" $1
+		mullvad_nsis::LogWithDetails "RemoveCurrentDevice() failed" $1
 	${Else}
-		log::Log "RemoveCurrentDevice() completed successfully"
+		mullvad_nsis::Log "RemoveCurrentDevice() completed successfully"
 	${EndIf}
 
 	Pop $1
@@ -614,7 +614,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	# We do not use AtLeastWin10, because it is affected by compatibility mode. Instead, we infer
 	# the version from the kernel image.
-	log::GetWindowsMajorVersion
+	mullvad_nsis::GetWindowsMajorVersion
 	Pop $0
 
 	IntCmp $0 10 customInit_compatibleWinVer +1 customInit_compatibleWinVer
@@ -644,7 +644,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	# Application settings key
 	# Migrate 2018.(x<6) to current
-	registry::MoveKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\${PRODUCT_NAME}"
+	mullvad_nsis::MoveRegistryKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\${PRODUCT_NAME}"
 
 	# Discard return value
 	Pop $0
@@ -652,7 +652,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	# Application uninstall key
 	# Migrate 2018.(x<6) to current
-	registry::MoveKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
+	mullvad_nsis::MoveRegistryKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
 
 	# Discard return value
 	Pop $0
@@ -660,14 +660,14 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	# Application uninstall key
 	# Migrate 2018.6 through 2019.7 to current
-	registry::MoveKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mullvad VPN" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
+	mullvad_nsis::MoveRegistryKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Mullvad VPN" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
 
 	# Discard return value
 	Pop $0
 	Pop $0
 
 	# Migrate 2019.8 through 2020.5 to current
-	registry::MoveKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{${APP_GUID}}" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
+	mullvad_nsis::MoveRegistryKey "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{${APP_GUID}}" "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}"
 
 	# Discard return value
 	Pop $0
@@ -730,10 +730,10 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	Push $R0
 
-	log::SetLogTarget ${LOG_INSTALL}
+	mullvad_nsis::SetLogTarget ${LOG_INSTALL}
 
-	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
-	log::LogWindowsVersion
+	mullvad_nsis::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
+	mullvad_nsis::LogWindowsVersion
 
 	#
 	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,
@@ -810,8 +810,8 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	IfErrors 0 customUnInstallCheck_CheckReturnCode
 
-	log::SetLogTarget ${LOG_UNINSTALL}
-	log::Log "Unable to launch uninstaller for previous ${PRODUCT_NAME} version"
+	mullvad_nsis::SetLogTarget ${LOG_UNINSTALL}
+	mullvad_nsis::Log "Unable to launch uninstaller for previous ${PRODUCT_NAME} version"
 
 	#
 	# If $INSTDIR is gone or can be removed, proceed anyway
@@ -822,7 +822,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	IfErrors 0 customUnInstallCheck_Done
 
 	ClearErrors
-	cleanup::IsEmptyDir $INSTDIR
+	mullvad_nsis::IsEmptyDir $INSTDIR
 	Pop $0
 
 	# If the directory is empty, continue update anyway
@@ -830,7 +830,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		Goto customUnInstallCheck_Done
 	${EndIf}
 
-	log::Log "Aborting since $INSTDIR exists"
+	mullvad_nsis::Log "Aborting since $INSTDIR exists"
 	Goto customUnInstallCheck_Abort
 
 	customUnInstallCheck_CheckReturnCode:
@@ -891,7 +891,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 #
 !macro StopAndDeleteService
 
-	log::Log "StopAndDeleteService()"
+	mullvad_nsis::Log "StopAndDeleteService()"
 
 	Push $0
 	Push $1
@@ -905,7 +905,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		Goto StopAndDeleteService_success
 	${EndIf}
 
-	log::Log "Stopping Mullvad service"
+	mullvad_nsis::Log "Stopping Mullvad service"
 
 	nsExec::ExecToStack '"$SYSDIR\net.exe" stop mullvadvpn'
 
@@ -913,7 +913,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Pop $1
 
 	${If} $0 != 0
-		log::LogWithDetails "Failed to stop the service: $0" $1
+		mullvad_nsis::LogWithDetails "Failed to stop the service: $0" $1
 
 		# It may be possible to recover by force-killing the service
 		# This also "fails" with a generic error if the service isn't running
@@ -923,7 +923,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	SetShellVarContext all
 	CopyFiles /SILENT /FILESONLY "$LOCALAPPDATA\Mullvad VPN\daemon.log" "$LOCALAPPDATA\Mullvad VPN\old-install-daemon.log"
 
-	log::Log "Removing Mullvad service"
+	mullvad_nsis::Log "Removing Mullvad service"
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
 
 	Pop $0
@@ -931,7 +931,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	${If} $0 != 0
 	${AndIf} $0 != ${ERROR_SERVICE_MARKED_FOR_DELETE}
-		log::Log "Failed to delete the service: $0"
+		mullvad_nsis::Log "Failed to delete the service: $0"
 		Goto StopAndDeleteService_return_only
 	${EndIf}
 
@@ -953,7 +953,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Pop $1
 
 	${If} $0 != ${ERROR_SERVICE_DOES_NOT_EXIST}
-		log::Log "Attempting to forcibly kill Mullvad service"
+		mullvad_nsis::Log "Attempting to forcibly kill Mullvad service"
 
 		nsExec::ExecToStack '"$SYSDIR\taskkill.exe" /f /fi "SERVICES eq mullvadvpn"'
 		Pop $0
@@ -967,7 +967,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		${EndIf}
 
 		StrCpy $R0 "Failed to kill Mullvad service"
-		log::Log $R0
+		mullvad_nsis::Log $R0
 		Goto StopAndDeleteService_return_only
 	${EndIf}
 
@@ -979,9 +979,9 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	StopAndDeleteService_return_only:
 
 	${If} $R0 == 0
-		log::Log "StopAndDeleteService() completed successfully"
+		mullvad_nsis::Log "StopAndDeleteService() completed successfully"
 	${Else}
-		log::Log "StopAndDeleteService() failed"
+		mullvad_nsis::Log "StopAndDeleteService() failed"
 	${EndIf}
 
 	Pop $1
@@ -1008,9 +1008,9 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	Var /GLOBAL Silent
 	Var /GLOBAL NewVersion
 
-	log::SetLogTarget ${LOG_UNINSTALL}
+	mullvad_nsis::SetLogTarget ${LOG_UNINSTALL}
 
-	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
+	mullvad_nsis::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
 	${GetParameters} $0
 	${GetOptions} $0 "/S" $1
@@ -1033,7 +1033,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 		${If} $0 == ${MVSETUP_OK}
 		${OrIf} $NewVersion == ""
-			log::Log "Downgrading. Performing a full uninstall"
+			mullvad_nsis::Log "Downgrading. Performing a full uninstall"
 			Push 1
 		${Else}
 			Push 0
@@ -1057,7 +1057,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		${If} $0 != ${MVSETUP_OK}
 		${AndIf} $0 != ${MVSETUP_DAEMON_NOT_RUNNING}
 			StrCpy $R0 "Failed to send prepare-restart to service"
-			log::LogWithDetails $R0 $1
+			mullvad_nsis::LogWithDetails $R0 $1
 			Goto customRemoveFiles_abort
 		${EndIf}
 	${EndIf}
@@ -1080,16 +1080,16 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	# Remove application files
 	# TODO: Consider moving the directory first and using /REBOOTOK if deleting fails
-	log::Log "Deleting $INSTDIR"
+	mullvad_nsis::Log "Deleting $INSTDIR"
 	ClearErrors
 	RMDir /r $INSTDIR
 	IfErrors 0 customRemoveFiles_final_cleanup
 
-	log::Log "Failed to remove application files"
+	mullvad_nsis::Log "Failed to remove application files"
 
 	${If} ${isUpdated}
 		ClearErrors
-		cleanup::IsEmptyDir $INSTDIR
+		mullvad_nsis::IsEmptyDir $INSTDIR
 		Pop $0
 
 		# If the directory is empty, continue update anyway
@@ -1101,12 +1101,12 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		# NOTE: We perform this check here and not in customUnInstallCheck, or else we cannot preempt the hardcoded message:
 		# https://github.com/electron-userland/electron-builder/blob/05e0bc7becf4057e7f7794597a57f33d23894f4b/packages/app-builder-lib/templates/nsis/include/installUtil.nsh#L219
 		# 0 = do not allow user to cancel. This is because we cannot prevent electron-builder from rerunning the uninstaller
-		cleanup::CloseHoggingProcesses $INSTDIR 0
+		mullvad_nsis::CloseHoggingProcesses $INSTDIR 0
 		Pop $0
 		Pop $1
 
 		${If} $0 != ${MULLVAD_SUCCESS}
-			log::Log "CloseHoggingProcesses failed:$\n$\n$1"
+			mullvad_nsis::Log "CloseHoggingProcesses failed:$\n$\n$1"
 			MessageBox MB_OK|MB_ICONSTOP "Failed to close conflicting processes:$\n$\n$1"
 		${EndIf}
 
@@ -1122,7 +1122,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		IfErrors 0 customRemoveFiles_final_cleanup
 
 		ClearErrors
-		cleanup::IsEmptyDir $INSTDIR
+		mullvad_nsis::IsEmptyDir $INSTDIR
 		Pop $0
 
 		# If the directory is empty, continue update anyway
@@ -1151,7 +1151,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		${ClearFirewallRules}
 	${EndIf}
 
-	log::Log "Aborting uninstaller"
+	mullvad_nsis::Log "Aborting uninstaller"
 
 	SetErrorLevel 1
 	Abort
@@ -1168,7 +1168,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 		${RemoveWintun}
 		${RemoveWireGuardNt}
 
-		log::SetLogTarget ${LOG_VOID}
+		mullvad_nsis::SetLogTarget ${LOG_VOID}
 
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
@@ -1182,7 +1182,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 		customRemoveFiles_after_remove_settings:
 	${Else}
-		log::SetLogTarget ${LOG_VOID}
+		mullvad_nsis::SetLogTarget ${LOG_VOID}
 
 		SetShellVarContext all
 		Delete "$LOCALAPPDATA\Mullvad VPN\uninstall.log"

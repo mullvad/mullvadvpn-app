@@ -1,4 +1,4 @@
-//! NSIS log plugin: installer logging for the Mullvad VPN installer.
+//! Installer logging.
 //!
 //! Exports:
 //! - `SetLogTarget` - open the log file (install.log / uninstall.log)
@@ -6,8 +6,6 @@
 //! - `LogWithDetails` - write a message with indented details
 //! - `LogWindowsVersion` - log the Windows version string
 //! - `GetWindowsMajorVersion` - push Windows major version onto the NSIS stack
-
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
 
 use std::fmt::Write as FmtWrite;
 use std::fs::File;

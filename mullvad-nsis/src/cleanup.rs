@@ -1,4 +1,4 @@
-//! NSIS cleanup plugin: cleanup operations for the Mullvad VPN installer.
+//! Cleanup operations for the Mullvad VPN installer.
 //!
 //! Exports:
 //! - `RemoveLogsAndCache` - remove all logs and cache for all users
@@ -8,8 +8,6 @@
 //! - `CloseHoggingProcesses` - close processes blocking the install directory
 //! - `IsEmptyDir` - check if a directory contains only subdirectories (no files)
 
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
-
 use std::io;
 use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
@@ -18,16 +16,6 @@ use std::ptr;
 use anyhow::Context;
 use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
 use widestring::U16CStr;
-
-/// NSIS status codes returned to the installer scripts.
-#[derive(Clone, Copy)]
-#[repr(i32)]
-enum NsisStatus {
-    GeneralError = 0,
-    Success = 1,
-    FileExists = 2,
-    Cancelled = 3,
-}
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL, LocalFree, S_OK};
 use windows_sys::Win32::Security::Authorization::{
     EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
@@ -46,6 +34,8 @@ use windows_sys::Win32::UI::Shell::{
     FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData, KF_FLAG_DEFAULT,
     SHGetKnownFolderPath,
 };
+
+use crate::NsisStatus;
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -519,7 +509,7 @@ fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     let (install_path, allow_cancellation) = unsafe { (popstr()?, popint()? != 0) };
 
-    let (message, status) = match mullvad_nsis::handle::terminate_processes(
+    let (message, status) = match crate::handle::terminate_processes(
         &install_path,
         allow_cancellation,
     ) {
@@ -543,7 +533,7 @@ fn IsEmptyDir() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     let path = unsafe { popstr()? };
 
-    let status = match mullvad_nsis::handle::is_empty_dir(&path) {
+    let status = match crate::handle::is_empty_dir(&path) {
         Ok(true) => NsisStatus::Success,
         Ok(false) => NsisStatus::FileExists,
         Err(_) => NsisStatus::GeneralError,

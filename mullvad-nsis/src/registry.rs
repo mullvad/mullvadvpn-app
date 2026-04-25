@@ -1,35 +1,30 @@
-//! NSIS registry plugin: registry operations for the Mullvad VPN installer.
+//! Registry operations.
 //!
 //! Exports:
-//! - `MoveKey` - move (rename) a registry key
+//! - `MoveRegistryKey` - move (rename) a registry key
 
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
-
+use std::ffi::OsString;
 use std::io;
+use std::os::windows::ffi::{OsStrExt, OsStringExt};
 use std::ptr;
 
 use nsis_plugin_api::{nsis_fn, popstr, pushint, pushstr};
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 use windows_sys::Win32::System::Registry::{
     HKEY, HKEY_CLASSES_ROOT, HKEY_CURRENT_CONFIG, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE,
-    HKEY_USERS, KEY_READ, KEY_WOW64_64KEY, KEY_WRITE, REG_OPTION_NON_VOLATILE, RegCloseKey,
-    RegCopyTreeW, RegCreateKeyExW, RegDeleteTreeW, RegOpenKeyExW,
+    HKEY_USERS, KEY_READ, KEY_WOW64_64KEY, KEY_WRITE, REG_EXPAND_SZ, REG_OPTION_NON_VOLATILE,
+    RegCloseKey, RegCopyTreeW, RegCreateKeyExW, RegDeleteTreeW, RegFlushKey, RegOpenKeyExW,
+    RegQueryValueExW, RegSetValueExW,
 };
 
-/// NSIS status codes returned to the installer scripts.
-#[derive(Clone, Copy)]
-#[repr(i32)]
-enum NsisStatus {
-    GeneralError = 0,
-    Success = 1,
-}
+use crate::NsisStatus;
 
 /// Open registry key handle.
-struct RegKey(HKEY);
+pub struct RegKey(HKEY);
 
 impl RegKey {
     /// Open an existing registry key.
-    fn open(root: HKEY, subkey: &str, access: u32) -> io::Result<Self> {
+    pub fn open(root: HKEY, subkey: &str, access: u32) -> io::Result<Self> {
         let subkey = to_wide_nul(subkey);
         let mut handle: HKEY = ptr::null_mut();
         // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
@@ -42,7 +37,7 @@ impl RegKey {
     }
 
     /// Create a registry key (or open it if it already exists).
-    fn create(root: HKEY, subkey: &str, options: u32, access: u32) -> io::Result<Self> {
+    pub fn create(root: HKEY, subkey: &str, options: u32, access: u32) -> io::Result<Self> {
         let subkey = to_wide_nul(subkey);
         let mut handle: HKEY = ptr::null_mut();
         let mut disposition: u32 = 0;
@@ -69,7 +64,7 @@ impl RegKey {
     }
 
     /// Copy this key's entire subtree onto `dest`.
-    fn copy_tree_to(&self, dest: &RegKey) -> io::Result<()> {
+    pub fn copy_tree_to(&self, dest: &RegKey) -> io::Result<()> {
         // SAFETY: both handles are live HKEYs owned by `self` and `dest`;
         // the optional source-subkey pointer is null (copy `self` itself).
         let result = unsafe { RegCopyTreeW(self.0, ptr::null(), dest.0) };
@@ -83,7 +78,7 @@ impl RegKey {
     ///
     /// This does not require an open handle to the subkey: the API resolves
     /// it relative to `root`.
-    fn delete_tree(root: HKEY, subkey: &str) -> io::Result<()> {
+    pub fn delete_tree(root: HKEY, subkey: &str) -> io::Result<()> {
         let subkey = to_wide_nul(subkey);
         // SAFETY: `root` is a valid HKEY and `subkey` is a null-terminated
         // wide string.
@@ -93,11 +88,96 @@ impl RegKey {
         }
         Ok(())
     }
-}
 
-/// Encode a UTF-8 string as a null-terminated UTF-16 buffer.
-fn to_wide_nul(s: &str) -> Vec<u16> {
-    s.encode_utf16().chain(std::iter::once(0)).collect()
+    /// Read a `REG_SZ` or `REG_EXPAND_SZ` value as an `OsString`.
+    pub fn read_string(&self, name: &str) -> io::Result<OsString> {
+        let name = to_wide_nul(name);
+        let mut value_type: u32 = 0;
+        let mut buf_size: u32 = 0;
+
+        // First call: determine required buffer size.
+        // SAFETY: `self.0` is a live HKEY (owned by `RegKey`), `name` is a
+        // null-terminated wide string, and the buffer pointer is null so
+        // only `buf_size` is written.
+        unsafe {
+            RegQueryValueExW(
+                self.0,
+                name.as_ptr(),
+                ptr::null(),
+                &mut value_type,
+                ptr::null_mut(),
+                &mut buf_size,
+            )
+        };
+
+        if buf_size == 0 {
+            return Ok(OsString::new());
+        }
+
+        let elem_count = (buf_size as usize + 1) / 2 + 1;
+        let mut buf = vec![0u16; elem_count];
+        let mut actual_size = buf_size;
+
+        // SAFETY: `self.0` is a live HKEY, `name` is a null-terminated wide
+        // string, `buf` is valid for `elem_count * 2` writable bytes, and
+        // `actual_size` is initialized to the available capacity.
+        let result = unsafe {
+            RegQueryValueExW(
+                self.0,
+                name.as_ptr(),
+                ptr::null(),
+                &mut value_type,
+                buf.as_mut_ptr().cast(),
+                &mut actual_size,
+            )
+        };
+
+        if result != ERROR_SUCCESS {
+            return Err(io::Error::from_raw_os_error(result as i32));
+        }
+
+        let char_count = actual_size as usize / 2;
+        // REG_SZ/REG_EXPAND_SZ values typically include a trailing null
+        // terminator in `actual_size`; strip it if present.
+        let trimmed = buf[..char_count]
+            .strip_suffix(&[0u16])
+            .unwrap_or(&buf[..char_count]);
+        Ok(OsString::from_wide(trimmed))
+    }
+
+    /// Write a `REG_EXPAND_SZ` value.
+    pub fn write_expand_string(&self, name: &str, value: &OsString) -> io::Result<()> {
+        let name = to_wide_nul(name);
+        let value_wide: Vec<u16> = value.encode_wide().chain(std::iter::once(0)).collect();
+        let byte_len = (value_wide.len() * 2) as u32;
+
+        // SAFETY: `self.0` is a live HKEY, `name` is a null-terminated wide
+        // string, and `value_wide` holds `byte_len` valid bytes (its u16
+        // length times 2).
+        let result = unsafe {
+            RegSetValueExW(
+                self.0,
+                name.as_ptr(),
+                0,
+                REG_EXPAND_SZ,
+                value_wide.as_ptr().cast(),
+                byte_len,
+            )
+        };
+
+        if result != ERROR_SUCCESS {
+            return Err(io::Error::from_raw_os_error(result as i32));
+        }
+
+        self.flush();
+        Ok(())
+    }
+
+    /// Flush pending writes to disk.
+    pub fn flush(&self) {
+        // SAFETY: `self.0` is a live HKEY owned by `RegKey`.
+        unsafe { RegFlushKey(self.0) };
+    }
 }
 
 impl Drop for RegKey {
@@ -106,6 +186,11 @@ impl Drop for RegKey {
         // `RegCreateKeyExW` and not yet closed; `RegKey` owns it uniquely.
         unsafe { RegCloseKey(self.0) };
     }
+}
+
+/// Encode a UTF-8 string as a null-terminated UTF-16 buffer.
+pub fn to_wide_nul(s: &str) -> Vec<u16> {
+    s.encode_utf16().chain(std::iter::once(0)).collect()
 }
 
 /// Parse a registry path string like "HKLM\Software\A" into (root HKEY, subkey).
@@ -145,14 +230,14 @@ fn move_key(source: &str, destination: &str) -> io::Result<()> {
     RegKey::delete_tree(src_root, src_subkey)
 }
 
-// MoveKey "source" "destination"
+// MoveRegistryKey "source" "destination"
 //
 // Moves a registry key from source to destination.
 // Pushes an error message string and a status code.
 //
-// Example: MoveKey "HKLM\Software\A" "HKLM\Software\B"
+// Example: MoveRegistryKey "HKLM\Software\A" "HKLM\Software\B"
 #[nsis_fn]
-fn MoveKey() -> Result<(), nsis_plugin_api::Error> {
+fn MoveRegistryKey() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     let (source, destination) = unsafe { (popstr()?, popstr()?) };
 
