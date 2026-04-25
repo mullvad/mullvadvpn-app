@@ -40,6 +40,7 @@ class LogView: UIView {
     private var selectedProcess: InAppLogEntry.Process?
     private var includedLabels: Set<String> = []
     private var excludedLabels: Set<String> = []
+    private var exportTask: Task<Void, Never>?
 
     var onExportLogs: ((String) -> Void)?
 
@@ -115,17 +116,17 @@ class LogView: UIView {
     private func setUpButtons() {
         pauseButton.setTitle("[pause]", for: .normal)
         pauseButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
-        pauseButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        pauseButton.setTitleColor(.white, for: .normal)
         pauseButton.addTarget(self, action: #selector(handlePauseButton), for: .touchUpInside)
 
         exportButton.setTitle("[export]", for: .normal)
         exportButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
-        exportButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        pauseButton.setTitleColor(.white, for: .normal)
         exportButton.addTarget(self, action: #selector(handleExportButton), for: .touchUpInside)
 
         clearButton.setTitle("[clear]", for: .normal)
         clearButton.titleLabel?.font = .preferredFont(forTextStyle: .caption2)
-        clearButton.titleLabel?.tintColor = .white.withAlphaComponent(0.5)
+        pauseButton.setTitleColor(.white, for: .normal)
         clearButton.addTarget(self, action: #selector(handleClearButton), for: .touchUpInside)
 
         let leadingContainer = UIStackView(arrangedSubviews: [pauseButton])
@@ -151,7 +152,7 @@ class LogView: UIView {
             attributes: [.foregroundColor: UIColor.white.withAlphaComponent(0.4)]
         )
 
-        searchField.font = .monospacedSystemFont(ofSize: 11, weight: .regular)
+        searchField.font = .systemFont(ofSize: 11)
         searchField.textColor = .white
         searchField.backgroundColor = .white.withAlphaComponent(0.1)
         searchField.layer.cornerRadius = 6
@@ -391,11 +392,18 @@ class LogView: UIView {
         tableView.scrollToRow(at: indexPath, at: .bottom, animated: true)
     }
 
+    private func removeExportOverlay() {
+        exportTask = nil
+        viewWithTag(999)?.removeFromSuperview()
+    }
+
     // MARK: - Actions
 
     @objc private func handlePauseButton(_ sender: UIButton) {
         logsArePaused.toggle()
-        pauseButton.setTitle(logsArePaused ? "[resume]" : "[pause]", for: .normal)
+
+        pauseButton.setTitle(logsArePaused ? "[paused]" : "[pause]", for: .normal)
+        pauseButton.setTitleColor(logsArePaused ? .red : .white, for: .normal)
 
         addEntries(pausedEntries)
         pausedEntries.removeAll()
@@ -406,7 +414,59 @@ class LogView: UIView {
     }
 
     @objc private func handleExportButton() {
-        onExportLogs?(filteredEntries.map { $0.description }.joinedParagraphs())
+        let overlay = UIView()
+        overlay.backgroundColor = .black.withAlphaComponent(0.6)
+        overlay.tag = 999
+
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.color = .white
+        spinner.startAnimating()
+
+        let cancelButton = UIButton(type: .system)
+        cancelButton.setTitle("Cancel", for: .normal)
+        cancelButton.setTitleColor(.white, for: .normal)
+        cancelButton.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+
+        let stack = UIStackView(arrangedSubviews: [spinner, cancelButton])
+        stack.axis = .vertical
+        stack.alignment = .center
+        stack.spacing = 16
+
+        addConstrainedSubviews([overlay]) {
+            overlay.pinEdgesToSuperview(.all())
+        }
+
+        overlay.addConstrainedSubviews([stack]) {
+            stack.centerXAnchor.constraint(equalTo: overlay.centerXAnchor)
+            stack.centerYAnchor.constraint(equalTo: overlay.centerYAnchor)
+        }
+
+        let entries = filteredEntries
+        exportTask = Task.detached(priority: .userInitiated) {
+            var parts: [String] = []
+            parts.reserveCapacity(entries.count)
+
+            for entry in entries {
+                if Task.isCancelled { return }
+                parts.append(entry.description)
+            }
+
+            guard !Task.isCancelled else { return }
+            let result = parts.joinedParagraphs()
+
+            await MainActor.run {
+                self.removeExportOverlay()
+                self.onExportLogs?(result)
+            }
+        }
+
+        cancelButton.addAction(
+            UIAction { [weak self] _ in
+                self?.exportTask?.cancel()
+                self?.removeExportOverlay()
+            },
+            for: .touchUpInside
+        )
     }
 
     @objc private func searchTextChanged() {
