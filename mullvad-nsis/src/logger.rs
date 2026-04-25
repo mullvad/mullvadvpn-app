@@ -1,4 +1,4 @@
-//! NSIS log plugin: installer logging for the Mullvad VPN installer.
+//! Installer logging.
 //!
 //! Exports:
 //! - `SetLogTarget` - open the log file (install.log / uninstall.log)
@@ -6,8 +6,6 @@
 //! - `LogWithDetails` - write a message with indented details
 //! - `LogWindowsVersion` - log the Windows version string
 //! - `GetWindowsMajorVersion` - push Windows major version onto the NSIS stack
-
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
 
 use std::fmt::Write as FmtWrite;
 use std::fs::File;
@@ -17,11 +15,11 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use nsis_plugin_api::{nsis_fn, popint, pushint};
+use windows_sys::Win32::Foundation::SYSTEMTIME;
 use windows_sys::Win32::System::LibraryLoader::{
     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
     GetModuleFileNameW, GetModuleHandleExW, LoadLibraryW,
 };
-use windows_sys::Win32::Foundation::SYSTEMTIME;
 use windows_sys::Win32::System::SystemInformation::GetLocalTime;
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetActiveWindow;
 use windows_sys::Win32::UI::WindowsAndMessaging::{MB_OK, MessageBoxA};
@@ -138,19 +136,6 @@ fn pin_dll() {
     });
 }
 
-/// Get the Windows major version number.
-fn windows_major_version() -> Option<u32> {
-    use talpid_platform_metadata::WindowsVersion;
-    WindowsVersion::from_ntoskrnl()
-        .ok()
-        .map(|v| v.major_version())
-}
-
-/// Get the Windows version string.
-fn windows_version_string() -> String {
-    talpid_platform_metadata::version().to_string()
-}
-
 // ============================================================================
 // NSIS-exported functions
 // ============================================================================
@@ -234,8 +219,7 @@ fn Log() -> Result<(), nsis_plugin_api::Error> {
 #[nsis_fn]
 fn LogWithDetails() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
-    let (message, details) =
-        unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
+    let (message, details) = unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
     let detail_lines: Vec<&str> = details.lines().collect();
 
     if let Ok(mut guard) = LOGGER.lock()
@@ -254,7 +238,7 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
     if let Ok(mut guard) = LOGGER.lock()
         && let Some(logger) = guard.as_mut()
     {
-        let version = windows_version_string();
+        let version = talpid_platform_metadata::version();
         logger.log(&format!("Windows version: {version}"));
     }
     Ok(())
@@ -265,9 +249,9 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
 // Pushes the Windows major version number onto the NSIS stack. Pushes -1 on error.
 #[nsis_fn]
 fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
-    let value = match windows_major_version() {
-        Some(v) => v as i32,
-        None => {
+    let value = match talpid_platform_metadata::WindowsVersion::from_ntoskrnl() {
+        Ok(v) => v.major_version() as i32,
+        Err(_) => {
             if let Ok(mut guard) = LOGGER.lock()
                 && let Some(logger) = guard.as_mut()
             {
@@ -279,4 +263,3 @@ fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     unsafe { pushint(value) }
 }
-

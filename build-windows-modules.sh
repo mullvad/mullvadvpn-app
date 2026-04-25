@@ -137,21 +137,11 @@ function get_solution_output_path {
 }
 
 function build_nsis_plugins {
-    cargo build --release --target i686-pc-windows-msvc \
-        -p nsis-registry \
-        -p nsis-pathedit \
-        -p nsis-cleanup \
-        -p nsis-log \
-        -p nsis-tray
+    cargo build --release --target i686-pc-windows-msvc -p mullvad-nsis
 }
 
 function clean_all {
-    cargo clean \
-        -p nsis-registry \
-        -p nsis-pathedit \
-        -p nsis-cleanup \
-        -p nsis-log \
-        -p nsis-tray
+    cargo clean -p mullvad-nsis
 
     clean_solution "./windows/libshared"
     clean_solution "./windows/windows-libraries"
