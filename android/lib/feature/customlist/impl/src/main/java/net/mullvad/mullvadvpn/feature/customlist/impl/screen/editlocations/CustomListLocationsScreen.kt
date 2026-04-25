@@ -18,6 +18,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -133,6 +136,7 @@ fun CustomListLocationsScreen(
         },
     ) { modifier ->
         Column(modifier = modifier) {
+            var searchTerm by rememberSaveable() { mutableStateOf("") }
             SearchTextField(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -142,6 +146,7 @@ fun CustomListLocationsScreen(
                 textColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
+                searchTerm = searchString
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
@@ -169,6 +174,7 @@ fun CustomListLocationsScreen(
                     is Lce.Content -> {
                         content(
                             uiState = state.content.value,
+                            searchTerm = searchTerm,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
@@ -215,6 +221,7 @@ private fun LazyListScope.empty() {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsData,
+    searchTerm: String,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
@@ -227,6 +234,7 @@ private fun LazyListScope.content(
             CheckableRelayListItem(
                 modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
                 item = listItem,
+                searchTerm = searchTerm,
                 onRelayCheckedChange = { isChecked ->
                     onRelaySelectedChanged(listItem.item, isChecked)
                 },
