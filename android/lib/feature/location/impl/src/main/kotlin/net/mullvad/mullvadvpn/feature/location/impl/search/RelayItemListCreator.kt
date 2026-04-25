@@ -52,6 +52,7 @@ internal fun relayListItemsSearching(
 
     return createRelayListItemsSearching(
             relayListType = relayListType,
+            searchTerm = searchTerm,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             customLists = filteredCustomLists,
@@ -162,6 +163,7 @@ private fun RelayItemSelection.Multiple.getBy(relayListType: RelayListType.Multi
 
 private fun createRelayListItemsSearching(
     relayListType: RelayListType,
+    searchTerm: String,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -170,6 +172,7 @@ private fun createRelayListItemsSearching(
 ): List<RelayListItem> =
     createCustomListSectionSearching(
         relayListType = relayListType,
+        searchTerm = searchTerm,
         selectedByThisEntryExitList = selectedByThisEntryExitList,
         selectedByOtherEntryExitList = selectedByOtherEntryExitList,
         customLists = customLists,
@@ -178,6 +181,7 @@ private fun createRelayListItemsSearching(
         createLocationSectionSearching(
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             relayListType = relayListType,
+            searchTerm = searchTerm,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             countries = countries,
             isExpanded = isExpanded,
@@ -195,6 +199,7 @@ private fun createCustomListSection(
         createCustomListRelayItems(
             customLists = customLists,
             relayListType = relayListType,
+            searchTerm = "",
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
             isExpanded = isExpanded,
@@ -205,6 +210,7 @@ private fun createCustomListSection(
 
 private fun createCustomListSectionSearching(
     relayListType: RelayListType,
+    searchTerm: String,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -216,6 +222,7 @@ private fun createCustomListSectionSearching(
             createCustomListRelayItems(
                 customLists = customLists,
                 relayListType = relayListType,
+                searchTerm = searchTerm,
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                 isExpanded = isExpanded,
@@ -227,6 +234,7 @@ private fun createCustomListSectionSearching(
 private fun createCustomListRelayItems(
     customLists: List<RelayItem.CustomList>,
     relayListType: RelayListType,
+    searchTerm: String,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     isExpanded: (String) -> Boolean,
@@ -239,6 +247,7 @@ private fun createCustomListRelayItems(
         add(
             RelayListItem.CustomListItem(
                 item = customList,
+                highlight = searchTerm,
                 isSelected = selectedByThisEntryExitList == customList.id,
                 state =
                     customList.createState(
@@ -285,6 +294,7 @@ private fun createLocationSection(
         countries.flatMap { country ->
             createGeoLocationEntry(
                 item = country,
+                searchTerm = "",
                 selectedByThisEntryExitList = selectedByThisEntryExitList,
                 relayListType = relayListType,
                 selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -298,6 +308,7 @@ private fun createLocationSection(
 private fun createLocationSectionSearching(
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
+    searchTerm: String,
     selectedByOtherEntryExitList: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
@@ -308,6 +319,7 @@ private fun createLocationSectionSearching(
             countries.flatMap { country ->
                 createGeoLocationEntry(
                     item = country,
+                    searchTerm = searchTerm,
                     selectedByThisEntryExitList = selectedByThisEntryExitList,
                     relayListType = relayListType,
                     selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -388,6 +400,7 @@ private fun createCustomListEntry(
 private fun createGeoLocationEntry(
     item: RelayItem.Location,
     relayListType: RelayListType,
+    searchTerm: String,
     selectedByThisEntryExitList: RelayItemId?,
     selectedByOtherEntryExitList: RelayItemId?,
     hierarchy: Hierarchy = Hierarchy.Parent,
@@ -399,6 +412,7 @@ private fun createGeoLocationEntry(
     add(
         RelayListItem.GeoLocationItem(
             item = item,
+            highlight = searchTerm,
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(
@@ -436,6 +450,7 @@ private fun createGeoLocationEntry(
                         createGeoLocationEntry(
                             item = relay,
                             relayListType = relayListType,
+                            searchTerm = searchTerm,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),
@@ -450,6 +465,7 @@ private fun createGeoLocationEntry(
                         createGeoLocationEntry(
                             item = city,
                             relayListType = relayListType,
+                            searchTerm = searchTerm,
                             selectedByThisEntryExitList = selectedByThisEntryExitList,
                             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
                             hierarchy = hierarchy.nextDown(),

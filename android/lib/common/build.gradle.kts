@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.mullvad.android.library)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.mullvad.unit.test)
 }
 
 android { namespace = "net.mullvad.mullvadvpn.lib.common" }

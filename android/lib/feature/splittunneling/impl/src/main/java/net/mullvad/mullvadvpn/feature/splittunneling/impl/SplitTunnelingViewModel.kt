@@ -33,8 +33,14 @@ class SplitTunnelingViewModel(
                 Lc.Content(
                     SplitTunnelingUiState(
                         enabled = enabled,
-                        excludedApps = splitApps.excludedApps,
-                        includedApps = splitApps.includedApps,
+                        excludedApps =
+                            splitApps.excludedApps.map {
+                                AppItem(title = it.name, packageName = it.packageName)
+                            },
+                        includedApps =
+                            splitApps.includedApps.map {
+                                AppItem(title = it.name, packageName = it.packageName)
+                            },
                         showSystemApps = showSystemApps,
                         isModal = isModal,
                     )

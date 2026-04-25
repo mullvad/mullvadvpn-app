@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.utils
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import net.mullvad.mullvadvpn.lib.ui.component.appendTextWithStyledSubstring
 import org.junit.jupiter.api.Test
 
@@ -92,5 +93,77 @@ class AppendTextWithStyledSubstringTest {
 
         assertEquals(27, output.spanStyles[1].start)
         assertEquals(35, output.spanStyles[1].end)
+    }
+
+    @Test
+    fun `when substring does not match should not apply any styling`() {
+
+        val text = "Cool Cat"
+        val substring = "xyz"
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substring = substring,
+                substringStyle = SpanStyle(),
+            )
+        }
+
+        assertEquals(text, output.text)
+        assertTrue(output.spanStyles.isEmpty())
+    }
+
+    @Test
+    fun `when substring matches part of the text in different case and ignore case is true should apply styling`() {
+
+        val text = "Cool Cat"
+        val substring = "cat"
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substring = substring,
+                substringStyle = SpanStyle(),
+                ignoreCase = true,
+            )
+        }
+
+        assertEquals(1, output.spanStyles.size)
+    }
+
+    @Test
+    fun `when substring matches part of the text in different case and ignore case is true output text should be the same`() {
+
+        val text = "ABCDE"
+        val substring = "abc"
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substring = substring,
+                substringStyle = SpanStyle(),
+                ignoreCase = true,
+            )
+        }
+
+        assertEquals(text, output.text)
+    }
+
+    @Test
+    fun `when substring matches part of the text in different cases and ignore case is false it should not apply styling`() {
+
+        val text = "Cool Cat"
+        val substring = "Cool cat"
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substring = substring,
+                substringStyle = SpanStyle(),
+                ignoreCase = false,
+            )
+        }
+
+        assertTrue(output.spanStyles.isEmpty())
     }
 }

@@ -81,12 +81,13 @@ class CustomListLocationsViewModel(
                                     CustomListLocationsData(
                                         searchTerm = searchTerm,
                                         locations =
-                                            filteredRelayCountries.flatMap {
-                                                it.toRelayItems(
+                                            filteredRelayCountries.flatMap { country ->
+                                                country.toRelayItems(
                                                     hierarchy = Hierarchy.Parent,
                                                     isSelected = { it in selectedLocations },
                                                     isExpanded = { it in expandedLocations },
                                                     isLastChild = true,
+                                                    searchTerm = searchTerm,
                                                 )
                                             },
                                         saveEnabled =
@@ -252,6 +253,7 @@ class CustomListLocationsViewModel(
         locations.flatMap { it.id.ancestors() }.toSet()
 
     private fun RelayItem.Location.toRelayItems(
+        searchTerm: String,
         isSelected: (RelayItem) -> Boolean,
         isExpanded: (RelayItemId) -> Boolean,
         hierarchy: Hierarchy,
@@ -261,6 +263,7 @@ class CustomListLocationsViewModel(
         add(
             CheckableRelayListItem(
                 item = this@toRelayItems,
+                highlight = searchTerm,
                 hierarchy = hierarchy,
                 checked = isSelected(this@toRelayItems),
                 expanded = expanded,
@@ -283,6 +286,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == relays.lastIndex,
+                                searchTerm = searchTerm,
                             )
                         }
                     )
@@ -295,6 +299,7 @@ class CustomListLocationsViewModel(
                                 isExpanded = isExpanded,
                                 hierarchy = hierarchy.nextDown(),
                                 isLastChild = isLastChild && index == cities.lastIndex,
+                                searchTerm = searchTerm,
                             )
                         }
                     )
