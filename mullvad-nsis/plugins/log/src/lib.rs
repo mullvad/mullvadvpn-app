@@ -6,15 +6,12 @@
 //! - `LogWithDetails` - write a message with indented details
 //! - `LogWindowsVersion` - log the Windows version string
 //! - `GetWindowsMajorVersion` - push Windows major version onto the NSIS stack
-//! - `PluginLog` - write a message from another plugin (C-compatible)
-//! - `PluginLogWithDetails` - write a message with details from another plugin (C-compatible)
 
 #![cfg(all(target_arch = "x86", target_os = "windows"))]
 
 use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{self, Write};
-use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
@@ -283,94 +280,3 @@ fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
     unsafe { pushint(value) }
 }
 
-// ============================================================================
-// Inter-plugin API (called from other plugins via GetProcAddress or DLL import)
-// These use a plain C-compatible wide string interface instead of std::wstring.
-// ============================================================================
-
-/// Write a message to the log from another plugin.
-///
-/// # Safety
-///
-/// `message` must be a valid null-terminated wide string (UTF-16).
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn PluginLog(message: *const u16) {
-    if message.is_null() {
-        return;
-    }
-
-    // Find null terminator
-    let len = {
-        let mut i = 0;
-        while unsafe { *message.add(i) } != 0 {
-            i += 1;
-        }
-        i
-    };
-
-    let wide = unsafe { std::slice::from_raw_parts(message, len) };
-    let s = std::ffi::OsString::from_wide(wide);
-    let msg = s.to_string_lossy();
-
-    if let Ok(mut guard) = LOGGER.lock() {
-        if let Some(logger) = guard.as_mut() {
-            logger.log(&msg);
-        }
-    }
-}
-
-/// Write a message with details to the log from another plugin.
-///
-/// # Safety
-///
-/// `message` must be a valid null-terminated wide string.
-/// `details` must be a null-terminated array of null-terminated wide strings, or null.
-#[unsafe(no_mangle)]
-pub unsafe extern "C" fn PluginLogWithDetails(
-    message: *const u16,
-    details: *const *const u16,
-    num_details: u32,
-) {
-    if message.is_null() {
-        return;
-    }
-
-    let read_wide_str = |ptr: *const u16| -> String {
-        let len = {
-            let mut i = 0;
-            while unsafe { *ptr.add(i) } != 0 {
-                i += 1;
-            }
-            i
-        };
-        let wide = unsafe { std::slice::from_raw_parts(ptr, len) };
-        std::ffi::OsString::from_wide(wide)
-            .to_string_lossy()
-            .into_owned()
-    };
-
-    let msg = read_wide_str(message);
-
-    let detail_strings: Vec<String> = if details.is_null() || num_details == 0 {
-        vec![]
-    } else {
-        (0..num_details as usize)
-            .map(|i| {
-                let ptr = unsafe { *details.add(i) };
-                if ptr.is_null() {
-                    String::new()
-                } else {
-                    read_wide_str(ptr)
-                }
-            })
-            .collect()
-    };
-
-    let detail_refs: Vec<&str> = detail_strings.iter().map(|s| s.as_str()).collect();
-
-    if let Ok(mut guard) = LOGGER.lock() {
-        if let Some(logger) = guard.as_mut() {
-            logger.log_with_details(&msg, &detail_refs);
-        }
-    }
-}
