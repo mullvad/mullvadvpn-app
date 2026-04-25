@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Checkbox
@@ -52,6 +53,29 @@ private fun PreviewCheckableListItem() {
 @Composable
 fun CheckableListItem(
     title: String,
+    modifier: Modifier = Modifier,
+    hierarchy: Hierarchy = Hierarchy.Parent,
+    position: Position = Position.Single,
+    isChecked: Boolean,
+    isEnabled: Boolean = true,
+    onCheckedChange: (isChecked: Boolean) -> Unit,
+    trailingContent: @Composable ((BoxScope.() -> Unit))? = null,
+) {
+    CheckableListItem(
+        title = AnnotatedString(title),
+        modifier = modifier,
+        hierarchy = hierarchy,
+        position = position,
+        isChecked = isChecked,
+        isEnabled = isEnabled,
+        onCheckedChange = onCheckedChange,
+        trailingContent = trailingContent,
+    )
+}
+
+@Composable
+fun CheckableListItem(
+    title: AnnotatedString,
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,

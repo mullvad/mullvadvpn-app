@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlin.collections.isNotEmpty
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.CommonContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.ContentType
@@ -173,6 +174,7 @@ private fun LazyListScope.appList(
             onResolveIcon = onResolveIcon,
             enabled = true,
             excluded = true,
+            searchTerm = state.searchTerm,
         )
         spacer()
     }
@@ -189,6 +191,7 @@ private fun LazyListScope.appList(
             onResolveIcon = onResolveIcon,
             enabled = true,
             excluded = false,
+            searchTerm = state.searchTerm,
         )
         spacer()
     }

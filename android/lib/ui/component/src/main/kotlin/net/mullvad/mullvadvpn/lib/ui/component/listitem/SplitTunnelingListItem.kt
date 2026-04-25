@@ -19,7 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,6 +36,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.component.appendTextWithStyledSubstring
 
 @Preview
 @Composable
@@ -38,6 +44,7 @@ private fun PreviewSplitTunnelingListItem() {
     PreviewColumn {
         SplitTunnelingListItem(
             title = "Removable App",
+            searchTerm = "",
             isEnabled = true,
             onCellClicked = {},
             isSelected = true,
@@ -45,6 +52,7 @@ private fun PreviewSplitTunnelingListItem() {
         )
         SplitTunnelingListItem(
             title = "Addable App",
+            searchTerm = "app",
             isEnabled = true,
             onCellClicked = {},
             isSelected = false,
@@ -60,12 +68,25 @@ private fun PreviewSplitTunnelingListItem() {
     }
 }
 
+private fun highlightText(text: String, searchTerm: String): AnnotatedString {
+    if (searchTerm.isBlank()) return AnnotatedString(text)
+    return buildAnnotatedString {
+        appendTextWithStyledSubstring(
+            text = text,
+            substring = searchTerm,
+            substringStyle = SpanStyle(fontWeight = FontWeight.Bold),
+            ignoreCase = true,
+        )
+    }
+}
+
 @Composable
 fun SplitTunnelingListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Middle,
     title: String,
+    searchTerm: String = "",
     iconState: IconState,
     isEnabled: Boolean = true,
     isSelected: Boolean,
@@ -80,7 +101,7 @@ fun SplitTunnelingListItem(
         onClick = onCellClicked,
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
-        content = { Text(title) },
+        content = { Text(highlightText(title, searchTerm)) },
         leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(
