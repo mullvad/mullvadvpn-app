@@ -32,7 +32,7 @@ pub fn get_status() -> LaunchDaemonStatus {
     }
     // SAFETY: daemon_plist_path is not an empty path & it is a valid system path.
     // https://developer.apple.com/documentation/foundation/nsurl/fileurl(withpath:)#parameters
-    let daemon_plist_url = unsafe { NSURL::fileURLWithPath(ns_string!(DAEMON_PLIST_PATH)) };
+    let daemon_plist_url = NSURL::fileURLWithPath(ns_string!(DAEMON_PLIST_PATH));
     get_status_for_url(&daemon_plist_url)
 }
 
