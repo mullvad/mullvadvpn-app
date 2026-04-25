@@ -1,4 +1,4 @@
-//! NSIS cleanup plugin: cleanup operations for the Mullvad VPN installer.
+//! Cleanup operations for the Mullvad VPN installer.
 //!
 //! Exports:
 //! - `RemoveLogsAndCache` - remove all logs and cache for all users
@@ -8,44 +8,32 @@
 //! - `CloseHoggingProcesses` - close processes blocking the install directory
 //! - `IsEmptyDir` - check if a directory contains only subdirectories (no files)
 
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
-
+use std::fs;
 use std::io;
-use std::os::windows::ffi::OsStrExt;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::ptr;
 
 use anyhow::Context;
 use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
-use widestring::U16CStr;
-
-/// NSIS status codes returned to the installer scripts.
-#[derive(Clone, Copy)]
-#[repr(i32)]
-enum NsisStatus {
-    GeneralError = 0,
-    Success = 1,
-    FileExists = 2,
-    Cancelled = 3,
-}
-use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL, LocalFree, S_OK};
+use widestring::U16CString;
+use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL};
 use windows_sys::Win32::Security::Authorization::{
-    EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
-    SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
+    GetNamedSecurityInfoW, SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W,
+    GRANT_ACCESS, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
 };
 use windows_sys::Win32::Security::{
-    ACL, CreateWellKnownSid, DACL_SECURITY_INFORMATION, NO_INHERITANCE,
-    SUB_CONTAINERS_AND_OBJECTS_INHERIT, WinBuiltinAdministratorsSid,
+    CreateWellKnownSid, WinBuiltinAdministratorsSid, ACL, DACL_SECURITY_INFORMATION,
+    NO_INHERITANCE, SUB_CONTAINERS_AND_OBJECTS_INHERIT,
 };
 use windows_sys::Win32::Storage::FileSystem::MAX_SID_SIZE;
-use windows_sys::Win32::System::Com::CoTaskMemFree;
 use windows_sys::Win32::Storage::FileSystem::{
     Wow64DisableWow64FsRedirection, Wow64RevertWow64FsRedirection,
 };
 use windows_sys::Win32::UI::Shell::{
-    FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData, KF_FLAG_DEFAULT,
-    SHGetKnownFolderPath,
+    FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData,
 };
+
+use crate::{get_known_folder_path, NsisStatus};
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -57,9 +45,9 @@ struct ScopedNativeFileSystem {
 impl ScopedNativeFileSystem {
     fn new() -> Self {
         let mut old_value: *mut std::ffi::c_void = ptr::null_mut();
-        // SAFETY: `&mut old_value` points to a stack-local for the API to
+        // SAFETY: `&raw mut old_value` points to a stack-local for the API to
         // fill in with the previous redirection cookie.
-        let result = unsafe { Wow64DisableWow64FsRedirection(&mut old_value) };
+        let result = unsafe { Wow64DisableWow64FsRedirection(&raw mut old_value) };
         ScopedNativeFileSystem {
             old_value,
             active: result != 0,
@@ -78,39 +66,53 @@ impl Drop for ScopedNativeFileSystem {
     }
 }
 
-/// Frees a local-heap allocation (via LocalFree) on drop.
-struct LocalFreeGuard(*mut std::ffi::c_void);
+mod guard {
+    use windows_sys::Win32::Foundation::LocalFree;
 
-impl LocalFreeGuard {
-    fn from_ptr(p: *mut std::ffi::c_void) -> Self {
-        LocalFreeGuard(p)
+    /// Frees a local-heap allocation (via LocalFree) on drop.
+    pub struct LocalFreeGuard<T>(*mut T);
+
+    impl<T> LocalFreeGuard<T> {
+        /// Create a guard for an object that's destroyed with `LocalFree`
+        /// when this is dropped.
+        ///
+        /// # Safety
+        ///
+        /// It must be correct to free `p` with `LocalFree`. This function transfers ownership of
+        /// `p` to this object.
+        pub unsafe fn from_ptr(p: *mut T) -> Self {
+            LocalFreeGuard(p)
+        }
+
+        /// Return the underlying pointer.
+        pub fn as_ptr(&self) -> *const T {
+            self.0
+        }
+    }
+
+    impl<T> Drop for LocalFreeGuard<T> {
+        fn drop(&mut self) {
+            // SAFETY: `self.0` was allocated by a Win32 function that returns
+            // a LocalAlloc-style handle (e.g. `SetEntriesInAclW`); we own it
+            // uniquely and have not freed it.
+            unsafe { LocalFree(self.0.cast()) };
+        }
     }
 }
 
-impl Drop for LocalFreeGuard {
-    fn drop(&mut self) {
-        // SAFETY: `self.0` was allocated by a Win32 function that returns
-        // a LocalAlloc-style handle (e.g. `SetEntriesInAclW`); we own it
-        // uniquely and have not freed it.
-        unsafe { LocalFree(self.0) };
-    }
-}
+use guard::LocalFreeGuard;
 
 /// Self-relative security descriptor returned by `GetNamedSecurityInfoW`.
 /// The borrowed DACL pointer lives as long as `self`.
 struct SecurityDescriptor {
-    sd: *mut std::ffi::c_void,
     dacl: *mut ACL,
+    _sd: LocalFreeGuard<std::ffi::c_void>,
 }
 
 impl SecurityDescriptor {
     /// Fetch the DACL-only security descriptor for a filesystem path.
     fn from_path(path: &Path) -> io::Result<Self> {
-        let path_wide: Vec<u16> = path
-            .as_os_str()
-            .encode_wide()
-            .chain(std::iter::once(0))
-            .collect();
+        let path_wide = U16CString::from_os_str_truncate(path);
         let mut dacl: *mut ACL = ptr::null_mut();
         let mut sd: *mut std::ffi::c_void = ptr::null_mut();
         // SAFETY: `path_wide` is a null-terminated wide string. Owner/group/
@@ -124,15 +126,17 @@ impl SecurityDescriptor {
                 DACL_SECURITY_INFORMATION,
                 ptr::null_mut(),
                 ptr::null_mut(),
-                &mut dacl,
+                &raw mut dacl,
                 ptr::null_mut(),
-                &mut sd,
+                &raw mut sd,
             )
         };
         if result != ERROR_SUCCESS {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
-        Ok(Self { sd, dacl })
+        // SAFETY: The security descriptor must be freed with `LocalFree`.
+        let _sd = unsafe { LocalFreeGuard::from_ptr(sd) };
+        Ok(Self { _sd, dacl })
     }
 
     /// Borrow the DACL pointer (valid for `&self`'s lifetime).
@@ -141,63 +145,11 @@ impl SecurityDescriptor {
     }
 }
 
-impl Drop for SecurityDescriptor {
-    fn drop(&mut self) {
-        // SAFETY: `self.sd` was allocated by `GetNamedSecurityInfoW` and
-        // is owned uniquely by `self`.
-        unsafe { LocalFree(self.sd) };
-    }
-}
-
-/// Get the path for a known Windows folder.
-///
-/// # Safety
-///
-/// `folder_id` must point to a valid KNOWNFOLDERID GUID.
-unsafe fn get_known_folder_path(
-    folder_id: *const windows_sys::core::GUID,
-) -> io::Result<PathBuf> {
-    let mut path_ptr: windows_sys::core::PWSTR = ptr::null_mut();
-    // SAFETY: `folder_id` is a valid KNOWNFOLDERID per this fn's contract;
-    // null token uses the calling thread's identity; `&mut path_ptr` is a
-    // stack-local for the API to fill in with a CoTaskMem-allocated PWSTR.
-    let status = unsafe {
-        SHGetKnownFolderPath(
-            folder_id,
-            KF_FLAG_DEFAULT as u32,
-            ptr::null_mut(),
-            &mut path_ptr,
-        )
-    };
-
-    let result = if status == S_OK {
-        // SAFETY: on success `path_ptr` points to a null-terminated wide
-        // string allocated by `SHGetKnownFolderPath`, valid until the
-        // `CoTaskMemFree` below.
-        let wide = unsafe { U16CStr::from_ptr_str(path_ptr) };
-        Ok(PathBuf::from(wide.to_os_string()))
-    } else {
-        Err(io::Error::from_raw_os_error(status))
-    };
-
-    // `SHGetKnownFolderPath` requires the caller to free the buffer even on
-    // failure (the API may allocate before returning an error code). A null
-    // `path_ptr` is a documented no-op for `CoTaskMemFree`.
-    // SAFETY: `path_ptr` was either allocated by `SHGetKnownFolderPath`
-    // (CoTaskMem) or is null; either way `CoTaskMemFree` is sound.
-    unsafe { CoTaskMemFree(path_ptr.cast()) };
-    result
-}
-
 /// Add Administrators group to the DACL of a filesystem path, granting full control.
 fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     let sd = SecurityDescriptor::from_path(path)?;
 
-    let path_wide: Vec<u16> = path
-        .as_os_str()
-        .encode_wide()
-        .chain(std::iter::once(0))
-        .collect();
+    let path_wide = U16CString::from_os_str_truncate(path);
 
     // Build the Administrators SID.
     let mut admin_sid = [0u8; MAX_SID_SIZE as usize];
@@ -210,7 +162,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
             WinBuiltinAdministratorsSid,
             ptr::null_mut(),
             admin_sid.as_mut_ptr().cast(),
-            &mut sid_size,
+            &raw mut sid_size,
         )
     } == 0
     {
@@ -236,13 +188,14 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     // SAFETY: `&ea` points to one fully-initialized `EXPLICIT_ACCESS_W`,
     // `sd.dacl()` is the DACL borrowed from `sd` (live for `&sd`'s scope),
     // and `&mut new_dacl` is a stack-local for the API to fill in.
-    let result = unsafe { SetEntriesInAclW(1, &ea, sd.dacl(), &mut new_dacl) };
+    let result = unsafe { SetEntriesInAclW(1, &raw const ea, sd.dacl(), &raw mut new_dacl) };
 
     if result != ERROR_SUCCESS {
         return Err(io::Error::from_raw_os_error(result as i32));
     }
 
-    let _dacl_guard = LocalFreeGuard::from_ptr(new_dacl.cast());
+    // SAFETY: This object must be destroyed with `LocalFree`.
+    let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl.cast()) };
 
     // SAFETY: `path_wide` is a null-terminated wide string; only the DACL
     // pointer is non-null (the API only modifies the DACL portion).
@@ -253,7 +206,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
             DACL_SECURITY_INFORMATION,
             ptr::null_mut(),
             ptr::null_mut(),
-            new_dacl,
+            new_dacl.as_ptr(),
             ptr::null_mut(),
         )
     };
@@ -262,7 +215,6 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     }
     Ok(())
 }
-
 
 /// `remove_dir_all` that treats a missing path as success.
 fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
@@ -275,14 +227,12 @@ fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
 
 /// Remove Mullvad VPN data from the current user's LocalAppData and RoamingAppData.
 fn remove_logs_cache_current_user() -> anyhow::Result<()> {
-    // SAFETY: `FOLDERID_LocalAppData` is a valid KNOWNFOLDERID static.
-    let local_appdata = unsafe { get_known_folder_path(&FOLDERID_LocalAppData) }
-        .context("FOLDERID_LocalAppData")?;
+    let local_appdata =
+        get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
     remove_dir_all_if_exists(&local_appdata.join("Mullvad VPN"))?;
 
-    // SAFETY: `FOLDERID_RoamingAppData` is a valid KNOWNFOLDERID static.
-    let roaming_appdata = unsafe { get_known_folder_path(&FOLDERID_RoamingAppData) }
-        .context("FOLDERID_RoamingAppData")?;
+    let roaming_appdata =
+        get_known_folder_path(&FOLDERID_RoamingAppData).context("FOLDERID_RoamingAppData")?;
     remove_dir_all_if_exists(&roaming_appdata.join("Mullvad VPN"))?;
 
     Ok(())
@@ -290,16 +240,10 @@ fn remove_logs_cache_current_user() -> anyhow::Result<()> {
 
 /// Remove Mullvad VPN data from all other users' app data directories.
 fn remove_logs_cache_other_users() -> anyhow::Result<()> {
-    // SAFETY: `FOLDERID_Profile` is a valid KNOWNFOLDERID static.
-    let home_dir = unsafe { get_known_folder_path(&FOLDERID_Profile) }
-        .context("FOLDERID_Profile")?;
-
-    // SAFETY: `FOLDERID_LocalAppData` is a valid KNOWNFOLDERID static.
-    let local_appdata = unsafe { get_known_folder_path(&FOLDERID_LocalAppData) }
-        .context("FOLDERID_LocalAppData")?;
-
-    // SAFETY: `FOLDERID_RoamingAppData` is a valid KNOWNFOLDERID static.
-    let roaming_appdata = unsafe { get_known_folder_path(&FOLDERID_RoamingAppData) }.ok();
+    let home_dir = get_known_folder_path(&FOLDERID_Profile).context("FOLDERID_Profile")?;
+    let local_appdata =
+        get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
+    let roaming_appdata = get_known_folder_path(&FOLDERID_RoamingAppData).ok();
 
     // Find relative path from home to LocalAppData (e.g., "AppData\Local")
     let rel_local = local_appdata
@@ -328,10 +272,7 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
     for entry in entries.flatten() {
         let file_name = entry.file_name();
 
-        if file_name == current_user
-            || file_name == "All Users"
-            || file_name == "Public"
-        {
+        if file_name == current_user || file_name == "All Users" || file_name == "Public" {
             continue;
         }
 
@@ -356,28 +297,28 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
 
 /// Remove log files from the service user's ProgramData\Mullvad VPN directory.
 fn remove_logs_service_user() -> anyhow::Result<()> {
-    let program_data = mullvad_paths::windows::get_allusersprofile_dir()
-        .context("get allusersprofile dir")?;
-    let app_dir = program_data.join("Mullvad VPN");
+    let log_dir = mullvad_paths::get_default_log_dir().context("get allusersprofile log dir")?;
 
     // Remove only files; leave subdirectories untouched.
-    let entries = match std::fs::read_dir(&app_dir) {
+    let entries = match std::fs::read_dir(&log_dir) {
         Ok(e) => e,
         Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(()),
         Err(e) => {
             return Err(anyhow::Error::from(e))
-                .with_context(|| format!("read_dir {}", app_dir.display()));
+                .with_context(|| format!("read_dir {}", log_dir.display()));
         }
     };
-    for entry in entries.flatten() {
-        if entry.file_type().map(|t| t.is_file()).unwrap_or(false) {
-            std::fs::remove_file(entry.path())
-                .with_context(|| format!("remove {}", entry.path().display()))?;
-        }
+
+    for entry in entries
+        .flatten()
+        .filter(|entry| entry.file_type().as_ref().is_ok_and(fs::FileType::is_file))
+    {
+        std::fs::remove_file(entry.path())
+            .with_context(|| format!("remove {}", entry.path().display()))?;
     }
 
     // Try to remove the now-empty directory; ignore failure if non-empty.
-    let _ = std::fs::remove_dir(&app_dir);
+    let _ = std::fs::remove_dir(log_dir);
     Ok(())
 }
 
@@ -396,9 +337,8 @@ fn remove_cache_service_user() -> anyhow::Result<()> {
 
 /// Remove the service user's settings directory.
 fn remove_settings_service_user() -> anyhow::Result<()> {
-    let local_appdata = mullvad_paths::windows::get_system_service_appdata()
-        .context("get system service appdata")?;
-    let mullvad_appdata = local_appdata.join("Mullvad VPN");
+    let mullvad_appdata =
+        mullvad_paths::get_default_settings_dir().context("get system service appdata")?;
 
     let _native = ScopedNativeFileSystem::new();
     add_admin_to_object_dacl(&mullvad_appdata)
@@ -444,20 +384,22 @@ fn remove_api_address_cache_service_user() -> anyhow::Result<()> {
 // Pushes a status code.
 #[nsis_fn]
 fn RemoveLogsAndCache() -> Result<(), nsis_plugin_api::Error> {
-    let mut success = true;
-    for result in [
+    let result = [
         remove_logs_cache_current_user(),
         remove_logs_cache_other_users(),
         remove_cache_service_user(),
         remove_logs_service_user(),
-    ] {
-        if result.is_err() {
-            success = false;
-        }
-    }
+    ]
+    .into_iter()
+    .collect::<anyhow::Result<()>>();
 
-    let status = if success { NsisStatus::Success } else { NsisStatus::GeneralError };
-    // SAFETY: `exdll_init` was called.
+    let status = if result.is_ok() {
+        NsisStatus::Success
+    } else {
+        NsisStatus::GeneralError
+    };
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }
 
@@ -471,7 +413,8 @@ fn RemoveSettings() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => NsisStatus::Success,
         Err(_) => NsisStatus::GeneralError,
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }
 
@@ -485,7 +428,8 @@ fn RemoveRelayCache() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -502,7 +446,8 @@ fn RemoveApiAddressCache() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -516,18 +461,18 @@ fn RemoveApiAddressCache() -> Result<(), nsis_plugin_api::Error> {
 // Pushes error message and status code.
 #[nsis_fn]
 fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let (install_path, allow_cancellation) = unsafe { (popstr()?, popint()? != 0) };
 
-    let (message, status) = match mullvad_nsis::handle::terminate_processes(
-        &install_path,
-        allow_cancellation,
-    ) {
-        Ok(true) => (String::new(), NsisStatus::Success),
-        Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
-        Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
-    };
-    // SAFETY: `exdll_init` was called.
+    let (message, status) =
+        match crate::handle::terminate_processes(&install_path, allow_cancellation) {
+            Ok(true) => (String::new(), NsisStatus::Success),
+            Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
+            Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
+        };
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -540,14 +485,16 @@ fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
 // Pushes SUCCESS if empty, FILE_EXISTS if files found, GENERAL_ERROR on error.
 #[nsis_fn]
 fn IsEmptyDir() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let path = unsafe { popstr()? };
 
-    let status = match mullvad_nsis::handle::is_empty_dir(&path) {
+    let status = match crate::handle::is_empty_dir(&path) {
         Ok(true) => NsisStatus::Success,
         Ok(false) => NsisStatus::FileExists,
         Err(_) => NsisStatus::GeneralError,
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }

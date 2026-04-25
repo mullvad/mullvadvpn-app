@@ -1,4 +1,4 @@
-//! NSIS log plugin: installer logging for the Mullvad VPN installer.
+//! Installer logging.
 //!
 //! Exports:
 //! - `SetLogTarget` - open the log file (install.log / uninstall.log)
@@ -7,21 +7,19 @@
 //! - `LogWindowsVersion` - log the Windows version string
 //! - `GetWindowsMajorVersion` - push Windows major version onto the NSIS stack
 
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
-
-use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::Path;
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
+use anyhow::{Context, bail};
 use nsis_plugin_api::{nsis_fn, popint, pushint};
+use windows_sys::Win32::Foundation::{MAX_PATH, SYSTEMTIME};
 use windows_sys::Win32::System::LibraryLoader::{
     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
     GetModuleFileNameW, GetModuleHandleExW, LoadLibraryW,
 };
-use windows_sys::Win32::Foundation::SYSTEMTIME;
 use windows_sys::Win32::System::SystemInformation::GetLocalTime;
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetActiveWindow;
 use windows_sys::Win32::UI::WindowsAndMessaging::{MB_OK, MessageBoxA};
@@ -58,8 +56,8 @@ struct Logger {
 }
 
 impl Logger {
-    fn new(path: PathBuf) -> io::Result<Self> {
-        let file = File::create(&path)?;
+    fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let file = File::create(path)?;
         Ok(Logger { file })
     }
 
@@ -80,15 +78,12 @@ impl Logger {
     }
 }
 
-/// Format a timestamp string in [YYYY-MM-DD HH:MM:SS.mmm] format.
+/// Format a local-time timestamp string in [YYYY-MM-DD HH:MM:SS.mmm] format.
 fn timestamp() -> String {
     let mut time = SYSTEMTIME::default();
     // SAFETY: `&mut time` points to a stack-local SYSTEMTIME the API fills in.
-    unsafe { GetLocalTime(&mut time) };
-
-    let mut s = String::with_capacity(24);
-    let _ = write!(
-        s,
+    unsafe { GetLocalTime(&raw mut time) };
+    format!(
         "[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}]",
         time.wYear,
         time.wMonth,
@@ -97,8 +92,7 @@ fn timestamp() -> String {
         time.wMinute,
         time.wSecond,
         time.wMilliseconds
-    );
-    s
+    )
 }
 
 /// Pin the DLL by incrementing its reference count 100 times.
@@ -114,14 +108,14 @@ fn pin_dll() {
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
                     | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                 (pin_dll as *const ()).cast(),
-                &mut module,
+                &raw mut module,
             )
         };
         if success == 0 {
             return;
         }
 
-        let mut path = [0u16; 260]; // MAX_PATH
+        let mut path = [0u16; MAX_PATH as usize];
         // SAFETY: `module` is a valid module handle returned above and `path`
         // is a writable buffer of `path.len()` u16s.
         let len = unsafe { GetModuleFileNameW(module, path.as_mut_ptr(), path.len() as u32) };
@@ -138,19 +132,6 @@ fn pin_dll() {
     });
 }
 
-/// Get the Windows major version number.
-fn windows_major_version() -> Option<u32> {
-    use talpid_platform_metadata::WindowsVersion;
-    WindowsVersion::from_ntoskrnl()
-        .ok()
-        .map(|v| v.major_version())
-}
-
-/// Get the Windows version string.
-fn windows_version_string() -> String {
-    talpid_platform_metadata::version().to_string()
-}
-
 // ============================================================================
 // NSIS-exported functions
 // ============================================================================
@@ -162,10 +143,11 @@ fn windows_version_string() -> String {
 #[nsis_fn]
 fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
     pin_dll();
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let target_int = unsafe { popint()? };
 
-    let result = (|| -> io::Result<()> {
+    let result = (|| -> anyhow::Result<()> {
         let target = LogTarget::from_i32(target_int);
 
         let mut logger = LOGGER.lock().unwrap_or_else(|e| e.into_inner());
@@ -178,21 +160,11 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
                 return Ok(());
             }
             None => {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid log target",
-                ));
+                bail!("Invalid log target");
             }
         };
 
-        let program_data = mullvad_paths::windows::get_allusersprofile_dir()
-            .map_err(|e| io::Error::other(e.to_string()))?;
-        let log_dir = program_data.join("Mullvad VPN");
-
-        // Create the log directory with privileged access
-        mullvad_paths::windows::create_privileged_directory(&log_dir)
-            .map_err(|e| io::Error::other(format!("create log directory: {e}")))?;
-
+        let log_dir = mullvad_paths::log_dir().context("Failed to get or create log dir")?;
         let log_path = log_dir.join(logfile_name);
         *logger = Some(Logger::new(log_path)?);
 
@@ -200,7 +172,7 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
     })();
 
     if let Err(e) = result {
-        let msg = format!("Failed to set logging plugin target.\n{e}\0");
+        let msg = format!("Failed to set logging plugin target.\n{e:?}\0");
         // SAFETY: `msg` is a null-terminated ANSI string (the trailing `\0`
         // above), and the title argument is permitted to be null. `MB_OK`
         // is a valid flags value. `GetActiveWindow` returns a valid HWND or
@@ -216,7 +188,8 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
 // Writes a message to the log file.
 #[nsis_fn]
 fn Log() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let message = unsafe { nsis_plugin_api::popstr()? };
 
     if let Ok(mut guard) = LOGGER.lock()
@@ -233,9 +206,9 @@ fn Log() -> Result<(), nsis_plugin_api::Error> {
 // Details are newline-separated within a single NSIS string.
 #[nsis_fn]
 fn LogWithDetails() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
-    let (message, details) =
-        unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
+    let (message, details) = unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
     let detail_lines: Vec<&str> = details.lines().collect();
 
     if let Ok(mut guard) = LOGGER.lock()
@@ -254,7 +227,7 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
     if let Ok(mut guard) = LOGGER.lock()
         && let Some(logger) = guard.as_mut()
     {
-        let version = windows_version_string();
+        let version = talpid_platform_metadata::version();
         logger.log(&format!("Windows version: {version}"));
     }
     Ok(())
@@ -265,9 +238,9 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
 // Pushes the Windows major version number onto the NSIS stack. Pushes -1 on error.
 #[nsis_fn]
 fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
-    let value = match windows_major_version() {
-        Some(v) => v as i32,
-        None => {
+    let value = match talpid_platform_metadata::WindowsVersion::from_ntoskrnl() {
+        Ok(v) => v.major_version() as i32,
+        Err(_) => {
             if let Ok(mut guard) = LOGGER.lock()
                 && let Some(logger) = guard.as_mut()
             {
@@ -276,7 +249,7 @@ fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
             -1
         }
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(value) }
 }
-
