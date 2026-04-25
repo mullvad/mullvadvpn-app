@@ -4,33 +4,22 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 
-/**
- * Appends `text` and styles occurrences of `substring` in `text` with the given `substringStyle`.
- */
-fun AnnotatedString.Builder.appendTextWithStyledSubstring(
-    text: String,
-    substring: String,
-    substringStyle: SpanStyle,
-    ignoreCase: Boolean = false,
-    limit: Int = 0,
-) {
-    val parts = text.split(substring, ignoreCase = ignoreCase, limit = limit)
-
-    parts.forEachIndexed { index, part ->
-        append(part)
-        if (index != parts.lastIndex) {
-            withStyle(substringStyle) { append(substring) }
+fun HighlightedString.toAnnotatedString(highlightColor: Color): AnnotatedString =
+    buildAnnotatedString {
+        append(text)
+        highlights.forEach {
+            addStyle(SpanStyle(background = highlightColor), it.first, it.last + 1)
         }
     }
-}
 
 fun CharSequence.toAnnotatedString(): AnnotatedString =
     if (this is Spanned) {
