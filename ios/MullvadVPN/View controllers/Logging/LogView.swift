@@ -39,7 +39,7 @@ class LogView: UIView {
     private var logsArePaused: Bool = false
     private var selectedProcess: InAppLogEntry.Process?
     private var includedLabels: Set<String> = []
-    private var excludedLabels: Set<String> = []
+    private var excludedLabels: Set<String> = ["WireGuard"]
     private var exportTask: Task<Void, Never>?
 
     var onExportLogs: ((String) -> Void)?
