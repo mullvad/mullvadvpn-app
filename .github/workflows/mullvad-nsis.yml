@@ -28,7 +28,6 @@ jobs:
         run: |
           ci/cargo-ci.sh build --target i686-pc-windows-msvc \
             -p mullvad-nsis \
-            -p nsis-string \
             -p nsis-registry \
             -p nsis-pathedit \
             -p nsis-cleanup \
