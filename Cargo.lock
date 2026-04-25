@@ -3172,6 +3172,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "mullvad-paths",
+ "nsis-plugin-api",
  "talpid-platform-metadata",
  "widestring",
  "windows-sys 0.61.2",
@@ -3577,18 +3578,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "nsis-cleanup"
-version = "0.0.0"
-dependencies = [
- "anyhow",
- "mullvad-nsis",
- "mullvad-paths",
- "nsis-plugin-api",
- "widestring",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "nsis-fn"
 version = "0.0.0"
 source = "git+https://github.com/tauri-apps/nsis-tauri-utils?rev=13d9edd27b69310e108d6fbd49f90992f8a05390#13d9edd27b69310e108d6fbd49f90992f8a05390"
@@ -3599,46 +3588,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "nsis-log"
-version = "0.0.0"
-dependencies = [
- "mullvad-nsis",
- "mullvad-paths",
- "nsis-plugin-api",
- "talpid-platform-metadata",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "nsis-pathedit"
-version = "0.0.0"
-dependencies = [
- "nsis-plugin-api",
- "windows-sys 0.61.2",
-]
-
-[[package]]
 name = "nsis-plugin-api"
 version = "0.0.0"
 source = "git+https://github.com/tauri-apps/nsis-tauri-utils?rev=13d9edd27b69310e108d6fbd49f90992f8a05390#13d9edd27b69310e108d6fbd49f90992f8a05390"
 dependencies = [
  "nsis-fn",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "nsis-registry"
-version = "0.0.0"
-dependencies = [
- "nsis-plugin-api",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "nsis-tray"
-version = "0.0.0"
-dependencies = [
- "nsis-plugin-api",
  "windows-sys 0.61.2",
 ]
 

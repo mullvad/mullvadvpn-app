@@ -1,9 +1,7 @@
-//! NSIS tray plugin: tray icon management for the Mullvad VPN installer.
+//! Tray icon management for the Mullvad VPN installer.
 //!
 //! Exports:
 //! - `PromoteTrayIcon` - ensure the Mullvad VPN tray icon is visible in the notification area
-
-#![cfg(all(target_arch = "x86", target_os = "windows"))]
 
 use std::ffi::OsString;
 use std::io;
@@ -13,13 +11,7 @@ use std::ptr;
 
 use nsis_plugin_api::{nsis_fn, pushint, pushstr};
 
-/// NSIS status codes returned to the installer scripts.
-#[derive(Clone, Copy)]
-#[repr(i32)]
-enum NsisStatus {
-    GeneralError = 0,
-    Success = 1,
-}
+use crate::NsisStatus;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, FALSE, FILETIME, HANDLE};
 use windows_sys::Win32::Security::{
