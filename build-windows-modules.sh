@@ -138,7 +138,6 @@ function get_solution_output_path {
 
 function build_nsis_plugins {
     cargo build --release --target i686-pc-windows-msvc \
-        -p nsis-string \
         -p nsis-registry \
         -p nsis-pathedit \
         -p nsis-cleanup \
@@ -148,7 +147,6 @@ function build_nsis_plugins {
 
 function clean_all {
     cargo clean \
-        -p nsis-string \
         -p nsis-registry \
         -p nsis-pathedit \
         -p nsis-cleanup \
