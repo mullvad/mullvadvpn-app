@@ -24,7 +24,8 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                                 cityNames = listOf("City 1", "City 2"),
                                                 relaysPerCity = 2,
                                                 active = true,
-                                            )
+                                            ),
+                                        highlight = "",
                                     ),
                                     CheckableRelayListItem(
                                         item =
@@ -35,7 +36,8 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                                     relaysPerCity = 1,
                                                     active = false,
                                                 )
-                                                .copy(id = GeoLocationId.Country("se"))
+                                                .copy(id = GeoLocationId.Country("se")),
+                                        highlight = "",
                                     ),
                                 ),
                             searchTerm = "",
