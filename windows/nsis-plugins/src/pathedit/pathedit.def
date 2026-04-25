@@ -1,6 +1,0 @@
-LIBRARY pathedit
-
-EXPORTS
-
-AddSysEnvPath
-RemoveSysEnvPath

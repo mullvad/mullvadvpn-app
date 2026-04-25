@@ -1,5 +1,0 @@
-LIBRARY tray
-
-EXPORTS
-
-PromoteTrayIcon
