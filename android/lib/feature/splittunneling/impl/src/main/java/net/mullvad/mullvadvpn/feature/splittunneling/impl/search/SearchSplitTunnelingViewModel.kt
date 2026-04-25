@@ -10,9 +10,11 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
@@ -28,14 +30,8 @@ class SearchSplitTunnelingViewModel(
                 Lc.Content(
                     SearchSplitTunnelingUiState(
                         searchTerm = searchTerm,
-                        excludedApps =
-                            splitApps.excludedApps.filter {
-                                it.name.contains(searchTerm, ignoreCase = true)
-                            },
-                        includedApps =
-                            splitApps.includedApps.filter {
-                                it.name.contains(searchTerm, ignoreCase = true)
-                            },
+                        excludedApps = splitApps.excludedApps.search(searchTerm),
+                        includedApps = splitApps.includedApps.search(searchTerm),
                     )
                 )
             }
@@ -44,6 +40,18 @@ class SearchSplitTunnelingViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(Unit),
             )
+
+    private fun List<AppData>.search(searchTerm: String): List<SearchAppItem> =
+        if (searchTerm.isEmpty()) {
+            map { SearchAppItem.Default(appName = it.name, packageName = it.packageName) }
+        } else {
+            mapNotNull { appData ->
+                    HighlightedString.findHighlights(appData.name, searchTerm)?.let {
+                        SearchAppItem.Match(it, packageName = appData.packageName)
+                    }
+                }
+                .sortedBy { it.appName.highlights.first().first }
+        }
 
     fun onSearchInputChanged(searchTerm: String) {
         viewModelScope.launch { _searchTerm.emit(searchTerm) }

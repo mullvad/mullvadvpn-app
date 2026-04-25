@@ -27,7 +27,7 @@ private fun PreviewCheckableRelayListItem(
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            relayItems.map {
+            relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
                 CheckableRelayListItem(
                     item = CheckableRelayListItem(item = it, itemPosition = Position.Single),

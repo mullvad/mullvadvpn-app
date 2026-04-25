@@ -231,7 +231,7 @@ private fun createCustomListRelayItems(
     selectedByOtherEntryExitList: RelayItemId?,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = customLists.flatMap { customList ->
-    // It is possible for an custom list to be expanded without children if the children were
+    // It is possible for a custom list to be expanded without children if the children were
     // removed after the item was expanded. In those cases we should treat the item as
     // collapsed.
     val expanded = isExpanded(customList.id.expandKey()) && customList.hasChildren

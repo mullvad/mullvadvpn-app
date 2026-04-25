@@ -21,6 +21,7 @@ dependencies {
     implementation(projects.lib.ui.theme)
     implementation(projects.lib.ui.util)
 
+    implementation(libs.arrow)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling)
