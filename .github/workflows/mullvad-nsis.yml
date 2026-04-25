@@ -30,8 +30,7 @@ jobs:
             -p nsis-registry \
             -p nsis-pathedit \
             -p nsis-cleanup \
-            -p nsis-log \
-            -p nsis-tray
+            -p nsis-log
 
       - name: Check working directory is clean
         shell: bash

@@ -332,39 +332,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 !define RemoveSplitTunnelDriver '!insertmacro "RemoveSplitTunnelDriver"'
 
 #
-# InstallTrayIcon
-#
-# Create or update registry entry for tray icon.
-#
-!macro InstallTrayIcon
-
-	log::Log "InstallTrayIcon()"
-
-	Push $0
-	Push $1
-
-	tray::PromoteTrayIcon
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		log::LogWithDetails "Failed to install Mullvad tray icon" $1
-		Goto InstallTrayIcon_return
-	${EndIf}
-
-	log::Log "InstallTrayIcon() completed successfully"
-
-	InstallTrayIcon_return:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define InstallTrayIcon '!insertmacro "InstallTrayIcon"'
-
-#
 # RemoveLogsAndCache
 #
 # Call into helper DLL instructing it to remove all logs and cache
@@ -799,7 +766,6 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 	${EndIf}
 
 	${AddCLIToEnvironPath}
-	${InstallTrayIcon}
 
 	Goto customInstall_skip_abort
 
