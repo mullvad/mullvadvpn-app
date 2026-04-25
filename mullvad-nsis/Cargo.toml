@@ -7,10 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [lib]
-crate-type = ["staticlib", "rlib"]
-
-[target.'cfg(target_os = "windows")'.build-dependencies]
-cbindgen = { version = "0.28.0", default-features = false }
+crate-type = ["rlib"]
 
 [target.i686-pc-windows-msvc.dependencies]
 anyhow.workspace = true
