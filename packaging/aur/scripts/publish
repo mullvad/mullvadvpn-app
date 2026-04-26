@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "usage: $0 <patched-mullvad-vpn-bin|patched-mullvad-vpn>" >&2
+  exit 2
+fi
+
+pkgbase=$1
+
+case "$pkgbase" in
+  patched-mullvad-vpn-bin|patched-mullvad-vpn) ;;
+  *)
+    echo "unknown AUR package base: $pkgbase" >&2
+    exit 2
+    ;;
+esac
+
+repo_root=$(git rev-parse --show-toplevel)
+pkg_dir="$repo_root/packaging/aur/$pkgbase"
+
+if [[ ! -f "$pkg_dir/.SRCINFO" ]]; then
+  echo "$pkg_dir/.SRCINFO is missing. Run packaging/aur/scripts/update-srcinfo $pkgbase first." >&2
+  exit 1
+fi
+
+work_dir="${AUR_PUBLISH_DIR:-$repo_root/.build/aur-publish/$pkgbase}"
+remote="${AUR_REMOTE:-ssh://aur@aur.archlinux.org/$pkgbase.git}"
+
+rm -rf "$work_dir"
+git clone "$remote" "$work_dir"
+
+rsync -a --delete \
+  --exclude '.git' \
+  "$pkg_dir"/ "$work_dir"/
+
+cd "$work_dir"
+
+if [[ -z "$(git status --porcelain)" ]]; then
+  echo "No AUR changes to publish for $pkgbase."
+  exit 0
+fi
+
+git add .
+git commit -m "Update $pkgbase"
+git push origin master

@@ -1,0 +1,12 @@
+post_install() {
+  if [ -f "/usr/bin/apparmor_parser" ]; then
+    apparmor_parser -r /etc/apparmor.d/mullvad || echo "Failed to reload apparmor profile"
+  fi
+}
+
+post_remove() {
+  echo -------------------------------------------------------------
+  echo 'Optionally remove auto-launcher:'
+  echo 'rm ~/.config/autostart/mullvad-vpn.desktop'
+  echo -------------------------------------------------------------
+}

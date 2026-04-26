@@ -1,0 +1,103 @@
+# Maintainer: Tritao <274685803+tritaum@users.noreply.github.com>
+pkgbase=patched-mullvad-vpn
+pkgname=(
+  'patched-mullvad-vpn'
+  'patched-mullvad-vpn-daemon'
+)
+pkgver=2026.2.beta1
+pkgrel=1
+_appver=${pkgver/.beta/-beta}
+_repo=ip-split-tunneling-mullvad
+pkgdesc="Unofficial patched Mullvad VPN client app"
+arch=('x86_64')
+url="https://github.com/tritaum/ip-split-tunneling-mullvad"
+license=('GPL-3.0-or-later')
+depends=(
+  'alsa-lib'
+  'gtk3'
+  'iputils'
+  'libnftnl'
+  'libnotify'
+  'nss'
+)
+makedepends=(
+  'cargo'
+  'git'
+  'go'
+  'nodejs'
+  'npm'
+  'protobuf'
+  'rpm-tools'
+)
+source=("git+$url.git#tag=$_appver"
+        'patched-mullvad-vpn.sh')
+sha256sums=('SKIP'
+            'a59c29f07b4eab9af56f0e8be42bae0d83726f5185e88de0c5a48f4098c3c0a4')
+
+prepare() {
+  cd "$_repo"
+  git submodule update --init --depth=1 dist-assets/binaries
+  git submodule update --init wireguard-go-rs/libwg/wireguard-go
+}
+
+build() {
+  cd "$_repo"
+  ./build.sh --optimize
+}
+
+package_patched-mullvad-vpn() {
+  pkgdesc+=" (desktop application)"
+  depends+=('patched-mullvad-vpn-daemon')
+  optdepends=('libappindicator: tray icon')
+  provides=('mullvad-vpn')
+  conflicts=('mullvad-vpn' 'mullvad-vpn-bin' 'patched-mullvad-vpn-bin')
+  install='patched-mullvad-vpn.install'
+
+  cd "$_repo"
+  install -d "$pkgdir/opt/Mullvad VPN"
+  cp -r dist/linux-unpacked/* "$pkgdir/opt/Mullvad VPN/"
+  chmod 4755 "$pkgdir/opt/Mullvad VPN/chrome-sandbox"
+
+  install -Dm755 "$srcdir/patched-mullvad-vpn.sh" "$pkgdir/usr/bin/patched-mullvad-vpn"
+
+  cd dist
+  ar x *.deb
+  bsdtar -xf data.tar.xz
+  install -Dm644 "usr/share/applications/mullvad-vpn.desktop" -t \
+    "$pkgdir/usr/share/applications/"
+
+  for icon_size in 16 32 48 64 128 256 512 1024; do
+    icons_dir="usr/share/icons/hicolor/${icon_size}x${icon_size}/apps"
+    install -Dm644 "${icons_dir}/mullvad-vpn.png" -t "$pkgdir/${icons_dir}/"
+  done
+
+  install -d "$pkgdir/etc/apparmor.d"
+  ln -s "/opt/Mullvad VPN/resources/apparmor_mullvad" "$pkgdir/etc/apparmor.d/mullvad"
+}
+
+package_patched-mullvad-vpn-daemon() {
+  pkgdesc+=" (daemon and CLI)"
+  depends=(
+    'dbus'
+    'iputils'
+    'libnftnl'
+  )
+  provides=('mullvad-vpn-daemon')
+  conflicts=('mullvad-vpn-daemon' 'mullvad-vpn-daemon-bin' 'patched-mullvad-vpn-daemon-bin')
+  install='patched-mullvad-vpn-daemon.install'
+
+  cd "$_repo"
+  install -Dm755 dist-assets/{mullvad,mullvad{-daemon,-exclude}} -t "$pkgdir/usr/bin/"
+  install -Dm755 dist-assets/mullvad{-problem-report,-setup} -t "$pkgdir/opt/Mullvad VPN/resources/"
+  ln -s "/opt/Mullvad VPN/resources/mullvad-problem-report" "$pkgdir/usr/bin/"
+  install -Dm644 dist-assets/ca.crt -t "$pkgdir/opt/Mullvad VPN/resources/"
+  install -Dm644 build/relays.json -t "$pkgdir/opt/Mullvad VPN/resources/"
+  install -Dm644 dist-assets/linux/mullvad{-daemon,-early-boot-blocking}.service -t \
+    "$pkgdir/usr/lib/systemd/system/"
+  install -Dm644 build/shell-completions/mullvad.bash \
+    "$pkgdir/usr/share/bash-completion/completions/mullvad"
+  install -Dm644 build/shell-completions/_mullvad -t \
+    "$pkgdir/usr/share/zsh/site-functions/"
+  install -Dm644 build/shell-completions/mullvad.fish -t \
+    "$pkgdir/usr/share/fish/vendor_completions.d/"
+}

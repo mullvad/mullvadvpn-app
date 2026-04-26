@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ $# -ne 1 ]]; then
+  echo "usage: $0 <patched-mullvad-vpn-bin|patched-mullvad-vpn>" >&2
+  exit 2
+fi
+
+pkgbase=$1
+
+case "$pkgbase" in
+  patched-mullvad-vpn-bin|patched-mullvad-vpn) ;;
+  *)
+    echo "unknown AUR package base: $pkgbase" >&2
+    exit 2
+    ;;
+esac
+
+if ! command -v makepkg >/dev/null 2>&1; then
+  echo "makepkg is required. Run this on Arch Linux with base-devel installed." >&2
+  exit 127
+fi
+
+repo_root=$(git rev-parse --show-toplevel)
+pkg_dir="$repo_root/packaging/aur/$pkgbase"
+
+(
+  cd "$pkg_dir"
+  makepkg --printsrcinfo > .SRCINFO
+)
