@@ -27,6 +27,10 @@ fi
 work_dir="${AUR_PUBLISH_DIR:-$repo_root/.build/aur-publish/$pkgbase}"
 remote="${AUR_REMOTE:-ssh://aur@aur.archlinux.org/$pkgbase.git}"
 
+if [[ -n "${AUR_SSH_KEY:-}" ]]; then
+  export GIT_SSH_COMMAND="ssh -i $AUR_SSH_KEY -o IdentitiesOnly=yes"
+fi
+
 rm -rf "$work_dir"
 git clone "$remote" "$work_dir"
 
