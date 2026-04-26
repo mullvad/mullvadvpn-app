@@ -57,8 +57,5 @@ post_remove() {
   echo ''
   echo 'Optionally remove config:'
   echo 'sudo rm -rf /etc/mullvad-vpn/'
-  echo ''
-  echo 'Optionally remove app settings:'
-  echo 'rm -rf ~/.config/Mullvad\ VPN/'
   echo -------------------------------------------------------------
 }

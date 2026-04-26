@@ -2,14 +2,14 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "usage: $0 <patched-mullvad-vpn-bin|patched-mullvad-vpn>" >&2
+  echo "usage: $0 <patched-mullvad-vpn-daemon-bin>" >&2
   exit 2
 fi
 
 pkgbase=$1
 
 case "$pkgbase" in
-  patched-mullvad-vpn-bin|patched-mullvad-vpn) ;;
+  patched-mullvad-vpn-daemon-bin) ;;
   *)
     echo "unknown AUR package base: $pkgbase" >&2
     exit 2
