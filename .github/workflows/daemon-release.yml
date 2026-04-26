@@ -1,0 +1,123 @@
+---
+name: Daemon - Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version, for example 2026.2-beta1
+        required: true
+        type: string
+      prerelease:
+        description: Mark the GitHub release as a prerelease
+        required: true
+        type: boolean
+        default: true
+      override_container_image:
+        description: Override container image
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: |
+          echo "inner_container_image=${{ github.event.inputs.override_container_image }}" >> "$GITHUB_ENV"
+
+      - name: Use default container image
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> "$GITHUB_ENV"
+
+  build-linux-daemon:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config --global --add safe.directory '*'
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Checkout submodules
+        run: |
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+      - name: Create local release tag for version resolution
+        run: |
+          version="${{ inputs.version }}"
+          git tag --force "$version" "$GITHUB_SHA"
+
+      - name: Install daemon package tools
+        run: |
+          cargo install cargo-deb cargo-generate-rpm
+
+      - name: Build daemon package
+        run: |
+          ./build.sh --daemon-only --optimize
+
+      - name: Upload daemon build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: daemon-linux-amd64
+          path: |
+            dist/mullvad-vpn-daemon_${{ inputs.version }}_amd64.deb
+            dist/mullvad-vpn-daemon_${{ inputs.version }}_x86_64.rpm
+          if-no-files-found: error
+
+  release:
+    needs: build-linux-daemon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download daemon build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: daemon-linux-amd64
+          path: dist
+
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ inputs.version }}"
+          flags=()
+          if [[ "${{ inputs.prerelease }}" == "true" ]]; then
+            flags+=(--prerelease)
+          fi
+
+          if gh release view "$version" >/dev/null 2>&1; then
+            gh release upload "$version" dist/* --clobber
+          else
+            gh release create "$version" dist/* \
+              --target "$GITHUB_SHA" \
+              --title "$version" \
+              --notes "Daemon-only patched Mullvad VPN release." \
+              "${flags[@]}"
+          fi
