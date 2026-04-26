@@ -47,4 +47,4 @@ fi
 
 git add .
 git commit -m "Update $pkgbase"
-git push origin master
+git push origin HEAD:master
