@@ -26,10 +26,10 @@ use windows_sys::Win32::Security::{
     SUB_CONTAINERS_AND_OBJECTS_INHERIT, WinBuiltinAdministratorsSid,
 };
 use windows_sys::Win32::Storage::FileSystem::MAX_SID_SIZE;
-use windows_sys::Win32::System::Com::CoTaskMemFree;
 use windows_sys::Win32::Storage::FileSystem::{
     Wow64DisableWow64FsRedirection, Wow64RevertWow64FsRedirection,
 };
+use windows_sys::Win32::System::Com::CoTaskMemFree;
 use windows_sys::Win32::UI::Shell::{
     FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData, KF_FLAG_DEFAULT,
     SHGetKnownFolderPath,
@@ -144,9 +144,7 @@ impl Drop for SecurityDescriptor {
 /// # Safety
 ///
 /// `folder_id` must point to a valid KNOWNFOLDERID GUID.
-unsafe fn get_known_folder_path(
-    folder_id: *const windows_sys::core::GUID,
-) -> io::Result<PathBuf> {
+unsafe fn get_known_folder_path(folder_id: *const windows_sys::core::GUID) -> io::Result<PathBuf> {
     let mut path_ptr: windows_sys::core::PWSTR = ptr::null_mut();
     // SAFETY: `folder_id` is a valid KNOWNFOLDERID per this fn's contract;
     // null token uses the calling thread's identity; `&mut path_ptr` is a
@@ -253,7 +251,6 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     Ok(())
 }
 
-
 /// `remove_dir_all` that treats a missing path as success.
 fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
     match std::fs::remove_dir_all(path) {
@@ -281,8 +278,8 @@ fn remove_logs_cache_current_user() -> anyhow::Result<()> {
 /// Remove Mullvad VPN data from all other users' app data directories.
 fn remove_logs_cache_other_users() -> anyhow::Result<()> {
     // SAFETY: `FOLDERID_Profile` is a valid KNOWNFOLDERID static.
-    let home_dir = unsafe { get_known_folder_path(&FOLDERID_Profile) }
-        .context("FOLDERID_Profile")?;
+    let home_dir =
+        unsafe { get_known_folder_path(&FOLDERID_Profile) }.context("FOLDERID_Profile")?;
 
     // SAFETY: `FOLDERID_LocalAppData` is a valid KNOWNFOLDERID static.
     let local_appdata = unsafe { get_known_folder_path(&FOLDERID_LocalAppData) }
@@ -318,10 +315,7 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
     for entry in entries.flatten() {
         let file_name = entry.file_name();
 
-        if file_name == current_user
-            || file_name == "All Users"
-            || file_name == "Public"
-        {
+        if file_name == current_user || file_name == "All Users" || file_name == "Public" {
             continue;
         }
 
@@ -346,8 +340,8 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
 
 /// Remove log files from the service user's ProgramData\Mullvad VPN directory.
 fn remove_logs_service_user() -> anyhow::Result<()> {
-    let program_data = mullvad_paths::windows::get_allusersprofile_dir()
-        .context("get allusersprofile dir")?;
+    let program_data =
+        mullvad_paths::windows::get_allusersprofile_dir().context("get allusersprofile dir")?;
     let app_dir = program_data.join("Mullvad VPN");
 
     // Remove only files; leave subdirectories untouched.
@@ -446,7 +440,11 @@ fn RemoveLogsAndCache() -> Result<(), nsis_plugin_api::Error> {
         }
     }
 
-    let status = if success { NsisStatus::Success } else { NsisStatus::GeneralError };
+    let status = if success {
+        NsisStatus::Success
+    } else {
+        NsisStatus::GeneralError
+    };
     // SAFETY: `exdll_init` was called.
     unsafe { pushint(status as i32) }
 }
@@ -509,14 +507,12 @@ fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     let (install_path, allow_cancellation) = unsafe { (popstr()?, popint()? != 0) };
 
-    let (message, status) = match crate::handle::terminate_processes(
-        &install_path,
-        allow_cancellation,
-    ) {
-        Ok(true) => (String::new(), NsisStatus::Success),
-        Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
-        Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
-    };
+    let (message, status) =
+        match crate::handle::terminate_processes(&install_path, allow_cancellation) {
+            Ok(true) => (String::new(), NsisStatus::Success),
+            Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
+            Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
+        };
     // SAFETY: `exdll_init` was called.
     unsafe {
         pushstr(&message)?;
