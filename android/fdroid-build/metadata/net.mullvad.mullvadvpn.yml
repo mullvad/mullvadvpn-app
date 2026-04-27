@@ -47,7 +47,7 @@ Builds:
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
       # This is to increase stability of verification builds, not required for official fdroid builds
       - export GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
-      - ../build.sh --oss-only --skip-clean-check
+      - gradle --console plain fdroidRelease
     ndk: 27.3.13750724
 
 AutoUpdateMode: Version

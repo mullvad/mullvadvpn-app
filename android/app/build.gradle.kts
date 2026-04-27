@@ -9,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
@@ -17,6 +18,7 @@ import utilities.leakCanaryImplementation
 import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
+import utilities.registerReleaseTask
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -365,6 +367,20 @@ tasks.register("printVersion") {
         println("versionName=$versionName")
     }
 }
+
+tasks.register("debug") { dependsOn("assembleOssProdDebug") }
+
+tasks.register("debugPlay") { dependsOn("assemblePlayProdDebug") }
+
+registerReleaseTask(
+    "fdroidRelease",
+    appVersion,
+    listOf("createOssProdReleaseDistApk"),
+    skipClean = true,
+    skipDirtyCheck = true,
+)
+
+registerReleaseTask("fullRelease", appVersion, fullReleaseTasks(appVersion))
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
