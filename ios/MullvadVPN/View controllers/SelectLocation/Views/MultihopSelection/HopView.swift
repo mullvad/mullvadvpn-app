@@ -1,4 +1,3 @@
-import MullvadLogging
 import SwiftUI
 
 struct HopView: View {
@@ -6,7 +5,6 @@ struct HopView: View {
     let isSelected: Bool
     let onFilterTapped: () -> Void
     let onIconPositionChange: (CGRect) -> Void
-    let logger = Logger(label: "Test")
 
     var body: some View {
         HStack {

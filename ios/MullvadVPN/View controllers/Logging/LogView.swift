@@ -41,6 +41,7 @@ class LogView: UIView {
     private var includedLabels: Set<String> = []
     private var excludedLabels: Set<String> = ["WireGuard"]
     private var exportTask: Task<Void, Never>?
+    private var needsTableReload = false
 
     var onExportLogs: ((String) -> Void)?
 
@@ -83,6 +84,13 @@ class LogView: UIView {
         interactor.didAddEntry = { [weak self] entry in
             self?.addEntries([entry])
         }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(windowDidBecomeVisible(_:)),
+            name: UIWindow.didBecomeVisibleNotification,
+            object: nil
+        )
 
         setUpTopHandle()
         setUpButtons()
@@ -273,16 +281,23 @@ class LogView: UIView {
         }
 
         self.entries.append(contentsOf: entries)
-        rebuildFilterMenuIfNeeded()
 
         for entry in entries where matchesFilter(entry) {
             filteredEntries.append(entry)
 
+            // Print packet tunnel entries since they're not otherwise available from the
+            // the main app process.
             if entry.process == .packetTunnel {
                 print("\(entry.description)\n")
             }
         }
 
+        guard window?.isHidden == false else {
+            needsTableReload = true
+            return
+        }
+
+        rebuildFilterMenuIfNeeded()
         tableView.reloadData()
         scrollToBottom()
     }
@@ -402,6 +417,19 @@ class LogView: UIView {
     }
 
     // MARK: - Actions
+
+    @objc private func windowDidBecomeVisible(_ notification: Notification) {
+        guard
+            needsTableReload,
+            (notification.object as? UIWindow) === window
+        else { return }
+
+        needsTableReload = false
+
+        rebuildFilterMenuIfNeeded()
+        tableView.reloadData()
+        scrollToBottom()
+    }
 
     @objc private func handlePauseButton(_ sender: UIButton) {
         logsArePaused.toggle()
