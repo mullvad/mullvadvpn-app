@@ -13,9 +13,9 @@ use widestring::U16CString;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 use windows_sys::Win32::System::Registry::{
     HKEY, HKEY_CLASSES_ROOT, HKEY_CURRENT_CONFIG, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE,
-    HKEY_USERS, KEY_READ, KEY_WOW64_64KEY, KEY_WRITE, REG_EXPAND_SZ, REG_OPTION_NON_VOLATILE,
-    RegCloseKey, RegCopyTreeW, RegCreateKeyExW, RegDeleteTreeW, RegFlushKey, RegOpenKeyExW,
-    RegQueryValueExW, RegSetValueExW,
+    HKEY_USERS, KEY_READ, KEY_WOW64_64KEY, KEY_WRITE, REG_BINARY, REG_EXPAND_SZ,
+    REG_OPTION_NON_VOLATILE, RegCloseKey, RegCopyTreeW, RegCreateKeyExW, RegDeleteTreeW,
+    RegFlushKey, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
 };
 
 use crate::NsisStatus;
@@ -30,7 +30,7 @@ impl RegKey {
         let mut handle: HKEY = ptr::null_mut();
         // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
         // string, and `&mut handle` is a stack-local.
-        let result = unsafe { RegOpenKeyExW(root, subkey.as_ptr(), 0, access, &mut handle) };
+        let result = unsafe { RegOpenKeyExW(root, subkey.as_ptr(), 0, access, &raw mut handle) };
         if result != ERROR_SUCCESS {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
@@ -54,8 +54,8 @@ impl RegKey {
                 options,
                 access,
                 ptr::null(),
-                &mut handle,
-                &mut disposition,
+                &raw mut handle,
+                &raw mut disposition,
             )
         };
         if result != ERROR_SUCCESS {
@@ -105,9 +105,9 @@ impl RegKey {
                 self.0,
                 name.as_ptr(),
                 ptr::null(),
-                &mut value_type,
+                &raw mut value_type,
                 ptr::null_mut(),
-                &mut buf_size,
+                &raw mut buf_size,
             )
         };
 
@@ -115,7 +115,7 @@ impl RegKey {
             return Ok(OsString::new());
         }
 
-        let elem_count = (buf_size as usize + 1) / 2 + 1;
+        let elem_count = (buf_size as usize).div_ceil(2) + 1;
         let mut buf = vec![0u16; elem_count];
         let mut actual_size = buf_size;
 
@@ -127,9 +127,9 @@ impl RegKey {
                 self.0,
                 name.as_ptr(),
                 ptr::null(),
-                &mut value_type,
+                &raw mut value_type,
                 buf.as_mut_ptr().cast(),
-                &mut actual_size,
+                &raw mut actual_size,
             )
         };
 
@@ -144,6 +144,77 @@ impl RegKey {
             .strip_suffix(&[0u16])
             .unwrap_or(&buf[..char_count]);
         Ok(OsString::from_wide(trimmed))
+    }
+
+    /// Read a `REG_BINARY` value as a byte vector.
+    pub fn read_binary(&self, name: &str) -> io::Result<Vec<u8>> {
+        let name = U16CString::from_str_truncate(name);
+        let mut value_type: u32 = 0;
+        let mut buf_size: u32 = 0;
+
+        // First call: determine required buffer size.
+        // SAFETY: `self.0` is a live HKEY (owned by `RegKey`), `name` is a
+        // null-terminated wide string, and the buffer pointer is null so
+        // only `buf_size` is written.
+        unsafe {
+            RegQueryValueExW(
+                self.0,
+                name.as_ptr(),
+                ptr::null(),
+                &raw mut value_type,
+                ptr::null_mut(),
+                &raw mut buf_size,
+            )
+        };
+
+        if buf_size == 0 {
+            return Ok(vec![]);
+        }
+
+        let mut buf = vec![0u8; buf_size as usize];
+        // SAFETY: `self.0` is a live HKEY, `name` is a null-terminated wide
+        // string, `buf` is `buf_size` writable bytes, and `&mut buf_size`
+        // carries the buffer capacity to the API.
+        let result = unsafe {
+            RegQueryValueExW(
+                self.0,
+                name.as_ptr(),
+                ptr::null(),
+                &raw mut value_type,
+                buf.as_mut_ptr(),
+                &raw mut buf_size,
+            )
+        };
+
+        if result != ERROR_SUCCESS {
+            return Err(io::Error::from_raw_os_error(result as i32));
+        }
+
+        buf.truncate(buf_size as usize);
+        Ok(buf)
+    }
+
+    /// Write a `REG_BINARY` value.
+    pub fn write_binary(&self, name: &str, value: &[u8]) -> io::Result<()> {
+        let name = U16CString::from_str_truncate(name);
+
+        // SAFETY: `self.0` is a live HKEY, `name` is a null-terminated wide
+        // string, and `value` is `value.len()` valid bytes.
+        let result = unsafe {
+            RegSetValueExW(
+                self.0,
+                name.as_ptr(),
+                0,
+                REG_BINARY,
+                value.as_ptr(),
+                value.len() as u32,
+            )
+        };
+
+        if result != ERROR_SUCCESS {
+            return Err(io::Error::from_raw_os_error(result as i32));
+        }
+        Ok(())
     }
 
     /// Write a `REG_EXPAND_SZ` value.
