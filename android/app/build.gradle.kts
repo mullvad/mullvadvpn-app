@@ -368,6 +368,9 @@ tasks.register("printVersion") {
     }
 }
 
+tasks.register("debug") { dependsOn("assembleOssProdDebug") }
+
+tasks.register("debugPlay") { dependsOn("assemblePlayProdDebug") }
 
 registerReleaseTask(
     "fdroidRelease",
