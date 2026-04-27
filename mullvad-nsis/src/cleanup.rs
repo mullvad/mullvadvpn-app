@@ -46,9 +46,9 @@ struct ScopedNativeFileSystem {
 impl ScopedNativeFileSystem {
     fn new() -> Self {
         let mut old_value: *mut std::ffi::c_void = ptr::null_mut();
-        // SAFETY: `&mut old_value` points to a stack-local for the API to
+        // SAFETY: `&raw mut old_value` points to a stack-local for the API to
         // fill in with the previous redirection cookie.
-        let result = unsafe { Wow64DisableWow64FsRedirection(&mut old_value) };
+        let result = unsafe { Wow64DisableWow64FsRedirection(&raw mut old_value) };
         ScopedNativeFileSystem {
             old_value,
             active: result != 0,
@@ -109,9 +109,9 @@ impl SecurityDescriptor {
                 DACL_SECURITY_INFORMATION,
                 ptr::null_mut(),
                 ptr::null_mut(),
-                &mut dacl,
+                &raw mut dacl,
                 ptr::null_mut(),
-                &mut sd,
+                &raw mut sd,
             )
         };
         if result != ERROR_SUCCESS {
@@ -149,7 +149,7 @@ unsafe fn get_known_folder_path(folder_id: *const windows_sys::core::GUID) -> io
             folder_id,
             KF_FLAG_DEFAULT as u32,
             ptr::null_mut(),
-            &mut path_ptr,
+            &raw mut path_ptr,
         )
     };
 
@@ -189,7 +189,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
             WinBuiltinAdministratorsSid,
             ptr::null_mut(),
             admin_sid.as_mut_ptr().cast(),
-            &mut sid_size,
+            &raw mut sid_size,
         )
     } == 0
     {
@@ -215,7 +215,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     // SAFETY: `&ea` points to one fully-initialized `EXPLICIT_ACCESS_W`,
     // `sd.dacl()` is the DACL borrowed from `sd` (live for `&sd`'s scope),
     // and `&mut new_dacl` is a stack-local for the API to fill in.
-    let result = unsafe { SetEntriesInAclW(1, &ea, sd.dacl(), &mut new_dacl) };
+    let result = unsafe { SetEntriesInAclW(1, &raw const ea, sd.dacl(), &raw mut new_dacl) };
 
     if result != ERROR_SUCCESS {
         return Err(io::Error::from_raw_os_error(result as i32));

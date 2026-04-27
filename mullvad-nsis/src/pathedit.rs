@@ -43,7 +43,7 @@ fn broadcast_setting_change() -> io::Result<()> {
             ENVIRONMENT_W as isize,
             SMTO_ABORTIFHUNG,
             MESSAGE_TIMEOUT_MS,
-            &mut result,
+            &raw mut result,
         )
     };
     if status == 0 {

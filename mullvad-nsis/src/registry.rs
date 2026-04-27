@@ -30,7 +30,7 @@ impl RegKey {
         let mut handle: HKEY = ptr::null_mut();
         // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
         // string, and `&mut handle` is a stack-local.
-        let result = unsafe { RegOpenKeyExW(root, subkey.as_ptr(), 0, access, &mut handle) };
+        let result = unsafe { RegOpenKeyExW(root, subkey.as_ptr(), 0, access, &raw mut handle) };
         if result != ERROR_SUCCESS {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
@@ -54,8 +54,8 @@ impl RegKey {
                 options,
                 access,
                 ptr::null(),
-                &mut handle,
-                &mut disposition,
+                &raw mut handle,
+                &raw mut disposition,
             )
         };
         if result != ERROR_SUCCESS {
@@ -105,9 +105,9 @@ impl RegKey {
                 self.0,
                 name.as_ptr(),
                 ptr::null(),
-                &mut value_type,
+                &raw mut value_type,
                 ptr::null_mut(),
-                &mut buf_size,
+                &raw mut buf_size,
             )
         };
 
@@ -115,7 +115,7 @@ impl RegKey {
             return Ok(OsString::new());
         }
 
-        let elem_count = (buf_size as usize + 1) / 2 + 1;
+        let elem_count = (buf_size as usize).div_ceil(2) + 1;
         let mut buf = vec![0u16; elem_count];
         let mut actual_size = buf_size;
 
@@ -127,9 +127,9 @@ impl RegKey {
                 self.0,
                 name.as_ptr(),
                 ptr::null(),
-                &mut value_type,
+                &raw mut value_type,
                 buf.as_mut_ptr().cast(),
-                &mut actual_size,
+                &raw mut actual_size,
             )
         };
 
