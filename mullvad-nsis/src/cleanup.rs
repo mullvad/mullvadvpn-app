@@ -9,13 +9,12 @@
 //! - `IsEmptyDir` - check if a directory contains only subdirectories (no files)
 
 use std::io;
-use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 use std::ptr;
 
 use anyhow::Context;
 use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
-use widestring::U16CStr;
+use widestring::{U16CStr, U16CString};
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL, LocalFree, S_OK};
 use windows_sys::Win32::Security::Authorization::{
     EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
@@ -96,11 +95,7 @@ struct SecurityDescriptor {
 impl SecurityDescriptor {
     /// Fetch the DACL-only security descriptor for a filesystem path.
     fn from_path(path: &Path) -> io::Result<Self> {
-        let path_wide: Vec<u16> = path
-            .as_os_str()
-            .encode_wide()
-            .chain(std::iter::once(0))
-            .collect();
+        let path_wide = U16CString::from_os_str_truncate(path);
         let mut dacl: *mut ACL = ptr::null_mut();
         let mut sd: *mut std::ffi::c_void = ptr::null_mut();
         // SAFETY: `path_wide` is a null-terminated wide string. Owner/group/
@@ -181,11 +176,7 @@ unsafe fn get_known_folder_path(folder_id: *const windows_sys::core::GUID) -> io
 fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
     let sd = SecurityDescriptor::from_path(path)?;
 
-    let path_wide: Vec<u16> = path
-        .as_os_str()
-        .encode_wide()
-        .chain(std::iter::once(0))
-        .collect();
+    let path_wide = U16CString::from_os_str_truncate(path);
 
     // Build the Administrators SID.
     let mut admin_sid = [0u8; MAX_SID_SIZE as usize];

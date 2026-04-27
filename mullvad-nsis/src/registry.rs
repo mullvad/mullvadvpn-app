@@ -5,10 +5,11 @@
 
 use std::ffi::OsString;
 use std::io;
-use std::os::windows::ffi::{OsStrExt, OsStringExt};
+use std::os::windows::ffi::OsStringExt;
 use std::ptr;
 
 use nsis_plugin_api::{nsis_fn, popstr, pushint, pushstr};
+use widestring::U16CString;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 use windows_sys::Win32::System::Registry::{
     HKEY, HKEY_CLASSES_ROOT, HKEY_CURRENT_CONFIG, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE,
@@ -25,7 +26,7 @@ pub struct RegKey(HKEY);
 impl RegKey {
     /// Open an existing registry key.
     pub fn open(root: HKEY, subkey: &str, access: u32) -> io::Result<Self> {
-        let subkey = to_wide_nul(subkey);
+        let subkey = U16CString::from_str_truncate(subkey);
         let mut handle: HKEY = ptr::null_mut();
         // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
         // string, and `&mut handle` is a stack-local.
@@ -38,7 +39,7 @@ impl RegKey {
 
     /// Create a registry key (or open it if it already exists).
     pub fn create(root: HKEY, subkey: &str, options: u32, access: u32) -> io::Result<Self> {
-        let subkey = to_wide_nul(subkey);
+        let subkey = U16CString::from_str_truncate(subkey);
         let mut handle: HKEY = ptr::null_mut();
         let mut disposition: u32 = 0;
         // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
@@ -79,7 +80,7 @@ impl RegKey {
     /// This does not require an open handle to the subkey: the API resolves
     /// it relative to `root`.
     pub fn delete_tree(root: HKEY, subkey: &str) -> io::Result<()> {
-        let subkey = to_wide_nul(subkey);
+        let subkey = U16CString::from_str_truncate(subkey);
         // SAFETY: `root` is a valid HKEY and `subkey` is a null-terminated
         // wide string.
         let result = unsafe { RegDeleteTreeW(root, subkey.as_ptr()) };
@@ -91,7 +92,7 @@ impl RegKey {
 
     /// Read a `REG_SZ` or `REG_EXPAND_SZ` value as an `OsString`.
     pub fn read_string(&self, name: &str) -> io::Result<OsString> {
-        let name = to_wide_nul(name);
+        let name = U16CString::from_str_truncate(name);
         let mut value_type: u32 = 0;
         let mut buf_size: u32 = 0;
 
@@ -147,13 +148,13 @@ impl RegKey {
 
     /// Write a `REG_EXPAND_SZ` value.
     pub fn write_expand_string(&self, name: &str, value: &OsString) -> io::Result<()> {
-        let name = to_wide_nul(name);
-        let value_wide: Vec<u16> = value.encode_wide().chain(std::iter::once(0)).collect();
-        let byte_len = (value_wide.len() * 2) as u32;
+        let name = U16CString::from_str_truncate(name);
+        let value_wide = U16CString::from_os_str_truncate(value);
+        let byte_len = ((value_wide.len() + 1) * 2) as u32;
 
         // SAFETY: `self.0` is a live HKEY, `name` is a null-terminated wide
         // string, and `value_wide` holds `byte_len` valid bytes (its u16
-        // length times 2).
+        // length plus the trailing nul, times 2).
         let result = unsafe {
             RegSetValueExW(
                 self.0,
@@ -186,11 +187,6 @@ impl Drop for RegKey {
         // `RegCreateKeyExW` and not yet closed; `RegKey` owns it uniquely.
         unsafe { RegCloseKey(self.0) };
     }
-}
-
-/// Encode a UTF-8 string as a null-terminated UTF-16 buffer.
-pub fn to_wide_nul(s: &str) -> Vec<u16> {
-    s.encode_utf16().chain(std::iter::once(0)).collect()
 }
 
 /// Parse a registry path string like "HKLM\Software\A" into (root HKEY, subkey).
