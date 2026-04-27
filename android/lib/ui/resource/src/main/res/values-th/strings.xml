@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">เข้าถึง API ได้ กำลังเพิ่มวิธีการ...</string>
     <string name="api_unreachable">ไม่สามารถเข้าถึง API ได้</string>
     <string name="api_unreachable_save_anyway">เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่</string>
+    <string name="app_icon">ไอคอนแอป</string>
     <string name="app_info">ข้อมูลแอป</string>
     <string name="app_is_blocking_internet">แอปกำลังปิดกั้นอินเทอร์เน็ต โปรดตัดการเชื่อมต่อก่อน</string>
     <string name="app_name_browser">เบราว์เซอร์</string>
@@ -241,7 +242,7 @@
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
-    <string name="filter">ตัวกรอง</string>
+    <string name="filter">กรอง</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะอุโมงค์ VPN</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>

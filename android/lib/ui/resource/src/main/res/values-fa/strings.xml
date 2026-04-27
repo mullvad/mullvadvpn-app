@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API در دسترس است، روش در حال افزودن است...</string>
     <string name="api_unreachable">API غیرقابل‌دسترسی است</string>
     <string name="api_unreachable_save_anyway">API در دسترس نیست، بااین‌حال روش ذخیره شود؟</string>
+    <string name="app_icon">آیکون اپلیکیشن</string>
     <string name="app_info">اطلاعات اپلیکیشن</string>
     <string name="app_is_blocking_internet">اپلیکیشن دسترسی به اینترنت را مسدود کرده است؛ لطفاً ابتدا قطع اتصال کنید</string>
     <string name="app_name_browser">مرورگر</string>
@@ -217,7 +218,7 @@
     <string name="enable_multihop">فعال کردن مولتی‌هاپ</string>
     <string name="enable_recents">فعال کردن موارد اخیر</string>
     <string name="encrypted_dns_proxy_info_message_part1">با روش «پروکسی DNS رمزگذاری‌شده»، اپلیکیشن از طریق یک آدرس پروکسی با Mullvad API ارتباط برقرار می‌کند. این کار با گرفتن یک آدرس از سرور DNS over HTTPS (DoH) و سپس استفاده از آن برای دسترسی به سرورهای API ما انجام می‌شود.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">اگر به VPN ما متصل نباشید، پروکسی DNS رمزگذاری‌شده هنگام اتصال از IP غیرِ VPN شما استفاده می‌کند. سرورهای DoH توسط یکی از ارائه‌دهندگان زیر میزبانی می‌شوند: ‏Quad9 یا Cloudflare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">اگر به VPN ما متصل نباشید، پروکسی DNS رمزگذاری‌شده هنگام اتصال از IP غیرِ VPN خودتان استفاده می‌کند. سرورهای DoH توسط یکی از ارائه‌دهندگان زیر میزبانی می‌شوند: ‏Quad9 یا Cloudflare.</string>
     <string name="enter_value_placeholder">وارد کردن MTU</string>
     <string name="enter_voucher_code">کد ووچر را وارد کنید</string>
     <string name="entry">ورود</string>

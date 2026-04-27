@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API tilgjengelig, legger til metode …</string>
     <string name="api_unreachable">API ikke tilgjengelig</string>
     <string name="api_unreachable_save_anyway">API ikke tilgjengelig, lagre metoden uansett?</string>
+    <string name="app_icon">App-ikon</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">Denne appen blokkerer internett. Koble fra først</string>
     <string name="app_name_browser">Nettleser</string>
@@ -241,7 +242,7 @@
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_indicators_show_more">%1$s til …</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
-    <string name="filter">Filter</string>
+    <string name="filter">Filtrer</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
