@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -157,17 +158,16 @@ internal fun Name(
 
 @Composable
 private fun AnnotatedString.withSuffix(state: RelayListItemState): AnnotatedString {
-    val context = LocalContext.current
     // This is a bit of a hack since there is no way to do String.format without losing the styling.
     // Since we want to style on only the name and not the suffix we need to manually do the
-    // formatting. The assumption here is that the string contains a "%1$s" placeholder
-    // for the name if that is not use this will break.
+    // formatting. The assumption here is that the string contains a "%1$s" or "%s" placeholder
+    // for the name, if that is not present it will break.
     val formatStr =
         when (state) {
-            RelayListItemState.USED_AS_EXIT -> context.getString(R.string.x_exit)
-            RelayListItemState.USED_AS_ENTRY -> context.getString(R.string.x_entry)
+            RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit)
+            RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry)
         }
-    val parts = formatStr.split("%1\$s")
+    val parts = formatStr.split("%1\$s", "%s")
     return buildAnnotatedString {
         if (parts.isNotEmpty()) append(parts[0])
         append(this@withSuffix)
