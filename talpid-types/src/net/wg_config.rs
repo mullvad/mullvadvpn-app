@@ -222,12 +222,10 @@ fn finalize(
     use WgConfigParseError as E;
 
     let private_key = interface.private_key.ok_or(E::MissingField("PrivateKey"))?;
-    // TODO: include all addresses
-    let tunnel_ip = interface
-        .addresses
-        .first()
-        .ok_or(E::MissingField("Address"))?
-        .ip();
+    if interface.addresses.is_empty() {
+        return Err(E::MissingField("Address"));
+    }
+    let tunnel_ips: Vec<_> = interface.addresses.iter().map(|net| net.ip()).collect();
 
     let peer = peer.ok_or(E::MissingPeer)?;
     let public_key = peer.public_key.ok_or(E::MissingField("PublicKey"))?;
@@ -239,7 +237,7 @@ fn finalize(
     Ok(UnresolvedPersonalVpnConfig {
         tunnel: PersonalVpnTunnelConfig {
             private_key,
-            ip: tunnel_ip,
+            ips: tunnel_ips,
         },
         peer: UnresolvedPersonalVpnPeerConfig {
             public_key,
@@ -276,7 +274,8 @@ Endpoint = 1.2.3.4:51820
     #[test]
     fn happy_path() {
         let config = UnresolvedPersonalVpnConfig::from_str(&sample_config()).unwrap();
-        assert_eq!(config.tunnel.ip.to_string(), "10.0.0.2");
+        assert_eq!(config.tunnel.ips.len(), 1);
+        assert_eq!(config.tunnel.ips[0].to_string(), "10.0.0.2");
         assert_eq!(config.peer.allowed_ip.len(), 2);
         assert_eq!(config.peer.endpoint, "1.2.3.4:51820");
     }
@@ -284,7 +283,26 @@ Endpoint = 1.2.3.4:51820
     #[test]
     fn address_cidr_is_stripped_for_tunnel_ip() {
         let config = UnresolvedPersonalVpnConfig::from_str(&sample_config()).unwrap();
-        assert_eq!(config.tunnel.ip.to_string(), "10.0.0.2");
+        assert_eq!(config.tunnel.ips[0].to_string(), "10.0.0.2");
+    }
+
+    #[test]
+    fn dual_stack_addresses_are_preserved() {
+        let input = format!(
+            "\
+[Interface]
+PrivateKey = {PRIV}
+Address = 10.0.0.2/24, fd00::2/64
+
+[Peer]
+PublicKey = {PUB}
+AllowedIPs = 0.0.0.0/0, ::/0
+Endpoint = 1.2.3.4:51820
+"
+        );
+        let config = UnresolvedPersonalVpnConfig::from_str(&input).unwrap();
+        let ips: Vec<String> = config.tunnel.ips.iter().map(ToString::to_string).collect();
+        assert_eq!(ips, vec!["10.0.0.2", "fd00::2"]);
     }
 
     #[test]

@@ -345,11 +345,15 @@ impl fmt::Debug for PresharedKey {
 }
 
 /// Personal VPN tunnel interface configuration (WireGuard-based).
+///
+/// `ips` carries one or more interface addresses (typically one IPv4 and/or
+/// one IPv6, matching a wg-quick `Address = …` line). Must be non-empty;
+/// construction/parsing from proto and wg-quick both reject an empty list.
 #[cfg(feature = "personal-vpn")]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PersonalVpnTunnelConfig {
     pub private_key: PrivateKey,
-    pub ip: std::net::IpAddr,
+    pub ips: Vec<std::net::IpAddr>,
 }
 
 /// Personal VPN peer configuration (WireGuard-based).

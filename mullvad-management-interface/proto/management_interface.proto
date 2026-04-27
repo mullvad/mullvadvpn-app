@@ -630,8 +630,9 @@ message WireguardConfig {
 message PersonalVpnConfig {
   message TunnelConfig {
     bytes private_key = 1;
-    // tunnel IP only
-    string ip = 2;
+    // One or more tunnel interface IPs (no CIDR). Must be non-empty.
+    // Typically one IPv4 and/or one IPv6 address.
+    repeated string ips = 2;
   }
   message PeerConfig {
     bytes public_key = 1;

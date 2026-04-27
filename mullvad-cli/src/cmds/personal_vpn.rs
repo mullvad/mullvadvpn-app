@@ -27,9 +27,11 @@ pub enum PersonalVpn {
         #[arg(long, value_parser = wireguard::PrivateKey::from_base64)]
         private_key: wireguard::PrivateKey,
 
-        /// IP address for the tunnel interface
-        #[arg(long)]
-        tunnel_ip: IpAddr,
+        /// IP address for the tunnel interface. Repeat to configure multiple
+        /// (typically one IPv4 and/or one IPv6), e.g.
+        /// `--tunnel-ip 10.0.0.2 --tunnel-ip fd00::2`.
+        #[arg(long = "tunnel-ip", required = true, num_args = 1..)]
+        tunnel_ip: Vec<IpAddr>,
 
         /// Base64-encoded WireGuard public key of the VPN peer
         #[arg(long, value_parser = wireguard::PublicKey::from_base64)]
@@ -89,7 +91,14 @@ impl PersonalVpn {
                     "Tunnel private key: {}",
                     config.tunnel.private_key.to_base64()
                 );
-                println!("Tunnel IP:          {}", config.tunnel.ip);
+                let ips = config
+                    .tunnel
+                    .ips
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                println!("Tunnel IPs:         {ips}");
                 println!("Peer public key:    {}", config.peer.public_key.to_base64());
                 for allowed_ip in &config.peer.allowed_ip {
                     println!("Allowed IP:         {allowed_ip}");
@@ -102,7 +111,7 @@ impl PersonalVpn {
 
     async fn set(
         private_key: wireguard::PrivateKey,
-        tunnel_ip: IpAddr,
+        tunnel_ip: Vec<IpAddr>,
         peer_pubkey: wireguard::PublicKey,
         allowed_ip: Vec<IpNetwork>,
         endpoint: String,
@@ -110,7 +119,7 @@ impl PersonalVpn {
         let config = UnresolvedPersonalVpnConfig {
             tunnel: PersonalVpnTunnelConfig {
                 private_key,
-                ip: tunnel_ip,
+                ips: tunnel_ip,
             },
             peer: UnresolvedPersonalVpnPeerConfig {
                 public_key: peer_pubkey,

@@ -8,6 +8,17 @@ use talpid_types::net::wireguard::{
     UnresolvedPersonalVpnPeerConfig,
 };
 
+fn parse_tunnel_ips(ips: &[String]) -> Result<Vec<std::net::IpAddr>, FromProtobufTypeError> {
+    if ips.is_empty() {
+        return Err(FromProtobufTypeError::InvalidArgument(
+            "tunnel requires at least one IP".to_owned(),
+        ));
+    }
+    ips.iter()
+        .map(|ip| arg_from_str(ip, "invalid tunnel IP address"))
+        .collect()
+}
+
 impl TryFrom<proto::PersonalVpnConfig> for UnresolvedPersonalVpnConfig {
     type Error = FromProtobufTypeError;
 
@@ -17,7 +28,7 @@ impl TryFrom<proto::PersonalVpnConfig> for UnresolvedPersonalVpnConfig {
             .map(|t| {
                 Ok::<_, FromProtobufTypeError>(PersonalVpnTunnelConfig {
                     private_key: bytes_to_privkey(&t.private_key)?,
-                    ip: arg_from_str(&t.ip, "invalid tunnel IP address")?,
+                    ips: parse_tunnel_ips(&t.ips)?,
                 })
             })
             .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -63,7 +74,7 @@ impl TryFrom<proto::PersonalVpnConfig> for PersonalVpnConfig {
             .map(|t| {
                 Ok::<_, FromProtobufTypeError>(PersonalVpnTunnelConfig {
                     private_key: bytes_to_privkey(&t.private_key)?,
-                    ip: arg_from_str(&t.ip, "invalid tunnel IP address")?,
+                    ips: parse_tunnel_ips(&t.ips)?,
                 })
             })
             .ok_or(FromProtobufTypeError::InvalidArgument(
@@ -96,7 +107,7 @@ impl From<PersonalVpnConfig> for proto::PersonalVpnConfig {
         proto::PersonalVpnConfig {
             tunnel: Some(proto::personal_vpn_config::TunnelConfig {
                 private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                ip: config.tunnel.ip.to_string(),
+                ips: config.tunnel.ips.iter().map(ToString::to_string).collect(),
             }),
             peer: Some(proto::personal_vpn_config::PeerConfig {
                 public_key: config.peer.public_key.as_bytes().to_vec(),
@@ -117,7 +128,7 @@ impl From<UnresolvedPersonalVpnConfig> for proto::PersonalVpnConfig {
         proto::PersonalVpnConfig {
             tunnel: Some(proto::personal_vpn_config::TunnelConfig {
                 private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                ip: config.tunnel.ip.to_string(),
+                ips: config.tunnel.ips.iter().map(ToString::to_string).collect(),
             }),
             peer: Some(proto::personal_vpn_config::PeerConfig {
                 public_key: config.peer.public_key.as_bytes().to_vec(),

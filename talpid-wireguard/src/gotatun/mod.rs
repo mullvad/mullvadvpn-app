@@ -425,26 +425,47 @@ async fn build_personal_vpn(
     );
 
     // NAT: rewrite src/dst IPs between inner and outer tunnel addresses.
-    let (nat_from_v4, nat_to_v4, nat_v6) = match personal_vpn.tunnel.ip {
-        IpAddr::V4(inner_v4) => {
-            let outer_v4 = outer_tun_ip_v4.ok_or_else(|| {
-                log::error!("Personal VPN inner tunnel is IPv4 but in-tunnel IPv4 is disabled");
-                TunnelError::SetConfigError
-            })?;
-            (inner_v4, outer_v4, None)
+    //
+    // The inner tunnel may carry one IPv4, one IPv6, or both (dual-stack). We
+    // enable each family only when both the inner tunnel and the outer
+    // Mullvad tunnel have an address for it; otherwise that family is skipped
+    // (the other family still works). At least one family must be usable.
+    let inner_v4 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+        &IpAddr::V4(ip) => Some(ip),
+        IpAddr::V6(_) => None,
+    });
+    let inner_v6 = personal_vpn.tunnel.ips.iter().find_map(|ip| match ip {
+        &IpAddr::V6(ip) => Some(ip),
+        IpAddr::V4(_) => None,
+    });
+
+    let nat_v4 = match (inner_v4, outer_tun_ip_v4) {
+        (Some(inner), Some(outer)) => Some((inner, outer)),
+        (Some(_), None) => {
+            log::warn!(
+                "Personal VPN inner tunnel has IPv4 but outer tunnel IPv4 is disabled; skipping IPv4"
+            );
+            None
         }
-        IpAddr::V6(inner_v6) => {
-            let outer_v6 = outer_tun_ip_v6.ok_or_else(|| {
-                log::error!("Personal VPN inner tunnel is IPv6 but in-tunnel IPv6 is disabled");
-                TunnelError::SetConfigError
-            })?;
-            (
-                Ipv4Addr::UNSPECIFIED,
-                Ipv4Addr::UNSPECIFIED,
-                Some((inner_v6, outer_v6)),
-            )
-        }
+        _ => None,
     };
+    let nat_v6 = match (inner_v6, outer_tun_ip_v6) {
+        (Some(inner), Some(outer)) => Some((inner, outer)),
+        (Some(_), None) => {
+            log::warn!(
+                "Personal VPN inner tunnel has IPv6 but outer tunnel IPv6 is disabled; skipping IPv6"
+            );
+            None
+        }
+        _ => None,
+    };
+
+    if nat_v4.is_none() && nat_v6.is_none() {
+        log::error!("Personal VPN has no usable tunnel address family");
+        return Err(TunnelError::SetConfigError);
+    }
+
+    let (nat_from_v4, nat_to_v4) = nat_v4.unwrap_or((Ipv4Addr::UNSPECIFIED, Ipv4Addr::UNSPECIFIED));
     let mut tun_send = gotatun::tun::nat::NatIpSend::new(tun_dev.clone(), nat_from_v4, nat_to_v4);
     let mut alt_recv = gotatun::tun::nat::NatIpRecv::new(alt_output, nat_to_v4, nat_from_v4);
     if let Some((inner_v6, outer_v6)) = nat_v6 {
