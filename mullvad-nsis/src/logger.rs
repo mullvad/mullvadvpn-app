@@ -15,11 +15,11 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use nsis_plugin_api::{nsis_fn, popint, pushint};
+use windows_sys::Win32::Foundation::SYSTEMTIME;
 use windows_sys::Win32::System::LibraryLoader::{
     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
     GetModuleFileNameW, GetModuleHandleExW, LoadLibraryW,
 };
-use windows_sys::Win32::Foundation::SYSTEMTIME;
 use windows_sys::Win32::System::SystemInformation::GetLocalTime;
 use windows_sys::Win32::UI::Input::KeyboardAndMouse::GetActiveWindow;
 use windows_sys::Win32::UI::WindowsAndMessaging::{MB_OK, MessageBoxA};
@@ -219,8 +219,7 @@ fn Log() -> Result<(), nsis_plugin_api::Error> {
 #[nsis_fn]
 fn LogWithDetails() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
-    let (message, details) =
-        unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
+    let (message, details) = unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
     let detail_lines: Vec<&str> = details.lines().collect();
 
     if let Ok(mut guard) = LOGGER.lock()
@@ -264,4 +263,3 @@ fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
     // SAFETY: `exdll_init` was called.
     unsafe { pushint(value) }
 }
-
