@@ -171,12 +171,17 @@ impl RelayEndpointSet {
                     .if_false(Reason::IpVersion),
             ]),
 
-            Constraint::Only(ObfuscationMode::Udp2tcp(_)) => match self.udp2tcp_ports {
+            Constraint::Only(ObfuscationMode::Udp2tcp(settings)) => match &self.udp2tcp_ports {
                 None => Verdict::reject(Reason::Obfuscation),
-                Some(_) => self
-                    .wireguard
-                    .supports_ip_version(*ip_version)
-                    .if_false(Reason::IpVersion),
+                Some(ports) => Verdict::all([
+                    settings
+                        .port
+                        .is_any_or(|p| ports.contains(&p))
+                        .if_false(Reason::Port),
+                    self.wireguard
+                        .supports_ip_version(*ip_version)
+                        .if_false(Reason::IpVersion),
+                ]),
             },
 
             Constraint::Only(ObfuscationMode::Shadowsocks(settings)) => match &self.shadowsocks {
@@ -195,10 +200,13 @@ impl RelayEndpointSet {
                     .if_false(Reason::IpVersion),
             },
 
-            // LWO reuses the WireGuard endpoint, so IP version availability is the same as
-            // for plain WireGuard.
-            Constraint::Only(ObfuscationMode::Lwo(_)) => Verdict::all([
+            // LWO reuses the WireGuard endpoint, so IP version and port availability are the same
+            // as for plain WireGuard.
+            Constraint::Only(ObfuscationMode::Lwo(settings)) => Verdict::all([
                 self.lwo.if_false(Reason::Obfuscation),
+                self.wireguard
+                    .supports_port(settings.port)
+                    .if_false(Reason::Port),
                 self.wireguard
                     .supports_ip_version(*ip_version)
                     .if_false(Reason::IpVersion),
