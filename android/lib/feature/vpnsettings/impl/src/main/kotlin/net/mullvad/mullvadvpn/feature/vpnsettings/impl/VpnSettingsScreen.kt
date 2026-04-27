@@ -9,15 +9,12 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -25,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,7 +33,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,16 +49,12 @@ import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
+import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.ConnectOnStartupInfoNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.ContentBlockersInfoNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.CustomDnsInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.DeviceIpInfoNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavResult
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.Ipv6InfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.LocalNetworkSharingInfoNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.MalwareInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.QuantumResistanceInfoNavKey
@@ -74,14 +65,10 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSmallTopBar
-import net.mullvad.mullvadvpn.lib.ui.component.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.MtuListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.NavigationListItem
@@ -90,11 +77,11 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.toTitle
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
-import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_DNS_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
@@ -121,30 +108,18 @@ private fun PreviewVpnSettings(
             state = state,
             initialScrollToFeature = null,
             snackbarHostState = SnackbarHostState(),
-            onToggleAllBlockers = {},
-            onToggleBlockTrackers = {},
-            onToggleBlockAds = {},
-            onToggleBlockMalware = {},
             onToggleLocalNetworkSharing = {},
-            onToggleBlockAdultContent = {},
-            onToggleBlockGambling = {},
-            onToggleBlockSocialMedia = {},
             navigateToMtuDialog = {},
-            navigateToDns = { _, _ -> },
-            onToggleDnsClick = {},
+            navigateToDns = {},
             onBackClick = {},
             onSelectQuantumResistanceSetting = {},
             onToggleAutoStartAndConnectOnBoot = { _ -> },
-            navigateToMalwareInfo = {},
-            navigateToContentBlockersInfo = {},
             navigateToAutoConnectScreen = {},
-            navigateToCustomDnsInfo = {},
             navigateToQuantumResistanceInfo = {},
             navigateToLocalNetworkSharingInfo = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
-            onToggleContentBlockersExpanded = {},
             navigateToIpv6Info = {},
             navigateToDeviceIpInfo = {},
             navigateToConnectOnDeviceOnStartUpInfo = {},
@@ -170,17 +145,6 @@ fun SharedTransitionScope.VpnSettings(
 
     navigator.assureHasDetailPane<VpnSettingsNavKey>(AutoConnectNavKey)
 
-    resultStore.consumeResult<DnsNavResult> { result ->
-        when (result) {
-            is DnsNavResult.Success -> {
-                vm.showApplySettingChangesWarningToast()
-            }
-            DnsNavResult.Error -> {
-                vm.showGenericErrorToast()
-            }
-        }
-    }
-
     resultStore.consumeResult<MtuNavResult> { result ->
         if (!result.complete) {
             vm.showGenericErrorToast()
@@ -195,7 +159,6 @@ fun SharedTransitionScope.VpnSettings(
                 launch {
                     snackbarHostState.showSnackbarImmediately(message = it.message(resources))
                 }
-            VpnSettingsSideEffect.NavigateToDnsDialog -> navigator.navigate(DnsNavKey())
         }
     }
 
@@ -212,33 +175,17 @@ fun SharedTransitionScope.VpnSettings(
                 )
             } else Modifier,
         snackbarHostState = snackbarHostState,
-        navigateToContentBlockersInfo =
-            dropUnlessResumed { navigator.navigate(ContentBlockersInfoNavKey) },
         navigateToAutoConnectScreen =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AutoConnectNavKey) },
-        navigateToCustomDnsInfo = dropUnlessResumed { navigator.navigate(CustomDnsInfoNavKey) },
-        navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
         navigateToQuantumResistanceInfo =
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
-        onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpand,
-        onToggleAllBlockers = vm::onToggleAllBlockers,
-        onToggleBlockTrackers = vm::onToggleBlockTrackers,
-        onToggleBlockAds = vm::onToggleBlockAds,
-        onToggleBlockMalware = vm::onToggleBlockMalware,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
-        onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
-        onToggleBlockGambling = vm::onToggleBlockGambling,
-        onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },
-        navigateToDns =
-            dropUnlessResumed { index: Int?, address: String? ->
-                navigator.navigate(DnsNavKey(index, address))
-            },
-        onToggleDnsClick = vm::onToggleCustomDns,
+        navigateToDns = dropUnlessResumed { navigator.navigate(DnsSettingsNavKey()) },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
@@ -261,26 +208,14 @@ fun VpnSettingsScreen(
     initialScrollToFeature: FeatureIndicator?,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    navigateToContentBlockersInfo: () -> Unit,
     navigateToAutoConnectScreen: () -> Unit,
-    navigateToCustomDnsInfo: () -> Unit,
-    navigateToMalwareInfo: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
-    onToggleContentBlockersExpanded: () -> Unit,
-    onToggleAllBlockers: (Boolean) -> Unit,
-    onToggleBlockTrackers: (Boolean) -> Unit,
-    onToggleBlockAds: (Boolean) -> Unit,
-    onToggleBlockMalware: (Boolean) -> Unit,
     onToggleLocalNetworkSharing: (Boolean) -> Unit,
-    onToggleBlockAdultContent: (Boolean) -> Unit,
-    onToggleBlockGambling: (Boolean) -> Unit,
-    onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
-    navigateToDns: (index: Int?, address: String?) -> Unit,
-    onToggleDnsClick: (Boolean) -> Unit,
+    navigateToDns: () -> Unit,
     onBackClick: () -> Unit,
     onSelectQuantumResistanceSetting: (Boolean) -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
@@ -317,35 +252,24 @@ fun VpnSettingsScreen(
 
                     is Lc.Content ->
                         VpnSettingsContent(
-                            state.value,
-                            initialScrollToFeature,
-                            navigateToContentBlockersInfo,
-                            navigateToAutoConnectScreen,
-                            navigateToCustomDnsInfo,
-                            navigateToMalwareInfo,
-                            navigateToQuantumResistanceInfo,
-                            navigateToLocalNetworkSharingInfo,
-                            navigateToServerIpOverrides,
-                            navigateToAntiCensorship,
-                            onToggleContentBlockersExpanded,
-                            onToggleAllBlockers,
-                            onToggleBlockTrackers,
-                            onToggleBlockAds,
-                            onToggleBlockMalware,
-                            onToggleLocalNetworkSharing,
-                            onToggleBlockAdultContent,
-                            onToggleBlockGambling,
-                            onToggleBlockSocialMedia,
-                            navigateToMtuDialog,
-                            navigateToDns,
-                            onToggleDnsClick,
-                            onSelectQuantumResistanceSetting,
-                            onToggleAutoStartAndConnectOnBoot,
-                            onSelectDeviceIpVersion,
-                            onToggleIpv6,
-                            navigateToIpv6Info,
-                            navigateToDeviceIpInfo,
-                            navigateToConnectOnDeviceOnStartUpInfo,
+                            state = state.value,
+                            initialScrollToFeature = initialScrollToFeature,
+                            navigateToAutoConnectScreen = navigateToAutoConnectScreen,
+                            navigateToQuantumResistanceInfo = navigateToQuantumResistanceInfo,
+                            navigateToLocalNetworkSharingInfo = navigateToLocalNetworkSharingInfo,
+                            navigateToServerIpOverrides = navigateToServerIpOverrides,
+                            navigateToAntiCensorship = navigateToAntiCensorship,
+                            onToggleLocalNetworkSharing = onToggleLocalNetworkSharing,
+                            navigateToMtuDialog = navigateToMtuDialog,
+                            navigateToDns = navigateToDns,
+                            onSelectQuantumResistanceSetting = onSelectQuantumResistanceSetting,
+                            onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
+                            onSelectDeviceIpVersion = onSelectDeviceIpVersion,
+                            onToggleIpv6 = onToggleIpv6,
+                            navigateToIpv6Info = navigateToIpv6Info,
+                            navigateToDeviceIpInfo = navigateToDeviceIpInfo,
+                            navigateToConnectOnDeviceOnStartUpInfo =
+                                navigateToConnectOnDeviceOnStartUpInfo,
                         )
                 }
             }
@@ -358,26 +282,14 @@ fun VpnSettingsScreen(
 fun VpnSettingsContent(
     state: VpnSettingsUiState,
     initialScrollToFeature: FeatureIndicator?,
-    navigateToContentBlockersInfo: () -> Unit,
     navigateToAutoConnectScreen: () -> Unit,
-    navigateToCustomDnsInfo: () -> Unit,
-    navigateToMalwareInfo: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
     navigateToLocalNetworkSharingInfo: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
-    onToggleContentBlockersExpanded: () -> Unit,
-    onToggleAllBlockers: (Boolean) -> Unit,
-    onToggleBlockTrackers: (Boolean) -> Unit,
-    onToggleBlockAds: (Boolean) -> Unit,
-    onToggleBlockMalware: (Boolean) -> Unit,
     onToggleLocalNetworkSharing: (Boolean) -> Unit,
-    onToggleBlockAdultContent: (Boolean) -> Unit,
-    onToggleBlockGambling: (Boolean) -> Unit,
-    onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
-    navigateToDns: (index: Int?, address: String?) -> Unit,
-    onToggleDnsClick: (Boolean) -> Unit,
+    navigateToDns: () -> Unit,
     onSelectQuantumResistanceSetting: (Boolean) -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
@@ -390,9 +302,7 @@ fun VpnSettingsContent(
         when (initialScrollToFeature) {
             FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistantSetting::class
-            FeatureIndicator.DNS_CONTENT_BLOCKERS -> VpnSettingItem.DnsContentBlockersHeader::class
             FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.Mtu::class
-            FeatureIndicator.CUSTOM_DNS -> VpnSettingItem.CustomDnsServerSetting::class
             else -> null
         }?.let { clazz -> state.settings.indexOfFirstOrNull { it::class == clazz } } ?: 0
 
@@ -467,73 +377,6 @@ fun VpnSettingsContent(
                         )
                     }
 
-                VpnSettingItem.CustomDnsAdd ->
-                    item(key = it::class.simpleName) {
-                        MullvadListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Bottom,
-                            onClick = { navigateToDns(null, null) },
-                            content = { Text(text = stringResource(id = R.string.add_a_server)) },
-                            trailingContent = {
-                                DividerButton(
-                                    onClick = { navigateToDns(null, null) },
-                                    icon = Icons.Rounded.Add,
-                                )
-                            },
-                        )
-                    }
-
-                is VpnSettingItem.CustomDnsEntry ->
-                    item(key = it::class.simpleName + it.index) {
-                        DnsListItem(
-                            modifier = Modifier.animateItem(),
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                            address = it.customDnsItem.address,
-                            isUnreachableLocalDnsWarningVisible = it.showUnreachableLocalDnsWarning,
-                            isUnreachableIpv6DnsWarningVisible = it.showUnreachableIpv6DnsWarning,
-                            onClick = { navigateToDns(it.index, it.customDnsItem.address) },
-                        )
-                    }
-
-                VpnSettingItem.CustomDnsInfo ->
-                    item(key = it::class.simpleName) {
-                        ListItemInfo(
-                            modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
-                            text = stringResource(id = R.string.custom_dns_footer),
-                        )
-                    }
-
-                is VpnSettingItem.CustomDnsServerSetting ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.CUSTOM_DNS)
-                                    ),
-                            position = if (it.enabled) Position.Top else Position.Single,
-                            title = stringResource(R.string.enable_custom_dns),
-                            isToggled = it.enabled,
-                            isEnabled = it.isOptionEnabled,
-                            onCellClicked = { newValue -> onToggleDnsClick(newValue) },
-                            onInfoClicked = { navigateToCustomDnsInfo() },
-                            backgroundAlpha = highlightBackgroundAlpha(FeatureIndicator.CUSTOM_DNS),
-                        )
-                    }
-                VpnSettingItem.CustomDnsUnavailable ->
-                    item(key = it::class.simpleName) {
-                        ListItemInfo(
-                            modifier = Modifier.animateItem().padding(bottom = Dimens.largeSpacer),
-                            text =
-                                stringResource(
-                                    id = R.string.custom_dns_disable_mode_subtitle,
-                                    stringResource(id = R.string.dns_content_blockers),
-                                ),
-                        )
-                    }
-
                 VpnSettingItem.DeviceIpVersionHeader ->
                     item(key = it::class.simpleName) {
                         InfoListItem(
@@ -587,149 +430,6 @@ fun VpnSettingsContent(
                         )
                     }
                 }
-
-                is VpnSettingItem.DnsContentBlockerItem.All ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Middle,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.all),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleAllBlockers(it) },
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockerItem.Ads ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Middle,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.block_ads_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockAds(it) },
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockerItem.AdultContent ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Middle,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.block_adult_content_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockAdultContent(it) },
-                        )
-                    }
-                is VpnSettingItem.DnsContentBlockerItem.Gambling ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Middle,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.block_gambling_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockGambling(it) },
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockerItem.Malware ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Middle,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.block_malware_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockMalware(it) },
-                            onInfoClicked = { navigateToMalwareInfo() },
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockerItem.SocialMedia ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            position = Position.Bottom,
-                            hierarchy = Hierarchy.Child1,
-                            title = stringResource(R.string.block_social_media_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockSocialMedia(it) },
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockerItem.Trackers ->
-                    item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier = Modifier.animateItem(),
-                            title = stringResource(R.string.block_trackers_title),
-                            isToggled = it.enabled,
-                            isEnabled = it.featureEnabled,
-                            onCellClicked = { onToggleBlockTrackers(it) },
-                            hierarchy = Hierarchy.Child1,
-                            position = Position.Middle,
-                        )
-                    }
-
-                is VpnSettingItem.DnsContentBlockersHeader ->
-                    item(key = it::class.simpleName) {
-                        ExpandableListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(
-                                            FeatureIndicator.DNS_CONTENT_BLOCKERS
-                                        )
-                                    ),
-                            backgroundAlpha =
-                                highlightBackgroundAlpha(FeatureIndicator.DNS_CONTENT_BLOCKERS),
-                            position = if (it.expanded) Position.Top else Position.Single,
-                            content = { _ ->
-                                Row {
-                                    Text(
-                                        modifier = Modifier.weight(1f),
-                                        text = stringResource(R.string.dns_content_blockers),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                    if (it.numberOfContentBlockersEnabled > 0) {
-                                        Text(SPACE_CHAR.toString())
-                                        Text(
-                                            stringResource(
-                                                R.string.number_parentheses,
-                                                it.numberOfContentBlockersEnabled,
-                                            ),
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-                                }
-                            },
-                            isExpanded = it.expanded,
-                            isEnabled = it.featureEnabled,
-                            onInfoClicked = { navigateToContentBlockersInfo() },
-                            onCellClicked = { onToggleContentBlockersExpanded() },
-                        )
-                    }
-
-                VpnSettingItem.DnsContentBlockersUnavailable ->
-                    item(key = it::class.simpleName) {
-                        ListItemInfo(
-                            text =
-                                stringResource(
-                                    id = R.string.dns_content_blockers_subtitle,
-                                    stringResource(id = R.string.enable_custom_dns),
-                                ),
-                            modifier = Modifier.animateItem(),
-                        )
-                    }
 
                 is VpnSettingItem.EnableIpv6Setting ->
                     item(key = it::class.simpleName) {
@@ -815,6 +515,16 @@ fun VpnSettingsContent(
                         )
                     }
 
+                VpnSettingItem.DnsHeader ->
+                    item(key = it::class.simpleName) {
+                        NavigationListItem(
+                            modifier =
+                                Modifier.testTag(LAZY_LIST_DNS_SETTINGS_TEST_TAG).animateItem(),
+                            title = stringResource(id = R.string.dns_settings),
+                            onClick = navigateToDns,
+                        )
+                    }
+
                 VpnSettingItem.Spacer ->
                     item(contentType = it::class.simpleName) {
                         Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing).animateItem())
@@ -841,8 +551,6 @@ private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit, modifier: Mo
 
 private fun VpnSettingsSideEffect.ShowToast.message(resources: Resources) =
     when (this) {
-        VpnSettingsSideEffect.ShowToast.ApplySettingsWarning ->
-            resources.getString(R.string.settings_changes_effect_warning_short)
         VpnSettingsSideEffect.ShowToast.GenericError -> resources.getString(R.string.error_occurred)
     }
 
@@ -855,13 +563,7 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
 // A list of feature indicators on this screen
 private fun featureIndicators() =
     listOf(
-        FeatureIndicator.UDP_2_TCP,
-        FeatureIndicator.SHADOWSOCKS,
-        FeatureIndicator.QUIC,
-        FeatureIndicator.LWO,
         FeatureIndicator.LAN_SHARING,
         FeatureIndicator.QUANTUM_RESISTANCE,
-        FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_MTU,
-        FeatureIndicator.CUSTOM_DNS,
     )
