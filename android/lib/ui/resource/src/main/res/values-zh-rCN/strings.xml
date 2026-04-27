@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">可通过 API 访问，正在添加方法…</string>
     <string name="api_unreachable">无法通过 API 访问</string>
     <string name="api_unreachable_save_anyway">无法通过 API 访问，是否仍然保存方法？</string>
+    <string name="app_icon">应用图标</string>
     <string name="app_info">应用信息</string>
     <string name="app_is_blocking_internet">应用正在阻止互联网，请先断开连接</string>
     <string name="app_name_browser">浏览器</string>

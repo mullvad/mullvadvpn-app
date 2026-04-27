@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">Erişilebilir API, yöntem ekleniyor...</string>
     <string name="api_unreachable">Erişilemez API</string>
     <string name="api_unreachable_save_anyway">API\'ye erişilemiyor, yöntem yine de kaydedilsin mi?</string>
+    <string name="app_icon">Uygulama simgesi</string>
     <string name="app_info">Uygulama bilgileri</string>
     <string name="app_is_blocking_internet">Uygulama internet bağlantısını engelliyor. Lütfen önce bağlantıyı kesin</string>
     <string name="app_name_browser">Tarayıcı</string>
