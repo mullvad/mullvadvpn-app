@@ -34,8 +34,8 @@
     <string name="anti_censorship_info_first_paragraph">Ці методи можуть бути корисними в ситуаціях, коли у вас заблоковано доступ до Mullvad. Якщо вибрано «Автоматично», застосунок намагатиметься використовувати всі методи, доки один із них не спрацює.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Зауважте, що ці методи не покращують продуктивності й можуть збільшити навантаження на систему та споживання заряду батареї.</b></string>
     <string name="any">Усі</string>
-    <string name="api_access_description">Додавайте користувацькі методи доступу до API Mullvad і керуйте ними.</string>
-    <string name="api_access_method_info_first_line">Застосунку потрібне з’єднання з API-сервером Mullvad, щоб ввійти в обліковий запис, отримати список серверів і виконати інші критично важливі дії.</string>
+    <string name="api_access_description">Додавайте користувацькі методи доступу до Mullvad API і керуйте ними.</string>
+    <string name="api_access_method_info_first_line">Застосунку потрібне з’єднання з API-сервером Mullvad, щоб увійти в обліковий запис, отримати список серверів і виконати інші критично важливі дії.</string>
     <string name="api_access_method_info_fourth_line">«Поточний» метод — це метод, який застосунок використовує для доступу до API.</string>
     <string name="api_access_method_info_second_line">У деяких мережах, де використовують різні типи цензури, може не бути прямого доступу до серверів API.</string>
     <string name="api_access_method_info_third_line">Ця функція дає змогу обійти таку цензуру, додаючи власні способи доступу до API через проксі-сервери й подібні методи.</string>
@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">Є доступ до API, додаємо метод…</string>
     <string name="api_unreachable">Немає доступу до API</string>
     <string name="api_unreachable_save_anyway">Немає доступу до API. Усе одно зберегти метод?</string>
+    <string name="app_icon">Значок застосунку</string>
     <string name="app_info">Інформація про застосунок</string>
     <string name="app_is_blocking_internet">Застосунок блокує Інтернет, спочатку відключіться</string>
     <string name="app_name_browser">Браузер</string>
@@ -90,7 +91,7 @@
     <string name="confirm_ipv6_dns">DNS-сервер для IPv6 не працюватиме, якщо IPv6 не ввімкнено в налаштуваннях VPN.</string>
     <string name="confirm_local_dns">Локальний DNS-сервер не працюватиме, якщо в налаштуваннях VPN не ввімкнено «Обмін даними в локальній мережі».</string>
     <string name="confirm_no_email">Ви збираєтеся надіслати звіт про проблему, не залишивши контактних даних. Якщо ви хочете отримати відповідь, введіть адресу електронної пошти.</string>
-    <string name="confirm_removal">Так, вийти з профілю на пристрої</string>
+    <string name="confirm_removal">Так, вийти з облікового запису на пристрої</string>
     <string name="congrats">Вітаємо!</string>
     <string name="connect">Підключити</string>
     <string name="connect_on_start">Підключатися під час запуску пристрою</string>
@@ -126,7 +127,7 @@
     <string name="custom_dns_disable_mode_subtitle">Вимкніть усі %1$s вище, щоб активувати цей параметр.</string>
     <string name="custom_dns_footer">Щоб додати хоча б один DNS-сервер, увімкніть цей параметр.</string>
     <string name="custom_dns_hint">Введіть IP-адресу</string>
-    <string name="custom_list_error_list_exists">Назва вже використовується.</string>
+    <string name="custom_list_error_list_exists">Ім’я вже використовується.</string>
     <string name="custom_lists">Користувацькі списки</string>
     <string name="custom_port_dialog_placeholder">Введіть порт</string>
     <string name="custom_port_dialog_remove">Вилучити користувацький порт</string>
@@ -146,7 +147,7 @@
     <string name="days_were_added_30">На баланс облікового запису додано 30 днів.</string>
     <string name="days_were_added_90">На баланс облікового запису додано 90 днів.</string>
     <string name="delete">Видалити</string>
-    <string name="delete_account">Видалити обл. запис</string>
+    <string name="delete_account">Видалити обліковий запис</string>
     <string name="delete_account_cant_be_undone">Видалення облікового запису не можна скасувати.</string>
     <string name="delete_account_confirm_first_item"><b>Цю дію не можна скасувати.</b></string>
     <string name="delete_account_confirm_second_item"><b>Ви втратите доступ до цього облікового запису на всіх пристроях.</b></string>
@@ -172,7 +173,7 @@
     <string name="delete_method_question">Видалити метод?</string>
     <string name="device_inactive_description">Ви вилучили цей пристрій. Щоб підключитися знову, потрібно ввійти в обліковий запис.</string>
     <string name="device_inactive_title">Пристрій неактивний</string>
-    <string name="device_inactive_unblock_warning">Вхід у профіль розблокує Інтернет на цьому пристрої.</string>
+    <string name="device_inactive_unblock_warning">Вхід в обліковий запис розблокує Інтернет на цьому пристрої.</string>
     <string name="device_ip_info_first_paragraph">Ця функція дає змогу вибирати протокол, який використовується, — лише IPv4, лише IPv6 — або дозволити застосунку автоматично визначати найкращий варіант під час підключення до сервера.</string>
     <string name="device_ip_info_second_paragraph">Може бути корисно, коли ви знаєте про проблеми, спричинені певною версією IP.</string>
     <string name="device_ip_version_title">Версія IP на пристрої</string>
@@ -303,7 +304,7 @@
     <string name="manage_devices_confirm_removal_description_line1">Вилучити %1$s?</string>
     <string name="manage_devices_confirm_removal_description_line2">Ви вийдете з облікового запису на цьому пристрої, і його буде вилучено зі списку.</string>
     <string name="manage_devices_description">Переглядайте пристрої, на яких виконано вхід у ваш обліковий запис, і керуйте ними. Їх одночасно може бути до 5. Кожному пристрою під час входу надається ім’я, щоб їх було легше розрізняти.</string>
-    <string name="max_devices_confirm_removal_description">Справді вийти з профілю на пристрої <b>%1$s</b>?</string>
+    <string name="max_devices_confirm_removal_description">Справді вийти з облікового запису на пристрої <b>%1$s</b>?</string>
     <string name="max_devices_resolved_description">Тепер можна ввійти в обліковий запис на цьому пристрої.</string>
     <string name="max_devices_resolved_title">Чудово!</string>
     <string name="max_devices_warning_description">Вийдіть хоча б з одного пристрою, вилучивши його зі списку нижче. Ім’я відповідного пристрою можна знайти в налаштуваннях облікового запису пристрою.</string>
@@ -491,7 +492,7 @@
     <string name="version">Версія</string>
     <string name="view_logs">Переглянути журнали</string>
     <string name="voucher_already_used">Код ваучера вже використано.</string>
-    <string name="voucher_is_account_number">Схоже, ви ввели номер облікового запису замість коду ваучера. Якщо хочете змінити активний обліковий запис, спочатку вийдіть із профілю.</string>
+    <string name="voucher_is_account_number">Схоже, ви ввели номер облікового запису замість коду ваучера. Якщо хочете змінити активний обліковий запис, спочатку вийдіть з облікового запису.</string>
     <string name="voucher_success_title">Ваучер використано.</string>
     <string name="vpn_permission_denied_error">Дозвіл на VPN відхилено або в іншому застосунку увімкнено опцію «Завжди увімкнений VPN»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Дозвіл на VPN відхилено</string>

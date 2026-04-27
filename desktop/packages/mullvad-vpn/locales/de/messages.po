@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2026-03-20 09:19\n"
+"PO-Revision-Date: 2026-04-27 09:12\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d mehr …"
@@ -114,6 +114,9 @@ msgstr "Verbinden"
 msgid "CONNECTING..."
 msgstr "VERBINDEN …"
 
+msgid "Create"
+msgstr "Erstellen"
+
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
 msgstr "QUANTENSICHERE VERBINDUNG WIRD ERSTELLT"
@@ -183,7 +186,7 @@ msgstr "Fehler beim Abrufen der Geräteliste"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN"
 
-msgid "Filter"
+msgid "Filters"
 msgstr "Filter"
 
 #. Button label for system settings.
@@ -218,6 +221,9 @@ msgstr "Multihop"
 
 msgid "Name"
 msgstr "Name"
+
+msgid "New list"
+msgstr "Neue Liste"
 
 msgid "Next"
 msgstr "Weiter"
@@ -268,6 +274,9 @@ msgstr "Erneut verbinden"
 msgid "Remove"
 msgstr "Entfernen"
 
+msgid "Remove from list"
+msgstr "Aus Liste entfernen"
+
 msgid "Required"
 msgstr "Erforderlich"
 
@@ -314,6 +323,13 @@ msgstr "Verwenden"
 msgid "Username"
 msgstr "Benutzername"
 
+#. Text for screen readers to describe the LWO settings navigation button.
+#. Available placeholders:
+#. %(lwo)s - will be replaced with LWO
+msgctxt "accessibility"
+msgid "%(lwo)s settings"
+msgstr "%(lwo)s-Einstellungen"
+
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
 msgstr "%(title)s, geladene anzeigen"
@@ -325,6 +341,30 @@ msgctxt "accessibility"
 msgid "%(wireguard)s port settings"
 msgstr "%(wireguard)s-Port-Einstellungen"
 
+#. This is an accessibility label for a button that adds a location to a custom list.
+#. Available placeholders:
+#. %(location)s - The name of the location being added to the list.
+#. %(listName)s - The name of the custom list the location will be added to.
+msgctxt "accessibility"
+msgid "Add %(location)s to %(listName)s"
+msgstr "%(location)s zu %(listName)s hinzufügen"
+
+#. Accessibility label for button to add a location to a custom list.
+#. The placeholder is replaced with the name of the location.
+msgctxt "accessibility"
+msgid "Add %(locationName)s to custom list"
+msgstr "%(locationName)s zu benutzerdefinierter Liste hinzufügen"
+
+#. This is an accessibility label for a button that opens a dialog to create a new custom list.
+msgctxt "accessibility"
+msgid "Add a new custom list"
+msgstr "Neue benutzerdefinierte Liste hinzufügen"
+
+#. Accessibility description for button clearing the ownership filter.
+msgctxt "accessibility"
+msgid "Clear ownership filter"
+msgstr "Eigentümerschaftsfilter löschen"
+
 msgctxt "accessibility"
 msgid "Close notification"
 msgstr "Benachrichtigung schließen"
@@ -332,6 +372,13 @@ msgstr "Benachrichtigung schließen"
 msgctxt "accessibility"
 msgid "Collapse %(location)s"
 msgstr "%(location)s einklappen"
+
+#. Accessibility label for a button that connects to a location.
+#. Available placeholders:
+#. %(location)s - The name of the location that will be connected to when the button is clicked.
+msgctxt "accessibility"
+msgid "Connect to %(location)s"
+msgstr "Mit %(location)s verbinden"
 
 #. Provided to accessibility tools such as screenreaders to describe a button
 #. which copies the account number to the clipboard.
@@ -343,6 +390,18 @@ msgstr "Kontonummer kopieren"
 msgctxt "accessibility"
 msgid "DAITA information carousel"
 msgstr "DAITA-Infokarussell"
+
+#. Accessibility label for button to delete a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Delete custom list %(listName)s"
+msgstr "Benutzerdefinierte Liste %(listName)s löschen"
+
+#. Accessibility label for button to edit a custom list.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Edit custom list %(listName)s"
+msgstr "Benutzerdefinierte Liste %(listName)s bearbeiten"
 
 msgctxt "accessibility"
 msgid "Expand %(location)s"
@@ -425,6 +484,25 @@ msgctxt "accessibility"
 msgid "Next slide"
 msgstr "Nächste Folie"
 
+#. Accessibility label for button to open a custom list menu.
+#. The placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Open menu for %(listName)s"
+msgstr "Menü für %(listName)s öffnen"
+
+#. Accessibility label for button to open a location menu.
+#. The placeholder is replaced with the name of the location.
+#. Accessibility label for button to edit a geographical location.
+#. The placeholder is replaced with the name of the geographical location.
+msgctxt "accessibility"
+msgid "Open menu for %(locationName)s"
+msgstr "Menü für %(locationName)s öffnen"
+
+#. Label for button opening select location menu.
+msgctxt "accessibility"
+msgid "Open select location menu"
+msgstr "Standortauswahl-Menü öffnen"
+
 #. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -434,6 +512,13 @@ msgstr "Wird extern geöffnet"
 msgctxt "accessibility"
 msgid "Previous slide"
 msgstr "Vorherige Folie"
+
+#. Accessibility label for button to remove a location from a custom list.
+#. The first placeholder is replaced with the name of the location.
+#. The second placeholder is replaced with the name of the custom list.
+msgctxt "accessibility"
+msgid "Remove %(location)s from %(customList)s"
+msgstr "%(location)s von %(customList)s entfernen"
 
 #. Button action description provided to accessibility tools such as screen
 #. readers.
@@ -1060,6 +1145,85 @@ msgctxt "connection-info"
 msgid "Out"
 msgstr "Ausgehend"
 
+#. Label for disabled menu option when a location has already been added to a custom list.
+#. Available placeholders:
+#. %(customList)s - The name of the custom list the location has been added to.
+msgctxt "custom-list-feature"
+msgid "%(customList)s (Added)"
+msgstr "%(customList)s (Hinzugefügt)"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationName)s - The name of the location being added to the list.
+msgctxt "custom-list-feature"
+msgid "Add %(locationName)s to list"
+msgstr "%(locationName)s zur Liste hinzufügen"
+
+#. Label for button to create a new custom list with a specific location.
+#. Available placeholder:
+#. %(locationName)s - The name of the location being added to the list.
+msgctxt "custom-list-feature"
+msgid "Add %(locationName)s to new list"
+msgstr "%(locationName)s zu neuer Liste hinzufügen"
+
+#. This is a label shown above a list of options.
+#. Available placeholder:
+#. %(locationType) - Could be either "Country", "City" and "Relay"
+msgctxt "custom-list-feature"
+msgid "Add %(locationType)s to list"
+msgstr "%(locationType)s zur Liste hinzufügen"
+
+msgctxt "custom-list-feature"
+msgid "City"
+msgstr "Stadt"
+
+msgctxt "custom-list-feature"
+msgid "Country"
+msgstr "Land"
+
+#. Label for the input where the user can enter the name of a new custom list.
+msgctxt "custom-list-feature"
+msgid "Create list"
+msgstr "Liste erstellen"
+
+#. Label for the option to delete a custom list in a menu.
+msgctxt "custom-list-feature"
+msgid "Delete"
+msgstr "Löschen"
+
+#. Confirmation message shown when the user tries to delete a custom list.
+#. Asks the user if they are sure they want to delete the list.
+#. Available placeholder:
+#. %(list)s - The name of the custom list that is about to be deleted.
+msgctxt "custom-list-feature"
+msgid "Do you want to delete the list %(list)s?"
+msgstr "Möchten Sie die Liste %(list)s löschen?"
+
+msgctxt "custom-list-feature"
+msgid "Edit list name"
+msgstr "Name der Liste bearbeiten"
+
+#. Label for the option to edit a custom list in a menu.
+msgctxt "custom-list-feature"
+msgid "Edit name"
+msgstr "Name bearbeiten"
+
+msgctxt "custom-list-feature"
+msgid "Enter a name for the list"
+msgstr "Geben Sie einen Namen für die Liste ein"
+
+msgctxt "custom-list-feature"
+msgid "Enter a new name for the list"
+msgstr "Geben Sie einen neuen Namen für die Liste ein"
+
+msgctxt "custom-list-feature"
+msgid "List names must be unique"
+msgstr "Die Namen der Listen müssen eindeutig sein"
+
+msgctxt "custom-list-feature"
+msgid "Relay"
+msgstr "Relay"
+
 #. Button for continuing login process.
 msgctxt "device-management"
 msgid "Continue with login"
@@ -1221,10 +1385,6 @@ msgid "Rented only"
 msgstr "Nur gemietet"
 
 msgctxt "in-app-notifications"
-msgid "\"%(lockdownModeSettingName)s\" is enabled."
-msgstr "\"%(lockdownModeSettingName)s\" ist aktiviert."
-
-msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
 msgstr "%(duration)s. Mehr Guthaben erwerben."
 
@@ -1234,6 +1394,10 @@ msgstr "%(duration)s. Mehr Guthaben erwerben."
 msgctxt "in-app-notifications"
 msgid "%(suggestedUpgradeVersion)s is ready to be installed."
 msgstr "%(suggestedUpgradeVersion)s ist bereit für die Installation."
+
+msgctxt "in-app-notifications"
+msgid "<a>%(lockdownModeSettingName)s</a> is enabled. Please click “Connect“ or disable “%(lockdownModeSettingName)s“ to unblock internet."
+msgstr "<a>%(lockdownModeSettingName)s</a> ist aktiviert. Klicken Sie bitte auf „Verbinden“ oder deaktivieren Sie „%(lockdownModeSettingName)s“, um den Internetzugang zu entsperren."
 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
@@ -1307,12 +1471,6 @@ msgstr "UPDATE WIRD HERUNTERGELADEN …"
 msgctxt "in-app-notifications"
 msgid "DOWNLOADING UPDATE... %(appUpgradeDownloadProgressValue)s%%"
 msgstr "UPDATE WIRD HERUNTERGELADEN … %(appUpgradeDownloadProgressValue)s%%"
-
-#. Label for the in-app banner when the app encountered an error
-#. and will block network traffic until the error is resolved.
-msgctxt "in-app-notifications"
-msgid "Failed to start %(splitTunneling)s. <a>Please send a problem report.</a> To unblock network traffic, disable split tunneling."
-msgstr "%(splitTunneling)s konnte nicht gestartet werden. <a>Senden Sie bitte einen Problembericht.</a> Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie Split-Tunneling deaktivieren."
 
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
@@ -1500,6 +1658,27 @@ msgctxt "launch-view"
 msgid "Unable to contact the Mullvad system service, your connection might be unsecure. Please troubleshoot or send a problem report by clicking the \"Learn more\" button."
 msgstr "Es ist nicht möglich, den Mullvad-Systemdienst zu kontaktieren, Ihre Verbindung ist möglicherweise unsicher. Bitte beheben Sie das Problem oder senden Sie einen Problembericht, indem Sie auf „Mehr erfahren“ klicken."
 
+#. This is used for appending information about a location.
+#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
+#. Available placeholders:
+#. %(location)s - Translated location name
+#. %(info)s - Information about the location
+msgctxt "locations-feature"
+msgid "%(location)s (%(info)s)"
+msgstr "%(location)s (%(info)s)"
+
+msgctxt "locations-feature"
+msgid "Disabling recents will also clear history."
+msgstr "Durch das Deaktivieren der letzten Aktivitäten wird auch der Verlauf gelöscht."
+
+msgctxt "locations-feature"
+msgid "Entry"
+msgstr "Eingang"
+
+msgctxt "locations-feature"
+msgid "Exit"
+msgstr "Ausgang"
+
 #. This is a warning message shown when the app is blocking the users
 #. internet connection while logged out.
 #. Available placeholder:
@@ -1625,6 +1804,33 @@ msgctxt "login-view"
 msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
 msgstr "Sie haben bereits eine gespeicherte Kontonummer. Wenn Sie ein neues Konto erstellen, wird die gespeicherte Kontonummer von diesem Gerät entfernt. Dies kann nicht rückgängig gemacht werden."
 
+#. The title for the LWO port selector.
+msgctxt "lwo-settings-view"
+msgid "Port"
+msgstr "Port"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
+msgctxt "lwo-settings-view"
+msgid "Port: %(port)s"
+msgstr "Port: %(port)s"
+
+msgctxt "lwo-settings-view"
+msgid "The automatic setting will randomly choose from the valid port ranges shown below."
+msgstr "Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen."
+
+msgctxt "lwo-settings-view"
+msgid "The custom port can be any value inside the valid ranges: %(portRanges)s."
+msgstr "Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %(portRanges)s."
+
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
+msgctxt "lwo-settings-view"
+msgid "Valid ranges: %(portRanges)s"
+msgstr "Gültige Bereiche: %(portRanges)s"
+
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "API access"
@@ -1701,9 +1907,10 @@ msgstr "Split Tunneling konnte nicht aktiviert werden. Versuchen Sie, die Verbin
 
 #. Label for the system notification when the app encountered an error
 #. and will block network traffic until the error is resolved.
+#. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. Please send a problem report. To unblock network traffic, disable split tunneling."
-msgstr "%(splitTunneling)s konnte nicht gestartet werden. Senden Sie bitte einen Problembericht. Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie Split-Tunneling deaktivieren."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
+msgstr "%(splitTunneling)s konnte nicht gestartet werden. Um die Blockierung des Netzwerk-Traffics aufzuheben, müssen Sie Split Tunneling deaktivieren."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -1857,49 +2064,38 @@ msgctxt "select-location-nav"
 msgid "Select location"
 msgstr "Ort auswählen"
 
+#. Message shown when the user has no custom lists.
+#. Instructs the user how to create a custom list.
 msgctxt "select-location-view"
-msgid "(Added)"
-msgstr "(Hinzugefügt)"
-
-#. This is used for appending information about a location.
-#. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
-#. Available placeholders:
-#. %(location)s - Translated location name
-#. %(info)s - Information about the location
-msgctxt "select-location-view"
-msgid "%(location)s (%(info)s)"
-msgstr "%(location)s (%(info)s)"
-
-#. This is a label shown above a list of options.
-#. Available placeholder:
-#. %(locationType) - Could be either "Country", "City" and "Relay"
-msgctxt "select-location-view"
-msgid "Add <b>%(locationType)s</b> to list"
-msgstr "<b>%(locationType)s</b> zur Liste hinzufügen"
+msgid "Add a custom list by clicking the “+” icon"
+msgstr "Fügen Sie eine benutzerdefinierte Liste hinzu, indem Sie das „+“-Symbol anklicken"
 
 msgctxt "select-location-view"
 msgid "All locations"
 msgstr "Alle Standorte"
 
+#. Message shown in the custom list section when the user has at least one custom list.
+#. Instructs the user how to add locations to the custom list.
 msgctxt "select-location-view"
-msgid "City"
-msgstr "Stadt"
-
-msgctxt "select-location-view"
-msgid "Country"
-msgstr "Land"
+msgid "Click “+“ on a location to add it to a list"
+msgstr "Klicken Sie bei einem Standort auf das „+“-Symbol, um ihn zu einer Liste hinzuzufügen"
 
 msgctxt "select-location-view"
 msgid "Custom lists"
 msgstr "Eigene Listen"
 
 msgctxt "select-location-view"
-msgid "Do you want to delete the list <b>%(list)s</b>?"
-msgstr "Möchten Sie die Liste <b>%(list)s</b> löschen?"
+msgid "Disable recents"
+msgstr "Letzte deaktivieren"
+
+#. Label for custom lists that don't have any locations added to them yet.
+msgctxt "select-location-view"
+msgid "Empty"
+msgstr "Leer"
 
 msgctxt "select-location-view"
-msgid "Edit list name"
-msgstr "Name der Liste bearbeiten"
+msgid "Enable recents"
+msgstr "Letzte aktivieren"
 
 msgctxt "select-location-view"
 msgid "Entry"
@@ -1913,13 +2109,10 @@ msgctxt "select-location-view"
 msgid "Filtered:"
 msgstr "Gefiltert:"
 
+#. Message shown when the user has no recent locations.
 msgctxt "select-location-view"
-msgid "List names must be unique."
-msgstr "Die Namen der Listen müssen eindeutig sein."
-
-msgctxt "select-location-view"
-msgid "Name is already taken."
-msgstr "Der Name ist bereits vergeben."
+msgid "No recent selection history"
+msgstr "Kein aktueller Auswahlverlauf"
 
 #. Label for indicator that shows that obfuscation is being used as a filter.
 #. Available placeholders:
@@ -1936,13 +2129,22 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr "Provider: %(numberOfProviders)d"
 
+#. Title for section showing recently used locations.
 msgctxt "select-location-view"
-msgid "Relay"
-msgstr "Relay"
+msgid "Recents"
+msgstr "Letzte"
 
 msgctxt "select-location-view"
 msgid "Setting: %(settingName)s"
 msgstr "Einstellung: %(settingName)s"
+
+#. Text showing how many locations are currently shown out of the total number of locations, e.g. "Showing 5 of 250"
+#. Available placeholders:
+#. %(visibleRelays)s: The number of relays currently shown
+#. %(totalRelays)s: The total number of relays
+msgctxt "select-location-view"
+msgid "Showing %(visibleRelays)s of %(totalRelays)s"
+msgstr "%(visibleRelays)s von %(totalRelays)s werden angezeigt"
 
 msgctxt "select-location-view"
 msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
@@ -2290,6 +2492,10 @@ msgid "If these steps do not work please send a problem report."
 msgstr "Falls diese Schritte nicht helfen, senden Sie bitte einen Problembericht."
 
 msgctxt "troubleshoot"
+msgid "If you have installed another VPN then try to uninstall that."
+msgstr "Falls Sie ein anderes VPN installiert haben, versuchen Sie, es zu deinstallieren."
+
+msgctxt "troubleshoot"
 msgid "Make sure you have NF tables support."
 msgstr "Vergewissern Sie sich, dass Sie nftables unterstützen."
 
@@ -2304,10 +2510,6 @@ msgstr "Der Fehler kann auftreten, wenn etwas Anderes als Mullvad das DNS aktiv 
 msgctxt "troubleshoot"
 msgid "This might be caused by an outdated kernel."
 msgstr "Die Ursache dafür könnte ein veralteter Kernel sein."
-
-msgctxt "troubleshoot"
-msgid "Try reconnecting."
-msgstr "Versuchen Sie, sich neu zu verbinden."
 
 msgctxt "troubleshoot"
 msgid "Try restarting your device."
@@ -2326,8 +2528,8 @@ msgid "Try to uninstall VMware."
 msgstr "Versuchen Sie, VMware zu deinstallieren."
 
 msgctxt "troubleshoot"
-msgid "Unable to communicate with Mullvad kernel driver."
-msgstr "Die Kommunikation mit dem Mullvad Kernel-Treiber ist nicht möglich."
+msgid "Unable to communicate with the split tunnel driver."
+msgstr "Die Kommunikation mit dem Split-Tunnel-Treiber ist nicht möglich."
 
 msgctxt "troubleshoot"
 msgid "Unable to start tunnel connection because of a failure when creating the tunnel device. This is often caused by conflicts with the VMware Bridge Protocol."
@@ -2728,6 +2930,13 @@ msgctxt "wireguard-settings-view"
 msgid "Valid range: %(min)s - %(max)s"
 msgstr "Gültiger Bereich: %(min)s–%(max)s"
 
+#. Text describing the valid port ranges for a port selector.
+#. Available placeholders:
+#. %(portRanges)s - will be replaced with a comma-separated list of port ranges
+msgctxt "wireguard-settings-view"
+msgid "Valid ranges: %(portRanges)s"
+msgstr "Gültige Bereiche: %(portRanges)s"
+
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll."
@@ -2882,6 +3091,9 @@ msgstr "Android 16 hat einen bekannten Fehler. Bitte starten Sie Ihr Gerät neu 
 msgid "Any remaining time will be null and void."
 msgstr "Jegliche verbleibende Zeit ist ungültig."
 
+msgid "App icon"
+msgstr "App-Symbol"
+
 msgid "Appearance"
 msgstr "Erscheinungsbild"
 
@@ -2966,9 +3178,6 @@ msgstr "Kopieren"
 msgid "Could not display remaining days."
 msgstr "Die verbleibenden Tage konnten nicht angezeigt werden."
 
-msgid "Create"
-msgstr "Erstellen"
-
 msgid "Create new list"
 msgstr "Neue Liste erstellen"
 
@@ -3014,9 +3223,6 @@ msgstr "Deaktivieren Sie oben alle „%s“, um diese Einstellung zu aktivieren.
 msgid "Disable multihop"
 msgstr "Multihop deaktivieren"
 
-msgid "Disable recents"
-msgstr "Letzte deaktivieren"
-
 msgid "Discard"
 msgstr "Verwerfen"
 
@@ -3047,9 +3253,6 @@ msgstr "Listen bearbeiten"
 msgid "Edit locations"
 msgstr "Standorte bearbeiten"
 
-msgid "Edit name"
-msgstr "Name bearbeiten"
-
 msgid "Enable %1$s"
 msgstr "%1$s aktivieren"
 
@@ -3064,9 +3267,6 @@ msgstr "Methode aktivieren"
 
 msgid "Enable multihop"
 msgstr "Multihop aktivieren"
-
-msgid "Enable recents"
-msgstr "Letzte aktivieren"
 
 msgid "Enter MTU"
 msgstr "MTU eingeben"
@@ -3206,14 +3406,14 @@ msgstr "Multihop ist deaktiviert"
 msgid "Multihop is enabled"
 msgstr "Multihop ist aktiviert"
 
+msgid "Name is already taken."
+msgstr "Der Name ist bereits vergeben."
+
 msgid "Name was changed to %s"
 msgstr "Name wurde geändert in %s"
 
 msgid "Navigate"
 msgstr "Navigieren"
-
-msgid "New list"
-msgstr "Neue Liste"
 
 msgid "No Android app store installed, could not open link"
 msgstr "Kein Android-App-Store installiert, Link konnte nicht geöffnet werden"
@@ -3241,9 +3441,6 @@ msgstr "Keine Internetverbindung"
 
 msgid "No matching servers found."
 msgstr "Keine passenden Server gefunden."
-
-msgid "No recent selection history"
-msgstr "Kein aktueller Auswahlverlauf"
 
 msgid "No result for \"%s\", please try a different search"
 msgstr "Kein Ergebnis für „%s“, bitte versuchen Sie einen anderen Suchbegriff"
@@ -3299,9 +3496,6 @@ msgstr "Datenschutz"
 msgid "Privacy policy"
 msgstr "Datenschutzrichtlinie"
 
-msgid "Recents"
-msgstr "Letzte"
-
 msgid "Recents disabled and history cleared"
 msgstr "Letzte deaktiviert und Verlauf gelöscht"
 
@@ -3310,9 +3504,6 @@ msgstr "Rekursionslimit"
 
 msgid "Refunds will not be possible."
 msgstr "Rückerstattungen sind nicht möglich."
-
-msgid "Remove %1$s from %2$s"
-msgstr "%1$s von %2$s entfernen"
 
 msgid "Remove %s?"
 msgstr "%s entfernen?"
@@ -3523,9 +3714,6 @@ msgstr "Status des VPN-Tunnels"
 
 msgid "Valid range for all servers: %s"
 msgstr "Gültiger Bereich für alle Server: %s"
-
-msgid "Valid ranges: %s"
-msgstr "Gültige Bereiche: %s"
 
 msgid "Value: %s"
 msgstr "Wert: %s"

@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API joignable, ajout de la méthode...</string>
     <string name="api_unreachable">API injoignable</string>
     <string name="api_unreachable_save_anyway">API injoignable, enregistrer quand même la méthode ?</string>
+    <string name="app_icon">Icône de l\'application</string>
     <string name="app_info">Infos sur l\'application</string>
     <string name="app_is_blocking_internet">L\'application bloque Internet. Veuillez d\'abord vous déconnecter</string>
     <string name="app_name_browser">Navigateur</string>

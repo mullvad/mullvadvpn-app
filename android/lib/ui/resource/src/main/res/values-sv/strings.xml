@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API kan nås, lägger till metod ...</string>
     <string name="api_unreachable">API kan inte nås</string>
     <string name="api_unreachable_save_anyway">API kan inte nås, spara metod ändå?</string>
+    <string name="app_icon">Appikon</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">Appen blockerar internet, koppla först från anslutningen</string>
     <string name="app_name_browser">Webbläsare</string>

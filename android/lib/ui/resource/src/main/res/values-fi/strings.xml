@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API tavoitettavissa, menetelmää lisätään...</string>
     <string name="api_unreachable">Ohjelmointirajapinta ei ole saavutettavissa</string>
     <string name="api_unreachable_save_anyway">API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?</string>
+    <string name="app_icon">Sovelluksen kuvake</string>
     <string name="app_info">Sovelluksen tiedot</string>
     <string name="app_is_blocking_internet">Sovellus estää internetyhteyden, katkaise sen yhteys ensin</string>
     <string name="app_name_browser">Selain</string>
@@ -217,7 +218,7 @@
     <string name="enable_multihop">Ota multihop käyttöön</string>
     <string name="enable_recents">Ota viimeisimmät käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa osoitettasi, joka ei ole VPN-pohjainen. DoH-palvelimia isännöi joko Quad9 tai Cloudflare.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>
@@ -241,7 +242,7 @@
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
-    <string name="filter">Suodatin</string>
+    <string name="filter">Suodata</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>

@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">واجهة API يمكن الوصول إليها، جارٍ إضافة الطريقة...</string>
     <string name="api_unreachable">واجهة API لا يمكن الوصول إليها</string>
     <string name="api_unreachable_save_anyway">واجهة API لا يمكن الوصول إليها، هل تريد حفظ الطريقة على أي حال؟</string>
+    <string name="app_icon">أيقونة التطبيق</string>
     <string name="app_info">معلومات التطبيق</string>
     <string name="app_is_blocking_internet">التطبيق يحظر الإنترنت، يُرجي قطع الاتصال أولًا</string>
     <string name="app_name_browser">المتصفح</string>
@@ -217,7 +218,7 @@
     <string name="enable_multihop">تفعيل القفز المتعدد</string>
     <string name="enable_recents">تفعيل المواقع الحديثة</string>
     <string name="encrypted_dns_proxy_info_message_part1">باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيتواصل التطبيق مع Mullvad API الخاصة بنا عبر عنوان خادم وكيل. وسيفعل ذلك من خلال جلب عنوان من خادم DNS عبر HTTPS (DoH)، ثم استخدام هذا العنوان للوصول إلى خوادم واجهة API الخاصة بنا.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلًا بشبكة VPN لدينا، فسيستخدم خادم وكيل نظام أسماء النطاقات (DNS) المُشفَّر عنوان IP غير المرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو CloudFlare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلاً بشبكة VPN لدينا، فسيستخدم خادم وكيل DNS المُشفَّر عنوان IP غير مرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو Cloudflare.</string>
     <string name="enter_value_placeholder">أدخل MTU</string>
     <string name="enter_voucher_code">أدخل رمز القسيمة</string>
     <string name="entry">دخول</string>
