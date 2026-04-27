@@ -13,7 +13,7 @@ export type CarouselIndicatorProps = React.ComponentPropsWithoutRef<'button'> & 
 };
 
 const StyledSlideIndicator = styled(Dot)`
-  background-color: ${colors.white};
+  background-color: ${colors.whiteAlpha20};
 `;
 
 const StyledCarouselIndicator = styled.button`
@@ -39,7 +39,7 @@ const StyledCarouselIndicator = styled.button`
   }
 
   &&:disabled ${StyledSlideIndicator} {
-    background-color: ${colors.whiteAlpha40};
+    background-color: ${colors.white};
   }
 
   &&:focus-visible {
