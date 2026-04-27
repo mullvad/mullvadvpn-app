@@ -16,12 +16,13 @@ Current features:
 
 - [x] Upstream Mullvad VPN app codebase
 - [x] Fork planning and agent guidance
-
+- [X] IP split-tunneling / IP whitelist
+- [X] VPN-interface allowance for tools like Netbird and Tailscale
 Planned features:
-
-- [ ] IP split-tunneling / IP whitelist
-- [ ] VPN-interface compatibility for tools like Netbird and Tailscale
 - [ ] Daemon-focused patch isolation
+- [ ] Cross-platform compatibility
+- [ ] Mullvad UI patches
+- [ ] Community requested features if any
 
 ## Development Direction
 
