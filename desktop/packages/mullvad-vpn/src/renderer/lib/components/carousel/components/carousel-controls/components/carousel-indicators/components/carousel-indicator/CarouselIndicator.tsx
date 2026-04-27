@@ -2,10 +2,10 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { messages } from '../../../../../../shared/gettext';
-import { colors } from '../../../../foundations';
-import { Dot } from '../../../dot';
-import { useSlides } from '../../hooks';
+import { messages } from '../../../../../../../../../../shared/gettext';
+import { colors } from '../../../../../../../../foundations';
+import { Dot } from '../../../../../../../dot';
+import { useSlides } from '../../../../../../hooks';
 import { useCarouselIndicatorRef } from './hooks';
 
 export type CarouselIndicatorProps = React.ComponentPropsWithoutRef<'button'> & {

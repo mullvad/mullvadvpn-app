@@ -1,7 +1,7 @@
-import { createRange } from '../../../../utils';
-import { useCarouselContext } from '../../CarouselContext';
+import { createRange } from '../../../../../../utils';
+import { useCarouselContext } from '../../../../CarouselContext';
 import { CarouselControlGroup } from '../carousel-control-group';
-import { CarouselIndicator } from '../carousel-indicator';
+import { CarouselIndicator } from './components';
 
 export function CarouselIndicators() {
   const { numberOfSlides, slideIndex } = useCarouselContext();

@@ -48,8 +48,8 @@ export function DaitaSettingsView() {
                         messages.pgettext('accessibility', 'DAITA information carousel')
                       }>
                       <Carousel.Slides>
-                        <Carousel.Slide>
-                          <Carousel.Image
+                        <Carousel.Slides.Slide>
+                          <Carousel.Slides.Slide.Image
                             source="daita-off-illustration"
                             alt={
                               // TRANSLATORS: Alt text for an illustration showing VPN traffic without DAITA.
@@ -59,16 +59,16 @@ export function DaitaSettingsView() {
                               )
                             }
                           />
-                          <Carousel.TextGroup>
-                            <Carousel.Text variant="labelTinySemiBold">
+                          <Carousel.Slides.Slide.TextGroup>
+                            <Carousel.Slides.Slide.Text variant="labelTinySemiBold">
                               {messages.pgettext(
                                 // TRANSLATORS: Information to the user that with this setting enabled their network and device's battery life will be
                                 // TRANSLATORS: affected negatively.
                                 'wireguard-settings-view',
                                 'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.',
                               )}
-                            </Carousel.Text>
-                            <Carousel.Text>
+                            </Carousel.Slides.Slide.Text>
+                            <Carousel.Slides.Slide.Text>
                               {sprintf(
                                 messages.pgettext(
                                   // TRANSLATORS: Information to the user what the DAITA setting does.
@@ -80,18 +80,18 @@ export function DaitaSettingsView() {
                                 ),
                                 { daita: strings.daita, daitaFull: strings.daitaFull },
                               )}
-                            </Carousel.Text>
-                            <Carousel.Text>
+                            </Carousel.Slides.Slide.Text>
+                            <Carousel.Slides.Slide.Text>
                               {messages.pgettext(
                                 // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
                                 'wireguard-settings-view',
                                 'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
                               )}
-                            </Carousel.Text>
-                          </Carousel.TextGroup>
-                        </Carousel.Slide>
-                        <Carousel.Slide>
-                          <Carousel.Image
+                            </Carousel.Slides.Slide.Text>
+                          </Carousel.Slides.Slide.TextGroup>
+                        </Carousel.Slides.Slide>
+                        <Carousel.Slides.Slide>
+                          <Carousel.Slides.Slide.Image
                             source="daita-on-illustration"
                             alt={
                               // TRANSLATORS: Alt text for an illustration showing VPN traffic with DAITA.
@@ -101,8 +101,8 @@ export function DaitaSettingsView() {
                               )
                             }
                           />
-                          <Carousel.TextGroup>
-                            <Carousel.Text>
+                          <Carousel.Slides.Slide.TextGroup>
+                            <Carousel.Slides.Slide.Text>
                               {sprintf(
                                 messages.pgettext(
                                   // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
@@ -111,8 +111,8 @@ export function DaitaSettingsView() {
                                 ),
                                 { daita: strings.daita },
                               )}
-                            </Carousel.Text>
-                            <Carousel.Text>
+                            </Carousel.Slides.Slide.Text>
+                            <Carousel.Slides.Slide.Text>
                               {sprintf(
                                 messages.pgettext(
                                   // TRANSLATORS: Information to the user what the DAITA setting does.
@@ -123,8 +123,8 @@ export function DaitaSettingsView() {
                                 ),
                                 { daita: strings.daita },
                               )}
-                            </Carousel.Text>
-                            <Carousel.Text>
+                            </Carousel.Slides.Slide.Text>
+                            <Carousel.Slides.Slide.Text>
                               {sprintf(
                                 messages.pgettext(
                                   // TRANSLATORS: Information to the user that DAITA is not available on all servers, however in the background the multihop
@@ -136,16 +136,16 @@ export function DaitaSettingsView() {
                                 ),
                                 { daita: strings.daita },
                               )}
-                            </Carousel.Text>
-                          </Carousel.TextGroup>
-                        </Carousel.Slide>
+                            </Carousel.Slides.Slide.Text>
+                          </Carousel.Slides.Slide.TextGroup>
+                        </Carousel.Slides.Slide>
                       </Carousel.Slides>
                       <Carousel.Controls>
-                        <Carousel.Indicators />
-                        <Carousel.ControlGroup>
-                          <Carousel.PrevButton />
-                          <Carousel.NextButton />
-                        </Carousel.ControlGroup>
+                        <Carousel.Controls.Indicators />
+                        <Carousel.Controls.ControlGroup>
+                          <Carousel.Controls.PrevButton />
+                          <Carousel.Controls.NextButton />
+                        </Carousel.Controls.ControlGroup>
                       </Carousel.Controls>
                     </Carousel>
                     <FlexColumn>

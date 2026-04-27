@@ -1,4 +1,4 @@
-import { useCarouselContext } from '../../../CarouselContext';
+import { useCarouselContext } from '../../../../../../../CarouselContext';
 
 export function useCarouselIndicatorRef(slideToGoTo: number) {
   const { firstIndicatorRef, lastIndicatorRef } = useCarouselContext();
