@@ -10,6 +10,7 @@ mod ephemeral_peer_proxy;
 mod logging;
 pub mod tunnel_obfuscator_proxy;
 mod wireguard_key;
+mod log_redaction;
 
 #[repr(C)]
 pub struct ProxyHandle {

@@ -21,6 +21,8 @@ typedef struct ApiContext ApiContext;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct LogRedactorInner LogRedactorInner;
+
 typedef struct Map Map;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
@@ -119,6 +121,10 @@ typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
+
+typedef struct LogRedactor {
+  struct LogRedactorInner *ptr;
+} LogRedactor;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -888,3 +894,7 @@ void mullvad_generate_private_key(uint8_t *key_out);
  * `public_key_out` must be a valid pointer to a 32-byte buffer.
  */
 void mullvad_derive_public_key(const uint8_t *private_key, uint8_t *public_key_out);
+
+struct LogRedactor init_log_redactor(void);
+
+void drop_log_redactor(struct LogRedactor redactor);
