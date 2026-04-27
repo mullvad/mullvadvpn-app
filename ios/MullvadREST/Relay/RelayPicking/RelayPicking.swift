@@ -13,7 +13,7 @@ import Network
 
 protocol RelayPicking {
     var logger: Logger { get }
-    var obfuscation: RelayObfuscation { get }
+    var relays: REST.ServerRelaysResponse { get }
     var tunnelSettings: LatestTunnelSettings { get }
     var connectionAttemptCount: UInt { get }
     func pick() throws -> SelectedRelays
@@ -23,15 +23,13 @@ extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
-        applyObfuscation: Bool,
-        forceV4: Bool = false,
+        obfuscation: RelayObfuscation?,
+        forceV4Address: Bool = false,
     ) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
-            wireguard: obfuscation.allRelays.wireguard,
-            portConstraint: applyObfuscation
-                ? obfuscation.port
-                : tunnelSettings.relayConstraints.port,
+            wireguard: relays.wireguard,
+            portConstraint: derivePortConstraint(from: obfuscation, and: tunnelSettings),
             numberOfFailedAttempts: connectionAttemptCount,
             ipVersion: tunnelSettings.ipVersion,
             closeTo: location
@@ -40,14 +38,14 @@ extension RelayPicking {
         // Resolve the socket address based on IP version preference
         let socketAddress = try resolveSocketAddress(
             match: match,
-            applyObfuscation: applyObfuscation,
-            forceV4: forceV4,
+            obfuscation: obfuscation,
+            forceV4: forceV4Address,
         )
 
         // Convert WireGuardObfuscationState to ObfuscationMethod
         let obfuscationMethod = try resolveObfuscationMethod(
             features: match.relay.features,
-            applyObfuscation: applyObfuscation
+            obfuscation: obfuscation
         )
 
         let selectedEndpoint = SelectedEndpoint(
@@ -71,31 +69,26 @@ extension RelayPicking {
     /// Throws an error if IPv6 is required but no IPv6 endpoint is available.
     private func resolveSocketAddress(
         match: RelaySelectorMatch,
-        applyObfuscation: Bool,
+        obfuscation: RelayObfuscation?,
         forceV4: Bool,
     ) throws -> AnyIPEndpoint {
         // Try IPv6 first if preferred and available
         if tunnelSettings.ipVersion.isIPv6, !forceV4 {
-            guard let ipv6Relay = match.endpoint.ipv6Relay else {
+            guard let ipv6Port = match.endpoint.ipv6Relay?.port else {
                 throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
             }
 
-            let ipv6Address: IPv6Address
-            if applyObfuscation {
-                guard let obfuscatedIpv6 = applyObfuscatedIpV6Addresses(match: match) else {
-                    throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
-                }
-                ipv6Address = obfuscatedIpv6
-            } else {
-                ipv6Address = ipv6Relay.ip
+            guard let obfuscatedIpv6 = applyObfuscatedIpV6Addresses(match: match, obfuscation: obfuscation) else {
+                throw NoRelaysSatisfyingConstraintsError(.noIPv6RelayFound)
             }
-            return .ipv6(IPv6Endpoint(ip: ipv6Address, port: ipv6Relay.port))
+
+            return .ipv6(IPv6Endpoint(ip: obfuscatedIpv6, port: ipv6Port))
         }
 
         // Fall back to IPv4
         let ipv4Address =
-            if applyObfuscation {
-                applyObfuscatedIpAddresses(match: match)
+            if let obfuscation {
+                applyObfuscatedIpAddresses(match: match, obfuscation: obfuscation)
             } else {
                 match.endpoint.ipv4Relay.ip
             }
@@ -105,13 +98,9 @@ extension RelayPicking {
     /// Converts WireGuardObfuscationState to ObfuscationMethod.
     private func resolveObfuscationMethod(
         features: REST.ServerRelay.Features?,
-        applyObfuscation: Bool
+        obfuscation: RelayObfuscation?
     ) throws -> ObfuscationMethod {
-        guard applyObfuscation else {
-            return .off
-        }
-
-        return switch obfuscation.method {
+        return switch obfuscation?.method ?? .off {
         case .off, .automatic:
             .off
         case .on:
@@ -135,10 +124,10 @@ extension RelayPicking {
         }
     }
 
-    private func applyObfuscatedIpAddresses(match: RelaySelectorMatch) -> IPv4Address {
+    private func applyObfuscatedIpAddresses(match: RelaySelectorMatch, obfuscation: RelayObfuscation) -> IPv4Address {
         switch obfuscation.method {
         case .shadowsocks:
-            applyShadowsocksIpAddress(in: match)
+            applyShadowsocksIpAddress(in: match, portRanges: relays.wireguard.shadowsocksPortRanges)
         case .quic:
             applyQuicIpAddress(in: match)
         case .off, .automatic, .on, .udpOverTcp, .lwo:
@@ -146,8 +135,11 @@ extension RelayPicking {
         }
     }
 
-    private func applyObfuscatedIpV6Addresses(match: RelaySelectorMatch) -> IPv6Address? {
-        switch obfuscation.method {
+    private func applyObfuscatedIpV6Addresses(
+        match: RelaySelectorMatch,
+        obfuscation: RelayObfuscation?
+    ) -> IPv6Address? {
+        switch obfuscation?.method ?? .off {
         case .shadowsocks:
             applyShadowsocksIpv6Address(in: match)
         case .quic:
@@ -169,14 +161,19 @@ extension RelayPicking {
             .randomElement() ?? defaultIpv6Address
     }
 
-    private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> IPv4Address {
+    private func applyShadowsocksIpAddress(in match: RelaySelectorMatch, portRanges: [[UInt16]]) -> IPv4Address {
         let defaultIpv4Address = match.endpoint.ipv4Relay.ip
         let extraAddresses = match.relay.shadowsocksExtraAddrIn?.compactMap({ IPv4Address($0) }) ?? []
 
         // If the currently selected obfuscation port is not within the allowed range (as specified
         // in the relay list), we should use only one of the extra Shadowsocks IPs instead of the
         // default one.
-        return if !shadowsocksPortIsWithinRange(match.endpoint.ipv4Relay.port) {
+        return
+            if !shadowsocksPortIsWithinRange(
+                match.endpoint.ipv4Relay.port,
+                portRanges: portRanges
+            )
+        {
             extraAddresses.randomElement() ?? defaultIpv4Address
         } else {
             // If the currently selected obfuscation port is within the allowed range we select from
@@ -190,7 +187,7 @@ extension RelayPicking {
         let defaultIpv6Address = match.endpoint.ipv6Relay?.ip
         let extraAddresses = match.relay.shadowsocksExtraAddrIn?.compactMap({ IPv6Address($0) }) ?? []
 
-        guard let port = match.endpoint.ipv6Relay?.port else {
+        guard match.endpoint.ipv6Relay?.port != nil else {
             return extraAddresses.randomElement()
         }
         if !extraAddresses.isEmpty {
@@ -199,8 +196,15 @@ extension RelayPicking {
         return defaultIpv6Address
     }
 
-    private func shadowsocksPortIsWithinRange(_ port: UInt16) -> Bool {
-        let portRanges = RelaySelector.parseRawPortRanges(obfuscation.allRelays.wireguard.shadowsocksPortRanges)
+    private func shadowsocksPortIsWithinRange(_ port: UInt16, portRanges: [[UInt16]]) -> Bool {
+        let portRanges = RelaySelector.parseRawPortRanges(portRanges)
         return portRanges.contains(where: { $0.contains(port) })
+    }
+
+    private func derivePortConstraint(
+        from obfuscation: RelayObfuscation?,
+        and settings: LatestTunnelSettings
+    ) -> RelayConstraint<UInt16> {
+        obfuscation?.port ?? settings.relayConstraints.port
     }
 }

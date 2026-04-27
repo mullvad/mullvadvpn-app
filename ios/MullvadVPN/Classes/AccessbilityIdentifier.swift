@@ -66,13 +66,14 @@ public enum AccessibilityIdentifier: Equatable {
     case cancelDeleteCustomListButton
     case customListLocationCheckmarkButton
     case listCustomListDoneButton
-    case selectLocationFilterButton
+    case selectLocationFilterPill
+    case selectLocationEntryFilterButton
+    case selectLocationExitFilterButton
     case relayFilterChipCloseButton
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
     case selectLocationToolbarMenu
     case locationListItem(String)
-    case toggleMultihopButton
     case entryLocationButton
     case exitLocationButton
     case recentConnectionsToggleButton
@@ -250,7 +251,6 @@ public enum AccessibilityIdentifier: Equatable {
     // DAITA
     case daitaSwitch
     case daitaPromptAlert
-    case daitaDirectOnlySwitch
 
     // IAN
     case includeAllNetworksSwitch
@@ -268,10 +268,8 @@ public enum AccessibilityIdentifier: Equatable {
     case ipVersionIPv6
 
     // Multihop
-    case multihopSwitch
-    case multihopAlways
-    case multihopNever
-    case multihopWhenNeeded
+    case multihopState(String)
+    case multihopMenuPicker
 
     // WireGuard obfuscation settings
     case wireGuardObfuscationUdpOverTcpTable

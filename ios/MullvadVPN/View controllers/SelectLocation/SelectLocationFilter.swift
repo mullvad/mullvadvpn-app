@@ -19,6 +19,15 @@ enum SelectLocationFilter: Hashable {
         }
     }
 
+    var isOverriddenByAutomaticLocation: Bool {
+        switch self {
+        case .daita, .obfuscation, .ipv6:
+            false
+        case .provider, .owned, .rented:
+            true
+        }
+    }
+
     var title: LocalizedStringKey {
         switch self {
         case .daita:
@@ -45,7 +54,7 @@ enum SelectLocationFilter: Hashable {
         case .ipv6:
             .ipv6FilterPill
         case .owned, .rented, .provider:
-            .selectLocationFilterButton
+            .selectLocationFilterPill
         }
     }
 
@@ -53,15 +62,17 @@ enum SelectLocationFilter: Hashable {
         [SelectLocationFilter],
         [SelectLocationFilter]
     ) {
+        let isMultihop = !settings.tunnelMultihopState.isNever
+
         var activeEntryFilter = [SelectLocationFilter]()
-        add(relayFilter: settings.relayConstraints.entryFilter, to: &activeEntryFilter)
+        if isMultihop {
+            add(relayFilter: settings.relayConstraints.entryFilter, to: &activeEntryFilter)
+        }
 
         var activeExitFilter = [SelectLocationFilter]()
         add(relayFilter: settings.relayConstraints.exitFilter, to: &activeExitFilter)
 
-        let isMultihop = settings.tunnelMultihopState.isUserSelected
-
-        if settings.daita.isDirectOnly {
+        if settings.daita.isEnabled {
             if isMultihop {
                 activeEntryFilter.append(.daita)
             } else {

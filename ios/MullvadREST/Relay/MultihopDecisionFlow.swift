@@ -15,6 +15,7 @@ protocol MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
+        obfuscation: RelayObfuscation,
         selectNearbyLocation: Bool
     ) throws -> SelectedRelays
 }
@@ -31,6 +32,7 @@ struct OneToOne: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
+        obfuscation: RelayObfuscation,
         selectNearbyLocation: Bool
     ) throws -> SelectedRelays {
         guard canHandle(entryCandidates: entryCandidates, exitCandidates: exitCandidates) else {
@@ -40,6 +42,7 @@ struct OneToOne: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
+                obfuscation: obfuscation,
                 selectNearbyLocation: selectNearbyLocation
             )
         }
@@ -48,12 +51,11 @@ struct OneToOne: MultihopDecisionFlow {
             throw NoRelaysSatisfyingConstraintsError(.entryEqualsExit)
         }
 
-        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, applyObfuscation: false)
+        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, obfuscation: nil, forceV4Address: true)
         let entryMatch = try relayPicker.findBestMatch(
             from: entryCandidates,
             closeTo: selectNearbyLocation ? exitMatch.location : nil,
-            applyObfuscation: true,
-            forceV4: true,
+            obfuscation: obfuscation
         )
 
         return SelectedRelays(
@@ -80,6 +82,7 @@ struct OneToMany: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
+        obfuscation: RelayObfuscation,
         selectNearbyLocation: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
@@ -93,15 +96,16 @@ struct OneToMany: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
+                obfuscation: obfuscation,
                 selectNearbyLocation: selectNearbyLocation
             )
         }
 
-        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, applyObfuscation: true)
+        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, obfuscation: obfuscation)
         let exitMatch = try multihopPicker.exclude(
             relay: entryMatch,
             from: exitCandidates,
-            applyObfuscation: false,
+            obfuscation: nil,
             forceV4Address: true,
         )
 
@@ -129,6 +133,7 @@ struct ManyToOne: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
+        obfuscation: RelayObfuscation,
         selectNearbyLocation: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
@@ -142,20 +147,21 @@ struct ManyToOne: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
+                obfuscation: obfuscation,
                 selectNearbyLocation: selectNearbyLocation
             )
         }
 
         let exitMatch = try multihopPicker.findBestMatch(
             from: exitCandidates,
-            applyObfuscation: false,
-            forceV4: true,
+            obfuscation: nil,
+            forceV4Address: true,
         )
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
             closeTo: selectNearbyLocation ? exitMatch.location : nil,
-            applyObfuscation: true
+            obfuscation: obfuscation
         )
 
         return SelectedRelays(
@@ -182,6 +188,7 @@ struct ManyToMany: MultihopDecisionFlow {
     func pick(
         entryCandidates: [RelayCandidate],
         exitCandidates: [RelayCandidate],
+        obfuscation: RelayObfuscation,
         selectNearbyLocation: Bool
     ) throws -> SelectedRelays {
         guard let multihopPicker = relayPicker as? MultihopPicker else {
@@ -195,16 +202,17 @@ struct ManyToMany: MultihopDecisionFlow {
             return try next.pick(
                 entryCandidates: entryCandidates,
                 exitCandidates: exitCandidates,
+                obfuscation: obfuscation,
                 selectNearbyLocation: selectNearbyLocation
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, applyObfuscation: false, forceV4: true)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, obfuscation: nil, forceV4Address: true)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
             closeTo: selectNearbyLocation ? exitMatch.location : nil,
-            applyObfuscation: true
+            obfuscation: obfuscation
         )
 
         return SelectedRelays(

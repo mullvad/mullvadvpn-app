@@ -42,9 +42,9 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             guard let self else { return }
 
             showPrompt(
-                for: result.item,
+                for: result,
                 onSave: {
-                    self.viewModel.value = result.setting
+                    self.viewModel.value = .init(daitaState: .on)
                 },
                 onDiscard: {}
             )
@@ -86,7 +86,7 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             message: item.description,
             buttons: [
                 AlertAction(
-                    title: "\(NSLocalizedString("Enable", comment: "")) \"\(item.title)\"",
+                    title: "\(NSLocalizedString("Enable", comment: "")) \"DAITA\"",
                     style: .default,
                     accessibilityId: .daitaConfirmAlertEnableButton,
                     handler: { onSave() }
