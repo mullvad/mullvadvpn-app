@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">可透過 API 存取，正在新增方式…</string>
     <string name="api_unreachable">無法透過 API 存取</string>
     <string name="api_unreachable_save_anyway">無法透過 API 存取，仍要儲存方式嗎？</string>
+    <string name="app_icon">應用程式圖示</string>
     <string name="app_info">應用程式資訊</string>
     <string name="app_is_blocking_internet">此應用程式正在封鎖網際網路，請先中斷連線</string>
     <string name="app_name_browser">瀏覽器</string>
@@ -241,7 +242,7 @@
     <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_indicators_show_more">其他 %1$s 個…</string>
     <string name="feature_quantum_resistant">抗量子</string>
-    <string name="filter">篩選</string>
+    <string name="filter">篩選器</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="go_to_login">前往登入</string>
