@@ -20,6 +20,10 @@ use talpid_types::net::{
     TransportProtocol,
 };
 
+/// Fork-owned IP split-tunnel firewall hooks.
+#[path = "linux/ip_split_tunnel.rs"]
+pub mod ip_split_tunnel;
+
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
 const PREROUTING_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_CONNTRACK + 1;
@@ -147,7 +151,7 @@ impl Firewall {
         let batch = PolicyBatch::new(&table).finalize(&policy, self)?;
         Self::send_and_process(&batch)?;
         Self::apply_kernel_config(&policy);
-        self.verify_tables(&[TABLE_NAME])
+        Self::verify_tables(&[TABLE_NAME])
     }
 
     /// Remove [`TABLE_NAME`] nftable.
@@ -224,7 +228,7 @@ impl Firewall {
         Ok(())
     }
 
-    fn verify_tables(&self, expected_tables: &[&CStr]) -> Result<()> {
+    pub(crate) fn verify_tables(expected_tables: &[&CStr]) -> Result<()> {
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         let portid = socket.portid();
         let seq = 1;

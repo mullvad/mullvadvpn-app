@@ -943,6 +943,128 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
+    async fn get_split_tunnel_ip_ranges(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::SplitTunnelIpRanges> {
+        #[cfg(target_os = "linux")]
+        {
+            log::debug!("get_split_tunnel_ip_ranges");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::IpSplitTunnel(
+                crate::fork::ip_split_tunnel::Command::List(tx),
+            ))?;
+            self.wait_for_result(rx)
+                .await?
+                .map(|ipv4_ranges| Response::new(types::SplitTunnelIpRanges { ipv4_ranges }))
+                .map_err(map_daemon_error)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            Ok(Response::new(types::SplitTunnelIpRanges {
+                ipv4_ranges: vec![],
+            }))
+        }
+    }
+
+    async fn add_split_tunnel_ip_range(&self, request: Request<String>) -> ServiceResult<()> {
+        #[cfg(target_os = "linux")]
+        {
+            let range = request.into_inner();
+            log::debug!("add_split_tunnel_ip_range");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::IpSplitTunnel(
+                crate::fork::ip_split_tunnel::Command::Add(tx, range),
+            ))?;
+            self.wait_for_result(rx)
+                .await?
+                .map_err(map_daemon_error)
+                .map(Response::new)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            Ok(Response::new(()))
+        }
+    }
+
+    async fn remove_split_tunnel_ip_range(&self, request: Request<String>) -> ServiceResult<()> {
+        #[cfg(target_os = "linux")]
+        {
+            let range = request.into_inner();
+            log::debug!("remove_split_tunnel_ip_range");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::IpSplitTunnel(
+                crate::fork::ip_split_tunnel::Command::Remove(tx, range),
+            ))?;
+            self.wait_for_result(rx)
+                .await?
+                .map_err(map_daemon_error)
+                .map(Response::new)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            let _ = request;
+            Ok(Response::new(()))
+        }
+    }
+
+    async fn clear_split_tunnel_ip_ranges(&self, _: Request<()>) -> ServiceResult<()> {
+        #[cfg(target_os = "linux")]
+        {
+            log::debug!("clear_split_tunnel_ip_ranges");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::IpSplitTunnel(
+                crate::fork::ip_split_tunnel::Command::Clear(tx),
+            ))?;
+            self.wait_for_result(rx)
+                .await?
+                .map_err(map_daemon_error)
+                .map(Response::new)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            Ok(Response::new(()))
+        }
+    }
+
+    async fn check_split_tunnel_ip_ranges(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::SplitTunnelIpRangeChecks> {
+        #[cfg(target_os = "linux")]
+        {
+            log::debug!("check_split_tunnel_ip_ranges");
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::IpSplitTunnel(
+                crate::fork::ip_split_tunnel::Command::Check(tx, None),
+            ))?;
+            self.wait_for_result(rx)
+                .await?
+                .map(|checks| {
+                    Response::new(types::SplitTunnelIpRangeChecks {
+                        checks: checks
+                            .into_iter()
+                            .map(|check| types::SplitTunnelIpRangeCheck {
+                                range: check.range,
+                                sample_ip: check.sample_ip.to_string(),
+                                bypasses_tunnel: check.bypasses_tunnel,
+                                interface: check.interface,
+                                error: check.error,
+                            })
+                            .collect(),
+                    })
+                })
+                .map_err(map_daemon_error)
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            Ok(Response::new(types::SplitTunnelIpRangeChecks {
+                checks: vec![],
+            }))
+        }
+    }
+
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     async fn add_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
         use mullvad_types::settings::SplitApp;

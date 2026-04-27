@@ -9,6 +9,8 @@ pub mod beta_program;
 pub mod custom_list;
 pub mod debug;
 pub mod dns;
+#[cfg(target_os = "linux")]
+pub mod fork;
 pub mod lan;
 pub mod lockdown;
 pub mod log;

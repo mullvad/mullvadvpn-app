@@ -35,3 +35,16 @@ the smallest practical integration points.
 
 Before editing a file that upstream changes often, ask whether the fork logic can sit beside it
 instead. When an upstream file must change, keep the patch local, obvious, and easy to reapply.
+
+## Cross-Platform Guardrails
+
+- Gate Linux-only fork modules, imports, fields, enum variants, and command handlers with
+  `#[cfg(target_os = "linux")]` at every shared-code hook.
+- Do not export Linux-only CLI modules from shared command trees on macOS or Windows; CI runs with
+  `-D warnings`, so unused fork code can fail unrelated platform builds.
+- If a value only needs to be mutable on Linux, bind it inside a Linux-only block or destructuring
+  pattern instead of making the whole function argument mutable.
+- When adding public modules to crates that warn on missing docs, especially `talpid-core`, add
+  module and public-item docs before pushing.
+- Before committing, scan the touched hooks from a Linux, macOS, and Windows perspective even when
+  the feature itself is Linux-only.

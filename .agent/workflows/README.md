@@ -20,3 +20,7 @@
 - For documentation-only changes, verify staged diffs and confirm docs do not describe planned
   features as implemented.
 - For daemon changes, include tests or a concrete manual verification path in the feature note.
+- For Linux-only fork features, also check macOS and Windows compile surfaces: shared modules,
+  management-interface methods, enum variants, and imports must be cfg-gated or intentionally
+  platform-neutral. Treat `-D warnings` issues such as dead code, unused mutability, and missing docs
+  as release blockers.

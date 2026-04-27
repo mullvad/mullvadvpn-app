@@ -12,6 +12,8 @@ mod custom_list;
 pub mod device;
 mod dns;
 pub mod exception_logging;
+#[cfg(target_os = "linux")]
+pub(crate) mod fork;
 mod geoip;
 mod leak_checker;
 pub mod logging;
@@ -182,6 +184,10 @@ pub enum Error {
     #[cfg(target_os = "linux")]
     #[error("Unable to initialize split tunneling")]
     InitSplitTunneling(#[source] split_tunnel::Error),
+
+    #[cfg(target_os = "linux")]
+    #[error("IP split-tunneling error")]
+    IpSplitTunnel(#[source] fork::ip_split_tunnel::Error),
 
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     #[error("Split tunneling error")]
@@ -389,6 +395,9 @@ pub enum DaemonCommand {
     /// Clear list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
     ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
+    /// Manage IPv4 ranges excluded from the tunnel
+    #[cfg(target_os = "linux")]
+    IpSplitTunnel(fork::ip_split_tunnel::Command),
     /// Exclude traffic of an application from the tunnel
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     AddSplitTunnelApp(ResponseTx<(), Error>, SplitApp),
@@ -671,6 +680,8 @@ pub struct Daemon {
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
+    #[cfg(target_os = "linux")]
+    ip_split_tunnel: fork::ip_split_tunnel::IpSplitTunnel,
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
@@ -916,6 +927,19 @@ impl Daemon {
         .await
         .map_err(Error::RouteManager)?;
 
+        #[cfg(target_os = "linux")]
+        let mut ip_split_tunnel =
+            fork::ip_split_tunnel::IpSplitTunnel::new(&config.settings_dir, route_manager.clone())
+                .await
+                .map_err(Error::IpSplitTunnel)?;
+        #[cfg(target_os = "linux")]
+        if let Err(error) = ip_split_tunnel.apply().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Unable to apply stored IP split-tunnel ranges")
+            );
+        }
+
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -1057,6 +1081,8 @@ impl Daemon {
             target_state,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunneling_pid_manager,
+            #[cfg(target_os = "linux")]
+            ip_split_tunnel,
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
@@ -1160,8 +1186,13 @@ impl Daemon {
             tunnel_state_machine_handle,
             target_state,
             account_manager,
+            #[cfg(target_os = "linux")]
+            mut ip_split_tunnel,
             ..
         } = self;
+
+        #[cfg(target_os = "linux")]
+        ip_split_tunnel.shutdown().await;
 
         for future in shutdown_tasks {
             future.await;
@@ -1321,6 +1352,13 @@ impl Daemon {
         }
 
         self.tunnel_state = tunnel_state.clone();
+        #[cfg(target_os = "linux")]
+        if let Err(error) = self.ip_split_tunnel.apply().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Unable to apply IP split-tunnel ranges")
+            );
+        }
         self.management_interface
             .notifier()
             .notify_new_state(tunnel_state);
@@ -1585,6 +1623,16 @@ impl Daemon {
             RemoveSplitTunnelProcess(tx, pid) => self.on_remove_split_tunnel_process(tx, pid),
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
+            #[cfg(target_os = "linux")]
+            IpSplitTunnel(command) => {
+                let tunnel_interface = self
+                    .tunnel_state
+                    .endpoint()
+                    .and_then(|endpoint| endpoint.tunnel_interface.clone());
+                self.ip_split_tunnel
+                    .handle_command(command.with_tunnel_interface(tunnel_interface))
+                    .await
+            }
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             AddSplitTunnelApp(tx, app) => self.on_add_split_tunnel_app(tx, app),
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]

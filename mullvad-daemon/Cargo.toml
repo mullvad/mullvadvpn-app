@@ -74,6 +74,7 @@ chrono = { workspace = true }
 clap = { workspace = true }
 either = "1.11"
 futures = { workspace = true }
+ipnetwork = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
 log-panics = "2.0.0"

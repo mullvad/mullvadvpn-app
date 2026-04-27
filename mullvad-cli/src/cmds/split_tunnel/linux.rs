@@ -2,6 +2,8 @@ use anyhow::Result;
 use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 
+use crate::cmds::fork::ip_split_tunnel::IpSplitTunnel;
+
 /// Manage split tunneling. To launch applications outside the tunnel, use the program
 /// 'mullvad-exclude' instead of this command
 #[derive(Subcommand, Debug)]
@@ -14,6 +16,9 @@ pub enum SplitTunnel {
     Delete { pid: i32 },
     /// Stop excluding all processes from the tunnel
     Clear,
+    /// Manage IPv4 ranges that bypass the tunnel
+    #[command(subcommand)]
+    Ip(IpSplitTunnel),
 }
 
 impl SplitTunnel {
@@ -56,6 +61,7 @@ impl SplitTunnel {
                 println!("Stopped excluding all processes");
                 Ok(())
             }
+            SplitTunnel::Ip(command) => command.handle().await,
         }
     }
 }

@@ -104,6 +104,11 @@ service ManagementService {
   rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
   rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc GetSplitTunnelIpRanges(google.protobuf.Empty) returns (SplitTunnelIpRanges) {}
+  rpc AddSplitTunnelIpRange(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc RemoveSplitTunnelIpRange(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc ClearSplitTunnelIpRanges(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc CheckSplitTunnelIpRanges(google.protobuf.Empty) returns (SplitTunnelIpRangeChecks) {}
 
   // Split tunneling (Linux, Windows)
   rpc SplitTunnelIsSupported(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
@@ -552,6 +557,22 @@ message Recent {
 message SplitTunnelSettings {
   bool enable_exclusions = 1;
   repeated string apps = 2;
+}
+
+message SplitTunnelIpRanges {
+  repeated string ipv4_ranges = 1;
+}
+
+message SplitTunnelIpRangeCheck {
+  string range = 1;
+  string sample_ip = 2;
+  bool bypasses_tunnel = 3;
+  optional string interface = 4;
+  optional string error = 5;
+}
+
+message SplitTunnelIpRangeChecks {
+  repeated SplitTunnelIpRangeCheck checks = 1;
 }
 
 message RelaySettings {

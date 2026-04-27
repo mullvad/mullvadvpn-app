@@ -1,0 +1,73 @@
+---
+name: Daemon+CLI - Feature check
+
+on:
+  push:
+    branches:
+      - "feat/**"
+    paths:
+      - ".github/workflows/daemon-cli-feature-check.yml"
+      - "ci/cargo-ci.sh"
+      - "Cargo.lock"
+      - "Cargo.toml"
+      - "mullvad-cli/**"
+      - "mullvad-daemon/**"
+      - "mullvad-management-interface/**"
+      - "talpid-core/**"
+      - "talpid-routing/**"
+      - "talpid-types/**"
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        required: false
+        type: string
+
+permissions: {}
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve container image
+        run: |
+          image="${{ inputs.override_container_image }}"
+          if [[ -z "$image" ]]; then
+            image="$(cat ./building/linux-container-image.txt)"
+          fi
+          echo "inner_container_image=$image" >> "$GITHUB_ENV"
+
+  check-linux:
+    needs: prepare
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> "$GITHUB_ENV"
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+      - name: Check daemon and CLI
+        run: ci/cargo-ci.sh check -p mullvad-cli -p mullvad-daemon
+
+      - name: Test IP split-tunnel fork module
+        run: ci/cargo-ci.sh test -p mullvad-daemon fork::ip_split_tunnel
+
+      - name: Test CLI IP split-tunnel parser
+        run: ci/cargo-ci.sh test -p mullvad-cli fork::ip_split_tunnel

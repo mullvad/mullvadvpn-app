@@ -572,6 +572,33 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    pub async fn get_split_tunnel_ip_ranges(&mut self) -> Result<Vec<String>> {
+        let ranges = self.0.get_split_tunnel_ip_ranges(()).await?.into_inner();
+        Ok(ranges.ipv4_ranges)
+    }
+
+    pub async fn add_split_tunnel_ip_range(&mut self, range: String) -> Result<()> {
+        self.0.add_split_tunnel_ip_range(range).await?;
+        Ok(())
+    }
+
+    pub async fn remove_split_tunnel_ip_range(&mut self, range: String) -> Result<()> {
+        self.0.remove_split_tunnel_ip_range(range).await?;
+        Ok(())
+    }
+
+    pub async fn clear_split_tunnel_ip_ranges(&mut self) -> Result<()> {
+        self.0.clear_split_tunnel_ip_ranges(()).await?;
+        Ok(())
+    }
+
+    pub async fn check_split_tunnel_ip_ranges(
+        &mut self,
+    ) -> Result<Vec<types::SplitTunnelIpRangeCheck>> {
+        let checks = self.0.check_split_tunnel_ip_ranges(()).await?.into_inner();
+        Ok(checks.checks)
+    }
+
     pub async fn add_split_tunnel_app<P: AsRef<Path>>(&mut self, path: P) -> Result<()> {
         let path = path.as_ref().to_str().ok_or(Error::PathMustBeUtf8)?;
         self.0.add_split_tunnel_app(path.to_owned()).await?;
