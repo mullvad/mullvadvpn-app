@@ -144,11 +144,6 @@ fn windows_major_version() -> Option<u32> {
         .map(|v| v.major_version())
 }
 
-/// Get the Windows version string.
-fn windows_version_string() -> String {
-    talpid_platform_metadata::version().to_string()
-}
-
 // ============================================================================
 // NSIS-exported functions
 // ============================================================================
@@ -252,7 +247,7 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
     if let Ok(mut guard) = LOGGER.lock()
         && let Some(logger) = guard.as_mut()
     {
-        let version = windows_version_string();
+        let version = talpid_platform_metadata::version();
         logger.log(&format!("Windows version: {version}"));
     }
     Ok(())
