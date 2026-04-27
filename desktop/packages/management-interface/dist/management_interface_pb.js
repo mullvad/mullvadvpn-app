@@ -1669,7 +1669,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.repeatedFields_, null);
 };
 goog.inherits(proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -17868,6 +17868,13 @@ proto.mullvad_daemon.management_interface.PersonalVpnConfig.serializeBinaryToWri
 
 
 
+/**
+ * List of repeated fields within this message type.
+ * @private {!Array<number>}
+ * @const
+ */
+proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.repeatedFields_ = [2];
+
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -17900,7 +17907,7 @@ proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototy
 proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.toObject = function(includeInstance, msg) {
   var f, obj = {
     privateKey: msg.getPrivateKey_asB64(),
-    ip: jspb.Message.getFieldWithDefault(msg, 2, "")
+    ipsList: (f = jspb.Message.getRepeatedField(msg, 2)) == null ? undefined : f
   };
 
   if (includeInstance) {
@@ -17943,7 +17950,7 @@ proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.deseria
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setIp(value);
+      msg.addIps(value);
       break;
     default:
       reader.skipField();
@@ -17981,9 +17988,9 @@ proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.seriali
       f
     );
   }
-  f = message.getIp();
+  f = message.getIpsList();
   if (f.length > 0) {
-    writer.writeString(
+    writer.writeRepeatedString(
       2,
       f
     );
@@ -18034,20 +18041,39 @@ proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototy
 
 
 /**
- * optional string ip = 2;
- * @return {string}
+ * repeated string ips = 2;
+ * @return {!Array<string>}
  */
-proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.getIp = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
+proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.getIpsList = function() {
+  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 2));
+};
+
+
+/**
+ * @param {!Array<string>} value
+ * @return {!proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig} returns this
+ */
+proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.setIpsList = function(value) {
+  return jspb.Message.setField(this, 2, value || []);
 };
 
 
 /**
  * @param {string} value
+ * @param {number=} opt_index
  * @return {!proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig} returns this
  */
-proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.setIp = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
+proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.addIps = function(value, opt_index) {
+  return jspb.Message.addToRepeatedField(this, 2, value, opt_index);
+};
+
+
+/**
+ * Clears the list making it empty but non-null.
+ * @return {!proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig} returns this
+ */
+proto.mullvad_daemon.management_interface.PersonalVpnConfig.TunnelConfig.prototype.clearIpsList = function() {
+  return this.setIpsList([]);
 };
 
 

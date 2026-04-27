@@ -1548,6 +1548,18 @@ setPersonalVpnConfig: {
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
+  // Parse a wg-quick config file and store it as the personal VPN config.
+importPersonalVpnConfig: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ImportPersonalVpnConfig',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_wrappers_pb.StringValue,
+    responseType: management_interface_pb.PersonalVpnConfigError,
+    requestSerialize: serialize_google_protobuf_StringValue,
+    requestDeserialize: deserialize_google_protobuf_StringValue,
+    responseSerialize: serialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_PersonalVpnConfigError,
+  },
   // Always exists
 getPersonalVpnStats: {
     path: '/mullvad_daemon.management_interface.ManagementService/GetPersonalVpnStats',

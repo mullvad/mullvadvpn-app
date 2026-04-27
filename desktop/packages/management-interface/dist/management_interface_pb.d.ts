@@ -2262,8 +2262,10 @@ export namespace PersonalVpnConfig {
         getPrivateKey_asU8(): Uint8Array;
         getPrivateKey_asB64(): string;
         setPrivateKey(value: Uint8Array | string): TunnelConfig;
-        getIp(): string;
-        setIp(value: string): TunnelConfig;
+        clearIpsList(): void;
+        getIpsList(): Array<string>;
+        setIpsList(value: Array<string>): TunnelConfig;
+        addIps(value: string, index?: number): string;
 
         serializeBinary(): Uint8Array;
         toObject(includeInstance?: boolean): TunnelConfig.AsObject;
@@ -2278,7 +2280,7 @@ export namespace PersonalVpnConfig {
     export namespace TunnelConfig {
         export type AsObject = {
             privateKey: Uint8Array | string,
-            ip: string,
+            ipsList: Array<string>,
         }
     }
 
