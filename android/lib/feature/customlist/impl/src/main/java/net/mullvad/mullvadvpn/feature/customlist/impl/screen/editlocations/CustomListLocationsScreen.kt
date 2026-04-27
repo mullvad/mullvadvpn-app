@@ -136,7 +136,6 @@ fun CustomListLocationsScreen(
         },
     ) { modifier ->
         Column(modifier = modifier) {
-            var searchTerm by rememberSaveable() { mutableStateOf("") }
             SearchTextField(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -146,7 +145,6 @@ fun CustomListLocationsScreen(
                 textColor = MaterialTheme.colorScheme.onSurfaceVariant,
             ) { searchString ->
                 onSearchTermInput.invoke(searchString)
-                searchTerm = searchString
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
@@ -174,7 +172,6 @@ fun CustomListLocationsScreen(
                     is Lce.Content -> {
                         content(
                             uiState = state.content.value,
-                            searchTerm = searchTerm,
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
@@ -221,7 +218,6 @@ private fun LazyListScope.empty() {
 
 private fun LazyListScope.content(
     uiState: CustomListLocationsData,
-    searchTerm: String,
     onExpand: (RelayItem.Location, expand: Boolean) -> Unit,
     onRelaySelectedChanged: (RelayItem.Location, selected: Boolean) -> Unit,
 ) {
@@ -234,7 +230,7 @@ private fun LazyListScope.content(
             CheckableRelayListItem(
                 modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
                 item = listItem,
-                searchTerm = searchTerm,
+                searchTerm = uiState.searchTerm,
                 onRelayCheckedChange = { isChecked ->
                     onRelaySelectedChanged(listItem.item, isChecked)
                 },
