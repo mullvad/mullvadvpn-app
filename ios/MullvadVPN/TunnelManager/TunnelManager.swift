@@ -1434,10 +1434,6 @@ private struct TunnelInteractorProxy: TunnelInteractor {
     func handleRestError(_ error: Error) {
         tunnelManager.handleRestError(error)
     }
-
-    func getInAppLogs(completion: @escaping @Sendable (Result<[InAppLogEntry], Error>) -> Void) {
-        tunnelManager.getInAppLogs(completionHandler: completion)
-    }
 }
 
 // MARK: - RelayCacheTrackerObserver
