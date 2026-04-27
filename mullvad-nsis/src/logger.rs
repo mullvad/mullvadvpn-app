@@ -78,7 +78,7 @@ impl Logger {
     }
 }
 
-/// Format a timestamp string in [YYYY-MM-DD HH:MM:SS.mmm] format.
+/// Format a local-time timestamp string in [YYYY-MM-DD HH:MM:SS.mmm] format.
 fn timestamp() -> String {
     let mut time = SYSTEMTIME::default();
     // SAFETY: `&mut time` points to a stack-local SYSTEMTIME the API fills in.
