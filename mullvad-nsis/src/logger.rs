@@ -62,19 +62,21 @@ impl Logger {
     }
 
     fn log(&mut self, message: &str) {
-        let ts = timestamp();
-        let line = format!("{ts} {message}\r\n");
-        let _ = self.file.write_all(line.as_bytes());
+        self.log_inner(&timestamp(), message);
     }
 
     fn log_with_details(&mut self, message: &str, details: &[&str]) {
         let ts = timestamp();
-        let line = format!("{ts} {message}\r\n");
-        let _ = self.file.write_all(line.as_bytes());
+        self.log_inner(&ts, message);
         for detail in details {
             let detail_line = format!("{ts}     {detail}\r\n");
             let _ = self.file.write_all(detail_line.as_bytes());
         }
+    }
+
+    fn log_inner(&mut self, ts: &str, message: &str) {
+        let line = format!("{ts} {message}\r\n");
+        let _ = self.file.write_all(line.as_bytes());
     }
 }
 
