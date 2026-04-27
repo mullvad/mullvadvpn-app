@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { messages } from '../../../../../../shared/gettext';
-import { IconButton, IconButtonProps } from '../../../icon-button';
-import { useCarouselContext } from '../../CarouselContext';
-import { useSlides } from '../../hooks';
+import { messages } from '../../../../../../../../shared/gettext';
+import { IconButton, IconButtonProps } from '../../../../../icon-button';
+import { useCarouselContext } from '../../../../CarouselContext';
+import { useSlides } from '../../../../hooks';
 
 export type CarouselPrevButtonProps = IconButtonProps;
 

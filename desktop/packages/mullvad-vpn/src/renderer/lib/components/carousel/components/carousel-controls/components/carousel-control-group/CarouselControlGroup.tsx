@@ -1,4 +1,4 @@
-import { Flex } from '../../../flex';
+import { Flex } from '../../../../../flex';
 
 export type CarouselControlGroupProps = React.ComponentPropsWithRef<'div'>;
 
