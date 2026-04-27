@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2026.2] - 2026-04-28
+This release is identical to 2026.2-beta1.
+
+
 ## [2026.2-beta1] - 2026-04-14
 ### Added
 #### Linux
