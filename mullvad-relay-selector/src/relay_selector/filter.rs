@@ -34,49 +34,33 @@ pub(super) struct AutohopPartition {
 impl AutohopPartition {
     /// Collapse to a [`RelayPartitions`] where:
     /// - `matches` = exits valid for singlehop **or** for multihop (requires valid entry)
-    /// - `discards` = exits valid for neither
+    /// - `discards` = exits valid for neither, with the singlehop discard reasons
     pub(super) fn into_relay_partitions(self) -> RelayPartitions {
         let AutohopPartition {
-            singlehop,
+            // Start with singlehop partitions (exits that are also their own valid entry).
+            singlehop: RelayPartitions { matches, discards },
             multihop,
         } = self;
 
-        // Start with singlehop matches (exits that are also their own valid entry).
-        let mut matches = singlehop.matches;
-
-        // Add multihop exits only when at least one valid entry actually exists.
-        // Without any valid entry, no autohop configuration can be established.
-        let (multihop_exit_matches_added, multihop_exit_matches_stranded) =
-            if !multihop.entries.matches.is_empty() {
-                (multihop.exits.matches, vec![])
-            } else {
-                (vec![], multihop.exits.matches)
-            };
-
-        // Also covers the conflict edge-case: a relay valid as singlehop even
-        // though it was moved to multihop.exits.discards with Reason::Conflict.
-        for relay in multihop_exit_matches_added {
-            if !matches.contains(&relay) {
-                matches.push(relay);
+        if multihop.entries.matches.is_empty() {
+            // No valid entry, so no autohop possible. Use the singlehop partition as-is.
+            RelayPartitions { matches, discards }
+        } else {
+            // Otherwise, promote multihop exits to matches while keeping the singlehop discard reason
+            // for the relays that are discarded in both sets.
+            let (rescued, discards): (Vec<_>, Vec<_>) =
+                discards.into_iter().partition_map(|(relay, reasons)| {
+                    if multihop.exits.matches.contains(&relay) {
+                        Either::Left(relay)
+                    } else {
+                        Either::Right((relay, reasons))
+                    }
+                });
+            RelayPartitions {
+                matches: [matches, rescued].concat(),
+                discards,
             }
         }
-
-        // Discards = exits that appear in neither matches list.
-        // Includes exits stranded by empty entries (added with no reasons).
-        let mut discards: Vec<(WireguardRelay, Vec<Reason>)> = multihop
-            .exits
-            .discards
-            .into_iter()
-            .filter(|(r, _)| !matches.contains(r))
-            .collect();
-        discards.extend(
-            multihop_exit_matches_stranded
-                .into_iter()
-                .filter(|r| !matches.contains(r))
-                .map(|r| (r, vec![])),
-        );
-
-        RelayPartitions { matches, discards }
     }
 }
 
