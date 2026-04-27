@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…</string>
     <string name="api_unreachable">API ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ</string>
     <string name="api_unreachable_save_anyway">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</string>
+    <string name="app_icon">အက်ပ် အိုင်ကွန်</string>
     <string name="app_info">အက်ပ်အချက်အလက်</string>
     <string name="app_is_blocking_internet">အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ</string>
     <string name="app_name_browser">Browser</string>
@@ -387,7 +388,7 @@
     <string name="relay_item_already_selected_as_exit">%1$s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
-    <string name="remove_location_from_list">%1$s မှ %2$s ကို ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">%2$s မှ %1$s ကို ဖယ်ရှားရန်</string>
     <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>

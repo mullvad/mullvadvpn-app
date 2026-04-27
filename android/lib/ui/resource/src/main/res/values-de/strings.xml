@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API erreichbar, Methode hinzufügen …</string>
     <string name="api_unreachable">API nicht erreichbar</string>
     <string name="api_unreachable_save_anyway">API nicht erreichbar, Methode dennoch speichern?</string>
+    <string name="app_icon">App-Symbol</string>
     <string name="app_info">App-Info</string>
     <string name="app_is_blocking_internet">Die App blockiert das Internet, bitte trennen Sie zuerst die Verbindung</string>
     <string name="app_name_browser">Browser</string>

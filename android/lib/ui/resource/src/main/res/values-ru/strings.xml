@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">Есть доступ к API, добавляем метод...</string>
     <string name="api_unreachable">Нет доступа к API</string>
     <string name="api_unreachable_save_anyway">Нет доступа к API. Сохранить метод?</string>
+    <string name="app_icon">Значок приложения</string>
     <string name="app_info">Информация о приложении</string>
     <string name="app_is_blocking_internet">Приложение блокирует интернет. Сначала отключитесь.</string>
     <string name="app_name_browser">Браузер</string>
@@ -387,7 +388,7 @@
     <string name="relay_item_already_selected_as_exit">%1$s уже используется как выходной сервер ретрансляции</string>
     <string name="relayitem_is_inactive">%1$s недоступно</string>
     <string name="remove_button">Удалить</string>
-    <string name="remove_location_from_list">Удалить местоположение %1$s из списка «%2$s»</string>
+    <string name="remove_location_from_list">Удалить местоположение %1$s из списка %2$s</string>
     <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
