@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 - `mullvad-early-boot-blocking.service` now waits for local file system to be mounted
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
 
+#### macOS
+- Restart the GUI after an update if it was running.
+
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
   multiple consecutive tunnel state events for the same state.
