@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API alcançável, a adicionar método...</string>
     <string name="api_unreachable">API inalcançável</string>
     <string name="api_unreachable_save_anyway">API inalcançável, guardar o método mesmo assim?</string>
+    <string name="app_icon">Ícone da aplicação</string>
     <string name="app_info">Informação sobre a app</string>
     <string name="app_is_blocking_internet">A aplicação está a bloquear a Internet. Desligue primeiro</string>
     <string name="app_name_browser">Navegador</string>

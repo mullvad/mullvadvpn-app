@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2026-03-20 09:19\n"
+"PO-Revision-Date: 2026-04-27 09:12\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -23,6 +23,10 @@ msgstr "Албания"
 #. NL AMS
 msgid "Amsterdam"
 msgstr "Амстердам"
+
+#. AR
+msgid "Argentina"
+msgstr "Аргентина"
 
 #. US QAS
 msgid "Ashburn, VA"
@@ -103,6 +107,10 @@ msgstr "Бухарест"
 #. HU BUD
 msgid "Budapest"
 msgstr "Будапешт"
+
+#. AR BUE
+msgid "Buenos Aires"
+msgstr "Буэнос-Айрес"
 
 #. BG
 msgid "Bulgaria"
