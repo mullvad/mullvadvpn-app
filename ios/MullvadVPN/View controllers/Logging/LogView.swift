@@ -277,6 +277,10 @@ class LogView: UIView {
 
         for entry in entries where matchesFilter(entry) {
             filteredEntries.append(entry)
+
+            if entry.process == .packetTunnel {
+                print("\(entry.description)\n")
+            }
         }
 
         tableView.reloadData()
