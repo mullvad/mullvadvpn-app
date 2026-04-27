@@ -126,6 +126,7 @@ fun SharedTransitionScope.PersonalVpn(
         vm::onToggle,
         vm::onClearError,
         onClearAllowedIpErrors = vm::onClearAllowedIpErrors,
+        onClearTunnelIpErrors = vm::onClearTunnelIpErrors,
         vm::save,
         clearConfig = vm::clearConfig,
         importConfig = vm::import,
@@ -170,6 +171,7 @@ fun PersonalVpnScreen(
     onTogglePersonalVpn: (Boolean) -> Unit,
     onClearError: (FormDataError) -> Unit = {},
     onClearAllowedIpErrors: () -> Unit = {},
+    onClearTunnelIpErrors: () -> Unit = {},
     saveConfig: (PersonalVpnFormData) -> Unit,
     clearConfig: () -> Unit,
     importConfig: (String) -> Unit,
@@ -185,11 +187,16 @@ fun PersonalVpnScreen(
         val error = state.value.privateKeyDataError ?: return@LaunchedEffect
         onClearError(error)
     }
-    val addressTextFieldState =
-        key(initialFormData) { rememberTextFieldState(initialFormData.tunnelIp) }
-    LaunchedEffect(addressTextFieldState.text) {
-        val error = state.value.tunnelIpDataError ?: return@LaunchedEffect
-        onClearError(error)
+    val tunnelIpTextFieldStates = remember(initialFormData) {
+        initialFormData.tunnelIps.map { TextFieldState(it) }.toMutableStateList()
+    }
+
+    // Clear per-field tunnel IP error when text changes
+    tunnelIpTextFieldStates.forEachIndexed { index, textFieldState ->
+        LaunchedEffect(textFieldState.text) {
+            val error = state.value.tunnelIpDataErrors[index] ?: return@LaunchedEffect
+            onClearError(error)
+        }
     }
     val publicKeyTextFieldState =
         key(initialFormData) { rememberTextFieldState(initialFormData.publicKey) }
@@ -218,9 +225,10 @@ fun PersonalVpnScreen(
     }
 
     val currentAllowedIps = allowedIpTextFieldStates.map { it.text.toString() }
+    val currentTunnelIps = tunnelIpTextFieldStates.map { it.text.toString() }
     val formHasChanges =
         privateKeyTextFieldState.text != initialFormData.privateKey ||
-            addressTextFieldState.text != initialFormData.tunnelIp ||
+            currentTunnelIps != initialFormData.tunnelIps ||
             publicKeyTextFieldState.text != initialFormData.publicKey ||
             currentAllowedIps != initialFormData.allowedIPs ||
             endpointTextFieldState.text != initialFormData.endpoint
@@ -261,7 +269,8 @@ fun PersonalVpnScreen(
                         saveConfig(
                             PersonalVpnFormData(
                                 privateKey = privateKeyTextFieldState.text.toString(),
-                                tunnelIp = addressTextFieldState.text.toString(),
+                                tunnelIps =
+                                    tunnelIpTextFieldStates.map { it.text.toString() },
                                 publicKey = publicKeyTextFieldState.text.toString(),
                                 allowedIPs =
                                     allowedIpTextFieldStates.map { it.text.toString() },
@@ -281,7 +290,8 @@ fun PersonalVpnScreen(
                     isEnabled = state.value.clearEnabled,
                     onClick = {
                         privateKeyTextFieldState.clearText()
-                        addressTextFieldState.clearText()
+                        tunnelIpTextFieldStates.clear()
+                        tunnelIpTextFieldStates.add(TextFieldState(""))
                         publicKeyTextFieldState.clearText()
                         allowedIpTextFieldStates.clear()
                         allowedIpTextFieldStates.add(TextFieldState(""))
@@ -358,19 +368,56 @@ fun PersonalVpnScreen(
                             state.value.privateKeyDataError?.let { { Text(it.toErrorMessage()) } },
                     )
                     Spacer(Modifier.height(Dimens.mediumSpacer))
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        state = addressTextFieldState,
-                        label = { Text("Address") },
-                        labelPosition = TextFieldLabelPosition.Above(),
-                        placeholder = { Text("127.0.0.1") },
-                        lineLimits = TextFieldLineLimits.SingleLine,
-                        colors = mullvadDarkTextFieldColors(),
-                        isError = state.value.tunnelIpDataError != null,
-                        supportingText =
-                            state.value.tunnelIpDataError?.let { { Text(it.toErrorMessage()) } },
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+
+                    // Tunnel addresses - dynamic list of text fields
+                    Text(
+                        "Addresses",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    tunnelIpTextFieldStates.forEachIndexed { index, textFieldState ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.Top,
+                        ) {
+                            TextField(
+                                modifier = Modifier.padding(Dimens.miniPadding).weight(1f),
+                                state = textFieldState,
+                                placeholder = { Text("10.0.0.2") },
+                                isError = state.value.tunnelIpDataErrors.containsKey(index),
+                                lineLimits = TextFieldLineLimits.SingleLine,
+                                colors = mullvadDarkTextFieldColors(),
+                                supportingText =
+                                    state.value.tunnelIpDataErrors[index]?.let {
+                                        { Text(it.toErrorMessage()) }
+                                    },
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            )
+                            if (tunnelIpTextFieldStates.size > 1) {
+                                IconButton(
+                                    onClick = {
+                                        tunnelIpTextFieldStates.removeAt(index)
+                                        onClearTunnelIpErrors()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Close,
+                                        contentDescription = "Remove address",
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    TextButton(
+                        onClick = { tunnelIpTextFieldStates.add(TextFieldState("")) },
+                        colors =
+                            ButtonDefaults.buttonColors(
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                    ) {
+                        Icon(imageVector = Icons.Outlined.Add, contentDescription = null)
+                        Text("Add address")
+                    }
                 }
             }
 
@@ -469,7 +516,8 @@ fun PersonalVpnScreen(
                                 saveConfig(
                                     PersonalVpnFormData(
                                         privateKey = privateKeyTextFieldState.text.toString(),
-                                        tunnelIp = addressTextFieldState.text.toString(),
+                                        tunnelIps =
+                                            tunnelIpTextFieldStates.map { it.text.toString() },
                                         publicKey = publicKeyTextFieldState.text.toString(),
                                         allowedIPs =
                                             allowedIpTextFieldStates.map { it.text.toString() },
@@ -562,5 +610,5 @@ fun FormDataError.toErrorMessage(): String =
         is FormDataError.Endpoint -> this.toString()
         is FormDataError.PrivateKey -> keyParseError.toString()
         is FormDataError.PublicKey -> keyParseError.toString()
-        FormDataError.TunnelIp -> "Bad address IP"
+        is FormDataError.TunnelIp -> "Bad address IP"
     }

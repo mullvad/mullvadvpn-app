@@ -18,7 +18,7 @@ sealed interface GetPersonalVpnConfigError {
 
 data class PersonalVpnConfig(val tunnelConfig: TunnelConfig, val peerConfig: PeerConfig)
 
-data class TunnelConfig(val privateKey: WireguardKey, val tunnelIp: InetAddress)
+data class TunnelConfig(val privateKey: WireguardKey, val tunnelIps: List<InetAddress>)
 
 data class PeerConfig(
     val publicKey: WireguardKey,

@@ -69,7 +69,9 @@ class PersonalVpnViewModel(
                         tunnelStats = personalVpnStats,
                         formData,
                         formErrors.filterIsInstance<FormDataError.PrivateKey>().firstOrNull(),
-                        formErrors.filterIsInstance<FormDataError.TunnelIp>().firstOrNull(),
+                        formErrors
+                            .filterIsInstance<FormDataError.TunnelIp>()
+                            .associateBy { it.index },
                         formErrors.filterIsInstance<FormDataError.PublicKey>().firstOrNull(),
                         formErrors
                             .filterIsInstance<FormDataError.AllowedIp>()
@@ -94,6 +96,10 @@ class PersonalVpnViewModel(
 
     fun onClearAllowedIpErrors() {
         formErrors.update { errors -> errors.filterNot { it is FormDataError.AllowedIp } }
+    }
+
+    fun onClearTunnelIpErrors() {
+        formErrors.update { errors -> errors.filterNot { it is FormDataError.TunnelIp } }
     }
 
     fun clearConfig() {
@@ -159,7 +165,8 @@ class PersonalVpnViewModel(
         val errors = mutableListOf<FormDataError>()
 
         val privateKey = parsePrivateKey(formData.privateKey).onLeft { errors.add(it) }.getOrNull()
-        val address = parseAddress(formData.tunnelIp).onLeft { errors.add(it) }.getOrNull()
+        val tunnelIps =
+            parseTunnelIps(formData.tunnelIps).onLeft { errors.addAll(it) }.getOrNull()
         val publicKey = parsePublicKey(formData.publicKey).onLeft { errors.add(it) }.getOrNull()
         val allowedIps =
             parseAllowedIps(formData.allowedIPs).onLeft { errors.addAll(it) }.getOrNull()
@@ -169,7 +176,7 @@ class PersonalVpnViewModel(
 
         return Either.Right(
             PersonalVpnConfig(
-                tunnelConfig = TunnelConfig(privateKey = privateKey!!, tunnelIp = address!!),
+                tunnelConfig = TunnelConfig(privateKey = privateKey!!, tunnelIps = tunnelIps!!),
                 peerConfig =
                     PeerConfig(
                         publicKey = publicKey!!,
@@ -186,8 +193,20 @@ class PersonalVpnViewModel(
         return WireguardKey.from(privateKey).mapLeft { FormDataError.PrivateKey(it) }
     }
 
-    private fun parseAddress(address: String): Either<FormDataError.TunnelIp, InetAddress> =
-        Either.catch { InetAddress.getByName(address) }.mapLeft { FormDataError.TunnelIp }
+    private fun parseTunnelIps(
+        tunnelIps: List<String>
+    ): Either<List<FormDataError.TunnelIp>, List<InetAddress>> {
+        val errors = mutableListOf<FormDataError.TunnelIp>()
+        val parsed = mutableListOf<InetAddress>()
+        tunnelIps.forEachIndexed { index, raw ->
+            Either.catch { InetAddress.getByName(raw) }
+                .fold({ errors.add(FormDataError.TunnelIp(index)) }, { parsed.add(it) })
+        }
+        if (errors.isEmpty() && parsed.isEmpty()) {
+            errors.add(FormDataError.TunnelIp(0))
+        }
+        return if (errors.isEmpty()) Either.Right(parsed) else Either.Left(errors)
+    }
 
     private fun parsePublicKey(publicKey: String): Either<FormDataError.PublicKey, WireguardKey> {
         return WireguardKey.from(publicKey).mapLeft { FormDataError.PublicKey(it) }
@@ -241,7 +260,7 @@ data class PersonalVpnUiState(
     val tunnelStats: TunnelStats,
     val initialFormData: PersonalVpnFormData = PersonalVpnFormData(),
     val privateKeyDataError: FormDataError.PrivateKey? = null,
-    val tunnelIpDataError: FormDataError.TunnelIp? = null,
+    val tunnelIpDataErrors: Map<Int, FormDataError.TunnelIp> = emptyMap(),
     val publicKeyDataError: FormDataError.PublicKey? = null,
     val allowedIpDataErrors: Map<Int, FormDataError.AllowedIp> = emptyMap(),
     val endpointDataError: FormDataError.Endpoint? = null,
@@ -249,7 +268,7 @@ data class PersonalVpnUiState(
 
 data class PersonalVpnFormData(
     val privateKey: String = "",
-    val tunnelIp: String = "",
+    val tunnelIps: List<String> = listOf(""),
     val publicKey: String = "",
     val allowedIPs: List<String> = listOf(""),
     val endpoint: String = "",
@@ -261,7 +280,10 @@ data class PersonalVpnFormData(
             } else {
                 PersonalVpnFormData(
                     privateKey = personalVpnConfig.tunnelConfig.privateKey.value,
-                    tunnelIp = personalVpnConfig.tunnelConfig.tunnelIp.hostAddress ?: "",
+                    tunnelIps =
+                        personalVpnConfig.tunnelConfig.tunnelIps
+                            .map { it.hostAddress ?: "" }
+                            .ifEmpty { listOf("") },
                     publicKey = personalVpnConfig.peerConfig.publicKey.value,
                     allowedIPs =
                         personalVpnConfig.peerConfig.allowedIps.ifEmpty { listOf("") },
@@ -275,7 +297,7 @@ data class PersonalVpnFormData(
 sealed interface FormDataError {
     data class PrivateKey(val keyParseError: KeyParseError) : FormDataError
 
-    data object TunnelIp : FormDataError
+    data class TunnelIp(val index: Int) : FormDataError
 
     data class PublicKey(val keyParseError: KeyParseError) : FormDataError
 

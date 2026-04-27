@@ -838,7 +838,7 @@ internal fun ManagementInterface.PersonalVpnConfig.toDomain() =
 internal fun ManagementInterface.PersonalVpnConfig.TunnelConfig.toDomain(): TunnelConfig =
     TunnelConfig(
         privateKey = WireguardKey.from(Base64.encode(privateKey.toByteArray())).getOrNull()!!,
-        tunnelIp = InetAddress.getByName(ip),
+        tunnelIps = ipsList.map(InetAddress::getByName),
     )
 
 internal fun ManagementInterface.PersonalVpnConfig.PeerConfig.toDomain() =

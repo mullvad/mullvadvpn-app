@@ -376,7 +376,7 @@ internal fun PersonalVpnConfig.fromDomain(): ManagementInterface.PersonalVpnConf
 
 internal fun TunnelConfig.fromDomain(): ManagementInterface.PersonalVpnConfig.TunnelConfig =
     ManagementInterface.PersonalVpnConfig.TunnelConfig.newBuilder()
-        .setIp(tunnelIp.hostAddress!!)
+        .addAllIps(tunnelIps.map { it.hostAddress!! })
         .setPrivateKey(ByteString.copyFrom(Base64.decode(privateKey.value)))
         .build()
 
