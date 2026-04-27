@@ -22,7 +22,7 @@ structure and can therefore be opened in Android Studio or any other IDE or edit
 The easiest and recommended way to build the Android project is to use the containerized build
 (which requires `podman`):
 ```
-../building/containerized-build.sh android --dev-build
+../building/containerized-build.sh android
 ```
 See the [build instructions](./docs/BuildInstructions.md) for further information.
 
