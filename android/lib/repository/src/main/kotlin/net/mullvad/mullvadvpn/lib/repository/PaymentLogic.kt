@@ -75,6 +75,10 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                 VERIFICATION_BACK_OFF_FACTOR,
             )
             .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS.toLong()))
+            .doWhile { error, _ ->
+                // If we have a verification error we should not retry as it will fail again.
+                error !is VerificationError.PlayVerificationError.VerificationFailed
+            }
             .retryEither { paymentRepository.verifyPurchases() }
             .onRight {
                 if (it == VerificationResult.Success) {
