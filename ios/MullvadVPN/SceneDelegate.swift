@@ -126,6 +126,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(logOverlayTapSequenceActivated))
         tapGesture.delegate = self
         tapGesture.numberOfTapsRequired = 2
+        tapGesture.cancelsTouchesInView = false
+        tapGesture.delaysTouchesEnded = false
 
         self.window?.addGestureRecognizer(tapGesture)
     }
