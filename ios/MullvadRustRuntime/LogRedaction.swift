@@ -6,7 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-private class LogRedaction {
+public class LogRedaction {
     private var logRedactor: LogRedactor
     init() {
         logRedactor = init_log_redactor()
