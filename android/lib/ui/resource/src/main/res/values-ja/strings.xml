@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">接続が解除されました (VPN のアクセス許可なし)</string>
     <string name="disconnecting">接続解除中...</string>
     <string name="dismiss">閉じる</string>
+    <string name="divier_or">または</string>
     <string name="dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="dns_content_blockers_custom_dns_warning">注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。</string>
     <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>

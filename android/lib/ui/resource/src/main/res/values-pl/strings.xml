@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Rozłączono (brak uprawnienia VPN)</string>
     <string name="disconnecting">Rozłączanie...</string>
     <string name="dismiss">Odrzuć</string>
+    <string name="divier_or">Lub</string>
     <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”.</string>
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>

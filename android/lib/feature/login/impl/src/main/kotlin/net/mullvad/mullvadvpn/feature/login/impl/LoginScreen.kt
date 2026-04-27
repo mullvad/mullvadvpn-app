@@ -242,7 +242,8 @@ private fun LoginScreen(
         val scrollState = rememberScrollState()
         Column(
             modifier =
-                Modifier.padding(it)
+                Modifier
+                    .padding(it)
                     .padding(horizontal = Dimens.sideMargin)
                     .fillMaxSize()
                     .verticalScroll(scrollState)
@@ -251,7 +252,8 @@ private fun LoginScreen(
             LoginIcon(
                 state.loginState,
                 modifier =
-                    Modifier.align(Alignment.CenterHorizontally)
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
                         .padding(bottom = Dimens.largePadding),
             )
             Text(
@@ -259,7 +261,8 @@ private fun LoginScreen(
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier =
-                    Modifier.testTag(LOGIN_TITLE_TEST_TAG)
+                    Modifier
+                        .testTag(LOGIN_TITLE_TEST_TAG)
                         .fillMaxWidth()
                         .padding(bottom = Dimens.smallPadding),
             )
@@ -307,7 +310,7 @@ fun OrDivier() {
             color = MaterialTheme.colorScheme.onBackground,
         )
         Text(
-            "Or",
+            stringResource(R.string.divier_or),
             modifier = Modifier.padding(horizontal = Dimens.smallPadding),
             color = MaterialTheme.colorScheme.onBackground,
         )
@@ -577,7 +580,8 @@ private fun AccountDropDownItem(
 
         Box(
             modifier =
-                Modifier.clickable(enabled = enabled, onClick = onClick)
+                Modifier
+                    .clickable(enabled = enabled, onClick = onClick)
                     .fillMaxHeight()
                     .weight(1f)
                     .padding(horizontal = Dimens.mediumPadding, vertical = Dimens.smallPadding),

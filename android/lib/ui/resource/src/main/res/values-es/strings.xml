@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Desconectado (sin permiso de VPN)</string>
     <string name="disconnecting">Desconectando...</string>
     <string name="dismiss">Descartar</string>
+    <string name="divier_or">O bien</string>
     <string name="dns_content_blockers">Bloqueadores de contenido DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Atención: este ajuste no se puede utilizar en combinación con «Usar servidor DNS personalizado».</string>
     <string name="dns_content_blockers_info">Al activar esta opción se evita que el dispositivo contacte con determinados dominios o sitios web que se sabe que distribuyen anuncios, malware, rastreadores y más.</string>

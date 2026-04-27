@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Відключено (немає дозволу для VPN)</string>
     <string name="disconnecting">Відключення...</string>
     <string name="dismiss">Закрити</string>
+    <string name="divier_or">Або</string>
     <string name="dns_content_blockers">DNS-блокувальники контенту</string>
     <string name="dns_content_blockers_custom_dns_warning">Увага: цей параметр не можна використовувати з опцією «Використовувати користувацький DNS-сервер».</string>
     <string name="dns_content_blockers_info">Коли ця функція ввімкнена, пристрій припиняє зв’язок із певними доменами або вебсайтами, які поширюють рекламу, шкідливі програми, трекери тощо.</string>

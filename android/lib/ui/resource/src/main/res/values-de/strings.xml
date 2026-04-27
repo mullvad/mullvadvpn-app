@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Verbindung getrennt (keine VPN-Berechtigung)</string>
     <string name="disconnecting">Verbindung wird getrennt …</string>
     <string name="dismiss">Ausblenden</string>
+    <string name="divier_or">Oder</string>
     <string name="dns_content_blockers">DNS-Inhaltssperren</string>
     <string name="dns_content_blockers_custom_dns_warning">Achtung: Diese Einstellung kann nicht in Kombination mit der Option „Benutzerdefinierten DNS-Server verwenden“ verwendet werden.</string>
     <string name="dns_content_blockers_info">Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Trackern und mehr bekannt sind.</string>

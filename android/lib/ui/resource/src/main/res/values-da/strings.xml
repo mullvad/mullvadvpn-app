@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Afbrudt (ingen VPN-tilladelse)</string>
     <string name="disconnecting">Afbryder...</string>
     <string name="dismiss">Afvis</string>
+    <string name="divier_or">Eller</string>
     <string name="dns_content_blockers">DNS-indholdsblokkere</string>
     <string name="dns_content_blockers_custom_dns_warning">Bemærk: Denne indstilling kan ikke bruges i kombination med \"Brug brugerdefineret DNS-server\".</string>
     <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>

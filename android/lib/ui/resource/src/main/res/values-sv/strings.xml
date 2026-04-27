@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Frånkopplad (VPN-behörighet saknas)</string>
     <string name="disconnecting">Kopplar från ...</string>
     <string name="dismiss">Ignorera</string>
+    <string name="divier_or">eller</string>
     <string name="dns_content_blockers">DNS-innehållsblockerare</string>
     <string name="dns_content_blockers_custom_dns_warning">Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\".</string>
     <string name="dns_content_blockers_info">När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera.</string>

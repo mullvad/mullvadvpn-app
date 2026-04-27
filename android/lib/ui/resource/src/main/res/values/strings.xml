@@ -522,4 +522,5 @@
     <string name="system_default">System default</string>
     <string name="app_icon">App icon</string>
     <string name="generating_account_number">Generating...</string>
+    <string name="divier_or">Or</string>
 </resources>

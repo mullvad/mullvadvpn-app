@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Yhteys katkaistu (ei VPN-käyttöoikeutta)</string>
     <string name="disconnecting">Katkaistaan yhteyttä...</string>
     <string name="dismiss">Jätä huomiotta</string>
+    <string name="divier_or">tai</string>
     <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>

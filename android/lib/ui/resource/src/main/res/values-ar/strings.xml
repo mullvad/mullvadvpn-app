@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">تم قطع الاتصال (لا يوجد إذن VPN)</string>
     <string name="disconnecting">جارٍ قطع الاتصال...</string>
     <string name="dismiss">تجاهل</string>
+    <string name="divier_or">أو</string>
     <string name="dns_content_blockers">أدوات حظر محتوى DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">انتبه: لا يمكن استخدام هذا الإعداد مع \"استخدام خادم DNS مُخصَّص\".</string>
     <string name="dns_content_blockers_info">عندما يتم تفعيل هذه الميزة، فإنها تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها.</string>

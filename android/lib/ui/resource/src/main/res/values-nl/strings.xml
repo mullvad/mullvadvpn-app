@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Verbinding verbroken (geen VPN-toestemming)</string>
     <string name="disconnecting">Verbinding wordt verbroken...</string>
     <string name="dismiss">Negeren</string>
+    <string name="divier_or">of</string>
     <string name="dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\".</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>

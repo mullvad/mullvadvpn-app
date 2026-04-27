@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Déconnecté (aucune autorisation VPN)</string>
     <string name="disconnecting">Déconnexion en cours...</string>
     <string name="dismiss">Ignorer</string>
+    <string name="divier_or">Ou</string>
     <string name="dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec « Utiliser un serveur DNS personnalisé ».</string>
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>

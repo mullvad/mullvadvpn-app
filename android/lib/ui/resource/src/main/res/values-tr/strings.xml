@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Bağlantı kesildi (VPN izni yok)</string>
     <string name="disconnecting">Bağlantı kesiliyor...</string>
     <string name="dismiss">Reddet</string>
+    <string name="divier_or">Ya da</string>
     <string name="dns_content_blockers">DNS içerik engelleyiciler</string>
     <string name="dns_content_blockers_custom_dns_warning">Dikkat: Bu ayar, \"Özel DNS sunucusu kullan\" seçeneği ile birlikte kullanılamaz.</string>
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>

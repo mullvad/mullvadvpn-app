@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">Отключено (нет разрешения для VPN)</string>
     <string name="disconnecting">Отключение...</string>
     <string name="dismiss">Закрыть</string>
+    <string name="divier_or">или</string>
     <string name="dns_content_blockers">DNS-блокировщики контента</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>

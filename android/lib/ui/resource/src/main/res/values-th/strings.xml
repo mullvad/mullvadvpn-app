@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">ตัดการเชื่อมต่อแล้ว (ไม่มีสิทธิ์ VPN)</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ...</string>
     <string name="dismiss">ละทิ้ง</string>
+    <string name="divier_or">หรือ</string>
     <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>

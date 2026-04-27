@@ -192,6 +192,7 @@
     <string name="disconnected_vpn_permission_error">قطع اتصال (بدون اجازه VPN)</string>
     <string name="disconnecting">در حال قطع اتصال...</string>
     <string name="dismiss">رد کردن</string>
+    <string name="divier_or">یا</string>
     <string name="dns_content_blockers">مسدودکننده‌های محتوای DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">توجه: این تنظیم نمی‌تواند همراه با «استفاده از سرور DNS سفارشی» به‌کار برود.</string>
     <string name="dns_content_blockers_info">وقتی این ویژگی فعال باشد، دستگاه از تماس با برخی دامنه‌ها یا وب‌سایت‌هایی که به توزیع تبلیغات، بدافزار، ردیاب‌ها و موارد دیگر شناخته می‌شوند جلوگیری می‌کند.</string>
