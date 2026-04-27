@@ -188,7 +188,7 @@ class BillingPaymentRepository(
                     .verifyPlayPurchase(
                         PlayPurchase(
                             productId = purchase.products.first(),
-                            purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken + "1"),
+                            purchaseToken = PlayPurchasePaymentToken(purchase.purchaseToken),
                         )
                     )
                     .also { Logger.i("Purchase verification result $it") }
