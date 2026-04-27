@@ -79,6 +79,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
@@ -136,6 +138,7 @@ private fun PreviewLoginScreen(
 
 private const val TOP_SPACER_WEIGHT = 1f
 private const val BOTTOM_SPACER_WEIGHT = 1f
+private val LAST_CHAR_VISIBILITY_TIMEOUT = 2.seconds
 
 @Composable
 fun Login(
@@ -333,8 +336,15 @@ private fun ColumnScope.LoginInput(
 ) {
 
     var showPassword by remember { mutableStateOf(false) }
+    var showLastChar by remember { mutableStateOf(false) }
+    LaunchedEffect(state.accountNumberInput) {
+        showLastChar = true
+        delay(LAST_CHAR_VISIBILITY_TIMEOUT)
+        showLastChar = false
+    }
+
     val outputTransformation =
-        remember(showPassword) { accountNumberOutputTransformation(showPassword) }
+        remember(showPassword, showLastChar) { accountNumberOutputTransformation(showPassword, if(showLastChar) 1 else 0) }
 
     val accountState = rememberTextFieldState(state.accountNumberInput)
     LaunchedEffect(accountState) {
