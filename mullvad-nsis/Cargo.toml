@@ -7,14 +7,14 @@ repository.workspace = true
 license.workspace = true
 
 [lib]
-name = "mullvad_nsis"
 crate-type = ["cdylib"]
+name = "mullvad_nsis"
 
 [target.i686-pc-windows-msvc.dependencies]
-nsis-plugin-api.workspace = true
-mullvad-paths = { path = "../mullvad-paths" }
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 anyhow.workspace = true
+mullvad-paths = { path = "../mullvad-paths" }
+nsis-plugin-api.workspace = true
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 widestring.workspace = true
 windows-sys = { workspace = true, features = [
   "Wdk_Foundation",
