@@ -10,7 +10,7 @@
 use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::Path;
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
@@ -56,8 +56,8 @@ struct Logger {
 }
 
 impl Logger {
-    fn new(path: PathBuf) -> io::Result<Self> {
-        let file = File::create(&path)?;
+    fn new<P: AsRef<Path>>(path: P) -> io::Result<Self> {
+        let file = File::create(path)?;
         Ok(Logger { file })
     }
 
