@@ -1264,6 +1264,47 @@ mod partition_relays {
         assert!(!query.matches.is_empty());
     }
 
+    /// Regression test for [`AutohopPartition::into_relay_partitions`].
+    ///
+    /// Set up a city with two relays: one DAITA-supporting (`only_daita`) and one not
+    /// (`other`). Under autohop with DAITA enabled and the location pinned to that city:
+    /// - singlehop matches only `only_daita`
+    /// - multihop entries (location=Any after autohop conversion) is uniquely `only_daita`
+    /// - multihop exits would match both, but `remove_conflicting_relay` moves
+    ///   `only_daita` out of exits with [Conflict] because it's the unique entry
+    ///
+    /// Autohop must still report `only_daita` as a match — it's a valid singlehop
+    /// configuration. Naively returning `multihop.exits` would put it in discards.
+    #[test]
+    fn autohop_singlehop_survives_multihop_conflict() {
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_relay("only_daita").endpoint_data.daita = true;
+        relay_list.add_relay("other");
+        let relay_selector = RelaySelector::from(relay_list);
+
+        let constraints = EntryConstraints::default()
+            .daita(true)
+            .general(ExitConstraints::default().city("tc", "tc"));
+
+        let RelayPartitions { matches, discards } =
+            relay_selector.partition_relays(Predicate::Autohop(constraints));
+
+        let match_hostnames: HashSet<&str> =
+            matches.iter().map(|r| r.hostname.as_str()).collect();
+        assert_eq!(
+            match_hostnames,
+            HashSet::from(["only_daita", "other"]),
+            "both relays should be autohop matches: \
+             `only_daita` via singlehop (and as the multihop entry), \
+             `other` via multihop exit",
+        );
+        assert!(
+            !discards.iter().any(|(r, _)| r.hostname == "only_daita"),
+            "`only_daita` must not be discarded with [Conflict] — \
+             the conflict only blocks multihop, not singlehop. discards: {discards:?}",
+        );
+    }
+
     /// Test that filtering on obfuscation works.
     #[test]
     fn obfuscation() {

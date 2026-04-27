@@ -387,8 +387,7 @@ impl RelaySelector {
                 self.select_from_multihop_partitions(autohop.multihop, multihop_constraints)
             }
             Constraints::Multihop(constraints) => {
-                let partitions =
-                    self.partition_multihop(relays, constraints.clone(), custom_lists);
+                let partitions = self.partition_multihop(relays, constraints.clone(), custom_lists);
                 self.select_from_multihop_partitions(partitions, constraints)
             }
         }

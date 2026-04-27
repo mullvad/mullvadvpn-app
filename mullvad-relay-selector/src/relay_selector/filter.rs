@@ -34,33 +34,40 @@ pub(super) struct AutohopPartition {
 impl AutohopPartition {
     /// Collapse to a [`RelayPartitions`] where:
     /// - `matches` = exits valid for singlehop **or** for multihop (requires valid entry)
-    /// - `discards` = exits valid for neither, with the singlehop discard reasons
+    /// - `discards` = exits valid for neither
     pub(super) fn into_relay_partitions(self) -> RelayPartitions {
         let AutohopPartition {
-            // Start with singlehop partitions (exits that are also their own valid entry).
-            singlehop: RelayPartitions { matches, discards },
+            singlehop,
             multihop,
         } = self;
 
         if multihop.entries.matches.is_empty() {
-            // No valid entry, so no autohop possible. Use the singlehop partition as-is.
-            RelayPartitions { matches, discards }
-        } else {
-            // Otherwise, promote multihop exits to matches while keeping the singlehop discard reason
-            // for the relays that are discarded in both sets.
-            let (rescued, discards): (Vec<_>, Vec<_>) =
-                discards.into_iter().partition_map(|(relay, reasons)| {
-                    if multihop.exits.matches.contains(&relay) {
-                        Either::Left(relay)
-                    } else {
-                        Either::Right((relay, reasons))
-                    }
-                });
-            RelayPartitions {
-                matches: [matches, rescued].concat(),
-                discards,
+            // No valid entry → multihop unavailable. Autohop reduces to singlehop, so
+            // the singlehop partition (matches and discard reasons) is the right answer.
+            return singlehop;
+        }
+
+        // Multihop is available. A relay matches autohop if it works as singlehop OR as
+        // a multihop exit. For discards, prefer multihop.exits reasons over singlehop's:
+        // multihop is the more permissive path here, so its reasons describe the minimum
+        // fix to unblock the relay in autohop. Singlehop adds entry-specific reasons
+        // (DAITA / obfuscation / ip_version) that don't apply to a relay used as a
+        // multihop exit and would over-report what the user needs to change.
+        let mut matches = singlehop.matches;
+        for relay in multihop.exits.matches {
+            if !matches.contains(&relay) {
+                matches.push(relay);
             }
         }
+
+        let discards = multihop
+            .exits
+            .discards
+            .into_iter()
+            .filter(|(r, _)| !matches.contains(r))
+            .collect();
+
+        RelayPartitions { matches, discards }
     }
 }
 
