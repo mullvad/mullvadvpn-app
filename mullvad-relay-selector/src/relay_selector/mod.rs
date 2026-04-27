@@ -296,9 +296,6 @@ impl RelaySelector {
         retry_order: &[RelayQuery],
         runtime_ip_availability: IpAvailability,
     ) -> Result<GetRelay, Error> {
-        // Extract data from config and release the lock immediately.
-        // The lock must not be held when calling get_wireguard_relay_inner,
-        // because usable_as_exit → location_criteria → custom_lists() re-acquires it.
         let mut user_query = self.config.lock().unwrap().query.clone();
 
         // Runtime parameters may affect which of the default queries that are considered.
@@ -327,15 +324,19 @@ impl RelaySelector {
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
     pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
-        let inner = self.select_wireguard_relay(query.resolve(), &query)?;
+        // Hold a single read lock for the whole call so the relay we choose during
+        // partitioning is the same one we look up in `endpoint_sets` afterwards.
+        let annotated = self.relays.read().unwrap();
+        let custom_lists = self.custom_lists();
 
-        // Build endpoint and obfuscator using pre-computed endpoint sets.
+        let inner =
+            self.select_wireguard_relay(&annotated, &custom_lists, query.resolve(), &query)?;
+
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
             WireguardConfig::Multihop { entry, .. } => entry,
         };
 
-        let annotated = self.relays.read().unwrap();
         let endpoint_set = annotated
             .endpoint_set_for(entry)
             .ok_or_else(|| Error::NoRelay(Box::new(query.clone())))?;
@@ -362,20 +363,21 @@ impl RelaySelector {
     /// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.
     fn select_wireguard_relay(
         &self,
+        relays: &AnnotatedRelayList,
+        custom_lists: &CustomListsSettings,
         constraints: Constraints,
         original_query: &RelayQuery,
     ) -> Result<WireguardConfig, Error> {
-        let relays = self.relays.read().unwrap();
         match constraints {
             Constraints::Singlehop(constraints) => {
-                let partitions = self.partition_entry(&relays, &constraints);
+                let partitions = self.partition_entry(relays, &constraints, custom_lists);
                 match helpers::pick_random_relay(&partitions.matches) {
                     Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
                     None => Err(Error::NoRelay(Box::new(original_query.clone()))),
                 }
             }
             Constraints::Autohop(constraints) => {
-                let autohop = self.partition_autohop(&relays, constraints.clone());
+                let autohop = self.partition_autohop(relays, constraints.clone(), custom_lists);
                 // Attempt to pick a single relay that matches all constraints
                 if let Some(exit) = helpers::pick_random_relay(&autohop.singlehop.matches) {
                     return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
@@ -385,7 +387,8 @@ impl RelaySelector {
                 self.select_from_multihop_partitions(autohop.multihop, multihop_constraints)
             }
             Constraints::Multihop(constraints) => {
-                let partitions = self.partition_multihop(&relays, constraints.clone());
+                let partitions =
+                    self.partition_multihop(relays, constraints.clone(), custom_lists);
                 self.select_from_multihop_partitions(partitions, constraints)
             }
         }

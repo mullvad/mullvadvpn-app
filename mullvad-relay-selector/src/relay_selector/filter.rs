@@ -71,17 +71,21 @@ impl RelaySelector {
     /// if the relay list is pinned.
     pub fn partition_relays(&self, predicate: Predicate) -> RelayPartitions {
         let relays = self.relays.read().unwrap();
+        let custom_lists = self.custom_lists();
         match predicate {
-            Predicate::Singlehop(constraints) => self.partition_entry(&relays, &constraints),
+            Predicate::Singlehop(constraints) => {
+                self.partition_entry(&relays, &constraints, &custom_lists)
+            }
             Predicate::Autohop(constraints) => self
-                .partition_autohop(&relays, constraints)
+                .partition_autohop(&relays, constraints, &custom_lists)
                 .into_relay_partitions(),
             Predicate::Entry(multihop_constraints) => {
-                self.partition_multihop(&relays, multihop_constraints)
+                self.partition_multihop(&relays, multihop_constraints, &custom_lists)
                     .entries
             }
             Predicate::Exit(multihop_constraints) => {
-                self.partition_multihop(&relays, multihop_constraints).exits
+                self.partition_multihop(&relays, multihop_constraints, &custom_lists)
+                    .exits
             }
         }
     }
@@ -118,10 +122,11 @@ impl RelaySelector {
         &self,
         relays: &AnnotatedRelayList,
         constraints: &EntryConstraints,
+        custom_lists: &CustomListsSettings,
     ) -> RelayPartitions {
         Self::partition_by_verdict(relays, |relay, endpoint_set| {
             self.usable_as_entry(relay, endpoint_set, &constraints.entry_specific)
-                .and(self.usable_as_exit(relay, &constraints.general))
+                .and(self.usable_as_exit(relay, &constraints.general, custom_lists))
         })
     }
 
@@ -129,10 +134,11 @@ impl RelaySelector {
         &self,
         relays: &AnnotatedRelayList,
         constraints: EntryConstraints,
+        custom_lists: &CustomListsSettings,
     ) -> AutohopPartition {
         AutohopPartition {
-            singlehop: self.partition_entry(relays, &constraints),
-            multihop: self.partition_multihop(relays, constraints.into_autohop()),
+            singlehop: self.partition_entry(relays, &constraints, custom_lists),
+            multihop: self.partition_multihop(relays, constraints.into_autohop(), custom_lists),
         }
     }
 
@@ -140,9 +146,10 @@ impl RelaySelector {
         &self,
         relays: &AnnotatedRelayList,
         MultihopConstraints { entry, exit }: MultihopConstraints,
+        custom_lists: &CustomListsSettings,
     ) -> MultiHopPartitions {
-        let mut entries = self.partition_entry(relays, &entry);
-        let mut exits = self.partition_exit(relays, &exit);
+        let mut entries = self.partition_entry(relays, &entry, custom_lists);
+        let mut exits = self.partition_exit(relays, &exit, custom_lists);
 
         remove_conflicting_relay(&mut entries, &mut exits);
 
@@ -159,9 +166,10 @@ impl RelaySelector {
         &self,
         relays: &AnnotatedRelayList,
         constraints: &ExitConstraints,
+        custom_lists: &CustomListsSettings,
     ) -> RelayPartitions {
         Self::partition_by_verdict(relays, |relay, _endpoint_set| {
-            self.usable_as_exit(relay, constraints)
+            self.usable_as_exit(relay, constraints, custom_lists)
         })
     }
 
@@ -189,10 +197,11 @@ impl RelaySelector {
             providers,
             ownership,
         }: &ExitConstraints,
+        custom_lists: &CustomListsSettings,
     ) -> Verdict {
         let ownership = ownership.matches(relay).if_false(Reason::Ownership);
         let providers = providers.matches(relay).if_false(Reason::Providers);
-        let location = self.location_criteria(relay, location);
+        let location = self.location_criteria(relay, location, custom_lists);
         let active = relay.active.if_false(Reason::Inactive);
 
         ownership.and(providers).and(location).and(active)
@@ -202,11 +211,10 @@ impl RelaySelector {
         &self,
         relay: &WireguardRelay,
         location: &Constraint<LocationConstraint>,
+        custom_lists: &CustomListsSettings,
     ) -> Verdict {
-        let custom_lists: CustomListsSettings = self.custom_lists();
-
         let location_constraint =
-            ResolvedLocationConstraint::from_constraint(location.as_ref(), &custom_lists);
+            ResolvedLocationConstraint::from_constraint(location.as_ref(), custom_lists);
 
         if !location_constraint.matches(relay) {
             return Verdict::reject(Reason::Location);
