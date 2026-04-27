@@ -122,12 +122,6 @@ impl TryFrom<proto::ExitConstraints> for ExitConstraints {
 
 impl From<RelayPartitions> for proto::RelayPartitions {
     fn from(RelayPartitions { matches, discards }: RelayPartitions) -> Self {
-        let mut matches: Vec<proto::Relay> = matches
-            .into_iter()
-            .map(|relay| relay.inner)
-            .map(proto::Relay::from)
-            .collect();
-
         // Put relays that were discarded only because of `include_in_countries` back into
         // the matches set. These relays do match the given constraints, but are still
         // discarded to prioritize other relays.
@@ -135,14 +129,20 @@ impl From<RelayPartitions> for proto::RelayPartitions {
         // relays that are individually selectable, which these are.
         let (fallbacks, true_discards): (Vec<_>, Vec<_>) = discards
             .into_iter()
-            .map(|(relay, why)| (proto::Relay::from(relay.inner), why))
             .partition(|(_relay, why)| matches!(why.as_slice(), [Reason::IncludeInCountry]));
-        matches.extend(fallbacks.into_iter().map(|(relay, _)| relay));
+
+        let matches = fallbacks
+            .into_iter()
+            .map(|(relay, _)| relay)
+            .chain(matches)
+            .map(|relay| relay.inner)
+            .map(proto::Relay::from)
+            .collect();
 
         let discards = true_discards
             .into_iter()
             .map(|(relay, why)| proto::DiscardedRelay {
-                relay: Some(relay),
+                relay: Some(proto::Relay::from(relay.inner)),
                 why: Some(proto::IncompatibleConstraints::from(why)),
             })
             .collect();
