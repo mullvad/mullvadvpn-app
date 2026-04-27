@@ -11,7 +11,7 @@ import MullvadSettings
 import MullvadTypes
 
 final class TunnelViewControllerInteractor: @unchecked Sendable {
-    private let tunnelManager: TunnelManager
+    let tunnelManager: TunnelManager
     private let outgoingConnectionService: OutgoingConnectionServiceHandling
     private var tunnelObserver: TunnelObserver?
     private var outgoingConnectionTask: Task<Void, Error>?
