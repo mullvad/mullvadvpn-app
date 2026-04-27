@@ -120,9 +120,7 @@ impl RelaySelector {
                 Verdict::Accept => Either::Left(relay.clone()),
                 Verdict::Reject(reasons) => Either::Right((relay.clone(), reasons)),
             });
-        let mut partitions = RelayPartitions { matches, discards };
-        rescue_fallbacks(&mut partitions);
-        partitions
+        RelayPartitions { matches, discards }
     }
 
     pub(super) fn partition_entry(
@@ -159,12 +157,6 @@ impl RelaySelector {
         let mut exits = self.partition_exit(relays, &exit, custom_lists);
 
         remove_conflicting_relay(&mut entries, &mut exits);
-
-        // Conflict removal may have emptied a side. Rescue IncludeInCountry fallbacks so
-        // that a pool where every relay has include_in_country=false can still form a
-        // valid pair.
-        rescue_fallbacks(&mut entries);
-        rescue_fallbacks(&mut exits);
 
         MultiHopPartitions { entries, exits }
     }
@@ -227,10 +219,11 @@ impl RelaySelector {
             return Verdict::reject(Reason::Location);
         }
 
-        // Relays with `include_in_country = false` are deprioritized when the location
-        // constraint only targets the country (or is unconstrained). A city- or
-        // hostname-level constraint that matches the relay overrides this — the user
-        // has made an explicit, specific choice.
+        // Relays with `include_in_country = false` are only selectable when the location
+        // constraint targets them at city or hostname level. Country-only and unconstrained
+        // queries reject them outright — they're assumed to offer nothing extra over the
+        // other relays in the same country, so picking them implicitly would just degrade
+        // the country-level relay pool.
         if !relay.include_in_country && is_country_only_match(location_constraint.as_ref(), relay) {
             Verdict::reject(Reason::IncludeInCountry)
         } else {
@@ -239,34 +232,13 @@ impl RelaySelector {
     }
 }
 
-/// Promote relays whose sole discard reason is [`Reason::IncludeInCountry`] into `matches`
-/// when no primary relay is available. This implements the "use only when necessary"
-/// semantics of `include_in_country = false`.
-pub(super) fn rescue_fallbacks(partitions: &mut RelayPartitions) {
-    if !partitions.matches.is_empty() {
-        return;
-    }
-    let mut rescued = vec![];
-    partitions.discards.retain(|(relay, reasons)| {
-        if reasons.as_slice() == [Reason::IncludeInCountry] {
-            rescued.push(relay.clone());
-            false
-        } else {
-            true
-        }
-    });
-    partitions.matches.extend(rescued);
-}
-
 /// Ensure the same relay cannot be chosen as both entry and exit.
 ///
 /// If either side's `matches` contains a single relay that also appears in the other
 /// side's `matches`, that relay is moved to the other side's `discards` with
 /// [`Reason::Conflict`]. The two directions are evaluated sequentially, so when a relay
 /// is uniquely the match on both sides it is labeled `Conflict` on only one side and
-/// remains in the other side's `matches` — which keeps the multihop pair formable once
-/// the other side falls back to an [`Reason::IncludeInCountry`] relay via
-/// [`rescue_fallbacks`].
+/// remains in the other side's `matches`.
 pub(crate) fn remove_conflicting_relay(entries: &mut RelayPartitions, exits: &mut RelayPartitions) {
     move_unique_conflict(entries, exits);
     move_unique_conflict(exits, entries);
@@ -299,9 +271,9 @@ pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool
 /// matches `relay`. This covers both `Constraint::Any` (no constraint at all, meaning the relay
 /// is not specifically targeted) and constraints that only mention the relay's country.
 ///
-/// Used to determine whether a relay with `include_in_country = false` should be treated as a
-/// fallback: if the user has pinpointed a specific city or hostname that contains this relay,
-/// we honour that explicit choice and promote it to a primary match.
+/// Used to gate `include_in_country = false` relays: such a relay is only acceptable when the
+/// user has pinpointed a specific city or hostname that contains it. Otherwise (country-only
+/// or unconstrained) it must be rejected.
 pub fn is_country_only_match(
     location: Constraint<&ResolvedLocationConstraint<'_>>,
     relay: &WireguardRelay,

@@ -77,9 +77,9 @@ pub enum Reason {
     Port,
     /// The relay is not hosted by the given provider.
     Providers,
-    /// The relay is deprioritized because the location constraint only targets its country and the
-    /// relay itself has opted out of country-level listings (`include_in_country = false`). Such
-    /// relays are only selected when no primary (opted-in) relay is available.
+    /// The relay opted out of country-level listings (`include_in_country = false`) and the
+    /// location constraint targets only its country (or is unconstrained). Such relays are only
+    /// selectable when the constraint pinpoints them at city or hostname level.
     IncludeInCountry,
 }
 

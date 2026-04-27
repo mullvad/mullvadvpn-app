@@ -756,9 +756,10 @@ mod relay_selection {
         assert!(ips.len() > 1, "expected more than 1 server, got {ips:?}");
     }
 
-    /// Ensure that `include_in_country` is ignored if all relays have it set to false (i.e., some
-    /// relay is returned). Also ensure that `include_in_country` is respected if some relays
-    /// have it set to true (i.e., that relay is never returned)
+    /// `include_in_country = false` relays are excluded from country-level selection and
+    /// only selectable via city or hostname constraints. There is no "use when necessary"
+    /// fallback — country-level queries that would only be served by `=false` relays must
+    /// fail rather than silently picking a relay the operator opted out of.
     #[test]
     fn test_include_in_country() {
         let mut relay_list = RelayList {
@@ -819,19 +820,37 @@ mod relay_selection {
             },
         };
 
-        // If include_in_country is false for all relays, a relay must be selected anyway.
+        // Country-level (default Constraint::Any) query: every relay has
+        // include_in_country=false → no relay should be selectable.
         let relay_selector = RelaySelector::from_settings(
             &Settings::default(),
             relay_list.clone(),
             BridgeList::default(),
         );
-        assert!(
-            relay_selector
-                .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
-                .is_ok()
-        );
+        assert!(matches!(
+            relay_selector.get_relay(0, talpid_types::net::IpAvailability::Ipv4),
+            Err(Error::NoRelay(_))
+        ));
 
-        // If include_in_country is true for some relay, it must always be selected.
+        // Hostname-level query targeting an include_in_country=false relay: the
+        // explicit, specific choice wins.
+        let target_hostname = relay_list.countries[0].cities[0].relays[1].hostname.clone();
+        let hostname_query = RelayQueryBuilder::new()
+            .location(GeographicLocationConstraint::hostname(
+                "se",
+                "got",
+                target_hostname.clone(),
+            ))
+            .build();
+        let relay = unwrap_relay(
+            relay_selector
+                .get_relay_by_query(hostname_query)
+                .expect("hostname-targeted include_in_country=false relay must be selectable"),
+        );
+        assert_eq!(relay.hostname, target_hostname);
+
+        // If at least one relay has include_in_country=true, country-level queries
+        // resolve to that relay and never to the include_in_country=false ones.
         relay_list.countries[0].cities[0].relays[0].include_in_country = true;
         let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
         let relay_selector =
@@ -997,15 +1016,31 @@ mod relay_selection {
         }
     }
 
-    /// Check that the relay selector is able to disregard `include_in_country` flag if necessary.
-    ///
-    /// This test case prevents regressions to the `include_in_country` filtering logic.
+    /// Country-level multihop must not silently fall back onto an `include_in_country = false`
+    /// relay. With one `=false` relay (`se-sto-wg-009`) and one `=true` relay (`se-sto-wg-204`)
+    /// in Stockholm, a country-level query has only one country-selectable relay and so
+    /// cannot form a multihop pair. A hostname-level query targeting both relays explicitly,
+    /// on the other hand, must succeed.
     #[test]
     fn include_in_country_with_few_relays() -> Result<(), Error> {
-        let query = RelayQueryBuilder::new()
+        let country_query = RelayQueryBuilder::new()
             .multihop()
             .location(GeographicLocationConstraint::country("se"))
             .entry(GeographicLocationConstraint::country("se"))
+            .build();
+
+        let hostname_query = RelayQueryBuilder::new()
+            .multihop()
+            .location(GeographicLocationConstraint::hostname(
+                "se",
+                "sto",
+                "se-sto-wg-009",
+            ))
+            .entry(GeographicLocationConstraint::hostname(
+                "se",
+                "sto",
+                "se-sto-wg-204",
+            ))
             .build();
 
         // The relay selector ought to resolve the query to any of the following configurations
@@ -1088,7 +1123,15 @@ mod relay_selection {
         let relay_selector =
             RelaySelector::from_settings(&Settings::default(), relays, BridgeList::default());
 
-        relay_selector.get_relay_by_query(query)?;
+        // Country-level multihop must fail: only one relay (`se-sto-wg-204`) is
+        // selectable at country level, so no entry/exit pair can be formed.
+        assert!(matches!(
+            relay_selector.get_relay_by_query(country_query),
+            Err(Error::NoRelay(_) | Error::NoRelayEntry(_) | Error::NoRelayExit(_))
+        ));
+
+        // Hostname-level multihop targeting both relays explicitly must succeed.
+        relay_selector.get_relay_by_query(hostname_query)?;
         Ok(())
     }
 }
