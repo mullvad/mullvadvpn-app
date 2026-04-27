@@ -338,7 +338,7 @@ impl WireguardMonitor {
                             config
                                 .personal_vpn
                                 .as_ref()
-                                .map(|c| wireguard_overhead(c.tunnel.ip))
+                                .map(|c| wireguard_overhead(c.peer.endpoint.ip()))
                                 .unwrap_or(0)
                         }
                         _ => 0u16,
@@ -1285,7 +1285,7 @@ fn calculate_tunnel_mtu(
 
     #[cfg(feature = "personal-vpn")]
     if let Some(personal) = &params.personal_vpn {
-        overhead += wireguard_overhead(personal.tunnel.ip);
+        overhead += wireguard_overhead(personal.peer.endpoint.ip());
     }
 
     clamp_tunnel_mtu(params, link_mtu_for_peer.saturating_sub(overhead))
