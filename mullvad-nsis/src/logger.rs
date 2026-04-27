@@ -84,7 +84,7 @@ impl Logger {
 fn timestamp() -> String {
     let mut time = SYSTEMTIME::default();
     // SAFETY: `&mut time` points to a stack-local SYSTEMTIME the API fills in.
-    unsafe { GetLocalTime(&mut time) };
+    unsafe { GetLocalTime(&raw mut time) };
 
     let mut s = String::with_capacity(24);
     let _ = write!(
@@ -114,7 +114,7 @@ fn pin_dll() {
                 GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
                     | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                 (pin_dll as *const ()).cast(),
-                &mut module,
+                &raw mut module,
             )
         };
         if success == 0 {
