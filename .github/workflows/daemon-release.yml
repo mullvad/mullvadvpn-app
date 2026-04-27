@@ -21,6 +21,9 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -64,6 +67,10 @@ jobs:
         run: |
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+      - name: Set desktop product version
+        run: |
+          printf '%s\n' "${{ inputs.version }}" > dist-assets/desktop-product-version.txt
 
       - name: Create local release tag for version resolution
         run: |
