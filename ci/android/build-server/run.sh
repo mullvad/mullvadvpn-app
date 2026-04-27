@@ -67,7 +67,8 @@ function run_in_linux_container {
 function build {
     local task=fullRelease
 
-    # Use for backward compatibility.
+    # Used for backward compatibility. Can be removed once versions
+    # that required the build script no longer need to be supported.
     [[ -f "android/build.sh" ]] && task=--app-bundle
 
     CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
