@@ -11,6 +11,7 @@ import SwiftUI
 struct ConnectionView: View {
     @ObservedObject var connectionViewModel: ConnectionViewViewModel
     @ObservedObject var indicatorsViewModel: FeatureIndicatorsViewModel
+    @ObservedObject var speedConnectionViewModel: SpeedConnectionViewModel
 
     @State private(set) var isExpanded = false
 
@@ -27,7 +28,7 @@ struct ConnectionView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
                         .padding(.bottom, 4)
-
+                    SpeedConnectionView(viewModel: speedConnectionViewModel)
                     Divider()
                         .background(UIColor.secondaryTextColor.color)
                         .padding(.top, 4)
@@ -111,12 +112,18 @@ struct ConnectionView: View {
 
 #Preview("ConnectionView (Indicators)") {
     ConnectionViewComponentPreview(showIndicators: true) { indicatorModel, viewModel, _ in
-        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
+        ConnectionView(
+            connectionViewModel: viewModel,
+            indicatorsViewModel: indicatorModel,
+            speedConnectionViewModel: SpeedConnectionViewModel(networkSpeedMonitor: MockNetworkSpeedMonitor()))
     }
 }
 
 #Preview("ConnectionView (No indicators)") {
     ConnectionViewComponentPreview(showIndicators: false) { indicatorModel, viewModel, _ in
-        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
+        ConnectionView(
+            connectionViewModel: viewModel,
+            indicatorsViewModel: indicatorModel,
+            speedConnectionViewModel: SpeedConnectionViewModel(networkSpeedMonitor: MockNetworkSpeedMonitor()))
     }
 }

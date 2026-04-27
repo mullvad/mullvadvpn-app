@@ -79,7 +79,8 @@ class TunnelViewController: UIViewController, RootContainment {
 
         connectionView = ConnectionView(
             connectionViewModel: connectionViewViewModel,
-            indicatorsViewModel: indicatorsViewViewModel
+            indicatorsViewModel: indicatorsViewViewModel,
+            speedConnectionViewModel: SpeedConnectionViewModel(networkSpeedMonitor: NetworkSpeedMonitor())
         )
 
         super.init(nibName: nil, bundle: nil)
