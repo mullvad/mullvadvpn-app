@@ -5,4 +5,3 @@
 - Dropped support for Android 8/8.1
 - Shows a two-column layout with a list and detail pane on the settings and VPN settings screens if the screen is wide enough (e.g. TV or tablet in landscape)
 - Obfuscating the app icon has now been moved to Settings -> Appearance -> App Icon
-- Fixed Custom DNS dialog crash introduced in 2026.4-beta1
