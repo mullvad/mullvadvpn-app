@@ -180,7 +180,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         }
     }
 
-    private func redact(string: String) -> String {
+    public func redact(string: String) -> String {
         var result = string
         result = redactContainerPaths(string: result)
         result = redactAccountNumber(string: result)
