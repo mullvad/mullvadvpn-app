@@ -50,7 +50,7 @@ jobs:
           # A list of VMs to run the tests on. These refer to the names defined
           # in $XDG_CONFIG_DIR/mullvad-test/config.json on the runner.
           all='["debian11","debian12","debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","ubuntu2604","fedora41","fedora42","fedora43","fedora44"]'
-          default='["debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","ubuntu2604","fedora42","fedora43"]'
+          default='["debian13","ubuntu2204","ubuntu2404","ubuntu2510","ubuntu2604","fedora42","fedora43"]'
           oses="${{ github.event.inputs.oses }}"
           echo "OSES: $oses"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
