@@ -27,7 +27,7 @@ import { HeaderTitle } from '../../SettingsHeader';
 
 type FormState = {
   privateKey: string;
-  tunnelIp: string;
+  tunnelIps: string[];
   publicKey: string;
   allowedIps: string[];
   endpoint: string;
@@ -35,19 +35,22 @@ type FormState = {
 
 type FormErrors = {
   privateKey?: KeyValidationError;
-  tunnelIp?: 'empty' | 'invalid';
+  tunnelIps: Record<number, 'empty' | 'invalid'>;
   publicKey?: KeyValidationError;
   allowedIps: Record<number, 'empty'>;
   endpoint?: EndpointValidationError;
   submit?: string;
 };
 
-const EMPTY_ERRORS: FormErrors = { allowedIps: {} };
+const EMPTY_ERRORS: FormErrors = { tunnelIps: {}, allowedIps: {} };
 
 function fromConfig(config?: PersonalVpnConfig): FormState {
   return {
     privateKey: config?.tunnel?.privateKey ?? '',
-    tunnelIp: config?.tunnel?.tunnelIp ?? '',
+    tunnelIps:
+      config?.tunnel?.tunnelIps && config.tunnel.tunnelIps.length > 0
+        ? [...config.tunnel.tunnelIps]
+        : [''],
     publicKey: config?.peer?.publicKey ?? '',
     allowedIps:
       config?.peer?.allowedIps && config.peer.allowedIps.length > 0
@@ -144,17 +147,18 @@ function formatHandshake(timestamp?: string): string {
   return `${hours}h ago`;
 }
 
-interface AllowedIpRowProps {
+interface IpRowProps {
   index: number;
   value: string;
   invalid: boolean;
+  placeholder: string;
   onChange: (index: number, value: string) => void;
   onRemove: (index: number) => void;
   removeDisabled: boolean;
 }
 
-const AllowedIpRow = React.memo(function AllowedIpRow(props: AllowedIpRowProps) {
-  const { index, value, invalid, onChange, onRemove, removeDisabled } = props;
+const IpRow = React.memo(function IpRow(props: IpRowProps) {
+  const { index, value, invalid, placeholder, onChange, onRemove, removeDisabled } = props;
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => onChange(index, event.target.value),
@@ -166,7 +170,7 @@ const AllowedIpRow = React.memo(function AllowedIpRow(props: AllowedIpRowProps) 
     <Flex gap="small">
       <StyledInput
         spellCheck={false}
-        placeholder="0.0.0.0/0"
+        placeholder={placeholder}
         value={value}
         $invalid={invalid}
         onChange={handleChange}
@@ -207,14 +211,38 @@ export function PersonalVpnView() {
     [clearFieldError],
   );
 
-  const onTunnelIpChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const value = event.target.value;
-      setForm((prev) => ({ ...prev, tunnelIp: value }));
-      clearFieldError('tunnelIp');
-    },
-    [clearFieldError],
-  );
+  const updateTunnelIp = useCallback((index: number, value: string) => {
+    setForm((prev) => {
+      const next = [...prev.tunnelIps];
+      next[index] = value;
+      return { ...prev, tunnelIps: next };
+    });
+    setErrors((prev) => {
+      const next = { ...prev.tunnelIps };
+      delete next[index];
+      return { ...prev, tunnelIps: next, submit: undefined };
+    });
+  }, []);
+
+  const addTunnelIp = useCallback(() => {
+    setForm((prev) => ({ ...prev, tunnelIps: [...prev.tunnelIps, ''] }));
+  }, []);
+
+  const removeTunnelIp = useCallback((index: number) => {
+    setForm((prev) => {
+      const next = prev.tunnelIps.filter((_, i) => i !== index);
+      return { ...prev, tunnelIps: next.length === 0 ? [''] : next };
+    });
+    setErrors((prev) => {
+      const next: Record<number, 'empty' | 'invalid'> = {};
+      for (const [k, v] of Object.entries(prev.tunnelIps)) {
+        const i = Number(k);
+        if (i < index) next[i] = v;
+        else if (i > index) next[i - 1] = v;
+      }
+      return { ...prev, tunnelIps: next };
+    });
+  }, []);
 
   const onPublicKeyChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -268,11 +296,14 @@ export function PersonalVpnView() {
   }, []);
 
   const onSave = useCallback(async () => {
-    const next: FormErrors = { allowedIps: {} };
+    const next: FormErrors = { tunnelIps: {}, allowedIps: {} };
     next.privateKey = validateWireguardKey(form.privateKey);
-    next.tunnelIp = validateIp(form.tunnelIp);
     next.publicKey = validateWireguardKey(form.publicKey);
     next.endpoint = validateEndpoint(form.endpoint);
+    form.tunnelIps.forEach((ip, i) => {
+      const err = validateIp(ip);
+      if (err) next.tunnelIps[i] = err;
+    });
     form.allowedIps.forEach((ip, i) => {
       const err = validateAllowedIp(ip);
       if (err) next.allowedIps[i] = err;
@@ -280,9 +311,9 @@ export function PersonalVpnView() {
 
     const hasError =
       next.privateKey !== undefined ||
-      next.tunnelIp !== undefined ||
       next.publicKey !== undefined ||
       next.endpoint !== undefined ||
+      Object.keys(next.tunnelIps).length > 0 ||
       Object.keys(next.allowedIps).length > 0;
 
     if (hasError) {
@@ -291,7 +322,10 @@ export function PersonalVpnView() {
     }
 
     const payload: PersonalVpnConfig = {
-      tunnel: { privateKey: form.privateKey, tunnelIp: form.tunnelIp.trim() },
+      tunnel: {
+        privateKey: form.privateKey,
+        tunnelIps: form.tunnelIps.map((ip) => ip.trim()),
+      },
       peer: {
         publicKey: form.publicKey,
         allowedIps: form.allowedIps.map((ip) => ip.trim()),
@@ -303,14 +337,14 @@ export function PersonalVpnView() {
     try {
       const result = await save(payload);
       if (result.type === 'error') {
-        setErrors({ allowedIps: {}, submit: result.message });
+        setErrors({ tunnelIps: {}, allowedIps: {}, submit: result.message });
       } else {
         setErrors(EMPTY_ERRORS);
       }
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to save personal VPN config: ${error.message}`);
-      setErrors({ allowedIps: {}, submit: error.message });
+      setErrors({ tunnelIps: {}, allowedIps: {}, submit: error.message });
     } finally {
       setSaving(false);
     }
@@ -329,14 +363,16 @@ export function PersonalVpnView() {
 
   const canToggle = config?.tunnel !== undefined && config?.peer !== undefined;
   const allowedIpsLength = form.allowedIps.length;
+  const tunnelIpsLength = form.tunnelIps.length;
 
   const isDirty = useMemo(() => {
     const saved = fromConfig(config);
     return (
       saved.privateKey !== form.privateKey ||
-      saved.tunnelIp !== form.tunnelIp ||
       saved.publicKey !== form.publicKey ||
       saved.endpoint !== form.endpoint ||
+      saved.tunnelIps.length !== form.tunnelIps.length ||
+      saved.tunnelIps.some((ip, i) => ip !== form.tunnelIps[i]) ||
       saved.allowedIps.length !== form.allowedIps.length ||
       saved.allowedIps.some((ip, i) => ip !== form.allowedIps[i])
     );
@@ -402,17 +438,33 @@ export function PersonalVpnView() {
                   )}
 
                   <StyledFieldLabel variant="labelTiny" color="whiteAlpha60">
-                    {messages.pgettext('personal-vpn-view', 'Address')}
+                    {messages.pgettext('personal-vpn-view', 'Addresses')}
                   </StyledFieldLabel>
-                  <StyledInput
-                    spellCheck={false}
-                    placeholder="10.0.0.2"
-                    value={form.tunnelIp}
-                    $invalid={errors.tunnelIp !== undefined}
-                    onChange={onTunnelIpChange}
-                  />
-                  {errors.tunnelIp && (
-                    <StyledErrorText>{ipErrorMessage(errors.tunnelIp)}</StyledErrorText>
+                  <FlexColumn gap="small">
+                    {form.tunnelIps.map((ip, index) => (
+                      <IpRow
+                        key={index}
+                        index={index}
+                        value={ip}
+                        placeholder="10.0.0.2"
+                        invalid={errors.tunnelIps[index] !== undefined}
+                        onChange={updateTunnelIp}
+                        onRemove={removeTunnelIp}
+                        removeDisabled={tunnelIpsLength === 1 && ip === ''}
+                      />
+                    ))}
+                    <Button variant="primary" onClick={addTunnelIp}>
+                      <Button.Text>
+                        {messages.pgettext('personal-vpn-view', 'Add address')}
+                      </Button.Text>
+                    </Button>
+                  </FlexColumn>
+                  {Object.values(errors.tunnelIps).some((e) => e !== undefined) && (
+                    <StyledErrorText>
+                      {ipErrorMessage(
+                        Object.values(errors.tunnelIps).find((e) => e !== undefined)!,
+                      )}
+                    </StyledErrorText>
                   )}
                 </StyledSection>
 
@@ -440,10 +492,11 @@ export function PersonalVpnView() {
                   </StyledFieldLabel>
                   <FlexColumn gap="small">
                     {form.allowedIps.map((ip, index) => (
-                      <AllowedIpRow
+                      <IpRow
                         key={index}
                         index={index}
                         value={ip}
+                        placeholder="0.0.0.0/0"
                         invalid={errors.allowedIps[index] !== undefined}
                         onChange={updateAllowedIp}
                         onRemove={removeAllowedIp}

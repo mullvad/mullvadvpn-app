@@ -472,7 +472,7 @@ export type AccessMethodExistsError = { type: 'name already exists' };
 
 export type PersonalVpnTunnelConfig = {
   privateKey: string;
-  tunnelIp: string;
+  tunnelIps: string[];
 };
 
 export type PersonalVpnPeerConfig = {

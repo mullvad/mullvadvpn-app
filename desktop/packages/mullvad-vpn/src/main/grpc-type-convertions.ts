@@ -503,7 +503,7 @@ export function convertFromPersonalVpnConfig(
   if (tunnel) {
     result.tunnel = {
       privateKey: convertFromWireguardKey(tunnel.getPrivateKey()),
-      tunnelIp: tunnel.getIp(),
+      tunnelIps: tunnel.getIpsList(),
     };
   }
   const peer = config.getPeer();
@@ -531,7 +531,7 @@ export function buildPersonalVpnConfig(config: PersonalVpnConfig): grpcTypes.Per
   if (config.tunnel) {
     const tunnel = new grpcTypes.PersonalVpnConfig.TunnelConfig();
     tunnel.setPrivateKey(Buffer.from(config.tunnel.privateKey, 'base64'));
-    tunnel.setIp(config.tunnel.tunnelIp);
+    tunnel.setIpsList(config.tunnel.tunnelIps);
     grpcConfig.setTunnel(tunnel);
   }
   if (config.peer) {
