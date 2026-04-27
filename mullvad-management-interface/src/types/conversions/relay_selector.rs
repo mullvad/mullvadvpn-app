@@ -122,11 +122,11 @@ impl TryFrom<proto::ExitConstraints> for ExitConstraints {
 
 impl From<RelayPartitions> for proto::RelayPartitions {
     fn from(RelayPartitions { matches, discards }: RelayPartitions) -> Self {
-        // Put relays that were discarded only because of `include_in_countries` back into
-        // the matches set. These relays do match the given constraints, but are still
-        // discarded to prioritize other relays.
-        // However, when presenting relays in the relay list we want to show
-        // relays that are individually selectable, which these are.
+        // Display concern (not selection): surface `include_in_country = false` relays as
+        // matches even though the relay selector itself never picks them at country level.
+        // The UI consumes this list to show what the user could select, and these relays
+        // remain individually selectable via city or hostname constraints — so dropping
+        // them entirely would hide selectable relays from the relay-list view.
         let (fallbacks, true_discards): (Vec<_>, Vec<_>) = discards
             .into_iter()
             .partition(|(_relay, why)| matches!(why.as_slice(), [Reason::IncludeInCountry]));
