@@ -1,6 +1,7 @@
 /target/
 /build/
 /dist
+/.build/
 /test/dist
 .idea/
 .DS_Store

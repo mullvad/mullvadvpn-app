@@ -1,6 +1,6 @@
 # Maintainer: Tritao <274685803+tritaum@users.noreply.github.com>
 pkgname=patched-mullvad-vpn-daemon-bin
-pkgver=2026.2.beta1
+pkgver=2026.1
 pkgrel=1
 _appver=${pkgver/.beta/-beta}
 pkgdesc="Mullvad VPN daemon and CLI patched with IP range and Netbird/Tailscale Split-Tunneling support"

@@ -1,6 +1,6 @@
 pkgbase = patched-mullvad-vpn-daemon-bin
 	pkgdesc = Mullvad VPN daemon and CLI patched with IP range and Netbird/Tailscale Split-Tunneling support
-	pkgver = 2026.2.beta1
+	pkgver = 2026.1
 	pkgrel = 1
 	url = https://github.com/tritaum/ip-split-tunneling-mullvad
 	arch = x86_64
@@ -12,7 +12,7 @@ pkgbase = patched-mullvad-vpn-daemon-bin
 	conflicts = mullvad-vpn-daemon
 	conflicts = mullvad-vpn-daemon-bin
 	conflicts = patched-mullvad-vpn-daemon
-	source_x86_64 = https://github.com/tritaum/ip-split-tunneling-mullvad/releases/download/2026.2-beta1/mullvad-vpn-daemon_2026.2-beta1_amd64.deb
+	source_x86_64 = https://github.com/tritaum/ip-split-tunneling-mullvad/releases/download/2026.1/mullvad-vpn-daemon_2026.1_amd64.deb
 	sha256sums_x86_64 = SKIP
 
 pkgname = patched-mullvad-vpn-daemon-bin

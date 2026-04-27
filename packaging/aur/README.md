@@ -10,6 +10,10 @@ The package consumes GitHub release `.deb` assets produced by `./build.sh --daem
 Desktop, source-built, and ARM64 AUR packages can be added later after the daemon feature set is
 stable.
 
+Keep `patched-mullvad-vpn-daemon-bin` on Mullvad's latest stable desktop version so the official
+GUI does not warn that the daemon is newer than the installed app. Beta builds should use a future
+`patched-mullvad-vpn-beta-daemon-bin` package base instead.
+
 ## Local Build
 
 On Arch Linux or an Arch container with `base-devel` installed:

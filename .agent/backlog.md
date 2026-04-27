@@ -32,6 +32,7 @@ Open design questions for the implementation phase:
 
 ## Later Backlog
 
+- Add a separate `patched-mullvad-vpn-beta-daemon-bin` AUR package for beta-channel daemon builds.
 - Document the upstream sync workflow after the first feature lands.
 - Add tests or smoke checks that prove fork patches remain isolated.
 - Consider CLI or GUI surfaces only after the daemon behavior is stable.
