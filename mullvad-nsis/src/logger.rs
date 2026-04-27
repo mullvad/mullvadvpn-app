@@ -136,14 +136,6 @@ fn pin_dll() {
     });
 }
 
-/// Get the Windows major version number.
-fn windows_major_version() -> Option<u32> {
-    use talpid_platform_metadata::WindowsVersion;
-    WindowsVersion::from_ntoskrnl()
-        .ok()
-        .map(|v| v.major_version())
-}
-
 // ============================================================================
 // NSIS-exported functions
 // ============================================================================
@@ -258,9 +250,9 @@ fn LogWindowsVersion() -> Result<(), nsis_plugin_api::Error> {
 // Pushes the Windows major version number onto the NSIS stack. Pushes -1 on error.
 #[nsis_fn]
 fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
-    let value = match windows_major_version() {
-        Some(v) => v as i32,
-        None => {
+    let value = match talpid_platform_metadata::WindowsVersion::from_ntoskrnl() {
+        Ok(v) => v.major_version() as i32,
+        Err(_) => {
             if let Ok(mut guard) = LOGGER.lock()
                 && let Some(logger) = guard.as_mut()
             {
