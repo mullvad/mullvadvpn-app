@@ -65,9 +65,15 @@ function run_in_linux_container {
 # Builds the app artifacts and move them to the passed in `artifact_dir`.
 # Must pass `artifact_dir` to show where to move the built artifacts.
 function build {
+    local task=fullRelease
+
+    # Used for backward compatibility. Can be removed once versions
+    # that required the build script no longer need to be supported.
+    [[ -f "android/build.sh" ]] && task=--app-bundle
+
     CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
-    ./building/containerized-build.sh android --app-bundle || return 1
+    ./building/containerized-build.sh android "$task" || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
 }
