@@ -18,7 +18,9 @@ Current features:
 - [x] Fork planning and agent guidance
 - [X] IP split-tunneling / IP whitelist
 - [X] VPN-interface allowance for tools like Netbird and Tailscale
+
 Planned features:
+
 - [ ] Daemon-focused patch isolation
 - [ ] Cross-platform compatibility
 - [ ] Mullvad UI patches
