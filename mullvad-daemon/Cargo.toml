@@ -141,11 +141,12 @@ objc2-service-management = { version = "0.3.1", features = [
 talpid-macos = { path = "../talpid-macos" }
 
 [target.'cfg(unix)'.dependencies]
+ctrlc = { workspace = true, features = ["termination"] }
 nix = { workspace = true, features = ["signal", "user"] }
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
-ctrlc = "3.0"
+ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
