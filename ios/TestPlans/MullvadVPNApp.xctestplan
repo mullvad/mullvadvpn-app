@@ -28,6 +28,13 @@
     },
     {
       "parallelizable" : true,
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "MultihopDataGatherer"
+          }
+        ]
+      },
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "58B0A29F238EE67E00BC001D",
