@@ -39,6 +39,7 @@
     "mullvad-jni/**"
   ],
   "appteam-lead": [
+    "audits/**",
     "ci/keys/**",
     "ci/verify-locked-down-signatures.sh",
     "code-owners.json",
@@ -47,3 +48,4 @@
     ".github/workflows/verify-locked-down-signatures.yml"
   ]
 }
+
