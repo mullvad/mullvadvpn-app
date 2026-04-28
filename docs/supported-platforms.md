@@ -29,8 +29,8 @@ Supported versions: 10 (Version 22H2) and 11 (Version 22H2 and newer). Both x86-
 | Version        | Architecture | Type of test |
 |----------------|--------------|--------------|
 | 10 (22H2)      | x86-64       | e2e, manual  |
-| 11 (22h2)      | x86-64       | e2e, manual  |
-| 11 (25h2)      | ARM64        | manual       |
+| 11 (22H2)      | x86-64       | e2e, manual  |
+| 11 (25H2)      | ARM64        | manual       |
 
 ### macOS
 
@@ -40,7 +40,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 
 | Version          | Architecture   | Type of test |
 |------------------|----------------|--------------|
-| 14 (Sonoma)      | x86-64 (intel) | e2e          |
+| 14 (Sonoma)      | x86-64 (Intel) | e2e          |
 | 14 (Sonoma)      | ARM64          | e2e, manual  |
 | 15 (Sequoia)     | ARM64          | e2e, manual  |
 | 26 (Tahoe)       | ARM64          | e2e, manual  |
@@ -52,7 +52,7 @@ Supported versions:
 - **Fedora**: Versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life)
 - **Debian**: 12 and newer
 
-Both x86-64 and ARM64 is supported on all supported distributions.
+Both x86-64 and ARM64 are supported on all supported distributions.
 
 On Linux, we test using the Gnome desktop environment. The app should work in other
 DEs, but we don't regularly test those.
