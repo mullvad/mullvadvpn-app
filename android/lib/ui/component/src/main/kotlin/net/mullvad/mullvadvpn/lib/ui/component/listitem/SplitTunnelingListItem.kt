@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
@@ -31,6 +32,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Preview
 @Composable
@@ -38,6 +40,7 @@ private fun PreviewSplitTunnelingListItem() {
     PreviewColumn {
         SplitTunnelingListItem(
             title = "Removable App",
+            searchTerm = "",
             isEnabled = true,
             onCellClicked = {},
             isSelected = true,
@@ -45,6 +48,7 @@ private fun PreviewSplitTunnelingListItem() {
         )
         SplitTunnelingListItem(
             title = "Addable App",
+            searchTerm = "app",
             isEnabled = true,
             onCellClicked = {},
             isSelected = false,
@@ -66,6 +70,7 @@ fun SplitTunnelingListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Middle,
     title: String,
+    searchTerm: String = "",
     iconState: IconState,
     isEnabled: Boolean = true,
     isSelected: Boolean,
@@ -80,7 +85,7 @@ fun SplitTunnelingListItem(
         onClick = onCellClicked,
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
-        content = { Text(title) },
+        content = { Text(title.highlightText(searchTerm, MaterialTheme.colorScheme.highlight)) },
         leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(

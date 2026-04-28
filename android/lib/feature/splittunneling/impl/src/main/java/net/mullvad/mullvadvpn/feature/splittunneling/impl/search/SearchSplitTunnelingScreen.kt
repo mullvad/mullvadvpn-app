@@ -173,6 +173,7 @@ private fun LazyListScope.appList(
             onResolveIcon = onResolveIcon,
             enabled = true,
             excluded = true,
+            searchTerm = state.searchTerm,
         )
         spacer()
     }
@@ -189,6 +190,7 @@ private fun LazyListScope.appList(
             onResolveIcon = onResolveIcon,
             enabled = true,
             excluded = false,
+            searchTerm = state.searchTerm,
         )
         spacer()
     }

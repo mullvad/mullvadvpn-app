@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -266,6 +267,7 @@ internal fun LazyListScope.appItems(
     onResolveIcon: (PackageName) -> Drawable?,
     enabled: Boolean,
     excluded: Boolean,
+    searchTerm: String? = null,
 ) {
     itemsIndexedWithDivider(
         items = apps,
@@ -289,6 +291,7 @@ internal fun LazyListScope.appItems(
         }
         SplitTunnelingListItem(
             title = listItem.name,
+            searchTerm = searchTerm.orEmpty(),
             iconState = icon,
             isSelected = excluded,
             isEnabled = enabled,
