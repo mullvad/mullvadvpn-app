@@ -27,6 +27,6 @@ jobs:
           submodules: true
 
       - name: Scan code
-        uses: MobSF/mobsfscan@main
+        uses: MobSF/mobsfscan@0.4.5
         with:
           args: '--type android --config android/config/config.mobsf --exit-warning android'
