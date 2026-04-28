@@ -14,15 +14,17 @@ use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
     GetRelay, Predicate, RelaySelector, WireguardConfig,
-    query::{RelayQuery, WireguardRelayQuery, singlehop_entry_constraints},
+    query::{Hops, RelayQuery},
 };
 use mullvad_types::{
+    Intersection,
     constraints::Constraint,
     custom_list::CustomList,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
     relay_list::{BridgeList, Relay, WireguardRelay},
+    relay_selector::MultihopConstraints,
     states::TunnelState,
 };
 use pcap::Direction;
@@ -708,10 +710,14 @@ pub async fn constrain_to_relay(
 }
 
 /// Intersects the given query with the current location constraints, to prevent accidentally
-/// overwriting the default location custom list
+/// overwriting the default location custom list.
+///
+/// `Intersection` no longer lives on the whole query, so we apply it to the relevant
+/// `Constraint<LocationConstraint>` fields by hand: always the exit location, and — for
+/// multihop queries — the entry location too.
 async fn intersect_with_current_location(
     mullvad_client: &mut MullvadProxyClient,
-    query: RelayQuery,
+    mut query: RelayQuery,
 ) -> anyhow::Result<RelayQuery> {
     let settings = mullvad_client
         .get_settings()
@@ -721,23 +727,29 @@ async fn intersect_with_current_location(
         unimplemented!("Setting location for a custom endpoint is not supported");
     };
 
-    // Construct a relay query preserving only the information about the current location
-    let current_location_query = RelayQuery::new(
-        constraint.location,
-        Constraint::Any,
-        Constraint::Any,
-        WireguardRelayQuery {
-            entry_location: constraint.wireguard_constraints.entry_location,
-            ..Default::default()
-        },
-    );
-    use mullvad_types::Intersection;
-    let intersect_query = query
-        .intersection(current_location_query)
-        .context("Relay query incompatible with default settings")?;
-    Ok(intersect_query)
+    let merged_exit = query
+        .exit()
+        .location
+        .clone()
+        .intersection(constraint.location)
+        .context("Relay query incompatible with default exit location")?;
+    query.exit_mut().location = merged_exit;
+
+    if let Hops::Multi(MultihopConstraints { entry, .. }) = &mut query.hops {
+        let merged_entry = entry
+            .general
+            .location
+            .clone()
+            .intersection(constraint.wireguard_constraints.entry_location)
+            .context("Relay query incompatible with default entry location")?;
+        entry.general.location = merged_entry;
+    }
+
+    Ok(query)
 }
 
+/// Get all relays that are compatible with the current settings. In case of multihop,
+/// this will return the list of exit relays.
 pub async fn get_all_pickable_relays(
     mullvad_client: &mut MullvadProxyClient,
 ) -> anyhow::Result<Vec<WireguardRelay>> {
@@ -747,9 +759,13 @@ pub async fn get_all_pickable_relays(
 
     let query =
         RelayQuery::try_from(settings).context("Failed to convert settings to relay query")?;
-    let constraints = singlehop_entry_constraints(&query);
+    let predicate = match query.hops {
+        Hops::Single(entry_constraints) => Predicate::Singlehop(entry_constraints),
+        Hops::Auto(entry_constraints) => Predicate::Autohop(entry_constraints),
+        Hops::Multi(multihop_constraints) => Predicate::Exit(multihop_constraints),
+    };
 
-    let partitions = relay_selector.partition_relays(Predicate::Singlehop(constraints));
+    let partitions = relay_selector.partition_relays(predicate);
     Ok(partitions.matches)
 }
 
