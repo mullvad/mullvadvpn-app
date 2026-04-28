@@ -86,10 +86,10 @@ impl RelaySelector {
                 partition_autohop(&relays, constraints, &custom_lists).into_relay_partitions()
             }
             Predicate::Entry(multihop_constraints) => {
-                partition_multihop(&relays, multihop_constraints, &custom_lists).entries
+                partition_multihop(&relays, &multihop_constraints, &custom_lists).entries
             }
             Predicate::Exit(multihop_constraints) => {
-                partition_multihop(&relays, multihop_constraints, &custom_lists).exits
+                partition_multihop(&relays, &multihop_constraints, &custom_lists).exits
             }
         }
     }
@@ -129,22 +129,22 @@ pub(super) fn partition_entry(
 
 pub(super) fn partition_autohop(
     relays: &AnnotatedRelayList,
-    constraints: EntryConstraints,
+    singlehop_constraints: EntryConstraints,
     custom_lists: &CustomListsSettings,
 ) -> AutohopPartition {
     AutohopPartition {
-        singlehop: partition_entry(relays, &constraints, custom_lists),
-        multihop: partition_multihop(relays, constraints.into_autohop(), custom_lists),
+        singlehop: partition_entry(relays, &singlehop_constraints, custom_lists),
+        multihop: partition_multihop(relays, &singlehop_constraints.into_autohop(), custom_lists),
     }
 }
 
 pub(super) fn partition_multihop(
     relays: &AnnotatedRelayList,
-    MultihopConstraints { entry, exit }: MultihopConstraints,
+    MultihopConstraints { entry, exit }: &MultihopConstraints,
     custom_lists: &CustomListsSettings,
 ) -> MultiHopPartitions {
-    let mut entries = partition_entry(relays, &entry, custom_lists);
-    let mut exits = partition_exit(relays, &exit, custom_lists);
+    let mut entries = partition_entry(relays, entry, custom_lists);
+    let mut exits = partition_exit(relays, exit, custom_lists);
 
     remove_conflicting_relay(&mut entries, &mut exits);
 

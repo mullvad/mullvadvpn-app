@@ -383,11 +383,11 @@ fn select_wireguard_relay(
                 return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
             }
             // Otherwise fall through to multihop using the pre-computed partition.
-            let multihop_constraints = constraints.clone().into_autohop();
+            let multihop_constraints = constraints.into_autohop();
             select_from_multihop_partitions(autohop.multihop, multihop_constraints)
         }
         Constraints::Multihop(constraints) => {
-            let partitions = filter::partition_multihop(relays, constraints.clone(), custom_lists);
+            let partitions = filter::partition_multihop(relays, &constraints, custom_lists);
             select_from_multihop_partitions(partitions, constraints)
         }
     }
