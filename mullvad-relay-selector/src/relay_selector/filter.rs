@@ -214,16 +214,7 @@ fn location_criteria(
         return Verdict::reject(Reason::Location);
     }
 
-    // Relays with `include_in_country = false` are only selectable when the location
-    // constraint targets them at city or hostname level. Country-only and unconstrained
-    // queries reject them outright — they're assumed to offer nothing extra over the
-    // other relays in the same country, so picking them implicitly would just degrade
-    // the country-level relay pool.
-    if !relay.include_in_country && is_country_only_match(location_constraint.as_ref(), relay) {
-        Verdict::reject(Reason::IncludeInCountry)
-    } else {
-        Verdict::Accept
-    }
+    filter_include_in_country(relay, location_constraint)
 }
 
 /// Ensure the same relay cannot be chosen as both entry and exit.
@@ -261,28 +252,29 @@ fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool {
     }
 }
 
-/// Returns `true` if no city- or hostname-level [`GeographicLocationConstraint`] in `location`
-/// matches `relay`. This covers both `Constraint::Any` (no constraint at all, meaning the relay
-/// is not specifically targeted) and constraints that only mention the relay's country.
-///
-/// Used to gate `include_in_country = false` relays: such a relay is only acceptable when the
-/// user has pinpointed a specific city or hostname that contains it. Otherwise (country-only
-/// or unconstrained) it must be rejected.
-fn is_country_only_match(
-    location: Constraint<&ResolvedLocationConstraint<'_>>,
+/// Relays with `include_in_country = false` are only selectable when the location
+/// constraint targets them at city or hostname level.
+fn filter_include_in_country(
     relay: &WireguardRelay,
-) -> bool {
-    match location {
-        // No location constraint — relay is not specifically targeted.
-        Constraint::Any => true,
-        Constraint::Only(resolved) => {
-            // It is a country-only match as long as none of the matching constraints
-            // is more specific than a country (i.e. city or hostname).
-            !resolved
-                .into_iter()
-                .filter(|loc| loc.matches(relay))
-                .any(|loc| !loc.is_country())
+    location_constraint: Constraint<ResolvedLocationConstraint<'_>>,
+) -> Verdict {
+    if !relay.include_in_country && {
+        match location_constraint {
+            // No location constraint — relay is not specifically targeted.
+            Constraint::Any => true,
+            Constraint::Only(resolved) => {
+                // It is a country-only match as long as none of the matching constraints
+                // is more specific than a country (i.e. city or hostname).
+                !resolved
+                    .into_iter()
+                    .filter(|loc| loc.matches(relay))
+                    .any(|loc| !loc.is_country())
+            }
         }
+    } {
+        Verdict::reject(Reason::IncludeInCountry)
+    } else {
+        Verdict::Accept
     }
 }
 
