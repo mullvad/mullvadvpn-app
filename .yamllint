@@ -6,4 +6,5 @@ rules:
     max: 120
   indentation:
     spaces: 2
+  document-start: disable
   truthy: disable
