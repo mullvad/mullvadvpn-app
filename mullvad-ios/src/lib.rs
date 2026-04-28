@@ -7,10 +7,10 @@ use tokio::runtime::{Builder, Handle, Runtime};
 
 mod api_client;
 mod ephemeral_peer_proxy;
+mod log_redaction;
 mod logging;
 pub mod tunnel_obfuscator_proxy;
 mod wireguard_key;
-mod log_redaction;
 
 #[repr(C)]
 pub struct ProxyHandle {

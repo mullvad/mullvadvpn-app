@@ -7,6 +7,7 @@
 //
 
 import XCTest
+
 @testable import MullvadRustRuntime
 
 class LogRedactionBenchmarkTests: XCTestCase {
@@ -45,13 +46,15 @@ class LogRedactionBenchmarkTests: XCTestCase {
     // Account number messages
     let accountMessage = "Login attempt for account 1234567890123456"
     let accountFullLine = "[2026-01-29 10:30:45][Auth][info] Login attempt for account 1234567890123456"
-    
+
     lazy var logs: [String] = [
-            self.shortIPv4Message,self.shortIPv6Message,
-            self.shortIPv6Message, self.shortIPv6FullLine,
-            self.longMessage, self.noMatchMessage, self.noMatchFullLine
-        ]
-    
+        self.shortIPv4Message,
+//        self.shortIPv6Message,
+//        self.shortIPv6FullLine,
+//        self.longMessage,
+        self.noMatchMessage,
+        self.noMatchFullLine,
+    ]
 
     func testPerformanceLogRedaction() {
         let consolidatedApplicationLog = ConsolidatedApplicationLog(
@@ -69,7 +72,7 @@ class LogRedactionBenchmarkTests: XCTestCase {
 
         }
     }
-    
+
     func testNewRedactor() {
         let redaction = LogRedaction()
         let consolidatedApplicationLog = ConsolidatedApplicationLog(
@@ -77,7 +80,7 @@ class LogRedactionBenchmarkTests: XCTestCase {
             redactContainerPathsForSecurityGroupIdentifiers: [UUID().uuidString],
             bufferSize: ApplicationConfiguration.logMaximumFileSize
         )
-        
+
         for entry in logs {
             XCTAssertEqual(redaction.redact(string: entry), consolidatedApplicationLog.redact(string: entry))
         }

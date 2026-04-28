@@ -110,6 +110,10 @@ typedef struct EphemeralPeerParameters {
   struct WgTcpConnectionFunctions funcs;
 } EphemeralPeerParameters;
 
+typedef struct LogRedactor {
+  struct LogRedactorInner *ptr;
+} LogRedactor;
+
 /**
  * Callback function type for logging.
  * - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
@@ -121,10 +125,6 @@ typedef struct ProxyHandle {
   void *context;
   uint16_t port;
 } ProxyHandle;
-
-typedef struct LogRedactor {
-  struct LogRedactorInner *ptr;
-} LogRedactor;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
 
@@ -837,6 +837,12 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
 
+struct LogRedactor init_log_redactor(void);
+
+void drop_log_redactor(struct LogRedactor redactor);
+
+char *redact_log(struct LogRedactor redactor, const char *log);
+
 /**
  * Initialize the Rust logger with a Swift callback.
  *
@@ -894,7 +900,3 @@ void mullvad_generate_private_key(uint8_t *key_out);
  * `public_key_out` must be a valid pointer to a 32-byte buffer.
  */
 void mullvad_derive_public_key(const uint8_t *private_key, uint8_t *public_key_out);
-
-struct LogRedactor init_log_redactor(void);
-
-void drop_log_redactor(struct LogRedactor redactor);

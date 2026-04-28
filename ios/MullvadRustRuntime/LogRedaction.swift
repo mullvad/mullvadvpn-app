@@ -17,6 +17,10 @@ public class LogRedaction {
     }
 
     func redact(string: String) -> String {
-        return string
+        let ptr = redact_log(logRedactor, string)
+        guard ptr != nil else {
+            return string
+        }
+        return String(cString: ptr!)
     }
 }
