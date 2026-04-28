@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -29,6 +30,18 @@ fun AnnotatedString.Builder.appendTextWithStyledSubstring(
         if (index != parts.lastIndex) {
             withStyle(substringStyle) { append(substring) }
         }
+    }
+}
+
+fun String.highlightText(highlightText: String, highlightColor: Color): AnnotatedString {
+    if (isBlank()) return AnnotatedString(this)
+    return buildAnnotatedString {
+        appendTextWithStyledSubstring(
+            text = this@highlightText,
+            substring = highlightText,
+            substringStyle = SpanStyle(background = highlightColor),
+            ignoreCase = true,
+        )
     }
 }
 
