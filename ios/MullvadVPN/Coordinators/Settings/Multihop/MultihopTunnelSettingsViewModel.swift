@@ -8,39 +8,39 @@
 
 import MullvadSettings
 
-class MultihopTunnelSettingsViewModel: TunnelSettingsObserver {
-    typealias TunnelSetting = MultihopState
-
+class MultihopTunnelSettingsViewModel: ObservableObject {
     let tunnelManager: TunnelManager
-    var tunnelObserver: TunnelObserver?
+    var tunnelObserver: TunnelObserver!
 
-    @Published var value: MultihopState {
+    @Published var automaticRoutingIsActive: Bool = false
+    @Published var multihopState: MultihopState {
         willSet(newValue) {
-            guard newValue != value else { return }
+            guard newValue != multihopState else { return }
             tunnelManager.updateSettings([.multihop(newValue)])
         }
     }
 
     required init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
-        value = tunnelManager.settings.tunnelMultihopState
+        multihopState = tunnelManager.settings.tunnelMultihopState
 
-        tunnelObserver = TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
-            self?.value = newSettings.tunnelMultihopState
-        })
+        tunnelObserver = TunnelBlockObserver(
+            didUpdateTunnelStatus: { [weak self] _, _ in
+                self?.updateAutomaticRoutingStatus()
+            },
+            didUpdateTunnelSettings: { [weak self] _, newSettings in
+                self?.multihopState = newSettings.tunnelMultihopState
+                self?.updateAutomaticRoutingStatus()
+            }
+        )
+
+        self.tunnelManager.addObserver(tunnelObserver)
+        updateAutomaticRoutingStatus()
     }
 
-    func evaluate(setting: MultihopState) {
-        // No op.
+    private func updateAutomaticRoutingStatus() {
+        automaticRoutingIsActive =
+            tunnelManager.settings.automaticMultihopIsEnabled
+            && tunnelManager.tunnelStatus.state.isMultihop
     }
-}
-
-class MockMultihopTunnelSettingsViewModel: TunnelSettingsObservable {
-    @Published var value: MultihopState
-
-    init(multihopState: MultihopState = .never) {
-        value = multihopState
-    }
-
-    func evaluate(setting: MullvadSettings.MultihopState) {}
 }
