@@ -34,6 +34,11 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: pinact run --check
 
+      - name: Verify tags against SHAs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pinact run --verify
+
       # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
       - name: Check version comment format
         run: '! grep -rnE "@[0-9a-f]{40} #[^ ]" .github/workflows/android-*.yml'
