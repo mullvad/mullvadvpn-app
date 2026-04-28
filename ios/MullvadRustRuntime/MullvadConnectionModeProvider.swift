@@ -15,15 +15,17 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!
     let encryptedDNSMethod = methods.first(where: { $0.proxyConfiguration == .encryptedDNS })!
+    let domainFrontingMethod = methods.first(where: { $0.proxyConfiguration == .domainFronting })!
 
     // 2. Get the custom access methods
-    let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS]
+    let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS, .domainFronting]
     let customMethods = methods.filter { defaultMethods.contains($0.proxyConfiguration) == false }
 
     // 3. Convert the builtin access methods
     let directMethodRaw = convertAccessMethod(accessMethod: directMethod)
     let bridgesMethodRaw = convertAccessMethod(accessMethod: bridgesMethod)
     let encryptedDNSMethodRaw = convertAccessMethod(accessMethod: encryptedDNSMethod)
+    let domainFrontingMethodRaw = convertAccessMethod(accessMethod: domainFrontingMethod)
 
     var rawCustomMethods = ContiguousArray<UnsafeRawPointer?>([])
     // 4. Convert the custom access methods (all takes different parameters)
@@ -39,6 +41,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 directMethodRaw,
                 bridgesMethodRaw,
                 encryptedDNSMethodRaw,
+                domainFrontingMethodRaw,
                 $0.baseAddress!,
                 UInt(customMethods.count)
             )
@@ -48,7 +51,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
 
 public func convertAccessMethod(accessMethod: PersistentAccessMethod) -> UnsafeMutableRawPointer? {
     switch accessMethod.proxyConfiguration {
-    case .direct, .bridges, .encryptedDNS:
+    case .direct, .bridges, .encryptedDNS, .domainFronting:
         return convert_builtin_access_method_setting(
             accessMethod.id.uuidString,
             accessMethod.name,
@@ -101,6 +104,7 @@ fileprivate
         case .direct: UInt8(KindDirect.rawValue)
         case .bridges: UInt8(KindBridge.rawValue)
         case .encryptedDNS: UInt8(KindEncryptedDnsProxy.rawValue)
+        case .domainFronting: UInt8(KindDomainFronting.rawValue)
         case .shadowsocks: UInt8(KindShadowsocks.rawValue)
         case .socks5: UInt8(KindSocks5Local.rawValue)
         }
