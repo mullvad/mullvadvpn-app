@@ -1,0 +1,37 @@
+@startuml
+skinparam DefaultTextAlignment center
+skinparam backgroundColor white
+skinparam Nodesep 60
+skinparam Ranksep 60
+
+node "Bender" as bender <<Build Machine>> #LightBlue {
+  component "Android Build Environment"
+}
+
+node "Android Devices" as devices <<Test Devices>> #LightGreen
+
+node "Terminator" as terminator <<Router / Firewall>> #Orange
+
+cloud "Internet" as internet #LightGray
+
+card "Dropped Traffic" as dropped #FFCCCC
+
+' Connections
+bender <--> devices : **ADB**\n(via USB)
+
+devices <--> terminator : **Device Traffic**\n(via WiFi)
+
+terminator ---> internet : **Allowed Traffic**\n(Routed Out)
+terminator ---> dropped : **Blocked Traffic**\n(Dropped)
+
+note bottom of terminator
+  Inspects incoming WiFi traffic
+  from Android devices
+end note
+
+note bottom of bender
+  Builds, lints and tests the app
+  on physical Android devices
+end note
+
+@enduml
