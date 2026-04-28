@@ -4,10 +4,6 @@ on:
     - cron: '0 */6 * * *'  # Every 6 hours
   workflow_dispatch:  # Manual trigger
 
-permissions:
-  contents: write
-  workflows: write  # Grant the bot permission to modify workflow files
-
 jobs:
   sync:
     runs-on: ubuntu-latest
