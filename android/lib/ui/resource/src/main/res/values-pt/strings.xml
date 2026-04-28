@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Após atualizar uma aplicação de VPN no Android 16, os dispositivos podem ficar num estado em que as aplicações de VPN deixam de conseguir aceder à internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Reinicie o seu dispositivo e tente estabelecer a ligação novamente. Se isto não funcionar, escreva um e-mail para %1$s em sueco ou inglês.</string>
     <string name="android_16_upgrade_warning_message">O Android 16 tem um problema conhecido. Reinicie o seu dispositivo e tente novamente. Para saber mais,</string>
-    <string name="android_16_upgrade_warning_title">Não consegue ligar?</string>
     <string name="anti_censorship">Anti-censura</string>
     <string name="anti_censorship_info_first_paragraph">Estes métodos podem ser úteis em situações em que esteja impedido de aceder à Mullvad. Quando está selecionado \"Automático\", a aplicação tentará todos os métodos até que um funcione.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Tenha em atenção que estes métodos não melhoram o desempenho e podem aumentar a utilização do sistema e o consumo da bateria.</b></string>

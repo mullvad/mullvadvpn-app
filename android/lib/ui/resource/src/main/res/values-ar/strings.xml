@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %1$s باللغة السويدية أو الإنجليزية.</string>
     <string name="android_16_upgrade_warning_message">هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،</string>
-    <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
     <string name="anti_censorship">مكافحة الرقابة</string>
     <string name="anti_censorship_info_first_paragraph">قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها.</string>
     <string name="anti_censorship_info_second_paragraph"><b>يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.</b></string>
