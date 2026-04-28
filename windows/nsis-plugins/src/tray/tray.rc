@@ -1,3 +1,0 @@
-#include "resource.h"
-
-MULLVAD_TRAY_RECORD RCDATA "mullvad_tray_record.bin"

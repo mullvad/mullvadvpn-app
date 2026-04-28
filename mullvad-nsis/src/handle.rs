@@ -131,7 +131,7 @@ pub fn terminate_processes(
                 &raw mut n_proc_info_needed,
                 &raw mut n_affected_apps,
                 rg_affected_apps.as_mut_ptr(),
-                (&raw mut reboot_reasons).cast::<u32>(),
+                (&raw mut reboot_reasons).cast(),
             )
         };
 
@@ -159,7 +159,7 @@ pub fn terminate_processes(
     rg_affected_apps
         .retain(|app| app.AppStatus as i32 & RestartManager::RmStatusShutdownMasked == 0);
 
-    if rg_affected_apps.len() == 0 {
+    if rg_affected_apps.is_empty() {
         // No apps need to be killed, so just continue
         return Ok(true);
     }
@@ -170,7 +170,7 @@ pub fn terminate_processes(
 
     // SAFETY: Trivially safe, probably even if handle is invalid
     let result =
-        unsafe { RestartManager::RmShutdown(handle, RestartManager::RmForceShutdown as _, None) };
+        unsafe { RestartManager::RmShutdown(handle, RestartManager::RmForceShutdown as u32, None) };
 
     if result == ERROR_SUCCESS {
         Ok(true)
@@ -235,10 +235,7 @@ fn ask_for_confirmation(
 /// Symlinks are ignored.
 fn all_files_in_dir(path: impl AsRef<Path>) -> anyhow::Result<Vec<PathBuf>> {
     fn inner_all_files_in_dir(path: &Path, out: &mut Vec<PathBuf>) -> io::Result<()> {
-        use std::fs;
-        let path: &Path = path.as_ref();
-
-        let dir_entries = fs::read_dir(path)?;
+        let dir_entries = std::fs::read_dir(path)?;
         for entry in dir_entries {
             let entry = entry?;
             let file_type = entry.file_type()?;

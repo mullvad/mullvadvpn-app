@@ -2,19 +2,18 @@
 name = "mullvad-nsis"
 edition.workspace = true
 rust-version.workspace = true
-description = "Helper library used by Mullvad NSIS plugins"
+description = "NSIS plugin DLL for the Mullvad VPN installer"
 repository.workspace = true
 license.workspace = true
 
 [lib]
-crate-type = ["staticlib"]
-
-[target.'cfg(target_os = "windows")'.build-dependencies]
-cbindgen = { version = "0.28.0", default-features = false }
+crate-type = ["cdylib"]
+name = "mullvad_nsis"
 
 [target.i686-pc-windows-msvc.dependencies]
 anyhow.workspace = true
 mullvad-paths = { path = "../mullvad-paths" }
+nsis-plugin-api.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 widestring.workspace = true
 windows-sys = { workspace = true, features = [
@@ -23,11 +22,17 @@ windows-sys = { workspace = true, features = [
   "Wdk_System_SystemInformation",
   "Win32_Foundation",
   "Win32_Security",
+  "Win32_Security_Authorization",
   "Win32_Storage_FileSystem",
+  "Win32_System_Com",
+  "Win32_System_LibraryLoader",
+  "Win32_System_Registry",
   "Win32_System_RestartManager",
+  "Win32_System_SystemInformation",
   "Win32_System_Threading",
   "Win32_System_WindowsProgramming",
   "Win32_UI_Input_KeyboardAndMouse",
+  "Win32_UI_Shell",
   "Win32_UI_WindowsAndMessaging",
 ] }
 

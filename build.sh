@@ -361,8 +361,8 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
         if [[ "$SIGN" == "true" ]]; then
             CPP_BINARIES=(
                 "windows/winfw/bin/$CPP_BUILD_TARGET-$CPP_BUILD_MODE/winfw.dll"
-                # The nsis plugin is always built in 32 bit release mode
-                windows/nsis-plugins/bin/Win32-Release/*.dll
+                # The nsis plugins are always built in 32 bit release mode
+                target/i686-pc-windows-msvc/release/*.dll
             )
             sign_win "${CPP_BINARIES[@]}"
         fi
