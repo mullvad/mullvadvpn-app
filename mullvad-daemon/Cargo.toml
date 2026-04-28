@@ -124,8 +124,8 @@ hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
-tikv-jemallocator = { version = "0.6", optional = true }
 talpid-dbus = { path = "../talpid-dbus" }
+tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
 notify = "8.0.0"
