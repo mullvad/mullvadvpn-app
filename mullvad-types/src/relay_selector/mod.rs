@@ -6,9 +6,11 @@
 use talpid_types::net::IpVersion;
 
 use crate::{
+    Intersection,
     constraints::Constraint,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, ObfuscationMode, Ownership, Providers,
+        GeographicLocationConstraint, LocationConstraint, LwoSettings, ObfuscationMode, Ownership,
+        Providers, ShadowsocksSettings, Udp2TcpObfuscationSettings,
     },
     relay_list::WireguardRelay,
 };
@@ -24,27 +26,27 @@ pub enum Predicate {
     Exit(MultihopConstraints),
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
 pub struct EntryConstraints {
     pub general: ExitConstraints,
     pub entry_specific: EntrySpecificConstraints,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
 pub struct EntrySpecificConstraints {
     pub obfuscation: Constraint<ObfuscationMode>,
     pub daita: Constraint<bool>,
     pub ip_version: Constraint<IpVersion>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
 pub struct ExitConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub struct MultihopConstraints {
     pub entry: EntryConstraints,
     pub exit: ExitConstraints,
@@ -132,6 +134,45 @@ impl EntryConstraints {
             },
             exit: self.general,
         }
+    }
+}
+
+impl EntrySpecificConstraints {
+    pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
+        self.obfuscation = Constraint::Only(mode);
+        self
+    }
+
+    pub const fn ip_version(mut self, ip_version: IpVersion) -> Self {
+        self.ip_version = Constraint::Only(ip_version);
+        self
+    }
+
+    pub const fn daita(mut self, enabled: bool) -> Self {
+        self.daita = Constraint::Only(enabled);
+        self
+    }
+
+    /// Convenience constructor for the default Shadowsocks obfuscation.
+    pub fn shadowsocks() -> Self {
+        Self::default().obfuscation(ObfuscationMode::Shadowsocks(ShadowsocksSettings::default()))
+    }
+
+    /// Convenience constructor for QUIC obfuscation.
+    pub fn quic() -> Self {
+        Self::default().obfuscation(ObfuscationMode::Quic)
+    }
+
+    /// Convenience constructor for the default udp2tcp obfuscation.
+    pub fn udp2tcp() -> Self {
+        Self::default().obfuscation(ObfuscationMode::Udp2tcp(
+            Udp2TcpObfuscationSettings::default(),
+        ))
+    }
+
+    /// Convenience constructor for the default LWO obfuscation.
+    pub fn lwo() -> Self {
+        Self::default().obfuscation(ObfuscationMode::Lwo(LwoSettings::default()))
     }
 }
 

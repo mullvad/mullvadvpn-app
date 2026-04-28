@@ -14,9 +14,9 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason, RelaySelector,
-    WireguardConfig,
-    query::{ObfuscationMode, builder::RelayQueryBuilder},
+    EntrySpecificConstraints, Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason,
+    RelaySelector, WireguardConfig,
+    query::{Hops, ObfuscationMode, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -258,22 +258,19 @@ mod relay_selection {
         use talpid_types::net::IpVersion;
         let expected_retry_order = vec![
             // 1 (wireguard)
-            RelayQueryBuilder::new().build(),
+            EntrySpecificConstraints::default(),
             // 2
-            RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
+            EntrySpecificConstraints::default().ip_version(IpVersion::V6),
             // 3
-            RelayQueryBuilder::new().lwo().build(),
+            EntrySpecificConstraints::lwo(),
             // 4
-            RelayQueryBuilder::new().shadowsocks().build(),
+            EntrySpecificConstraints::shadowsocks(),
             // 5
-            RelayQueryBuilder::new().quic().build(),
+            EntrySpecificConstraints::quic(),
             // 6
-            RelayQueryBuilder::new().udp2tcp().build(),
+            EntrySpecificConstraints::udp2tcp(),
             // 7
-            RelayQueryBuilder::new()
-                .udp2tcp()
-                .ip_version(IpVersion::V6)
-                .build(),
+            EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
         ];
 
         assert!(
@@ -296,7 +293,7 @@ mod relay_selection {
         // this would be to create a neutral relay query and supply it to the relay selector at every
         // call to the `get_relay` function.
         let relay_selector = default_relay_selector();
-        for (retry_attempt, query) in RETRY_ORDER.iter().enumerate() {
+        for (retry_attempt, retry) in RETRY_ORDER.iter().enumerate() {
             let relay = relay_selector
                 .get_relay(
                     retry_attempt,
@@ -311,13 +308,15 @@ mod relay_selection {
                 obfuscator,
                 ..
             } = relay;
-            assert!(query.wireguard_constraints().ip_version.matches_eq(
-                &match endpoint.peer.endpoint.ip() {
-                    std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
-                    std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
-                }
-            ));
-            assert!(match &query.wireguard_constraints().obfuscation {
+            assert!(
+                retry
+                    .ip_version
+                    .matches_eq(&match endpoint.peer.endpoint.ip() {
+                        std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
+                        std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
+                    })
+            );
+            assert!(match &retry.obfuscation {
                 Constraint::Any => true,
                 Constraint::Only(ObfuscationMode::Off | ObfuscationMode::Port(_)) =>
                     obfuscator.is_none(),
@@ -484,7 +483,7 @@ mod relay_selection {
             RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().shadowsocks().build();
-        assert!(!query.wireguard_constraints().multihop());
+        assert!(!matches!(query.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
@@ -509,7 +508,7 @@ mod relay_selection {
             .location(SHADOWSOCKS_RELAY_LOCATION.clone())
             .shadowsocks()
             .build();
-        assert!(!query.wireguard_constraints().multihop());
+        assert!(!matches!(query.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         let GetRelay {
@@ -539,7 +538,7 @@ mod relay_selection {
             RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().quic().build();
-        assert!(!query.wireguard_constraints().multihop());
+        assert!(!matches!(query.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
@@ -561,7 +560,7 @@ mod relay_selection {
             RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().lwo().build();
-        assert!(!query.wireguard_constraints().multihop());
+        assert!(!matches!(query.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
@@ -595,7 +594,7 @@ mod relay_selection {
             .ip_version(IpVersion::V4)
             .shadowsocks()
             .build();
-        assert!(!query_v4.wireguard_constraints().multihop());
+        assert!(!matches!(query_v4.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
         let GetRelay {
@@ -634,7 +633,7 @@ mod relay_selection {
             .ip_version(IpVersion::V6)
             .shadowsocks()
             .build();
-        assert!(!query_v6.wireguard_constraints().multihop());
+        assert!(!matches!(query_v6.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
         let GetRelay {
@@ -672,7 +671,7 @@ mod relay_selection {
     fn test_selecting_endpoint_with_udp2tcp_obfuscation() {
         let relay_selector = default_relay_selector();
         let query = RelayQueryBuilder::new().udp2tcp().build();
-        assert!(!query.wireguard_constraints().multihop());
+        assert!(!matches!(query.hops, Hops::Multi(_)));
 
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         let WireguardConfig::Singlehop { .. } = relay.inner else {
@@ -700,7 +699,7 @@ mod relay_selection {
         let relay_selector = default_relay_selector();
 
         let query = RelayQueryBuilder::new().build();
-        assert_eq!(query.wireguard_constraints().obfuscation, Constraint::Any);
+        assert_eq!(query.entry_specific().obfuscation, Constraint::Any);
 
         for _ in 0..100 {
             let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
@@ -827,10 +826,7 @@ mod relay_selection {
             RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
 
         // Only pick relays that support DAITA
-        let query = RelayQueryBuilder::new()
-            .daita()
-            .daita_use_multihop_if_necessary(false)
-            .build();
+        let query = RelayQueryBuilder::new().daita().build();
         let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
         assert!(
             supports_daita(&relay),
@@ -840,22 +836,20 @@ mod relay_selection {
         // Fail when only non-DAITA relays match constraints
         let query = RelayQueryBuilder::new()
             .daita()
-            .daita_use_multihop_if_necessary(false)
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         relay_selector
             .get_relay_by_query(query)
             .expect_err("Expected to find no matching relay");
 
-        // Should be able to connect to non-DAITA relay with use_multihop_if_necessary
+        // Should be able to connect to non-DAITA relay with autohop
         let query = RelayQueryBuilder::new()
-            .daita()
-            .daita_use_multihop_if_necessary(true)
+            .autohop()
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
             .get_relay_by_query(query)
-            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
+            .expect("Expected to find a relay with autohop");
         match relay {
             GetRelay {
                 inner: WireguardConfig::Multihop { exit, entry },
@@ -867,15 +861,14 @@ mod relay_selection {
             wrong_relay => panic!("Relay selector expected a multihop relay, got: {wrong_relay:?}"),
         }
 
-        // Should be able to connect to DAITA relay with use_multihop_if_necessary
+        // Should be able to connect to DAITA relay with autohop
         let query = RelayQueryBuilder::new()
-            .daita()
-            .daita_use_multihop_if_necessary(true)
+            .autohop()
             .location(DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
             .get_relay_by_query(query)
-            .expect("Expected to find a relay with daita_use_multihop_if_necessary");
+            .expect("Expected to find a relay with autohop");
         match relay {
             GetRelay {
                 inner: WireguardConfig::Singlehop { exit },
@@ -905,11 +898,7 @@ mod relay_selection {
             .expect("Expected DAITA-supporting relay to work without DAITA");
 
         // Entry relay must support daita
-        let query = RelayQueryBuilder::new()
-            .daita()
-            .daita_use_multihop_if_necessary(false)
-            .multihop()
-            .build();
+        let query = RelayQueryBuilder::new().daita().multihop().build();
         let relay = relay_selector.get_relay_by_query(query).unwrap();
         match relay {
             GetRelay {
@@ -924,7 +913,6 @@ mod relay_selection {
         // Exit relay does not have to support daita
         let query = RelayQueryBuilder::new()
             .daita()
-            .daita_use_multihop_if_necessary(false)
             .multihop()
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
