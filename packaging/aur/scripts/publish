@@ -27,18 +27,28 @@ fi
 work_dir="${AUR_PUBLISH_DIR:-$repo_root/.build/aur-publish/$pkgbase}"
 remote="${AUR_REMOTE:-ssh://aur@aur.archlinux.org/$pkgbase.git}"
 
+# Prepare SSH command with proper quoting
+ssh_cmd="ssh -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
 if [[ -n "${AUR_SSH_KEY:-}" ]]; then
-  export GIT_SSH_COMMAND="ssh -i $AUR_SSH_KEY -o IdentitiesOnly=yes"
+  ssh_cmd="$ssh_cmd -i $AUR_SSH_KEY"
 fi
 
 rm -rf "$work_dir"
-git clone "$remote" "$work_dir"
+GIT_SSH_COMMAND="$ssh_cmd" git clone "$remote" "$work_dir"
 
 rsync -a --delete \
   --exclude '.git' \
   "$pkg_dir"/ "$work_dir"/
 
 cd "$work_dir"
+
+# Configure git identity for this repository if provided
+if [[ -n "${AUR_GIT_EMAIL:-}" ]]; then
+  git config user.email "$AUR_GIT_EMAIL"
+fi
+if [[ -n "${AUR_GIT_NAME:-}" ]]; then
+  git config user.name "$AUR_GIT_NAME"
+fi
 
 if [[ -z "$(git status --porcelain)" ]]; then
   echo "No AUR changes to publish for $pkgbase."
@@ -47,4 +57,4 @@ fi
 
 git add .
 git commit -m "Update $pkgbase"
-git push origin HEAD:master
+GIT_SSH_COMMAND="$ssh_cmd" git push origin HEAD:master

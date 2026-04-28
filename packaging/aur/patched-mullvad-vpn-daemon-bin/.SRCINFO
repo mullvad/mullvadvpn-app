@@ -1,8 +1,9 @@
 pkgbase = patched-mullvad-vpn-daemon-bin
-	pkgdesc = Mullvad VPN daemon and CLI patched with IP range and Netbird/Tailscale Split-Tunneling support
+	pkgdesc = Mullvad daemon patched with IP range and Netbird/Tailscale Split-Tunneling support (mullvad split-tunnel ip help)
 	pkgver = 2026.1
 	pkgrel = 1
 	url = https://github.com/tritaum/ip-split-tunneling-mullvad
+	install = patched-mullvad-vpn-daemon.install
 	arch = x86_64
 	license = GPL-3.0-or-later
 	depends = dbus
@@ -16,4 +17,3 @@ pkgbase = patched-mullvad-vpn-daemon-bin
 	sha256sums_x86_64 = SKIP
 
 pkgname = patched-mullvad-vpn-daemon-bin
-	install = patched-mullvad-vpn-daemon.install
