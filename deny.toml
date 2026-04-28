@@ -31,6 +31,9 @@ ignore = [
 
   # Bincode is unmaintained. Version 1.3.3 is considered "complete" and can still be used
   "RUSTSEC-2025-0141",
+
+  # Paste unmaintained, but considered complete and trusted by the community.
+  "RUSTSEC-2024-0436",
 ]
 
 # This section is considered when running `cargo deny check licenses`
