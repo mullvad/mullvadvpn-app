@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Etter å ha oppdatert en VPN-app på Android 16, kan enhetene havne i en tilstand der VPN-appene ikke lenger får tilgang til internett.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fungerer, kan du skrive en e-post til %1$s på svensk eller engelsk.</string>
     <string name="android_16_upgrade_warning_message">Android 16 har en kjent feil. Start enheten på nytt og prøv igjen. For å finne ut mer,</string>
-    <string name="android_16_upgrade_warning_title">Kan du ikke koble til?</string>
     <string name="anti_censorship">Antisensur</string>
     <string name="anti_censorship_info_first_paragraph">Disse metodene kan være nyttige i situasjoner der du er blokkert fra å nå Mullvad. Når «Automatisk» er valgt, vil appen prøve alle metodene helt til en av dem fungerer.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Vær oppmerksom på at disse metodene ikke forbedrer ytelsen og kan øke systemutnyttelsen og batteriforbruket.</b></string>
