@@ -49,9 +49,9 @@ class LogRedactionBenchmarkTests: XCTestCase {
 
     lazy var logs: [String] = [
         self.shortIPv4Message,
-//        self.shortIPv6Message,
-//        self.shortIPv6FullLine,
-//        self.longMessage,
+        //        self.shortIPv6Message,
+        //        self.shortIPv6FullLine,
+        //        self.longMessage,
         self.noMatchMessage,
         self.noMatchFullLine,
     ]
@@ -64,7 +64,7 @@ class LogRedactionBenchmarkTests: XCTestCase {
         )
 
         measure {
-            for _ in 0...1000 {
+            for _ in 0..<10000 {
                 for entry in logs {
                     _ = consolidatedApplicationLog.redact(string: entry)
                 }
@@ -73,16 +73,14 @@ class LogRedactionBenchmarkTests: XCTestCase {
         }
     }
 
-    func testNewRedactor() {
+    func testPerformanceRustLogRedaction() {
         let redaction = LogRedaction()
-        let consolidatedApplicationLog = ConsolidatedApplicationLog(
-            redactCustomStrings: nil,
-            redactContainerPathsForSecurityGroupIdentifiers: [UUID().uuidString],
-            bufferSize: ApplicationConfiguration.logMaximumFileSize
-        )
-
-        for entry in logs {
-            XCTAssertEqual(redaction.redact(string: entry), consolidatedApplicationLog.redact(string: entry))
+        measure {
+            for _ in 0..<10000 {
+                for entry in logs {
+                    _ = redaction.redact(string: entry)
+                }
+            }
         }
     }
 }

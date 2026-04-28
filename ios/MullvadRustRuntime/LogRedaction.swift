@@ -5,10 +5,12 @@
 //  Created by Mojgan on 2026-04-27.
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
+import MullvadLogging
 
-public class LogRedaction {
-    private var logRedactor: LogRedactor
-    init() {
+public final class LogRedaction: @unchecked Sendable, LogRedactorProtocol {
+    private let logRedactor: LogRedactor
+
+    public init() {
         logRedactor = init_log_redactor()
     }
 
@@ -16,7 +18,7 @@ public class LogRedaction {
         drop_log_redactor(logRedactor)
     }
 
-    func redact(string: String) -> String {
+    public func redact(_ string: String) -> String {
         let ptr = redact_log(logRedactor, string)
         guard ptr != nil else {
             return string

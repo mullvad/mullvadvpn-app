@@ -360,7 +360,7 @@ extension PacketTunnelProvider {
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.packetTunnel.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(LogRedaction())
 
         // Initialize Rust logging to forward to Swift Logger
         RustLogging.initialize()

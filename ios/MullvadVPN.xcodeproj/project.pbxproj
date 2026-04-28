@@ -1045,6 +1045,7 @@
 		F0A89CB72D9D923300580C27 /* String+UnsafePointer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */; };
 		F0A8B6E72F9F7BCC008F29D9 /* LogRedactionBenchmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A8B6E62F9F7BAE008F29D9 /* LogRedactionBenchmark.swift */; };
 		F0A8B6EB2F9F8411008F29D9 /* LogRedaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A8B6EA2F9F840A008F29D9 /* LogRedaction.swift */; };
+		F0A8B6F32FA105D9008F29D9 /* LogRedactorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A8B6F22FA105D5008F29D9 /* LogRedactorProtocol.swift */; };
 		F0AC643A2F3B4FD40024427C /* NotificationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AC64392F3B4FD40024427C /* NotificationSettings.swift */; };
 		F0AC643C2F3B50860024427C /* NotificationSettingsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AC643B2F3B50860024427C /* NotificationSettingsObserver.swift */; };
 		F0AC643D2F3B50860024427C /* NotificationSettingsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0AC643B2F3B50860024427C /* NotificationSettingsObserver.swift */; };
@@ -2608,6 +2609,7 @@
 		F0A89CB62D9D922300580C27 /* String+UnsafePointer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+UnsafePointer.swift"; sourceTree = "<group>"; };
 		F0A8B6E62F9F7BAE008F29D9 /* LogRedactionBenchmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactionBenchmark.swift; sourceTree = "<group>"; };
 		F0A8B6EA2F9F840A008F29D9 /* LogRedaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedaction.swift; sourceTree = "<group>"; };
+		F0A8B6F22FA105D5008F29D9 /* LogRedactorProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorProtocol.swift; sourceTree = "<group>"; };
 		F0AC64392F3B4FD40024427C /* NotificationSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettings.swift; sourceTree = "<group>"; };
 		F0AC643B2F3B50860024427C /* NotificationSettingsObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsObserver.swift; sourceTree = "<group>"; };
 		F0AC643E2F3B51830024427C /* UNUserNotificationCenter+Permission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UNUserNotificationCenter+Permission.swift"; sourceTree = "<group>"; };
@@ -3225,15 +3227,13 @@
 		581943F228F8014500B0CB5E /* MullvadTypes */ = {
 			isa = PBXGroup;
 			children = (
-				016EE0432F8640B00035B25C /* DaitaConfiguration.swift */,
-				016EE0412F8540B00035B25C /* IPAddressRange.swift */,
-				449EBA242B975B7C00DFA4EB /* Protocols */,
 				588D7ED72AF3A533005DF40A /* AccessMethodKind.swift */,
 				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				586A951329013235007BAF2B /* AnyIPEndpoint.swift */,
 				7A460F9C2F34E2FC005A265D /* Bundle+ProductVersion.swift */,
 				06AC113628F83FD70037AF9A /* Cancellable.swift */,
 				7AFE63342EE31BA800D27DC7 /* CustomErrorDescriptionProtocol.swift */,
+				016EE0432F8640B00035B25C /* DaitaConfiguration.swift */,
 				586168682976F6BD00EF8598 /* DisplayError.swift */,
 				7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */,
 				58E511EA28DDE18400B0BCDE /* Error+Chain.swift */,
@@ -3241,6 +3241,7 @@
 				58900D0228BBDCC70094E4F0 /* FixedWidthInteger+Arithmetics.swift */,
 				58B26E1D2943514300D5980C /* InAppNotificationDescriptor.swift */,
 				06AC115628F848D00037AF9A /* IPAddress+Codable.swift */,
+				016EE0412F8540B00035B25C /* IPAddressRange.swift */,
 				58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */,
 				586A95112901321B007BAF2B /* IPv6Endpoint.swift */,
 				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
@@ -3258,6 +3259,7 @@
 				586C0D962B04E0AC00E7CDD7 /* PersistentAccessMethod.swift */,
 				44EC6C592E3BB3EF0087F54A /* PersistentProxyConfiguration.swift */,
 				58CAFA01298530DC00BE19F7 /* Promise.swift */,
+				449EBA242B975B7C00DFA4EB /* Protocols */,
 				5898D2B12902A6DE00EB5EBA /* RelayConstraint.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
 				7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */,
@@ -4254,15 +4256,16 @@
 		58D223F4294C8FF00029F5F8 /* MullvadLogging */ = {
 			isa = PBXGroup;
 			children = (
-				58D223F5294C8FF00029F5F8 /* MullvadLogging.h */,
 				581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */,
 				581943E228F8010400B0CB5E /* Date+LogFormat.swift */,
 				581943E128F8010300B0CB5E /* Error+LogFormat.swift */,
+				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 				581943E028F8010300B0CB5E /* Logger+Errors.swift */,
 				581943DF28F8010300B0CB5E /* LoggerBuilder.swift */,
+				F0A8B6F22FA105D5008F29D9 /* LogRedactorProtocol.swift */,
 				581943DD28F8010300B0CB5E /* LogRotation.swift */,
+				58D223F5294C8FF00029F5F8 /* MullvadLogging.h */,
 				581943E428F8010400B0CB5E /* OSLogHandler.swift */,
-				581943DE28F8010300B0CB5E /* LogFileOutputStream.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -7093,6 +7096,7 @@
 				58D22402294C90050029F5F8 /* Logger+Errors.swift in Sources */,
 				58D22404294C90050029F5F8 /* Date+LogFormat.swift in Sources */,
 				58D22403294C90050029F5F8 /* LoggerBuilder.swift in Sources */,
+				F0A8B6F32FA105D9008F29D9 /* LogRedactorProtocol.swift in Sources */,
 				58D223FE294C90050029F5F8 /* Error+LogFormat.swift in Sources */,
 				58D223FF294C90050029F5F8 /* LogFileOutputStream.swift in Sources */,
 				58D22400294C90050029F5F8 /* OSLogHandler.swift in Sources */,
