@@ -15,7 +15,7 @@ hyper = { version = "1.4.1", features = ["client", "http2"] }
 hyper-rustls = { version = "0.27.3", default-features = false, features = [
   "http1",
   "logging",
-  "ring",
+  "aws-lc-rs",
   "webpki-roots"
 ] }
 hyper-util = { workspace = true }
@@ -28,7 +28,7 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-rustls = { version = "0.26.0", default-features = false, features = [
   "logging",
-  "ring",
+  "aws-lc-rs",
 ] }
 
 [dependencies.tokio-util]
