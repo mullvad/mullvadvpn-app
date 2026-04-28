@@ -1,0 +1,38 @@
+---
+name: Workflow check
+on:
+  pull_request:
+    paths:
+      - .github/workflows/workflow-check.yml
+      - .github/pinact.yml
+      - .github/workflows/android-*.yml
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  PINACT_VERSION: v3.9.0
+  PINACT_BASE_URL: https://github.com/suzuki-shunsuke/pinact/releases/download
+
+jobs:
+  ensure-pinned-actions:
+    name: Ensure pinned actions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pinact
+        run: |
+          curl -sSfL "${PINACT_BASE_URL}/${PINACT_VERSION}/pinact_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin pinact
+
+      # If we get rate-limited we might need to set the GITHUB_TOKEN for this step.
+      - name: Check pinned actions
+        run: pinact run --check
+
+      # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
+      - name: Check version comment format
+        run: '! grep -rnE "@[0-9a-f]{40} #[^ ]" .github/workflows/android-*.yml'
