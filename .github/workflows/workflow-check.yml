@@ -29,8 +29,9 @@ jobs:
           curl -sSfL "${PINACT_BASE_URL}/${PINACT_VERSION}/pinact_linux_amd64.tar.gz" \
             | sudo tar -xz -C /usr/local/bin pinact
 
-      # If we get rate-limited we might need to set the GITHUB_TOKEN for this step.
       - name: Check pinned actions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: pinact run --check
 
       # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
