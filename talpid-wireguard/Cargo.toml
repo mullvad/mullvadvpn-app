@@ -12,7 +12,7 @@ byteorder = "1"
 chrono = { workspace = true, features = ["clock"], optional = true }
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
-hex = "0.4"
+hex = { workspace = true }
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }
 log = { workspace = true }

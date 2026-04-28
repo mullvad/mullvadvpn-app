@@ -245,6 +245,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base16ct"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b59d472eab27ade8d770dcb11da7201c11234bef9f82ce7aa517be028d462b"
+
+[[package]]
 name = "base64"
 version = "0.21.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -258,9 +264,9 @@ checksum = "9475866fec1451be56a3c2400fd081ff546538961565ccb5b7142cbd22bc7a51"
 
 [[package]]
 name = "base64ct"
-version = "1.6.0"
+version = "1.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c3c1a368f70d6cf7302d78f8f7093da241fb8e8807c05cc9e51a125895a6d5b"
+checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
 name = "bitflags"
@@ -714,9 +720,9 @@ dependencies = [
 
 [[package]]
 name = "ed25519-dalek"
-version = "2.1.1"
+version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4a3daa8e81a3963a60642bcc1f90a670680bd4a77535faa384e9d1c79d620871"
+checksum = "70e796c081cee67dc755e1a36a0a172b897fab85fc3f6bc48307991f64e4eca9"
 dependencies = [
  "curve25519-dalek",
  "ed25519",
@@ -1094,7 +1100,7 @@ dependencies = [
  "rand 0.9.3",
  "ring",
  "rustls",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tinyvec",
  "tokio",
  "tokio-rustls",
@@ -1119,7 +1125,7 @@ dependencies = [
  "resolv-conf",
  "rustls",
  "smallvec",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-rustls",
  "tracing",
@@ -1954,6 +1960,7 @@ dependencies = [
  "async-trait",
  "chrono",
  "futures",
+ "hex",
  "http",
  "http-body-util",
  "hyper",
@@ -1970,10 +1977,12 @@ dependencies = [
  "rustls-pki-types",
  "serde",
  "serde_json",
+ "sha2",
  "shadowsocks",
+ "sigsum",
  "talpid-time",
  "talpid-types",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-rustls",
  "tokio-socks",
@@ -2021,7 +2030,7 @@ dependencies = [
  "prost",
  "prost-types",
  "talpid-types",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tipsy",
  "tokio",
  "tonic",
@@ -2036,7 +2045,7 @@ version = "0.0.0"
 dependencies = [
  "log",
  "once_cell",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "widestring",
  "windows-sys 0.61.2",
 ]
@@ -2052,7 +2061,7 @@ dependencies = [
  "mullvad-types",
  "rand 0.9.3",
  "talpid-types",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -2068,7 +2077,7 @@ dependencies = [
  "regex",
  "serde",
  "talpid-types",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "uuid",
  "vec1",
 ]
@@ -2091,7 +2100,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "vec1",
  "zeroize",
@@ -2643,7 +2652,7 @@ dependencies = [
  "rustls",
  "rustls-pki-types",
  "slab",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tinyvec",
  "tracing",
  "web-time",
@@ -2753,7 +2762,7 @@ checksum = "a4e608c6638b9c18977b00b475ac1f28d14e84b27d8d42f70e0bf1e3dec127ac"
 dependencies = [
  "getrandom 0.2.14",
  "libredox",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
@@ -3147,7 +3156,7 @@ dependencies = [
  "shadowsocks-crypto",
  "socket2 0.5.8",
  "spin",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-tfo",
  "trait-variant",
@@ -3209,6 +3218,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sigsum"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2f3d828fbb3e889a635dee91129588ec757de125982f415a4a7aebac6ec1d71"
+dependencies = [
+ "base16ct",
+ "base64ct",
+ "ed25519-dalek",
+ "sha2",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3250,7 +3272,7 @@ dependencies = [
  "fast-socks5",
  "futures",
  "log",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
 ]
 
@@ -3410,7 +3432,7 @@ dependencies = [
  "log",
  "serde",
  "shadowsocks-crypto",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "x25519-dalek",
  "zeroize",
 ]
@@ -3422,7 +3444,7 @@ dependencies = [
  "futures",
  "socket2 0.5.8",
  "talpid-types",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "windows-sys 0.61.2",
 ]
 
@@ -3516,7 +3538,7 @@ dependencies = [
  "talpid-types",
  "test-rpc",
  "test_macro",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-serial",
  "tokio-util",
@@ -3541,7 +3563,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tarpc",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tokio",
  "tokio-rustls",
  "tokio-util",
@@ -3570,7 +3592,7 @@ dependencies = [
  "talpid-windows",
  "tarpc",
  "test-rpc",
- "thiserror 2.0.3",
+ "thiserror 2.0.18",
  "tipsy",
  "tokio",
  "tokio-serial",
@@ -3601,11 +3623,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "2.0.3"
+version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c006c85c7651b3cf2ada4584faa36773bd07bac24acfb39f3c431b36d7e667aa"
+checksum = "4288b5bcbc7920c07a1149a35cf9590a2aa808e0bc1eafaade0b80947865fbc4"
 dependencies = [
- "thiserror-impl 2.0.3",
+ "thiserror-impl 2.0.18",
 ]
 
 [[package]]
@@ -3621,9 +3643,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "2.0.3"
+version = "2.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f077553d607adc1caf65430528a576c757a71ed73944b66ebb58ef2bbd243568"
+checksum = "ebc4ee7f67670e9b64d05fa4253e753e016c6c95ff35b89b7941d6b856dec1d5"
 dependencies = [
  "proc-macro2",
  "quote",
