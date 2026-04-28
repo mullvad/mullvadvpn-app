@@ -36,6 +36,7 @@
     "ci/android/**",
     ".github/pinact.yml",
     ".github/workflows/workflow-check.yml",
+    "scripts/check-apostrophe-style",
     "mullvad-jni/**"
   ],
   "appteam-lead": [

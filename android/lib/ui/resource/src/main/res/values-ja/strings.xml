@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%1$sにスウェーデン語か英語のメールでお問い合わせください。</string>
     <string name="android_16_upgrade_warning_message">Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、</string>
-    <string name="android_16_upgrade_warning_title">接続できませんか？</string>
     <string name="anti_censorship">検閲回避</string>
     <string name="anti_censorship_info_first_paragraph">これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。</string>
     <string name="anti_censorship_info_second_paragraph"><b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b></string>

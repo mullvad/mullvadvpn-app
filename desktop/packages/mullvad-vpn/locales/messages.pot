@@ -3128,7 +3128,7 @@ msgstr ""
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr ""
 
-msgid "Can't connect?"
+msgid "Can’t connect?"
 msgstr ""
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."

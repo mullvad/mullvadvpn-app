@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป</string>
     <string name="android_16_upgrade_warning_dialog_second_message">โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %1$s เป็นภาษาสวีเดนหรืออังกฤษ</string>
     <string name="android_16_upgrade_warning_message">Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม</string>
-    <string name="android_16_upgrade_warning_title">ไม่สามารถเชื่อมต่อได้ใช่ไหม</string>
     <string name="anti_censorship">การป้องกันการเซ็นเซอร์</string>
     <string name="anti_censorship_info_first_paragraph">วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้</string>
     <string name="anti_censorship_info_second_paragraph"><b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b></string>
