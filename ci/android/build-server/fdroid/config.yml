@@ -1,0 +1,16 @@
+sdk_path: $ANDROID_HOME
+repo_url: https://releases.mullvad.net/android/fdroid/repo
+repo_name: Mullvad VPN Fdroid repo
+repo_description: >-
+   This is the Mullvad VPN Fdroid repo.
+   Its primary to be used as backup when the main Fdroid repo
+   is unavailable. Currently the apps are signed differently
+   from the main repo so an uninstall is needed.
+# Signing config
+keystore: NONE
+repo_keyalias: "X.509 Certificate for PIV Authentication"
+smartcardoptions: |
+   -providerClass sun.security.pkcs11.SunPKCS11
+   -providerArg /usr/local/etc/pkcs11_java.cfg
+   -storetype PKCS11
+keystorepass: {env: YUBIKEY_PIN}
