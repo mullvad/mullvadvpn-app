@@ -103,7 +103,7 @@ class DeviceListViewModel(
     }
 
     companion object {
-        const val MAXIMUM_DEVICES = 5
+        private const val MAXIMUM_DEVICES = 5
     }
 }
 

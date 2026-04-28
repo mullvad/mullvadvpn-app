@@ -261,7 +261,7 @@ class LoginViewModelTest {
             loginViewModel.login(DUMMY_ACCOUNT_NUMBER.value)
             assertEquals(Loading.LoggingIn, awaitItem().loginState)
             assertEquals(
-                Idle(LoginUiStateError.LoginError.InvalidInput.TooLong(DUMMY_ACCOUNT_NUMBER)),
+                Idle(LoginUiStateError.LoginError.InvalidInput(DUMMY_ACCOUNT_NUMBER)),
                 awaitItem().loginState,
             )
         }
