@@ -8,9 +8,9 @@
 
 import MullvadTypes
 
-public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
-    -> SwiftAccessMethodSettingsWrapper
-{
+public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod]) -> SwiftAccessMethodSettingsWrapper {
+    let validShadowsocksCiphers = ShadowsocksCipherService().getCiphers()
+
     // 1. Get all the built in access methods, it is expected that they are always available
     let directMethod = methods.first(where: { $0.proxyConfiguration == .direct })!
     let bridgesMethod = methods.first(where: { $0.proxyConfiguration == .bridges })!
@@ -18,21 +18,27 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
 
     // 2. Get the custom access methods
     let defaultMethods: [PersistentProxyConfiguration] = [.direct, .bridges, .encryptedDNS]
-    let customMethods = methods.filter { defaultMethods.contains($0.proxyConfiguration) == false }
+    let customMethods = methods.filter {
+        // Make sure we only use access methods with valid ciphers.
+        if case .shadowsocks(let config) = $0.proxyConfiguration {
+            guard validShadowsocksCiphers.contains(config.cipher) else {
+                return false
+            }
+        }
+
+        return !defaultMethods.contains($0.proxyConfiguration)
+    }
 
     // 3. Convert the builtin access methods
     let directMethodRaw = convertAccessMethod(accessMethod: directMethod)
     let bridgesMethodRaw = convertAccessMethod(accessMethod: bridgesMethod)
     let encryptedDNSMethodRaw = convertAccessMethod(accessMethod: encryptedDNSMethod)
 
-    var rawCustomMethods = ContiguousArray<UnsafeRawPointer?>([])
     // 4. Convert the custom access methods (all takes different parameters)
-    for method in customMethods {
-        let rawMethod = convertAccessMethod(accessMethod: method)
-        rawCustomMethods.append(rawMethod)
-    }
+    var rawCustomMethods = customMethods.map { convertAccessMethod(accessMethod: $0) }
 
     // 5. Reunite them all in one, and pass it to rust
+    let customMethodCount = rawCustomMethods.count
     return rawCustomMethods.withUnsafeMutableBufferPointer(
         {
             init_access_method_settings_wrapper(
@@ -40,7 +46,7 @@ public func initAccessMethodSettingsWrapper(methods: [PersistentAccessMethod])
                 bridgesMethodRaw,
                 encryptedDNSMethodRaw,
                 $0.baseAddress!,
-                UInt(customMethods.count)
+                UInt(customMethodCount)
             )
         }
     )
