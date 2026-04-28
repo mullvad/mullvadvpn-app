@@ -40,7 +40,7 @@ val ColorScheme.errorDisabled: Color
     @Composable get() = PaletteTokens.DisabledContainerDestructive
 
 val ColorScheme.highlight: Color
-    @Composable get() = PaletteTokens.Yellow.copy(alpha = Alpha40)
+    @Composable get() = PaletteTokens.Black.copy(alpha = Alpha40)
 
 val menuItemColors: MenuItemColors
     @Composable
