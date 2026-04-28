@@ -238,19 +238,19 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     private func updateDataSnapshot() {
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections([.vpnSettings])
         let isLoggedIn = interactor.deviceState.isLoggedIn
         if isLoggedIn {
-            snapshot.appendSections([.vpnSettings])
             snapshot.appendItems(
                 [
                     .daita,
                     .multihop,
                     .vpnSettings,
-                    .includeAllNetworks,
                 ], toSection: .vpnSettings)
-
-            snapshot.appendItems([], toSection: .vpnSettings)
         }
+
+        snapshot.appendItems([.includeAllNetworks], toSection: .vpnSettings)
+        snapshot.appendItems([], toSection: .vpnSettings)
 
         snapshot.appendSections([.apiAccess])
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
