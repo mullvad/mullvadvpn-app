@@ -1,0 +1,38 @@
+---
+name: Rust - Supply chain
+on:
+  pull_request:
+    paths:
+      - .github/workflows/rust-supply-chain.yml
+      - deny.toml
+      - '**/Cargo.toml'
+      - Cargo.lock
+      - '**/*.rs'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Run cargo deny
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          log-level: warn
+          rust-version: stable
+          command: check all
+
+      # Run an additional license check for the iOS crate to catch GPL3 issues
+      - name: Run cargo deny for iOS (GPL3 check)
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          manifest-path: mullvad-ios/Cargo.toml
+          log-level: error
+          rust-version: stable
+          command: check licenses

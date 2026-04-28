@@ -1,0 +1,100 @@
+---
+name: Daemon+CLI - Check rust documentation
+on:
+  pull_request:
+    paths:
+      - "**/*.rs"
+      - "**/Cargo.toml"
+      - "**/Cargo.lock"
+      - "rust-toolchain.toml"
+      - "rustfmt.toml"
+      - "ci/cargo-ci.sh"
+
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+
+permissions: {}
+
+jobs:
+  prepare-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run:
+          echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  document-linux:
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          add-job-id-key: "false" # Preserve cache across jobs
+          cache-targets: "false" # Only cache cargo registry
+
+      - name: Check rust docs
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
+
+  document-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Check rust docs
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
+
+  document-windows:
+    runs-on: windows-latest
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rust-cache-targets: "true"
+
+      - name: Check rust docs
+        shell: bash
+        run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going

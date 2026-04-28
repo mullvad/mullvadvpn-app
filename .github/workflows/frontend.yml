@@ -1,0 +1,75 @@
+---
+name: Desktop frontend
+on:
+  pull_request:
+    paths:
+      - .github/workflows/frontend.yml
+      - desktop/**
+      - mullvad-management-interface/proto/**
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-frontend:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        if: runner.os == 'Windows'
+        run: |
+          git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Install dependencies
+        working-directory: desktop
+        shell: bash
+        run: npm run ci
+
+      - name: Check formatting
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: desktop
+        shell: bash
+        run: npm run lint
+
+      - name: Build
+        working-directory: desktop
+        shell: bash
+        run: npm run build -w mullvad-vpn
+
+      - name: Build test
+        working-directory: desktop
+        shell: bash
+        run: npm run build:test -w mullvad-vpn
+
+      - name: Run headless test Linux
+        if: runner.os == 'Linux'
+        working-directory: desktop
+        run: xvfb-run -a npm test
+
+      - name: Run headless test Windows/macOS
+        if: runner.os != 'Linux'
+        working-directory: desktop
+        shell: bash
+        run: npm test
+
+      - name: Run Playwright tests on Linux
+        if: runner.os == 'Linux'
+        working-directory: desktop
+        # The sandbox is disabled as a workaround for lacking userns permisisons which is required
+        # since Ubuntu 24.04.
+        run: NO_SANDBOX=1 npm run e2e:no-build -w mullvad-vpn -- --reporter=line
+
+      - name: Run Playwright tests on Windows/macOS
+        if: runner.os != 'Linux'
+        working-directory: desktop
+        shell: bash
+        run: npm run e2e:no-build --w mullvad-vpn -- --reporter=line

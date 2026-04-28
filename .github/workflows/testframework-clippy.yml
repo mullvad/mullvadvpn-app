@@ -1,0 +1,61 @@
+# Run `clippy` on the `test` workspace
+---
+name: DES Testframework - Clippy
+on:
+  pull_request:
+    paths:
+      - .github/workflows/testframework-clippy.yml
+      - 'test/**/*.rs'
+      - 'test/**/Cargo.toml' # Lint rules defined in toml files
+      - clippy.toml
+      - 'ci/cargo-ci.sh'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  clippy-check-test:
+    name: Clippy linting of test workspace
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rustup-components: clippy
+
+      - name: Clippy check
+        working-directory: test
+        shell: bash
+        run: |
+          time ../ci/cargo-ci.sh clippy --all-targets --no-default-features
+          time ../ci/cargo-ci.sh clippy --all-targets --all-features
+
+  clippy-check-test-windows:
+    name: Clippy linting of test workspace (Windows)
+    runs-on: windows-latest
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+        with:
+          rustup-components: clippy
+
+      - name: Clippy check
+        working-directory: test
+        shell: bash
+        run: |
+          # Exclude checking test-manager on Windows, since it is not a supported compilation target.
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --no-default-features
+          time ../ci/cargo-ci.sh clippy --all-targets --workspace --exclude test-manager --all-features

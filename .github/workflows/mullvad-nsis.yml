@@ -1,0 +1,31 @@
+---
+name: Check mullvad-nsis
+on:
+  pull_request:
+    paths:
+      - mullvad-nsis/**
+      - 'ci/cargo-ci.sh'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-mullvad-nsis:
+    runs-on: windows-latest
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: git config --system core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: ./.github/actions/mullvad-build-env
+
+      - name: Build mullvad-nsis
+        shell: bash
+        run: ci/cargo-ci.sh build --target i686-pc-windows-msvc -p mullvad-nsis
+
+      - name: Check working directory is clean
+        shell: bash
+        run: git diff --exit-code HEAD --

@@ -1,0 +1,39 @@
+---
+name: Git - Check commit message style
+on:
+  push:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-commit-message-style:
+    name: Check commit message style
+    runs-on: ubuntu-latest
+    steps:
+      # Make sure there are no whitespaces other than space, tab and newline in a commit message.
+      - name: Check for unicode whitespaces
+        uses: gsactions/commit-message-checker@v2
+        with:
+          # Pattern matches strings not containing weird unicode whitespace/separator characters
+          # \P{Z} = All non-whitespace characters (the u-flag is needed to enable \P{Z})
+          # [ \t\n] = Allowed whitespace characters
+          pattern: '^(\P{Z}|[ \t\n])+$'
+          flags: 'u'
+          error: 'Detected unicode whitespace character in commit message.'
+          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
+
+      # Git commit messages should follow our guidelines. This action enforces that.
+      # Guidelines:  https://github.com/mullvad/coding-guidelines/blob/main/README.md#git
+      - name: Check against guidelines
+        uses: mristin/opinionated-commit-message@d50df0f84391a481867d2982506853a9a654fc04 #master @ 2025-12-10
+        with:
+          # Commit messages are allowed to be subject only, no body
+          allow-one-liners: 'true'
+          # This action defaults to 50 char subjects, but 72 is fine.
+          max-subject-line-length: '72'
+          # All commit message verbs we have used in this repository up until 2025-12-10 are upstreamed
+          # to the action's allowed verb list. Consider if you can easily reword your commit message.
+          # Otherwise add your new *imperative verb* here. We then try to upstream all new verbs periodically.
+          additional-verbs: 'clone'
