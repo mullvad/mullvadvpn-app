@@ -83,7 +83,7 @@ pub enum Reason {
     IncludeInCountry,
 }
 
-// TODO: Should these be builders insteads?
+// TODO: Should these be builders instead?
 
 impl EntryConstraints {
     pub fn daita(mut self, enabled: bool) -> Self {

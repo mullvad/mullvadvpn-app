@@ -53,19 +53,18 @@ impl AutohopPartition {
         // fix to unblock the relay in autohop. Singlehop adds entry-specific reasons
         // (DAITA / obfuscation / ip_version) that don't apply to a relay used as a
         // multihop exit and would over-report what the user needs to change.
-        let mut matches = singlehop.matches;
-        for relay in multihop.exits.matches {
-            if !matches.contains(&relay) {
-                matches.push(relay);
-            }
-        }
-
-        let discards = multihop
+        let (rescued, discards): (Vec<_>, Vec<_>) = multihop
             .exits
             .discards
             .into_iter()
-            .filter(|(r, _)| !matches.contains(r))
-            .collect();
+            .partition_map(|(relay, reasons)| {
+                if singlehop.matches.contains(&relay) {
+                    Either::Left(relay)
+                } else {
+                    Either::Right((relay, reasons))
+                }
+            });
+        let matches = [multihop.exits.matches, rescued].concat();
 
         RelayPartitions { matches, discards }
     }
@@ -258,24 +257,22 @@ fn filter_include_in_country(
     relay: &WireguardRelay,
     location_constraint: Constraint<ResolvedLocationConstraint<'_>>,
 ) -> Verdict {
-    if !relay.include_in_country && {
-        match location_constraint {
-            // No location constraint — relay is not specifically targeted.
-            Constraint::Any => true,
-            Constraint::Only(resolved) => {
-                // It is a country-only match as long as none of the matching constraints
-                // is more specific than a country (i.e. city or hostname).
-                !resolved
-                    .into_iter()
-                    .filter(|loc| loc.matches(relay))
-                    .any(|loc| !loc.is_country())
-            }
-        }
-    } {
-        Verdict::reject(Reason::IncludeInCountry)
-    } else {
-        Verdict::Accept
+    if relay.include_in_country {
+        return Verdict::Accept;
     }
+
+    let Constraint::Only(resolved) = location_constraint else {
+        // No location constraint — relay is not specifically targeted.
+        return Verdict::reject(Reason::IncludeInCountry);
+    };
+
+    // It is a country-only match as long as none of the matching constraints
+    // is more specific than a country (i.e. city or hostname).
+    resolved
+        .into_iter()
+        .filter(|loc| loc.matches(relay))
+        .any(|loc| !loc.is_country())
+        .if_false(Reason::IncludeInCountry)
 }
 
 /// Wrapper around [`GeographicLocationConstraint`].
