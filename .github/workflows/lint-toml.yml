@@ -1,5 +1,4 @@
 name: TOML Validation
-
 on:
   pull_request:
     paths:
@@ -13,8 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: tombi-toml/setup-tombi@v1
+
       - name: Lint TOML files
         run: tombi lint
+
       - name: Validate TOML formatting
         run: tombi format --check --diff
