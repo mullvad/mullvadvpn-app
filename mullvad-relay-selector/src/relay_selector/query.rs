@@ -28,14 +28,18 @@
 //! queries and ensure that queries are built in a type-safe manner, reducing the risk
 //! of runtime errors and improving code readability.
 
+pub use mullvad_types::relay_constraints::{
+    ObfuscationMode, obfuscation_constraint_from_settings, obfuscation_to_settings,
+};
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        LocationConstraint, LwoSettings, ObfuscationSettings, Ownership, Providers,
-        RelayConstraints, RelaySettings, SelectedObfuscation, ShadowsocksSettings,
-        Udp2TcpObfuscationSettings, WireguardConstraints, WireguardPortSettings,
-        allowed_ip::AllowedIps,
+        LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
+        WireguardConstraints, allowed_ip::AllowedIps,
+    },
+    relay_selector::{
+        EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
     },
     wireguard::QuantumResistantState,
 };
@@ -124,6 +128,10 @@ impl RelayQuery {
         &self.wireguard_constraints
     }
 
+    pub fn wireguard_constraints_mut(&mut self) -> &mut WireguardRelayQuery {
+        &mut self.wireguard_constraints
+    }
+
     pub fn into_wireguard_constraints(self) -> WireguardRelayQuery {
         self.wireguard_constraints
     }
@@ -148,6 +156,22 @@ impl RelayQuery {
         };
 
         (constraints, obfuscation)
+    }
+
+    /// Decode a [`RelayQuery`] into typed [`Constraints`] selection constraints.
+    pub fn resolve(&self) -> Constraints {
+        // TODO: Set autohop using its dedicated setting when it is added
+        let autohop = self.using_daita() && self.use_multihop_if_necessary();
+        match (self.singlehop(), autohop) {
+            // Autohop with preference for singlehop
+            (true, true) => Constraints::Autohop(singlehop_entry_constraints(self)),
+            (true, false) => Constraints::Singlehop(singlehop_entry_constraints(self)),
+            (false, false) => Constraints::Multihop(query_multihop_constraints(self)),
+            // Multihop with auto entry
+            (false, true) => {
+                Constraints::Multihop(singlehop_entry_constraints(self).into_autohop())
+            }
+        }
     }
 }
 
@@ -175,21 +199,14 @@ impl Default for RelayQuery {
     }
 }
 
-impl From<RelayQuery> for RelaySettings {
-    fn from(query: RelayQuery) -> Self {
-        let (relay_constraints, ..) = query.into_settings();
-        RelaySettings::from(relay_constraints)
-    }
-}
-
 /// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard
-/// obfuscation][`SelectedObfuscation`].
+/// obfuscation][`ObfuscationMode`].
 ///
 /// This struct may look a lot like [`WireguardConstraints`], and that is the point!
 /// This struct is meant to be that type in the "universe of relay queries". The difference
 /// between them may seem subtle, but in a [`WireguardRelayQuery`] every field is represented
 /// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
-/// Notice that [obfuscation][`SelectedObfuscation`] is not a [`Constraint`], but it is trivial
+/// Notice that [obfuscation][`ObfuscationMode`] is not a [`Constraint`], but it is trivial
 /// to define [`Intersection`] on it, so it is fine.
 #[derive(Debug, Clone, Eq, PartialEq, Intersection)]
 pub struct WireguardRelayQuery {
@@ -203,94 +220,6 @@ pub struct WireguardRelayQuery {
     pub daita: Constraint<bool>,
     pub daita_use_multihop_if_necessary: Constraint<bool>,
     pub quantum_resistant: Constraint<QuantumResistantState>,
-}
-
-/// Represents a specific obfuscation method (or explicit "off").
-///
-/// This enum does *not* have an `Auto` variant — that role is played by
-/// `Constraint::Any` on the wrapping `Constraint<ObfuscationMode>`.
-#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
-pub enum ObfuscationMode {
-    Off,
-    Port(WireguardPortSettings),
-    Udp2tcp(Udp2TcpObfuscationSettings),
-    Shadowsocks(ShadowsocksSettings),
-    Quic,
-    Lwo(LwoSettings),
-}
-
-impl ObfuscationMode {
-    pub(crate) fn into_settings(self) -> ObfuscationSettings {
-        let selected_obfuscation = match self {
-            ObfuscationMode::Off => SelectedObfuscation::Off,
-            ObfuscationMode::Quic => SelectedObfuscation::Quic,
-            ObfuscationMode::Lwo(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Lwo,
-                    lwo: settings,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Port(wireguard_port) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::WireguardPort,
-                    wireguard_port,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Udp2tcp(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Udp2Tcp,
-                    udp2tcp: settings,
-                    ..Default::default()
-                };
-            }
-            ObfuscationMode::Shadowsocks(settings) => {
-                return ObfuscationSettings {
-                    selected_obfuscation: SelectedObfuscation::Shadowsocks,
-                    shadowsocks: settings,
-                    ..Default::default()
-                };
-            }
-        };
-        ObfuscationSettings {
-            selected_obfuscation,
-            ..Default::default()
-        }
-    }
-}
-
-pub(crate) fn obfuscation_to_settings(
-    constraint: Constraint<ObfuscationMode>,
-) -> ObfuscationSettings {
-    match constraint {
-        Constraint::Any => ObfuscationSettings {
-            selected_obfuscation: SelectedObfuscation::Auto,
-            ..Default::default()
-        },
-        Constraint::Only(mode) => mode.into_settings(),
-    }
-}
-
-/// Convert [`ObfuscationSettings`] into a `Constraint<ObfuscationMode>`.
-///
-/// `SelectedObfuscation::Auto` maps to `Constraint::Any`.
-///
-/// Note: this drops protocol-specific constraints from [`ObfuscationSettings`]
-/// when the selected obfuscation type is auto.
-pub fn obfuscation_constraint_from_settings(
-    obfuscation: ObfuscationSettings,
-) -> Constraint<ObfuscationMode> {
-    use SelectedObfuscation::*;
-    match obfuscation.selected_obfuscation {
-        Auto => Constraint::Any,
-        Off => Constraint::Only(ObfuscationMode::Off),
-        WireguardPort => Constraint::Only(ObfuscationMode::Port(obfuscation.wireguard_port)),
-        Udp2Tcp => Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation.udp2tcp)),
-        Shadowsocks => Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation.shadowsocks)),
-        Quic => Constraint::Only(ObfuscationMode::Quic),
-        Lwo => Constraint::Only(ObfuscationMode::Lwo(obfuscation.lwo)),
-    }
 }
 
 impl WireguardRelayQuery {
@@ -345,6 +274,61 @@ impl From<WireguardRelayQuery> for WireguardConstraints {
             entry_ownership: value.entry_ownership,
             use_multihop: value.use_multihop.unwrap_or(false),
         }
+    }
+}
+
+/// A [`RelayQuery`] decoded into typed selection constraints, ready for relay selection.
+pub enum Constraints {
+    /// Use a single relay satisfying both entry and exit criteria.
+    Singlehop(EntryConstraints),
+    /// DAITA autohop: automatically select an entry relay.
+    ///
+    /// `prefer_singlehop` is `true` when multihop is *not* explicitly enabled — in that case the
+    /// selector first checks whether a singlehop relay is available before falling back to multihop.
+    Autohop(EntryConstraints),
+    /// User-configured multihop with an explicit entry location/provider.
+    Multihop(MultihopConstraints),
+}
+
+/// Build [`EntryConstraints`] for singlehop filtering from [`RelayQuery`].
+/// In singlehop, the relay must satisfy both entry and exit criteria, so the
+/// general (exit) constraints use the top-level location/providers/ownership.
+pub fn singlehop_entry_constraints(query: &RelayQuery) -> EntryConstraints {
+    EntryConstraints {
+        general: query_exit_constraints(query),
+        entry_specific: EntrySpecificConstraints {
+            obfuscation: query.wireguard_constraints().obfuscation.clone(),
+            daita: query.wireguard_constraints().daita,
+            ip_version: query.wireguard_constraints().ip_version,
+        },
+    }
+}
+
+fn query_multihop_constraints(query: &RelayQuery) -> MultihopConstraints {
+    let wg = query.wireguard_constraints();
+    MultihopConstraints {
+        entry: EntryConstraints {
+            general: ExitConstraints {
+                location: wg.entry_location.clone(),
+                providers: wg.entry_providers.clone(),
+                ownership: wg.entry_ownership,
+            },
+            entry_specific: EntrySpecificConstraints {
+                obfuscation: wg.obfuscation.clone(),
+                daita: wg.daita,
+                ip_version: wg.ip_version,
+            },
+        },
+        exit: query_exit_constraints(query),
+    }
+}
+
+/// Build [`ExitConstraints`] from [`RelayQuery`].
+fn query_exit_constraints(query: &RelayQuery) -> ExitConstraints {
+    ExitConstraints {
+        location: query.location().map(Clone::clone),
+        providers: query.providers().clone(),
+        ownership: query.ownership(),
     }
 }
 

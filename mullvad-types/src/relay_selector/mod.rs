@@ -8,10 +8,9 @@ use talpid_types::net::IpVersion;
 use crate::{
     constraints::Constraint,
     relay_constraints::{
-        GeographicLocationConstraint, LocationConstraint, ObfuscationSettings, Ownership, Providers,
+        GeographicLocationConstraint, LocationConstraint, ObfuscationMode, Ownership, Providers,
     },
     relay_list::WireguardRelay,
-    wireguard::DaitaSettings,
 };
 
 /// Specify the constraints that should be applied when selecting relays,
@@ -28,9 +27,13 @@ pub enum Predicate {
 #[derive(Debug, Default, Clone)]
 pub struct EntryConstraints {
     pub general: ExitConstraints,
-    // Entry-specific constraints.
-    pub obfuscation_settings: ObfuscationSettings,
-    pub daita: Constraint<DaitaSettings>,
+    pub entry_specific: EntrySpecificConstraints,
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct EntrySpecificConstraints {
+    pub obfuscation: Constraint<ObfuscationMode>,
+    pub daita: Constraint<bool>,
     pub ip_version: Constraint<IpVersion>,
 }
 
@@ -74,18 +77,17 @@ pub enum Reason {
     Port,
     /// The relay is not hosted by the given provider.
     Providers,
+    /// The relay opted out of country-level listings (`include_in_country = false`) and the
+    /// location constraint targets only its country (or is unconstrained). Such relays are only
+    /// selectable when the constraint pinpoints them at city or hostname level.
+    IncludeInCountry,
 }
 
-// TODO: Should these be builders insteads?
+// TODO: Should these be builders instead?
 
 impl EntryConstraints {
     pub fn daita(mut self, enabled: bool) -> Self {
-        self.daita = Constraint::Only(DaitaSettings {
-            enabled,
-            // TODO: Remove `use_multihop_if_necessary` now when autohop exists?
-            // Unused for partition relays, overridden by "Autohop" predicate.
-            use_multihop_if_necessary: false,
-        });
+        self.entry_specific.daita = Constraint::Only(enabled);
         self
     }
 
@@ -104,14 +106,32 @@ impl EntryConstraints {
         self
     }
 
-    pub fn obfuscation(mut self, obfuscation_settings: ObfuscationSettings) -> Self {
-        self.obfuscation_settings = obfuscation_settings;
+    pub fn obfuscation(mut self, mode: ObfuscationMode) -> Self {
+        self.entry_specific.obfuscation = Constraint::Only(mode);
         self
     }
 
     pub fn ip_version(mut self, ip_version: IpVersion) -> Self {
-        self.ip_version = Constraint::Only(ip_version);
+        self.entry_specific.ip_version = Constraint::Only(ip_version);
         self
+    }
+
+    /// Convert entry constraints to multihop constraints for autohop, where the entry inherits
+    /// the [EntrySpecificConstraints] and is automatically selected with no geographical constraints.
+    /// The exit inherits the [ExitConstraints].
+    pub fn into_autohop(self) -> MultihopConstraints {
+        MultihopConstraints {
+            entry: Self {
+                // TODO: After the change a dedicated autohop setting, we will set the providers/ownership constraints to auto
+                general: ExitConstraints {
+                    location: Constraint::Any,
+                    providers: self.general.providers.clone(),
+                    ownership: self.general.ownership,
+                },
+                entry_specific: self.entry_specific,
+            },
+            exit: self.general,
+        }
     }
 }
 

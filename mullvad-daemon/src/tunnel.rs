@@ -6,8 +6,10 @@ use tokio::sync::Mutex;
 
 use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
-    endpoint::MullvadEndpoint, location::GeoIpLocation, relay_list::WireguardRelay,
-    settings::TunnelOptions,
+    endpoint::MullvadEndpoint,
+    location::GeoIpLocation,
+    relay_constraints::RelaySettings,
+    settings::{Settings, TunnelOptions},
 };
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 use talpid_types::net::{obfuscation::Obfuscators, wireguard};
@@ -36,6 +38,7 @@ pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 
 struct InnerParametersGenerator {
     relay_selector: RelaySelector,
+    relay_settings: RelaySettings,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
 
@@ -47,14 +50,14 @@ impl ParametersGenerator {
     pub fn new(
         account_manager: AccountManagerHandle,
         relay_selector: RelaySelector,
+        relay_settings: RelaySettings,
         tunnel_options: TunnelOptions,
     ) -> Self {
         Self(Arc::new(Mutex::new(InnerParametersGenerator {
             tunnel_options,
             relay_selector,
-
+            relay_settings,
             account_manager,
-
             last_generated_relays: None,
         })))
     }
@@ -62,6 +65,13 @@ impl ParametersGenerator {
     /// Sets the tunnel options to use when generating new tunnel parameters.
     pub async fn set_tunnel_options(&self, tunnel_options: &TunnelOptions) {
         self.0.lock().await.tunnel_options = tunnel_options.clone();
+    }
+
+    /// Updates generator state from full settings and keeps relay-selector config in sync.
+    pub async fn set_settings(&self, settings: Settings) {
+        let mut inner = self.0.lock().await;
+        inner.relay_settings = settings.relay_settings.clone();
+        inner.relay_selector.set_config(&settings);
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
@@ -78,13 +88,15 @@ impl ParametersGenerator {
 
         let relays = inner.last_generated_relays.as_ref()?;
 
-        let take_hostname =
-            |relay: &Option<WireguardRelay>| relay.as_ref().map(|relay| relay.hostname.clone());
-
-        let entry_hostname = take_hostname(&relays.entry);
-        let hostname = relays.exit.hostname.clone();
-        let obfuscator_hostname = take_hostname(&relays.obfuscator);
-        let location = relays.exit.location.clone();
+        let (entry, exit, obfuscator) = match &relays.config {
+            WireguardConfig::Singlehop { exit } => {
+                (None, exit, relays.has_obfuscator.then_some(exit))
+            }
+            WireguardConfig::Multihop { exit, entry } => {
+                (Some(entry), exit, relays.has_obfuscator.then_some(entry))
+            }
+        };
+        let location = exit.location.clone();
 
         Some(GeoIpLocation {
             ipv4: None,
@@ -94,9 +106,9 @@ impl ParametersGenerator {
             latitude: location.latitude,
             longitude: location.longitude,
             mullvad_exit_ip: true,
-            hostname: Some(hostname),
-            entry_hostname,
-            obfuscator_hostname,
+            hostname: Some(exit.hostname.clone()),
+            entry_hostname: entry.map(|relay| relay.hostname.clone()),
+            obfuscator_hostname: obfuscator.map(|relay| relay.hostname.clone()),
         })
     }
 }
@@ -107,54 +119,46 @@ impl InnerParametersGenerator {
         retry_attempt: u32,
         ip_availability: IpAvailability,
     ) -> Result<TunnelParameters, Error> {
+        // Custom tunnel endpoints bypass relay selection entirely.
+        if let RelaySettings::CustomTunnelEndpoint(ref endpoint) = self.relay_settings {
+            self.last_generated_relays = None;
+            return endpoint
+                .to_tunnel_parameters(self.tunnel_options.clone())
+                .map_err(|e| {
+                    log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
+                    Error::ResolveCustomHostname
+                });
+        }
+
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
             .get_relay(retry_attempt as usize, ip_availability)?;
 
-        match selected_relay {
-            GetRelay::Mullvad {
-                endpoint,
-                obfuscator,
-                inner,
-            } => {
-                let (obfuscator_relay, obfuscator_config) = match obfuscator {
-                    Some(obfuscator) => (Some(obfuscator.relay), Some(obfuscator.config)),
-                    None => (None, None),
-                };
+        let GetRelay {
+            endpoint,
+            obfuscator,
+            inner,
+        } = selected_relay;
 
-                let (entry, exit) = match inner {
-                    WireguardConfig::Singlehop { exit } => (None, exit),
-                    WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
-                };
-                let server_override = {
-                    let first_relay = entry.as_ref().unwrap_or(&exit);
-                    match endpoint.peer.endpoint {
-                        SocketAddr::V4(_) => first_relay.overridden_ipv4,
-                        SocketAddr::V6(_) => first_relay.overridden_ipv6,
-                    }
-                };
-
-                self.last_generated_relays = Some(LastSelectedRelays {
-                    entry,
-                    exit,
-                    obfuscator: obfuscator_relay,
-                    server_override,
-                });
-
-                Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator_config))
+        let server_override = {
+            let first_relay = match &inner {
+                WireguardConfig::Singlehop { exit } => exit,
+                WireguardConfig::Multihop { exit: _, entry } => entry,
+            };
+            match endpoint.peer.endpoint {
+                SocketAddr::V4(_) => first_relay.overridden_ipv4,
+                SocketAddr::V6(_) => first_relay.overridden_ipv6,
             }
-            GetRelay::Custom(custom_relay) => {
-                self.last_generated_relays = None;
-                custom_relay
-                    // TODO: generate proxy settings for custom tunnels
-                    .to_tunnel_parameters(self.tunnel_options.clone())
-                    .map_err(|e| {
-                        log::error!("Failed to resolve hostname for custom tunnel config: {}", e);
-                        Error::ResolveCustomHostname
-                    })
-            }
-        }
+        };
+
+        self.last_generated_relays = Some(LastSelectedRelays {
+            config: inner,
+            has_obfuscator: obfuscator.is_some(),
+            server_override,
+        });
+
+        Ok(self.create_wireguard_tunnel_parameters(endpoint, data, obfuscator))
     }
 
     fn create_wireguard_tunnel_parameters(
@@ -252,8 +256,7 @@ impl From<Error> for ParameterGenerationError {
 /// But for most users, it will look like this:
 ///     client -> entry -> internet
 struct LastSelectedRelays {
-    entry: Option<WireguardRelay>,
-    exit: WireguardRelay,
-    obfuscator: Option<WireguardRelay>,
+    config: WireguardConfig,
+    has_obfuscator: bool,
     server_override: bool,
 }
