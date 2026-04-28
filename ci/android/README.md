@@ -1,3 +1,4 @@
+![Build server overview](overview.png)
 
 # Android team build machine setup
 
