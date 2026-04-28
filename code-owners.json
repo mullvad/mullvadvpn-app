@@ -35,6 +35,7 @@
     "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
     ".github/pinact.yml",
+    ".github/workflows/workflow-check.yml",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
