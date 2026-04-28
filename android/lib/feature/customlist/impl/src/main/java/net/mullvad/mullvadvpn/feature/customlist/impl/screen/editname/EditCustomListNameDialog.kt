@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.impl.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.lib.model.GetCustomListError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
+import net.mullvad.mullvadvpn.lib.model.NameIsEmpty
 import net.mullvad.mullvadvpn.lib.model.UnknownCustomListError
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -67,7 +68,6 @@ fun EditCustomListNameDialog(
 ) {
     InputDialog(
         title = stringResource(id = R.string.update_list_name),
-        confirmButtonEnabled = state.isValidName,
         confirmButtonText = stringResource(id = R.string.save),
         onBack = onDismiss,
         onConfirm = { updateName(state.name) },
@@ -89,6 +89,7 @@ private fun RenameError.errorString() =
     stringResource(
         when (error) {
             is NameAlreadyExists -> R.string.custom_list_error_list_exists
+            is NameIsEmpty -> R.string.custom_list_error_list_is_empty
             is GetCustomListError,
             is UnknownCustomListError -> R.string.error_occurred
         }

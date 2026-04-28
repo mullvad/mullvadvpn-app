@@ -11,6 +11,7 @@ import kotlinx.parcelize.Parcelize
 value class Mtu(val value: Int) : Parcelable {
     companion object {
         fun fromString(value: String): Either<ParseMtuError, Mtu> = either {
+            ensure(value.isNotBlank()) { ParseMtuError.Blank }
             val number = value.toIntOrNull() ?: raise(ParseMtuError.NotANumber)
             ensure(number in MIN_VALUE..MAX_VALUE) { ParseMtuError.OutOfRange(number) }
             Mtu(number)
@@ -22,6 +23,8 @@ value class Mtu(val value: Int) : Parcelable {
 }
 
 sealed interface ParseMtuError {
+    data object Blank : ParseMtuError
+
     data object NotANumber : ParseMtuError
 
     data class OutOfRange(val number: Int) : ParseMtuError

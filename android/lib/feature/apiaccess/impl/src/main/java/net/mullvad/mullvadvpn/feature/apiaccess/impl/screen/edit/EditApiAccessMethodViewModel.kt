@@ -200,12 +200,8 @@ class EditApiAccessMethodViewModel(
     private fun parsePort(input: String): Either<InvalidDataError.PortError, Port> =
         Port.fromString(input).mapLeft {
             when (it) {
-                is ParsePortError.NotANumber ->
-                    if (it.input.isBlank()) {
-                        InvalidDataError.PortError.Required
-                    } else {
-                        InvalidDataError.PortError.Invalid(it)
-                    }
+                is ParsePortError.Blank -> InvalidDataError.PortError.Required
+                is ParsePortError.NotANumber -> InvalidDataError.PortError.Invalid(it)
                 is ParsePortError.OutOfRange -> InvalidDataError.PortError.Invalid(it)
             }
         }

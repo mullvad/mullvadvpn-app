@@ -2,6 +2,10 @@ package net.mullvad.mullvadvpn.feature.anticensorship.impl.customport
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import arrow.core.Either
+import arrow.core.raise.context.bind
+import arrow.core.raise.either
+import arrow.core.raise.ensure
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -16,6 +20,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.anticensorship.api.CustomPortNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.inAnyOf
+import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.Port
 
 class CustomPortDialogViewModel(
@@ -24,23 +29,23 @@ class CustomPortDialogViewModel(
 ) : ViewModel() {
 
     private val _portInput = MutableStateFlow(navArgs.customPort?.value?.toString() ?: "")
-    private val _isValidPort = MutableStateFlow(_portInput.value.isValidPort())
+    private val _portInputError = MutableStateFlow<ParsePortError?>(null)
 
     val uiState: StateFlow<CustomPortDialogUiState> =
-        combine(_portInput, _isValidPort, ::createState)
+        combine(_portInput, _portInputError, ::createState)
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                createState(_portInput.value, _isValidPort.value),
+                createState(_portInput.value, null),
             )
 
     private val _uiSideEffect = Channel<CustomPortDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private fun createState(portInput: String, isValidPortInput: Boolean) =
+    private fun createState(portInput: String, portInputError: ParsePortError?) =
         CustomPortDialogUiState(
             portInput = portInput,
-            isValidInput = isValidPortInput,
+            portInputError = portInputError,
             allowedPortRanges = navArgs.allowedPortRanges,
             recommendedPortRanges = navArgs.recommendedPortRanges,
             showResetToDefault = navArgs.customPort != null,
@@ -48,13 +53,17 @@ class CustomPortDialogViewModel(
 
     fun onInputChanged(value: String) {
         _portInput.value = value
-        _isValidPort.value = value.isValidPort()
+        _portInputError.value = null
     }
 
     fun onSaveClick(portValue: String) =
         viewModelScope.launch(dispatcher) {
-            val port = portValue.parseValidPort() ?: return@launch
-            _uiSideEffect.send(CustomPortDialogSideEffect.Success(port))
+            portValue
+                .parseValidPort()
+                .fold(
+                    { error -> _portInputError.value = error },
+                    { port -> _uiSideEffect.send(CustomPortDialogSideEffect.Success(port)) },
+                )
         }
 
     fun onResetClick() {
@@ -63,10 +72,9 @@ class CustomPortDialogViewModel(
         }
     }
 
-    private fun String.isValidPort(): Boolean = parseValidPort() != null
-
-    private fun String.parseValidPort(): Port? =
-        Port.fromString(this).getOrNull()?.takeIf { port ->
-            port.inAnyOf(navArgs.allowedPortRanges)
-        }
+    private fun String.parseValidPort(): Either<ParsePortError, Port> = either {
+        val port = Port.fromString(this@parseValidPort).bind()
+        ensure(port.inAnyOf(navArgs.allowedPortRanges)) { ParsePortError.OutOfRange(port.value) }
+        port
+    }
 }
