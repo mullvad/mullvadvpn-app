@@ -273,7 +273,7 @@ impl RelaySelector {
 
     /// Returns a shadowsocks endpoint for any [`Bridge`] in [`BridgeList`].
     pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        self.bridge_list(Self::get_proxy_settings)
+        self.bridge_list(get_proxy_settings)
             .map(|(endpoint, _bridge)| endpoint)
             .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
             .ok()
@@ -329,8 +329,7 @@ impl RelaySelector {
         let annotated = self.relays.read().unwrap();
         let custom_lists = self.custom_lists();
 
-        let inner =
-            self.select_wireguard_relay(&annotated, &custom_lists, query.resolve(), &query)?;
+        let inner = select_wireguard_relay(&annotated, &custom_lists, query.resolve(), &query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -359,105 +358,103 @@ impl RelaySelector {
             inner,
         })
     }
+}
 
-    /// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.
-    fn select_wireguard_relay(
-        &self,
-        relays: &AnnotatedRelayList,
-        custom_lists: &CustomListsSettings,
-        constraints: Constraints,
-        original_query: &RelayQuery,
-    ) -> Result<WireguardConfig, Error> {
-        match constraints {
-            Constraints::Singlehop(constraints) => {
-                let partitions = self.partition_entry(relays, &constraints, custom_lists);
-                match helpers::pick_random_relay(&partitions.matches) {
-                    Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
-                    None => Err(Error::NoRelay(Box::new(original_query.clone()))),
-                }
-            }
-            Constraints::Autohop(constraints) => {
-                let autohop = self.partition_autohop(relays, constraints.clone(), custom_lists);
-                // Attempt to pick a single relay that matches all constraints
-                if let Some(exit) = helpers::pick_random_relay(&autohop.singlehop.matches) {
-                    return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
-                }
-                // Otherwise fall through to multihop using the pre-computed partition.
-                let multihop_constraints = constraints.clone().into_autohop();
-                self.select_from_multihop_partitions(autohop.multihop, multihop_constraints)
-            }
-            Constraints::Multihop(constraints) => {
-                let partitions = self.partition_multihop(relays, constraints.clone(), custom_lists);
-                self.select_from_multihop_partitions(partitions, constraints)
+/// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.
+fn select_wireguard_relay(
+    relays: &AnnotatedRelayList,
+    custom_lists: &CustomListsSettings,
+    constraints: Constraints,
+    original_query: &RelayQuery,
+) -> Result<WireguardConfig, Error> {
+    match constraints {
+        Constraints::Singlehop(constraints) => {
+            let partitions = filter::partition_entry(relays, &constraints, custom_lists);
+            match helpers::pick_random_relay(&partitions.matches) {
+                Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
+                None => Err(Error::NoRelay(Box::new(original_query.clone()))),
             }
         }
+        Constraints::Autohop(constraints) => {
+            let autohop = filter::partition_autohop(relays, constraints.clone(), custom_lists);
+            // Attempt to pick a single relay that matches all constraints
+            if let Some(exit) = helpers::pick_random_relay(&autohop.singlehop.matches) {
+                return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
+            }
+            // Otherwise fall through to multihop using the pre-computed partition.
+            let multihop_constraints = constraints.clone().into_autohop();
+            select_from_multihop_partitions(autohop.multihop, multihop_constraints)
+        }
+        Constraints::Multihop(constraints) => {
+            let partitions = filter::partition_multihop(relays, constraints.clone(), custom_lists);
+            select_from_multihop_partitions(partitions, constraints)
+        }
     }
+}
 
-    /// Select separate entry and exit relays for a multihop configuration.
-    ///
-    /// If the entry location constraint is [`Constraint::Any`] (autohop), the entry relay
-    /// is chosen globally and biased towards the geographically closest relay to the exit.
-    /// Otherwise, entry and exit are picked randomly within their respective constraints.
-    fn select_from_multihop_partitions(
-        &self,
-        partitions: filter::MultiHopPartitions,
-        multihop_constraints: MultihopConstraints,
-    ) -> Result<WireguardConfig, Error> {
-        let MultihopConstraints {
-            entry: entry_constraints,
-            exit: exit_constraints,
-        } = multihop_constraints;
+/// Select separate entry and exit relays for a multihop configuration.
+///
+/// If the entry location constraint is [`Constraint::Any`] (autohop), the entry relay
+/// is chosen globally and biased towards the geographically closest relay to the exit.
+/// Otherwise, entry and exit are picked randomly within their respective constraints.
+fn select_from_multihop_partitions(
+    partitions: filter::MultiHopPartitions,
+    multihop_constraints: MultihopConstraints,
+) -> Result<WireguardConfig, Error> {
+    let MultihopConstraints {
+        entry: entry_constraints,
+        exit: exit_constraints,
+    } = multihop_constraints;
 
-        let exit = helpers::pick_random_relay(&partitions.exits.matches)
-            .ok_or_else(|| Error::NoRelayExit(Box::new(exit_constraints)))?;
+    let exit = helpers::pick_random_relay(&partitions.exits.matches)
+        .ok_or_else(|| Error::NoRelayExit(Box::new(exit_constraints)))?;
 
-        let entry = if matches!(entry_constraints.general.location, Constraint::Any) {
-            // `Constraint::Any` implies an automatic entry selection with no geographical constraints.
-            // Bias this selection towards the closest relay to the exit.
-            let mut candidates: Vec<_> = partitions
-                .entries
-                .matches
-                .iter()
-                .map(|e| RelayWithDistance::new_with_distance_from(e.clone(), &exit.location))
-                .collect();
-            candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
-            let min_distance = candidates.first().map(|r| r.distance).unwrap_or_default();
-            let closest: Vec<_> = candidates
-                .into_iter()
-                .take_while(|r| r.distance <= min_distance)
-                .map(|r| r.relay)
-                .collect();
-            helpers::pick_random_relay_excluding(&closest, exit)
-                .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
-                .clone()
-        } else {
-            helpers::pick_random_relay_excluding(&partitions.entries.matches, exit)
-                .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
-                .clone()
-        };
-
-        Ok(WireguardConfig::from(Multihop::new(entry, exit.clone())))
-    }
-
-    /// Try to get a bridge that matches the given `constraints`.
-    ///
-    /// The connection details are returned alongside the relay hosting the bridge.
-    fn get_proxy_settings(bridge_list: &BridgeList) -> Result<(Shadowsocks, Bridge), Error> {
-        // Filter on active relays
-        let bridges: Vec<Bridge> = bridge_list
-            .bridges()
+    let entry = if matches!(entry_constraints.general.location, Constraint::Any) {
+        // `Constraint::Any` implies an automatic entry selection with no geographical constraints.
+        // Bias this selection towards the closest relay to the exit.
+        let mut candidates: Vec<_> = partitions
+            .entries
+            .matches
             .iter()
-            .filter(|bridge| bridge.active)
-            .cloned()
+            .map(|e| RelayWithDistance::new_with_distance_from(e.clone(), &exit.location))
             .collect();
+        candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
+        let min_distance = candidates.first().map(|r| r.distance).unwrap_or_default();
+        let closest: Vec<_> = candidates
+            .into_iter()
+            .take_while(|r| r.distance <= min_distance)
+            .map(|r| r.relay)
+            .collect();
+        helpers::pick_random_relay_excluding(&closest, exit)
+            .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
+            .clone()
+    } else {
+        helpers::pick_random_relay_excluding(&partitions.entries.matches, exit)
+            .ok_or_else(|| Error::NoRelayEntry(Box::new(entry_constraints)))?
+            .clone()
+    };
 
-        let bridge = helpers::pick_random_relay(&bridges)
-            .cloned()
-            .ok_or(Error::NoBridge)?;
-        let endpoint = detailer::bridge_endpoint(&bridge_list.bridge_endpoint, &bridge)
-            .ok_or(Error::NoBridge)?;
-        Ok((endpoint, bridge))
-    }
+    Ok(WireguardConfig::from(Multihop::new(entry, exit.clone())))
+}
+
+/// Try to get a bridge that matches the given `constraints`.
+///
+/// The connection details are returned alongside the relay hosting the bridge.
+fn get_proxy_settings(bridge_list: &BridgeList) -> Result<(Shadowsocks, Bridge), Error> {
+    // Filter on active relays
+    let bridges: Vec<Bridge> = bridge_list
+        .bridges()
+        .iter()
+        .filter(|bridge| bridge.active)
+        .cloned()
+        .collect();
+
+    let bridge = helpers::pick_random_relay(&bridges)
+        .cloned()
+        .ok_or(Error::NoBridge)?;
+    let endpoint =
+        detailer::bridge_endpoint(&bridge_list.bridge_endpoint, &bridge).ok_or(Error::NoBridge)?;
+    Ok((endpoint, bridge))
 }
 
 fn apply_ip_availability(
