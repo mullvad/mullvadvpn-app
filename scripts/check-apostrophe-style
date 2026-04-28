@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -eu
+
+CURLY_APOSTROPHE_STYLE="’"
+UNSUPPORTED_APOSTROPHE_STYLES="'\`´'′ʼ"
+ERROR_MESSAGE="Error: Use curly apostrophes ($CURLY_APOSTROPHE_STYLE) \
+instead of unsupported ones ($UNSUPPORTED_APOSTROPHE_STYLES)."
+
+# Check Desktop/Android strings (English only).
+if grep "^msgid" desktop/packages/mullvad-vpn/locales/messages.pot | \
+    grep "[$UNSUPPORTED_APOSTROPHE_STYLES]"; then
+  echo "$ERROR_MESSAGE"
+  exit 1
+fi
+
+# Check Android strings (English only).
+if awk '/<string/,/<\/string>/' \
+    android/lib/ui/resource/src/main/res/values/strings.xml | \
+    grep "[$UNSUPPORTED_APOSTROPHE_STYLES]"; then
+  echo "$ERROR_MESSAGE"
+  exit 1
+fi
+
+# Check iOS strings (English only).
+if jq -r '.strings | keys[]' ios/Assets/Localizable.xcstrings | \
+    grep "[$UNSUPPORTED_APOSTROPHE_STYLES]"; then
+  echo "$ERROR_MESSAGE"
+  exit 1
+fi
