@@ -26,7 +26,7 @@ Current features:
 - [x] Fork planning and agent guidance
 - [X] IP split-tunneling / IP whitelist
 - [X] Early-boot firewall rules appliance.
-
+- [X] Automatic upstream sync with the original Mullvad repo
 Planned features:
 - [ ] VPN-interfaces split tunneling for tools like Netbird and Tailscale
 - [ ] Daemon-focused patch isolation
