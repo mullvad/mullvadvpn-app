@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.lib.repository
 
 import app.cash.turbine.test
+import arrow.core.left
+import arrow.core.right
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -12,6 +15,8 @@ import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentAvailability
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationError
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationResult
 import org.junit.jupiter.api.Test
 
 class PlayPaymentLogicTest {
@@ -96,10 +101,56 @@ class PlayPaymentLogicTest {
 
     @Test
     fun `verifyPurchases call should invoke verifyPurchases on repository`() = runTest {
+        // Arrange
+        coEvery { mockPaymentRepository.verifyPurchases() } returns
+            VerificationResult.Success.right()
+
         // Act
         playPaymentLogic.verifyPurchases()
 
         // Assert
         coVerify { mockPaymentRepository.verifyPurchases() }
     }
+
+    @Test
+    fun `when verifyPurchases returns success should not retry`() = runTest {
+        // Arrange
+        coEvery { mockPaymentRepository.verifyPurchases() } returns
+            VerificationResult.Success.right()
+
+        // Act
+        playPaymentLogic.verifyPurchases()
+
+        // Assert - exactly one call, no retries
+        coVerify(exactly = 1) { mockPaymentRepository.verifyPurchases() }
+    }
+
+    @Test
+    fun `when verifyPurchases returns other error should retry`() = runTest {
+        // Arrange
+        coEvery { mockPaymentRepository.verifyPurchases() } returns
+            VerificationError.PlayVerificationError.Other.left()
+
+        // Act
+        playPaymentLogic.verifyPurchases()
+
+        // Assert
+        coVerify(exactly = PlayPaymentLogic.VERIFICATION_MAX_ATTEMPTS + 1) {
+            mockPaymentRepository.verifyPurchases()
+        }
+    }
+
+    @Test
+    fun `when verifyPurchases returns verification failed should not retry`() =
+        runTest {
+            // Arrange
+            coEvery { mockPaymentRepository.verifyPurchases() } returns
+                VerificationError.PlayVerificationError.VerificationFailed.left()
+
+            // Act
+            playPaymentLogic.verifyPurchases()
+
+            // Assert
+            coVerify(exactly = 1) { mockPaymentRepository.verifyPurchases() }
+        }
 }

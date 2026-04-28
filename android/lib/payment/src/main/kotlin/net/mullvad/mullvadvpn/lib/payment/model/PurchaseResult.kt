@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.lib.payment.model
 
+import net.mullvad.mullvadvpn.lib.payment.model.VerificationError.PlayVerificationError
+
 sealed interface PurchaseResult {
     data object FetchingProducts : PurchaseResult
 
@@ -27,7 +29,10 @@ sealed interface PurchaseResult {
 
         data class BillingError(val exception: Throwable?) : Error
 
-        data class VerificationError(val exception: Throwable?) : Error
+        sealed interface VerificationError : Error {
+            data object VerificationFailed : VerificationError
+            data object Other : VerificationError
+        }
     }
 
     fun isTerminatingState(): Boolean = this is Completed || this is Error

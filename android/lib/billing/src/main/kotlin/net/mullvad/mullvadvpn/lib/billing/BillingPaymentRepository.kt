@@ -20,6 +20,8 @@ import net.mullvad.mullvadvpn.lib.billing.extension.toBillingException
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentAvailability
 import net.mullvad.mullvadvpn.lib.billing.extension.toPaymentStatus
 import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
+import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResultError
+import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseVerificationError
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
@@ -129,7 +131,7 @@ class BillingPaymentRepository(
                     emit(
                         verifyPurchase(purchase)
                             .fold(
-                                { PurchaseResult.Error.VerificationError(null) },
+                                { error -> error.toPurchaseResultError() },
                                 { productId -> PurchaseResult.Completed.Success(productId) },
                             )
                     )
@@ -151,7 +153,7 @@ class BillingPaymentRepository(
             return@either VerificationResult.NothingToVerify
         }
         verifyPurchase(purchases.first())
-            .mapLeft { VerificationError.PlayVerificationError }
+            .mapLeft { it.toPurchaseVerificationError() }
             .map { VerificationResult.Success }
             .bind()
     }
@@ -172,15 +174,15 @@ class BillingPaymentRepository(
         either {
                 ensure(purchase.products.isNotEmpty()) {
                     Logger.e("Purchase has no products")
-                    PlayPurchaseVerifyError.OtherError
+                    PlayPurchaseVerifyError.NoProducts
                 }
                 ensure(purchase.accountIdentifiers?.obfuscatedAccountId != null) {
                     Logger.e("Purchase is missing obfuscatedAccountId")
-                    PlayPurchaseVerifyError.OtherError
+                    PlayPurchaseVerifyError.MissingObfuscatedAccountId
                 }
                 ensure(purchase.purchaseToken.isNotEmpty()) {
                     Logger.e("Purchase has no purchase token")
-                    PlayPurchaseVerifyError.OtherError
+                    PlayPurchaseVerifyError.NoPurchaseToken
                 }
                 playPurchaseRepository
                     .verifyPlayPurchase(
