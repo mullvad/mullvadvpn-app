@@ -34,6 +34,7 @@
     "building/android-container-image.txt",
     "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
+    ".github/pinact.yml",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
