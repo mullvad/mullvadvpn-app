@@ -2,18 +2,20 @@ import React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { messages } from '../../../../../../shared/gettext';
-import { colors } from '../../../../foundations';
-import { Dot } from '../../../dot';
-import { useSlides } from '../../hooks';
+import { messages } from '../../../../../../../../../../shared/gettext';
+import { colors, Radius } from '../../../../../../../../foundations';
+import { useSlides } from '../../../../../../hooks';
 import { useCarouselIndicatorRef } from './hooks';
 
 export type CarouselIndicatorProps = React.ComponentPropsWithoutRef<'button'> & {
   slideToGoTo: number;
 };
 
-const StyledSlideIndicator = styled(Dot)`
-  background-color: ${colors.white};
+const StyledSlideIndicator = styled.div`
+  background-color: ${colors.whiteAlpha20};
+  width: 8px;
+  height: 8px;
+  border-radius: ${Radius.radius20};
 `;
 
 const StyledCarouselIndicator = styled.button`
@@ -26,6 +28,7 @@ const StyledCarouselIndicator = styled.button`
 
   ${StyledSlideIndicator} {
     transition: background-color var(--transition-duration) ease;
+    transition: width var(--transition-duration) ease;
   }
 
   &&:not(:disabled):hover ${StyledSlideIndicator} {
@@ -39,7 +42,8 @@ const StyledCarouselIndicator = styled.button`
   }
 
   &&:disabled ${StyledSlideIndicator} {
-    background-color: ${colors.whiteAlpha40};
+    background-color: ${colors.white};
+    width: 24px;
   }
 
   &&:focus-visible {
@@ -92,7 +96,7 @@ export function CarouselIndicator({
         },
       )}
       {...props}>
-      <StyledSlideIndicator size="tiny" />
+      <StyledSlideIndicator />
     </StyledCarouselIndicator>
   );
 }
