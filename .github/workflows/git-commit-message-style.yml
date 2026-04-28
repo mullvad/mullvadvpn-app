@@ -21,13 +21,13 @@ jobs:
           pattern: '^(\P{Z}|[ \t\n])+$'
           flags: 'u'
           error: 'Detected unicode whitespace character in commit message.'
-          checkAllCommitMessages: 'true' # optional: this checks all commits associated with a pull request
-          accessToken: ${{ secrets.GITHUB_TOKEN }} # only required if checkAllCommitMessages is true
+          checkAllCommitMessages: 'true'  # optional: this checks all commits associated with a pull request
+          accessToken: ${{ secrets.GITHUB_TOKEN }}  # only required if checkAllCommitMessages is true
 
       # Git commit messages should follow our guidelines. This action enforces that.
       # Guidelines:  https://github.com/mullvad/coding-guidelines/blob/main/README.md#git
       - name: Check against guidelines
-        uses: mristin/opinionated-commit-message@d50df0f84391a481867d2982506853a9a654fc04 #master @ 2025-12-10
+        uses: mristin/opinionated-commit-message@d50df0f84391a481867d2982506853a9a654fc04  # master @ 2025-12-10
         with:
           # Commit messages are allowed to be subject only, no body
           allow-one-liners: 'true'
