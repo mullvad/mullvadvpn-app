@@ -1,8 +1,14 @@
 ---
 extends: default
 
+ignore: |
+  dist/
+  **/node_modules/
+
 rules:
   line-length:
     max: 120
   indentation:
     spaces: 2
+  document-start: disable
+  truthy: disable

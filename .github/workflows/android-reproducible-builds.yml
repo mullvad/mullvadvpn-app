@@ -54,7 +54,7 @@ jobs:
     needs: set-up-env
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
@@ -69,7 +69,7 @@ jobs:
         run: ./building/containerized-build.sh android fullRelease
 
       - name: Upload apks
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: apk-container
           path: android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
@@ -87,7 +87,7 @@ jobs:
           sudo apt-get -y install fdroidserver
 
       - name: Check out gradle properties
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           path: app-gradle
@@ -117,7 +117,7 @@ jobs:
         run: fdroid init
 
       - name: Check out metadata
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           path: app-metadata
           sparse-checkout: |
@@ -136,7 +136,7 @@ jobs:
           fdroid build net.mullvad.mullvadvpn:1
 
       - name: Upload apks
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: apk-fdroidserver
           path: |
@@ -157,7 +157,7 @@ jobs:
           - runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
@@ -166,7 +166,7 @@ jobs:
         run: |
           git fetch --no-tags origin 'refs/tags/android/*:refs/tags/android/*'
 
-      - uses: cachix/install-nix-action@616559265b40713947b9c190a8ff4b507b5df49b # v31.10.4
+      - uses: cachix/install-nix-action@616559265b40713947b9c190a8ff4b507b5df49b  # v31.10.4
 
       - name: Build app
         env:
@@ -174,7 +174,7 @@ jobs:
         run: nix develop .#android -c buildRelease
 
       - name: Upload apks
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
         with:
           name: apk-nix-${{ matrix.runs-on }}
           path: android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
@@ -191,13 +191,13 @@ jobs:
         artifact: [apk-fdroidserver, apk-nix-ubuntu-latest]
     steps:
       - name: Download apk-container (source of truth)
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           path: artifacts
           pattern: apk-container
 
       - name: Download ${{ matrix.artifact }} for comparison
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           path: artifacts
           pattern: ${{ matrix.artifact }}
@@ -224,13 +224,13 @@ jobs:
         run: sudo apt-get install -y apktool
 
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           ref: ${{ needs.set-up-env.outputs.COMMIT_HASH }}
           submodules: true
 
       - name: Download container apk
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093  # v4.3.0
         with:
           name: apk-container
 
