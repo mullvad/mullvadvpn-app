@@ -6,6 +6,8 @@ on:
       - "**.toml"
       - ".github/workflows/lint-toml.yml"
 
+permissions: {}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
