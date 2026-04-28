@@ -80,9 +80,10 @@ impl AnnotatedRelayList {
     fn new(list: RelayList) -> Self {
         let endpoint_sets = list
             .relays()
-            .filter_map(|relay| {
-                let set = endpoint_set::RelayEndpointSet::new(relay, &list.wireguard)?;
-                Some((relay.hostname.clone(), set))
+            .map(|relay| {
+                let set = endpoint_set::RelayEndpointSet::new(relay, &list.wireguard)
+                    .expect("Relay list has no WireGuard port ranges");
+                (relay.hostname.clone(), set)
             })
             .collect();
         Self {

@@ -101,23 +101,15 @@ fn partition_by_verdict(
     relays: &AnnotatedRelayList,
     f: impl Fn(&WireguardRelay, &RelayEndpointSet) -> Verdict,
 ) -> RelayPartitions {
-    let (matches, discards) = relays
-        .inner
-        .relays()
-        .filter_map(|relay| {
-            let set = relays.endpoint_set_for(relay).or_else(|| {
-                log::warn!(
-                    "Relay {} has no valid WireGuard port ranges; skipping",
-                    relay.hostname
-                );
-                None
-            })?;
-            Some((relay, set))
-        })
-        .partition_map(|(relay, set)| match f(relay, set) {
+    let (matches, discards) = relays.inner.relays().partition_map(|relay| {
+        let set = relays
+            .endpoint_set_for(relay)
+            .expect("Relays in list always have an endpoint set");
+        match f(relay, set) {
             Verdict::Accept => Either::Left(relay.clone()),
             Verdict::Reject(reasons) => Either::Right((relay.clone(), reasons)),
-        });
+        }
+    });
     RelayPartitions { matches, discards }
 }
 
