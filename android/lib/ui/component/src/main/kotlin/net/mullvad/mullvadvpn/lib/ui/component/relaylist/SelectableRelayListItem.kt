@@ -17,19 +17,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
-import net.mullvad.mullvadvpn.lib.ui.component.appendTextWithStyledSubstring
+import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
@@ -42,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Composable
 @Preview
@@ -125,6 +123,7 @@ fun SelectableRelayListItem(
                 highlightText = highlightText,
                 state = relayListItem.state,
                 textColor = colors.headlineColor(enabled = active, selected = selected),
+                highlightColor = MaterialTheme.colorScheme.highlight,
             )
         },
         trailingContent = {
@@ -145,11 +144,12 @@ internal fun Name(
     highlightText: String,
     state: RelayListItemState?,
     textColor: Color,
+    highlightColor: Color,
 ) {
     Text(
         text =
-            if (state != null) highlightText(name, highlightText).withSuffix(state)
-            else highlightText(name, highlightText),
+            if (state != null) name.highlightText(highlightText, highlightColor).withSuffix(state)
+            else name.highlightText(highlightText, highlightColor),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         color = textColor,
@@ -172,18 +172,6 @@ private fun AnnotatedString.withSuffix(state: RelayListItemState): AnnotatedStri
         if (parts.isNotEmpty()) append(parts[0])
         append(this@withSuffix)
         if (parts.size > 1) append(parts[1])
-    }
-}
-
-private fun highlightText(name: String, searchTerm: String): AnnotatedString {
-    if (searchTerm.isBlank()) return AnnotatedString(name)
-    return buildAnnotatedString {
-        appendTextWithStyledSubstring(
-            text = name,
-            substring = searchTerm,
-            substringStyle = SpanStyle(fontWeight = FontWeight.Bold),
-            ignoreCase = true,
-        )
     }
 }
 

@@ -8,20 +8,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
-import net.mullvad.mullvadvpn.lib.ui.component.appendTextWithStyledSubstring
+import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Composable
 @Preview
@@ -56,14 +54,11 @@ fun CheckableRelayListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title = buildAnnotatedString {
-            appendTextWithStyledSubstring(
-                text = item.item.name,
-                substring = searchTerm.orEmpty(),
-                substringStyle = SpanStyle(fontWeight = FontWeight.Bold),
-                ignoreCase = true,
-            )
-        },
+        title =
+            item.item.name.highlightText(
+                highlightText = searchTerm.orEmpty(),
+                highlightColor = MaterialTheme.colorScheme.highlight,
+            ),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {

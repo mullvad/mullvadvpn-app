@@ -25,9 +25,6 @@ const val Alpha80 = 0.8f
 val ColorScheme.positive: Color
     @Composable get() = PaletteTokens.Green
 
-val ColorScheme.onSelected: Color
-    @Composable get() = MaterialTheme.colorScheme.onTertiary
-
 // Static defined warning color
 val ColorScheme.warning: Color
     @Composable get() = PaletteTokens.Yellow
@@ -41,6 +38,9 @@ val ColorScheme.primaryDisabled: Color
 
 val ColorScheme.errorDisabled: Color
     @Composable get() = PaletteTokens.DisabledContainerDestructive
+
+val ColorScheme.highlight: Color
+    @Composable get() = PaletteTokens.Yellow.copy(alpha = Alpha40)
 
 val menuItemColors: MenuItemColors
     @Composable
