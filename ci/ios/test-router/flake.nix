@@ -29,6 +29,27 @@
         ];
       };
 
+      nixosConfigurations.app-team-android-lab = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          (import ./router-config.nix {
+            hostname = "app-team-android-tests";
+            lanMac = "00:24:9b:8d:1e:f3";
+            wanMac = "1c:69:7a:ad:73:a6";
+            lanIp = "192.168.105.1/24";
+          })
+          ./app-team-android-lab.nix
+          {
+            boot.loader.systemd-boot.enable = true;
+            boot.loader.efi.canTouchEfiVariables = true;
+            hardware = {
+              cpu.intel.updateMicrocode = true;
+              enableRedistributableFirmware = true;
+            };
+          }
+        ];
+      };
+
       nixosConfigurations.app-team-ios-lab-iso = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
