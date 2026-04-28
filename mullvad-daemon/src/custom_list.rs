@@ -1,5 +1,4 @@
 use crate::{Daemon, Error};
-use mullvad_relay_selector::Config;
 use mullvad_types::relay_constraints::GeographicLocationConstraint;
 use mullvad_types::{
     constraints::Constraint,
@@ -46,7 +45,7 @@ impl Daemon {
 
         if let Ok(true) = settings_changed {
             self.relay_selector
-                .set_config(Config::from_settings(&self.settings));
+                .set_custom_lists(self.settings.custom_lists.clone());
 
             if self.change_should_cause_reconnect(Some(id)) {
                 log::info!("Initiating tunnel restart because a selected custom list was deleted");
@@ -73,7 +72,7 @@ impl Daemon {
 
         if let Ok(true) = settings_changed {
             self.relay_selector
-                .set_config(Config::from_settings(&self.settings));
+                .set_custom_lists(self.settings.custom_lists.clone());
 
             if self.change_should_cause_reconnect(Some(list_id)) {
                 log::info!("Initiating tunnel restart because a selected custom list changed");
@@ -97,7 +96,7 @@ impl Daemon {
 
         if let Ok(true) = settings_changed {
             self.relay_selector
-                .set_config(Config::from_settings(&self.settings));
+                .set_custom_lists(self.settings.custom_lists.clone());
 
             if self.change_should_cause_reconnect(None) {
                 log::info!("Initiating tunnel restart because a selected custom list was deleted");

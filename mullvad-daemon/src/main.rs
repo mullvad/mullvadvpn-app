@@ -9,6 +9,10 @@ use mullvad_daemon::{
 };
 use talpid_types::ErrorExt;
 
+#[cfg(all(feature = "default-allocator", target_os = "linux"))]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 mod cli;
 #[cfg(target_os = "linux")]
 mod early_boot_firewall;

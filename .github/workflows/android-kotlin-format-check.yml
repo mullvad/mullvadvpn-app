@@ -1,0 +1,58 @@
+---
+name: Android - Check kotlin formatting
+on:
+  pull_request:
+    paths:
+      - .github/workflows/android-kotlin-format-check.yml
+      - android/gradle/libs.versions.toml
+      - android/**/*.kt
+      - android/**/*.kts
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+
+permissions: {}
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: android-build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: true
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  check-formatting:
+    needs: prepare
+    runs-on: android-build
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
+        - /nix:/nix
+        - gradle-cache:/root/.gradle
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          submodules: true
+
+      - name: Run ktfmt check
+        run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck --no-daemon

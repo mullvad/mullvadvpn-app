@@ -1,0 +1,370 @@
+---
+name: Android - Build and test
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!.github/workflows/**'
+      - '.github/workflows/android-app.yml'
+      - '!.github/CODEOWNERS'
+      - '!audits/**'
+      - '!build.sh'
+      - '!build-windows-modules.sh'
+      - '!ci/**'
+      - '!code-owners.json'
+      - '!dist-assets/**'
+      - '!docs/**'
+      - '!graphics/**'
+      - '!desktop/**'
+      - '!ios/**'
+      - '!mullvad-cli/**'
+      - '!mullvad-exclude/**'
+      - '!mullvad-ios/**'
+      - '!mullvad-nsis/**'
+      - '!mullvad-setup/**'
+      - '!mullvad-update/**'
+      - '!scripts/**'
+      - '!talpid-dbus/**'
+      - '!talpid-macos/**'
+      - '!talpid-windows/**'
+      - '!test/**'
+      - '!windows/**'
+      - '!windows-installer/**'
+      - '!**/**.md'
+      - '!**/osv-scanner.toml'
+  schedule:
+    # At 00:00 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+      run_firebase_tests:
+        description: Run firebase tests
+        type: boolean
+        required: false
+      mockapi_test_repeat:
+        description: Mockapi test repeat (self hosted)
+        default: '1'
+        required: true
+        type: string
+      e2e_test_repeat:
+        description: e2e test repeat (self hosted)
+        default: '0'
+        required: true
+        type: string
+      e2e_tests_infra_flavor:
+        description: >
+          Infra environment to run e2e tests on (prod/stagemole).
+          If set to 'stagemole' test-related artefacts will be uploaded.
+        default: 'stagemole'
+        required: true
+        type: string
+      android_build_runner:
+        description: 'Choose which runner to use'
+        required: true
+        default: 'android-build'
+        type: choice
+        options:
+          - android-build
+          - android-bender-01
+          - android-bender-02
+          - android-bender-03
+          - android-bender-04
+          - android-bender-05
+      clean:
+        description: Clean before building.
+        type: boolean
+        required: false
+  # Build if main is updated to ensure up-to-date caches are available
+  push:
+    branches: [main]
+
+permissions: {}
+
+env:
+  DEFAULT_E2E_REPEAT: 0
+  SCHEDULE_E2E_REPEAT: 10
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+      # Preparing variables this way instead of using `env.*` due to:
+      # https://github.com/orgs/community/discussions/26388
+      - name: Prepare environment variables
+        run: |
+          echo "INNER_E2E_TEST_INFRA_FLAVOR=${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}" \
+          >> $GITHUB_ENV
+          echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat ||
+          (github.event_name == 'schedule' && env.SCHEDULE_E2E_REPEAT) ||
+          env.DEFAULT_E2E_REPEAT }}" \
+          >> $GITHUB_ENV
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+      E2E_TEST_INFRA_FLAVOR: ${{ env.INNER_E2E_TEST_INFRA_FLAVOR }}
+      E2E_TEST_REPEAT: ${{ env.INNER_E2E_TEST_REPEAT }}
+
+  build-app:
+    name: Build app
+    needs: [prepare]
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Ensure correct container image is used
+        run: echo "${{ needs.prepare.outputs.container_image }}" > ./building/android-container-image.txt
+
+      - name: Clean gradle
+        if: github.event.inputs.clean == 'true'
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
+          clean
+
+      - name: Prepare build tasks
+        id: build-tasks
+        run: |
+          tasks=":app:assembleOssProdDebug assembleOssProdAndroidTest :test:mockapi:assemble"
+          if [[ "${{ needs.prepare.outputs.E2E_TEST_REPEAT }}" != '0' ]]; then
+            tasks+=" :app:assemblePlayStagemoleDebug :test:e2e:assemble"
+          fi
+          echo "tasks=$tasks" >> $GITHUB_OUTPUT
+
+      - name: Build apks
+        run: >
+          ./building/container-run.sh android android/gradlew -p android --console plain --stacktrace --no-daemon
+          "${{ steps.build-tasks.outputs.tasks }}"
+
+      - name: Upload apks
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: apks
+          path: android/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  run-lint-and-tests:
+    name: Run lint and test tasks
+    needs: [prepare]
+    runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+      volumes:
+        # node is symlinked in, w/o mounting it, when using a image node won't be found for the
+        # checkout action
+        # https://github.com/NixOS/nixpkgs/issues/306373
+        - /nix:/nix
+        - gradle-cache:/root/.gradle
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gradle-task: testAllUnitTests
+          - gradle-task: :test:arch:test --rerun-tasks
+          - gradle-task: detekt
+          - gradle-task: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+
+      - name: Run gradle task
+        run: android/gradlew -p android --stacktrace --no-daemon ${{ matrix.gradle-task }}
+
+  instrumented-tests:
+    name: Run instrumented tests
+    runs-on: [self-hosted, android-device]
+    needs: [build-app]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test-type: app
+            path: android/app/build/outputs/apk
+            test-repeat: 1
+          - test-type: mockapi
+            path: android/test/mockapi/build/outputs/apk
+            test-repeat: ${{ github.event_name == 'schedule' && 40 || github.event.inputs.mockapi_test_repeat || 1 }}
+    steps:
+      - name: Prepare report dir
+        if: ${{ matrix.test-repeat != 0 }}
+        id: prepare-report-dir
+        env:
+          INNER_REPORT_DIR: /tmp/${{ matrix.test-type }}-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_REPORT_DIR
+          echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        if: ${{ matrix.test-repeat != 0 }}
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        if: ${{ matrix.test-repeat != 0 }}
+        with:
+          name: apks
+          path: android
+
+      - name: Calculate timeout
+        id: calculate-timeout
+        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 10 ))" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Run instrumented test script
+        if: ${{ matrix.test-repeat != 0 }}
+        timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
+        shell: bash -ieo pipefail {0}
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+          TEST_TYPE: ${{ matrix.test-type }}
+          BILLING_FLAVOR: oss
+          INFRA_FLAVOR: prod
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
+
+      - name: Upload instrumentation report (${{ matrix.test-type }})
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always() && matrix.test-repeat != 0
+        with:
+          name: ${{ matrix.test-type }}-instrumentation-report
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  instrumented-e2e-tests:
+    name: Run instrumented e2e tests
+    runs-on: [self-hosted, android-device]
+    needs: [prepare, build-app]
+    if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
+    steps:
+      - name: Resolve unique runner test account secret name
+        if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
+        run: |
+          echo "RUNNER_SECRET_NAME=ANDROID_PROD_TEST_ACCOUNT_$(echo $RUNNER_NAME | tr '[:lower:]-' '[:upper:]_')" \
+          >> $GITHUB_ENV
+
+      - name: Resolve runner test account
+        if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
+        run: echo "RESOLVED_TEST_ACCOUNT=${{ secrets[env.RUNNER_SECRET_NAME] }}" >> $GITHUB_ENV
+
+      - name: Prepare report dir
+        id: prepare-report-dir
+        env:
+          INNER_REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_REPORT_DIR
+          echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
+
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: apks
+          path: android
+
+      - name: Calculate timeout
+        id: calculate-timeout
+        run: echo "timeout=$(( ${{ needs.prepare.outputs.E2E_TEST_REPEAT }} * 20 ))" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - name: Run instrumented test script
+        timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
+        shell: bash -ieo pipefail {0}
+        env:
+          AUTO_FETCH_TEST_HELPER_APKS: true
+          TEST_TYPE: e2e
+          BILLING_FLAVOR: ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod' && 'oss' || 'play' }}
+          INFRA_FLAVOR: "${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR }}"
+          PARTNER_AUTH: |-
+            ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
+          VALID_TEST_ACCOUNT_NUMBER: ${{ env.RESOLVED_TEST_ACCOUNT }}
+          INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
+          ENABLE_BILLING_TESTS: true
+          ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
+          ENABLE_RAAS_TESTS: true
+          RAAS_HOST: '192.168.105.1'
+          RAAS_TRAFFIC_GENERATOR_TARGET_HOST: '45.83.223.209'
+          RAAS_TRAFFIC_GENERATOR_TARGET_PORT: '80'
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
+
+      - name: Upload e2e instrumentation report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: >
+          always() && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
+        with:
+          name: e2e-instrumentation-report
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+
+  firebase-tests:
+    name: Run firebase tests
+    if: github.event.inputs.run_firebase_tests == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [build-app]
+    env:
+      FIREBASE_ENVIRONMENT_VARIABLES: "\
+        clearPackageData=true,\
+        runnerBuilder=de.mannodermaus.junit5.AndroidJUnit5Builder,\
+        invalid_test_account_number=0000000000000000,\
+        ENABLE_HIGHLY_RATE_LIMITED_TESTS=${{ github.event_name == 'schedule' && 'true' || 'false' }},\
+        partner_auth=${{ secrets.STAGEMOLE_PARTNER_AUTH }},\
+        ENABLE_RAAS_TESTS=false"
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test-type: mockapi
+            arg-spec-file: mockapi-oss.yml
+            path: android/test/mockapi/build/outputs/apk
+          - test-type: e2e
+            arg-spec-file: e2e-play-stagemole.yml
+            path: android/test/e2e/build/outputs/apk
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          submodules: true
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: apks
+          path: android
+
+      - name: Run tests on Firebase Test Lab
+        uses: asadmansr/Firebase-Test-Lab-Action@505de6c4fc124883cdacf99015d626a2c979ffc8 # v1.0
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        with:
+          arg-spec: |
+            android/test/firebase/${{ matrix.arg-spec-file }}:default
+            --environment-variables ${{ env.FIREBASE_ENVIRONMENT_VARIABLES }}

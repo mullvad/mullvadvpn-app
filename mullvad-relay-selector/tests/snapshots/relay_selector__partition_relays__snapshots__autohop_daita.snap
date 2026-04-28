@@ -180,8 +180,8 @@ fr-par-wg-101: Match
 fr-par-wg-102: Match
 fr-par-wg-301: Match
 fr-par-wg-302: Match
-gb-glw-wg-001: Match
-gb-glw-wg-002: Match
+gb-glw-wg-001: Discarded(IncludeInCountry)
+gb-glw-wg-002: Discarded(IncludeInCountry)
 gb-lon-wg-001: Match
 gb-lon-wg-002: Match
 gb-lon-wg-003: Match
@@ -197,17 +197,17 @@ gb-lon-wg-204: Match
 gb-lon-wg-301: Match
 gb-lon-wg-302: Match
 gb-lon-wg-304: Match
-gb-mnc-wg-001: Match
-gb-mnc-wg-002: Match
-gb-mnc-wg-003: Match
-gb-mnc-wg-004: Match
-gb-mnc-wg-005: Match
-gb-mnc-wg-006: Match
-gb-mnc-wg-007: Match
+gb-mnc-wg-001: Discarded(IncludeInCountry)
+gb-mnc-wg-002: Discarded(IncludeInCountry)
+gb-mnc-wg-003: Discarded(IncludeInCountry)
+gb-mnc-wg-004: Discarded(IncludeInCountry)
+gb-mnc-wg-005: Discarded(IncludeInCountry)
+gb-mnc-wg-006: Discarded(IncludeInCountry)
+gb-mnc-wg-007: Discarded(IncludeInCountry)
 gb-mnc-wg-008: Match
 gb-mnc-wg-009: Match
-gb-mnc-wg-201: Match
-gb-mnc-wg-202: Match
+gb-mnc-wg-201: Discarded(IncludeInCountry)
+gb-mnc-wg-202: Discarded(IncludeInCountry)
 gr-ath-wg-101: Match
 gr-ath-wg-102: Match
 hk-hkg-wg-201: Match
@@ -309,7 +309,7 @@ se-got-wg-101: Match
 se-mma-wg-001: Match
 se-mma-wg-002: Match
 se-mma-wg-003: Match
-se-mma-wg-004: Match
+se-mma-wg-004: Discarded(IncludeInCountry)
 se-mma-wg-005: Match
 se-mma-wg-011: Match
 se-mma-wg-012: Match
@@ -323,7 +323,7 @@ se-sto-wg-002: Match
 se-sto-wg-003: Match
 se-sto-wg-007: Match
 se-sto-wg-008: Match
-se-sto-wg-009: Match
+se-sto-wg-009: Discarded(IncludeInCountry)
 se-sto-wg-010: Match
 se-sto-wg-011: Match
 se-sto-wg-012: Match
@@ -352,8 +352,8 @@ tr-ist-wg-001: Match
 tr-ist-wg-002: Match
 ua-iev-wg-001: Match
 ua-iev-wg-002: Match
-us-atl-wg-001: Match
-us-atl-wg-002: Match
+us-atl-wg-001: Discarded(IncludeInCountry)
+us-atl-wg-002: Discarded(IncludeInCountry)
 us-atl-wg-301: Match
 us-atl-wg-302: Match
 us-atl-wg-303: Match
@@ -397,12 +397,12 @@ us-dal-wg-003: Match
 us-dal-wg-401: Match
 us-dal-wg-402: Match
 us-dal-wg-403: Match
-us-dal-wg-502: Match
-us-dal-wg-503: Match
-us-dal-wg-504: Match
-us-dal-wg-505: Match
-us-dal-wg-506: Discarded(Inactive)
-us-dal-wg-507: Match
+us-dal-wg-502: Discarded(IncludeInCountry)
+us-dal-wg-503: Discarded(IncludeInCountry)
+us-dal-wg-504: Discarded(IncludeInCountry)
+us-dal-wg-505: Discarded(IncludeInCountry)
+us-dal-wg-506: Discarded(Inactive IncludeInCountry)
+us-dal-wg-507: Discarded(IncludeInCountry)
 us-dal-wg-601: Match
 us-dal-wg-602: Match
 us-dal-wg-603: Match
@@ -440,17 +440,17 @@ us-lax-wg-005: Discarded(Inactive)
 us-lax-wg-006: Discarded(Inactive)
 us-lax-wg-007: Discarded(Inactive)
 us-lax-wg-008: Match
-us-lax-wg-101: Discarded(Inactive)
-us-lax-wg-102: Discarded(Inactive)
-us-lax-wg-103: Discarded(Inactive)
-us-lax-wg-201: Match
-us-lax-wg-202: Match
+us-lax-wg-101: Discarded(Inactive IncludeInCountry)
+us-lax-wg-102: Discarded(Inactive IncludeInCountry)
+us-lax-wg-103: Discarded(Inactive IncludeInCountry)
+us-lax-wg-201: Discarded(IncludeInCountry)
+us-lax-wg-202: Discarded(IncludeInCountry)
 us-lax-wg-203: Match
-us-lax-wg-402: Match
-us-lax-wg-403: Match
-us-lax-wg-404: Match
-us-lax-wg-405: Match
-us-lax-wg-406: Match
+us-lax-wg-402: Discarded(IncludeInCountry)
+us-lax-wg-403: Discarded(IncludeInCountry)
+us-lax-wg-404: Discarded(IncludeInCountry)
+us-lax-wg-405: Discarded(IncludeInCountry)
+us-lax-wg-406: Discarded(IncludeInCountry)
 us-lax-wg-407: Match
 us-lax-wg-408: Match
 us-lax-wg-409: Match
@@ -520,9 +520,9 @@ us-phx-wg-206: Match
 us-phx-wg-207: Match
 us-phx-wg-208: Match
 us-qas-wg-001: Discarded(Inactive)
-us-qas-wg-002: Discarded(Inactive)
-us-qas-wg-003: Discarded(Inactive)
-us-qas-wg-004: Discarded(Inactive)
+us-qas-wg-002: Discarded(Inactive IncludeInCountry)
+us-qas-wg-003: Discarded(Inactive IncludeInCountry)
+us-qas-wg-004: Discarded(Inactive IncludeInCountry)
 us-qas-wg-101: Match
 us-qas-wg-102: Match
 us-qas-wg-103: Match

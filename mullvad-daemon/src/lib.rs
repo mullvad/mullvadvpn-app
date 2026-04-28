@@ -49,7 +49,7 @@ use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::{Config, RelaySelector};
+use mullvad_relay_selector::RelaySelector;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -751,9 +751,8 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            let initial_selector_config = Config::from_settings(&settings);
-            RelaySelector::new(
-                initial_selector_config,
+            RelaySelector::from_settings(
+                &settings,
                 initial_relay_list.clone(),
                 initial_bridge_list.clone(),
             )
@@ -895,6 +894,7 @@ impl Daemon {
         let parameters_generator = tunnel::ParametersGenerator::new(
             account_manager.clone(),
             relay_selector.clone(),
+            settings.relay_settings.clone(),
             settings.tunnel_options.clone(),
         );
 
@@ -907,6 +907,13 @@ impl Daemon {
         });
         settings.register_change_listener(move |settings| {
             let _ = param_gen_tx.unbounded_send(settings.tunnel_options.clone());
+        });
+
+        let param_gen_relay_settings = parameters_generator.clone();
+        settings.register_change_listener(move |settings| {
+            let settings = settings.clone();
+            let param_gen = param_gen_relay_settings.clone();
+            tokio::spawn(async move { param_gen.set_settings(settings).await });
         });
 
         // Register a listener for generic settings changes.
@@ -1011,12 +1018,6 @@ impl Daemon {
             tokio::spawn(async move {
                 relay_list_updater.update_overrides(overrides).await;
             });
-        });
-
-        let settings_relay_selector = relay_selector.clone();
-        settings.register_change_listener(move |settings| {
-            // Notify relay selector of changes to the settings/selector config
-            settings_relay_selector.set_config(Config::from_settings(settings));
         });
 
         #[cfg(not(target_os = "android"))]

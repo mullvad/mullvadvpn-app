@@ -126,6 +126,7 @@ paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
 talpid-dbus = { path = "../talpid-dbus" }
+tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
 notify = "8.0.0"
@@ -173,9 +174,12 @@ workspace = true
 features = ["Win32_System_SystemServices"]
 
 [features]
+default = ["default-allocator"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
+# Use jemalloc as the global allocator. Only takes effect on Linux.
+default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 wireguard-go = ["talpid-core/wireguard-go"]

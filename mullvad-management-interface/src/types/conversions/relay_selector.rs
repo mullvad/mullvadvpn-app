@@ -2,7 +2,8 @@ use mullvad_types::{
     constraints::Constraint,
     relay_list::Relay,
     relay_selector::{
-        EntryConstraints, ExitConstraints, MultihopConstraints, Predicate, Reason, RelayPartitions,
+        EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
+        Predicate, Reason, RelayPartitions,
     },
 };
 
@@ -77,16 +78,19 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .map(mullvad_types::relay_constraints::ObfuscationSettings::try_from)
             .transpose()?
             .unwrap_or_default();
+        let obfuscation = mullvad_types::relay_constraints::obfuscation_constraint_from_settings(
+            obfuscation_settings,
+        );
 
-        let daita: Constraint<_> = daita_settings
-            .map(mullvad_types::wireguard::DaitaSettings::from)
-            .into();
+        let daita: Constraint<_> = daita_settings.map(|ds| ds.enabled).into();
 
         Ok(EntryConstraints {
             general,
-            obfuscation_settings,
-            daita,
-            ip_version,
+            entry_specific: EntrySpecificConstraints {
+                obfuscation,
+                daita,
+                ip_version,
+            },
         })
     }
 }
@@ -118,16 +122,27 @@ impl TryFrom<proto::ExitConstraints> for ExitConstraints {
 
 impl From<RelayPartitions> for proto::RelayPartitions {
     fn from(RelayPartitions { matches, discards }: RelayPartitions) -> Self {
-        let matches = matches
+        // Display concern (not selection): surface `include_in_country = false` relays as
+        // matches even though the relay selector itself never picks them at country level.
+        // The UI consumes this list to show what the user could select, and these relays
+        // remain individually selectable via city or hostname constraints — so dropping
+        // them entirely would hide selectable relays from the relay-list view.
+        let (fallbacks, true_discards): (Vec<_>, Vec<_>) = discards
             .into_iter()
+            .partition(|(_relay, why)| matches!(why.as_slice(), [Reason::IncludeInCountry]));
+
+        let matches = fallbacks
+            .into_iter()
+            .map(|(relay, _)| relay)
+            .chain(matches)
             .map(|relay| relay.inner)
             .map(proto::Relay::from)
             .collect();
-        let discards = discards
+
+        let discards = true_discards
             .into_iter()
-            .map(|(relay, why)| (relay.inner, why))
             .map(|(relay, why)| proto::DiscardedRelay {
-                relay: Some(proto::Relay::from(relay)),
+                relay: Some(proto::Relay::from(relay.inner)),
                 why: Some(proto::IncompatibleConstraints::from(why)),
             })
             .collect();
@@ -156,6 +171,7 @@ impl From<Vec<Reason>> for proto::IncompatibleConstraints {
                 Obfuscation => incompatible.obfuscation = true,
                 Port => incompatible.port = true,
                 Conflict => incompatible.conflict_with_other_hop = true,
+                IncludeInCountry => continue,
             };
         }
         incompatible

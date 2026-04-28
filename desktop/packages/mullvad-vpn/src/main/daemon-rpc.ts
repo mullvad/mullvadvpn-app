@@ -691,10 +691,7 @@ export class DaemonRpc extends GrpcClient {
           throw error;
         }
       });
-      // setImmediate is required due to https://github.com/grpc/grpc-node/issues/1464. Should be
-      // possible to remove it again after upgrading to Electron 16 which is using a node version
-      // where this is fixed.
-      setImmediate(() => subscription.cancel());
+      subscription.cancel();
     }
   }
 }

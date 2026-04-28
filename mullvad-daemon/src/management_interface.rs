@@ -1694,6 +1694,8 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::RemoveDeviceError(error) => map_device_error(&error),
         DaemonError::UpdateDeviceError(error) => map_device_error(&error),
         DaemonError::VoucherSubmission(error) => map_device_error(&error),
+        #[cfg(target_os = "android")]
+        DaemonError::VerifyPlayPurchase(error) => map_device_error(&error),
         #[cfg(any(target_os = "windows", target_os = "macos"))]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
