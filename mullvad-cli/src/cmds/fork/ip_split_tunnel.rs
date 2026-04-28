@@ -3,10 +3,9 @@ use clap::Subcommand;
 use mullvad_management_interface::MullvadProxyClient;
 use std::{net::Ipv4Addr, str::FromStr};
 
-const TAILSCALE_CGNAT_RANGE: &str = "100.64.0.0/10";
-const NETBIRD_CGNAT_RANGE: &str = "100.64.0.0/10";
-const NETBIRD_TENANT_RANGE_EXAMPLE: &str = "100.114.4.17/16";
-const TEMPLATE_RANGES: &[&str] = &[TAILSCALE_CGNAT_RANGE, NETBIRD_CGNAT_RANGE];
+const CGNAT_RANGE: &str = "100.64.0.0/10";
+const TENANT_RANGE_SAMPLE: &str = "10.0.0.0/16";
+const TEMPLATE_RANGES: &[&str] = &[CGNAT_RANGE];
 
 #[derive(Subcommand, Debug)]
 pub enum IpSplitTunnel {
@@ -76,10 +75,9 @@ impl IpSplitTunnel {
                     client.add_split_tunnel_ip_range((*range).to_owned()).await?;
                 }
                 println!("Applied IP split-tunnel templates:");
-                println!("Tailscale: {TAILSCALE_CGNAT_RANGE}");
-                println!("NetBird: {NETBIRD_CGNAT_RANGE}");
+                println!("CGNAT range (Tailscale/NetBird): {CGNAT_RANGE}");
                 println!(
-                    "NetBird tenant CIDRs like {NETBIRD_TENANT_RANGE_EXAMPLE} are accepted and normalized"
+                    "Additional tenant ranges like {TENANT_RANGE_SAMPLE} are accepted and normalized"
                 );
                 Ok(())
             }
