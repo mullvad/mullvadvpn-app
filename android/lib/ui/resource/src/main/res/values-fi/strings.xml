@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Luo</string>
-    <string name="create_account_fail_title">Tilin luominen epäonnistui</string>
     <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_account">Luo uusi tili</string>
     <string name="create_new_account_warning_paragraph1">Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota.</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Yhteys katkaistu (ei VPN-käyttöoikeutta)</string>
     <string name="disconnecting">Katkaistaan yhteyttä...</string>
     <string name="dismiss">Jätä huomiotta</string>
+    <string name="divier_or">tai</string>
     <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Poista \"%1$s\" käytöstä alla näiden asetusten aktivoimiseksi.</string>
     <string name="dns_content_blockers_warning">Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa.</string>
-    <string name="dont_have_an_account">Eikö sinulla ole tilin numeroa?</string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_in">Kirjaudu sisään</string>
     <string name="log_out">Kirjaudu ulos</string>
-    <string name="logged_in_description">Oikea tilin numero</string>
     <string name="logged_in_title">Kirjautuneena sisään</string>
-    <string name="logging_in_description">Tarkistetaan tilin numeroa</string>
     <string name="logging_in_title">Kirjaudutaan sisään...</string>
     <string name="login_description">Syötä tilisi numero</string>
     <string name="login_error_api_unreachable">Yhteyden muodostaminen API:hin ei onnistu. %1$s.</string>
-    <string name="login_error_invalid_input">Tilin numero on liian pitkä. Anna kelvollinen numero.</string>
     <string name="login_error_too_many_attempts">Liian monta yritystä. Yritä myöhemmin uudelleen.</string>
     <string name="login_fail_description">Virheellinen tilin numero</string>
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>

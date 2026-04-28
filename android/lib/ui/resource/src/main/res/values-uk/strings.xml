@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Створити</string>
-    <string name="create_account_fail_title">Не вдалося створити обліковий запис</string>
     <string name="create_custom_list_message">Створено «%1$s»</string>
     <string name="create_new_account">Створити обліковий запис</string>
     <string name="create_new_account_warning_paragraph1">У вас уже є збережений номер облікового запису. Після створення нового його буде видалено. Цю дію не можна скасувати.</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Відключено (немає дозволу для VPN)</string>
     <string name="disconnecting">Відключення...</string>
     <string name="dismiss">Закрити</string>
+    <string name="divier_or">Або</string>
     <string name="dns_content_blockers">DNS-блокувальники контенту</string>
     <string name="dns_content_blockers_custom_dns_warning">Увага: цей параметр не можна використовувати з опцією «Використовувати користувацький DNS-сервер».</string>
     <string name="dns_content_blockers_info">Коли ця функція ввімкнена, пристрій припиняє зв’язок із певними доменами або вебсайтами, які поширюють рекламу, шкідливі програми, трекери тощо.</string>
     <string name="dns_content_blockers_subtitle">Вимкніть параметр «%1$s», щоб активувати ці налаштування.</string>
     <string name="dns_content_blockers_warning">Це може викликати проблеми під час використання певних вебсайтів, сервісів або застосунків.</string>
-    <string name="dont_have_an_account">Немає номера облікового запису?</string>
     <string name="duplicate_address_warning">Цю адресу вже введено.</string>
     <string name="edit_custom_lists">Редагування користувацьких списків</string>
     <string name="edit_list">Редагування списку</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">Розташування змінено для «%1$s»</string>
     <string name="log_in">Увійти</string>
     <string name="log_out">Вийти</string>
-    <string name="logged_in_description">Дійсний номер облікового запису</string>
     <string name="logged_in_title">Виконано вхід</string>
-    <string name="logging_in_description">Перевірка номера облікового запису</string>
     <string name="logging_in_title">Виконується вхід…</string>
     <string name="login_description">Введіть номер облікового запису</string>
     <string name="login_error_api_unreachable">Не вдалося підключитися до API, %1$s</string>
-    <string name="login_error_invalid_input">Задовгий номер облікового запису, введіть дійсний номер</string>
     <string name="login_error_too_many_attempts">Забагато спроб, спробуйте ще раз пізніше</string>
     <string name="login_fail_description">Недійсний номер облікового запису</string>
     <string name="login_fail_title">Помилка входу</string>

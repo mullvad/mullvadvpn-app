@@ -148,8 +148,8 @@ fun WelcomeScreen(
     val scrollState = rememberScrollState()
 
     ScaffoldWithTopBar(
-        topBarColor = MaterialTheme.colorScheme.primary,
-        iconTintColor = MaterialTheme.colorScheme.onPrimary,
+        topBarColor = MaterialTheme.colorScheme.background,
+        iconTintColor = MaterialTheme.colorScheme.onBackground,
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
         snackbarHostState = snackbarHostState,

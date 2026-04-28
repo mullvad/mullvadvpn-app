@@ -80,7 +80,7 @@ class LoginViewModelTest {
                 LoginAccountError.ApiUnreachable.left()
 
             // Act
-            loginViewModel.login("")
+            loginViewModel.login("1234123412341234")
 
             // Discard default item
             uiStates.skipDefaultItem()
@@ -285,19 +285,26 @@ class LoginViewModelTest {
     @Test
     fun `given TooManyAttempts when creating an account in then show too many attempts error`() =
         runTest {
-            loginViewModel.uiState.test {
+            turbineScope {
+                // Arrange
+                val uiStates = loginViewModel.uiState.testIn(backgroundScope)
+                val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
+
                 // Arrange
                 coEvery { mockedAccountRepository.createAccount() } returns
                     CreateAccountError.TooManyAttempts.left()
 
                 // Act, Assert
-                skipDefaultItem()
+                // Act, Assert
+                uiStates.skipDefaultItem()
                 loginViewModel.onCreateAccountClick()
-                assertEquals(Loading.CreatingAccount, awaitItem().loginState)
+                assertEquals(Loading.CreatingAccount, uiStates.awaitItem().loginState)
+
                 assertEquals(
-                    Idle(LoginUiStateError.CreateAccountError.TooManyAttempts),
-                    awaitItem().loginState,
+                    LoginUiSideEffect.CreateAccount.TooManyAttempts,
+                    sideEffects.awaitItem(),
                 )
+                assertEquals(Idle(), uiStates.awaitItem().loginState)
             }
         }
 

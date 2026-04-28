@@ -113,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Skapa</string>
-    <string name="create_account_fail_title">Det gick inte att skapa konto</string>
     <string name="create_custom_list_message">\"%1$s\" har skapats</string>
     <string name="create_new_account">Skapa nytt konto</string>
     <string name="create_new_account_warning_paragraph1">Du har redan ett sparat kontonummer. Om du skapar ett nytt konto tas det sparade kontonumret bort från enheten. Det går inte att ångra detta.</string>
@@ -193,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Frånkopplad (VPN-behörighet saknas)</string>
     <string name="disconnecting">Kopplar från ...</string>
     <string name="dismiss">Ignorera</string>
+    <string name="divier_or">eller</string>
     <string name="dns_content_blockers">DNS-innehållsblockerare</string>
     <string name="dns_content_blockers_custom_dns_warning">Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\".</string>
     <string name="dns_content_blockers_info">När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera.</string>
     <string name="dns_content_blockers_subtitle">Inaktivera \"%1$s\" nedan för att aktivera dessa inställningar.</string>
     <string name="dns_content_blockers_warning">Detta kan orsaka problem på vissa webbplatser, tjänster och appar.</string>
-    <string name="dont_have_an_account">Har du inget kontonummer?</string>
     <string name="duplicate_address_warning">Adressen har redan angetts.</string>
     <string name="edit_custom_lists">Redigera anpassade listor</string>
     <string name="edit_list">Redigera lista</string>
@@ -290,13 +289,10 @@
     <string name="locations_were_changed_for">Platserna har ändrats för \"%1$s\"</string>
     <string name="log_in">Logga in</string>
     <string name="log_out">Logga ut</string>
-    <string name="logged_in_description">Giltigt kontonummer</string>
     <string name="logged_in_title">Inloggad</string>
-    <string name="logging_in_description">Kontrollerar kontonummer</string>
     <string name="logging_in_title">Loggar in...</string>
     <string name="login_description">Ange ditt kontonummer</string>
     <string name="login_error_api_unreachable">Det går inte att nå API, %1$s</string>
-    <string name="login_error_invalid_input">Kontonumret är för långt, ange ett giltigt nummer</string>
     <string name="login_error_too_many_attempts">För många försök, försök igen senare</string>
     <string name="login_fail_description">Ogiltigt kontonummer</string>
     <string name="login_fail_title">Inloggningen misslyckades</string>
