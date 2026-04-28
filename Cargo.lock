@@ -3003,7 +3003,6 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
- "simple-signal",
  "talpid-core",
  "talpid-dbus",
  "talpid-dns",
@@ -5146,16 +5145,6 @@ name = "similar"
 version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
-
-[[package]]
-name = "simple-signal"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "53f7da44adcc42667d57483bd93f81295f27d66897804b757573b61b6f13288b"
-dependencies = [
- "lazy_static",
- "libc",
-]
 
 [[package]]
 name = "siphasher"

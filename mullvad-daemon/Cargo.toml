@@ -120,14 +120,17 @@ mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 async-trait = "0.1"
+ctrlc = { workspace = true }
 hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
+ctrlc = { workspace = true, features = ["termination"] }
 talpid-dbus = { path = "../talpid-dbus" }
 tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
+ctrlc = { workspace = true, features = ["termination"] }
 notify = "8.0.0"
 objc2-foundation = { version = "0.3.1", features = [
   "NSProcessInfo",
@@ -142,10 +145,9 @@ talpid-macos = { path = "../talpid-macos" }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["signal", "user"] }
-simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
-ctrlc = "3.0"
+ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
