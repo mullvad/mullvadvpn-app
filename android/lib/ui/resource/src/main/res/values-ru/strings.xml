@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">Есть доступ к API, добавляем метод...</string>
     <string name="api_unreachable">Нет доступа к API</string>
     <string name="api_unreachable_save_anyway">Нет доступа к API. Сохранить метод?</string>
+    <string name="app_icon">Значок приложения</string>
     <string name="app_info">Информация о приложении</string>
     <string name="app_is_blocking_internet">Приложение блокирует интернет. Сначала отключитесь.</string>
     <string name="app_name_browser">Браузер</string>
@@ -112,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Создать</string>
-    <string name="create_account_fail_title">Не удалось создать учетную запись</string>
     <string name="create_custom_list_message">Список «%1$s» создан</string>
     <string name="create_new_account">Создать учетную запись</string>
     <string name="create_new_account_warning_paragraph1">У вас уже есть сохраненный номер учетной записи. При создании новой учетной записи сохраненный номер удалится с этого устройства. Это действие нельзя будет отменить.</string>
@@ -192,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Отключено (нет разрешения для VPN)</string>
     <string name="disconnecting">Отключение...</string>
     <string name="dismiss">Закрыть</string>
+    <string name="divier_or">или</string>
     <string name="dns_content_blockers">DNS-блокировщики контента</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти настройки, отключите параметр «%1$s».</string>
     <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и приложений.</string>
-    <string name="dont_have_an_account">Нет номера учетной записи?</string>
     <string name="duplicate_address_warning">Этот адрес уже введен.</string>
     <string name="edit_custom_lists">Изменение своих списков</string>
     <string name="edit_list">Изменение списка</string>
@@ -289,13 +289,10 @@
     <string name="locations_were_changed_for">Местоположения были изменены для «%1$s»</string>
     <string name="log_in">Войти</string>
     <string name="log_out">Выйти</string>
-    <string name="logged_in_description">Действительный номер учетной записи</string>
     <string name="logged_in_title">Вход выполнен</string>
-    <string name="logging_in_description">Проверка номера учетной записи</string>
     <string name="logging_in_title">Выполняется вход...</string>
     <string name="login_description">Введите номер учетной записи</string>
     <string name="login_error_api_unreachable">Невозможно подключиться к API, %1$s</string>
-    <string name="login_error_invalid_input">Номер учетной записи слишком длинный, введите действительный номер</string>
     <string name="login_error_too_many_attempts">Слишком много попыток, пожалуйста, попробуйте позже</string>
     <string name="login_fail_description">Недействительный номер учетной записи</string>
     <string name="login_fail_title">Ошибка входа</string>
@@ -388,7 +385,7 @@
     <string name="relay_item_already_selected_as_exit">%1$s уже используется как выходной сервер ретрансляции</string>
     <string name="relayitem_is_inactive">%1$s недоступно</string>
     <string name="remove_button">Удалить</string>
-    <string name="remove_location_from_list">Удалить местоположение %1$s из списка «%2$s»</string>
+    <string name="remove_location_from_list">Удалить местоположение %1$s из списка %2$s</string>
     <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>

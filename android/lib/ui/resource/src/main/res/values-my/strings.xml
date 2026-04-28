@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…</string>
     <string name="api_unreachable">API ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ</string>
     <string name="api_unreachable_save_anyway">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</string>
+    <string name="app_icon">အက်ပ် အိုင်ကွန်</string>
     <string name="app_info">အက်ပ်အချက်အလက်</string>
     <string name="app_is_blocking_internet">အက်ပ်သည် အင်တာနက်ကို ပိတ်ပင်နေသည်၊ ဦးစွာ ချိတ်ဆက်မှုဖြုတ်ပေးပါ</string>
     <string name="app_name_browser">Browser</string>
@@ -112,7 +113,6 @@
     <string name="country_comma_city">%1$s၊ %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s ၊ %2$s ၊ %3$s</string>
     <string name="create">ဖန်တီးမည်</string>
-    <string name="create_account_fail_title">အကောင့်ဖန်တီးခြင်း မအောင်မြင်ပါ</string>
     <string name="create_custom_list_message">\"%1$s\" ကို ဖန်တီးလိုက်ပြီ</string>
     <string name="create_new_account">အကောင့်သစ် ဖွင့်ရန်</string>
     <string name="create_new_account_warning_paragraph1">သင့်တွင် အကောင့်နံပါတ်တစ်ခု သိမ်းထားပြီးသားဖြစ်သောကြောင့် အကောင့်သစ်ဖွင့်လျှင် သိမ်းထားသော အကောင့်နံပါတ်ကို ဤစက်မှ ဖြုတ်ပစ်ပါမည်။ ၎င်းကို ပြန်ယူ၍မရပါ။</string>
@@ -192,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">ချိတ်ဆက်မှုဖြုတ်ထားသည် (VPN ခွင့်ပြုချက် မရှိပါ)</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေသည်...</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
+    <string name="divier_or">သို့မဟုတ်</string>
     <string name="dns_content_blockers">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
     <string name="dns_content_blockers_custom_dns_warning">သတိပြုရန်- ဤဆက်တင်ကို \"စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်\" နှင့် အတူတွဲပြီး သုံးစွဲ၍မရပါ။</string>
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%1$s\" ကို ပိတ်ပါ။</string>
     <string name="dns_content_blockers_warning">၎င်းသည် အချို့သော ဝဘ်ဆိုက်များ၊ ဝန်ဆောင်မှုများနှင့် အက်ပ်များတွင် ပြဿနာများကို ဖြစ်စေနိုင်သည်။</string>
-    <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိသေးဘူးလား။</string>
     <string name="duplicate_address_warning">ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။</string>
     <string name="edit_custom_lists">စိတ်ကြိုက် စာရင်းများ ဖန်တီးရန်</string>
     <string name="edit_list">စာရင်းကို တည်းဖြတ်ရန်</string>
@@ -289,13 +289,10 @@
     <string name="locations_were_changed_for">\"%1$s\" အတွက် တည်နေရာများကို ပြောင်းလိုက်ပါသည်</string>
     <string name="log_in">ဝင်ရောက်ရန်</string>
     <string name="log_out">ထွက်ရန်</string>
-    <string name="logged_in_description">မှန်ကန်သည့် အကောင့်နံပါတ်</string>
     <string name="logged_in_title">ဝင်ရောက်ထားပြီး</string>
-    <string name="logging_in_description">အကောင့်နံပါတ်ကို စစ်နေပါသည်</string>
     <string name="logging_in_title">ဝင်ရောက်နေဆဲ...</string>
     <string name="login_description">သင့်အကောင့်နံပါတ်ကို ဖြည့်သွင်းပါ</string>
     <string name="login_error_api_unreachable">API %1$s ကို ချိတ်ဆက်၍ မရပါ</string>
-    <string name="login_error_invalid_input">အကောင့်နံပါတ်သည် ရှည်လွန်းသည်၊ ကျေးဇူးပြု၍ မှန်ကန်သော နံပါတ်ကို ထည့်သွင်းပါ</string>
     <string name="login_error_too_many_attempts">ကြိုးစားမှု အကြိမ်ရေများသွားသဖြင့် နောက်မှ ထပ်ကြိုးစားပါ</string>
     <string name="login_fail_description">အကောင့်နံပါတ် မမှန်ကန်ပါ</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
@@ -388,7 +385,7 @@
     <string name="relay_item_already_selected_as_exit">%1$s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
-    <string name="remove_location_from_list">%1$s မှ %2$s ကို ဖယ်ရှားရန်</string>
+    <string name="remove_location_from_list">%2$s မှ %1$s ကို ဖယ်ရှားရန်</string>
     <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>

@@ -18,8 +18,14 @@ case $platform in
         shift 1
     ;;
     android)
-        build_command=("./android/build.sh")
         shift 1
+        # Map old release arg to the new task for compatibility.
+        # Can be removed once the build server has deployed the
+        # run.sh script from this commit.
+        [ "${1:-}" = "--app-bundle" ] && { shift; set -- fullRelease "$@"; }
+        # Default to the debug task if no task provided.
+        [ $# -eq 0 ] && set -- debug
+        build_command=("./android/gradlew" "-p" "android" "--console" "plain")
     ;;
     *)
         log_error "Invalid platform. Specify 'linux' or 'android' as first argument"

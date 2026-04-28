@@ -102,7 +102,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString("DAITA", comment: "")
 
             cell.detailTitleLabel.text =
-                viewModel.daitaSettings.daitaState.isEnabled
+                viewModel.daitaSettings.isEnabled
                 ? NSLocalizedString("On", comment: "")
                 : NSLocalizedString("Off", comment: "")
 
@@ -115,10 +115,7 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
             cell.titleLabel.text = NSLocalizedString("Multihop", comment: "")
 
-            cell.detailTitleLabel.text =
-                viewModel.multihopState.isUserSelected
-                ? NSLocalizedString("On", comment: "")
-                : NSLocalizedString("Off", comment: "")
+            cell.detailTitleLabel.text = viewModel.multihopState.description
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron

@@ -9,25 +9,8 @@
 import Foundation
 
 enum DAITASettingsPromptItem: CustomStringConvertible {
-    case daitaSettingIncompatibleWithSinglehop(Setting)
-    case daitaSettingIncompatibleWithMultihop(Setting)
-
-    enum Setting {
-        case daita
-        case directOnly
-    }
-
-    var title: String {
-        switch self {
-        case let .daitaSettingIncompatibleWithSinglehop(setting), let .daitaSettingIncompatibleWithMultihop(setting):
-            switch setting {
-            case .daita:
-                NSLocalizedString("DAITA", comment: "")
-            case .directOnly:
-                NSLocalizedString("Direct only", comment: "")
-            }
-        }
-    }
+    case daitaSettingIncompatibleWithSinglehop
+    case daitaSettingIncompatibleWithMultihop
 
     var description: String {
         switch self {

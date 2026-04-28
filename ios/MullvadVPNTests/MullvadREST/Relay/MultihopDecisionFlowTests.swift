@@ -15,6 +15,16 @@ import XCTest
 
 class MultihopDecisionFlowTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
+    var obfuscation: RelayObfuscation!
+
+    override func setUp() async throws {
+        obfuscation = try RelayObfuscator(
+            relays: sampleRelays,
+            tunnelSettings: LatestTunnelSettings(),
+            connectionAttemptCount: 0,
+            obfuscationBypass: IdentityObfuscationProvider()
+        ).obfuscate()
+    }
 
     func testOneToOneCanHandle() throws {
         let oneToOne = OneToOne(next: nil, relayPicker: picker)
@@ -113,6 +123,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try oneToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
+            obfuscation: obfuscation,
             selectNearbyLocation: false
         )
 
@@ -129,6 +140,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelaysWithoutSmartRouting = try oneToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
+            obfuscation: obfuscation,
             selectNearbyLocation: false
         )
 
@@ -139,6 +151,7 @@ class MultihopDecisionFlowTests: XCTestCase {
             oneToMany.pick(
                 entryCandidates: [seSto2],
                 exitCandidates: [seSto2, seSto6],
+                obfuscation: obfuscation,
                 selectNearbyLocation: true
             ))
         XCTAssertEqual(selectedRelaysWithSmartRouting.entry?.hostname, "se2-wireguard")
@@ -154,6 +167,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToOne.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
+            obfuscation: obfuscation,
             selectNearbyLocation: false
         )
 
@@ -170,6 +184,7 @@ class MultihopDecisionFlowTests: XCTestCase {
         let selectedRelays = try manyToMany.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
+            obfuscation: obfuscation,
             selectNearbyLocation: false
         )
 
@@ -183,12 +198,6 @@ class MultihopDecisionFlowTests: XCTestCase {
 
 extension MultihopDecisionFlowTests {
     var picker: MultihopPicker {
-        let obfuscation = try! RelayObfuscator(
-            relays: sampleRelays,
-            tunnelSettings: LatestTunnelSettings(),
-            connectionAttemptCount: 0, obfuscationBypass: IdentityObfuscationProvider()
-        ).obfuscate()
-
         var tunnelSettings = LatestTunnelSettings()
         tunnelSettings.relayConstraints = RelayConstraints(
             entryLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")])),
@@ -196,7 +205,7 @@ extension MultihopDecisionFlowTests {
         )
 
         return MultihopPicker(
-            obfuscation: obfuscation,
+            relays: sampleRelays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: 0
         )

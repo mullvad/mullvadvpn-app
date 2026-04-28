@@ -8,17 +8,15 @@
 
 import MullvadSettings
 
-class MultihopTunnelSettingsViewModel: TunnelSettingsObserver, ObservableObject {
+class MultihopTunnelSettingsViewModel: TunnelSettingsObserver {
     typealias TunnelSetting = MultihopState
 
     let tunnelManager: TunnelManager
     var tunnelObserver: TunnelObserver?
 
-    var value: MultihopState {
+    @Published var value: MultihopState {
         willSet(newValue) {
             guard newValue != value else { return }
-
-            objectWillChange.send()
             tunnelManager.updateSettings([.multihop(newValue)])
         }
     }

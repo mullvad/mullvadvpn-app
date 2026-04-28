@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API accesible, añadiendo método...</string>
     <string name="api_unreachable">API inaccesible</string>
     <string name="api_unreachable_save_anyway">API inaccesible, ¿guardar el método de todos modos?</string>
+    <string name="app_icon">Icono de aplicación</string>
     <string name="app_info">Información de la aplicación</string>
     <string name="app_is_blocking_internet">La aplicación está bloqueando Internet. Primero desconéctela</string>
     <string name="app_name_browser">Navegador</string>
@@ -112,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Crear</string>
-    <string name="create_account_fail_title">Error al crear la cuenta</string>
     <string name="create_custom_list_message">Se ha creado «%1$s»</string>
     <string name="create_new_account">Crear nueva cuenta</string>
     <string name="create_new_account_warning_paragraph1">Ya tiene un número de cuenta guardado. Al crear una nueva cuenta, el número de cuenta guardado se eliminará de este dispositivo. Esto no se puede deshacer.</string>
@@ -192,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Desconectado (sin permiso de VPN)</string>
     <string name="disconnecting">Desconectando...</string>
     <string name="dismiss">Descartar</string>
+    <string name="divier_or">O bien</string>
     <string name="dns_content_blockers">Bloqueadores de contenido DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Atención: este ajuste no se puede utilizar en combinación con «Usar servidor DNS personalizado».</string>
     <string name="dns_content_blockers_info">Al activar esta opción se evita que el dispositivo contacte con determinados dominios o sitios web que se sabe que distribuyen anuncios, malware, rastreadores y más.</string>
     <string name="dns_content_blockers_subtitle">Deshabilite «%1$s» abajo para activar estos ajustes.</string>
     <string name="dns_content_blockers_warning">Esto podría causar problemas con determinados sitios web, servicios y aplicaciones.</string>
-    <string name="dont_have_an_account">¿No tiene un número de cuenta?</string>
     <string name="duplicate_address_warning">Esta dirección ya se ha introducido.</string>
     <string name="edit_custom_lists">Editar listas personalizadas</string>
     <string name="edit_list">Editar lista</string>
@@ -289,13 +289,10 @@
     <string name="locations_were_changed_for">Se han cambiado las ubicaciones para «%1$s»</string>
     <string name="log_in">Iniciar sesión</string>
     <string name="log_out">Cerrar sesión</string>
-    <string name="logged_in_description">Número de cuenta válido</string>
     <string name="logged_in_title">Sesión iniciada</string>
-    <string name="logging_in_description">Comprobando número de cuenta</string>
     <string name="logging_in_title">Iniciando la sesión…</string>
     <string name="login_description">Escriba su número de cuenta</string>
     <string name="login_error_api_unreachable">No se puede conectar con la API, %1$s</string>
-    <string name="login_error_invalid_input">El número de cuenta es demasiado largo. Introduzca un número válido</string>
     <string name="login_error_too_many_attempts">Demasiados intentos. Inténtelo de nuevo más tarde</string>
     <string name="login_fail_description">Número de cuenta no válido</string>
     <string name="login_fail_title">Error de inicio de sesión</string>

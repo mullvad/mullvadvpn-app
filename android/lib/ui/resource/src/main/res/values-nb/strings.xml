@@ -43,6 +43,7 @@
     <string name="api_reachable_adding_method">API tilgjengelig, legger til metode …</string>
     <string name="api_unreachable">API ikke tilgjengelig</string>
     <string name="api_unreachable_save_anyway">API ikke tilgjengelig, lagre metoden uansett?</string>
+    <string name="app_icon">App-ikon</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">Denne appen blokkerer internett. Koble fra først</string>
     <string name="app_name_browser">Nettleser</string>
@@ -112,7 +113,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Opprett</string>
-    <string name="create_account_fail_title">Opprettelse av konto mislyktes</string>
     <string name="create_custom_list_message">«%1$s» ble opprettet</string>
     <string name="create_new_account">Opprett en ny konto</string>
     <string name="create_new_account_warning_paragraph1">Du har allerede et lagret kontonummer. Når du oppretter en ny konto, blir det lagrede kontonummeret fjernet fra denne enheten. Dette kan ikke angres.</string>
@@ -192,12 +192,12 @@
     <string name="disconnected_vpn_permission_error">Frakoblet (ingen VPN-tillatelse)</string>
     <string name="disconnecting">Kobler fra …</string>
     <string name="dismiss">Ignorer</string>
+    <string name="divier_or">Eller</string>
     <string name="dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server».</string>
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver «%1$s» nedenfor for å aktivere innstillingene.</string>
     <string name="dns_content_blockers_warning">Dette kan føre til problemer på enkelte nettsteder, tjenester og apper.</string>
-    <string name="dont_have_an_account">Har du ikke et kontonummer?</string>
     <string name="duplicate_address_warning">Denne adressen er allerede skrevet inn.</string>
     <string name="edit_custom_lists">Endre egendefinerte lister</string>
     <string name="edit_list">Endre liste</string>
@@ -241,7 +241,7 @@
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_indicators_show_more">%1$s til …</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
-    <string name="filter">Filter</string>
+    <string name="filter">Filtrer</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå til pålogging</string>
@@ -289,13 +289,10 @@
     <string name="locations_were_changed_for">Plasseringer ble endret for «%1$s»</string>
     <string name="log_in">Logg inn</string>
     <string name="log_out">Logg ut</string>
-    <string name="logged_in_description">Gyldig kontonummer</string>
     <string name="logged_in_title">Du er logget inn</string>
-    <string name="logging_in_description">Kontrollerer kontonummer</string>
     <string name="logging_in_title">Logger inn ...</string>
     <string name="login_description">Skriv inn kontonummeret ditt</string>
     <string name="login_error_api_unreachable">Kunne ikke nå API-en, %1$s</string>
-    <string name="login_error_invalid_input">Kontonummeret er for langt. Skriv inn et gyldig nummer</string>
     <string name="login_error_too_many_attempts">For mange forsøk. Prøv igjen senere</string>
     <string name="login_fail_description">Ugyldig kontonummer</string>
     <string name="login_fail_title">Kunne ikke logge inn</string>

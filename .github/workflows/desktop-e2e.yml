@@ -1,0 +1,562 @@
+# Workflow for triggering `test-manager` on select platforms.
+#
+# This is a rather complex workflow. The complexity mainly stems from these sources:
+# * figuring out which platforms to test on which runners (prepare-matrices)
+# * figuring out if the app and e2e-tests should be built on the runner (build-{linux,windows,macos})
+# or if we should download the artifacts from https://releases.mullvad.net/desktop/
+# * compiling the output from the different runners and executed platforms.
+---
+name: Desktop - End-to-end tests
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      oses:
+        description: "Space-delimited list of targets to run tests on, e.g. `debian13 ubuntu2404`. \
+          Available images:\n
+          `debian11 debian12 debian13 \
+          ubuntu2204 ubuntu2404 ubuntu2504 ubuntu2510 ubuntu2604 \
+          fedora41 fedora42 fedora43 fedora44 \
+          windows10 windows11 \
+          macos12 macos13 macos14 macos15 macos26`.\n
+          Default images:\n
+          `ubuntu2204 ubuntu2404 ubuntu2504 ubuntu2510 \
+          debian13 fedora42 fedora43 windows10 windows11 \
+          macos13 macos14 macos15 macos26`."
+        default: ''
+        required: false
+        type: string
+      tests:
+        description: "Tests to run (defaults to all if empty)"
+        default: ''
+        required: false
+        type: string
+      gotatun:
+        type: boolean
+        default: false
+        description: "Run tests with GotaTun 🦀"
+
+permissions: {}
+
+jobs:
+  prepare-matrices:
+    name: Prepare virtual machines
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate matrix for Linux builds
+        shell: bash
+        run: |
+          # A list of VMs to run the tests on. These refer to the names defined
+          # in $XDG_CONFIG_DIR/mullvad-test/config.json on the runner.
+          all='["debian11","debian12","debian13","ubuntu2204","ubuntu2404","ubuntu2504","ubuntu2510","ubuntu2604","fedora41","fedora42","fedora43","fedora44"]'
+          default='["debian13","ubuntu2404","ubuntu2510","ubuntu2604","fedora42","fedora43"]'
+          oses="${{ github.event.inputs.oses }}"
+          echo "OSES: $oses"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$default"
+          else
+            oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "linux_matrix=$selected" >> $GITHUB_ENV
+      - name: Generate matrix for Windows builds
+        shell: bash
+        run: |
+          all='["windows10","windows11"]'
+          default='["windows10","windows11"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$default"
+          else
+            oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "windows_matrix=$selected" >> $GITHUB_ENV
+      - name: Generate matrix for macOS builds
+        shell: bash
+        run: |
+          all='["macos12","macos13","macos14","macos15","macos26"]'
+          default='["macos13","macos14","macos15","macos26"]'
+          oses="${{ github.event.inputs.oses }}"
+          if [[ -z "$oses" || "$oses" == "null" ]]; then
+            selected="$default"
+          else
+            oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
+            selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
+          fi
+          echo "Selected targets: $selected"
+          echo "macos_matrix=$selected" >> $GITHUB_ENV
+    outputs:
+      linux_matrix: ${{ env.linux_matrix }}
+      windows_matrix: ${{ env.windows_matrix }}
+      macos_matrix: ${{ env.macos_matrix }}
+
+  prepare-linux:
+    name: Prepare Linux build container
+    needs: prepare-matrices
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  build-linux-app:
+    name: Build Linux App
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != '' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1
+      - uses: actions/cache@v4
+        id: cache-app-cargo-artifacts
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Build app
+        if: ${{ github.event.inputs.gotatun == 'false' }}
+        run: |
+          export CARGO_TARGET_DIR=target/
+          ./build.sh --optimize
+      - name: Build app (with GotaTun 🦀)
+        if: ${{ github.event.inputs.gotatun == 'true' }}
+        run: |
+          export CARGO_TARGET_DIR=target/
+          ./build.sh --optimize --gotatun
+      - name: Build test executable
+        run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-build
+          path: |
+            ./dist/*.rpm
+            ./dist/*.deb
+            ./dist/app-e2e-*
+
+  get-app-version:
+    name: Get app version
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    outputs:
+      mullvad-version: ${{ steps.cargo-run.outputs.mullvad-version }}
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled()
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run mullvad-version
+        id: cargo-run
+        run: |
+          # `mullvad-version` uses tags to compute the dev-suffix, so we must fetch them
+          git config --global --add safe.directory '*'
+          git fetch --tags --prune-tags --force > /dev/null
+          version=$(cargo run --package mullvad-version -q)
+          echo "Mullvad VPN app version: '$version'"
+          echo "mullvad-version=$version" >> "$GITHUB_OUTPUT"
+        shell: bash
+
+  # This step should always be run because the `test-manager` binary is used to compile the
+  # result matrix at the end! If that functionality is ever split out from the `test-manager`,
+  # this step may be conditionally run.
+  build-test-manager-linux:
+    name: Build Test Manager
+    needs: prepare-linux
+    # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Build test-manager
+        run: ./test/scripts/container-run.sh cargo build --package test-manager --release
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-manager-build
+          path: |
+            ./test/target/release/test-manager
+          if-no-files-found: error
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
+
+  build-test-runner-binaries-linux:
+    name: Build Test Runner Binaries
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build binaries
+        run: |
+          # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
+          mkdir bin
+          test/scripts/build-scripts/test-runner.sh linux
+          mv -t ./bin/ \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-runner-binaries
+          path: bin/*
+          if-no-files-found: error
+
+  e2e-test-linux:
+    name: Linux end-to-end tests
+    # yamllint disable-line rule:line-length
+    needs:
+      [
+        prepare-matrices,
+        build-linux-app,
+        get-app-version,
+        build-test-manager-linux,
+        build-test-runner-binaries-linux,
+      ]
+    if: |
+      !cancelled() &&
+      needs.get-app-version.result == 'success' &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        run: |
+          # Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: Download Test Runner binaries
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-runner-binaries-linux.result == 'success' }}
+        with:
+          name: linux-test-runner-binaries
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+        shell: bash
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-linux-app.result == 'success' }}
+        with:
+          name: linux-build
+          path: ~/.cache/mullvad-test/packages
+      - name: Run end-to-end tests
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        env:
+          CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+        run: |
+          # A directory with all the binaries is required to run test-manager.
+          # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
+          ls -la "$TEST_DIST_DIR"
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
+
+  build-windows:
+    name: Build Windows
+    needs: prepare-matrices
+    if: |
+      needs.prepare-matrices.outputs.windows_matrix != '[]' &&
+      needs.prepare-matrices.outputs.windows_matrix != '' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
+    runs-on: windows-latest
+    steps:
+      # By default, the longest path a filename can have in git on Windows is 260 character.
+      - name: Set git config for long paths
+        run: |
+          git config --system core.longpaths true
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/mullvad-build-env
+      - name: Build app
+        if: ${{ github.event.inputs.gotatun == 'false' }}
+        shell: bash
+        run: |
+          ./build.sh
+          # FIXME: Strip architecture-specific suffix. The remaining steps assume that the windows installer has no
+          # arch-suffix. This should probably be addressed when we add a Windows arm runner. Or maybe it will just keep
+          # on working ¯\_(ツ)_/¯
+          pushd dist
+          original_file=$(find *.exe)
+          new_file=$(echo $original_file | perl -pe "s/^(MullvadVPN-.*?)(_x64|_arm64)?(\.exe)$/\1\3/p")
+          mv "$original_file" "$new_file"
+          popd
+      - name: Build app (with GotaTun 🦀)
+        if: ${{ github.event.inputs.gotatun == 'true' }}
+        shell: bash
+        run: |
+          ./build.sh --optimize --gotatun
+          # FIXME: Strip architecture-specific suffix. The remaining steps assume that the windows installer has no
+          # arch-suffix. This should probably be addressed when we add a Windows arm runner. Or maybe it will just keep
+          # on working ¯\_(ツ)_/¯
+          pushd dist
+          original_file=$(find *.exe)
+          new_file=$(echo $original_file | perl -pe "s/^(MullvadVPN-.*?)(_x64|_arm64)?(\.exe)$/\1\3/p")
+          mv "$original_file" "$new_file"
+          popd
+      - name: Build test executable
+        shell: bash
+        run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: windows-build
+          path: .\dist\*.exe
+
+  e2e-test-windows:
+    needs:
+      [
+        prepare-matrices,
+        build-windows,
+        get-app-version,
+        build-test-manager-linux,
+      ]
+    if: |
+      !cancelled() &&
+      needs.get-app-version.result == 'success' &&
+      needs.prepare-matrices.outputs.windows_matrix != '[]' &&
+      needs.prepare-matrices.outputs.windows_matrix != ''
+    name: Windows end-to-end tests
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        run: |
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-windows.result == 'success' }}
+        with:
+          name: windows-build
+          path: ~/.cache/mullvad-test/packages
+      - name: Run end-to-end tests
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        env:
+          CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+        run: |
+          # A directory with all the binaries is required to run test-manager.
+          # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
+
+  build-macos:
+    name: Build macOS
+    needs: prepare-matrices
+    if: |
+      needs.prepare-matrices.outputs.macos_matrix != '[]' &&
+      needs.prepare-matrices.outputs.macos_matrix != '' &&
+      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
+    runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: ./.github/actions/mullvad-build-env
+      - name: Build app
+        if: ${{ github.event.inputs.gotatun == 'false' }}
+        run: ./build.sh
+      - name: Build app (with GotaTun 🦀)
+        if: ${{ github.event.inputs.gotatun == 'true' }}
+        run: ./build.sh --optimize --gotatun
+      - name: Build test executable
+        run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: macos-build
+          path: |
+            ./dist/*.pkg
+            ./dist/app-e2e-*
+
+  e2e-test-macos:
+    needs: [prepare-matrices, build-macos, get-app-version]
+    if: |
+      !cancelled() &&
+      needs.get-app-version.result == 'success' &&
+      needs.prepare-matrices.outputs.macos_matrix != '[]' &&
+      needs.prepare-matrices.outputs.macos_matrix != ''
+    name: macOS end-to-end tests
+    runs-on: [self-hosted, desktop-test, macOS] # app-test-macos-arm
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
+    steps:
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-macos.result == 'success' }}
+        with:
+          name: macos-build
+          path: ~/Library/Caches/mullvad-test/packages
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Run end-to-end tests
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        env:
+          CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
+        run: |
+          export TEST_FILTERS="${{ github.event.inputs.tests }}"
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: ${{ matrix.os }}_report
+          path: ./test/.ci-logs/${{ matrix.os }}_report
+
+  compile-test-matrix:
+    name: Result matrix
+    needs: [e2e-test-linux, e2e-test-windows, e2e-test-macos]
+    if: '!cancelled()'
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    steps:
+      - name: Download test report
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*_report'
+          merge-multiple: true
+      - name: Create binaries directory
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        run: |
+          mkdir "${{ github.workspace }}/bin"
+      - name: Download report compiler
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+        shell: bash
+      - name: Generate test result matrix
+        # bash args:
+        # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
+        # -e: fail immediately if any command fails
+        # -o pipefail: fail if any command in a pipeline fails (e.g. cmd1_failed | cmd2)
+        shell: bash -leo pipefail {0}
+        run: |
+          ${{ github.workspace }}/bin/test-manager \
+          format-test-reports ${{ github.workspace }}/*_report \
+          | tee summary.html >> $GITHUB_STEP_SUMMARY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: summary.html
+          path: summary.html

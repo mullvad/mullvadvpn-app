@@ -85,7 +85,7 @@ extension PacketTunnelActor {
                 settings: settings,
                 connectionData: connectionData
             ).make().exitConfiguration
-            if settings.daita.daitaState.isEnabled, let daitaSettings = hop.configuration.daitaParameters {
+            if settings.daita.isEnabled, let daitaSettings = hop.configuration.daitaParameters {
                 daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
             }
             try await tunnelAdapter.apply(settings: exitConfiguration.asTunnelSettings())
@@ -98,7 +98,7 @@ extension PacketTunnelActor {
                 connectionData: connectionData
             ).make()
 
-            if settings.daita.daitaState.isEnabled, let daitaSettings = firstHop.configuration.daitaParameters {
+            if settings.daita.isEnabled, let daitaSettings = firstHop.configuration.daitaParameters {
                 daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
             }
 
