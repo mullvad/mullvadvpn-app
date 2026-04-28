@@ -81,154 +81,148 @@ impl RelaySelector {
         let custom_lists = self.custom_lists();
         match predicate {
             Predicate::Singlehop(constraints) => {
-                self.partition_entry(&relays, &constraints, &custom_lists)
+                partition_entry(&relays, &constraints, &custom_lists)
             }
-            Predicate::Autohop(constraints) => self
-                .partition_autohop(&relays, constraints, &custom_lists)
-                .into_relay_partitions(),
+            Predicate::Autohop(constraints) => {
+                partition_autohop(&relays, constraints, &custom_lists).into_relay_partitions()
+            }
             Predicate::Entry(multihop_constraints) => {
-                self.partition_multihop(&relays, multihop_constraints, &custom_lists)
-                    .entries
+                partition_multihop(&relays, multihop_constraints, &custom_lists).entries
             }
             Predicate::Exit(multihop_constraints) => {
-                self.partition_multihop(&relays, multihop_constraints, &custom_lists)
-                    .exits
+                partition_multihop(&relays, multihop_constraints, &custom_lists).exits
             }
         }
     }
+}
 
-    // Evaluate a verdict function over every relay in the current relay list and partition the
-    // results into matches and discards.
-    pub(super) fn partition_by_verdict(
-        relays: &AnnotatedRelayList,
-        f: impl Fn(&WireguardRelay, &RelayEndpointSet) -> Verdict,
-    ) -> RelayPartitions {
-        let (matches, discards) = relays
-            .inner
-            .relays()
-            .filter_map(|relay| {
-                let set = relays.endpoint_set_for(relay).or_else(|| {
-                    log::warn!(
-                        "Relay {} has no valid WireGuard port ranges; skipping",
-                        relay.hostname
-                    );
-                    None
-                })?;
-                Some((relay, set))
-            })
-            .partition_map(|(relay, set)| match f(relay, set) {
-                Verdict::Accept => Either::Left(relay.clone()),
-                Verdict::Reject(reasons) => Either::Right((relay.clone(), reasons)),
-            });
-        RelayPartitions { matches, discards }
-    }
-
-    pub(super) fn partition_entry(
-        &self,
-        relays: &AnnotatedRelayList,
-        constraints: &EntryConstraints,
-        custom_lists: &CustomListsSettings,
-    ) -> RelayPartitions {
-        Self::partition_by_verdict(relays, |relay, endpoint_set| {
-            self.usable_as_entry(relay, endpoint_set, &constraints.entry_specific)
-                .and(self.usable_as_exit(relay, &constraints.general, custom_lists))
+// Evaluate a verdict function over every relay in the current relay list and partition the
+// results into matches and discards.
+fn partition_by_verdict(
+    relays: &AnnotatedRelayList,
+    f: impl Fn(&WireguardRelay, &RelayEndpointSet) -> Verdict,
+) -> RelayPartitions {
+    let (matches, discards) = relays
+        .inner
+        .relays()
+        .filter_map(|relay| {
+            let set = relays.endpoint_set_for(relay).or_else(|| {
+                log::warn!(
+                    "Relay {} has no valid WireGuard port ranges; skipping",
+                    relay.hostname
+                );
+                None
+            })?;
+            Some((relay, set))
         })
+        .partition_map(|(relay, set)| match f(relay, set) {
+            Verdict::Accept => Either::Left(relay.clone()),
+            Verdict::Reject(reasons) => Either::Right((relay.clone(), reasons)),
+        });
+    RelayPartitions { matches, discards }
+}
+
+pub(super) fn partition_entry(
+    relays: &AnnotatedRelayList,
+    constraints: &EntryConstraints,
+    custom_lists: &CustomListsSettings,
+) -> RelayPartitions {
+    partition_by_verdict(relays, |relay, endpoint_set| {
+        usable_as_entry(relay, endpoint_set, &constraints.entry_specific).and(usable_as_exit(
+            relay,
+            &constraints.general,
+            custom_lists,
+        ))
+    })
+}
+
+pub(super) fn partition_autohop(
+    relays: &AnnotatedRelayList,
+    constraints: EntryConstraints,
+    custom_lists: &CustomListsSettings,
+) -> AutohopPartition {
+    AutohopPartition {
+        singlehop: partition_entry(relays, &constraints, custom_lists),
+        multihop: partition_multihop(relays, constraints.into_autohop(), custom_lists),
+    }
+}
+
+pub(super) fn partition_multihop(
+    relays: &AnnotatedRelayList,
+    MultihopConstraints { entry, exit }: MultihopConstraints,
+    custom_lists: &CustomListsSettings,
+) -> MultiHopPartitions {
+    let mut entries = partition_entry(relays, &entry, custom_lists);
+    let mut exits = partition_exit(relays, &exit, custom_lists);
+
+    remove_conflicting_relay(&mut entries, &mut exits);
+
+    MultiHopPartitions { entries, exits }
+}
+
+pub(super) fn partition_exit(
+    relays: &AnnotatedRelayList,
+    constraints: &ExitConstraints,
+    custom_lists: &CustomListsSettings,
+) -> RelayPartitions {
+    partition_by_verdict(relays, |relay, _endpoint_set| {
+        usable_as_exit(relay, constraints, custom_lists)
+    })
+}
+
+/// Check that the relay satisfies the entry specific criteria. Note that this does not check exit constraints.
+///
+/// Here we consider only entry specific constraints, i.e. DAITA, obfuscation and IP version.
+fn usable_as_entry(
+    relay: &WireguardRelay,
+    endpoint_set: &RelayEndpointSet,
+    constraints: &EntrySpecificConstraints,
+) -> Verdict {
+    let daita = filter_on_daita(constraints.daita, relay).if_false(Reason::Daita);
+
+    let obfuscation_verdict = endpoint_set.obfuscation_verdict(constraints);
+    daita.and(obfuscation_verdict)
+}
+
+/// Check that the relay satisfies the exit criteria.
+fn usable_as_exit(
+    relay: &WireguardRelay,
+    ExitConstraints {
+        location,
+        providers,
+        ownership,
+    }: &ExitConstraints,
+    custom_lists: &CustomListsSettings,
+) -> Verdict {
+    let ownership = ownership.matches(relay).if_false(Reason::Ownership);
+    let providers = providers.matches(relay).if_false(Reason::Providers);
+    let location = location_criteria(relay, location, custom_lists);
+    let active = relay.active.if_false(Reason::Inactive);
+
+    ownership.and(providers).and(location).and(active)
+}
+
+fn location_criteria(
+    relay: &WireguardRelay,
+    location: &Constraint<LocationConstraint>,
+    custom_lists: &CustomListsSettings,
+) -> Verdict {
+    let location_constraint =
+        ResolvedLocationConstraint::from_constraint(location.as_ref(), custom_lists);
+
+    if !location_constraint.matches(relay) {
+        return Verdict::reject(Reason::Location);
     }
 
-    pub(super) fn partition_autohop(
-        &self,
-        relays: &AnnotatedRelayList,
-        constraints: EntryConstraints,
-        custom_lists: &CustomListsSettings,
-    ) -> AutohopPartition {
-        AutohopPartition {
-            singlehop: self.partition_entry(relays, &constraints, custom_lists),
-            multihop: self.partition_multihop(relays, constraints.into_autohop(), custom_lists),
-        }
-    }
-
-    pub(super) fn partition_multihop(
-        &self,
-        relays: &AnnotatedRelayList,
-        MultihopConstraints { entry, exit }: MultihopConstraints,
-        custom_lists: &CustomListsSettings,
-    ) -> MultiHopPartitions {
-        let mut entries = self.partition_entry(relays, &entry, custom_lists);
-        let mut exits = self.partition_exit(relays, &exit, custom_lists);
-
-        remove_conflicting_relay(&mut entries, &mut exits);
-
-        MultiHopPartitions { entries, exits }
-    }
-
-    pub(super) fn partition_exit(
-        &self,
-        relays: &AnnotatedRelayList,
-        constraints: &ExitConstraints,
-        custom_lists: &CustomListsSettings,
-    ) -> RelayPartitions {
-        Self::partition_by_verdict(relays, |relay, _endpoint_set| {
-            self.usable_as_exit(relay, constraints, custom_lists)
-        })
-    }
-
-    /// Check that the relay satisfies the entry specific criteria. Note that this does not check exit constraints.
-    ///
-    /// Here we consider only entry specific constraints, i.e. DAITA, obfuscation and IP version.
-    pub(crate) fn usable_as_entry(
-        &self,
-        relay: &WireguardRelay,
-        endpoint_set: &RelayEndpointSet,
-        constraints: &EntrySpecificConstraints,
-    ) -> Verdict {
-        let daita = filter_on_daita(constraints.daita, relay).if_false(Reason::Daita);
-
-        let obfuscation_verdict = endpoint_set.obfuscation_verdict(constraints);
-        daita.and(obfuscation_verdict)
-    }
-
-    /// Check that the relay satisfies the exit criteria.
-    pub(crate) fn usable_as_exit(
-        &self,
-        relay: &WireguardRelay,
-        ExitConstraints {
-            location,
-            providers,
-            ownership,
-        }: &ExitConstraints,
-        custom_lists: &CustomListsSettings,
-    ) -> Verdict {
-        let ownership = ownership.matches(relay).if_false(Reason::Ownership);
-        let providers = providers.matches(relay).if_false(Reason::Providers);
-        let location = self.location_criteria(relay, location, custom_lists);
-        let active = relay.active.if_false(Reason::Inactive);
-
-        ownership.and(providers).and(location).and(active)
-    }
-
-    pub(crate) fn location_criteria(
-        &self,
-        relay: &WireguardRelay,
-        location: &Constraint<LocationConstraint>,
-        custom_lists: &CustomListsSettings,
-    ) -> Verdict {
-        let location_constraint =
-            ResolvedLocationConstraint::from_constraint(location.as_ref(), custom_lists);
-
-        if !location_constraint.matches(relay) {
-            return Verdict::reject(Reason::Location);
-        }
-
-        // Relays with `include_in_country = false` are only selectable when the location
-        // constraint targets them at city or hostname level. Country-only and unconstrained
-        // queries reject them outright — they're assumed to offer nothing extra over the
-        // other relays in the same country, so picking them implicitly would just degrade
-        // the country-level relay pool.
-        if !relay.include_in_country && is_country_only_match(location_constraint.as_ref(), relay) {
-            Verdict::reject(Reason::IncludeInCountry)
-        } else {
-            Verdict::Accept
-        }
+    // Relays with `include_in_country = false` are only selectable when the location
+    // constraint targets them at city or hostname level. Country-only and unconstrained
+    // queries reject them outright — they're assumed to offer nothing extra over the
+    // other relays in the same country, so picking them implicitly would just degrade
+    // the country-level relay pool.
+    if !relay.include_in_country && is_country_only_match(location_constraint.as_ref(), relay) {
+        Verdict::reject(Reason::IncludeInCountry)
+    } else {
+        Verdict::Accept
     }
 }
 
@@ -239,7 +233,7 @@ impl RelaySelector {
 /// [`Reason::Conflict`]. The two directions are evaluated sequentially, so when a relay
 /// is uniquely the match on both sides it is labeled `Conflict` on only one side and
 /// remains in the other side's `matches`.
-pub(crate) fn remove_conflicting_relay(entries: &mut RelayPartitions, exits: &mut RelayPartitions) {
+fn remove_conflicting_relay(entries: &mut RelayPartitions, exits: &mut RelayPartitions) {
     move_unique_conflict(entries, exits);
     move_unique_conflict(exits, entries);
 }
@@ -258,7 +252,7 @@ fn move_unique_conflict(from: &RelayPartitions, into: &mut RelayPartitions) {
 }
 
 /// Returns whether `relay` satisfy the daita constraint posed by `filter`.
-pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool {
+fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool {
     match (filter, &relay.endpoint_data) {
         // Only a subset of relays support DAITA, so filter out ones that don't.
         (Constraint::Only(true), WireguardRelayEndpointData { daita, .. }) => *daita,
@@ -274,7 +268,7 @@ pub fn filter_on_daita(filter: Constraint<bool>, relay: &WireguardRelay) -> bool
 /// Used to gate `include_in_country = false` relays: such a relay is only acceptable when the
 /// user has pinpointed a specific city or hostname that contains it. Otherwise (country-only
 /// or unconstrained) it must be rejected.
-pub fn is_country_only_match(
+fn is_country_only_match(
     location: Constraint<&ResolvedLocationConstraint<'_>>,
     relay: &WireguardRelay,
 ) -> bool {
