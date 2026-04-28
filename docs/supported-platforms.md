@@ -1,4 +1,4 @@
- Supported platforms
+# Supported platforms
 
 These are the operating systems, versions and architectures that the app officially
 supports and actively tests. It might work on many more versions, but we don't
