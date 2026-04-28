@@ -1,6 +1,10 @@
 ---
 extends: default
 
+ignore: |
+  dist/
+  **/node_modules/
+
 rules:
   line-length:
     max: 120
