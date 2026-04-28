@@ -34,13 +34,7 @@ sealed interface LoginUiStateError {
 
         data object InvalidCredentials : LoginError
 
-        sealed class InvalidInput : LoginError {
-            abstract val accountNumber: AccountNumber
-
-            data class TooShort(override val accountNumber: AccountNumber) : InvalidInput()
-
-            data class TooLong(override val accountNumber: AccountNumber) : InvalidInput()
-        }
+        data class InvalidInput(val accountNumber: AccountNumber) : LoginError
 
         data object TooManyAttempts : LoginError
 
