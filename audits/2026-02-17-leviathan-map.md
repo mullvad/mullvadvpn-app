@@ -1,7 +1,7 @@
 # 2026-02-17 - Leviathan MAP audit of our Android app
 
-[Leviathan Security Group] conducted a Mobile Application Profile (MAP, successor to MASA) of our
-Android app.
+[Leviathan Security Group] conducted a Mobile Application Profile (MAP, successor to MASA) audit
+of our Android app.
 
 ## Overview of findings
 
@@ -33,11 +33,11 @@ that we are tracking internally to add support once available.
 [issue upstream]. The library ([source code]) is very small, it is a wrapper for an atomic C++
 counter. We've manually reviewed it and found no issues.
 
-**Conclusion:** Finding retracted from Leviathan
+**Conclusion:** Finding retracted by Leviathan
 
 ### 1.8.2.1 The app shall be transparent about data collection and usage
 
-When adding Google Play Payments in version 2023.8 we never updated our Google Play listing to
+When adding Google Play Payments in version 2023.8 we did not update our Google Play listing to
 state that we store Purchase history. The Purchase history is linked to an account for a limited
 time to be able to offer refunds. After 20 days the link is removed automatically.
 
