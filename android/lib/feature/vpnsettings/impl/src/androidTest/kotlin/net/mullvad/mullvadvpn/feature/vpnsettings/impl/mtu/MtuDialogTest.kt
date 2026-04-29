@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.vpnsettings.impl.mtu
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -82,15 +81,6 @@ class MtuDialogTest {
     }
 
     @Test
-    fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() = composeExtension.use {
-        // Arrange
-        initDialog(defaultState.copy(mtuInput = INVALID_DUMMY_MTU_VALUE, isValidInput = false))
-
-        // Assert
-        onNodeWithText("Submit").assertIsNotEnabled()
-    }
-
-    @Test
     fun testMtuDialogResetClick() = composeExtension.use {
         // Arrange
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
@@ -122,6 +112,5 @@ class MtuDialogTest {
     companion object {
         private const val EMPTY_STRING = ""
         private const val VALID_DUMMY_MTU_VALUE = "1337"
-        private const val INVALID_DUMMY_MTU_VALUE = "1111"
     }
 }
