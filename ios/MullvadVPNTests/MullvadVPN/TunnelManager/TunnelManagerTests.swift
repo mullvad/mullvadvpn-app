@@ -18,7 +18,7 @@ class TunnelManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
     private var tunnelObserver: TunnelObserver!
 
-    var application: BackgroundTaskProviding!
+    var application: TunnelStore.BackgroundTaskProvidingObject!
     var relayCacheTracker: RelayCacheTrackerStub!
     var accountProxy: AccountsProxyStub!
     var devicesProxy: DevicesProxyStub!
@@ -66,7 +66,6 @@ class TunnelManagerTests: XCTestCase {
     }
 
     override func tearDown() async throws {
-        application = nil
         relayCacheTracker = nil
         accountProxy = nil
         devicesProxy = nil
