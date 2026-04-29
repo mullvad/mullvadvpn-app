@@ -40,7 +40,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 /** Used by both the select location screen and search select location screen */
 fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
-    searchTerm: String? = null,
     relayListType: RelayListType,
     onSelectRelayItem: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -62,7 +61,6 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.CustomListItem ->
                         CustomListItem(
                             listItem = listItem,
-                            searchTerm = searchTerm,
                             relayListType = relayListType,
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
@@ -81,7 +79,6 @@ fun LazyListScope.relayListContent(
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem = listItem,
-                            searchTerm = searchTerm,
                             relayListType = relayListType,
                             onSelect = onSelectRelayItem,
                             onToggleExpand = onToggleExpand,
@@ -131,7 +128,6 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
 @Composable
 private fun GeoLocationItem(
     listItem: RelayListItem.GeoLocationItem,
-    searchTerm: String?,
     relayListType: RelayListType,
     onSelect: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -139,7 +135,6 @@ private fun GeoLocationItem(
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        highlightText = searchTerm.orEmpty(),
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             onUpdateBottomSheetState(
@@ -206,7 +201,6 @@ private fun RecentListItem(
 @Composable
 private fun CustomListItem(
     listItem: RelayListItem.CustomListItem,
-    searchTerm: String?,
     relayListType: RelayListType,
     onSelect: (RelayItem) -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
@@ -214,7 +208,6 @@ private fun CustomListItem(
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        highlightText = searchTerm.orEmpty(),
         onClick = { onSelect(listItem.item) },
         onLongClick = {
             onUpdateBottomSheetState(
@@ -239,7 +232,6 @@ private fun CustomListEntryItem(
 ) {
     SelectableRelayListItem(
         relayListItem = listItem,
-        highlightText = "",
         onClick = { onSelect(listItem.item) },
         // Only direct children can be removed
         onLongClick =

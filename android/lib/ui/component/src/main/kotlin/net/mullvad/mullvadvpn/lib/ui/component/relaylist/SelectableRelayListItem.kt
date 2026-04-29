@@ -18,20 +18,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
-import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
-import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ENTRY_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
@@ -39,7 +35,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_ITEM_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Composable
 @Preview
@@ -49,14 +44,9 @@ private fun PreviewSelectableRelayLocationItem(
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            relayItems.map {
+            relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
-                SelectableRelayListItem(
-                    relayListItem = it,
-                    highlightText = "",
-                    onClick = {},
-                    onToggleExpand = {},
-                )
+                SelectableRelayListItem(relayListItem = it, onClick = {}, onToggleExpand = {})
             }
         }
     }
@@ -66,7 +56,6 @@ private fun PreviewSelectableRelayLocationItem(
 fun SelectableRelayListItem(
     modifier: Modifier = Modifier,
     relayListItem: RelayListItem.SelectableItem,
-    highlightText: String,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     onToggleExpand: ((Boolean) -> Unit),
@@ -119,11 +108,8 @@ fun SelectableRelayListItem(
         },
         content = {
             Name(
-                name = relayListItem.item.name,
-                highlightText = highlightText,
-                state = relayListItem.state,
+                name = relayListItem.titleAnnotated,
                 textColor = colors.headlineColor(enabled = active, selected = selected),
-                highlightColor = MaterialTheme.colorScheme.highlight,
             )
         },
         trailingContent = {
@@ -139,40 +125,8 @@ fun SelectableRelayListItem(
 }
 
 @Composable
-internal fun Name(
-    name: String,
-    highlightText: String,
-    state: RelayListItemState?,
-    textColor: Color,
-    highlightColor: Color,
-) {
-    Text(
-        text =
-            if (state != null) name.highlightText(highlightText, highlightColor).withSuffix(state)
-            else name.highlightText(highlightText, highlightColor),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        color = textColor,
-    )
-}
-
-@Composable
-private fun AnnotatedString.withSuffix(state: RelayListItemState): AnnotatedString {
-    // This is a bit of a hack since there is no way to do String.format without losing the styling.
-    // Since we want to style on only the name and not the suffix we need to manually do the
-    // formatting. The assumption here is that the string contains a "%1$s" or "%s" placeholder
-    // for the name, if that is not present it will break.
-    val formatStr =
-        when (state) {
-            RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit)
-            RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry)
-        }
-    val parts = formatStr.split("%1\$s", "%s")
-    return buildAnnotatedString {
-        if (parts.isNotEmpty()) append(parts[0])
-        append(this@withSuffix)
-        if (parts.size > 1) append(parts[1])
-    }
+internal fun Name(name: AnnotatedString, textColor: Color) {
+    Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis, color = textColor)
 }
 
 @Composable

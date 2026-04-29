@@ -40,6 +40,7 @@ object RelayListItemPreviewData {
                     state = null,
                     expanded = false,
                     itemPosition = Position.Single,
+                    highlight = "",
                 )
             }
             if (!isSearching) {
@@ -71,6 +72,7 @@ object RelayListItemPreviewData {
                     expanded = true,
                     state = null,
                     itemPosition = Position.Middle,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[0],
@@ -79,6 +81,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Middle,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1],
@@ -87,6 +90,7 @@ object RelayListItemPreviewData {
                     expanded = true,
                     state = null,
                     itemPosition = Position.Middle,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[0],
@@ -95,6 +99,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = RelayListItemState.USED_AS_EXIT,
                     itemPosition = Position.Middle,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[0].cities[1].relays[1],
@@ -103,6 +108,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Middle,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item = locations[1],
@@ -111,6 +117,7 @@ object RelayListItemPreviewData {
                     expanded = false,
                     state = null,
                     itemPosition = Position.Bottom,
+                    highlight = "",
                 ),
             )
         )

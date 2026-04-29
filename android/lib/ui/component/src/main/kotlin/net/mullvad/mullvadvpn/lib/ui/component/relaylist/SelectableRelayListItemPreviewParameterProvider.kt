@@ -20,6 +20,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     expanded = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -32,6 +33,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -44,6 +46,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     expanded = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -55,6 +58,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = false,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    highlight = "",
                 ),
                 RelayListItem.GeoLocationItem(
                     item =
@@ -67,6 +71,7 @@ class SelectableRelayListItemPreviewParameterProvider :
                     isSelected = true,
                     hierarchy = Hierarchy.Parent,
                     itemPosition = Position.Single,
+                    highlight = "",
                 ),
             )
         )
