@@ -112,13 +112,10 @@ impl std::fmt::Display for Message {
 }
 
 impl Error {
-    /// Check if this error implies that the currenly running
+    /// Check if this error implies that the currently running
     /// [`AccessModeSelector`] can not continue to operate properly.
     fn is_critical_error(&self) -> bool {
-        matches!(
-            self,
-            Error::SendFailed(..) | Error::OneshotSendFailed | Error::NotRunning(..)
-        )
+        matches!(self, Error::SendFailed(..) | Error::NotRunning(..))
     }
 }
 
@@ -172,7 +169,7 @@ impl AccessModeSelectorHandle {
         self.send_command(|tx| Message::Resolve(tx, setting))
             .await
             .inspect_err(|_| {
-                log::error!("Failed to update new access methods!");
+                log::error!("Failed to resolve access method!");
             })
     }
 
