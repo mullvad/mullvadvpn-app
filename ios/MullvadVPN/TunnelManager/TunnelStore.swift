@@ -20,6 +20,8 @@ protocol TunnelStoreProtocol: Sendable {
 
 /// Wrapper around system VPN tunnels.
 final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked Sendable {
+    typealias BackgroundTaskProvidingObject = BackgroundTaskProviding & AnyObject
+
     typealias TunnelType = Tunnel
     private let logger = Logger(label: "TunnelStore")
     private let lock = NSLock()
@@ -31,7 +33,7 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     /// Newly created tunnels, stored as collection of weak boxes.
     private var newTunnels: [WeakBox<TunnelType>] = []
 
-    init(application: BackgroundTaskProviding) {
+    init(application: BackgroundTaskProvidingObject) {
         self.application = application
         NotificationCenter.default.addObserver(
             forName: UIApplication.didBecomeActiveNotification,
