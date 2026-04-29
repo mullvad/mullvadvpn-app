@@ -28,10 +28,9 @@
 		014E8C2A2F28B09700837D0A /* MullvadLogging.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223F3294C8FF00029F5F8 /* MullvadLogging.framework */; };
 		014E8C302F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
 		014E8C312F294FB000837D0A /* relays-test-data.json in Resources */ = {isa = PBXBuildFile; fileRef = 014E8C2F2F294FB000837D0A /* relays-test-data.json */; };
-		014E8C342F2B425C00837D0A /* LogRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C332F2B425C00837D0A /* LogRedactor.swift */; };
 		4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0064CB0EF9AACDC812F39635 /* LogRedacting.swift */; };
 		014E8C372F2BC60300837D0A /* LogRedactorBenchmarkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */; };
-		014E8C382F2BC60300837D0A /* LogRedactorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C362F2BC60300837D0A /* LogRedactorTests.swift */; };
+
 		014E8C3A2F2D594400837D0A /* RustLogRedactor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014E8C392F2D594400837D0A /* RustLogRedactor.swift */; };
 		016EE0382F850C0E0035B25C /* WireGuardKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016EE0372F850C0E0035B25C /* WireGuardKey.swift */; };
 		016EE03A2F850C5A0035B25C /* WireGuardKeyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016EE0392F850C5A0035B25C /* WireGuardKeyTests.swift */; };
@@ -1736,10 +1735,9 @@
 		01C981E52F43C3410002D284 /* BlockedStateReason+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BlockedStateReason+Localization.swift"; sourceTree = "<group>"; };
 		01C981E62F43C3410002D284 /* TunnelStateAccessibilityAnnouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelStateAccessibilityAnnouncer.swift; sourceTree = "<group>"; };
 		01C981EA2F45D5C20002D284 /* TunnelControlPageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlPageTests.swift; sourceTree = "<group>"; };
-		014E8C332F2B425C00837D0A /* LogRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactor.swift; sourceTree = "<group>"; };
 		0064CB0EF9AACDC812F39635 /* LogRedacting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedacting.swift; sourceTree = "<group>"; };
 		014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorBenchmarkTests.swift; sourceTree = "<group>"; };
-		014E8C362F2BC60300837D0A /* LogRedactorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorTests.swift; sourceTree = "<group>"; };
+
 		014E8C392F2D594400837D0A /* RustLogRedactor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogRedactor.swift; sourceTree = "<group>"; };
 		01D13C202F11130500EC63DE /* RustLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustLogging.swift; sourceTree = "<group>"; };
 		01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = ../target/debug/libmullvad_ios.a; sourceTree = "<group>"; };
@@ -3078,7 +3076,7 @@
 			isa = PBXGroup;
 			children = (
 				014E8C352F2BC60300837D0A /* LogRedactorBenchmarkTests.swift */,
-				014E8C362F2BC60300837D0A /* LogRedactorTests.swift */,
+
 				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
 				A9C7B62B2EB9F71D002CABB1 /* LoggerBuilderTests.swift */,
 				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
@@ -4269,7 +4267,6 @@
 			isa = PBXGroup;
 			children = (
 				0064CB0EF9AACDC812F39635 /* LogRedacting.swift */,
-				014E8C332F2B425C00837D0A /* LogRedactor.swift */,
 				58D223F5294C8FF00029F5F8 /* MullvadLogging.h */,
 				581943E328F8010400B0CB5E /* CustomFormatLogHandler.swift */,
 				581943E228F8010400B0CB5E /* Date+LogFormat.swift */,
@@ -6205,7 +6202,7 @@
 				A9A5FA422ACB05D90083449F /* DeviceStateAccessorProtocol.swift in Sources */,
 				7A5869C32B5820CE00640D27 /* IPOverrideRepositoryTests.swift in Sources */,
 				014E8C372F2BC60300837D0A /* LogRedactorBenchmarkTests.swift in Sources */,
-				014E8C382F2BC60300837D0A /* LogRedactorTests.swift in Sources */,
+
 				A9A5FA392ACB05910083449F /* UIColor+Palette.swift in Sources */,
 				7A5468AD2C6B5E4B00590086 /* LocationRelays.swift in Sources */,
 				F97C38DF2DEEDB0F006DCB08 /* Color+Mullvad.swift in Sources */,
@@ -7111,7 +7108,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4084C59D0F3955182E3C8340 /* LogRedacting.swift in Sources */,
-				014E8C342F2B425C00837D0A /* LogRedactor.swift in Sources */,
+
 				7AED35CC2BD13F60002A67D1 /* ApplicationConfiguration.swift in Sources */,
 				E10A0002000000000000AB05 /* PacketTunnelDebugSettings.swift in Sources */,
 				7AED35CD2BD13FC4002A67D1 /* ApplicationTarget.swift in Sources */,

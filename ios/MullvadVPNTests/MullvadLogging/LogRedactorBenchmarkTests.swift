@@ -6,18 +6,12 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadLogging
 import MullvadRustRuntime
 import XCTest
 
-/// Benchmark comparing Swift and Rust log redaction over a representative mix of log entries.
-///
-/// Each benchmark run redacts all test inputs, giving a realistic picture of per-log-batch cost.
+/// Benchmark for Rust log redaction over a representative mix of log entries.
 final class LogRedactorBenchmarkTests: XCTestCase {
-    let swiftRedactor = LogRedactor.shared
     let rustRedactor = RustLogRedactor()
-
-    // MARK: - Test Data
 
     /// Representative mix of log entries covering all redaction patterns and the common no-match case.
     let logEntries = [
@@ -39,18 +33,6 @@ final class LogRedactorBenchmarkTests: XCTestCase {
         Gateway: 192.168.1.254. Network interface ready.
         """,
     ]
-
-    // MARK: - Benchmarks
-
-    func testBenchmarkSwiftRedactor() {
-        measure {
-            for _ in 0..<10_000 {
-                for entry in logEntries {
-                    _ = swiftRedactor.redact(entry)
-                }
-            }
-        }
-    }
 
     func testBenchmarkRustRedactor() {
         measure {
