@@ -46,7 +46,7 @@ pub fn is_shutdown_user_initiated() -> bool {
 /// Currently returns false all of the time to ensure that no leaks occur during shutdown.
 // FIXME: implement shutdown detection - the current implementation will always block network
 // traffic when the daemon is shut down.
-#[cfg(target_os = "macos")]
+#[cfg(any(target_os = "macos", target_os = "windows"))]
 pub fn is_shutdown_user_initiated() -> bool {
     false
 }

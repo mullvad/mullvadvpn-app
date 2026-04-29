@@ -206,13 +206,13 @@ async fn run_standalone(
     let daemon = create_daemon(log_dir, log_handle).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    #[cfg(any(target_os = "linux", target_os = "macos", target_os = "windows"))]
     mullvad_daemon::shutdown::set_shutdown_signal_handler(move || {
         shutdown_handle.shutdown(mullvad_daemon::shutdown::is_shutdown_user_initiated())
     })
     .map_err(|e| e.display_chain())?;
 
-    #[cfg(any(windows, target_os = "android"))]
+    #[cfg(target_os = "android")]
     mullvad_daemon::shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown(true))
         .map_err(|e| e.display_chain())?;
 
