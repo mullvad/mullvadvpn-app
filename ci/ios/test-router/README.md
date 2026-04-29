@@ -12,6 +12,8 @@
   * `nixos-reubild switch .#$newMachine --target-host root@$newMachine-ip` if one can SSH into the machine
   * `nixos-reubild switch .$pathToFlake#$newMachine` if flake is copied to nix machine, with `$pathToFlake` being the
       path to this flake directory.
+- Create a new stagemole account and add plentry of time to it. Then copy the account's private
+    WireGuard key to the file `/staging-wg-private-key`
 
 ## Livebooting
 One can create an ISO to live-boot a router needing to permanently install this config. There are two drawbacks:
