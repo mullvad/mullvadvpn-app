@@ -235,10 +235,9 @@ impl RelayEndpointSet {
             Constraint::Any => return Ok((wireguard_endpoint, None)),
             #[cfg(feature = "staggered-obfuscation")]
             Constraint::Any => {
-                let staggered_obfuscator = self
-                    .staggered_obfuscator(wireguard_endpoint, ip_version)
-                    .ok_or(Error::MissingSupport)?;
-                return Ok((wireguard_endpoint, Some(staggered_obfuscator)));
+                let staggered_obfuscator =
+                    self.staggered_obfuscator(wireguard_endpoint, ip_version);
+                return Ok((wireguard_endpoint, staggered_obfuscator));
             }
         };
 
