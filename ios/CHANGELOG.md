@@ -39,6 +39,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Improve reliability of the bridge API connection method.
 
+### Fixed
+- Fixed a rare crash in API code that would leave the app unable to reach our API.
+
+
 ## [2025.10 - 2025-12-01]
 ### Added
 - Allow using port 443 for UDP-over-TCP.
