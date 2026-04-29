@@ -32,7 +32,7 @@ private fun PreviewCheckableRelayListItem(
             relayItems.map {
                 Spacer(Modifier.size(1.dp))
                 CheckableRelayListItem(
-                    item = CheckableRelayListItem(item = it, itemPosition = Position.Single),
+                    item = CheckableRelayListItem(item = it, itemPosition = Position.Single, highlight = ""),
                     onExpand = {},
                     modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
                 )
@@ -45,7 +45,6 @@ private fun PreviewCheckableRelayListItem(
 fun CheckableRelayListItem(
     modifier: Modifier = Modifier,
     item: CheckableRelayListItem,
-    searchTerm: String? = null,
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
@@ -54,11 +53,7 @@ fun CheckableRelayListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title =
-            item.item.name.highlightText(
-                highlightText = searchTerm.orEmpty(),
-                highlightColor = MaterialTheme.colorScheme.highlight,
-            ),
+        title = item.titleAnnotated,
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {

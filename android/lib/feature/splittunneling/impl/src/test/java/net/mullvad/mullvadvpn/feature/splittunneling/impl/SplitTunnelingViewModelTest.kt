@@ -97,8 +97,14 @@ class SplitTunnelingViewModelTest {
         val expectedState =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(appExcluded),
-                includedApps = listOf(appNotExcluded),
+                excludedApps =
+                    listOf(appExcluded).map {
+                        AppItem(title = it.name, packageName = it.packageName, highlight = "")
+                    },
+                includedApps =
+                    listOf(appNotExcluded).map {
+                        AppItem(title = it.name, packageName = it.packageName, highlight = "")
+                    },
                 showSystemApps = false,
             )
 
@@ -119,7 +125,10 @@ class SplitTunnelingViewModelTest {
         val expectedStateBeforeAction =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(app),
+                excludedApps =
+                    listOf(
+                        AppItem(title = app.name, packageName = app.packageName, highlight = "")
+                    ),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )
@@ -127,7 +136,10 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
-                includedApps = listOf(app),
+                includedApps =
+                    listOf(
+                        AppItem(title = app.name, packageName = app.packageName, highlight = "")
+                    ),
                 showSystemApps = false,
             )
         coEvery { mockedSplitTunnelingRepository.includeApp(app.packageName) } returns Unit.right()
@@ -156,14 +168,20 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
-                includedApps = listOf(app),
+                includedApps =
+                    listOf(
+                        AppItem(title = app.name, packageName = app.packageName, highlight = "")
+                    ),
                 showSystemApps = false,
             )
 
         val expectedStateAfterAction =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(app),
+                excludedApps =
+                    listOf(
+                        AppItem(title = app.name, packageName = app.packageName, highlight = "")
+                    ),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )
