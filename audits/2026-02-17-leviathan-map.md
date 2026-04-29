@@ -61,12 +61,12 @@ this also allows them to more easily cut the link between the account and the pu
 All the fixes were approved and verified by Leviathan on March 19 against [2026.3-beta3] which was
 subsequently released as [2026.3] on March 23.
 
-## MAP Compliance certificate
+## Certificate and reports
 
 The MAP certificate is hosted by App Defense Alliance:
 * [2026-02-17 MAP certificate](TBD)
 
-We also host the certificate in our repository:
+We also host the compliance report as well as test reports in our repository:
 * [2026-02-23 MAP Developer Test Report v1](2026-02-23-leviathan-map-developer-test-report-v1.pdf)
 * [2026-04-16 MAP Developer Test Report v2](2026-04-16-leviathan-map-developer-test-report-v2.pdf)
 * [2026-04-16 MAP Compliance Report](2026-04-16-leviathan-map-compliance-report.pdf)
