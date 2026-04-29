@@ -656,7 +656,8 @@ dependencies = [
 [[package]]
 name = "domain-fronting"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/domain-fronting?rev=3fac39ddb17c1b6331cfd0db7fdeaf5f12fc3f87#3fac39ddb17c1b6331cfd0db7fdeaf5f12fc3f87"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b79073a27116e860b1573be87e6e698a37e3b286d6bab740cf7f4cdd9e80f9b3"
 dependencies = [
  "anyhow",
  "async-trait",
