@@ -92,6 +92,10 @@ netlink-packet-route = "0.25"
 netlink-proto = "0.12"
 netlink-sys = "0.8.3"
 nix = "0.30.1"
+# TODO: tauri does not publish `nsis-plugin-api` to crates.io; ask upstream
+# to publish a release so we can switch from a git dependency to a
+# version-pinned crates.io dependency.
+nsis-plugin-api = { git = "https://github.com/tauri-apps/nsis-tauri-utils", rev = "13d9edd27b69310e108d6fbd49f90992f8a05390" }
 once_cell = "1.16"
 pnet_packet = "0.35.0"
 proptest = "1.9"
