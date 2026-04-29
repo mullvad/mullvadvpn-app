@@ -261,6 +261,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     ) {
         accessMethodReceiver = MullvadAccessMethodReceiver(
             apiContext: apiContext,
+            validShadowsocksCiphers: accessMethodRepository.shadowsocksCiphers,
             accessMethodsDataSource: accessMethodRepository.accessMethodsPublisher,
             requestDataSource: accessMethodRepository.requestAccessMethodPublisher
         )
