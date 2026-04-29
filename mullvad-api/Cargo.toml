@@ -14,7 +14,7 @@ crate-type = ["rlib", "staticlib"]
 anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true }
-domain-fronting = { git = "https://github.com/mullvad/domain-fronting", rev = "f7b0e66a2eec539839e601efd868b0500be95f0b" }
+domain-fronting = { git = "https://github.com/mullvad/domain-fronting", rev = "3fac39ddb17c1b6331cfd0db7fdeaf5f12fc3f87" }
 futures = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"

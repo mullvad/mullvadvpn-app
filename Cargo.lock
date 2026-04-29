@@ -1220,7 +1220,7 @@ dependencies = [
 [[package]]
 name = "domain-fronting"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/domain-fronting?rev=f7b0e66a2eec539839e601efd868b0500be95f0b#f7b0e66a2eec539839e601efd868b0500be95f0b"
+source = "git+https://github.com/mullvad/domain-fronting?rev=3fac39ddb17c1b6331cfd0db7fdeaf5f12fc3f87#3fac39ddb17c1b6331cfd0db7fdeaf5f12fc3f87"
 dependencies = [
  "anyhow",
  "async-trait",
