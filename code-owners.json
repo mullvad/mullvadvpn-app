@@ -44,6 +44,7 @@
     "ci/keys/**",
     "ci/verify-locked-down-signatures.sh",
     "code-owners.json",
+    "docs/supported-platforms.md",
     ".github/CODEOWNERS",
     ".github/workflows/code-owner-*",
     ".github/workflows/verify-locked-down-signatures.yml"
