@@ -16,13 +16,16 @@ import XCTest
 
 class TunnelManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
+
+    private let application: TunnelStore.BackgroundTaskProvidingObject = UIApplicationStub()
     private var tunnelObserver: TunnelObserver!
 
-    var application: TunnelStore.BackgroundTaskProvidingObject!
-    var relayCacheTracker: RelayCacheTrackerStub!
-    var accountProxy: AccountsProxyStub!
-    var devicesProxy: DevicesProxyStub!
-    var apiProxy: APIProxyStub!
+    var relayCacheTracker = RelayCacheTrackerStub()
+    var accountProxy = AccountsProxyStub()
+    var devicesProxy = DevicesProxyStub(
+        deviceResult: .success(Device.mock(publicKey: WireGuard.PrivateKey().publicKey))
+    )
+    var apiProxy = APIProxyStub()
     var apiContext: MullvadApiContext!
 
     override static func setUp() {
@@ -34,12 +37,6 @@ class TunnelManagerTests: XCTestCase {
     }
 
     override func setUp() async throws {
-        application = UIApplicationStub()
-        relayCacheTracker = RelayCacheTrackerStub()
-        accountProxy = AccountsProxyStub()
-        devicesProxy = DevicesProxyStub(
-            deviceResult: .success(Device.mock(publicKey: WireGuard.PrivateKey().publicKey)))
-        apiProxy = APIProxyStub()
         let shadowsocksLoader = ShadowsocksLoader(
             cache: ShadowsocksConfigurationCacheStub(),
             relaySelector: ShadowsocksRelaySelectorStub(relays: .mock()),
@@ -64,10 +61,6 @@ class TunnelManagerTests: XCTestCase {
     }
 
     override func tearDown() async throws {
-        relayCacheTracker = nil
-        accountProxy = nil
-        devicesProxy = nil
-        apiProxy = nil
         tunnelObserver = nil
     }
 
