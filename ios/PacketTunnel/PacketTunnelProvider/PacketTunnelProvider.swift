@@ -100,7 +100,27 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         #if DEBUG
             if PacketTunnelDebugSettings.useGotaTun {
                 providerLogger.info("Using GotaTunActor (debug)")
-                actor = GotaTunActor()
+                relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
+                actor = GotaTunActor(
+                    tunnelFd: { [weak self] in self?.tunnelFileDescriptor },
+                    applyNetworkSettings: { [weak self] settings in
+                        guard let self else { return }
+                        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                            self.setTunnelNetworkSettings(settings.asTunnelSettings()) { error in
+                                if let error {
+                                    continuation.resume(throwing: error)
+                                } else {
+                                    continuation.resume()
+                                }
+                            }
+                        }
+                    },
+                    settingsReader: settingsReader,
+                    relaySelector: relaySelector,
+                    defaultPathObserver: defaultPathObserver,
+                    blockedStateErrorMapper: BlockedStateErrorMapper(),
+                    adapterFactory: RustGotaTunAdapterFactory()
+                )
             } else {
                 setUpWireGuardActor(
                     ipOverrideWrapper: ipOverrideWrapper,
@@ -344,6 +364,80 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         return settings
     }
+
+    #if DEBUG
+        // Kernel control socket types from <sys/kern_control.h>, needed for utun fd discovery.
+        // These are normally provided by WireGuardKitC, but GotaTun avoids that dependency.
+        private static let CTLIOCGINFO: UInt = 0xc064_4e03
+
+        private struct ctl_info {
+            var ctl_id: UInt32 = 0
+            var ctl_name:
+                (
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar,
+                    CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar
+                ) = (
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                )
+        }
+
+        private struct sockaddr_ctl {
+            var sc_len: UInt8 = UInt8(MemoryLayout<sockaddr_ctl>.size)
+            var sc_family: UInt8 = UInt8(AF_SYSTEM)
+            var ss_sysaddr: UInt16 = 0
+            var sc_id: UInt32 = 0
+            var sc_unit: UInt32 = 0
+            var sc_reserved: (UInt32, UInt32, UInt32, UInt32, UInt32) = (0, 0, 0, 0, 0)
+        }
+
+        /// Tunnel device file descriptor, discovered by scanning for utun control sockets.
+        private var tunnelFileDescriptor: Int32? {
+            var ctlInfo = ctl_info()
+            withUnsafeMutablePointer(to: &ctlInfo.ctl_name) {
+                $0.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: $0.pointee)) {
+                    _ = strcpy($0, "com.apple.net.utun_control")
+                }
+            }
+            for fd: Int32 in 0...1024 {
+                var addr = sockaddr_ctl()
+                var ret: Int32 = -1
+                var len = socklen_t(MemoryLayout.size(ofValue: addr))
+                withUnsafeMutablePointer(to: &addr) {
+                    $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                        ret = getpeername(fd, $0, &len)
+                    }
+                }
+                if ret != 0 || addr.sc_family != AF_SYSTEM {
+                    continue
+                }
+                if ctlInfo.ctl_id == 0 {
+                    ret = ioctl(fd, Self.CTLIOCGINFO, &ctlInfo)
+                    if ret != 0 {
+                        continue
+                    }
+                }
+                if addr.sc_id == ctlInfo.ctl_id {
+                    return fd
+                }
+            }
+            return nil
+        }
+    #endif
 }
 
 extension PacketTunnelProvider {
