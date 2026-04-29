@@ -1,30 +1,13 @@
-#[cfg(unix)]
-mod platform {
-    use simple_signal::Signal;
-    use std::io;
+use ctrlc;
+use thiserror::Error;
 
-    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), io::Error> {
-        simple_signal::set_handler(&[Signal::Term, Signal::Int], move |s| {
-            log::debug!("Process received signal: {:?}", s);
-            f();
-        });
-        Ok(())
-    }
-}
+#[derive(Error, Debug)]
+#[error("Unable to attach ctrl-c handler")]
+pub struct Error(#[from] ctrlc::Error);
 
-#[cfg(windows)]
-mod platform {
-    #[derive(thiserror::Error, Debug)]
-    #[error("Unable to attach ctrl-c handler")]
-    pub struct Error(#[from] ctrlc::Error);
-
-    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
-        ctrlc::set_handler(move || {
-            log::debug!("Process received Ctrl-c");
-            f();
-        })
-        .map_err(Error)
-    }
+pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
+    ctrlc::set_handler(f)?;
+    Ok(())
 }
 
 /// Returns true if systemd successfully reported that the machine is not shutting down or entering
@@ -50,5 +33,3 @@ pub fn is_shutdown_user_initiated() -> bool {
 pub fn is_shutdown_user_initiated() -> bool {
     false
 }
-
-pub use self::platform::*;
