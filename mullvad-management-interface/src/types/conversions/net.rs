@@ -302,7 +302,7 @@ mod proxy {
         fn try_from(value: proto::Shadowsocks) -> Result<Self, Self::Error> {
             let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
                 FromProtobufTypeError::invalid_argument(
-                    "Could not parse Socks5 (remote) message from protobuf",
+                    "Could not parse Shadowsocks message from protobuf",
                 )
             })?;
 
