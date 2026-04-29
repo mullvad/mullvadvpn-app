@@ -98,7 +98,7 @@ jobs:
     runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: true
 
@@ -133,7 +133,7 @@ jobs:
     runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Ensure correct container image is used
         run: echo "${{ needs.prepare.outputs.container_image }}" > ./building/android-container-image.txt
@@ -159,7 +159,7 @@ jobs:
           "${{ steps.build-tasks.outputs.tasks }}"
 
       - name: Upload apks
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: apks
           path: android/**/*.apk
@@ -188,7 +188,7 @@ jobs:
           - gradle-task: lint
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: true
 
@@ -221,11 +221,11 @@ jobs:
 
       - name: Checkout repository
         if: ${{ matrix.test-repeat != 0 }}
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: true
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
@@ -249,7 +249,7 @@ jobs:
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
       - name: Upload instrumentation report (${{ matrix.test-type }})
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: always() && matrix.test-repeat != 0
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
@@ -282,11 +282,11 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: true
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: apks
           path: android
@@ -318,7 +318,7 @@ jobs:
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
 
       - name: Upload e2e instrumentation report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: >
           always() && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
         with:
@@ -351,17 +351,17 @@ jobs:
             path: android/test/e2e/build/outputs/apk
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           submodules: true
 
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
         with:
           name: apks
           path: android
 
       - name: Run tests on Firebase Test Lab
-        uses: asadmansr/Firebase-Test-Lab-Action@505de6c4fc124883cdacf99015d626a2c979ffc8 # v1.0
+        uses: asadmansr/Firebase-Test-Lab-Action@505de6c4fc124883cdacf99015d626a2c979ffc8  # v1.0
         env:
           SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
         with:
