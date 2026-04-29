@@ -254,12 +254,8 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
-            if cfg!(not(feature = "wireguard-go")) && userspace_wireguard {
-                // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
-                // It will automatically configure the IP address and DNS servers using `netsh`.
-                // This is quite slow, so we need to wait for the interface to be created.
-                Self::wait_for_ip_addresses(&config, &iface_name).await?;
-            } else {
+            // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
+            if cfg!(feature = "wireguard-go") || !userspace_wireguard {
                 Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                     .await?;
             }
@@ -638,32 +634,6 @@ impl WireguardMonitor {
     fn allowed_traffic_after_tunnel_config() -> AllowedTunnelTraffic {
         // After ephemeral peer negotiation, allow all tunnel traffic again.
         AllowedTunnelTraffic::All
-    }
-
-    #[cfg(windows)]
-    async fn wait_for_ip_addresses(
-        config: &Config,
-        iface_name: &String,
-    ) -> std::result::Result<(), CloseMsg> {
-        log::debug!("Waiting for tunnel IP interfaces to arrive");
-        let luid = talpid_windows::net::luid_from_alias(iface_name).map_err(|error| {
-            log::error!("Failed to obtain tunnel interface LUID: {}", error);
-            CloseMsg::SetupError(Error::IpInterfacesError)
-        })?;
-        talpid_windows::net::wait_for_interfaces(luid, true, config.ipv6_gateway.is_some())
-            .await
-            .map_err(|error| {
-                log::error!("Failed to obtain tunnel interface LUID: {}", error);
-                CloseMsg::SetupError(Error::IpInterfacesError)
-            })?;
-        talpid_windows::net::wait_for_addresses(luid)
-            .await
-            .map_err(|error| {
-                log::error!("Failed to obtain tunnel interface LUID: {}", error);
-                CloseMsg::SetupError(Error::IpInterfacesError)
-            })?;
-        log::debug!("Done waiting for tunnel IP interfaces to arrive");
-        Ok(())
     }
 
     #[cfg(windows)]
