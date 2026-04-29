@@ -34,11 +34,12 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
     init(application: BackgroundTaskProviding) {
         self.application = application
         NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(applicationDidBecomeActive(_:)),
-            name: UIApplication.didBecomeActiveNotification,
-            object: application
-        )
+            forName: UIApplication.didBecomeActiveNotification,
+            object: application,
+            queue: .main
+        ) { [weak self] notification in
+            self?.refreshStatus()
+        }
     }
 
     func getPersistentTunnels() -> [TunnelType] {
@@ -115,10 +116,6 @@ final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked S
             persistentTunnels.append(tunnel)
             logger.debug("New tunnel became persistent: \(tunnel.logFormat()).")
         }
-    }
-
-    @objc private func applicationDidBecomeActive(_ notification: Notification) {
-        refreshStatus()
     }
 
     private func refreshStatus() {
