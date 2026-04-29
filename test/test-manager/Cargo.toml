@@ -32,7 +32,7 @@ mullvad-management-interface = { path = "../../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
 mullvad-types = { path = "../../mullvad-types" }
 mullvad-version = { path = "../../mullvad-version" }
-nix = { workspace = true }
+nix = { workspace = true, features = ["user"] }
 pcap = { version = "1.3", features = ["capture-stream"] }
 pnet_base = "0.34.0"
 pnet_packet = "0.34.0"
@@ -55,9 +55,6 @@ uuid = "1.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 pnet_datalink = "0.35.0"
-
-[target.'cfg(target_os = "macos")'.dependencies]
-nix.workspace = true
 
 [lints]
 workspace = true
