@@ -58,10 +58,6 @@ allow = [
 [licenses.private]
 ignore = false
 
-[[licenses.exceptions]]
-crate = "domain-fronting"
-allow = ["GPL-3.0-or-later"]
-
 # This section is considered when running `cargo deny check bans`.
 # More documentation about the 'bans' section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/bans/cfg.html
