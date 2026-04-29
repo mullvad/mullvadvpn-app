@@ -11,7 +11,7 @@ import UIKit
 
 @testable import MullvadTypes
 
-struct UIApplicationStub: BackgroundTaskProviding {
+final class UIApplicationStub: BackgroundTaskProviding {
     var backgroundTimeRemaining: TimeInterval { .infinity }
 
     func endBackgroundTask(_ identifier: UIBackgroundTaskIdentifier) {}
