@@ -13,15 +13,33 @@ class SplitTunnelingUiStatePreviewParameterProvider :
         sequenceOf(
             SplitTunnelingUiState(
                     enabled = true,
-                    excludedApps = excludedApps,
-                    includedApps = includedApps,
+                    excludedApps =
+                        excludedApps.map {
+                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
+                        },
+                    includedApps =
+                        includedApps.map {
+                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
+                        },
                     showSystemApps = true,
                 )
                 .toLc(),
             SplitTunnelingUiState(
                     enabled = true,
-                    excludedApps = excludedApps,
-                    includedApps = includedApps.filter { !it.isSystemApp },
+                    excludedApps =
+                        excludedApps.map {
+                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
+                        },
+                    includedApps =
+                        includedApps
+                            .filter { !it.isSystemApp }
+                            .map {
+                                AppItem(
+                                    title = it.name,
+                                    packageName = it.packageName,
+                                    highlight = "",
+                                )
+                            },
                     showSystemApps = false,
                 )
                 .toLc(),
