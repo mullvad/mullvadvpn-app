@@ -9,7 +9,8 @@ mod api_client;
 mod ephemeral_peer_proxy;
 mod gotatun;
 mod logging;
-pub mod tunnel_obfuscator_proxy;
+mod tunnel_adapter;
+mod tunnel_obfuscator_proxy;
 mod wireguard_key;
 
 #[repr(C)]

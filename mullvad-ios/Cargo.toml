@@ -13,8 +13,11 @@ crate-type = ["staticlib"]
 [target.'cfg(target_os = "ios")'.dependencies]
 bytes = { workspace = true }
 futures = { workspace = true }
+byteorder = "1"
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
+internet-checksum = "0.2"
+ipnetwork = { workspace = true }
 hyper-util = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
@@ -35,6 +38,7 @@ smoltcp = { version = "0.12", default-features = false, features = [
 talpid-future = { path = "../talpid-future" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
+rand = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
 tonic = { workspace = true }
 tower = { workspace = true }

@@ -3127,12 +3127,15 @@ dependencies = [
 name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
+ "byteorder",
  "bytes",
  "cbindgen",
  "futures",
  "gotatun",
  "hyper",
  "hyper-util",
+ "internet-checksum",
+ "ipnetwork",
  "libc",
  "log",
  "mockito",
@@ -3140,6 +3143,7 @@ dependencies = [
  "mullvad-encrypted-dns-proxy",
  "mullvad-logging",
  "mullvad-types",
+ "rand",
  "shadowsocks",
  "smoltcp",
  "talpid-future",

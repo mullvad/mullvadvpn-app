@@ -1,6 +1,7 @@
 #![cfg(target_os = "ios")]
 pub mod ios_tcp_connection;
 pub mod peer_exchange;
+pub mod smoltcp_tcp_connection;
 
 use libc::c_void;
 use peer_exchange::EphemeralPeerExchange;
