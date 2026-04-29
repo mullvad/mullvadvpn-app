@@ -11,7 +11,9 @@ bench = false
 crate-type = ["staticlib"]
 
 [target.'cfg(target_os = "ios")'.dependencies]
+bytes = { workspace = true }
 futures = { workspace = true }
+gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 libc = "0.2"
@@ -22,15 +24,24 @@ mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-logging = { path = "../mullvad-logging" }
 mullvad-types = { path = "../mullvad-types" }
 shadowsocks = { workspace = true }
+smoltcp = { version = "0.12", default-features = false, features = [
+  "medium-ip",
+  "proto-ipv4",
+  "proto-ipv6",
+  "socket-tcp",
+  "socket-icmp",
+  "std",
+] }
 talpid-future = { path = "../talpid-future" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 talpid-types = { path = "../talpid-types" }
-tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "sync", "time"] }
 tonic = { workspace = true }
 tower = { workspace = true }
 tracing = "0.1"
 tracing-subscriber = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
+zerocopy = "0.8"
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 cbindgen = { version = "0.28.0", default-features = false }
