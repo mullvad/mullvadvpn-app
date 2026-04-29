@@ -527,3 +527,112 @@ pub trait AccessMethodResolver: Send + Sync {
 
     async fn default_connection_mode(&self) -> AllowedEndpoint;
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::{
+        net::{Ipv4Addr, SocketAddr},
+        sync::{
+            Arc,
+            atomic::{AtomicBool, Ordering},
+        },
+    };
+    use talpid_types::net::{AllowedClients, Endpoint, TransportProtocol};
+    use tokio::sync::Notify;
+
+    fn test_endpoint() -> AllowedEndpoint {
+        AllowedEndpoint {
+            endpoint: Endpoint {
+                address: SocketAddr::from((Ipv4Addr::LOCALHOST, 443)),
+                protocol: TransportProtocol::Tcp,
+            },
+            #[cfg(unix)]
+            clients: AllowedClients::All,
+            #[cfg(windows)]
+            clients: AllowedClients::all(),
+        }
+    }
+
+    /// A mock resolver that can be made to block during resolve, allowing
+    /// us to cancel callers mid-flight.
+    struct MockResolver {
+        should_block: Arc<AtomicBool>,
+        entered_resolve: Arc<Notify>,
+        proceed: Arc<Notify>,
+    }
+
+    #[async_trait]
+    impl AccessMethodResolver for MockResolver {
+        async fn resolve_access_method_setting(
+            &mut self,
+            _access_method: &AccessMethod,
+        ) -> Option<(AllowedEndpoint, ApiConnectionMode)> {
+            if self.should_block.load(Ordering::SeqCst) {
+                self.entered_resolve.notify_one();
+                self.proceed.notified().await;
+            }
+            Some((test_endpoint(), ApiConnectionMode::Direct))
+        }
+
+        async fn default_connection_mode(&self) -> AllowedEndpoint {
+            test_endpoint()
+        }
+    }
+
+    /// Test that the `AccessModeSelector` survives when a caller drops their
+    /// response receiver (e.g., due to a timeout or cancellation).
+    ///
+    /// This is a regression test for a bug where `OneshotSendFailed` was
+    /// classified as a critical error, permanently killing the selector.
+    #[tokio::test]
+    async fn selector_survives_dropped_receiver() {
+        let should_block = Arc::new(AtomicBool::new(false));
+        let entered_resolve = Arc::new(Notify::new());
+        let proceed = Arc::new(Notify::new());
+
+        let resolver = MockResolver {
+            should_block: should_block.clone(),
+            entered_resolve: entered_resolve.clone(),
+            proceed: proceed.clone(),
+        };
+
+        let (event_tx, _event_rx) = mpsc::unbounded();
+        let (handle, _provider) = AccessModeSelector::spawn(
+            resolver,
+            Settings::default(),
+            #[cfg(feature = "api-override")]
+            ApiEndpoint::new(
+                "mullvad.net".into(),
+                "127.0.0.1:1234".parse().unwrap(),
+                true,
+            ),
+            event_tx,
+        )
+        .await
+        .expect("Failed to spawn AccessModeSelector");
+
+        // Make the resolver block on the next call so we can cancel the caller mid-flight.
+        should_block.store(true, Ordering::SeqCst);
+
+        // Spawn a rotate() call that will block inside the resolver.
+        let handle_clone = handle.clone();
+        let rotate_task = tokio::spawn(async move { handle_clone.rotate().await });
+
+        // Wait until the resolver is entered, then abort the caller.
+        // This drops the oneshot receiver, so the selector's reply() will fail.
+        entered_resolve.notified().await;
+        rotate_task.abort();
+
+        // Unblock the resolver so the selector can attempt (and fail) to reply.
+        should_block.store(false, Ordering::SeqCst);
+        proceed.notify_one();
+
+        // The selector should still be alive. Verify by sending another command.
+        let result = handle.get_current().await;
+        assert!(
+            result.is_ok(),
+            "AccessModeSelector died after a dropped receiver"
+        );
+    }
+}
