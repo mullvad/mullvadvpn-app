@@ -1,32 +1,15 @@
 //! This module provides a flexible way to specify 'queries' for relays.
 //!
-//! A query is a set of constraints that the [`crate::RelaySelector`] will use when filtering out
-//! potential relays that the daemon should connect to. It supports filtering relays by geographic
-//! location, provider, ownership, and tunnel protocol, along with protocol-specific settings for
-//! WireGuard.
+//! A query is a set of constraints that the [`crate::RelaySelector`] uses when filtering relays
+//! that the daemon should connect to. The query carries:
 //!
-//! The main components of this module include:
+//! - the **hop count** the user wants ([`Hops::Single`], [`Hops::Auto`], or
+//!   [`Hops::Multi`]) along with the entry/exit constraints meaningful to that count
+//! - **connection-level** constraints (`allowed_ips`, `quantum_resistant`) that apply regardless of
+//!   the count.
 //!
-//! - [`RelayQuery`]: The core struct for specifying a query to select relay servers. It aggregates
-//!   constraints on location, providers, ownership, tunnel protocol, and protocol-specific
-//!   constraints for WireGuard.
-//! - [`WireguardRelayQuery`]: Struct that defines protocol-specific constraints for selecting
-//!   WireGuard relays.
-//! - [`Intersection`]: A trait implemented by the different query types that support intersection
-//!   logic, which allows for combining two queries into a single query that represents the common
-//!   constraints of both.
-//! - [Builder patterns][builder]: The module also provides builder patterns for creating instances
-//!   of `RelayQuery`, and `WireguardRelayQuery` with a fluent API.
-//!
-//! ## Design
-//!
-//! This module has been built in such a way that it should be easy to reason about,
-//! while providing a flexible and easy-to-use API. The `Intersection` trait provides
-//! a robust framework for combining and refining queries based on multiple criteria.
-//!
-//! The builder patterns included in the module simplify the process of constructing
-//! queries and ensure that queries are built in a type-safe manner, reducing the risk
-//! of runtime errors and improving code readability.
+//! [`RelayQuery`] is built either from the user's [`Settings`] (via [From]) or with the
+//! [`builder::RelayQueryBuilder`] fluent API used in tests.
 
 pub use mullvad_types::relay_constraints::{
     ObfuscationMode, obfuscation_constraint_from_settings, obfuscation_to_settings,
@@ -35,677 +18,551 @@ use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        LocationConstraint, ObfuscationSettings, Ownership, Providers, RelayConstraints,
-        WireguardConstraints, allowed_ip::AllowedIps,
+        AllowedIps, ObfuscationSettings, RelayConstraints, RelaySettings, WireguardConstraints,
     },
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
     },
+    settings::Settings,
     wireguard::QuantumResistantState,
 };
-use talpid_types::net::IpVersion;
+use talpid_types::net::{IpAvailability, IpVersion};
 
-/// Represents a query for a relay based on various constraints.
-///
-/// This struct contains constraints for the location, providers, ownership,
-/// tunnel protocol, and additional protocol-specific constraints for WireGuard.
-/// These constraints are used by the [`crate::RelaySelector`] to
-/// filter and select suitable relay servers that match the specified criteria.
+use crate::Error;
+
+/// A query for a relay.
 ///
 /// A [`RelayQuery`] is best constructed via the fluent builder API exposed by
 /// [`builder::RelayQueryBuilder`].
-///
-/// # Examples
-///
-/// Creating a basic `RelayQuery` to filter relays by location, ownership and tunnel protocol:
-///
-/// ```rust
-/// // Create a query for a Wireguard relay that is owned by Mullvad and located in Norway.
-/// // The endpoint should specify port 443.
-/// use mullvad_relay_selector::query::RelayQuery;
-/// use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-/// use mullvad_relay_selector::query::builder::{Ownership, GeographicLocationConstraint};
-///
-/// let query: RelayQuery = RelayQueryBuilder::new()            // Specify the tunnel protocol
-///     .location(GeographicLocationConstraint::country("no"))  // Specify the country as Norway
-///     .ownership(Ownership::MullvadOwned)                     // Specify that the relay must be owned by Mullvad
-///     .port(443)                                              // Specify the port to use when connecting to the relay
-///     .build();                                               // Construct the query
-/// ```
-///
-/// This example demonstrates creating a `RelayQuery` which can then be passed
-/// to the [`crate::RelaySelector`] to find a relay that matches the criteria.
-/// See [`builder`] for more info on how to construct queries.
-#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RelayQuery {
-    location: Constraint<LocationConstraint>,
-    providers: Constraint<Providers>,
-    ownership: Constraint<Ownership>,
-    wireguard_constraints: WireguardRelayQuery,
+    /// Constraints depending on hop variant.
+    // Only this field affects relay selection.
+    pub hops: Hops,
+    pub allowed_ips: Constraint<AllowedIps>,
+    pub quantum_resistant: Constraint<QuantumResistantState>,
+}
+
+/// The multihop variant and corresponding constraints on each hop.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Hops {
+    /// Use a single relay satisfying both entry and exit criteria.
+    Single(EntryConstraints),
+    /// Singlehop preferred; falls back to multihop with an auto-selected entry.
+    Auto(EntryConstraints),
+    /// Multihop, i.e. two hops with distinct entry and exit constraints.
+    Multi(MultihopConstraints),
 }
 
 impl RelayQuery {
-    /// Create a new [`RelayQuery`].
-    pub fn new(
-        location: Constraint<LocationConstraint>,
-        providers: Constraint<Providers>,
-        ownership: Constraint<Ownership>,
-        wireguard_constraints: WireguardRelayQuery,
-    ) -> RelayQuery {
-        RelayQuery {
-            location,
-            providers,
-            ownership,
-            wireguard_constraints,
+    /// Tighten `self`'s entry-specific constraints by intersecting them with `retry`.
+    ///
+    /// Returns `None` when the retry's constraints are incompatible with the user's
+    /// — e.g., the user pinned ip_version=v4 and the retry wants v6. The retry order
+    /// only ever modifies obfuscation and ip_version, both of which live in
+    /// [`EntrySpecificConstraints`], so this is the only kind of merging needed.
+    pub fn merge_retry(mut self, retry: EntrySpecificConstraints) -> Option<Self> {
+        let merged = self.entry_specific().clone().intersection(retry)?;
+        *self.entry_specific_mut() = merged;
+        Some(self)
+    }
+
+    // ---------------------------------------------------------------------------
+    // Accessors — uniform regardless of variant
+    // ---------------------------------------------------------------------------
+
+    /// The constraints on the relay the client connects to first. For singlehop and
+    /// autohop, this is the single (or singlehop-attempt) relay; for multihop, it's
+    /// the entry relay.
+    pub fn entry(&self) -> &EntryConstraints {
+        match &self.hops {
+            Hops::Single(e) | Hops::Auto(e) => e,
+            Hops::Multi(MultihopConstraints { entry, .. }) => entry,
         }
     }
 
-    pub fn location(&self) -> Constraint<&LocationConstraint> {
-        self.location.as_ref()
+    pub fn entry_mut(&mut self) -> &mut EntryConstraints {
+        match &mut self.hops {
+            Hops::Single(e) | Hops::Auto(e) => e,
+            Hops::Multi(MultihopConstraints { entry, .. }) => entry,
+        }
     }
 
-    pub fn set_location(&mut self, location: Constraint<LocationConstraint>) {
-        self.location = location;
+    pub fn entry_specific(&self) -> &EntrySpecificConstraints {
+        &self.entry().entry_specific
     }
 
-    pub fn providers(&self) -> &Constraint<Providers> {
-        &self.providers
+    pub fn entry_specific_mut(&mut self) -> &mut EntrySpecificConstraints {
+        &mut self.entry_mut().entry_specific
     }
 
-    pub fn set_providers(&mut self, providers: Constraint<Providers>) {
-        self.providers = providers;
+    /// The constraints on the relay traffic exits the Mullvad network through.
+    /// For singlehop/autohop, that's the same relay the client connects to; for
+    /// multihop, it's the exit hop.
+    pub fn exit(&self) -> &ExitConstraints {
+        match &self.hops {
+            Hops::Single(EntryConstraints { general, .. })
+            | Hops::Auto(EntryConstraints { general, .. }) => general,
+            Hops::Multi(MultihopConstraints { exit, .. }) => exit,
+        }
     }
 
-    pub fn ownership(&self) -> Constraint<Ownership> {
-        self.ownership
+    pub fn exit_mut(&mut self) -> &mut ExitConstraints {
+        match &mut self.hops {
+            Hops::Single(EntryConstraints { general, .. })
+            | Hops::Auto(EntryConstraints { general, .. }) => general,
+            Hops::Multi(MultihopConstraints { exit, .. }) => exit,
+        }
     }
 
-    pub fn set_ownership(&mut self, ownership: Constraint<Ownership>) {
-        self.ownership = ownership;
-    }
-
-    pub fn wireguard_constraints(&self) -> &WireguardRelayQuery {
-        &self.wireguard_constraints
-    }
-
-    pub fn wireguard_constraints_mut(&mut self) -> &mut WireguardRelayQuery {
-        &mut self.wireguard_constraints
-    }
-
-    pub fn into_wireguard_constraints(self) -> WireguardRelayQuery {
-        self.wireguard_constraints
-    }
-
-    pub fn set_wireguard_constraints(&mut self, wireguard_constraints: WireguardRelayQuery) {
-        self.wireguard_constraints = wireguard_constraints;
-    }
-
-    /// The mapping from [`RelayQuery`] to all underlying settings types.
-    ///
-    /// Useful in contexts where you cannot use the query directly but
-    /// still want use of the builder for convenience. For example in
-    /// end to end tests where you must use the management interface
-    /// to apply settings to the daemon.
-    pub fn into_settings(self) -> (RelayConstraints, ObfuscationSettings) {
-        let obfuscation = obfuscation_to_settings(self.wireguard_constraints.obfuscation.clone());
-        let constraints = RelayConstraints {
-            location: self.location,
-            providers: self.providers,
-            ownership: self.ownership,
-            wireguard_constraints: self.wireguard_constraints.into_constraints(),
+    pub fn apply_ip_availability(
+        &mut self,
+        runtime_ip_availability: IpAvailability,
+    ) -> Result<(), Error> {
+        let runtime_ip = match runtime_ip_availability {
+            IpAvailability::Ipv4 => Constraint::Only(IpVersion::V4),
+            IpAvailability::Ipv6 => Constraint::Only(IpVersion::V6),
+            IpAvailability::Ipv4AndIpv6 => Constraint::Any,
         };
 
-        (constraints, obfuscation)
+        let entry_specific = self.entry_specific_mut();
+        let merged = entry_specific
+            .ip_version
+            .intersection(runtime_ip)
+            .ok_or_else(|| {
+                // intersection returns None only when both sides are `Constraint::Only`
+                // and disagree, so unwrapping here is safe.
+                Error::IpVersionUnavailable {
+                    family: entry_specific.ip_version.unwrap(),
+                }
+            })?;
+        entry_specific.ip_version = merged;
+        Ok(())
     }
+}
 
-    /// Decode a [`RelayQuery`] into typed [`Constraints`] selection constraints.
-    pub fn resolve(&self) -> Constraints {
-        // TODO: Set autohop using its dedicated setting when it is added
-        let autohop = self.using_daita() && self.use_multihop_if_necessary();
-        match (self.singlehop(), autohop) {
-            // Autohop with preference for singlehop
-            (true, true) => Constraints::Autohop(singlehop_entry_constraints(self)),
-            (true, false) => Constraints::Singlehop(singlehop_entry_constraints(self)),
-            (false, false) => Constraints::Multihop(query_multihop_constraints(self)),
+impl From<&Settings> for RelayQuery {
+    fn from(settings: &Settings) -> Self {
+        let RelaySettings::Normal(relay_settings) = &settings.relay_settings else {
+            // Custom tunnel endpoints bypass the relay selector entirely — return a
+            // dormant default. Callers that care about custom endpoints check
+            // `relay_settings` themselves before consulting the relay selector.
+            return Self::default();
+        };
+
+        #[cfg(daita)]
+        let (daita, daita_use_multihop_if_necessary) = (
+            settings.tunnel_options.wireguard.daita.enabled,
+            settings
+                .tunnel_options
+                .wireguard
+                .daita
+                .use_multihop_if_necessary,
+        );
+        #[cfg(not(daita))]
+        let (daita, daita_use_multihop_if_necessary) = (false, false);
+
+        let wg = &relay_settings.wireguard_constraints;
+
+        let entry_specific = EntrySpecificConstraints {
+            obfuscation: obfuscation_constraint_from_settings(
+                settings.obfuscation_settings.clone(),
+            ),
+            daita: Constraint::Only(daita),
+            ip_version: wg.ip_version,
+        };
+        let exit = ExitConstraints {
+            location: relay_settings.location.clone(),
+            providers: relay_settings.providers.clone(),
+            ownership: relay_settings.ownership,
+        };
+
+        let singlehop = |entry_specific, exit| EntryConstraints {
+            entry_specific,
+            general: exit,
+        };
+
+        // Currently, the `location`, `providers`, and `ownership` fields in the relay settings refer to the exit in a multihop configuration,
+        // and the entry its corresponding settings from the entry_* fields. However, the entry specific constraints (obfuscation, ip_version, daita)
+        // still refer to the entry. Thus we, need to shuffle the fields around to construct the multihop query.
+        // TODO: When changing to dedicated multihop variants in settings, we should restructure the settings to match the query structure.
+        let multihop_constraints = |entry_specific, exit| MultihopConstraints {
+            entry: EntryConstraints {
+                entry_specific,
+                general: ExitConstraints {
+                    location: wg.entry_location.clone(),
+                    providers: wg.entry_providers.clone(),
+                    ownership: wg.entry_ownership,
+                },
+            },
+            exit,
+        };
+
+        // Currently, the autohop functionality is exclusive to DAITA, which is bound to change in the near future.
+        // For now, encode the autohop preference as a combination of `daita = true` and `use_multihop_if_necessary = true`.
+        // If multihop itself is disabled, this because the "when needed" mode. If it's enabled, we map it to multihop on
+        // with an auto-picked entry.
+        let autohop = daita && daita_use_multihop_if_necessary;
+
+        let hops = match (wg.use_multihop, autohop) {
+            (false, false) => Hops::Single(singlehop(entry_specific, exit)),
+            // Multihop "when needed" (preference for singlehop)
+            (false, true) => Hops::Auto(singlehop(entry_specific, exit)),
+            // User-configured multihop
+            (true, false) => Hops::Multi(multihop_constraints(entry_specific, exit)),
             // Multihop with auto entry
-            (false, true) => {
-                Constraints::Multihop(singlehop_entry_constraints(self).into_autohop())
+            (true, true) => Hops::Multi(singlehop(entry_specific, exit).into_autohop()),
+        };
+
+        RelayQuery {
+            hops,
+            allowed_ips: wg.allowed_ips.clone(),
+            quantum_resistant: Constraint::Only(
+                settings.tunnel_options.wireguard.quantum_resistant,
+            ),
+        }
+    }
+}
+
+impl RelayQuery {
+    /// Convert the query into RelayConstraints and ObfuscationSettings.
+    /// Currently only used by the e2e tests via gRPC.
+    pub fn into_settings(self) -> (RelayConstraints, ObfuscationSettings) {
+        let RelayQuery {
+            hops,
+            allowed_ips,
+            quantum_resistant: _,
+        } = self;
+
+        match hops {
+            Hops::Single(entry) | Hops::Auto(entry) => {
+                let constraints = RelayConstraints {
+                    location: entry.general.location,
+                    providers: entry.general.providers,
+                    ownership: entry.general.ownership,
+                    wireguard_constraints: WireguardConstraints {
+                        ip_version: entry.entry_specific.ip_version,
+                        allowed_ips,
+                        use_multihop: false,
+                        entry_location: Constraint::Any,
+                        entry_providers: Constraint::Any,
+                        entry_ownership: Constraint::Any,
+                    },
+                };
+                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+                (constraints, obfuscation)
+            }
+            Hops::Multi(MultihopConstraints { entry, exit }) => {
+                let constraints = RelayConstraints {
+                    location: exit.location,
+                    providers: exit.providers,
+                    ownership: exit.ownership,
+                    wireguard_constraints: WireguardConstraints {
+                        ip_version: entry.entry_specific.ip_version,
+                        allowed_ips,
+                        use_multihop: true,
+                        entry_location: entry.general.location,
+                        entry_providers: entry.general.providers,
+                        entry_ownership: entry.general.ownership,
+                    },
+                };
+                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+                (constraints, obfuscation)
             }
         }
     }
 }
 
 impl Default for RelayQuery {
-    /// Create a new [`RelayQuery`] with no opinionated defaults. This query matches every relay
-    /// with any configuration by setting each of its fields to [`Constraint::Any`].
-    ///
-    /// Note that the following identity applies for any `other_query`:
-    /// ```rust
-    /// # use mullvad_relay_selector::query::RelayQuery;
-    /// # use mullvad_types::Intersection;
-    ///
-    /// # let other_query = RelayQuery::default();
-    /// assert_eq!(RelayQuery::default().intersection(other_query.clone()), Some(other_query));
-    /// # let other_query = RelayQuery::default();
-    /// assert_eq!(other_query.clone().intersection(RelayQuery::default()), Some(other_query));
-    /// ```
+    /// "Singlehop, no constraints." This matches every relay with any configuration
+    /// by setting each constraint field to [`Constraint::Any`].
     fn default() -> Self {
-        RelayQuery {
-            location: Constraint::Any,
-            providers: Constraint::Any,
-            ownership: Constraint::Any,
-            wireguard_constraints: WireguardRelayQuery::new(),
-        }
-    }
-}
-
-/// A query for a relay with Wireguard-specific properties, such as `multihop` and [wireguard
-/// obfuscation][`ObfuscationMode`].
-///
-/// This struct may look a lot like [`WireguardConstraints`], and that is the point!
-/// This struct is meant to be that type in the "universe of relay queries". The difference
-/// between them may seem subtle, but in a [`WireguardRelayQuery`] every field is represented
-/// as a [`Constraint`], which allow us to implement [`Intersection`] in a straight forward manner.
-/// Notice that [obfuscation][`ObfuscationMode`] is not a [`Constraint`], but it is trivial
-/// to define [`Intersection`] on it, so it is fine.
-#[derive(Debug, Clone, Eq, PartialEq, Intersection)]
-pub struct WireguardRelayQuery {
-    pub ip_version: Constraint<IpVersion>,
-    pub allowed_ips: Constraint<AllowedIps>,
-    pub use_multihop: Constraint<bool>,
-    pub entry_location: Constraint<LocationConstraint>,
-    pub entry_providers: Constraint<Providers>,
-    pub entry_ownership: Constraint<Ownership>,
-    pub obfuscation: Constraint<ObfuscationMode>,
-    pub daita: Constraint<bool>,
-    pub daita_use_multihop_if_necessary: Constraint<bool>,
-    pub quantum_resistant: Constraint<QuantumResistantState>,
-}
-
-impl WireguardRelayQuery {
-    pub fn multihop(&self) -> bool {
-        matches!(self.use_multihop, Constraint::Only(true))
-    }
-}
-
-impl WireguardRelayQuery {
-    pub fn new() -> WireguardRelayQuery {
-        WireguardRelayQuery {
-            ip_version: Constraint::Any,
+        Self {
+            hops: Hops::Single(EntryConstraints::default()),
             allowed_ips: Constraint::Any,
-            use_multihop: Constraint::Any,
-            entry_location: Constraint::Any,
-            entry_providers: Constraint::Any,
-            entry_ownership: Constraint::Any,
-            obfuscation: Constraint::Any,
-            daita: Constraint::Any,
-            daita_use_multihop_if_necessary: Constraint::Any,
             quantum_resistant: Constraint::Any,
         }
     }
-
-    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
-    fn into_constraints(self) -> WireguardConstraints {
-        WireguardConstraints {
-            ip_version: self.ip_version,
-            allowed_ips: self.allowed_ips,
-            entry_location: self.entry_location,
-            entry_providers: self.entry_providers,
-            entry_ownership: self.entry_ownership,
-            use_multihop: self.use_multihop.unwrap_or(false),
-        }
-    }
 }
 
-impl Default for WireguardRelayQuery {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl From<WireguardRelayQuery> for WireguardConstraints {
-    /// The mapping from [`WireguardRelayQuery`] to [`WireguardConstraints`].
-    fn from(value: WireguardRelayQuery) -> Self {
-        WireguardConstraints {
-            ip_version: value.ip_version,
-            allowed_ips: value.allowed_ips,
-            entry_location: value.entry_location,
-            entry_providers: value.entry_providers,
-            entry_ownership: value.entry_ownership,
-            use_multihop: value.use_multihop.unwrap_or(false),
-        }
-    }
-}
-
-/// A [`RelayQuery`] decoded into typed selection constraints, ready for relay selection.
-pub enum Constraints {
-    /// Use a single relay satisfying both entry and exit criteria.
-    Singlehop(EntryConstraints),
-    /// DAITA autohop: automatically select an entry relay.
-    ///
-    /// `prefer_singlehop` is `true` when multihop is *not* explicitly enabled — in that case the
-    /// selector first checks whether a singlehop relay is available before falling back to multihop.
-    Autohop(EntryConstraints),
-    /// User-configured multihop with an explicit entry location/provider.
-    Multihop(MultihopConstraints),
-}
-
-/// Build [`EntryConstraints`] for singlehop filtering from [`RelayQuery`].
-/// In singlehop, the relay must satisfy both entry and exit criteria, so the
-/// general (exit) constraints use the top-level location/providers/ownership.
-pub fn singlehop_entry_constraints(query: &RelayQuery) -> EntryConstraints {
-    EntryConstraints {
-        general: query_exit_constraints(query),
-        entry_specific: EntrySpecificConstraints {
-            obfuscation: query.wireguard_constraints().obfuscation.clone(),
-            daita: query.wireguard_constraints().daita,
-            ip_version: query.wireguard_constraints().ip_version,
-        },
-    }
-}
-
-fn query_multihop_constraints(query: &RelayQuery) -> MultihopConstraints {
-    let wg = query.wireguard_constraints();
-    MultihopConstraints {
-        entry: EntryConstraints {
-            general: ExitConstraints {
-                location: wg.entry_location.clone(),
-                providers: wg.entry_providers.clone(),
-                ownership: wg.entry_ownership,
-            },
-            entry_specific: EntrySpecificConstraints {
-                obfuscation: wg.obfuscation.clone(),
-                daita: wg.daita,
-                ip_version: wg.ip_version,
-            },
-        },
-        exit: query_exit_constraints(query),
-    }
-}
-
-/// Build [`ExitConstraints`] from [`RelayQuery`].
-fn query_exit_constraints(query: &RelayQuery) -> ExitConstraints {
-    ExitConstraints {
-        location: query.location().map(Clone::clone),
-        providers: query.providers().clone(),
-        ownership: query.ownership(),
-    }
-}
-
-#[expect(unused)]
 pub mod builder {
-    //! Strongly typed Builder pattern for of relay constraints though the use of the Typestate
-    //! pattern.
+    //! Strongly typed builder for [`RelayQuery`] using the typestate pattern.
+    //!
+    //! The typestate gates context-sensitive setters: `Multihop` gates `.entry_*`,
+    //! `Obfuscation` gates `.udp2tcp_port()` / `.shadowsocks_port()`.
+    use std::marker::PhantomData;
+
     use mullvad_types::{
         constraints::Constraint,
         relay_constraints::{
-            LocationConstraint, LwoSettings, RelayConstraints, SelectedObfuscation,
-            ShadowsocksSettings, TransportPort, Udp2TcpObfuscationSettings, WireguardPortSettings,
+            LocationConstraint, LwoSettings, ShadowsocksSettings, Udp2TcpObfuscationSettings,
+            WireguardPortSettings,
+        },
+        relay_selector::{
+            EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
         },
         wireguard::QuantumResistantState,
     };
 
-    use super::{ObfuscationMode, RelayQuery};
+    use super::{Hops, ObfuscationMode, RelayQuery};
 
     // Re-exports
     pub use mullvad_types::relay_constraints::{
-        GeographicLocationConstraint, Ownership, Providers,
+        AllowedIps, GeographicLocationConstraint, Ownership, Providers,
     };
     pub use talpid_types::net::{IpVersion, TransportProtocol};
 
-    /// Internal builder state for a [`RelayQuery`] parameterized over the
-    /// type of VPN tunnel protocol. Some [`RelayQuery`] options are
-    /// generic over the VPN protocol, while some options are protocol-specific.
-    ///
-    /// - The type parameter `VpnProtocol` keeps track of which VPN protocol that is being
-    ///   configured. Different instantiations of `VpnProtocol` will expose different functions for
-    ///   configuring a [`RelayQueryBuilder`] further.
-    pub struct RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant> {
-        query: RelayQuery,
-        settings: Settings<Multihop, Obfuscation, Daita, QuantumResistant>,
-    }
-
-    ///  The `Any` type is equivalent to the `Constraint::Any` value. If a
-    ///  type-parameter is of type `Any`, it means that the corresponding value
-    ///  in the final `RelayQuery` is `Constraint::Any`.
+    /// `Any` is the typestate for "no choice made yet" on a given axis.
     pub struct Any;
 
-    // This impl-block is quantified over all configurations, e.g. [`Any`],
-    // or [`WireguardRelayQuery`]
-    impl<Multihop, Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant>
-    {
-        /// Configure the [`LocationConstraint`] to use.
-        pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
-            self.query.location = Constraint::Only(location.into());
-            self
-        }
+    /// QUIC obfuscation typestate (no user-configurable parameters).
+    pub struct Quic;
 
-        /// Configure which [`Ownership`] to use.
-        pub const fn ownership(mut self, ownership: Ownership) -> Self {
-            self.query.ownership = Constraint::Only(ownership);
-            self
-        }
+    /// LWO obfuscation typestate (no user-configurable parameters at builder level).
+    pub struct Lwo;
 
-        /// Configure which [`Providers`] to use.
-        pub fn providers(mut self, providers: Providers) -> Self {
-            self.query.providers = Constraint::Only(providers);
-            self
-        }
-
-        /// Assemble the final [`RelayQuery`] that has been configured
-        /// through `self`.
-        pub fn build(mut self) -> RelayQuery {
-            self.query
-        }
+    // TODO: Convert to type parameter and make builder typed on Hop count?
+    #[derive(Default)]
+    enum HopChoice {
+        #[default]
+        Singlehop,
+        Autohop,
+        Multihop,
     }
 
-    impl RelayQueryBuilder<Any, Any, Any, Any> {
-        /// Create a new [`RelayQueryBuilder`].
-        ///
-        /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
-        /// which is used to guide the [`RelaySelector`]
-        ///
-        /// [`RelaySelector`]: crate::RelaySelector
-        pub fn new() -> RelayQueryBuilder<Any, Any, Any, Any> {
-            RelayQueryBuilder {
-                query: RelayQuery::default(),
-                settings: Settings::default(),
+    /// Builder for [`RelayQuery`].
+    ///
+    /// - `Multihop` — `Any` until [`Self::multihop`] is called, then `bool` (gates
+    ///   `.entry_*` setters).
+    /// - `Obfuscation` — `Any` until an obfuscation method is chosen, then a type
+    ///   carrying the in-flight settings so port setters can mutate them.
+    pub struct RelayQueryBuilder<Multihop = Any, Obfuscation = Any> {
+        entry_specific: EntrySpecificConstraints,
+        exit: ExitConstraints,
+        /// Only meaningful when `hop_choice == Multihop`.
+        multihop_entry: ExitConstraints,
+        hop_choice: HopChoice,
+        allowed_ips: Constraint<AllowedIps>,
+        quantum_resistant: Constraint<QuantumResistantState>,
+        obfuscation_state: Obfuscation,
+        _phantom: PhantomData<Multihop>,
+    }
+
+    impl RelayQueryBuilder<Any, Any> {
+        pub fn new() -> Self {
+            Self {
+                entry_specific: EntrySpecificConstraints::default(),
+                exit: ExitConstraints::default(),
+                multihop_entry: ExitConstraints::default(),
+                hop_choice: HopChoice::default(),
+                allowed_ips: Constraint::Any,
+                quantum_resistant: Constraint::Any,
+                obfuscation_state: Any,
+                _phantom: PhantomData,
             }
         }
     }
 
-    impl Default for RelayQueryBuilder<Any, Any, Any, Any> {
+    impl Default for RelayQueryBuilder<Any, Any> {
         fn default() -> Self {
             Self::new()
         }
     }
 
-    // Type-safe builder for Wireguard relay constraints.
-
-    /// Internal builder state for a [`WireguardRelayQuery`] configuration.
-    ///
-    /// - The type parameter `Multihop` keeps track of the state of multihop. If multihop has been
-    ///   enabled, the builder should expose an option to select entry point.
-    ///
-    /// [`WireguardRelayQuery`]: super::WireguardRelayQuery
-    struct Settings<Multihop, Obfuscation, Daita, QuantumResistant> {
-        multihop: Multihop,
-        obfuscation: Obfuscation,
-        daita: Daita,
-        quantum_resistant: QuantumResistant,
-    }
-
-    impl Default for Settings<Any, Any, Any, Any> {
-        fn default() -> Self {
-            Self {
-                multihop: Any,
-                obfuscation: Any,
-                daita: Any,
-                quantum_resistant: Any,
-            }
+    // Methods available regardless of typestate.
+    impl<Multihop, Obfuscation> RelayQueryBuilder<Multihop, Obfuscation> {
+        /// Configure the exit relay's location. (For singlehop/autohop, the exit is
+        /// the only relay; for multihop, the exit is the second hop.)
+        pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
+            self.exit.location = Constraint::Only(location.into());
+            self
         }
-    }
 
-    /// Quic obfuscation.
-    ///
-    /// Quic does not have any user-configurable parameters, so there is no type defined
-    /// in the mullvad-types crate.
-    pub struct Quic;
+        pub const fn ownership(mut self, ownership: Ownership) -> Self {
+            self.exit.ownership = Constraint::Only(ownership);
+            self
+        }
 
-    /// LWO obfuscation.
-    ///
-    /// LWO does not have any user-configurable parameters, so there is no type defined
-    /// in the mullvad-types crate.
-    pub struct Lwo;
+        pub fn providers(mut self, providers: Providers) -> Self {
+            self.exit.providers = Constraint::Only(providers);
+            self
+        }
 
-    // This impl-block is quantified over all configurations
-    impl<Multihop, Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Multihop, Obfuscation, Daita, QuantumResistant>
-    {
-        /// Set the [`IpVersion`] to use when connecting to the selected
-        /// Wireguard relay.
         pub const fn ip_version(mut self, ip_version: IpVersion) -> Self {
-            self.query.wireguard_constraints.ip_version = Constraint::Only(ip_version);
+            self.entry_specific.ip_version = Constraint::Only(ip_version);
             self
         }
-    }
 
-    impl<Multihop, Obfuscation, QuantumResistant>
-        RelayQueryBuilder<Multihop, Obfuscation, Any, QuantumResistant>
-    {
-        /// Enable DAITA support.
-        pub fn daita(mut self) -> RelayQueryBuilder<Multihop, Obfuscation, bool, QuantumResistant> {
-            self.query.wireguard_constraints.daita = Constraint::Only(true);
-            // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                settings: Settings {
-                    multihop: self.settings.multihop,
-                    obfuscation: self.settings.obfuscation,
-                    daita: true,
-                    quantum_resistant: self.settings.quantum_resistant,
-                },
-            }
-        }
-    }
-
-    // impl-block for after DAITA is set
-    impl<Multihop, Obfuscation, QuantumResistant>
-        RelayQueryBuilder<Multihop, Obfuscation, bool, QuantumResistant>
-    {
-        /// Enable DAITA 'use_multihop_if_necessary'.
-        pub fn daita_use_multihop_if_necessary(
-            mut self,
-            constraint: impl Into<Constraint<bool>>,
-        ) -> Self {
-            self.query
-                .wireguard_constraints
-                .daita_use_multihop_if_necessary = constraint.into();
+        pub const fn daita(mut self) -> Self {
+            self.entry_specific.daita = Constraint::Only(true);
             self
         }
-    }
 
-    impl<Multihop, Obfuscation, Daita> RelayQueryBuilder<Multihop, Obfuscation, Daita, Any> {
-        /// Enable PQ support.
-        pub fn quantum_resistant(
-            mut self,
-        ) -> RelayQueryBuilder<Multihop, Obfuscation, Daita, bool> {
-            self.query.wireguard_constraints.quantum_resistant = QuantumResistantState::On.into();
-            // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                settings: Settings {
-                    multihop: self.settings.multihop,
-                    obfuscation: self.settings.obfuscation,
-                    daita: self.settings.daita,
-                    quantum_resistant: true,
-                },
-            }
+        pub fn quantum_resistant(mut self) -> Self {
+            self.quantum_resistant = Constraint::Only(QuantumResistantState::On);
+            self
         }
-    }
 
-    impl<Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<Any, Obfuscation, Daita, QuantumResistant>
-    {
-        /// Enable multihop.
+        /// Switch to the autohop. Falls back from singlehop to multihop when
+        /// no singlehop relay matches the constraints.
         ///
-        /// To configure the entry relay, see [`RelayQueryBuilder::entry`].
-        pub fn multihop(mut self) -> RelayQueryBuilder<bool, Obfuscation, Daita, QuantumResistant> {
-            self.query.wireguard_constraints.use_multihop = Constraint::Only(true);
-            // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                settings: Settings {
-                    multihop: true,
-                    obfuscation: self.settings.obfuscation,
-                    daita: self.settings.daita,
-                    quantum_resistant: self.settings.quantum_resistant,
-                },
+        /// Under the current temporary encoding this implies `daita = true`. When the
+        /// standalone autohop setting lands, drop the daita coupling.
+        pub fn autohop(mut self) -> Self {
+            self.hop_choice = HopChoice::Autohop;
+            self.entry_specific.daita = Constraint::Only(true);
+            self
+        }
+
+        /// Assemble the final [`RelayQuery`].
+        pub fn build(self) -> RelayQuery {
+            let hops = match self.hop_choice {
+                HopChoice::Singlehop => Hops::Single(EntryConstraints {
+                    general: self.exit,
+                    entry_specific: self.entry_specific,
+                }),
+                HopChoice::Autohop => Hops::Auto(EntryConstraints {
+                    general: self.exit,
+                    entry_specific: self.entry_specific,
+                }),
+                HopChoice::Multihop => Hops::Multi(MultihopConstraints {
+                    entry: EntryConstraints {
+                        general: self.multihop_entry,
+                        entry_specific: self.entry_specific,
+                    },
+                    exit: self.exit,
+                }),
+            };
+            RelayQuery {
+                hops,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
             }
         }
     }
 
-    impl<Obfuscation, Daita, QuantumResistant>
-        RelayQueryBuilder<bool, Obfuscation, Daita, QuantumResistant>
-    {
-        /// Set the entry location in a multihop configuration. This requires
-        /// multihop to be enabled.
+    // `.multihop()` transitions the typestate so `.entry_*` becomes available.
+    impl<Obfuscation> RelayQueryBuilder<Any, Obfuscation> {
+        pub fn multihop(mut self) -> RelayQueryBuilder<bool, Obfuscation> {
+            self.hop_choice = HopChoice::Multihop;
+            RelayQueryBuilder {
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: self.obfuscation_state,
+                _phantom: PhantomData,
+            }
+        }
+    }
+
+    // `.entry_*` only available after `.multihop()`.
+    impl<Obfuscation> RelayQueryBuilder<bool, Obfuscation> {
         pub fn entry(mut self, location: impl Into<LocationConstraint>) -> Self {
-            self.query.wireguard_constraints.entry_location = Constraint::Only(location.into());
+            self.multihop_entry.location = Constraint::Only(location.into());
             self
         }
-
-        /// Set the entry location in a multihop configuration. This requires
-        /// multihop to be enabled.
         pub fn entry_providers(mut self, providers: Providers) -> Self {
-            self.query.wireguard_constraints.entry_providers = Constraint::Only(providers);
+            self.multihop_entry.providers = Constraint::Only(providers);
             self
         }
-
-        /// Set the entry location in a multihop configuration. This requires
-        /// multihop to be enabled.
-        pub fn entry_ownership(mut self, ownership: Ownership) -> Self {
-            self.query.wireguard_constraints.entry_ownership = Constraint::Only(ownership);
+        pub const fn entry_ownership(mut self, ownership: Ownership) -> Self {
+            self.multihop_entry.ownership = Constraint::Only(ownership);
             self
         }
     }
 
-    impl<Multihop, Daita, QuantumResistant> RelayQueryBuilder<Multihop, Any, Daita, QuantumResistant> {
-        /// Set a custom port for the WireGuard connection.
-        pub fn port(
-            mut self,
-            port: u16,
-        ) -> RelayQueryBuilder<Multihop, WireguardPortSettings, Daita, QuantumResistant> {
+    // Obfuscation-mode setters: each transitions the typestate so the matching port
+    // setter (if any) becomes available.
+    impl<Multihop> RelayQueryBuilder<Multihop, Any> {
+        /// Pin the WireGuard port via the `Port` obfuscation mode (no actual
+        /// obfuscation, just port pinning).
+        pub fn port(mut self, port: u16) -> RelayQueryBuilder<Multihop, WireguardPortSettings> {
             let port = WireguardPortSettings::from(port);
-            let settings = Settings {
-                multihop: self.settings.multihop,
-                obfuscation: port,
-                daita: self.settings.daita,
-                quantum_resistant: self.settings.quantum_resistant,
-            };
-            self.query.wireguard_constraints.obfuscation =
-                Constraint::Only(ObfuscationMode::Port(port));
+            self.entry_specific.obfuscation = Constraint::Only(ObfuscationMode::Port(port));
             RelayQueryBuilder {
-                query: self.query,
-                settings,
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: port,
+                _phantom: PhantomData,
             }
         }
 
-        /// Enable `UDP2TCP` obfuscation. This will in turn enable the option to configure the
-        /// `UDP2TCP` port.
-        pub fn udp2tcp(
-            mut self,
-        ) -> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>
-        {
-            let obfuscation = Udp2TcpObfuscationSettings {
-                port: Constraint::Any,
-            };
-            let protocol = Settings {
-                multihop: self.settings.multihop,
-                obfuscation: obfuscation.clone(),
-                daita: self.settings.daita,
-                quantum_resistant: self.settings.quantum_resistant,
-            };
-            self.query.wireguard_constraints.obfuscation =
-                Constraint::Only(ObfuscationMode::Udp2tcp(obfuscation));
+        pub fn shadowsocks(mut self) -> RelayQueryBuilder<Multihop, ShadowsocksSettings> {
+            let settings = ShadowsocksSettings::default();
+            self.entry_specific.obfuscation =
+                Constraint::Only(ObfuscationMode::Shadowsocks(settings.clone()));
             RelayQueryBuilder {
-                query: self.query,
-                settings: protocol,
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: settings,
+                _phantom: PhantomData,
             }
         }
 
-        /// Enable Shadowsocks obfuscation. This will in turn enable the option to configure the
-        /// port.
-        pub fn shadowsocks(
-            mut self,
-        ) -> RelayQueryBuilder<Multihop, ShadowsocksSettings, Daita, QuantumResistant> {
-            let obfuscation = ShadowsocksSettings {
-                port: Constraint::Any,
-            };
-            let protocol = Settings {
-                multihop: self.settings.multihop,
-                obfuscation: obfuscation.clone(),
-                daita: self.settings.daita,
-                quantum_resistant: self.settings.quantum_resistant,
-            };
-            self.query.wireguard_constraints.obfuscation =
-                Constraint::Only(ObfuscationMode::Shadowsocks(obfuscation));
+        pub fn udp2tcp(mut self) -> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings> {
+            let settings = Udp2TcpObfuscationSettings::default();
+            self.entry_specific.obfuscation =
+                Constraint::Only(ObfuscationMode::Udp2tcp(settings.clone()));
             RelayQueryBuilder {
-                query: self.query,
-                settings: protocol,
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: settings,
+                _phantom: PhantomData,
             }
         }
 
-        /// Enable QUIC obfuscation.
-        pub fn quic(mut self) -> RelayQueryBuilder<Multihop, Quic, Daita, QuantumResistant> {
-            self.query.wireguard_constraints.obfuscation = Constraint::Only(ObfuscationMode::Quic);
+        pub fn quic(mut self) -> RelayQueryBuilder<Multihop, Quic> {
+            self.entry_specific.obfuscation = Constraint::Only(ObfuscationMode::Quic);
             RelayQueryBuilder {
-                query: self.query,
-                settings: Settings {
-                    multihop: self.settings.multihop,
-                    obfuscation: Quic,
-                    daita: self.settings.daita,
-                    quantum_resistant: self.settings.quantum_resistant,
-                },
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: Quic,
+                _phantom: PhantomData,
             }
         }
 
-        /// Enable LWO obfuscation.
-        pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo, Daita, QuantumResistant> {
-            self.query.wireguard_constraints.obfuscation =
+        pub fn lwo(mut self) -> RelayQueryBuilder<Multihop, Lwo> {
+            self.entry_specific.obfuscation =
                 Constraint::Only(ObfuscationMode::Lwo(LwoSettings::default()));
             RelayQueryBuilder {
-                query: self.query,
-                settings: Settings {
-                    multihop: self.settings.multihop,
-                    obfuscation: Lwo,
-                    daita: self.settings.daita,
-                    quantum_resistant: self.settings.quantum_resistant,
-                },
+                entry_specific: self.entry_specific,
+                exit: self.exit,
+                multihop_entry: self.multihop_entry,
+                hop_choice: self.hop_choice,
+                allowed_ips: self.allowed_ips,
+                quantum_resistant: self.quantum_resistant,
+                obfuscation_state: Lwo,
+                _phantom: PhantomData,
             }
         }
     }
 
-    impl<Multihop, Daita, QuantumResistant>
-        RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings, Daita, QuantumResistant>
-    {
-        /// Set the `UDP2TCP` port. This is the TCP port which the `UDP2TCP` obfuscation
-        /// protocol should use to connect to a relay.
+    impl<Multihop> RelayQueryBuilder<Multihop, Udp2TcpObfuscationSettings> {
         pub fn udp2tcp_port(mut self, port: u16) -> Self {
-            self.settings.obfuscation.port = Constraint::Only(port);
-            self.query.wireguard_constraints.obfuscation =
-                Constraint::Only(ObfuscationMode::Udp2tcp(self.settings.obfuscation.clone()));
+            self.obfuscation_state.port = Constraint::Only(port);
+            self.entry_specific.obfuscation =
+                Constraint::Only(ObfuscationMode::Udp2tcp(self.obfuscation_state.clone()));
             self
         }
-    }
-}
-
-/// This trait defines a bunch of helper methods on [`RelayQuery`].
-pub trait RelayQueryExt {
-    /// Are we using daita?
-    fn using_daita(&self) -> bool;
-    /// is `use_multihop_if_necessary` enabled? In other words, is `Direct only` disabled?
-    fn use_multihop_if_necessary(&self) -> bool;
-    /// Are we using singlehop? I.e. is multihop *not* explicitly enabled?
-    fn singlehop(&self) -> bool;
-}
-
-impl RelayQueryExt for RelayQuery {
-    fn using_daita(&self) -> bool {
-        self.wireguard_constraints()
-            .daita
-            .is_only_and(|enabled| enabled)
-    }
-    fn use_multihop_if_necessary(&self) -> bool {
-        self.wireguard_constraints()
-            .daita_use_multihop_if_necessary
-            // The default value is `Any`, which means that we need to check the intersection.
-            .intersection(Constraint::Only(true))
-            .is_some()
-    }
-    fn singlehop(&self) -> bool {
-        !self.wireguard_constraints().multihop()
     }
 }
 
