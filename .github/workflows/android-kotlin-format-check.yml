@@ -41,6 +41,8 @@ jobs:
   check-formatting:
     needs: prepare
     runs-on: android-build
+    env:
+      KTFMT_VERSION: "0.62"
     container:
       image: ${{ needs.prepare.outputs.container_image }}
       volumes:
@@ -54,5 +56,22 @@ jobs:
         with:
           submodules: true
 
+      - name: Cache ktfmt jar
+        id: cache-ktfmt
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: ktfmt.jar
+          key: ${{ runner.os }}-ktfmt-${{ env.KTFMT_VERSION }}
+
+      - name: Download ktfmt
+        if: steps.cache-ktfmt.outputs.cache-hit != 'true'
+        run: |
+          curl -sSL -o ktfmt.jar \
+          "https://github.com/facebook/ktfmt/releases/download/v$KTFMT_VERSION/ktfmt-$KTFMT_VERSION-with-dependencies.jar"
+
       - name: Run ktfmt check
-        run: android/gradlew -p android ktfmtCheck :build-logic:ktfmtCheck --no-daemon
+        run: |
+          find . -type f \( -name "*.kt" -o -name "*.kts" \) \
+            -not -path "*/build/*" \
+            -not -path "*/.gradle/*" \
+            | xargs -r java -jar ktfmt.jar --kotlinlang-style --quiet --dry-run --set-exit-if-changed
