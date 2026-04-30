@@ -48,7 +48,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --gotatun) GOTATUN="true";;
+        --wireguard-go) GOTATUN="false";;
         --daemon-only) DAEMON_ONLY="true";;
         *)
             log_error "Unknown parameter: $1"
