@@ -118,11 +118,14 @@ fun NotificationSettingsScreen(
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier.drawVerticalScrollbar(
-                state = scrollState,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
-            )
-                .verticalScroll(state = scrollState).padding(horizontal = Dimens.sideMarginNew),
+            modifier =
+                modifier
+                    .drawVerticalScrollbar(
+                        state = scrollState,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                    )
+                    .verticalScroll(state = scrollState)
+                    .padding(horizontal = Dimens.sideMarginNew),
         ) {
             when (state) {
                 is Lc.Loading -> Loading()
