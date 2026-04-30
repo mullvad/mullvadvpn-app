@@ -8,7 +8,7 @@ use talpid_core::mpsc::Sender;
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
-use crate::{DaemonEventSender, InternalDaemonEvent};
+use crate::DaemonEventSender;
 
 // Define the Mullvad connection checking api endpoint.
 //
@@ -49,11 +49,14 @@ pub(crate) struct GeoIpHandler {
     /// determine if the location belongs to the current tunnel state.
     pub request_id: usize,
     rest_service: RequestServiceHandle,
-    location_sender: DaemonEventSender,
+    location_sender: DaemonEventSender<LocationEventData>,
 }
 
 impl GeoIpHandler {
-    pub fn new(rest_service: RequestServiceHandle, location_sender: DaemonEventSender) -> Self {
+    pub fn new(
+        rest_service: RequestServiceHandle,
+        location_sender: DaemonEventSender<LocationEventData>,
+    ) -> Self {
         Self {
             request_id: 0,
             rest_service,
@@ -75,11 +78,10 @@ impl GeoIpHandler {
         let location_sender = self.location_sender.clone();
         tokio::spawn(async move {
             if let Ok(location) = get_geo_location_with_retry(use_ipv6, rest_service).await {
-                let _ =
-                    location_sender.send(InternalDaemonEvent::LocationEvent(LocationEventData {
-                        request_id,
-                        location,
-                    }));
+                let _ = location_sender.send(LocationEventData {
+                    request_id,
+                    location,
+                });
             }
         });
     }

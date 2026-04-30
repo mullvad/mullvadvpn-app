@@ -536,6 +536,12 @@ impl From<(AccessMethodEvent, oneshot::Sender<()>)> for InternalDaemonEvent {
     }
 }
 
+impl From<LocationEventData> for InternalDaemonEvent {
+    fn from(location_event: LocationEventData) -> Self {
+        InternalDaemonEvent::LocationEvent(location_event)
+    }
+}
+
 pub struct DaemonCommandChannel {
     sender: DaemonCommandSender,
     receiver: mpsc::UnboundedReceiver<InternalDaemonEvent>,
@@ -562,7 +568,7 @@ impl DaemonCommandChannel {
     fn destructure(
         self,
     ) -> (
-        DaemonEventSender,
+        DaemonEventSender<InternalDaemonEvent>,
         mpsc::UnboundedReceiver<InternalDaemonEvent>,
     ) {
         let event_sender = DaemonEventSender::new(Arc::downgrade(&self.sender.0));
@@ -592,15 +598,12 @@ impl DaemonCommandSender {
     }
 }
 
-pub(crate) struct DaemonEventSender<E = InternalDaemonEvent> {
+pub struct DaemonEventSender<E> {
     sender: Weak<mpsc::UnboundedSender<InternalDaemonEvent>>,
     _event: PhantomData<E>,
 }
 
-impl<E> Clone for DaemonEventSender<E>
-where
-    InternalDaemonEvent: From<E>,
-{
+impl<E> Clone for DaemonEventSender<E> {
     fn clone(&self) -> Self {
         DaemonEventSender {
             sender: self.sender.clone(),
@@ -609,7 +612,7 @@ where
     }
 }
 
-impl DaemonEventSender {
+impl DaemonEventSender<InternalDaemonEvent> {
     pub fn new(sender: Weak<mpsc::UnboundedSender<InternalDaemonEvent>>) -> Self {
         DaemonEventSender {
             sender,
@@ -641,14 +644,12 @@ where
     }
 }
 
-impl<E> DaemonEventSender<E>
-where
-    InternalDaemonEvent: From<E>,
-{
-    pub fn to_unbounded_sender<T>(&self) -> mpsc::UnboundedSender<T>
+impl<E> DaemonEventSender<E> {
+    pub(crate) fn to_unbounded_sender<T>(&self) -> mpsc::UnboundedSender<T>
     where
         T: Send + 'static,
         E: From<T>,
+        InternalDaemonEvent: From<E>,
     {
         let (tx, mut rx) = mpsc::unbounded::<T>();
         let sender = self.sender.clone();
@@ -672,7 +673,7 @@ pub struct Daemon {
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
-    tx: DaemonEventSender,
+    tx: DaemonEventSender<InternalDaemonEvent>,
     reconnection_job: Option<AbortHandle>,
     management_interface: ManagementInterfaceServer,
     migration_complete: migrations::MigrationComplete,
@@ -1098,6 +1099,11 @@ impl Daemon {
         Ok(daemon)
     }
 
+    /// Get a [`DaemonCommand`] message sender.
+    pub fn commands(&self) -> DaemonEventSender<DaemonCommand> {
+        self.tx.to_specialized_sender()
+    }
+
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub async fn run(mut self) -> Result<(), Error> {
@@ -1396,9 +1402,9 @@ impl Daemon {
 
         if self.settings.update_default_location {
             let (tx, _) = oneshot::channel();
-            let _ = self.tx.send(InternalDaemonEvent::Command(
-                DaemonCommand::UpdateDefaultLocationCountry(tx),
-            ));
+            let _ = self
+                .commands()
+                .send(DaemonCommand::UpdateDefaultLocationCountry(tx));
         }
 
         self.management_interface
@@ -1462,7 +1468,7 @@ impl Daemon {
     fn schedule_reconnect(&mut self, delay: Duration) {
         self.unschedule_reconnect();
 
-        let daemon_command_tx = self.tx.to_specialized_sender();
+        let daemon_command_tx = self.commands();
         let (future, abort_handle) = abortable(Box::pin(async move {
             tokio::time::sleep(delay).await;
             log::debug!("Attempting to reconnect");
@@ -3606,7 +3612,7 @@ impl Daemon {
 
 #[derive(Clone)]
 pub struct DaemonShutdownHandle {
-    tx: DaemonEventSender,
+    tx: DaemonEventSender<InternalDaemonEvent>,
 }
 
 impl DaemonShutdownHandle {
