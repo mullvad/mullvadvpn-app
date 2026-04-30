@@ -34,11 +34,7 @@ UNIVERSAL="false"
 # If only the daemon should be built and packaged separately (.deb and .rpm).
 DAEMON_ONLY="false"
 # Use gotatun instead of wireguard-go.
-GOTATUN="false"
-# Enable GotaTun by default on macOS and Linux.
-if [[ "$(uname -s)" == "Darwin" ]] || [[ "$(uname -s)" == "Linux" ]]; then
-    GOTATUN="true"
-fi
+GOTATUN="true"
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -52,7 +48,7 @@ while [[ "$#" -gt 0 ]]; do
             fi
             UNIVERSAL="true"
             ;;
-        --gotatun) GOTATUN="true";;
+        --wireguard-go) GOTATUN="false";;
         --daemon-only) DAEMON_ONLY="true";;
         *)
             log_error "Unknown parameter: $1"
