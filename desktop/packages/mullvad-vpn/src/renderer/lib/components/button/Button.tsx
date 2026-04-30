@@ -48,7 +48,6 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
       --transition-duration: 0.15s;
 
       display: flex;
-      flex: var(--size);
       align-items: center;
       padding: ${spacings.tiny} ${spacings.small};
       gap: ${spacings.small};
@@ -67,6 +66,7 @@ export const StyledButton = styled.button<TransientProps<Pick<ButtonProps, 'vari
         } else if ($width === 'fit') {
           return css`
             width: fit-content;
+            max-width: 100%;
           `;
         }
         return null;
