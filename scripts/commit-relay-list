@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# Downloads the latest relay list from the Mullvad API into
+# dist-assets/relays/relays.json and, if the file changed, creates a signed
+# commit. The relay list is bundled with both the desktop and Android
+# release artifacts so the daemon has an offline copy on first launch.
+#
+# Usage: commit-relay-list <PRODUCT_VERSION>
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR/.."
+
+if [[ $# -ne 1 ]]; then
+    echo "Usage: $0 <PRODUCT_VERSION>" >&2
+    exit 1
+fi
+
+PRODUCT_VERSION="$1"
+
+echo "### Generating relay list ###"
+mkdir -p dist-assets/relays
+cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
+if [[ ! -s dist-assets/relays/relays.json ]]; then
+    echo "Error: Relay list missing or empty." >&2
+    exit 1
+elif test ! -n "$(git status --porcelain | grep dist-assets/relays/)"; then
+    echo "Relay list unchanged, skipping commit."
+else
+    git add dist-assets/relays/relays.json
+    git commit -S -m "Add relay list to bundle with $PRODUCT_VERSION"
+fi

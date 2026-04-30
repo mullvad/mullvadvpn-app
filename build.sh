@@ -387,8 +387,12 @@ else
     mkdir -p "build"
 fi
 
-log_info "Updating relays.json..."
-cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
+RELAY_LIST_PATH="dist-assets/relays/relays.json"
+if [[ "$IS_RELEASE" == "true" && ! -s "$RELAY_LIST_PATH" ]]; then
+    log_error "Release build requires a non-empty $RELAY_LIST_PATH."
+    log_error "Typically done by running desktop/scripts/release/1-prepare-release."
+    exit 1
+fi
 
 function build_daemon_packages {
     local pkg_success=0

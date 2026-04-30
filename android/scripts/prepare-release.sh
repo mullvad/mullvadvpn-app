@@ -39,18 +39,7 @@ if [[ $PRODUCT_VERSION != *"alpha"* &&
     exit 1
 fi
 
-echo "### Generating relay list ###"
-mkdir -p dist-assets/relays
-cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
-if [[ ! -f dist-assets/relays/relays.json ]]; then
-    echo "Error: Relay list missing."
-    exit 1
-elif test ! -n "$(git status --porcelain | grep dist-assets/relays/)"; then
-    echo "Relay list unchanged, skipping commit."
-else
-    git add dist-assets/relays/relays.json
-    git commit -S -m "Add relay list to bundle with $PRODUCT_VERSION"
-fi
+scripts/commit-relay-list "$PRODUCT_VERSION"
 echo ""
 
 echo "### Generating version information ###"
