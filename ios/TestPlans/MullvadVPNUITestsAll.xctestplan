@@ -9,6 +9,7 @@
     }
   ],
   "defaultOptions" : {
+    "diagnosticCollectionPolicy" : "Never",
     "targetForVariableExpansion" : {
       "containerPath" : "container:MullvadVPN.xcodeproj",
       "identifier" : "58CE5E5F224146200008646E",
