@@ -22,19 +22,27 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## UNRELEASED
+### Add
+- Add support for connecting over IPv6
+
+## [2026.2 - 2026-04-21]
 ### Add
 - Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
 - Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
   This helps circumvent censorship.
 - Add button to manually update relay list
-- Add support for additional languages.
-- Add recent connections in the Select location view.
-- Show disabled servers in location view.
-- Add ability which types of local notifications are delivered.
-- Remove invalid Shadowsocks ciphers.
-- Remove Automatic quantum-resistant tunnel option
+- Add support for the Ukranian language
 
 [TunnelCrack]: https://tunnelcrack.mathyvanhoef.com/
+
+## [2026.1 - 2026-03-13]
+### Add
+- Add recent connections in the Select location view.
+- Add support for additional languages.
+- Show disabled servers in location view.
+- Add ability to select which types of local notifications are delivered.
+- Remove invalid Shadowsocks ciphers.
+- Remove Automatic quantum-resistant tunnel option
 
 ### Changed
 - Improve reliability of the bridge API connection method.
