@@ -115,6 +115,10 @@ export function ApiAccessView() {
                     method={methods.encryptedDnsProxy}
                     inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
                   />
+                  <ApiAccessMethod
+                    method={methods.domainFronting}
+                    inUse={methods.domainFronting.id === currentMethod?.id}
+                  />
                   {methods.custom.map((method) => (
                     <ApiAccessMethod
                       key={method.id}
@@ -286,6 +290,28 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
               messages.pgettext(
                 'api-access-methods-view',
                 'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.',
+              ),
+            ]}
+          />
+        )}
+        {props.method.type === 'domain-fronting' && (
+          <InfoButton
+            message={[
+              messages.pgettext(
+                'api-access-methods-view',
+                'The app communicates with a Mullvad API server via domain fronting.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                'With the Domain fronting access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                'This can be useful when direct access and other methods are blocked by censorship.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                "The CDN used is Datapacket's CDN77. The CDN can only observe the proxied TLS traffic, not the contents.",
               ),
             ]}
           />
