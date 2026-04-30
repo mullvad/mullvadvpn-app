@@ -50,6 +50,6 @@ class ObfuscationMockApiTest : MockApiTest() {
     companion object {
         // List of obfuscation methods in the order the relay selector uses them
         // If the order in the relay selector changes this should be updated
-        private val obfuscationNames = listOf("Shadowsocks", "QUIC", "UDP-over-TCP", "LWO")
+        private val obfuscationNames = listOf("LWO", "Shadowsocks", "QUIC", "UDP-over-TCP")
     }
 }
