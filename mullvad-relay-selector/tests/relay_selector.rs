@@ -262,18 +262,18 @@ mod relay_selection {
             // 2
             RelayQueryBuilder::new().ip_version(IpVersion::V6).build(),
             // 3
-            RelayQueryBuilder::new().shadowsocks().build(),
+            RelayQueryBuilder::new().lwo().build(),
             // 4
-            RelayQueryBuilder::new().quic().build(),
+            RelayQueryBuilder::new().shadowsocks().build(),
             // 5
-            RelayQueryBuilder::new().udp2tcp().build(),
+            RelayQueryBuilder::new().quic().build(),
             // 6
+            RelayQueryBuilder::new().udp2tcp().build(),
+            // 7
             RelayQueryBuilder::new()
                 .udp2tcp()
                 .ip_version(IpVersion::V6)
                 .build(),
-            // 7
-            RelayQueryBuilder::new().lwo().build(),
         ];
 
         assert!(
