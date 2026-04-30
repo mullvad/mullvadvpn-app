@@ -2,7 +2,7 @@ name: Sync Fork with Upstream
 
 on:
   schedule:
-    - cron: '0 */12 * * *' # Every 12 hours
+    - cron: '0 */2 * * *' # Runs every 2 hours
   workflow_dispatch: # Manual trigger
 
 jobs:
