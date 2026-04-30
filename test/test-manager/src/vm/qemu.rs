@@ -83,10 +83,8 @@ impl VmInstance for QemuInstance {
     }
 }
 
-pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> {
-    let mut network_handle = network::linux::setup_test_network()
-        .await
-        .map_err(Error::Network)?;
+pub async fn run(config: &Config, vm_config: &VmConfig) -> anyhow::Result<QemuInstance> {
+    let mut network_handle = network::linux::setup_test_network().await?;
 
     let mut qemu_cmd = Command::new("qemu-system-x86_64");
     let vcpus = vm_config.vcpus.unwrap_or(DEFAULT_NUM_VCPUS);
