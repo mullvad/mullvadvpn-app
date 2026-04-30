@@ -13,9 +13,6 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.feature.dns.impl.CustomDnsEntry
-import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsScreen
-import net.mullvad.mullvadvpn.feature.dns.impl.DnsSettingsUiState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -40,7 +37,6 @@ class DnsSettingsScreenTest {
 
     private fun createDefaultUiState(
         isModal: Boolean = false,
-        contentBlockersExpanded: Boolean = false,
         contentBlockersEnabled: Boolean = true,
         defaultDnsOptions: DefaultDnsOptions = DefaultDnsOptions(),
         customDnsEnabled: Boolean = false,
@@ -50,7 +46,6 @@ class DnsSettingsScreenTest {
     ) =
         DnsSettingsUiState(
             isModal = isModal,
-            contentBlockersExpanded = contentBlockersExpanded,
             contentBlockersEnabled = contentBlockersEnabled,
             defaultDnsOptions = defaultDnsOptions,
             customDnsEnabled = customDnsEnabled,
@@ -71,7 +66,6 @@ class DnsSettingsScreenTest {
         onToggleBlockSocialMedia: (Boolean) -> Unit = {},
         onToggleBlockAdultContent: (Boolean) -> Unit = {},
         onToggleAllContentBlockers: (Boolean) -> Unit = {},
-        onToggleContentBlockersExpanded: () -> Unit = {},
         navigateToMalwareInfo: () -> Unit = {},
         navigateToContentBlockersInfo: () -> Unit = {},
         onBackClick: () -> Unit = {},
@@ -91,7 +85,6 @@ class DnsSettingsScreenTest {
                 onToggleBlockSocialMedia = onToggleBlockSocialMedia,
                 onToggleBlockAdultContent = onToggleBlockAdultContent,
                 onToggleAllContentBlockers = onToggleAllContentBlockers,
-                onToggleContentBlockersExpanded = onToggleContentBlockersExpanded,
                 navigateToMalwareInfo = navigateToMalwareInfo,
                 navigateToContentBlockersInfo = navigateToContentBlockersInfo,
                 onBackClick = onBackClick,
