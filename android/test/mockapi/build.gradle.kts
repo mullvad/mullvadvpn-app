@@ -16,6 +16,9 @@ android {
         minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.mockapi"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Required to run mock api tests locally
+        testInstrumentationRunnerArguments["runnerBuilder"] =
+            "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
         missingDimensionStrategy(FlavorDimensions.BILLING, Flavors.OSS)

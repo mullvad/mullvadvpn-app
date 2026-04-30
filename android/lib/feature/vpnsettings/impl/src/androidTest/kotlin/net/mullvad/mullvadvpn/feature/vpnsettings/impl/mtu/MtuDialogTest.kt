@@ -26,7 +26,7 @@ class MtuDialogTest {
     }
 
     private val defaultState =
-        MtuDialogUiState(mtuInput = "", isValidInput = true, showResetToDefault = true)
+        MtuDialogUiState(mtuInput = "", inputError = null, showResetToDefault = true)
 
     private fun ComposeContext.initDialog(
         state: MtuDialogUiState = defaultState,

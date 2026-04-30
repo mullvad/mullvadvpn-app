@@ -1691,9 +1691,9 @@ checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
 name = "gotatun"
-version = "0.5.1"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "011b0c02e571262b965413848b5e1e25810a9a1b8cea2ce373ea67e8f2174197"
+checksum = "ee896ae91b1a90a10642d58ced8721560dc399ceeaba66d9cab14ad1db846936"
 dependencies = [
  "aead",
  "base64",
@@ -1724,6 +1724,7 @@ dependencies = [
  "socket2 0.6.3",
  "thiserror 1.0.69",
  "tokio",
+ "tokio-util 0.7.18",
  "tun 0.8.7",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
