@@ -11,7 +11,7 @@ import MullvadSettings
 import MullvadTypes
 import Network
 
-protocol RelayPicking {
+public protocol RelayPicking {
     var logger: Logger { get }
     var relays: REST.ServerRelaysResponse { get }
     var tunnelSettings: LatestTunnelSettings { get }

@@ -10,13 +10,19 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-struct MultihopPicker: RelayPicking {
-    let logger = Logger(label: "MultihopPicker")
-    let relays: REST.ServerRelaysResponse
-    let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
+public struct MultihopPicker: RelayPicking {
+    public let logger = Logger(label: "MultihopPicker")
+    public let relays: REST.ServerRelaysResponse
+    public let tunnelSettings: LatestTunnelSettings
+    public let connectionAttemptCount: UInt
 
-    func pick() throws -> SelectedRelays {
+    public init(relays: REST.ServerRelaysResponse, tunnelSettings: LatestTunnelSettings, connectionAttemptCount: UInt) {
+        self.relays = relays
+        self.tunnelSettings = tunnelSettings
+        self.connectionAttemptCount = connectionAttemptCount
+    }
+
+    public func pick() throws -> SelectedRelays {
         let constraints = tunnelSettings.relayConstraints
         let entryConstraints = tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryLocations
         let entryFilter = tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryFilter

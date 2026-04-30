@@ -243,6 +243,8 @@ fn supports_daita(relay: &WireguardRelay) -> bool {
 /// Tests that exercise the full relay-selection pipeline via
 /// [`RelaySelector::get_relay`] and [`RelaySelector::get_relay_by_query`].
 mod relay_selection {
+    use crate::relay_list_builder::RelayListBuilder;
+
     use super::*;
 
     /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
@@ -762,71 +764,16 @@ mod relay_selection {
     /// fail rather than silently picking a relay the operator opted out of.
     #[test]
     fn test_include_in_country() {
-        let mut relay_list = RelayList {
-            countries: vec![RelayListCountry {
-                name: "Sweden".to_string(),
-                code: "se".to_string(),
-                cities: vec![RelayListCity {
-                    name: "Gothenburg".to_string(),
-                    code: "got".to_string(),
-                    latitude: 57.70887,
-                    longitude: 11.97456,
-                    relays: vec![
-                        WireguardRelay {
-                            overridden_ipv4: false,
-                            overridden_ipv6: false,
-                            include_in_country: false,
-                            owned: true,
-                            provider: "31173".to_string(),
-                            endpoint_data: WireguardRelayEndpointData::new(
-                                WIREGUARD_PUBKEY.clone(),
-                            ),
-                            inner: Relay {
-                                location: DUMMY_LOCATION.clone(),
-                                weight: 1,
-                                active: true,
-                                hostname: "se9-wireguard".to_string(),
-                                ipv4_addr_in: "185.213.154.68".parse().unwrap(),
-                                ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
-                            },
-                        },
-                        WireguardRelay {
-                            overridden_ipv4: false,
-                            overridden_ipv6: false,
-                            include_in_country: false,
-                            owned: false,
-                            provider: "31173".to_string(),
-                            endpoint_data: WireguardRelayEndpointData::new(
-                                WIREGUARD_PUBKEY.clone(),
-                            ),
-                            inner: Relay {
-                                active: true,
-                                location: DUMMY_LOCATION.clone(),
-                                weight: 1,
-                                hostname: "se10-wireguard".to_string(),
-                                ipv4_addr_in: "185.213.154.69".parse().unwrap(),
-                                ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
-                            },
-                        },
-                    ],
-                }],
-            }],
-            wireguard: EndpointData {
-                port_ranges: vec![53..=53, 4000..=33433, 33565..=51820, 52000..=60000],
-                ipv4_gateway: "10.64.0.1".parse().unwrap(),
-                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
-                udp2tcp_ports: vec![],
-                shadowsocks_port_ranges: vec![],
-            },
-        };
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_location("se", "got");
+
+        relay_list
+            .add_relay("not-included-in-country-relay")
+            .include_in_country = false;
+        let relay_selector = RelaySelector::from(relay_list.clone());
 
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
-        let relay_selector = RelaySelector::from_settings(
-            &Settings::default(),
-            relay_list.clone(),
-            BridgeList::default(),
-        );
         assert!(matches!(
             relay_selector.get_relay(0, talpid_types::net::IpAvailability::Ipv4),
             Err(Error::NoRelay(_))
@@ -834,12 +781,12 @@ mod relay_selection {
 
         // Hostname-level query targeting an include_in_country=false relay: the
         // explicit, specific choice wins.
-        let target_hostname = relay_list.countries[0].cities[0].relays[1].hostname.clone();
+        let target_hostname = "not-included-in-country-relay".to_string();
         let hostname_query = RelayQueryBuilder::new()
             .location(GeographicLocationConstraint::hostname(
                 "se",
                 "got",
-                target_hostname.clone(),
+                &target_hostname,
             ))
             .build();
         let relay = unwrap_relay(
@@ -849,15 +796,19 @@ mod relay_selection {
         );
         assert_eq!(relay.hostname, target_hostname);
 
+        relay_list.add_relay("included-in-country-relay");
+        let relay_selector = RelaySelector::from(relay_list.clone());
+
         // If at least one relay has include_in_country=true, country-level queries
         // resolve to that relay and never to the include_in_country=false ones.
-        relay_list.countries[0].cities[0].relays[0].include_in_country = true;
-        let expected_hostname = relay_list.countries[0].cities[0].relays[0].hostname.clone();
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), relay_list, BridgeList::default());
+        let expected_hostname = "included-in-country-relay".to_string();
+        let country_query = RelayQueryBuilder::new()
+            .location(GeographicLocationConstraint::country("se"))
+            .build();
+
         let relay = unwrap_relay(
             relay_selector
-                .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
+                .get_relay_by_query(country_query)
                 .expect("expected match"),
         );
 
@@ -2042,6 +1993,7 @@ mod relay_list_builder {
     };
     use talpid_types::net::wireguard::PublicKey;
 
+    #[derive(Clone)]
     pub struct RelayListBuilder {
         pub inner: RelayList,
     }

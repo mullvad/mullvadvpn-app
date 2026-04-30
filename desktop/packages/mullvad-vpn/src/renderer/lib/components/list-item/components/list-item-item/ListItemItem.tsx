@@ -55,6 +55,7 @@ function ListItemItem({ children, ...props }: ListItemItemProps) {
       flexGrow={1}
       gap="small"
       $paddingLeft={paddingLeft}
+      padding={{ vertical: 'small' }}
       $backgroundColor={backgroundColor}
       $animation={contextAnimation === 'flash' ? animation : undefined}
       {...props}>

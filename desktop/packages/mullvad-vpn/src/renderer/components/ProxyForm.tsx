@@ -179,7 +179,7 @@ export function ProxyFormButtons() {
         <Button width="fit" onClick={onCancel}>
           <Button.Text>{messages.gettext('Cancel')}</Button.Text>
         </Button>
-        <Button onClick={onSave} disabled={!formSubmittable}>
+        <Button width="fit" onClick={onSave} disabled={!formSubmittable}>
           <Button.Text>{isNew ? messages.gettext('Add') : messages.gettext('Save')}</Button.Text>
         </Button>
       </FlexRow>

@@ -49,6 +49,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
 - Fix a bug with Shadowsocks-based API access methods where some ciphers were configurable by
   Mullvad VPN clients while not being supported by the system service.
+- Fix IPv6 addresses not being allowed as endpoints for Socks5 and Shadowsocks API access methods.
 
 #### Linux
 - Fix 'mullvad split-tunnel clear' getting stuck.

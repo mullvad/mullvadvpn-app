@@ -21,7 +21,6 @@ export function useMapCustomListsToLocations(
   const { customLists } = useCustomLists();
 
   const customListLocations: CustomListLocation[] = customLists.map((customList) => {
-    const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
     const locationMap = createCountryLocationMap(countryLocations);
 
     // Get all ids of locations that are in the custom list
@@ -38,6 +37,7 @@ export function useMapCustomListsToLocations(
 
     // Pick the locations from the map that are in the custom list, and add custom list details to them
     const customListGeographicalLocations: GeographicalLocation[] = [];
+    let childLocationExpandedOrSelected = false;
     for (const id of customListLocationIds) {
       const location = locationMap.get(id);
       if (!location) {
@@ -53,7 +53,15 @@ export function useMapCustomListsToLocations(
       } as GeographicalLocation;
 
       customListGeographicalLocations.push(customListGeographicalLocation);
+      if (customListGeographicalLocation.expanded || customListGeographicalLocation.selected) {
+        childLocationExpandedOrSelected = true;
+      }
     }
+
+    const customListMatchesSearch = searchMatchesLocation(customList.name, searchTerm);
+    // Expand if one of the child locations are expanded or selected, or if the custom list itself does
+    // not match the search, since that means one of the children must have matched.
+    const customListExpanded = !customListMatchesSearch || childLocationExpandedOrSelected;
 
     const details = {
       customList: customList.id,
@@ -70,8 +78,7 @@ export function useMapCustomListsToLocations(
       disabledReason,
       locations: customListGeographicalLocations,
       active: disabledReason !== DisabledReason.inactive,
-      // If not custom list matches search, one of the children did
-      expanded: !customListMatchesSearch,
+      expanded: customListExpanded,
       selected: isLocationSelected(details, selectedLocation),
     };
   });

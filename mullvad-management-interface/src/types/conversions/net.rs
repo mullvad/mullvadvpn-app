@@ -226,7 +226,7 @@ pub fn try_transport_protocol_from_i32(
 }
 
 mod proxy {
-    use std::net::Ipv4Addr;
+    use std::net::IpAddr;
 
     use crate::types::{FromProtobufTypeError, proto};
     use talpid_types::net::proxy::{
@@ -261,7 +261,7 @@ mod proxy {
 
         fn try_from(value: proto::Socks5Local) -> Result<Self, Self::Error> {
             use crate::types::conversions::net::try_transport_protocol_from_i32;
-            let remote_ip = value.remote_ip.parse::<Ipv4Addr>().map_err(|_| {
+            let remote_ip = value.remote_ip.parse::<IpAddr>().map_err(|_| {
                 FromProtobufTypeError::invalid_argument(
                     "Could not parse Socks5 (local) message from protobuf",
                 )
@@ -278,7 +278,7 @@ mod proxy {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Socks5Remote) -> Result<Self, Self::Error> {
-            let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
+            let ip = value.ip.parse::<IpAddr>().map_err(|_| {
                 FromProtobufTypeError::invalid_argument(
                     "Could not parse Socks5 (remote) message from protobuf",
                 )
@@ -300,9 +300,9 @@ mod proxy {
         type Error = FromProtobufTypeError;
 
         fn try_from(value: proto::Shadowsocks) -> Result<Self, Self::Error> {
-            let ip = value.ip.parse::<Ipv4Addr>().map_err(|_| {
+            let ip = value.ip.parse::<IpAddr>().map_err(|_| {
                 FromProtobufTypeError::invalid_argument(
-                    "Could not parse Socks5 (remote) message from protobuf",
+                    "Could not parse Shadowsocks message from protobuf",
                 )
             })?;
 

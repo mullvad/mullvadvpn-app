@@ -230,16 +230,14 @@ impl RelayEndpointSet {
             .ok_or(Error::NoMatchingAddresses)?;
 
         let mode = match query {
-            Constraint::Only(mode) => mode,
-            #[cfg(not(feature = "staggered-obfuscation"))]
-            Constraint::Any => return Ok((wireguard_endpoint, None)),
-            #[cfg(feature = "staggered-obfuscation")]
             Constraint::Any => {
-                let staggered_obfuscator = self
-                    .staggered_obfuscator(wireguard_endpoint, ip_version)
-                    .ok_or(Error::MissingSupport)?;
-                return Ok((wireguard_endpoint, Some(staggered_obfuscator)));
+                let staggered_obfuscator = cfg_select! {
+                    not(feature = "staggered-obfuscation") => None,
+                    feature = "staggered-obfuscation" => self.staggered_obfuscator(wireguard_endpoint, ip_version),
+                };
+                return Ok((wireguard_endpoint, staggered_obfuscator));
             }
+            Constraint::Only(mode) => mode,
         };
 
         let obfuscator_config = match mode {

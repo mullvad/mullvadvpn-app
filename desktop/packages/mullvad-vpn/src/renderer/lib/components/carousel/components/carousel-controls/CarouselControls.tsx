@@ -1,5 +1,12 @@
 import styled from 'styled-components';
 
+import {
+  CarouselControlGroup,
+  CarouselIndicators,
+  CarouselNextButton,
+  CarouselPrevButton,
+} from './components';
+
 export type CarouselControlsProps = React.ComponentPropsWithRef<'div'>;
 
 const StyledGrid = styled.div`
@@ -16,7 +23,7 @@ const StyledGrid = styled.div`
   }
 `;
 
-export function CarouselControls({ children, ...props }: CarouselControlsProps) {
+function CarouselControls({ children, ...props }: CarouselControlsProps) {
   return (
     <StyledGrid {...props}>
       <div>{/* spacer to make slide indicators centered */}</div>
@@ -24,3 +31,12 @@ export function CarouselControls({ children, ...props }: CarouselControlsProps) 
     </StyledGrid>
   );
 }
+
+const CarouselControlsNamespace = Object.assign(CarouselControls, {
+  ControlGroup: CarouselControlGroup,
+  NextButton: CarouselNextButton,
+  PrevButton: CarouselPrevButton,
+  Indicators: CarouselIndicators,
+});
+
+export { CarouselControlsNamespace as CarouselControls };
