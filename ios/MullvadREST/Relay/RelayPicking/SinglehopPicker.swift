@@ -10,13 +10,19 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-struct SinglehopPicker: RelayPicking {
-    let logger = Logger(label: "SinglehopPicker")
-    let relays: REST.ServerRelaysResponse
-    let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
+public struct SinglehopPicker: RelayPicking {
+    public let logger = Logger(label: "SinglehopPicker")
+    public let relays: REST.ServerRelaysResponse
+    public let tunnelSettings: LatestTunnelSettings
+    public let connectionAttemptCount: UInt
 
-    func pick() throws -> SelectedRelays {
+    public init(relays: REST.ServerRelaysResponse, tunnelSettings: LatestTunnelSettings, connectionAttemptCount: UInt) {
+        self.relays = relays
+        self.tunnelSettings = tunnelSettings
+        self.connectionAttemptCount = connectionAttemptCount
+    }
+
+    public func pick() throws -> SelectedRelays {
         do {
             let obfuscationBypass = UnsupportedObfuscationProvider(
                 relayConstraint: tunnelSettings.relayConstraints.exitLocations,
