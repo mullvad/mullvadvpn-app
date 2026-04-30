@@ -50,7 +50,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.DnsListItem
-import net.mullvad.mullvadvpn.lib.ui.component.listitem.ExpandableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.InfoListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
@@ -82,7 +82,6 @@ private fun PreviewDnsSettingsScreen() {
         onToggleBlockMalware = {},
         onToggleBlockSocialMedia = {},
         onToggleBlockTrackers = {},
-        onToggleContentBlockersExpanded = {},
         navigateToContentBlockersInfo = {},
         navigateToMalwareInfo = {},
         onBackClick = {},
@@ -154,7 +153,6 @@ fun SharedTransitionScope.DnsSettings(
         onToggleBlockMalware = vm::onToggleBlockMalware,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
-        onToggleContentBlockersExpanded = vm::onToggleContentBlockersExpanded,
         navigateToContentBlockersInfo =
             dropUnlessResumed { navigator.navigate(ContentBlockersInfoNavKey) },
         navigateToMalwareInfo = dropUnlessResumed { navigator.navigate(MalwareInfoNavKey) },
@@ -178,7 +176,6 @@ fun DnsSettingsScreen(
     onToggleBlockMalware: (Boolean) -> Unit,
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
-    onToggleContentBlockersExpanded: () -> Unit,
     navigateToContentBlockersInfo: () -> Unit,
     navigateToMalwareInfo: () -> Unit,
     onBackClick: () -> Unit,
@@ -223,7 +220,6 @@ fun DnsSettingsScreen(
                         onToggleBlockMalware = onToggleBlockMalware,
                         onToggleBlockSocialMedia = onToggleBlockSocialMedia,
                         onToggleBlockTrackers = onToggleBlockTrackers,
-                        onToggleContentBlockersExpanded = onToggleContentBlockersExpanded,
                         navigateToContentBlockersInfo = navigateToContentBlockersInfo,
                         navigateToMalwareInfo = navigateToMalwareInfo,
                         navigateToCustomDnsInfo = navigateToCustomDnsInfo,
@@ -245,34 +241,29 @@ private fun LazyListScope.content(
     onToggleBlockMalware: (Boolean) -> Unit,
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     onToggleBlockTrackers: (Boolean) -> Unit,
-    onToggleContentBlockersExpanded: () -> Unit,
     navigateToContentBlockersInfo: () -> Unit,
     navigateToMalwareInfo: () -> Unit,
     navigateToCustomDnsInfo: () -> Unit,
 ) {
     item {
         ContentBlockersHeader(
-            contentBlockersExpanded = state.contentBlockersExpanded,
             numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
             navigateToContentBlockersInfo = navigateToContentBlockersInfo,
-            onToggleContentBlockersExpanded = onToggleContentBlockersExpanded,
         )
     }
 
-    if (state.contentBlockersExpanded) {
-        contentBlockers(
-            contentBlockersEnabled = state.contentBlockersEnabled,
-            defaultDnsOptions = state.defaultDnsOptions,
-            onToggleAllBlockers = onToggleAllBlockers,
-            onToggleBlockAds = onToggleBlockAds,
-            onToggleBlockTrackers = onToggleBlockTrackers,
-            onToggleBlockMalware = onToggleBlockMalware,
-            onToggleBlockAdultContent = onToggleBlockAdultContent,
-            onToggleBlockGambling = onToggleBlockGambling,
-            onToggleBlockSocialMedia = onToggleBlockSocialMedia,
-            navigateToMalwareInfo = navigateToMalwareInfo,
-        )
-    }
+    contentBlockers(
+        contentBlockersEnabled = state.contentBlockersEnabled,
+        defaultDnsOptions = state.defaultDnsOptions,
+        onToggleAllBlockers = onToggleAllBlockers,
+        onToggleBlockAds = onToggleBlockAds,
+        onToggleBlockTrackers = onToggleBlockTrackers,
+        onToggleBlockMalware = onToggleBlockMalware,
+        onToggleBlockAdultContent = onToggleBlockAdultContent,
+        onToggleBlockGambling = onToggleBlockGambling,
+        onToggleBlockSocialMedia = onToggleBlockSocialMedia,
+        navigateToMalwareInfo = navigateToMalwareInfo,
+    )
 
     if (!state.contentBlockersEnabled) {
         item {
@@ -361,15 +352,13 @@ private fun LazyListScope.content(
 
 @Composable
 private fun LazyItemScope.ContentBlockersHeader(
-    contentBlockersExpanded: Boolean,
     numberOfBlockersEnabled: Int,
     navigateToContentBlockersInfo: () -> Unit,
-    onToggleContentBlockersExpanded: () -> Unit,
 ) {
-    ExpandableListItem(
+    InfoListItem(
         modifier = Modifier.animateItem(),
-        position = if (contentBlockersExpanded) Position.Top else Position.Single,
-        content = { _ ->
+        position = Position.Top,
+        content = {
             Row {
                 Text(
                     modifier = Modifier.weight(1f),
@@ -386,9 +375,7 @@ private fun LazyItemScope.ContentBlockersHeader(
                 }
             }
         },
-        isExpanded = contentBlockersExpanded,
         onInfoClicked = navigateToContentBlockersInfo,
-        onCellClicked = { onToggleContentBlockersExpanded() },
     )
 }
 
