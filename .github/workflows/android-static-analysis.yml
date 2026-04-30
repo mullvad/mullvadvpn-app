@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          submodules: true
 
       - name: Scan code
         uses: MobSF/mobsfscan@3d87bc570c4614d705547bddb521395663dba353  # 0.4.5
