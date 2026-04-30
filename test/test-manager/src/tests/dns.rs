@@ -25,7 +25,7 @@ use crate::{
         Direction, IpHeaderProtocols, MonitorOptions, start_packet_monitor_until,
         start_tunnel_packet_monitor_until,
     },
-    vm::network::{
+    vm::network::wireguard::{
         CUSTOM_TUN_GATEWAY, CUSTOM_TUN_LOCAL_PRIVKEY, CUSTOM_TUN_LOCAL_TUN_ADDR,
         CUSTOM_TUN_REMOTE_PUBKEY, CUSTOM_TUN_REMOTE_REAL_PORT, CUSTOM_TUN_REMOTE_TUN_ADDR,
     },

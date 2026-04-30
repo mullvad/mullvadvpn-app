@@ -1,3 +1,5 @@
+use anyhow::Context;
+use gotatun::device::{DefaultDeviceTransports, Device};
 use ipnetwork::{Ipv4Network, Ipv6Network};
 use std::{
     ffi::OsStr,
@@ -11,6 +13,8 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
     process::{Child, Command},
 };
+
+use crate::vm::network::wireguard::*;
 
 /// (Contained) IPv4 subnet for the test runner: 172.29.1.1/24
 pub const TEST_SUBNET_IPV4: Ipv4Network =
@@ -27,36 +31,13 @@ pub const TEST_SUBNET_IPV6: Ipv6Network = Ipv6Network::new_checked(
 )
 .unwrap();
 
+/// Gateway of the non-tunnel interface.
+pub(super) const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
+
 /// Bridge interface on the host
 pub(crate) const BRIDGE_NAME: &str = "br-mullvadtest";
 /// TAP interface used by the guest
 pub const TAP_NAME: &str = "tap-mullvadtest";
-
-// Private key of the wireguard remote peer on host.
-const CUSTOM_TUN_REMOTE_PRIVKEY: &str = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU=";
-// Public key of the wireguard remote peer on host.
-data_encoding_macro::base64_array!(
-    "pub const CUSTOM_TUN_REMOTE_PUBKEY" = "7svBwGBefP7KVmH/yes+pZCfO6uSOYeGieYYa1+kZ0E="
-);
-// Private key of the wireguard local peer on guest.
-const CUSTOM_TUN_LOCAL_PUBKEY: &str = "h6elqt3dfamtS/p9jxJ8bIYs8UW9YHfTFhvx0fabTFo=";
-// Private key of the wireguard local peer on guest.
-data_encoding_macro::base64_array!(
-    "pub const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
-);
-
-/// Port of the wireguard remote peer as defined in `setup-network.sh`.
-pub const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
-/// Tunnel address of the wireguard local peer as defined in `setup-network.sh`.
-pub const CUSTOM_TUN_LOCAL_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 2);
-/// Tunnel address of the wireguard remote peer as defined in `setup-network.sh`.
-pub const CUSTOM_TUN_REMOTE_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 1);
-/// Gateway (and default DNS resolver) of the wireguard tunnel.
-pub const CUSTOM_TUN_GATEWAY: Ipv4Addr = CUSTOM_TUN_REMOTE_TUN_ADDR;
-/// Gateway of the non-tunnel interface.
-pub(super) const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
-/// Name of the wireguard interface on the host
-pub const CUSTOM_TUN_INTERFACE_NAME: &str = "wg-relay0";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -93,6 +74,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 // TODO: probably provider dependent
 pub struct NetworkHandle {
     dhcp_proc: DhcpProcHandle,
+    /// WireGuard device. If this value is dropped, the device is shut down.
+    _wg: Device<DefaultDeviceTransports>,
 }
 
 struct DhcpProcHandle {
@@ -115,7 +98,7 @@ async fn fix_ipv6() -> Result<()> {
 }
 
 /// Create a bridge network and hosts
-pub async fn setup_test_network() -> Result<NetworkHandle> {
+pub async fn setup_test_network() -> anyhow::Result<NetworkHandle> {
     fix_ipv6().await?;
 
     enable_forwarding().await?;
@@ -146,7 +129,9 @@ table inet mullvad_test_nat {{
 
     log::debug!("Create WireGuard peer");
 
-    create_local_wireguard_peer().await?;
+    let wg = create_interface()
+        .await
+        .context("Failed to create WireGuard interface")?;
 
     log::debug!("Start DHCP server for {BRIDGE_NAME}");
 
@@ -158,7 +143,7 @@ table inet mullvad_test_nat {{
     run_ip_cmd(["link", "set", TAP_NAME, "master", BRIDGE_NAME]).await?;
     run_ip_cmd(["link", "set", TAP_NAME, "up"]).await?;
 
-    Ok(NetworkHandle { dhcp_proc })
+    Ok(NetworkHandle { dhcp_proc, _wg: wg })
 }
 
 impl NetworkHandle {
@@ -262,6 +247,7 @@ async fn start_dnsmasq() -> Result<DhcpProcHandle> {
     })
 }
 
+/*
 /// Creates a WireGuard peer on the host.
 ///
 /// This relay does not support PQ handshakes, etc.
@@ -331,6 +317,7 @@ AllowedIPs = {CUSTOM_TUN_LOCAL_TUN_ADDR}
 
     Ok(())
 }
+*/
 
 async fn run_ip_cmd<I, S>(args: I) -> Result<()>
 where

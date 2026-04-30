@@ -8,6 +8,8 @@ use nix::sys::socket::SockaddrStorage;
 use std::net::{Ipv4Addr, SocketAddrV4};
 use tokio::process::Command;
 
+use crate::vm::network::wireguard::*;
+
 // Private key of the wireguard remote peer on host.
 data_encoding_macro::base64_array!(
     "const CUSTOM_TUN_REMOTE_PRIVKEY" = "gLvQuyqazziyf+pUCAFUgTnWIwn6fPE5MOReOqPEGHU="
