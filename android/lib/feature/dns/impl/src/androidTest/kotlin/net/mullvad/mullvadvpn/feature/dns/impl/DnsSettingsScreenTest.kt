@@ -3,12 +3,9 @@ package net.mullvad.mullvadvpn.feature.dns.impl
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToNode
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
@@ -16,8 +13,6 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_LAST_ITEM_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -146,8 +141,7 @@ class DnsSettingsScreenTest {
                     )
                     .toLc()
         )
-        onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
-            .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
+
         // Assert
         onNodeWithText(DUMMY_DNS_ADDRESS).assertDoesNotExist()
         onNodeWithText("Add a server").assertDoesNotExist()
@@ -160,7 +154,7 @@ class DnsSettingsScreenTest {
             state =
                 createDefaultUiState(
                         customDnsEnabled = true,
-                        showUnreachableLocalDnsWarning = true,
+                        showUnreachableLocalDnsWarning = false,
                         customDnsEntries =
                             listOf(
                                 CustomDnsEntry(
@@ -232,6 +226,7 @@ class DnsSettingsScreenTest {
             state =
                 createDefaultUiState(
                         customDnsEnabled = true,
+                        showUnreachableLocalDnsWarning = true,
                         customDnsEntries =
                             listOf(
                                 CustomDnsEntry(
