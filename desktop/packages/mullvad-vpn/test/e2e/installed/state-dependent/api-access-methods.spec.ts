@@ -16,6 +16,7 @@ import { startInstalledApp } from '../installed-utils';
 const DIRECT_NAME = 'Direct';
 const BRIDGES_NAME = 'Mullvad Bridges';
 const ENCRYPTED_DNS_PROXY_NAME = 'Encrypted DNS proxy';
+const DOMAIN_FRONTING_NAME = 'Domain fronting';
 const IN_USE_LABEL = 'In use';
 const FUNCTIONING_METHOD_NAME = 'Test method';
 const NON_FUNCTIONING_METHOD_NAME = 'Non functioning test method';
@@ -51,9 +52,11 @@ test('App should display access methods', async () => {
   const direct = accessMethods.first();
   const bridges = accessMethods.nth(1);
   const encryptedDnsProxy = accessMethods.nth(2);
+  const domainFronting = accessMethods.nth(3);
   await expect(direct).toContainText(DIRECT_NAME);
   await expect(bridges).toContainText(BRIDGES_NAME);
   await expect(encryptedDnsProxy).toContainText(ENCRYPTED_DNS_PROXY_NAME);
+  await expect(domainFronting).toContainText(DOMAIN_FRONTING_NAME);
   await expect(page.getByText(IN_USE_LABEL)).toHaveCount(1);
 });
 
