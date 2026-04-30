@@ -153,6 +153,19 @@ service ManagementService {
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
+
+  // The great multihop migration of 2026
+  // Note: ClearMigrationMessage and MigrationEventsListen may be removed once no users are
+  // on app versions prior to 2026.X.
+
+  // If the return value is SplitFilterMigration, a migration took place recently. After
+  // ClearMigrationMessage has been called, GetMigrationEvent will indefintely return null.
+  // If the return value is null, the migration has either not been run or was already completed.
+  // In any case, there is nothing for the clients to do.
+  rpc GetMigrationEvent(google.protobuf.Empty) returns (SplitFilterMigration)
+  // Call this function after handling a SplitFilterMigration as returned by GetMigrationEvent to
+  // mark the migration as completed. This will cause GetMigrationEvent to return a null value indefintely.
+  rpc ClearMigrationMessage(google.protobuf.Empty) returns (google.protobuf.Empty)
 }
 
 message AppUpgradeEvent {
@@ -866,3 +879,26 @@ message AllowedIpsList { repeated string values = 1; }
 message LogFilter { string log_filter = 1; }
 
 message LogMessage { string message = 1; }
+
+// The great multihop migration of 2026
+
+message SplitFilterMigration {
+  // TODO
+  MultihopMigrationState migration_state = 1;
+  // If any filters were previously set, they were copied and applied as both entry + exit filters.
+  bool filters_set = 2;
+  // TODO
+  bool removed_daita_direct_only = 3;
+
+  // Users who go to when needed do not get the parent event at all
+  enum MultihopMigrationState {
+    // "On" is always mapped to "Always".
+    on_to_always = 1;
+    // "Off" has been renamed to "Never".
+    off_to_never = 2;
+    // "When needed" is the new default value.
+    off_to_when_needed = 3;
+    // "Magic multihop" - one leaf node in the giga-migration tree.
+    off_to_always = 4;
+  }
+}
