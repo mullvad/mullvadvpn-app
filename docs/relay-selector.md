@@ -42,11 +42,11 @@ constraints the following default ones will take effect
 
 - The first attempt will connect to a relay on a random port
 - The second attempt will connect to a relay over IPv6 (if IPv6 is configured on the host) on a random port
-- The third attempt will connect to a relay on a random port using Shadowsocks for obfuscation
-- The fourth attempt will connect to a relay using QUIC for obfuscation
-- The fifth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
-- The sixth attempt will connect to a relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
-- The seventh attempt will connect to a relay using LWO
+- The third attempt will connect to a relay using LWO
+- The fourth attempt will connect to a relay on a random port using Shadowsocks for obfuscation
+- The fifth attempt will connect to a relay using QUIC for obfuscation
+- The sixth attempt will connect to a relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+- The seventh attempt will connect to a relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
 
 ### Default constraints for tunnel endpoints on iOS
 
