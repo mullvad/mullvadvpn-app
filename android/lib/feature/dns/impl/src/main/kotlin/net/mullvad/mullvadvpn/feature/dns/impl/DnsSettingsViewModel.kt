@@ -7,15 +7,13 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
@@ -29,7 +27,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.EMPTY_STRING
 
 data class DnsSettingsUiState(
     val isModal: Boolean,
-    val contentBlockersExpanded: Boolean,
     val contentBlockersEnabled: Boolean,
     val defaultDnsOptions: DefaultDnsOptions,
     val customDnsEnabled: Boolean,
@@ -56,20 +53,16 @@ class DnsSettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val dispatcher: CoroutineDispatcher,
 ) : ViewModel() {
-
-    private val _contentBlockersExpanded = MutableStateFlow(true)
-
     private val _uiSideEffect = Channel<DnsSettingsSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<Lc<Unit, DnsSettingsUiState>> =
-        combine(settingsRepository.settingsUpdates.filterNotNull(), _contentBlockersExpanded) {
-                settings,
-                contentBlockersExpanded ->
+        settingsRepository.settingsUpdates
+            .filterNotNull()
+            .map { settings ->
                 Lc.Content(
                     DnsSettingsUiState(
                         isModal = isModal,
-                        contentBlockersExpanded = contentBlockersExpanded,
                         contentBlockersEnabled = !settings.isCustomDnsEnabled(),
                         defaultDnsOptions = settings.contentBlockersSettings(),
                         customDnsEnabled = settings.isCustomDnsEnabled(),
@@ -137,12 +130,6 @@ class DnsSettingsViewModel(
             // If they enable custom DNS and has no current entries we show the dialog
             // to add one.
             viewModelScope.launch { _uiSideEffect.send(DnsSettingsSideEffect.NavigateToDnsDialog) }
-        }
-    }
-
-    fun onToggleContentBlockersExpanded() {
-        _contentBlockersExpanded.update {
-            !it
         }
     }
 
