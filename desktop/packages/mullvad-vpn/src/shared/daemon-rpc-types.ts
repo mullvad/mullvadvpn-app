@@ -589,6 +589,7 @@ export type ApiAccessMethodSettings = {
   direct: AccessMethodSetting<DirectMethod>;
   mullvadBridges: AccessMethodSetting<BridgesMethod>;
   encryptedDnsProxy: AccessMethodSetting<EncryptedDnsProxy>;
+  domainFronting: AccessMethodSetting<DomainFronting>;
   custom: Array<AccessMethodSetting<CustomProxy>>;
 };
 

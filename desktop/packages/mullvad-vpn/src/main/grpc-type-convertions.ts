@@ -17,6 +17,7 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
+  DomainFronting,
   EncryptedDnsProxy,
   EndpointObfuscationType,
   ErrorStateCause,
@@ -1115,6 +1116,9 @@ function convertFromApiAccessMethodSettings(
       "no 'Encrypted DNS proxy' access method was found",
     ),
   ) as AccessMethodSetting<EncryptedDnsProxy>;
+  const domainFronting = convertFromApiAccessMethodSetting(
+    ensureExists(accessMethods.getDomainFronting(), "no 'Domain fronting' access method was found"),
+  ) as AccessMethodSetting<DomainFronting>;
   const custom = accessMethods
     .getCustomList()
     .filter((setting) => setting.hasId() && setting.hasAccessMethod())
@@ -1126,6 +1130,7 @@ function convertFromApiAccessMethodSettings(
     direct,
     mullvadBridges: bridges,
     encryptedDnsProxy,
+    domainFronting,
     custom,
   };
 }
