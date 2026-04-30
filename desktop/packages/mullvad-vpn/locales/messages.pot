@@ -741,7 +741,7 @@ msgid "The app needs to communicate with a Mullvad API server to log you in, fet
 msgstr ""
 
 msgctxt "api-access-methods-view"
-msgid "The CDN used is Datapacket's CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
+msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
 msgstr ""
 
 msgctxt "api-access-methods-view"
