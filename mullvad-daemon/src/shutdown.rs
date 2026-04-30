@@ -33,3 +33,27 @@ pub fn is_shutdown_user_initiated() -> bool {
 pub fn is_shutdown_user_initiated() -> bool {
     false
 }
+
+/// Install a signal handler for `SIGUSR1`.
+///
+/// The signal handler will request [`Daemon`] to shut down without tearing down the firewall.
+/// This is useful for when the daemon is expected to only be _temporarily_ shut down, such a
+/// when rebooting or updating the system.
+#[cfg(target_os = "linux")]
+pub fn install_sigusr1_shutdown_handler(daemon: &crate::Daemon) -> Result<(), String> {
+    use tokio::signal::unix::{SignalKind, signal};
+
+    let commands = daemon.commands();
+    let mut sigusr1 = signal(SignalKind::user_defined1())
+        .map_err(|e| format!("Failed to install SIGUSR1 signal handler: {e:?}"))?;
+
+    tokio::spawn(async move {
+        use talpid_core::mpsc::Sender;
+
+        sigusr1.recv().await;
+        log::warn!("SIGUSR1 caught, shutting down.");
+        commands.send(crate::DaemonCommand::PrepareRestart { shutdown: true })
+    });
+
+    Ok(())
+}

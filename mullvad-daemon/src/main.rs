@@ -205,6 +205,9 @@ async fn run_standalone(
 
     let daemon = create_daemon(log_dir, log_handle).await?;
 
+    #[cfg(target_os = "linux")]
+    mullvad_daemon::shutdown::install_sigusr1_shutdown_handler(&daemon)?;
+
     let shutdown_handle = daemon.shutdown_handle();
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     mullvad_daemon::shutdown::set_shutdown_signal_handler(move || {
