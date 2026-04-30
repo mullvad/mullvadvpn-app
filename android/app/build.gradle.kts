@@ -151,7 +151,7 @@ android {
                         subProject.file("src/androidTest/kotlin").takeIf { it.exists() }
                     }
                     .map { it.absolutePath }
-            java.directories.addAll(instrumentedTests)
+            kotlin.directories.addAll(instrumentedTests)
         }
     }
 
