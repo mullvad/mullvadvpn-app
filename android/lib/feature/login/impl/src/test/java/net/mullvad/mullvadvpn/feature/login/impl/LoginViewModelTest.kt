@@ -313,6 +313,6 @@ class LoginViewModelTest {
     }
 
     companion object {
-        private val DUMMY_ACCOUNT_NUMBER = AccountNumber("DUMMY")
+        private val DUMMY_ACCOUNT_NUMBER = AccountNumber("12345678")
     }
 }

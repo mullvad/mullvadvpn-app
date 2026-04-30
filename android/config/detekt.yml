@@ -2,10 +2,10 @@ build:
   maxIssues: 0
   excludeCorrectable: false
   weights:
-    # complexity: 2
-    # LongParameterList: 1
-    # style: 1
-    # comments: 1
+  # complexity: 2
+  # LongParameterList: 1
+  # style: 1
+  # comments: 1
 
 config:
   validation: true
@@ -18,18 +18,18 @@ processors:
   active: true
   exclude:
     - 'DetektProgressListener'
-  # - 'KtFileCountProcessor'
-  # - 'PackageCountProcessor'
-  # - 'ClassCountProcessor'
-  # - 'FunctionCountProcessor'
-  # - 'PropertyCountProcessor'
-  # - 'ProjectComplexityProcessor'
-  # - 'ProjectCognitiveComplexityProcessor'
-  # - 'ProjectLLOCProcessor'
-  # - 'ProjectCLOCProcessor'
-  # - 'ProjectLOCProcessor'
-  # - 'ProjectSLOCProcessor'
-  # - 'LicenseHeaderLoaderExtension'
+    # - 'KtFileCountProcessor'
+    # - 'PackageCountProcessor'
+    # - 'ClassCountProcessor'
+    # - 'FunctionCountProcessor'
+    # - 'PropertyCountProcessor'
+    # - 'ProjectComplexityProcessor'
+    # - 'ProjectCognitiveComplexityProcessor'
+    # - 'ProjectLLOCProcessor'
+    # - 'ProjectCLOCProcessor'
+    # - 'ProjectLOCProcessor'
+    # - 'ProjectSLOCProcessor'
+    # - 'LicenseHeaderLoaderExtension'
 
 console-reports:
   active: true
@@ -39,7 +39,7 @@ console-reports:
     - 'NotificationReport'
     - 'FindingsReport'
     - 'FileBasedFindingsReport'
-  #  - 'LiteFindingsReport'
+    #  - 'LiteFindingsReport'
 
 output-reports:
   active: true
@@ -205,7 +205,7 @@ complexity:
     excludeStringsWithLessThan5Characters: true
     ignoreStringsRegex: '$^'
   TooManyFunctions:
-      # Configuration maybe should change when this has been merged: https://github.com/detekt/detekt/issues/6516
+    # Configuration maybe should change when this has been merged: https://github.com/detekt/detekt/issues/6516
     active: true
     excludes:
       - '**/test/**'

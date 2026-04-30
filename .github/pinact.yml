@@ -4,4 +4,4 @@
 version: 3
 files:
   - pattern: .github/workflows/android-*.yml
-separator: " # "
+separator: "  # "

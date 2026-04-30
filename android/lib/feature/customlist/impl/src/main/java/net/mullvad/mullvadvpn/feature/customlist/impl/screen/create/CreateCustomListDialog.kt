@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListLocationsNavK
 import net.mullvad.mullvadvpn.feature.customlist.impl.component.CustomListNameTextField
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.NameIsEmpty
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InputDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CREATE_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG
@@ -56,7 +57,7 @@ private fun PreviewCreateCustomListDialogError() {
 
 @Composable
 fun CreateCustomList(locationCode: GeoLocationId?, navigator: Navigator) {
-    val vm: CreateCustomListDialogViewModel = koinViewModel() { parametersOf(locationCode) }
+    val vm: CreateCustomListDialogViewModel = koinViewModel { parametersOf(locationCode) }
 
     LaunchedEffect(key1 = Unit) {
         vm.uiSideEffect.collect { sideEffect ->
@@ -97,7 +98,6 @@ fun CreateCustomListDialog(
 
     InputDialog(
         title = stringResource(id = R.string.create_new_list),
-        confirmButtonEnabled = isValidName,
         confirmButtonText = stringResource(id = R.string.create),
         onBack = onDismiss,
         onConfirm = { createCustomList(name.value) },
@@ -120,9 +120,11 @@ fun CreateCustomListDialog(
 @Composable
 private fun CreateWithLocationsError.errorString() =
     stringResource(
-        if (this is CreateWithLocationsError.Create && this.error is CustomListAlreadyExists) {
-            R.string.custom_list_error_list_exists
-        } else {
-            R.string.error_occurred
+        when (this) {
+            is CreateWithLocationsError.Create if this.error is CustomListAlreadyExists ->
+                R.string.custom_list_error_list_exists
+            is CreateWithLocationsError.Create if this.error is NameIsEmpty ->
+                R.string.custom_list_error_list_is_empty
+            else -> R.string.error_occurred
         }
     )

@@ -55,19 +55,28 @@ struct MultihopSelectionView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             if isExpanded {
+                var label: LocalizedStringKey {
+                    if let deviceLocationName {
+                        "Your device (\(deviceLocationName))"
+                    } else {
+                        "Your device"
+                    }
+                }
                 MultihopLabel(
-                    label: "Internet",
-                    image: Image.mullvadIconInternet,
+                    label: label,
+                    image: Image.mullvadSmartphone,
                     onIconPositionChange: { position in
-                        iconPositions[ViewPositionIdentifiers.internet] = position
+                        iconPositions[ViewPositionIdentifiers.yourDevice] = position
                     }
                 )
+                .transition(.move(edge: .top).combined(with: .opacity))
                 .padding(.horizontal, outerPadding + 8 + 2)
             }
+
             VStack(alignment: .leading, spacing: 3) {
                 VStack(alignment: .leading, spacing: spacing) {
                     ForEach(
-                        Array(hops.reversed().enumerated()),
+                        Array(hops.enumerated()),
                         id: \.element.multihopContext
                     ) {
                         index,
@@ -150,21 +159,13 @@ struct MultihopSelectionView: View {
                 }
                 .zIndex(1)
                 if isExpanded {
-                    var label: LocalizedStringKey {
-                        if let deviceLocationName {
-                            "Your device (\(deviceLocationName))"
-                        } else {
-                            "Your device"
-                        }
-                    }
                     MultihopLabel(
-                        label: label,
-                        image: Image.mullvadSmartphone,
+                        label: "Internet",
+                        image: Image.mullvadIconInternet,
                         onIconPositionChange: { position in
-                            iconPositions[ViewPositionIdentifiers.yourDevice] = position
+                            iconPositions[ViewPositionIdentifiers.internet] = position
                         }
                     )
-                    .transition(.move(edge: .top).combined(with: .opacity))
                     .padding(.horizontal, outerPadding + 8 + 2)
                 }
             }

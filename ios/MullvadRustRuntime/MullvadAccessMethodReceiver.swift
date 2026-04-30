@@ -13,13 +13,16 @@ import MullvadTypes
 public class MullvadAccessMethodReceiver {
     private var cancellables = Set<Combine.AnyCancellable>()
     let apiContext: MullvadApiContext
+    let validShadowsocksCiphers: [String]
 
     public init(
         apiContext: MullvadApiContext,
+        validShadowsocksCiphers: [String],
         accessMethodsDataSource: AnyPublisher<[PersistentAccessMethod], Never>,
         requestDataSource: AnyPublisher<PersistentAccessMethod, Never>
     ) {
         self.apiContext = apiContext
+        self.validShadowsocksCiphers = validShadowsocksCiphers
 
         requestDataSource.sink { [weak self] latestReachable in
             self?.saveLastReachable(latestReachable)

@@ -63,8 +63,8 @@ jobs:
       - name: Setup Rust cache
         uses: Swatinem/rust-cache@v2
         with:
-          add-job-id-key: "false" # Preserve cache across jobs
-          cache-targets: "false" # Only cache cargo registry
+          add-job-id-key: "false"  # Preserve cache across jobs
+          cache-targets: "false"  # Only cache cargo registry
 
       - name: Check rust docs
         run: ci/cargo-ci.sh doc --workspace --document-private-items --no-deps --keep-going
