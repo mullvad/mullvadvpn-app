@@ -1,0 +1,31 @@
+---
+name: iOS end-to-end nightly tests monitor
+on:
+  # https://docs.github.com/en/webhooks/webhook-events-and-payloads#workflow_run
+  workflow_run:
+    workflows: ["iOS end-to-end nightly tests"]
+    types:
+      - completed
+
+permissions: {}
+
+jobs:
+  notify-on-failed-workflow:
+    # Payload of workflow_run:
+    # https://docs.github.com/en/rest/actions/workflow-runs?apiVersion=2026-03-10#get-a-workflow-run
+    #
+    # Valid values for conclusion are listed on:
+    # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks#check-statuses-and-conclusions
+    if: "${{ github.event.workflow_run.conclusion != 'success' }}"
+    name: Notify team on nightly E2E failure
+    runs-on: [ubuntu-latest]
+    timeout-minutes: 5
+    steps:
+      - name: Send custom event details to a Slack workflow
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.IOS_SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          # workflow_run.html_url returns the full url of the workflow we're responding too.
+          payload: |
+            run_url: "${{ github.event.workflow_run.html_url }}"

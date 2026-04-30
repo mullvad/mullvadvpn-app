@@ -19,6 +19,16 @@ extension Date {
         return formatter.string(from: self)
     }
 
+    public var safeLogFormatted: String {
+        let formatter = DateFormatter()
+
+        formatter.dateFormat = "dd/MM/yyyy"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(abbreviation: "UTC")
+
+        return formatter.string(from: self)
+    }
+
     public var logFileFormatted: String {
         let formatter = DateFormatter()
 

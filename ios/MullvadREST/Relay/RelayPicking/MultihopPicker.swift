@@ -10,50 +10,52 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-struct MultihopPicker: RelayPicking {
-    let logger = Logger(label: "MultihopPicker")
-    let obfuscation: RelayObfuscation
-    let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
+public struct MultihopPicker: RelayPicking {
+    public let logger = Logger(label: "MultihopPicker")
+    public let relays: REST.ServerRelaysResponse
+    public let tunnelSettings: LatestTunnelSettings
+    public let connectionAttemptCount: UInt
 
-    func pick() throws -> SelectedRelays {
+    public init(relays: REST.ServerRelaysResponse, tunnelSettings: LatestTunnelSettings, connectionAttemptCount: UInt) {
+        self.relays = relays
+        self.tunnelSettings = tunnelSettings
+        self.connectionAttemptCount = connectionAttemptCount
+    }
+
+    public func pick() throws -> SelectedRelays {
         let constraints = tunnelSettings.relayConstraints
-        let daitaSettings = tunnelSettings.daita
+        let entryConstraints = tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryLocations
+        let entryFilter = tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryFilter
 
         // Guarantee that the entry relay supports selected obfuscation
         let obfuscationBypass = UnsupportedObfuscationProvider(
-            relayConstraint: constraints.entryLocations,
-            relays: obfuscation.obfuscatedRelays,
-            filterConstraint: constraints.entryFilter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
+            relayConstraint: entryConstraints,
+            relays: relays,
+            filterConstraint: entryFilter,
+            daitaEnabled: tunnelSettings.daita.isEnabled
         )
 
-        let supportedObfuscation = try RelayObfuscator(
-            relays: obfuscation.allRelays,
+        let obfuscation = try RelayObfuscator(
+            relays: relays,
             tunnelSettings: tunnelSettings,
             connectionAttemptCount: connectionAttemptCount,
             obfuscationBypass: obfuscationBypass
         ).obfuscate()
 
         let entryCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.entryLocations,
-            in: supportedObfuscation.obfuscatedRelays,
-            filterConstraint: constraints.entryFilter,
-            daitaEnabled: daitaSettings.daitaState.isEnabled
+            by: entryConstraints,
+            in: relays,
+            filterConstraint: entryFilter,
+            daitaEnabled: tunnelSettings.daita.isEnabled,
+            obfuscation: obfuscation
         )
 
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
-            in: supportedObfuscation.allRelays,
-            filterConstraint: constraints.exitFilter,
-            daitaEnabled: false
-        )
-
-        // Create a new picker so that it can use the new obfuscation object.
-        let picker = MultihopPicker(
-            obfuscation: supportedObfuscation,
-            tunnelSettings: tunnelSettings,
-            connectionAttemptCount: connectionAttemptCount
+            in: relays,
+            filterConstraint: tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.exitFilter,
+            daitaEnabled: false,
+            obfuscation: nil
         )
 
         /*
@@ -71,18 +73,19 @@ struct MultihopPicker: RelayPicking {
                 next: ManyToOne(
                     next: ManyToMany(
                         next: nil,
-                        relayPicker: picker
+                        relayPicker: self
                     ),
-                    relayPicker: picker
+                    relayPicker: self
                 ),
-                relayPicker: picker
+                relayPicker: self
             ),
-            relayPicker: picker
+            relayPicker: self
         )
 
         return try decisionFlow.pick(
             entryCandidates: entryCandidates,
             exitCandidates: exitCandidates,
+            obfuscation: obfuscation,
             selectNearbyLocation: tunnelSettings.automaticMultihopIsEnabled
         )
     }
@@ -91,7 +94,7 @@ struct MultihopPicker: RelayPicking {
         relay: SelectedRelay,
         from candidates: [RelayWithLocation<REST.ServerRelay>],
         closeTo location: Location? = nil,
-        applyObfuscation: Bool,
+        obfuscation: RelayObfuscation?,
         forceV4Address: Bool = false,
     ) throws -> SelectedRelay {
         let filteredCandidates = candidates.filter { relayWithLocation in
@@ -101,8 +104,8 @@ struct MultihopPicker: RelayPicking {
         return try findBestMatch(
             from: filteredCandidates,
             closeTo: location,
-            applyObfuscation: applyObfuscation,
-            forceV4: forceV4Address,
+            obfuscation: obfuscation,
+            forceV4Address: forceV4Address,
         )
     }
 }

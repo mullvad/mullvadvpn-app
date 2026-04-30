@@ -46,11 +46,7 @@ class MullvadApiTests: XCTestCase {
             domain: REST.encryptedDNSHostname,
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
-            accessMethodWrapper: initAccessMethodSettingsWrapper(
-                methods:
-                    accessMethodsRepository
-                    .fetchAll()
-            ),
+            accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
             accessMethodChangeListeners: []
         )
 

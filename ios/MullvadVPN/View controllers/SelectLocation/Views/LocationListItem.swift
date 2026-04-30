@@ -3,6 +3,7 @@ import SwiftUI
 
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     @State private var alert: MullvadAlert?
+    @Environment(\.dismissSearchFocus) private var dismissSearchFocus
     private let itemFactory = ListItemFactory()
 
     @Binding var location: LocationNode
@@ -90,6 +91,7 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     }
 
     func toggleChildren() {
+        dismissSearchFocus?()
         withAnimation(.default.speed(3)) {
             location.showsChildren.toggle()
         }

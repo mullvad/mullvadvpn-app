@@ -29,16 +29,35 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Optimize LWO performance when using GotaTun. This gives a 1.5 to 3 times speedup in our
   benchmarks.
+- Change [default retry connection attempts](docs/relay-selector.md). LWO is now the third default
+  constraint. The relative order among the following constraints is preserved.
 
 #### Linux
 - GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
+- Switch memory allocator to jemalloc to reduce fragmentation.
 - `mullvad-early-boot-blocking.service` now waits for local file system to be mounted
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
+- `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
+
+#### macOS
+- Restart the GUI after an update if it was running.
+- `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
 
 ### Fixed
+- Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
+  multiple consecutive tunnel state events for the same state.
+- Fix GUI appearing stuck in "Disconnecting" state when daemon transitions directly from error to
+  disconnected.
 - Fix QUIC obfuscation not always being used if relays only had IPv6 addresses for QUIC.
 - Fix a bug with Shadowsocks-based API access methods where some ciphers were configurable by
   Mullvad VPN clients while not being supported by the system service.
+- Fix IPv6 addresses not being allowed as endpoints for Socks5 and Shadowsocks API access methods.
+
+#### Linux
+- Fix 'mullvad split-tunnel clear' getting stuck.
+
+#### Windows
+- Fix potential access violation during cleanup on ARM64.
 
 ### Security
 - Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth

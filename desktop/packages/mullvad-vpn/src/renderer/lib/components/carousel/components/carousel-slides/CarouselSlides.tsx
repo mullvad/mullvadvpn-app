@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { useCarouselContext } from '../../CarouselContext';
 import { useGetSlideIndex } from '../../hooks';
+import { CarouselSlide } from './components';
 
 export type CarouselSlidesProps = React.ComponentPropsWithRef<'div'>;
 
@@ -17,7 +18,7 @@ const StyledSlides = styled.div`
   }
 `;
 
-export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
+function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
   const { slidesRef, setSlideIndex } = useCarouselContext();
   const getSlideIndex = useGetSlideIndex();
 
@@ -38,3 +39,9 @@ export function CarouselSlides({ children, ...props }: CarouselSlidesProps) {
     </StyledSlides>
   );
 }
+
+const CarouselSlidesNamespace = Object.assign(CarouselSlides, {
+  Slide: CarouselSlide,
+});
+
+export { CarouselSlidesNamespace as CarouselSlides };

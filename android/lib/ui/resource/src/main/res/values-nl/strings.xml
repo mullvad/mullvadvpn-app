@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Na het bijwerken van een VPN-app in Android 16 kan het apparaat in een toestand raken waarin de VPN-apps het internet niet meer kunnen bereiken.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Start uw apparaat opnieuw op en probeer het opnieuw. Als dat niet werkt, kun u een e-mail schrijven naar %1$s (in het Zweeds of in het Engels).</string>
     <string name="android_16_upgrade_warning_message">Er is een bekend probleem met Android 16. Start uw apparaat opnieuw op en probeer het opnieuw. Voor meer informatie:</string>
-    <string name="android_16_upgrade_warning_title">Krijgt u geen verbinding?</string>
     <string name="anti_censorship">Anti-censuur</string>
     <string name="anti_censorship_info_first_paragraph">Deze methoden kunnen nuttig zijn in situaties waarin de toegang tot Mullvad is geblokkeerd. Als \"Automatisch\" is geselecteerd, probeert de app alle methoden totdat er een werkt.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.</b></string>
@@ -43,6 +42,7 @@
     <string name="api_reachable_adding_method">API bereikbaar, methode toevoegen ...</string>
     <string name="api_unreachable">API onbereikbaar</string>
     <string name="api_unreachable_save_anyway">API onbereikbaar, methode toch opslaan?</string>
+    <string name="app_icon">Pictogram van app</string>
     <string name="app_info">Appinfo</string>
     <string name="app_is_blocking_internet">De app blokkeert internet. Verbreek eerst de verbinding</string>
     <string name="app_name_browser">Browser</string>
@@ -112,7 +112,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Maken</string>
-    <string name="create_account_fail_title">Account maken is mislukt</string>
     <string name="create_custom_list_message">\"%1$s\" is gemaakt</string>
     <string name="create_new_account">Nieuw account aanmaken</string>
     <string name="create_new_account_warning_paragraph1">U hebt al een opgeslagen accountnummer. Als u een nieuw account aanmaakt, wordt het opgeslagen accountnummer verwijderd van dit apparaat. Dit kan niet ongedaan worden gemaakt.</string>
@@ -192,12 +191,12 @@
     <string name="disconnected_vpn_permission_error">Verbinding verbroken (geen VPN-toestemming)</string>
     <string name="disconnecting">Verbinding wordt verbroken...</string>
     <string name="dismiss">Negeren</string>
+    <string name="divier_or">of</string>
     <string name="dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\".</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel hieronder \"%1$s\" uit om deze instellingen te activeren.</string>
     <string name="dns_content_blockers_warning">Dit kan problemen veroorzaken met bepaalde websites, diensten en apps.</string>
-    <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
     <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
     <string name="edit_custom_lists">Aangepaste lijsten bewerken</string>
     <string name="edit_list">Lijst bewerken</string>
@@ -289,13 +288,10 @@
     <string name="locations_were_changed_for">Locaties zijn gewijzigd voor \"%1$s\"</string>
     <string name="log_in">Aanmelden</string>
     <string name="log_out">Afmelden</string>
-    <string name="logged_in_description">Geldig accountnummer</string>
     <string name="logged_in_title">Aangemeld</string>
-    <string name="logging_in_description">Accountnummer wordt gecontroleerd</string>
     <string name="logging_in_title">Aanmelden...</string>
     <string name="login_description">Voer uw accountnummer in</string>
     <string name="login_error_api_unreachable">Kan API niet bereiken, %1$s</string>
-    <string name="login_error_invalid_input">Accountnummer is te lang. Voer een geldig nummer in</string>
     <string name="login_error_too_many_attempts">Te veel pogingen. Probeer het later opnieuw</string>
     <string name="login_fail_description">Ongeldig accountnummer</string>
     <string name="login_fail_title">Aanmelden mislukt</string>

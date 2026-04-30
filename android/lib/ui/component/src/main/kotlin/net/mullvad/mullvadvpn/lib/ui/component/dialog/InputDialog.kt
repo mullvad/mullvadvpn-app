@@ -52,7 +52,6 @@ private fun PreviewInputDialog() {
 fun InputDialog(
     title: String,
     message: AnnotatedString? = null,
-    confirmButtonEnabled: Boolean = true,
     confirmButtonText: String = stringResource(R.string.submit_button),
     onResetButtonText: String = stringResource(R.string.reset_to_default_button),
     messageTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -82,7 +81,6 @@ fun InputDialog(
             Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
                 PrimaryButton(
                     modifier = Modifier.fillMaxWidth(),
-                    isEnabled = confirmButtonEnabled,
                     text = confirmButtonText,
                     onClick = onConfirm,
                 )

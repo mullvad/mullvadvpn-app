@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Po zaktualizowaniu aplikacji VPN w systemie Android 16 urządzenia mogą znaleźć się w stanie, w którym aplikacje VPN nie będą już miały dostępu do Internetu.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Ponownie uruchom urządzenie i ponów próbę połączenia. Jeśli to nie zadziała, wyślij wiadomość e-mail na adres %1$s w języku szwedzkim lub angielskim.</string>
     <string name="android_16_upgrade_warning_message">System Android 16 ma znany nam problem. Uruchom ponownie urządzenie i spróbuj jeszcze raz. Aby dowiedzieć się więcej,</string>
-    <string name="android_16_upgrade_warning_title">Nie możesz się połączyć?</string>
     <string name="anti_censorship">Przeciwdziałanie cenzurze</string>
     <string name="anti_censorship_info_first_paragraph">Metody te mogą być przydatne w sytuacjach, gdy masz zablokowany dostęp do Mullvad. Po wybraniu opcji „Automatycznie” aplikacja będzie próbować wszystkich metod, dopóki jedna z nich nie zadziała.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Pamiętaj, że metody te nie poprawiają wydajności i mogą zwiększyć obciążenie systemu oraz zużycie baterii.</b></string>
@@ -43,6 +42,7 @@
     <string name="api_reachable_adding_method">Interfejs API osiągalny, dodawanie metody...</string>
     <string name="api_unreachable">API nieosiągalny</string>
     <string name="api_unreachable_save_anyway">Interfejs API nieosiągalny, zapisać metodę mimo to?</string>
+    <string name="app_icon">Ikona aplikacji</string>
     <string name="app_info">Informacje o aplikacji</string>
     <string name="app_is_blocking_internet">Aplikacja blokuje dostęp do Internetu. Rozłącz się najpierw</string>
     <string name="app_name_browser">Przeglądarka</string>
@@ -112,7 +112,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Utwórz</string>
-    <string name="create_account_fail_title">Nie udało się utworzyć konta</string>
     <string name="create_custom_list_message">Utworzono „%1$s”</string>
     <string name="create_new_account">Utwórz nowe konto</string>
     <string name="create_new_account_warning_paragraph1">Masz już zapisany numer konta. Zapisany numer w takiej sytuacji zostanie usunięty z tego urządzenia. Nie można tego cofnąć.</string>
@@ -192,12 +191,12 @@
     <string name="disconnected_vpn_permission_error">Rozłączono (brak uprawnienia VPN)</string>
     <string name="disconnecting">Rozłączanie...</string>
     <string name="dismiss">Odrzuć</string>
+    <string name="divier_or">Lub</string>
     <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”.</string>
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
     <string name="dns_content_blockers_subtitle">Wyłącz poniżej funkcję „%1$s”, aby aktywować te ustawienia.</string>
     <string name="dns_content_blockers_warning">Może to powodować problemy z niektórymi witrynami internetowymi, usługami i aplikacjami.</string>
-    <string name="dont_have_an_account">Nie masz numeru konta?</string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_custom_lists">Edytuj listy niestandardowe</string>
     <string name="edit_list">Edytuj listę</string>
@@ -241,7 +240,7 @@
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
-    <string name="filter">Filtruj</string>
+    <string name="filter">Filtr</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
     <string name="go_to_login">Przejdź do logowania</string>
@@ -289,13 +288,10 @@
     <string name="locations_were_changed_for">Zmieniono lokalizacje dla „%1$s”</string>
     <string name="log_in">Zaloguj się</string>
     <string name="log_out">Wyloguj się</string>
-    <string name="logged_in_description">Prawidłowy numer konta</string>
     <string name="logged_in_title">Zalogowano jako</string>
-    <string name="logging_in_description">Sprawdzanie numeru konta</string>
     <string name="logging_in_title">Logowanie...</string>
     <string name="login_description">Wprowadź numer konta</string>
     <string name="login_error_api_unreachable">Nie można osiągnąć interfejsu API, %1$s</string>
-    <string name="login_error_invalid_input">Numer konta jest zbyt długi, wprowadź prawidłowy numer</string>
     <string name="login_error_too_many_attempts">Zbyt wiele prób, spróbuj ponownie później</string>
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>

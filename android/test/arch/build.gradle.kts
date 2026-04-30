@@ -1,12 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.mullvad.unit.test)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.arch"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }

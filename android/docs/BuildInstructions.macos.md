@@ -60,12 +60,7 @@ export CARGO_TARGET_I686_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/i686-linux-and
 export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux-android26-clang"
 ```
 
-## 3. Checkout required submodules
-```bash
-git submodule update --init android/rust-android-gradle-plugin
-```
-
-## 4. Debug build
+## 3. Debug build
 
 ### Android Studio
 
@@ -77,24 +72,12 @@ rust.pythonCommand=/opt/homebrew/bin/python3
 
 You should now be able to run the app directly from Android Studio.
 
-### `android/build.sh`
+### Command line
 
-Run the build script in the root of the project to assemble all the native libraries and the app:
+From the `android/` directory, run the following command to assemble all the native libraries and the app:
 
 ```bash
-./android/build.sh --dev-build
-```
-
-Once the build is complete you should receive a message looking similar to this:
-```
-**********************************
-
- The build finished successfully!
- You have built:
-
- 2023.5-dev-9ac934
-
-**********************************
+./gradlew debug
 ```
 
 # Build options and configuration

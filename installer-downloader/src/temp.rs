@@ -38,14 +38,9 @@ pub struct TempDirProvider;
 impl DirectoryProvider for TempDirProvider {
     /// Create a locked-down directory to store downloads in
     async fn create_download_dir() -> anyhow::Result<PathBuf> {
-        #[cfg(windows)]
-        {
-            admin_temp_dir().await
-        }
-
-        #[cfg(target_os = "macos")]
-        {
-            temp_dir().await
+        cfg_select! {
+            windows             => { admin_temp_dir().await }
+            target_os = "macos" => { temp_dir().await }
         }
     }
 }

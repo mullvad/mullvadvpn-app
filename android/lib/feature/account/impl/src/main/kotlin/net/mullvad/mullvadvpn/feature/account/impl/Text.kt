@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
@@ -28,6 +29,7 @@ fun AutoResizeText(
     style: TextStyle = LocalTextStyle.current,
     maxLines: Int = Int.MAX_VALUE,
     color: Color = MaterialTheme.colorScheme.onSurface,
+    fontFamily: FontFamily? = null,
 ) {
     var adjustedFontSize by remember { mutableFloatStateOf(maxTextSize.value) }
     var isReadyToDraw by remember { mutableStateOf(false) }
@@ -38,6 +40,7 @@ fun AutoResizeText(
         style = style,
         color = color,
         fontSize = adjustedFontSize.sp,
+        fontFamily = fontFamily,
         onTextLayout = {
             if (it.didOverflowHeight && isReadyToDraw.not()) {
                 val nextFontSizeValue = adjustedFontSize - textSizeStep.value

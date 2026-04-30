@@ -1,0 +1,44 @@
+---
+name: Workflow check
+on:
+  pull_request:
+    paths:
+      - .github/workflows/workflow-check.yml
+      - .github/pinact.yml
+      - .github/workflows/android-*.yml
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  PINACT_VERSION: v3.9.0
+  PINACT_BASE_URL: https://github.com/suzuki-shunsuke/pinact/releases/download
+
+jobs:
+  ensure-pinned-actions:
+    name: Ensure pinned actions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install pinact
+        run: |
+          curl -sSfL "${PINACT_BASE_URL}/${PINACT_VERSION}/pinact_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin pinact
+
+      - name: Check pinned actions
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pinact run --check
+
+      - name: Verify tags against SHAs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: pinact run --verify
+
+      # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
+      - name: Check version comment format
+        run: '! grep -rnE "@[0-9a-f]{40} #[^ ]" .github/workflows/android-*.yml'

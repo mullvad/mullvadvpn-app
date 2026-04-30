@@ -26,5 +26,8 @@ insta = { workspace = true }
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
 
+[features]
+wireguard-go = []
+
 [lints]
 workspace = true

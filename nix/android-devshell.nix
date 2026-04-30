@@ -7,6 +7,7 @@ pkgs.devshell.mkShell {
     inherit pkgs;
     inherit (android-toolchain)
       android-sdk
+      jdk
       buildToolsVersion
       ndkVersion
       minSdkVersion

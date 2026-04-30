@@ -2,6 +2,8 @@
   "appteam-desktop": [
     "building/Dockerfile",
     "building/linux-container-image.txt",
+    "building/sigstore/mullvad/mullvadvpn-app-build@**",
+    "building/sigstore/mullvad/mullvadvpn-app-build-node-grpc-bindings@**",
     "ci/buildserver-build.sh",
     "ci/buildserver-config.sh",
     "ci/cargo-ci.sh",
@@ -30,15 +32,22 @@
   "appteam-android": [
     "android/**",
     "building/android-container-image.txt",
+    "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
+    ".github/pinact.yml",
+    ".github/workflows/workflow-check.yml",
+    "scripts/check-apostrophe-style",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
+    "audits/**",
     "ci/keys/**",
     "ci/verify-locked-down-signatures.sh",
     "code-owners.json",
+    "docs/supported-platforms.md",
     ".github/CODEOWNERS",
     ".github/workflows/code-owner-*",
     ".github/workflows/verify-locked-down-signatures.yml"
   ]
 }
+

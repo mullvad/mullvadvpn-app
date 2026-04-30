@@ -1,4 +1,5 @@
-import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.BuildConfigField
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import org.gradle.internal.extensions.stdlib.capitalized
 import utilities.BuildTypes
@@ -8,6 +9,7 @@ import utilities.Variant
 import utilities.allPlayDebugReleaseVariants
 import utilities.appVersionProvider
 import utilities.baselineFilter
+import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
@@ -16,19 +18,19 @@ import utilities.leakCanaryImplementation
 import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
+import utilities.registerReleaseTask
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.application)
     alias(libs.plugins.play.publisher)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.mullvad.unit.test)
+    alias(libs.plugins.rust.android)
     id("de.mannodermaus.android-junit5")
-    id("net.mullvad.rust-android")
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -40,7 +42,8 @@ val appVersion = appVersionProvider.get()
 
 android {
     namespace = "net.mullvad.mullvadvpn"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
     ndkVersion = libs.versions.ndk.get()
 
@@ -135,33 +138,26 @@ android {
     }
 
     sourceSets {
-        getByName("main") { assets.srcDirs(relayListDirectory, changelogAssetsDirectory) }
+        getByName("main") {
+            assets.directories.add(relayListDirectory)
+            assets.directories.add(changelogAssetsDirectory)
+        }
         // Workaround to include all instrumented tests in app module. Without this we'd have to
         // create an APK for each submodule and pass each on for testing with the orchestrator.
         getByName("androidTest") {
-            rootProject.subprojects
-                .mapNotNull { subProject ->
-                    subProject.file("src/androidTest/kotlin").takeIf { it.exists() }
-                }
-                .forEach { java.srcDir(it) }
+            val instrumentedTests =
+                rootProject.subprojects
+                    .mapNotNull { subProject ->
+                        subProject.file("src/androidTest/kotlin").takeIf { it.exists() }
+                    }
+                    .map { it.absolutePath }
+            kotlin.directories.addAll(instrumentedTests)
         }
     }
 
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-
-    kotlin {
-        compilerOptions {
-            allWarningsAsErrors = true
-            freeCompilerArgs =
-                listOf(
-                    // Opt-in option for Koin annotation of KoinComponent.
-                    "-opt-in=kotlin.RequiresOptIn",
-                    "-XXLanguage:+WhenGuards",
-                )
-        }
     }
 
     testOptions {
@@ -195,68 +191,72 @@ android {
                 )
         }
     }
+}
 
-    applicationVariants.configureEach {
-        buildConfigField(
-            "boolean",
-            "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
-            getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable").toString(),
-        )
-        val shouldRequireBundleRelayFile = isReleaseBuild() && !appVersion.isDev
-        buildConfigField(
-            "Boolean",
-            "REQUIRE_BUNDLED_RELAY_FILE",
-            shouldRequireBundleRelayFile.toString(),
-        )
+androidComponents {
+    onVariants { variant ->
+        val mainSources = variant.sources.getByName("main")
+        mainSources.addStaticSourceDirectory(relayListDirectory)
+        mainSources.addStaticSourceDirectory(changelogAssetsDirectory)
     }
 
-    applicationVariants.all {
+    onVariants {
+        it.buildConfigFields!!.put(
+            "ENABLE_IN_APP_VERSION_NOTIFICATIONS",
+            BuildConfigField(
+                "boolean",
+                getBooleanProperty("mullvad.app.config.inAppVersionNotifications.enable"),
+                "Show in-app version notifications",
+            ),
+        )
+        val shouldRequireBundleRelayFile = isReleaseBuild() && !appVersion.isDev
+        it.buildConfigFields!!.put(
+            "REQUIRE_BUNDLED_RELAY_FILE",
+            BuildConfigField(
+                "boolean",
+                shouldRequireBundleRelayFile.toString(),
+                "Whether to require a bundled relay list or not.",
+            ),
+        )
+    }
+    onVariants {
+        val productFlavors = it.productFlavors.toMap()
+        val buildType = it.buildType
+
         val artifactSuffix = buildString {
-            productFlavors.getOrNull(0)?.name?.let { billingFlavorName ->
+            productFlavors[FlavorDimensions.BILLING]?.let { billingFlavorName ->
                 if (billingFlavorName != Flavors.OSS) {
                     append(".$billingFlavorName")
                 }
             }
 
-            productFlavors.getOrNull(1)?.name?.let { infrastructureFlavorName ->
+            productFlavors[FlavorDimensions.INFRASTRUCTURE]?.let { infrastructureFlavorName ->
                 if (infrastructureFlavorName != Flavors.PROD) {
                     append(".$infrastructureFlavorName")
                 }
             }
 
-            if (buildType.name != BuildTypes.RELEASE) {
-                append(".${buildType.name}")
+            if (buildType != BuildTypes.RELEASE) {
+                append(".${buildType}")
             }
         }
 
-        val variantName = name
-        val capitalizedVariantName = variantName.toString().capitalized()
-        val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
+        val variantName = it.name
+        val capitalizedVariantName = variantName.capitalized()
+        val artifactName = "MullvadVPN-${appVersion.name}${artifactSuffix}"
 
         tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
-            from(packageApplicationProvider)
+            from(it.artifacts.get(SingleArtifact.APK))
             into("${rootDir.parent}/dist")
             include { it.name.endsWith(".apk") }
             rename { "$artifactName.apk" }
         }
 
-        val createDistBundle =
-            tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
-                from("${layout.buildDirectory.get()}/outputs/bundle/$variantName")
-                into("${rootDir.parent}/dist")
-                include { it.name.endsWith(".aab") }
-                rename { "$artifactName.aab" }
-            }
-
-        createDistBundle.dependsOn("bundle$capitalizedVariantName")
-
-        // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
-            // This is required for the merge task to run every time the .so files are updated.
-            // See this comment for more information:
-            // https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1569407058
-            inputs.dir(rustJniLibsDir)
-            dependsOn("cargoBuild")
+        tasks.register<Copy>("create${capitalizedVariantName}DistBundle") {
+            from(it.artifacts.get(SingleArtifact.BUNDLE))
+            into("${rootDir.parent}/dist")
+            include { it.name.endsWith(".aab") }
+            rename { "$artifactName.aab" }
         }
 
         tasks.findByPath("generate${capitalizedVariantName}BaselineProfile")?.let {
@@ -268,6 +268,29 @@ android {
             val toFile = file("$toDir/$baselineFile")
             it.doLast { fromFile.renameTo(toFile) }
         }
+    }
+}
+
+// Ensure that we have all the JNI libs before merging them.
+tasks
+    .matching { it.name.matches(Regex("merge.*JniLibFolders")) }
+    .configureEach {
+        // This is required for the merge task to run every time the .so files are updated.
+        // See this comment for more information:
+        // https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1569407058
+        inputs.dir(rustJniLibsDir)
+        dependsOn("cargoBuild")
+    }
+
+kotlin {
+    compilerOptions {
+        allWarningsAsErrors = true
+        freeCompilerArgs =
+            listOf(
+                // Opt-in option for Koin annotation of KoinComponent.
+                "-opt-in=kotlin.RequiresOptIn",
+                "-XXLanguage:+WhenGuards",
+            )
     }
 }
 
@@ -345,6 +368,20 @@ tasks.register("printVersion") {
     }
 }
 
+tasks.register("debug") { dependsOn("assembleOssProdDebug") }
+
+tasks.register("debugPlay") { dependsOn("assemblePlayProdDebug") }
+
+registerReleaseTask(
+    "fdroidRelease",
+    appVersion,
+    listOf("createOssProdReleaseDistApk"),
+    skipClean = true,
+    skipDirtyCheck = true,
+)
+
+registerReleaseTask("fullRelease", appVersion, fullReleaseTasks(appVersion))
+
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }
     // Disable for all flavors by default. Only specific flavors should be enabled using
@@ -372,6 +409,8 @@ dependencies {
     implementation(projects.lib.feature.appicon.impl)
     implementation(projects.lib.feature.appinfo.impl)
     implementation(projects.lib.feature.appinfo.api)
+    implementation(projects.lib.feature.applisting.impl)
+    implementation(projects.lib.feature.applisting.api)
     implementation(projects.lib.feature.appearance.impl)
     implementation(projects.lib.feature.autoconnect.impl)
     implementation(projects.lib.feature.customlist.impl)

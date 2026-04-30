@@ -1,30 +1,13 @@
-#[cfg(unix)]
-mod platform {
-    use simple_signal::Signal;
-    use std::io;
+use ctrlc;
+use thiserror::Error;
 
-    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), io::Error> {
-        simple_signal::set_handler(&[Signal::Term, Signal::Int], move |s| {
-            log::debug!("Process received signal: {:?}", s);
-            f();
-        });
-        Ok(())
-    }
-}
+#[derive(Error, Debug)]
+#[error("Unable to attach ctrl-c handler")]
+pub struct Error(#[from] ctrlc::Error);
 
-#[cfg(windows)]
-mod platform {
-    #[derive(thiserror::Error, Debug)]
-    #[error("Unable to attach ctrl-c handler")]
-    pub struct Error(#[from] ctrlc::Error);
-
-    pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
-        ctrlc::set_handler(move || {
-            log::debug!("Process received Ctrl-c");
-            f();
-        })
-        .map_err(Error)
-    }
+pub fn set_shutdown_signal_handler(f: impl Fn() + 'static + Send) -> Result<(), Error> {
+    ctrlc::set_handler(f)?;
+    Ok(())
 }
 
 /// Returns true if systemd successfully reported that the machine is not shutting down or entering
@@ -32,26 +15,21 @@ mod platform {
 /// be assumed that the machine is shutting down.
 #[cfg(target_os = "linux")]
 pub fn is_shutdown_user_initiated() -> bool {
-    match talpid_dbus::systemd::is_host_running() {
-        Ok(is_host_running) => is_host_running,
-        Err(err) => {
-            log::error!(
-                "{}",
-                talpid_types::ErrorExt::display_chain_with_msg(
-                    &err,
-                    "Failed to determine if host is shutting down, assuming it is shutting down"
-                )
-            );
-            false
-        }
-    }
+    use talpid_types::ErrorExt;
+    talpid_dbus::systemd::is_host_running()
+        .map_err(|err| {
+            err.display_chain_with_msg(
+                "Failed to determine if host is shutting down, assuming it is shutting down",
+            )
+        })
+        .inspect_err(|err| log::error!("{err}"))
+        .unwrap_or(false)
 }
 
 /// Currently returns false all of the time to ensure that no leaks occur during shutdown.
-// TODO: implement shutdown detection
+// FIXME: implement shutdown detection - the current implementation will always block network
+// traffic when the daemon is shut down.
 #[cfg(target_os = "macos")]
 pub fn is_shutdown_user_initiated() -> bool {
     false
 }
-
-pub use self::platform::*;

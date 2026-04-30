@@ -19,8 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-includeBuild("rust-android-gradle-plugin")
-
 includeBuild("gradle/build-logic")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
@@ -48,6 +46,8 @@ include(
     ":lib:feature:appicon:api",
     ":lib:feature:appinfo:impl",
     ":lib:feature:appinfo:api",
+    ":lib:feature:applisting:impl",
+    ":lib:feature:applisting:api",
     ":lib:feature:appearance:impl",
     ":lib:feature:appearance:api",
     ":lib:feature:autoconnect:impl",

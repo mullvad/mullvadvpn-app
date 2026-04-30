@@ -24,24 +24,24 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
     private let options: [OptionSpec] = [
         .init(
             id: .whenNeeded,
-            label: "When needed",
-            accessibilityIdentifier: .multihopWhenNeeded,
+            label: MultihopState.whenNeeded.description,
+            accessibilityIdentifier: .multihopState(MultihopState.whenNeeded.description),
             helpText: [
-                "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the \(Image("IconSmartLocation")) symbol",
+                "If your selected location does not support your preferences multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the \(Image.mullvadIconMultihopWhenNeeded) symbol",
                 "",
                 "Attention: This will ignore filter settings for the entry server that is being automatically selected.",
             ]),
         .init(
             id: .always,
-            label: "Always",
-            accessibilityIdentifier: .multihopAlways,
+            label: MultihopState.always.description,
+            accessibilityIdentifier: .multihopState(MultihopState.always.description),
             helpText: [
                 "Always connect via an entry server. The location can either be set manually or automatically in the \"Select location\" view."
             ]),
         .init(
             id: .never,
-            label: "Never",
-            accessibilityIdentifier: .multihopNever,
+            label: MultihopState.never.description,
+            accessibilityIdentifier: .multihopState(MultihopState.never.description),
             helpText: nil
         ),
     ]
@@ -51,59 +51,49 @@ struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObse
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView(viewModel: dataViewModel)
 
-                #if DEBUG
-                    VStack(spacing: 0) {
-                        SegmentedListItem(
-                            isLastInList: false,
-                            label: {
-                                itemFactory.label(for: .setting(title: "Mode"))
-                            },
-                            segment: {},
-                            groupedContent: {
-                                ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
-                                    SegmentedListItem(
-                                        level: 1,
-                                        isLastInList: index == options.count - 1,
-                                        accessibilityIdentifier: option.accessibilityIdentifier,
-                                        label: {
-                                            itemFactory.label(
-                                                for: .setting(
-                                                    title: option.label,
-                                                    level: 1,
-                                                    selected:
-                                                        tunnelViewModel.value == option.id
-                                                ))
-                                        },
-                                        segment: {
-                                            if let helpText = option.helpText {
-                                                itemFactory.segment(
-                                                    for: .info(onSelect: {
-                                                        alert = getInfoAlert(for: helpText) { alert = nil }
-                                                    })
-                                                )
-                                            }
-                                        },
-                                        groupedContent: {},
-                                        onSelect: {
-                                            tunnelViewModel.value = option.id
+                VStack(spacing: 0) {
+                    SegmentedListItem(
+                        isLastInList: false,
+                        label: {
+                            itemFactory.label(for: .setting(title: "Mode"))
+                        },
+                        segment: {},
+                        groupedContent: {
+                            ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
+                                SegmentedListItem(
+                                    level: 1,
+                                    isLastInList: index == options.count - 1,
+                                    accessibilityIdentifier: option.accessibilityIdentifier,
+                                    label: {
+                                        itemFactory.label(
+                                            for: .setting(
+                                                title: option.label,
+                                                level: 1,
+                                                selected:
+                                                    tunnelViewModel.value == option.id
+                                            ))
+                                    },
+                                    segment: {
+                                        if let helpText = option.helpText {
+                                            itemFactory.segment(
+                                                for: .info(onSelect: {
+                                                    alert = getInfoAlert(for: helpText) { alert = nil }
+                                                })
+                                            )
                                         }
-                                    )
-                                }
-                            },
-                            onSelect: {}
-                        )
-                    }
-                    .padding(.leading, UIMetrics.contentInsets.left)
-                    .padding(.trailing, UIMetrics.contentInsets.right)
-                #else
-                    SwitchRowView(
-                        isOn: $tunnelViewModel.value.isUserSelected,
-                        text: NSLocalizedString("Enable", comment: ""),
-                        accessibilityId: .multihopSwitch
+                                    },
+                                    groupedContent: {},
+                                    onSelect: {
+                                        tunnelViewModel.value = option.id
+                                    }
+                                )
+                            }
+                        },
+                        onSelect: {}
                     )
-                    .padding(.leading, UIMetrics.contentInsets.left)
-                    .padding(.trailing, UIMetrics.contentInsets.right)
-                #endif
+                }
+                .padding(.leading, UIMetrics.contentInsets.left)
+                .padding(.trailing, UIMetrics.contentInsets.right)
             }
         }
         .mullvadAlert(item: $alert)

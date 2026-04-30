@@ -1,6 +1,7 @@
 {
   pkgs,
   android-sdk,
+  jdk,
   buildToolsVersion,
   ndkVersion,
   minSdkVersion,
@@ -19,7 +20,7 @@ in
 [
   {
     name = "JAVA_HOME";
-    value = "${pkgs.jdk17}";
+    value = "${jdk}";
   }
   {
     name = "PROTOC_GEN_GRPC_JAVA_PLUGIN";

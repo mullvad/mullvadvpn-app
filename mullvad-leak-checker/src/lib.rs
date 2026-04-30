@@ -1,7 +1,5 @@
 use std::{fmt, net::IpAddr};
 
-#[cfg(feature = "am-i-mullvad")]
-pub mod am_i_mullvad;
 pub mod traceroute;
 mod util;
 
@@ -11,19 +9,13 @@ pub enum LeakStatus {
     LeakDetected(LeakInfo),
 }
 
-/// Details about how a leak happened
+/// Details about how a leak happened.
+///
+/// Managed to reach another network node on the physical interface, bypassing firewall rules.
 #[derive(Clone, Debug)]
-#[non_exhaustive]
-pub enum LeakInfo {
-    /// Managed to reach another network node on the physical interface, bypassing firewall rules.
-    NodeReachableOnInterface {
-        reachable_nodes: Vec<IpAddr>,
-        interface: Interface,
-    },
-
-    /// Queried a <https://am.i.mullvad.net>, and was not mullvad.
-    #[cfg(feature = "am-i-mullvad")]
-    AmIMullvad { ip: IpAddr },
+pub struct LeakInfo {
+    pub reachable_nodes: Vec<IpAddr>,
+    pub interface: Interface,
 }
 
 #[derive(Clone)]

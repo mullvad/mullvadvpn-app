@@ -17,6 +17,7 @@ fun MtuTextField(
     isEnabled: Boolean = true,
     placeholderText: String = "",
     maxCharLength: Int,
+    errorText: String? = null,
 ) {
     CustomTextField(
         value = value,
@@ -32,5 +33,6 @@ fun MtuTextField(
         isValidValue = isValidValue,
         isDigitsOnlyAllowed = true,
         textStyle = MaterialTheme.typography.titleMedium.copy(textDirection = TextDirection.Ltr),
+        supportingText = errorText?.let { { ErrorSupportingText(errorText) } },
     )
 }

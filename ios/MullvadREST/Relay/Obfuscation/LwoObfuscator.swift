@@ -12,12 +12,10 @@ import MullvadTypes
 struct LwoObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
 
     func obfuscate() throws -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterLwoRelays(from: relays),
+            relays: filterLwoRelays(from: relays),
             port: try validateLwoPort(relays: relays, tunnelSettings: tunnelSettings),
             method: .lwo
         )

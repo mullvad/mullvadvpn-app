@@ -10,11 +10,57 @@ import MullvadLogging
 import MullvadSettings
 import MullvadTypes
 
-struct SinglehopPicker: RelayPicking {
-    let logger = Logger(label: "SinglehopPicker")
-    let obfuscation: RelayObfuscation
-    let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
+public struct SinglehopPicker: RelayPicking {
+    public let logger = Logger(label: "SinglehopPicker")
+    public let relays: REST.ServerRelaysResponse
+    public let tunnelSettings: LatestTunnelSettings
+    public let connectionAttemptCount: UInt
+
+    public init(relays: REST.ServerRelaysResponse, tunnelSettings: LatestTunnelSettings, connectionAttemptCount: UInt) {
+        self.relays = relays
+        self.tunnelSettings = tunnelSettings
+        self.connectionAttemptCount = connectionAttemptCount
+    }
+
+    public func pick() throws -> SelectedRelays {
+        do {
+            let obfuscationBypass = UnsupportedObfuscationProvider(
+                relayConstraint: tunnelSettings.relayConstraints.exitLocations,
+                relays: relays,
+                filterConstraint: tunnelSettings.relayConstraints.exitFilter,
+                daitaEnabled: tunnelSettings.daita.isEnabled
+            )
+
+            let obfuscation = try RelayObfuscator(
+                relays: relays,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount,
+                obfuscationBypass: obfuscationBypass
+            ).obfuscate()
+
+            let exitCandidates = try RelaySelector.WireGuard.findCandidates(
+                by: tunnelSettings.relayConstraints.exitLocations,
+                in: relays,
+                filterConstraint: tunnelSettings.relayConstraints.exitFilter,
+                daitaEnabled: tunnelSettings.daita.isEnabled,
+                obfuscation: obfuscation
+            )
+
+            let match = try findBestMatch(from: exitCandidates, obfuscation: obfuscation)
+
+            return SelectedRelays(
+                entry: nil,
+                exit: match,
+                retryAttempt: connectionAttemptCount
+            )
+        } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
+            return try MultihopPicker(
+                relays: relays,
+                tunnelSettings: tunnelSettings,
+                connectionAttemptCount: connectionAttemptCount
+            ).pick()
+        }
+    }
 
     private func shouldTriggerMultihop(reason: NoRelaysSatisfyingConstraintsReason) -> Bool {
         guard tunnelSettings.automaticMultihopIsEnabled else { return false }
@@ -26,51 +72,5 @@ struct SinglehopPicker: RelayPicking {
             .multihopInvalidFlow, .noActiveRelaysFound, .relayConstraintNotMatching, .invalidObfuscationPort:
             false
         }
-    }
-
-    func pick() throws -> SelectedRelays {
-        do {
-            let obfuscationBypass = UnsupportedObfuscationProvider(
-                relayConstraint: tunnelSettings.relayConstraints.exitLocations,
-                relays: obfuscation.obfuscatedRelays,
-                filterConstraint: tunnelSettings.relayConstraints.exitFilter,
-                daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
-            )
-
-            let supportedObfuscation = try RelayObfuscator(
-                relays: obfuscation.allRelays,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount,
-                obfuscationBypass: obfuscationBypass
-            ).obfuscate()
-
-            return try SinglehopPicker(
-                obfuscation: supportedObfuscation, tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
-            ).pick(from: supportedObfuscation.obfuscatedRelays)
-        } catch let error as NoRelaysSatisfyingConstraintsError where shouldTriggerMultihop(reason: error.reason) {
-            return try MultihopPicker(
-                obfuscation: obfuscation,
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: connectionAttemptCount
-            ).pick()
-        }
-    }
-
-    private func pick(from relaysResponse: REST.ServerRelaysResponse) throws -> SelectedRelays {
-        let exitCandidates = try RelaySelector.WireGuard.findCandidates(
-            by: tunnelSettings.relayConstraints.exitLocations,
-            in: relaysResponse,
-            filterConstraint: tunnelSettings.relayConstraints.exitFilter,
-            daitaEnabled: tunnelSettings.daita.daitaState.isEnabled
-        )
-
-        let match = try findBestMatch(from: exitCandidates, applyObfuscation: true)
-
-        return SelectedRelays(
-            entry: nil,
-            exit: match,
-            retryAttempt: connectionAttemptCount
-        )
     }
 }

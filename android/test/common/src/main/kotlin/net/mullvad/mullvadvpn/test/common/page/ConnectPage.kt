@@ -20,6 +20,7 @@ class ConnectPage internal constructor() : Page() {
     private val connectedSelector = By.text("CONNECTED")
     private val connectingSelector = By.text("CONNECTING...")
     private val disconnectedSelector = By.text("DISCONNECTED")
+    private val blockedSelector = By.text("BLOCKED CONNECTION")
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG), LONG_TIMEOUT)
@@ -59,6 +60,10 @@ class ConnectPage internal constructor() : Page() {
 
     fun waitForConnectingLabel() {
         uiDevice.findObjectWithTimeout(connectingSelector)
+    }
+
+    fun waitForBlockedLabel(timeout: Long = VERY_LONG_TIMEOUT) {
+        uiDevice.findObjectWithTimeout(blockedSelector, timeout)
     }
 
     fun waitForFeatureIndicator(featureIndicator: String) {

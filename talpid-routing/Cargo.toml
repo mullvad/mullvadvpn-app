@@ -29,7 +29,7 @@ jnix = { version = "0.5.2", features = ["derive"] }
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
 netlink-packet-core = { workspace = true }
-netlink-packet-route = { workspace = true, features = ["rich_nlas"] }
+netlink-packet-route = { workspace = true }
 netlink-sys = { workspace = true }
 rtnetlink = { workspace = true }
 

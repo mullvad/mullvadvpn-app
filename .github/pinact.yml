@@ -1,0 +1,7 @@
+# pinact run           # pin any new unpinned actions
+# pinact run -u        # bump all pins to latest
+# pinact run -u <path> # bump one file only
+version: 3
+files:
+  - pattern: .github/workflows/android-*.yml
+separator: "  # "

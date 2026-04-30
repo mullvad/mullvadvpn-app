@@ -252,12 +252,10 @@ async fn recv_ttl_responses(
 
     debug_assert!(!reachable_nodes.is_empty());
 
-    Ok(LeakStatus::LeakDetected(
-        LeakInfo::NodeReachableOnInterface {
-            reachable_nodes,
-            interface: interface.clone(),
-        },
-    ))
+    Ok(LeakStatus::LeakDetected(LeakInfo {
+        reachable_nodes,
+        interface: interface.clone(),
+    }))
 }
 
 struct RecvPacket<'a, S> {

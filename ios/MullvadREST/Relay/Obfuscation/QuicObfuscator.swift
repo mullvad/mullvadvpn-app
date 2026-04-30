@@ -12,12 +12,10 @@ import MullvadTypes
 struct QuicObfuscator: RelayObfuscating {
     let relays: REST.ServerRelaysResponse
     let tunnelSettings: LatestTunnelSettings
-    let connectionAttemptCount: UInt
 
     func obfuscate() -> RelayObfuscation {
         RelayObfuscation(
-            allRelays: relays,
-            obfuscatedRelays: filterQuicRelays(from: relays),
+            relays: filterQuicRelays(from: relays),
             port: .only(443),
             method: .quic
         )

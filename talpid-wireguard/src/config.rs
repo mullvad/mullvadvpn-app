@@ -3,7 +3,7 @@ use std::{
     ffi::CString,
     net::{Ipv4Addr, Ipv6Addr},
 };
-use talpid_types::net::wireguard::{PeerConfig, PrivateKey};
+use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::net::{GenericTunnelOptions, obfuscation::Obfuscators, wireguard};
 
 /// Name to use for the tunnel device
@@ -122,12 +122,27 @@ impl Config {
     /// Returns a CString with the appropriate config for WireGuard-go
     // TODO: Consider outputting both overriding and additive configs
     pub fn to_userspace_format(&self) -> CString {
-        userspace_format(
-            &self.tunnel.private_key,
-            self.peers(),
-            #[cfg(target_os = "linux")]
-            self.fwmark,
-        )
+        let private_key = &self.tunnel.private_key;
+        let peers = self.peers();
+        // the order of insertion matters, public key entry denotes a new peer entry
+        let mut wg_conf = WgConfigBuffer::new();
+        wg_conf
+            .add::<&[u8]>("private_key", private_key.to_bytes().as_ref())
+            .add("listen_port", "0");
+
+        #[cfg(target_os = "linux")]
+        if let Some(fwmark) = self.fwmark {
+            wg_conf.add("fwmark", fwmark.to_string().as_str());
+        }
+
+        wg_conf.add("replace_peers", "true");
+
+        for peer in peers {
+            write_peer_to_config(&mut wg_conf, peer)
+        }
+
+        let bytes = wg_conf.into_config();
+        CString::new(bytes).expect("null bytes inside config")
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.
@@ -216,34 +231,6 @@ impl WgConfigBuffer {
         self.buf.push(b'\n');
         self.buf
     }
-}
-
-/// Returns a CString with the appropriate config for WireGuard-go
-#[expect(single_use_lifetimes)]
-pub fn userspace_format<'a>(
-    private_key: &PrivateKey,
-    peers: impl Iterator<Item = &'a PeerConfig>,
-    #[cfg(target_os = "linux")] fwmark: Option<u32>,
-) -> CString {
-    // the order of insertion matters, public key entry denotes a new peer entry
-    let mut wg_conf = WgConfigBuffer::new();
-    wg_conf
-        .add::<&[u8]>("private_key", private_key.to_bytes().as_ref())
-        .add("listen_port", "0");
-
-    #[cfg(target_os = "linux")]
-    if let Some(fwmark) = fwmark {
-        wg_conf.add("fwmark", fwmark.to_string().as_str());
-    }
-
-    wg_conf.add("replace_peers", "true");
-
-    for peer in peers {
-        write_peer_to_config(&mut wg_conf, peer)
-    }
-
-    let bytes = wg_conf.into_config();
-    CString::new(bytes).expect("null bytes inside config")
 }
 
 fn write_peer_to_config(wg_conf: &mut WgConfigBuffer, peer: &PeerConfig) {

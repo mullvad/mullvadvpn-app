@@ -2,7 +2,8 @@
 # Core
 # Updating the sdk version requires updating the version used in the build container.
 # See Bump SDK or container image template in Linear for more details.
-compile-sdk = "36"
+compile-sdk-major = "36"
+compile-sdk-minor = "1"
 build-tools = "36.1.0"
 min-sdk = "28"
 target-sdk = "36"
@@ -13,8 +14,8 @@ ndk = "27.3.13750724"
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
-android-gradle-aapt = "14304508"
-android-gradle-plugin = "8.13.2"
+android-gradle-aapt = "14792394"
+android-gradle-plugin = "9.1.1"
 # Other
 android-billingclient = "8.3.0"
 androidx-activitycompose = "1.13.0"
@@ -35,7 +36,7 @@ androidx-tv = "1.0.1"
 androidx-uiautomator = "2.4.0-beta02"
 androidx-work = "2.11.2"
 arrow = "2.2.2.1"
-baselineprofile = "1.4.1"
+baselineprofile = "1.5.0-alpha04"
 benchmark-macro-junit4 = "1.4.1"
 commonsvalidator = "1.10.1"
 compose = "1.10.6"
@@ -50,8 +51,8 @@ grpc = "1.80.0"
 grpc-kotlin = "1.5.0"
 junit = "5.13.4"
 junit4 = "1.3.0"
-junit5-android = "1.8.0"
-junit5-android-plugin = "1.13.1.0"
+junit5-android = "2.0.1"
+junit5-android-plugin = "2.0.1"
 kermit = "2.1.0"
 koin = "4.2.1"
 koin-compose = "4.2.1"
@@ -66,15 +67,16 @@ ktfmt = "0.26.0"
 ktor = "3.4.2"
 leakcanary = "2.14"
 mockk = "1.14.9"
-play-publisher = "3.13.0"
+play-publisher = "4.0.0"
 play-services-location = "21.3.0"
 profileinstaller = "1.4.1"
 protobuf = "4.34.1"
-protobuf-gradle-plugin = "0.9.6"
+protobuf-gradle-plugin = "0.10.0"
 turbine = "1.2.1"
 annotation-jvm = "1.10.0"
 junit-version = "4.13.2"
 material = "1.13.0"
+rust-android = "0.10.1"
 
 [libraries]
 accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "accompanist" }
@@ -187,7 +189,9 @@ baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprof
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+# noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+# noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin" }
 junit5-android = { id = "de.mannodermaus.android-junit5", version.ref = "junit5-android-plugin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -196,8 +200,11 @@ kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref =
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
 play-publisher = { id = "com.github.triplet.play", version.ref = "play-publisher" }
+# noinspection SimilarGradleDependency
 protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
+# noinspection SimilarGradleDependency
 protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
+rust-android = { id = "net.mullvad.rust-android", version.ref = "rust-android" }
 # Convention plugins
 mullvad-android-library = { id = "mullvad.android-library" }
 mullvad-android-library-feature-api = { id = "mullvad.android-library-feature-api" }

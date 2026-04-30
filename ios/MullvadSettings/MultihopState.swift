@@ -16,21 +16,28 @@ public protocol MultihopStateMigrating {
 }
 
 /// In which circumstances Multihop is enabled
-public enum MultihopStateV2: Codable, Sendable {
+public enum MultihopStateV2: CustomStringConvertible, CaseIterable, Codable, Sendable {
+    case whenNeeded
     case always
     case never
-    case whenNeeded
 
-    // is multihop explicitly selected by the user?
-    // as this is now a tristate value, this will presumably largely go away
-    public var isUserSelected: Bool {
-        get {
-            self == .always
-        }
-        set {
-            // once .whenNeeded is used, the .never value below should
-            // perhaps be replaced with .whenNeeded
-            self = newValue ? .always : .never
+    public var isWhenNeeded: Bool {
+        self == .whenNeeded
+    }
+
+    public var isAlways: Bool {
+        self == .always
+    }
+
+    public var isNever: Bool {
+        self == .never
+    }
+
+    public var description: String {
+        switch self {
+        case .always: NSLocalizedString("Always", comment: "")
+        case .whenNeeded: NSLocalizedString("When needed", comment: "")
+        case .never: NSLocalizedString("Never", comment: "")
         }
     }
 }

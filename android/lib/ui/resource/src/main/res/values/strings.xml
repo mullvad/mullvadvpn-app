@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="disconnecting">Disconnecting...</string>
     <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
@@ -10,12 +10,10 @@
     <string name="log_in">Log in</string>
     <string name="login_description">Enter your account number</string>
     <string name="logging_in_title">Logging in...</string>
-    <string name="logging_in_description">Checking account number</string>
     <string name="logged_in_title">Logged in</string>
-    <string name="logged_in_description">Valid account number</string>
     <string name="login_fail_title">Login failed</string>
     <string name="login_fail_description">Invalid account number</string>
-    <string name="dont_have_an_account">Don’t have an account number?</string>
+    <string name="login_fail_empty">Enter an account number</string>
     <string name="create_new_account_warning_paragraph1">You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone.</string>
     <string name="create_new_account_warning_paragraph2">Do you want to create a new account?</string>
     <string name="creating_new_account">Creating account...</string>
@@ -132,6 +130,7 @@
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
     <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings.</string>
     <string name="exclude_applications">Excluded applications</string>
+    <string name="x_out_of_y" tools:ignore="PluralsCandidate">%1$d out of %2$d</string>
     <string name="all_applications">All applications</string>
     <string name="show_system_apps">Show system apps</string>
     <string name="toggle_vpn">Toggle VPN</string>
@@ -434,16 +433,15 @@
     <string name="no_matching_servers_found_second_line">Please try changing your filters.</string>
     <string name="refresh_server_list">Update server list</string>
     <string name="updating_server_list_in_the_background">Updating server list in the background...</string>
-    <string name="android_16_upgrade_warning_title">Can\'t connect?</string>
+    <string name="android_16_upgrade_warning_title">Can’t connect?</string>
     <string name="android_16_upgrade_warning_message">Android 16 has a known issue. Please restart your device and try again. To learn more, </string>
     <string name="android_16_upgrade_warning_dialog_first_message">After updating a VPN app on Android 16, devices might end up in a state where VPN apps are no longer able to reach the internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English.</string>
     <string name="click_here">click here</string>
     <string name="login_error_api_unreachable">Unable to reach API, %s</string>
     <string name="login_error_too_many_attempts">Too many attempts, please try again later</string>
-    <string name="login_error_invalid_input">Account number is too long, please enter a valid number</string>
-    <string name="create_account_fail_title">Creating account failed</string>
     <string name="read_more_here">read more here</string>
+    <string name="read_more">Read more</string>
     <string name="unable_to_reach_api">Unable to reach API</string>
     <string name="unable_to_reach_api_dialog_message_first_login">The app was unable to login due to not being able to reach the Mullvad API.</string>
     <string name="unable_to_reach_api_dialog_message_first_create_account">The app was unable to create an account due to not being able to reach the Mullvad API.</string>
@@ -523,4 +521,17 @@
     <string name="language">Language</string>
     <string name="system_default">System default</string>
     <string name="app_icon">App icon</string>
+    <string name="generating_account_number">Generating...</string>
+    <string name="divier_or">Or</string>
+    <string name="custom_list_error_list_is_empty">Please enter a name</string>
+    <string name="report_problem_message_is_empty">Please enter a message</string>
+    <string name="voucher_too_short">Voucher code is too short</string>
+    <string name="invalid_address_blank_warning">Please enter an IP address</string>
+    <string name="invalid_address_invalid_warning">Invalid IP address</string>
+    <string name="mtu_input_error_invalid">Invalid MTU value</string>
+    <string name="mtu_input_error_blank">Please enter a value</string>
+    <string name="custom_port_input_error_blank">Please enter a port</string>
+    <string name="custom_port_input_error_out_of_range">Port is out of range</string>
+    <string name="import_overrides_empty_text_error">Please enter an IP override text</string>
+    <string name="remove_a_device_before_logging_in">Please remove a device before continuing logging in</string>
 </resources>

@@ -50,13 +50,6 @@ impl WindowsTunProvider {
 
     /// Open a tunnel using the current tunnel config.
     pub fn open_tun(&mut self) -> Result<WindowsTun, Error> {
-        let (first_addr, remaining_addrs) = self
-            .config
-            .addresses
-            .split_first()
-            .map(|(first, rest)| (Some(first), rest))
-            .unwrap_or((None, &[]));
-
         let mut tunnel_device = {
             let mut builder = TunnelDeviceBuilder::default();
 
@@ -64,12 +57,6 @@ impl WindowsTunProvider {
             // metric value set for the route itself. Setting the interface metric to 1 gives tunnel
             // routes the highest possible priority.
             builder.config.metric(1);
-
-            // TODO: have tun either not use netsh or not set any default address at all
-            // TODO: tun can only set a single address
-            if let Some(addr) = first_addr {
-                builder.config.address(*addr);
-            }
 
             /// Tunnel adapter name
             const ADAPTER_NAME: &str = "Mullvad";
@@ -80,6 +67,7 @@ impl WindowsTunProvider {
             const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
 
             builder.config.tun_name(ADAPTER_NAME);
+            builder.config.mtu(self.config.mtu);
             builder
                 .config
                 .platform_config(|cfg: &mut tun08::PlatformConfig| {
@@ -92,7 +80,9 @@ impl WindowsTunProvider {
             builder.create()?
         };
 
-        for ip in remaining_addrs {
+        // TODO: `tun` currently cannot handle IPv6 without using netsh,
+        // so we add IPs ourselves.
+        for ip in &self.config.addresses {
             tunnel_device.set_ip(*ip)?;
         }
 

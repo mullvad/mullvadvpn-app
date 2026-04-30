@@ -7,13 +7,13 @@
 #     -v $CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z \
 #     -v $GRADLE_CACHE_VOLUME_NAME:/root/.gradle:Z \
 #     -v /path/to/repository_root:/build:Z \
-#     mullvadvpn-app-build-android ./android/build.sh --dev-build
+#     mullvadvpn-app-build-android ./android/gradlew -p android debug
 #
 # See the base image Dockerfile in the repository root (../../Dockerfile)
 # for more information.
 
 # === Base image (built from: ../../Dockerfile) ===
-FROM ghcr.io/mullvad/mullvadvpn-app-build:c40d52f462
+FROM ghcr.io/mullvad/mullvadvpn-app-build:09b5e4e744
 
 # === Metadata ===
 LABEL org.opencontainers.image.source=https://github.com/mullvad/mullvadvpn-app

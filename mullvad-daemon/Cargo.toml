@@ -80,7 +80,7 @@ log-panics = "2.0.0"
 mullvad-api = { path = "../mullvad-api" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
-mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
+mullvad-leak-checker = { path = "../mullvad-leak-checker" }
 mullvad-logging = { path = "../mullvad-logging" }
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-paths = { path = "../mullvad-paths" }
@@ -120,13 +120,17 @@ mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 async-trait = "0.1"
+ctrlc = { workspace = true }
 hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
 
 [target.'cfg(target_os="linux")'.dependencies]
+ctrlc = { workspace = true, features = ["termination"] }
 talpid-dbus = { path = "../talpid-dbus" }
+tikv-jemallocator = { version = "0.6", optional = true }
 
 [target.'cfg(target_os="macos")'.dependencies]
+ctrlc = { workspace = true, features = ["termination"] }
 notify = "8.0.0"
 objc2-foundation = { version = "0.3.1", features = [
   "NSProcessInfo",
@@ -141,10 +145,9 @@ talpid-macos = { path = "../talpid-macos" }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["signal", "user"] }
-simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
-ctrlc = "3.0"
+ctrlc = { workspace = true }
 dirs = { workspace = true }
 talpid-windows = { path = "../talpid-windows" }
 winapi = { version = "0.3", features = ["excpt", "winerror", "winnt"] }
@@ -172,9 +175,12 @@ workspace = true
 features = ["Win32_System_SystemServices"]
 
 [features]
+default = ["default-allocator"]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
 cgroup2 = ["talpid-core/cgroup2"]
+# Use jemalloc as the global allocator. Only takes effect on Linux.
+default-allocator = ["dep:tikv-jemallocator"]
 multihop-pcap = ["talpid-core/multihop-pcap"]
 staggered-obfuscation = ["mullvad-relay-selector/staggered-obfuscation"]
 wireguard-go = ["talpid-core/wireguard-go"]

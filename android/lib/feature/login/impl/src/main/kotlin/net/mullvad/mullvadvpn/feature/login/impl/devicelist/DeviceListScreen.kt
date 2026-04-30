@@ -95,6 +95,13 @@ fun DeviceList(navigator: Navigator, accountNumber: AccountNumber) {
                     )
                 }
             }
+            DeviceListSideEffect.FailedToLogin -> {
+                launch {
+                    snackbarHostState.showSnackbarImmediately(
+                        message = resources.getString(R.string.remove_a_device_before_logging_in)
+                    )
+                }
+            }
             is DeviceListSideEffect.NavigateToLogin ->
                 navigator.navigate(
                     LoginNavKey(sideEffect.accountNumber.value),
@@ -127,7 +134,7 @@ fun DeviceListScreen(
 ) {
 
     ScaffoldWithTopBar(
-        topBarColor = MaterialTheme.colorScheme.primary,
+        topBarColor = MaterialTheme.colorScheme.background,
         iconTintColor = MaterialTheme.colorScheme.onPrimary,
         onSettingsClicked = onSettingsClicked,
         onAccountClicked = null,
@@ -279,7 +286,7 @@ private fun DeviceListButtonPanel(
         VariantButton(
             text = stringResource(id = R.string.continue_login),
             onClick = onContinueWithLogin,
-            isEnabled = state is DeviceListUiState.Content && !state.hasTooManyDevices,
+            isEnabled = state is DeviceListUiState.Content,
             background = MaterialTheme.colorScheme.positive,
         )
 

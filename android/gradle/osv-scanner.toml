@@ -108,3 +108,21 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-33871"  # GHSA-w9fj-cfpg-grvv
 ignoreUntil = 2026-05-01
 reason = "The app does not use netty for external http communication"
+
+# Bouncy Castle Crypto Package For Java: Use of a Broken or Risky Cryptographic Algorithm vulnerability in bcpkix modules
+[[IgnoredVulns]]
+id = "CVE-2026-5588"  # GHSA-wg6q-6289-32hp
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Apache Commons Lang is vulnerable to Uncontrolled Recursion when processing long inputs
+[[IgnoredVulns]]
+id = "CVE-2025-48924"  # GHSA-j288-q9x7-2f5v
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Bouncy Castle has an LDAP injection
+[[IgnoredVulns]]
+id = "CVE-2026-0636"  # GHSA-c3fc-8qff-9hwx
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"

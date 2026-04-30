@@ -49,7 +49,7 @@ runs:
     - name: Setup Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        add-job-id-key: "false" # Preserve cache across jobs
+        add-job-id-key: "false"  # Preserve cache across jobs
         cache-directories: >-
           ${{ inputs.rust-cache-targets == 'true' && env.CARGO_TARGET_DIR || '' }}
         cache-targets: ${{ inputs.rust-cache-targets }}

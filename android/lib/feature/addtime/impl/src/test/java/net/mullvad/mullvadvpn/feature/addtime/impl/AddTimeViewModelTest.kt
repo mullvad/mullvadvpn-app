@@ -155,7 +155,7 @@ class AddTimeViewModelTest {
     @Test
     fun `purchaseState error should invoke queryPaymentAvailability on PaymentUseCase`() = runTest {
         // Arrange
-        val purchaseResultData = PurchaseResult.Error.VerificationError(Throwable())
+        val purchaseResultData = PurchaseResult.Error.VerificationError.VerificationFailed
 
         // Act
         purchaseResult.value = purchaseResultData

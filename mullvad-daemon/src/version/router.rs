@@ -896,7 +896,7 @@ mod test {
         version_router.on_new_version(version_cache);
         assert!(matches!(version_router.state, State::HasVersion { .. }));
         assert!(
-            channels.version_event_receiver.try_next().is_err(),
+            channels.version_event_receiver.try_recv().is_err(),
             "No version event should be sent on beta program change"
         );
         version_router.update_application();
@@ -909,7 +909,7 @@ mod test {
         // version and allows upgrades.
         version_router.set_beta_program(true);
         assert!(
-            channels.version_event_receiver.try_next().is_ok(),
+            channels.version_event_receiver.try_recv().is_ok(),
             "Version event should be sent on beta program change"
         );
         version_router.update_application();
@@ -940,10 +940,10 @@ mod test {
 
         // Here, we play the role of `VersionUpdater`.
         // It should receive a version check request and send a version in response
-        assert!(
-            matches!(channels.refresh_version_check_rx.try_next(), Ok(Some(()))),
-            "Version check should be triggered"
-        );
+        channels
+            .refresh_version_check_rx
+            .try_recv()
+            .expect("Version check should be triggered");
         channels
             .new_version_tx
             .unbounded_send(version_cache_test.clone())
@@ -966,8 +966,7 @@ mod test {
             version_info,
             channels
                 .version_event_receiver
-                .try_next()
-                .expect("Version event sender should not be closed")
+                .try_recv()
                 .expect("Version event should be sent"),
             "Version event sent to the daemon should be the same as the one sent to the requester"
         );
@@ -1044,8 +1043,7 @@ mod test {
         // Check that the version event was sent with the verified installer path
         let version_info = channels
             .version_event_receiver
-            .try_next()
-            .expect("Version event channel should contain message")
+            .try_recv()
             .expect("Version event should be sent");
         assert_eq!(
             version_info
@@ -1057,7 +1055,7 @@ mod test {
         );
         channels
             .version_event_receiver
-            .try_next()
+            .try_recv()
             .expect_err("Channel should not have any messages");
 
         version_router.update_application();
@@ -1085,8 +1083,7 @@ mod test {
 
         let version_info = channels
             .version_event_receiver
-            .try_next()
-            .expect("Version event channel should contain message")
+            .try_recv()
             .expect("Version event should be sent");
         assert_eq!(
             version_info

@@ -62,4 +62,8 @@ class SelectLocationPage internal constructor() : Page() {
         uiDevice.waitForStableInActiveWindow()
         clickLocationCell(testRelay.relay)
     }
+
+    fun assertDaitaChipVisible() {
+        uiDevice.findObjectWithTimeout(By.text("Setting: DAITA"))
+    }
 }

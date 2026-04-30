@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %1$s باللغة السويدية أو الإنجليزية.</string>
     <string name="android_16_upgrade_warning_message">هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،</string>
-    <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
     <string name="anti_censorship">مكافحة الرقابة</string>
     <string name="anti_censorship_info_first_paragraph">قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها.</string>
     <string name="anti_censorship_info_second_paragraph"><b>يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.</b></string>
@@ -43,6 +42,7 @@
     <string name="api_reachable_adding_method">واجهة API يمكن الوصول إليها، جارٍ إضافة الطريقة...</string>
     <string name="api_unreachable">واجهة API لا يمكن الوصول إليها</string>
     <string name="api_unreachable_save_anyway">واجهة API لا يمكن الوصول إليها، هل تريد حفظ الطريقة على أي حال؟</string>
+    <string name="app_icon">أيقونة التطبيق</string>
     <string name="app_info">معلومات التطبيق</string>
     <string name="app_is_blocking_internet">التطبيق يحظر الإنترنت، يُرجي قطع الاتصال أولًا</string>
     <string name="app_name_browser">المتصفح</string>
@@ -112,7 +112,6 @@
     <string name="country_comma_city">%1$s، %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s، %2$s، %3$s</string>
     <string name="create">إنشاء</string>
-    <string name="create_account_fail_title">فشل إنشاء الحساب</string>
     <string name="create_custom_list_message">تم إنشاء \"%1$s\"</string>
     <string name="create_new_account">إنشاء حساب جديد</string>
     <string name="create_new_account_warning_paragraph1">لديك رقم حساب محفوظ بالفعل، بإنشاء حساب جديد، سيتم حذفه من هذا الجهاز. لا يمكن التراجع عن هذا الإجراء.</string>
@@ -192,12 +191,12 @@
     <string name="disconnected_vpn_permission_error">تم قطع الاتصال (لا يوجد إذن VPN)</string>
     <string name="disconnecting">جارٍ قطع الاتصال...</string>
     <string name="dismiss">تجاهل</string>
+    <string name="divier_or">أو</string>
     <string name="dns_content_blockers">أدوات حظر محتوى DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">انتبه: لا يمكن استخدام هذا الإعداد مع \"استخدام خادم DNS مُخصَّص\".</string>
     <string name="dns_content_blockers_info">عندما يتم تفعيل هذه الميزة، فإنها تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها.</string>
     <string name="dns_content_blockers_subtitle">أوقف \"%1$s\" أدناه لتنشيط هذه الإعدادات.</string>
     <string name="dns_content_blockers_warning">قد يؤدي ذلك إلى حدوث مشكلات في بعض المواقع الإلكترونية والخدمات والتطبيقات.</string>
-    <string name="dont_have_an_account">ليس لديك رقم حساب؟</string>
     <string name="duplicate_address_warning">لقد تم إدخال هذا العنوان بالفعل.</string>
     <string name="edit_custom_lists">تعديل القوائم المُخصَّصة</string>
     <string name="edit_list">تعديل القائمة</string>
@@ -217,7 +216,7 @@
     <string name="enable_multihop">تفعيل القفز المتعدد</string>
     <string name="enable_recents">تفعيل المواقع الحديثة</string>
     <string name="encrypted_dns_proxy_info_message_part1">باستخدام طريقة \"وكيل DNS المُشفَّر\"، سيتواصل التطبيق مع Mullvad API الخاصة بنا عبر عنوان خادم وكيل. وسيفعل ذلك من خلال جلب عنوان من خادم DNS عبر HTTPS (DoH)، ثم استخدام هذا العنوان للوصول إلى خوادم واجهة API الخاصة بنا.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلًا بشبكة VPN لدينا، فسيستخدم خادم وكيل نظام أسماء النطاقات (DNS) المُشفَّر عنوان IP غير المرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو Cloudflare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">إذا لم تكن متصلاً بشبكة VPN لدينا، فسيستخدم خادم وكيل DNS المُشفَّر عنوان IP غير مرتبط بشبكة VPN عند الاتصال. تتم استضافة خوادم DoH من قِبل أحد موفري الخدمة التاليين: Quad9 أو Cloudflare.</string>
     <string name="enter_value_placeholder">أدخل MTU</string>
     <string name="enter_voucher_code">أدخل رمز القسيمة</string>
     <string name="entry">دخول</string>
@@ -289,13 +288,10 @@
     <string name="locations_were_changed_for">تم تغيير المواقع لـ \"%1$s\"</string>
     <string name="log_in">تسجيل الدخول</string>
     <string name="log_out">تسجيل الخروج</string>
-    <string name="logged_in_description">رقم حساب صالح</string>
     <string name="logged_in_title">مُسجَّل الدخول</string>
-    <string name="logging_in_description">جارٍ التحقُّق من رقم الحساب</string>
     <string name="logging_in_title">جارٍ تسجيل الدخول...</string>
     <string name="login_description">أدخل رقم حسابك</string>
     <string name="login_error_api_unreachable">يتعذَّر الوصول إلى واجهة API، %1$s</string>
-    <string name="login_error_invalid_input">رقم الحساب طويل جدًا، يُرجى إدخال رقم صالح</string>
     <string name="login_error_too_many_attempts">تم إجراء عدد كبير جدًا من المحاولات، يُرجى إعادة المحاولة لاحقًا</string>
     <string name="login_fail_description">رقم الحساب غير صالح</string>
     <string name="login_fail_title">فشل تسجيل الدخول</string>

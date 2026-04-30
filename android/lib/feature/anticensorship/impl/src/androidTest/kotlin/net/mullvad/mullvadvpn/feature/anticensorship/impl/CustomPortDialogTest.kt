@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
@@ -17,6 +16,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.customport.CustomPortDialog
+import net.mullvad.mullvadvpn.lib.model.ParsePortError
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_PORT_DIALOG_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -39,7 +39,7 @@ class CustomPortDialogTest {
     private fun ComposeContext.initDialog(
         title: String = "",
         portInput: String = "",
-        isValidInput: Boolean = false,
+        inputError: ParsePortError? = null,
         allowedPortRanges: List<PortRange> = emptyList(),
         recommendedPortRanges: List<PortRange> = emptyList(),
         showResetToDefault: Boolean = false,
@@ -52,7 +52,7 @@ class CustomPortDialogTest {
             CustomPortDialog(
                 title = title,
                 portInput = portInput,
-                isValidInput = isValidInput,
+                inputError = inputError,
                 allowedPortRanges = allowedPortRanges,
                 recommendedPortRanges = recommendedPortRanges,
                 showResetToDefault = showResetToDefault,
@@ -74,7 +74,6 @@ class CustomPortDialogTest {
         initDialog(
             title = "",
             portInput = input,
-            isValidInput = false,
             showResetToDefault = false,
             onInputChanged = { input = it },
         )
@@ -88,31 +87,13 @@ class CustomPortDialogTest {
     }
 
     @Test
-    fun testEmptyInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
-        // Arrange
-        initDialog(isValidInput = false)
-
-        // Assert
-        onNodeWithText("Set port").assertIsNotEnabled()
-    }
-
-    @Test
     fun testValidInputResultsInSetPortButtonBeingEnabled() = composeExtension.use {
         // Arrange
-        initDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
+        initDialog(portInput = VALID_CUSTOM_PORT, inputError = null)
 
         // Assert
         onNodeWithText("Set port").assertIsEnabled()
         onNodeWithText(VALID_CUSTOM_PORT).assertExists()
-    }
-
-    @Test
-    fun testInvalidInputResultsInSetPortButtonBeingDisabled() = composeExtension.use {
-        // Arrange
-        initDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
-
-        // Assert
-        onNodeWithText("Set port").assertIsNotEnabled()
     }
 
     @Test
@@ -121,7 +102,7 @@ class CustomPortDialogTest {
         val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
         initDialog(
             portInput = VALID_CUSTOM_PORT,
-            isValidInput = true,
+            inputError = null,
             onSavePort = mockedSubmitHandler,
         )
 
@@ -138,7 +119,7 @@ class CustomPortDialogTest {
         val mockedClickHandler: () -> Unit = mockk(relaxed = true)
         initDialog(
             portInput = VALID_CUSTOM_PORT,
-            isValidInput = true,
+            inputError = null,
             showResetToDefault = true,
             onResetPort = mockedClickHandler,
         )

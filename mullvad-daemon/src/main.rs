@@ -9,6 +9,10 @@ use mullvad_daemon::{
 };
 use talpid_types::ErrorExt;
 
+#[cfg(all(feature = "default-allocator", target_os = "linux"))]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 mod cli;
 #[cfg(target_os = "linux")]
 mod early_boot_firewall;
@@ -204,7 +208,7 @@ async fn run_standalone(
     let shutdown_handle = daemon.shutdown_handle();
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     mullvad_daemon::shutdown::set_shutdown_signal_handler(move || {
-        shutdown_handle.shutdown(!mullvad_daemon::shutdown::is_shutdown_user_initiated())
+        shutdown_handle.shutdown(mullvad_daemon::shutdown::is_shutdown_user_initiated())
     })
     .map_err(|e| e.display_chain())?;
 

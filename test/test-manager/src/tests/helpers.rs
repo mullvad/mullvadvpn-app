@@ -13,16 +13,18 @@ use anyhow::{Context, anyhow, bail, ensure};
 use futures::StreamExt;
 use mullvad_management_interface::{MullvadProxyClient, client::DaemonEvent};
 use mullvad_relay_selector::{
-    Config, GetRelay, RelaySelector, WireguardConfig,
-    query::{RelayQuery, WireguardRelayQuery},
+    GetRelay, Predicate, RelaySelector, WireguardConfig,
+    query::{Hops, RelayQuery},
 };
 use mullvad_types::{
+    Intersection,
     constraints::Constraint,
     custom_list::CustomList,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
-    relay_list::{Relay, WireguardRelay},
+    relay_list::{BridgeList, Relay, WireguardRelay},
+    relay_selector::MultihopConstraints,
     states::TunnelState,
 };
 use pcap::Direction;
@@ -708,10 +710,14 @@ pub async fn constrain_to_relay(
 }
 
 /// Intersects the given query with the current location constraints, to prevent accidentally
-/// overwriting the default location custom list
+/// overwriting the default location custom list.
+///
+/// `Intersection` no longer lives on the whole query, so we apply it to the relevant
+/// `Constraint<LocationConstraint>` fields by hand: always the exit location, and — for
+/// multihop queries — the entry location too.
 async fn intersect_with_current_location(
     mullvad_client: &mut MullvadProxyClient,
-    query: RelayQuery,
+    mut query: RelayQuery,
 ) -> anyhow::Result<RelayQuery> {
     let settings = mullvad_client
         .get_settings()
@@ -721,45 +727,46 @@ async fn intersect_with_current_location(
         unimplemented!("Setting location for a custom endpoint is not supported");
     };
 
-    // Construct a relay query preserving only the information about the current location
-    let current_location_query = RelayQuery::new(
-        constraint.location,
-        Constraint::Any,
-        Constraint::Any,
-        WireguardRelayQuery {
-            entry_location: constraint.wireguard_constraints.entry_location,
-            ..Default::default()
-        },
-    );
-    use mullvad_types::Intersection;
-    let intersect_query = query
-        .intersection(current_location_query)
-        .context("Relay query incompatible with default settings")?;
-    Ok(intersect_query)
+    let merged_exit = query
+        .exit()
+        .location
+        .clone()
+        .intersection(constraint.location)
+        .context("Relay query incompatible with default exit location")?;
+    query.exit_mut().location = merged_exit;
+
+    if let Hops::Multi(MultihopConstraints { entry, .. }) = &mut query.hops {
+        let merged_entry = entry
+            .general
+            .location
+            .clone()
+            .intersection(constraint.wireguard_constraints.entry_location)
+            .context("Relay query incompatible with default entry location")?;
+        entry.general.location = merged_entry;
+    }
+
+    Ok(query)
 }
 
-/// Get a query representing the current daemon settings
-async fn get_query_from_current_settings(
-    mullvad_client: &mut MullvadProxyClient,
-) -> anyhow::Result<RelayQuery> {
-    let settings = mullvad_client
-        .get_settings()
-        .await
-        .context("Failed to get settings")?;
-    RelayQuery::try_from(settings).context("Failed to convert settings to relay query")
-}
-
+/// Get all relays that are compatible with the current settings. In case of multihop,
+/// this will return the list of exit relays.
 pub async fn get_all_pickable_relays(
     mullvad_client: &mut MullvadProxyClient,
 ) -> anyhow::Result<Vec<WireguardRelay>> {
     let settings = mullvad_client.get_settings().await?;
     let relay_list = mullvad_client.get_relay_locations().await?;
-    let relays = mullvad_relay_selector::filter_matching_relay_list(
-        &helpers::get_query_from_current_settings(mullvad_client).await?,
-        &relay_list,
-        &settings.custom_lists,
-    );
-    Ok(relays)
+    let relay_selector = RelaySelector::from_settings(&settings, relay_list, BridgeList::default());
+
+    let query =
+        RelayQuery::try_from(settings).context("Failed to convert settings to relay query")?;
+    let predicate = match query.hops {
+        Hops::Single(entry_constraints) => Predicate::Singlehop(entry_constraints),
+        Hops::Auto(entry_constraints) => Predicate::Autohop(entry_constraints),
+        Hops::Multi(multihop_constraints) => Predicate::Exit(multihop_constraints),
+    };
+
+    let partitions = relay_selector.partition_relays(predicate);
+    Ok(partitions.matches)
 }
 
 /// Selects a relay compatible with the given query and relay list from the client, and returns a
@@ -778,18 +785,13 @@ async fn get_single_relay_location_contraint(
         query: RelayQuery,
         selected_relay: GetRelay,
     ) -> anyhow::Result<(WireguardRelay, RelayConstraints)> {
-        match selected_relay {
-            GetRelay::Mullvad {
-                inner: WireguardConfig::Singlehop { exit },
-                ..
-            } => {
-                let location = into_constraint(&exit);
-                let (mut relay_constraints, ..) = query.into_settings();
-                relay_constraints.location = location;
-                Ok((exit, relay_constraints))
-            }
-            unsupported => bail!("Can not constrain to a {unsupported:?}"),
-        }
+        let WireguardConfig::Singlehop { exit } = selected_relay.inner else {
+            bail!("Expected singlehop")
+        };
+        let location = into_constraint(&exit);
+        let (mut relay_constraints, ..) = query.into_settings();
+        relay_constraints.location = location;
+        Ok((exit, relay_constraints))
     }
     let settings = mullvad_client.get_settings().await?;
     let relay_list = mullvad_client.get_relay_locations().await?;
@@ -808,7 +810,7 @@ pub fn get_daemon_relay_selector(
     relay_list: mullvad_types::relay_list::RelayList,
     bridge_list: mullvad_types::relay_list::BridgeList,
 ) -> RelaySelector {
-    RelaySelector::new(Config::from_settings(settings), relay_list, bridge_list)
+    RelaySelector::from_settings(settings, relay_list, bridge_list)
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].

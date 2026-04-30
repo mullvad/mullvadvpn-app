@@ -452,7 +452,7 @@ class ManagementService(
                 val accountNumberStringValue = grpc.createNewAccount(Empty.getDefaultInstance())
                 AccountNumber(accountNumberStringValue.value)
             }
-            .onLeft { Logger.e("Create account error") }
+            .onLeft { Logger.e("Create account error ${it.message}") }
             .mapLeftStatus {
                 when (it.status.code) {
                     Status.Code.RESOURCE_EXHAUSTED -> CreateAccountError.TooManyAttempts
@@ -805,7 +805,13 @@ class ManagementService(
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
         Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
-            .mapLeft { PlayPurchaseVerifyError.OtherError }
+            .mapLeft { error ->
+                if (error is StatusException && error.status.code == Status.Code.INVALID_ARGUMENT) {
+                    PlayPurchaseVerifyError.InvalidPurchase
+                } else {
+                    PlayPurchaseVerifyError.OtherError
+                }
+            }
             .mapEmpty()
 
     suspend fun addSplitTunnelingApp(app: PackageName): Either<AddSplitTunnelingAppError, Unit> =

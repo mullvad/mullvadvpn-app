@@ -2930,6 +2930,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
+msgid "%1$d out of %2$d"
+msgstr ""
+
 msgid "%1$s more..."
 msgstr ""
 
@@ -3018,9 +3021,6 @@ msgid "Account credit expires in a few minutes"
 msgstr ""
 
 msgid "Account deleted"
-msgstr ""
-
-msgid "Account number is too long, please enter a valid number"
 msgstr ""
 
 msgid "Account number must match"
@@ -3128,7 +3128,7 @@ msgstr ""
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr ""
 
-msgid "Can't connect?"
+msgid "Can’t connect?"
 msgstr ""
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
@@ -3168,9 +3168,6 @@ msgid "Could not display remaining days."
 msgstr ""
 
 msgid "Create new list"
-msgstr ""
-
-msgid "Creating account failed"
 msgstr ""
 
 msgid "Critical error (your attention is required)"
@@ -3227,9 +3224,6 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
-msgid "Don’t have an account number?"
-msgstr ""
-
 msgid "Edit custom lists"
 msgstr ""
 
@@ -3261,6 +3255,9 @@ msgid "Enter MTU"
 msgstr ""
 
 msgid "Enter account number digits"
+msgstr ""
+
+msgid "Enter an account number"
 msgstr ""
 
 msgid "Entry relay is the same as exit relay"
@@ -3300,6 +3297,9 @@ msgid "For details, please see our %s."
 msgstr ""
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
+msgstr ""
+
+msgid "Generating..."
 msgstr ""
 
 msgid "Go to VPN settings"
@@ -3350,7 +3350,13 @@ msgstr ""
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
+msgid "Invalid IP address"
+msgstr ""
+
 msgid "Invalid IPv6 config, please try to change the VPN settings."
+msgstr ""
+
+msgid "Invalid MTU value"
 msgstr ""
 
 msgid "Invalid or missing value \"%1$s\""
@@ -3464,13 +3470,34 @@ msgstr ""
 msgid "Patch not matching specification"
 msgstr ""
 
+msgid "Please enter a message"
+msgstr ""
+
+msgid "Please enter a name"
+msgstr ""
+
+msgid "Please enter a port"
+msgstr ""
+
 msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr ""
 
 msgid "Please enter a valid remote server port"
 msgstr ""
 
+msgid "Please enter a value"
+msgstr ""
+
+msgid "Please enter an IP address"
+msgstr ""
+
+msgid "Please enter an IP override text"
+msgstr ""
+
 msgid "Please press connect to request VPN permission"
+msgstr ""
+
+msgid "Please remove a device before continuing logging in"
 msgstr ""
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
@@ -3479,10 +3506,16 @@ msgstr ""
 msgid "Please try changing your filters."
 msgstr ""
 
+msgid "Port is out of range"
+msgstr ""
+
 msgid "Privacy"
 msgstr ""
 
 msgid "Privacy policy"
+msgstr ""
+
+msgid "Read more"
 msgstr ""
 
 msgid "Recents disabled and history cleared"
@@ -3717,6 +3750,9 @@ msgid "Verifying purchase..."
 msgstr ""
 
 msgid "Verifying voucher…"
+msgstr ""
+
+msgid "Voucher code is too short"
 msgstr ""
 
 msgid "Warning"

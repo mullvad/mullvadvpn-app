@@ -41,7 +41,8 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         }
                     if !context.filter.isEmpty {
                         ActiveFilterView(
-                            activeFilter: context.filter
+                            activeFilter: context.filter,
+                            automaticLocationIsActive: context.isAutomaticLocation
                         ) { filter in
                             viewModel.onFilterTapped(filter)
                         } onRemove: { filter in
@@ -79,13 +80,21 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .listStyle(.plain)
             .coordinateSpace(.exitLocationScroll)
             .onAppear {
-                scrollToCurrentSelection(scrollProxy)
+                if viewModel.isRecentsEnabled {
+                    scrollProxy.scrollTo(topAnchor, anchor: .center)
+                } else {
+                    scrollToCurrentSelection(scrollProxy)
+                }
             }
             .onChange(of: viewModel.isRecentsEnabled) {
-                scrollToCurrentSelection(scrollProxy)
+                if viewModel.isRecentsEnabled {
+                    scrollProxy.scrollTo(topAnchor, anchor: .center)
+                } else {
+                    scrollToCurrentSelection(scrollProxy)
+                }
             }
             .onChange(of: viewModel.searchText) { oldValue, newValue in
-                if oldValue.isEmpty && !newValue.isEmpty {
+                if !newValue.isEmpty {
                     scrollProxy.scrollTo(topAnchor, anchor: .center)
                 } else if newValue.isEmpty {
                     scrollToCurrentSelection(scrollProxy)

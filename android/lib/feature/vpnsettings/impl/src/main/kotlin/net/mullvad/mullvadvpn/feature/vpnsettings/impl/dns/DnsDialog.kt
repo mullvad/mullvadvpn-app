@@ -107,7 +107,6 @@ fun DnsDialog(
             } else {
                 stringResource(R.string.update_dns_server_dialog_title)
             },
-        confirmButtonEnabled = state.isValid(),
         onResetButtonText = stringResource(id = R.string.remove_button),
         messageTextColor = MaterialTheme.colorScheme.error,
         onBack = onDismiss,
@@ -123,6 +122,10 @@ fun DnsDialog(
                 placeholderText = stringResource(R.string.custom_dns_hint),
                 errorText =
                     when {
+                        state.validationError is ValidationError.InvalidAddress.Blank ->
+                            stringResource(R.string.invalid_address_blank_warning)
+                        state.validationError is ValidationError.InvalidAddress.InvalidIp ->
+                            stringResource(R.string.invalid_address_invalid_warning)
                         state.validationError is ValidationError.DuplicateAddress ->
                             stringResource(R.string.duplicate_address_warning)
                         // Ordering is important, as we consider the lan error to have higher

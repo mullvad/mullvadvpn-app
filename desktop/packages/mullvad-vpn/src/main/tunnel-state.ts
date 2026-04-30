@@ -35,6 +35,8 @@ export default class TunnelStateHandler {
 
   // This function sets a new tunnel state as an assumed next state and saves the current state as
   // fallback. The fallback is used if the assumed next state isn't reached.
+  // The timeout is needed to move out of the "predicted" state in case an actual state is never
+  // emitted.
   public expectNextTunnelState(state: 'connecting' | 'disconnecting') {
     this.tunnelStateFallback = this.tunnelState;
 
@@ -53,23 +55,15 @@ export default class TunnelStateHandler {
   }
 
   public handleNewTunnelState(newState: TunnelState) {
-    // If there's a fallback state set then the app is in an assumed next state and need to check
-    // if it's now reached or if the current state should be ignored and set as the fallback state.
+    // Remove fallback state since we know the real state now
     if (this.tunnelStateFallback) {
-      if (this.tunnelState.state === newState.state || newState.state === 'error') {
-        this.tunnelStateFallbackScheduler.cancel();
-        this.tunnelStateFallback = undefined;
-      } else {
-        this.tunnelStateFallback = newState;
-        return;
-      }
+      this.tunnelStateFallbackScheduler.cancel();
+      this.tunnelStateFallback = undefined;
     }
 
     if (newState.state === 'disconnecting' && newState.details === 'reconnect') {
-      // When reconnecting there's no need of showing the disconnecting state. This switches to the
-      // connecting state immediately.
-      this.expectNextTunnelState('connecting');
-      this.tunnelStateFallback = newState;
+      // The reconnecting state should appear the same as the connecting state.
+      this.setTunnelState({ state: 'connecting', featureIndicators: undefined });
     } else {
       if (newState.state === 'disconnected' && newState.location !== undefined) {
         this.lastKnownDisconnectedLocation = newState.location;

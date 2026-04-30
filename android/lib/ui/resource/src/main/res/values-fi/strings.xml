@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Kun VPN-sovellus päivitetään Android 16:ssa, laitteen saattavat päätyä tilaan, jossa VPN-sovellukset eivät voi enää muodostaa yhteyttä internetiin.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %1$s ruotsiksi tai englanniksi.</string>
     <string name="android_16_upgrade_warning_message">Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja</string>
-    <string name="android_16_upgrade_warning_title">Eikö yhteyden muodostaminen onnistu?</string>
     <string name="anti_censorship">Sensuurinesto</string>
     <string name="anti_censorship_info_first_paragraph">Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b></string>
@@ -43,6 +42,7 @@
     <string name="api_reachable_adding_method">API tavoitettavissa, menetelmää lisätään...</string>
     <string name="api_unreachable">Ohjelmointirajapinta ei ole saavutettavissa</string>
     <string name="api_unreachable_save_anyway">API ei ole tavoitettavissa. Tallennetaanko menetelmä silti?</string>
+    <string name="app_icon">Sovelluksen kuvake</string>
     <string name="app_info">Sovelluksen tiedot</string>
     <string name="app_is_blocking_internet">Sovellus estää internetyhteyden, katkaise sen yhteys ensin</string>
     <string name="app_name_browser">Selain</string>
@@ -112,7 +112,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="create">Luo</string>
-    <string name="create_account_fail_title">Tilin luominen epäonnistui</string>
     <string name="create_custom_list_message">\"%1$s\" luotiin</string>
     <string name="create_new_account">Luo uusi tili</string>
     <string name="create_new_account_warning_paragraph1">Sinulla on jo tallennettu tilin numero. Kun luot uuden tilin, tallennettu tilin numero poistetaan tältä laitteelta. Toimintoa ei voi kumota.</string>
@@ -192,12 +191,12 @@
     <string name="disconnected_vpn_permission_error">Yhteys katkaistu (ei VPN-käyttöoikeutta)</string>
     <string name="disconnecting">Katkaistaan yhteyttä...</string>
     <string name="dismiss">Jätä huomiotta</string>
+    <string name="divier_or">tai</string>
     <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Poista \"%1$s\" käytöstä alla näiden asetusten aktivoimiseksi.</string>
     <string name="dns_content_blockers_warning">Tämä voi aiheuttaa ongelmia tietyillä verkkosivustoilla, palveluissa ja sovelluksissa.</string>
-    <string name="dont_have_an_account">Eikö sinulla ole tilin numeroa?</string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>
@@ -217,7 +216,7 @@
     <string name="enable_multihop">Ota multihop käyttöön</string>
     <string name="enable_recents">Ota viimeisimmät käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai Cloudflare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa osoitettasi, joka ei ole VPN-pohjainen. DoH-palvelimia isännöi joko Quad9 tai Cloudflare.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>
@@ -241,7 +240,7 @@
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
-    <string name="filter">Suodatin</string>
+    <string name="filter">Suodata</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>
@@ -289,13 +288,10 @@
     <string name="locations_were_changed_for">Kohteen \"%1$s\" sijainteja vaihdettiin</string>
     <string name="log_in">Kirjaudu sisään</string>
     <string name="log_out">Kirjaudu ulos</string>
-    <string name="logged_in_description">Oikea tilin numero</string>
     <string name="logged_in_title">Kirjautuneena sisään</string>
-    <string name="logging_in_description">Tarkistetaan tilin numeroa</string>
     <string name="logging_in_title">Kirjaudutaan sisään...</string>
     <string name="login_description">Syötä tilisi numero</string>
     <string name="login_error_api_unreachable">Yhteyden muodostaminen API:hin ei onnistu. %1$s.</string>
-    <string name="login_error_invalid_input">Tilin numero on liian pitkä. Anna kelvollinen numero.</string>
     <string name="login_error_too_many_attempts">Liian monta yritystä. Yritä myöhemmin uudelleen.</string>
     <string name="login_fail_description">Virheellinen tilin numero</string>
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>

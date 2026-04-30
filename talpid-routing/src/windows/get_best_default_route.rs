@@ -82,7 +82,7 @@ pub fn get_best_default_route(family: AddressFamily) -> Result<Option<InterfaceA
 
     // We previously filtered out all inactive routes so we only need to sort by ascending
     // effective_metric
-    annotated.sort_by(|lhs, rhs| lhs.effective_metric.cmp(&rhs.effective_metric));
+    annotated.sort_by_key(|r| r.effective_metric);
 
     annotated
         .first()

@@ -48,7 +48,8 @@ class TunnelManagerTests: XCTestCase {
         )
 
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
-            methods: AccessMethodRepositoryStub.stub.fetchAll())
+            methods: AccessMethodRepositoryStub.stub.fetchAll()
+        )
 
         apiContext = try MullvadApiContext(
             host: REST.defaultAPIHostname,
@@ -179,7 +180,7 @@ class TunnelManagerTests: XCTestCase {
 
     /// This test verifies that a refresh tunnel status operation is scheduled whenever the tunnel is being restarted
     func testReconnectingTunnelRefreshesItsStatus() async throws {
-        throw XCTSkip("TODO: Fix this flaky test or relieve it of it's misery")
+        throw XCTSkip("TODO: Fix this flaky test or relieve it of its misery")
 
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
@@ -252,7 +253,7 @@ class TunnelManagerTests: XCTestCase {
 
     /// This test verifies tunnel gets disconnected and reconnected on config reapply.
     func testReapplyingConfigDisconnectsAndReconnects() async throws {
-        throw XCTSkip("TODO: Fix this flaky test or relieve it of it's misery")
+        throw XCTSkip("TODO: Fix this flaky test or relieve it of its misery")
         var connectedExpectation = expectation(description: "Connected!")
         let disconnectedExpectation = expectation(description: "Disconnected!")
 

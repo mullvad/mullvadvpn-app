@@ -8,22 +8,19 @@ import utilities.playStagemoleDebug
 plugins {
     alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.test)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinx.serialization)
-    id("de.mannodermaus.android-junit5")
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.e2e"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig {
         minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArguments["runnerBuilder"] =
-            "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
 
         testInstrumentationRunnerArguments += buildMap {

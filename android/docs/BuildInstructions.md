@@ -46,18 +46,18 @@ or
 ### Debug build
 Run the following command to trigger a full debug build:
 ```bash
-../building/containerized-build.sh android --dev-build
+../building/containerized-build.sh android
 ```
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
 2. Run the following command to build:
 ```bash
-../building/containerized-build.sh android --app-bundle
+../building/containerized-build.sh android fullRelease
 ```
 3. Sign the release artifacts using apksigner with the following command:
 ```bash
-apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
+apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
 ```
 
 ## Build without the provided container
@@ -143,26 +143,21 @@ environment variables:
   .scripts/setup-rust install-hook
   ```
 
-#### 5. Checkout required submodules
-```bash
-git submodule update --init android/rust-android-gradle-plugin
-```
-
 ### Debug build
 Run the following command to build a debug build:
 ```bash
-../android/build.sh --dev-build
+./gradlew debug
 ```
 
 ### Release build
 1. Configure a signing key by following [these instructions](#configure-signing-key).
 2. Run the following command to build:
    ```bash
-   ../android/build.sh --app-bundle
+   ./gradlew fullRelease
    ```
 3. Sign the release artifacts using apksigner with the following command:
    ```bash
-   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab) 
+   apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
    ```
 
 ## Build using nix devshell
@@ -180,7 +175,7 @@ This is supported on Linux (x86_64) as well as macOS (x86_64 and aarch64).
    ```
    or
    ```bash
-   ./build.sh --dev-build
+   ./gradlew debug
    ```
    or
    ```bash
@@ -275,9 +270,9 @@ To maximize reproducibility when building without the container:
 
 A simple way to check that a build is reproducible across environments is to build the release version of the app with and without the container and comparing the checksums of the produced APKs.
 
-1. Build the app with the container: `../building/containerized-build.sh android --oss-only`
+1. Build the app with the container: `../building/containerized-build.sh android assembleOssProdRelease`
 1. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk release-container.apk`
-1. Build the app locally without the container: `./build.sh --oss-only`
+1. Build the app locally without the container: `./gradlew assembleOssProdRelease`
 1. Compare the checksums of the two APKs: `sha256sum release-container.apk app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk`
 
 ## Verifying that an official release is reproducible

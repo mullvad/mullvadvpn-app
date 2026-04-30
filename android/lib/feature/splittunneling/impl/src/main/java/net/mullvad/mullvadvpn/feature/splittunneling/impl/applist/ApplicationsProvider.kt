@@ -15,6 +15,7 @@ class ApplicationsProvider(
 
     private val descendingByNameComparator = compareBy<AppData> { it.name.lowercase() }
 
+    @Suppress("QueryPermissionsNeeded")
     fun apps(): List<AppData> {
         return packageManager
             .getInstalledApplications(PackageManager.GET_META_DATA)

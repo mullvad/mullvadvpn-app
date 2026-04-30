@@ -1412,11 +1412,10 @@ impl ManagementInterfaceServer {
             Err(timeout) => {
                 log::error!("Timed out while shutting down management server: {timeout}");
             }
-            Ok(join_result) => {
-                if let Err(_error) = join_result {
-                    log::error!("Management server task failed to execute until completion");
-                }
+            Ok(join_result) if let Err(_error) = &join_result => {
+                log::error!("Management server task failed to execute until completion");
             }
+            Ok(_) => {}
         }
     }
 
@@ -1486,17 +1485,11 @@ impl ManagementInterfaceEventBroadcaster {
 
     /// Notify clients about a potential leak.
     pub(crate) fn notify_leak(&self, leak: mullvad_leak_checker::LeakInfo) {
-        use mullvad_leak_checker::LeakInfo;
-        let LeakInfo::NodeReachableOnInterface {
+        log::trace!("Broadcasting leak info: {leak:#?}");
+        let mullvad_leak_checker::LeakInfo {
             reachable_nodes,
             interface,
-        } = &leak
-        else {
-            log::trace!("Matched on unexpected leak checker event: {leak:#?}");
-            return;
-        };
-
-        log::trace!("Broadcasting leak info: {leak:#?}");
+        } = &leak;
         let interface = match interface {
             mullvad_leak_checker::Interface::Name(name) => name.to_owned(),
             #[cfg(target_os = "macos")]
@@ -1579,6 +1572,8 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::RemoveDeviceError(error) => map_device_error(&error),
         DaemonError::UpdateDeviceError(error) => map_device_error(&error),
         DaemonError::VoucherSubmission(error) => map_device_error(&error),
+        #[cfg(target_os = "android")]
+        DaemonError::VerifyPlayPurchase(error) => map_device_error(&error),
         #[cfg(any(target_os = "windows", target_os = "macos"))]
         DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),

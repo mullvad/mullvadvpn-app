@@ -32,11 +32,11 @@ struct SegmentedListItem<Label: View, Segment: View, GroupedContent: View>: View
             } label: {
                 label()
                     .background(Color.colorForLevel(level))
-                    .disabled(isDisabled)
                     .sizeOfView {
                         segmentHeight = $0.height
                     }
             }
+            .disabled(isDisabled)
 
             segment()
                 .frame(width: UIMetrics.LocationList.cellMinHeight, height: segmentHeight)

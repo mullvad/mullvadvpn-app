@@ -206,11 +206,12 @@ impl RouteManagerHandle {
                     };
                     let _ = tx.send(res);
                 }
-                RouteManagerCommand::ClearRoutes => {
-                    if let Err(e) = internal.delete_applied_routes() {
-                        log::error!("{}", e.display_chain_with_msg("Could not clear routes"));
-                    }
+                RouteManagerCommand::ClearRoutes
+                    if let Err(e) = internal.delete_applied_routes() =>
+                {
+                    log::error!("{}", e.display_chain_with_msg("Could not clear routes"));
                 }
+                RouteManagerCommand::ClearRoutes => {}
                 RouteManagerCommand::RegisterDefaultRouteChangeCallback(callback, tx) => {
                     let _ = tx.send(internal.register_default_route_changed_callback(callback));
                 }

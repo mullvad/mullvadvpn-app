@@ -29,7 +29,6 @@
     <string name="android_16_upgrade_warning_dialog_first_message">پس از به‌روزرسانی یک اپلیکیشن VPN در اندروید 16، ممکن است دستگاه‌ها به حالتی برسند که اپلیکیشن‌های VPN دیگر نتوانند به اینترنت دسترسی پیدا کنند.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">لطفاً دستگاه‌تان را دوباره راه‌اندازی کنید و دوباره تلاش کنید وصل شوید. اگر مشکل برطرف نشد، لطفاً یک ایمیل به %1$s به زبان سوئدی یا انگلیسی بنویسید.</string>
     <string name="android_16_upgrade_warning_message">‏اندروید 16 یک مشکل شناخته‌شده دارد. لطفاً دستگاه‌تان را مجدد راه‌اندازی کرده و دوباره امتحان کنید. برای کسب اطلاعات بیشتر،</string>
-    <string name="android_16_upgrade_warning_title">اتصال برقرار نمی‌شود؟</string>
     <string name="anti_censorship">ضد سانسور</string>
     <string name="anti_censorship_info_first_paragraph">این روش‌ها ممکن است زمانی مفید باشند که دسترسی شما به Mullvad مسدود شده باشد. وقتی «خودکار» انتخاب شود، اپلیکیشن همهٔ روش‌ها را امتحان می‌کند تا یکی از آن‌ها کار کند.</string>
     <string name="anti_censorship_info_second_paragraph"><b>لطفاً توجه داشته باشید که این روش‌ها کارایی را بهبود نمی‌بخشند و ممکن است مصرف سیستم و باتری را افزایش دهند.</b></string>
@@ -43,6 +42,7 @@
     <string name="api_reachable_adding_method">API در دسترس است، روش در حال افزودن است...</string>
     <string name="api_unreachable">API غیرقابل‌دسترسی است</string>
     <string name="api_unreachable_save_anyway">API در دسترس نیست، بااین‌حال روش ذخیره شود؟</string>
+    <string name="app_icon">آیکون اپلیکیشن</string>
     <string name="app_info">اطلاعات اپلیکیشن</string>
     <string name="app_is_blocking_internet">اپلیکیشن دسترسی به اینترنت را مسدود کرده است؛ لطفاً ابتدا قطع اتصال کنید</string>
     <string name="app_name_browser">مرورگر</string>
@@ -112,7 +112,6 @@
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s‏، %2$s‏، %3$s</string>
     <string name="create">ایجاد کردن</string>
-    <string name="create_account_fail_title">ایجاد حساب کاربری ناموفق بود</string>
     <string name="create_custom_list_message">%1$s ایجاد شد</string>
     <string name="create_new_account">ایجاد حساب جدید</string>
     <string name="create_new_account_warning_paragraph1">شما از قبل یک شمارهٔ حساب ذخیره‌شده دارید. با ایجاد حساب جدید، شمارهٔ حساب ذخیره‌شده از این دستگاه حذف خواهد شد. این عمل قابل بازگشت نیست.</string>
@@ -192,12 +191,12 @@
     <string name="disconnected_vpn_permission_error">قطع اتصال (بدون اجازه VPN)</string>
     <string name="disconnecting">در حال قطع اتصال...</string>
     <string name="dismiss">رد کردن</string>
+    <string name="divier_or">یا</string>
     <string name="dns_content_blockers">مسدودکننده‌های محتوای DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">توجه: این تنظیم نمی‌تواند همراه با «استفاده از سرور DNS سفارشی» به‌کار برود.</string>
     <string name="dns_content_blockers_info">وقتی این ویژگی فعال باشد، دستگاه از تماس با برخی دامنه‌ها یا وب‌سایت‌هایی که به توزیع تبلیغات، بدافزار، ردیاب‌ها و موارد دیگر شناخته می‌شوند جلوگیری می‌کند.</string>
     <string name="dns_content_blockers_subtitle">برای فعال کردن این تنظیمات، «%1$s» را در بخش زیر غیرفعال کنید.</string>
     <string name="dns_content_blockers_warning">این ممکن است باعث بروز مشکل در برخی وب‌سایت‌ها، سرویس‌ها و اپلیکیشن‌ها شود.</string>
-    <string name="dont_have_an_account">شماره حساب ندارید؟</string>
     <string name="duplicate_address_warning">این نشانی قبلاً وارد شده است.</string>
     <string name="edit_custom_lists">ویرایش فهرست‌های سفارشی</string>
     <string name="edit_list">ویرایش فهرست</string>
@@ -217,7 +216,7 @@
     <string name="enable_multihop">فعال کردن مولتی‌هاپ</string>
     <string name="enable_recents">فعال کردن موارد اخیر</string>
     <string name="encrypted_dns_proxy_info_message_part1">با روش «پروکسی DNS رمزگذاری‌شده»، اپلیکیشن از طریق یک آدرس پروکسی با Mullvad API ارتباط برقرار می‌کند. این کار با گرفتن یک آدرس از سرور DNS over HTTPS (DoH) و سپس استفاده از آن برای دسترسی به سرورهای API ما انجام می‌شود.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">اگر به VPN ما متصل نباشید، پروکسی DNS رمزگذاری‌شده هنگام اتصال از IP غیرِ VPN شما استفاده می‌کند. سرورهای DoH توسط یکی از ارائه‌دهندگان زیر میزبانی می‌شوند: ‏Quad9 یا Cloudflare.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">اگر به VPN ما متصل نباشید، پروکسی DNS رمزگذاری‌شده هنگام اتصال از IP غیرِ VPN خودتان استفاده می‌کند. سرورهای DoH توسط یکی از ارائه‌دهندگان زیر میزبانی می‌شوند: ‏Quad9 یا Cloudflare.</string>
     <string name="enter_value_placeholder">وارد کردن MTU</string>
     <string name="enter_voucher_code">کد ووچر را وارد کنید</string>
     <string name="entry">ورود</string>
@@ -289,13 +288,10 @@
     <string name="locations_were_changed_for">مکان‌ها برای «%1$s» تغییر یافتند</string>
     <string name="log_in">ورود به سیستم</string>
     <string name="log_out">خروج از حساب کاربری</string>
-    <string name="logged_in_description">شمارهٔ حساب معتبر</string>
     <string name="logged_in_title">وارد شده‌اید</string>
-    <string name="logging_in_description">در حال بررسی شمارهٔ حساب</string>
     <string name="logging_in_title">در حال ورود...</string>
     <string name="login_description">شمارهٔ حساب خود را وارد کنید</string>
     <string name="login_error_api_unreachable">امکان دسترسی به API وجود ندارد، %1$s</string>
-    <string name="login_error_invalid_input">شمارهٔ حساب خیلی طولانی است، لطفاً یک شمارهٔ معتبر وارد کنید</string>
     <string name="login_error_too_many_attempts">تعداد تلاش‌ها زیاد بود؛ لطفاً بعداً دوباره امتحان کنید</string>
     <string name="login_fail_description">شمارهٔ حساب نامعتبر است</string>
     <string name="login_fail_title">ورود ناموفق بود</string>

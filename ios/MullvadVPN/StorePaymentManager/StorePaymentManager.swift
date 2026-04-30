@@ -69,6 +69,8 @@ final actor StorePaymentManager: @unchecked Sendable {
     }
 
     func purchase(product: Product) async {
+        logger.debug("Purchasing product: \(product.id)")
+
         let token: UUID
         do {
             token = try await self.getPaymentToken()
@@ -140,12 +142,16 @@ final actor StorePaymentManager: @unchecked Sendable {
     }
 
     static func finishOutstandingSandboxAndOldAPITransactions() async {
+        let logger = Logger(label: "StorePaymentManager")
+
+        logger.debug("Finishing outstanding sandbox and old transactions")
+
         for await verification in Transaction.unfinished {
             guard let payload = try? verification.payloadValue else {
+                logger.debug("Verification is missing a valid payload")
                 continue
             }
 
-            let logger = Logger(label: "StorePaymentManager")
             logger.debug("Unfinished transaction environment is \(payload.environment)")
 
             let isStagingEnvironment = payload.environment != .production
@@ -155,8 +161,13 @@ final actor StorePaymentManager: @unchecked Sendable {
 
             if isStagingEnvironment || isOldAPI {
                 logger.debug(
-                    "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)")
+                    "Finishing transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)"
+                )
                 await payload.finish()
+            } else {
+                logger.debug(
+                    "Skipping transaction. isStagingEnvironment: \(isStagingEnvironment), isOldAPI: \(isOldAPI)"
+                )
             }
         }
     }
@@ -173,7 +184,15 @@ final actor StorePaymentManager: @unchecked Sendable {
     }
 
     private func uploadReceipt(verification: VerificationResult<Transaction>) async throws {
-        logger.debug("Uploading receipt")
+        let payload = try verification.payloadValue
+
+        let logMessage: String =
+            "Uploading receipt. "
+            + "Product ID: \(payload.productID), "
+            + "Environment: \(payload.environment), "
+            + "Purchase date: \(payload.purchaseDate.safeLogFormatted), "
+            + "Revocation date: \(payload.revocationDate?.safeLogFormatted ?? "none")"
+        logger.debug(.init(stringLiteral: logMessage))
 
         let result = await interactor.checkPayment(jwsRepresentation: verification.jwsRepresentation)
 
@@ -210,7 +229,7 @@ final actor StorePaymentManager: @unchecked Sendable {
 
         switch result {
         case let .success(accountData):
-            logger.info("Successfully updated account data. New expiry: \(accountData.expiry.logFormatted)")
+            logger.info("Successfully updated account data. New expiry: \(accountData.expiry.safeLogFormatted)")
             await interactor.updateAccountData(for: accountData)
 
         case let .failure(error):

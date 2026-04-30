@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
@@ -39,6 +40,7 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.CommonContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.ContentType
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.appItems
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.excludedAppsHeaderItem
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.headerItem
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -101,6 +103,7 @@ fun SearchSplitTunnelingScreen(
             val context = LocalContext.current
             val packageManager = remember(context) { context.packageManager }
             LazyColumn(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
                     Modifier.fillMaxSize()
                         .padding(horizontal = Dimens.mediumPadding)
@@ -156,10 +159,12 @@ private fun LazyListScope.appList(
         item { NoAppsMatchingSearch(state.searchTerm) }
     }
     if (state.excludedApps.isNotEmpty()) {
-        headerItem(
+        excludedAppsHeaderItem(
             key = SplitTunnelingContentKey.EXCLUDED_APPLICATIONS,
             textId = R.string.exclude_applications,
             enabled = true,
+            exludedAppsCount = state.excludedApps.size,
+            includedAppsCount = state.includedApps.size,
         )
         appItems(
             apps = state.excludedApps,

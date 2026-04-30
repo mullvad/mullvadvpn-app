@@ -1,7 +1,10 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import utilities.PreBuildTask
+import utilities.appVersionProvider
 import utilities.isNonStableVersion
+import utilities.isReleaseBuild
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -11,11 +14,10 @@ plugins {
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.play.publisher) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
-    id("net.mullvad.rust-android") apply false
+    alias(libs.plugins.rust.android) apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
@@ -124,3 +126,23 @@ tasks.withType<DependencyUpdatesTask> {
 }
 
 tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
+
+// The preflight configuration is done at the project root level to ensure
+// it runs before any other build tasks. This is a known limitation:
+// https://github.com/gradle/gradle/issues/29064
+//
+// The substringAfterLast split is used in order to catch both the plain
+// and fully qualified task names ("fdroidRelease" and ":app:fdroidRelease").
+val preflightSkipDirtyCheck =
+    gradle.startParameter.taskNames.any { it.substringAfterLast(':') == "fdroidRelease" }
+val releasePreflight =
+    tasks.register<PreBuildTask>("releasePreflight") {
+        this.skipDirtyCheck.set(preflightSkipDirtyCheck)
+        this.versionName.set(appVersionProvider.map { it.name })
+    }
+
+if (isReleaseBuild()) {
+    allprojects {
+        tasks.configureEach { if (name != "releasePreflight") dependsOn(releasePreflight) }
+    }
+}

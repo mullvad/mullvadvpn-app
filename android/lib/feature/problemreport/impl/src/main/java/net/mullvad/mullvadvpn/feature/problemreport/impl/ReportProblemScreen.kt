@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.Icon
@@ -59,6 +61,8 @@ import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.mullvadDarkTextFieldColors
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
@@ -67,6 +71,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha40
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
 import org.koin.androidx.compose.koinViewModel
@@ -155,11 +160,17 @@ private fun ReportProblemScreen(
                 }
             }
         } else {
+            val scrollState = rememberScrollState()
             Column(
                 modifier =
                     Modifier
                         .imePadding() // imePadding needs to be applied before the parent modifier.
                         .then(modifier)
+                        .drawVerticalScrollbar(
+                            state = scrollState,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
+                        )
+                        .verticalScroll(state = scrollState)
                         .padding(
                             start = Dimens.sideMargin,
                             end = Dimens.sideMargin,
@@ -213,7 +224,11 @@ private fun InputContent(
             ),
     )
 
-    ProblemMessageTextField(value = state.description, onDescriptionChanged = onDescriptionChanged)
+    ProblemMessageTextField(
+        value = state.description,
+        isError = state.descriptionError != null,
+        onDescriptionChanged = onDescriptionChanged,
+    )
 
     if (state.showIncludeAccountId) {
         IncludeAccountInformationCheckBox(
@@ -234,11 +249,7 @@ private fun InputContent(
             isLoading = state.logCollectingState == LogCollectingState.Loading,
         )
         Spacer(modifier = Modifier.height(Dimens.buttonSpacing))
-        VariantButton(
-            onClick = onSendReport,
-            isEnabled = state.description.isNotEmpty(),
-            text = stringResource(id = R.string.send),
-        )
+        VariantButton(onClick = onSendReport, text = stringResource(id = R.string.send))
     }
 }
 
@@ -367,6 +378,7 @@ private fun AccountInformationWarning(
 private fun ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
+    isError: Boolean,
     onDescriptionChanged: (String) -> Unit,
 ) {
 
@@ -378,6 +390,11 @@ private fun ProblemMessageTextField(
         value = value,
         onValueChange = onDescriptionChanged,
         placeholder = { Text(stringResource(R.string.user_message_hint)) },
+        isError = isError,
+        supportingText =
+            if (isError) {
+                { ErrorSupportingText(stringResource(R.string.report_problem_message_is_empty)) }
+            } else null,
         colors = mullvadDarkTextFieldColors(),
         keyboardOptions =
             KeyboardOptions(

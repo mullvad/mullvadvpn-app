@@ -6,10 +6,12 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import StoreKit
 import UIKit
 
 class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
+    private let logger = Logger(label: "InAppPurchaseViewController")
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
     private let paymentAction: PaymentAction
@@ -81,6 +83,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func startRestorationBeforePurchaseFlow() async {
+        logger.debug("Restoring purchases before starting payment flow")
         spinnerView.startAnimating()
 
         do {
@@ -106,6 +109,7 @@ class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     }
 
     func startPaymentFlow() async {
+        logger.debug("Starting payment flow")
         spinnerView.startAnimating()
 
         var products: [Product]

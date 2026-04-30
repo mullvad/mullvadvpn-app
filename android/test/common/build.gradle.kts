@@ -5,13 +5,13 @@ import utilities.Flavors
 plugins {
     alias(libs.plugins.mullvad.utilities)
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
 }
 
 android {
     namespace = "net.mullvad.mullvadvpn.test.common"
-    compileSdk = libs.versions.compile.sdk.get().toInt()
+    compileSdk = libs.versions.compile.sdk.major.get().toInt()
+    compileSdkMinor = libs.versions.compile.sdk.minor.get().toInt()
     buildToolsVersion = libs.versions.build.tools.get()
 
     defaultConfig { minSdk = libs.versions.min.sdk.get().toInt() }

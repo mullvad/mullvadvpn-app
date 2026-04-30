@@ -8,6 +8,8 @@ on:
       - android/lib/resource/src/**/plurals.xml
       - android/lib/resource/src/**/strings.xml
       - desktop/packages/mullvad-vpn/**
+      - ios/Assets/Localizable.xcstrings
+      - scripts/check-apostrophe-style
       - '!**/osv-scanner.toml'
   workflow_dispatch:
 
@@ -30,7 +32,11 @@ jobs:
       - name: Install JS dependencies
         working-directory: desktop
         shell: bash
-        run: npm ci
+        run: npm run ci
+
+      - name: Check apostrophe style
+        shell: bash
+        run: scripts/check-apostrophe-style
 
       - name: Verify translations
         shell: bash
