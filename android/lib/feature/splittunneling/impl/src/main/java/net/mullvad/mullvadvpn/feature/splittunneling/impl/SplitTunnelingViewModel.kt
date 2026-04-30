@@ -35,19 +35,11 @@ class SplitTunnelingViewModel(
                         enabled = enabled,
                         excludedApps =
                             splitApps.excludedApps.map {
-                                AppItem(
-                                    title = it.name,
-                                    packageName = it.packageName,
-                                    highlight = "",
-                                )
+                                AppItem(title = it.name, packageName = it.packageName)
                             },
                         includedApps =
                             splitApps.includedApps.map {
-                                AppItem(
-                                    title = it.name,
-                                    packageName = it.packageName,
-                                    highlight = "",
-                                )
+                                AppItem(title = it.name, packageName = it.packageName)
                             },
                         showSystemApps = showSystemApps,
                         isModal = isModal,

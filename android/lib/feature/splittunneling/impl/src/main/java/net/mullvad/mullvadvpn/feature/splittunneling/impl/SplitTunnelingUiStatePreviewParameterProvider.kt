@@ -14,32 +14,20 @@ class SplitTunnelingUiStatePreviewParameterProvider :
             SplitTunnelingUiState(
                     enabled = true,
                     excludedApps =
-                        excludedApps.map {
-                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
-                        },
+                        excludedApps.map { AppItem(title = it.name, packageName = it.packageName) },
                     includedApps =
-                        includedApps.map {
-                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
-                        },
+                        includedApps.map { AppItem(title = it.name, packageName = it.packageName) },
                     showSystemApps = true,
                 )
                 .toLc(),
             SplitTunnelingUiState(
                     enabled = true,
                     excludedApps =
-                        excludedApps.map {
-                            AppItem(title = it.name, packageName = it.packageName, highlight = "")
-                        },
+                        excludedApps.map { AppItem(title = it.name, packageName = it.packageName) },
                     includedApps =
                         includedApps
                             .filter { !it.isSystemApp }
-                            .map {
-                                AppItem(
-                                    title = it.name,
-                                    packageName = it.packageName,
-                                    highlight = "",
-                                )
-                            },
+                            .map { AppItem(title = it.name, packageName = it.packageName) },
                     showSystemApps = false,
                 )
                 .toLc(),

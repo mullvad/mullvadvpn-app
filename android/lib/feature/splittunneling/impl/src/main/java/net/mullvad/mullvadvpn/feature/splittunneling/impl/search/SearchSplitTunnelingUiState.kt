@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.splittunneling.impl.search
 
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.AppItem
-import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 
 data class SearchSplitTunnelingUiState(
     val searchTerm: String,

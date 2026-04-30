@@ -63,7 +63,7 @@ sealed interface RelayListItem {
 
     data class CustomListItem(
         override val item: RelayItem.CustomList,
-        override val highlight: String,
+        override val highlight: String = "",
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
@@ -105,7 +105,7 @@ sealed interface RelayListItem {
 
     data class GeoLocationItem(
         override val item: RelayItem.Location,
-        override val highlight: String,
+        override val highlight: String = "",
         override val isSelected: Boolean = false,
         override val hierarchy: Hierarchy,
         override val expanded: Boolean = false,
@@ -159,7 +159,7 @@ sealed interface RelayListItem {
 
 data class CheckableRelayListItem(
     val item: RelayItem.Location,
-    val highlight: String,
+    val highlight: String = "",
     val checked: Boolean = false,
     val expanded: Boolean = false,
     val itemPosition: Position = Position.Single,
