@@ -95,11 +95,16 @@ function update_product_version {
         $product_version_path
 }
 
+function commit_relay_list {
+    print_and_run $REPO_ROOT/scripts/commit-relay-list "$PRODUCT_VERSION"
+}
+
 checks
 check_changelog
 update_changelog
 update_copyright_year
 update_product_version
+commit_relay_list
 
 log_success "\n================================================="
 log_success "| DONE preparing for a release!                 |"
