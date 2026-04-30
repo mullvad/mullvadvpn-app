@@ -21,5 +21,5 @@ fun createEdgeToEdgeComposeExtension() =
             ActivityScenario.launch(ComponentActivity::class.java).onActivity {
                 WindowCompat.setDecorFitsSystemWindows(it.window, false)
             }
-        }
+        },
     )
