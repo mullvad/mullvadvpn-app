@@ -1,12 +1,24 @@
-use hyper::header::Entry;
+use crate::get_string;
 use regex::Regex;
 use std::borrow::Cow;
 use std::ffi::c_char;
-
-use crate::get_string;
+use std::ffi::CString;
 
 #[repr(C)]
-struct LogRedactor {
+pub struct RedactionConfig {
+    pub redact_account_numbers: bool,
+    pub redact_ipv4: bool,
+    pub redact_ipv6: bool,
+
+    pub container_paths: *const *const c_char,
+    pub container_paths_len: usize,
+
+    pub custom_strings: *const *const c_char,
+    pub custom_strings_len: usize,
+}
+
+#[repr(C)]
+pub struct LogRedactor {
     ptr: *mut LogRedactorInner,
 }
 impl LogRedactor {
@@ -17,37 +29,52 @@ impl LogRedactor {
 
 struct LogRedactorInner {
     account_number_regex: regex::Regex,
-    network_info_regex: regex::Regex,
+    ipv4_regex: regex::Regex,
+    ipv6_regex: regex::Regex
 }
 
 impl LogRedactorInner {
     fn new() -> Self {
-        let boundary = "[^0-9a-zA-Z.:]";
-        let combined_pattern = format!(
-            "(?P<start>^|{})(?:{}|{}|{})",
-            boundary,
-            Self::build_ipv4_regex(),
-            Self::build_ipv6_regex(),
-            Self::build_mac_regex(),
-        );
-
         Self {
             account_number_regex: Regex::new("\\d{16}").unwrap(),
-            network_info_regex: Regex::new(&combined_pattern).unwrap(),
+            ipv4_regex: Regex::new(&Self::build_ipv4_regex()).unwrap(),
+            ipv6_regex: Regex::new(&Self::build_ipv6_regex()).unwrap()
         }
     }
 
-    fn redact_log(&self, log: &str) -> Option<String> {
-        let redacted_log_entry = self.redact_account_number(log);
-        let redacted_network_info = self.redact_network_info(&redacted_log_entry);
+    fn redact_log(&self, input: &str, config: &RedactionConfig) -> Option<String> {
+        let mut current = input.to_string();
 
-        let is_redacted = [&redacted_log_entry, &redacted_network_info]
-            .iter()
-            .any(|entry| matches!(entry, Cow::Owned(_)));
-        if is_redacted {
-            Some(redacted_network_info.to_string())
-        } else {
+        if config.redact_account_numbers { 
+                current = self.redact_account_number(&current).into_owned();
+        }
+
+        if config.redact_ipv4 {
+            current = self.redact_ipv4(&current).into_owned();
+        }
+
+        if config.redact_ipv6 {
+            current = self.redact_ipv6(&current).into_owned();
+        }
+
+        let container_paths =
+            unsafe { LogRedactorInner::to_vec(config.container_paths, config.container_paths_len) };
+
+        let custom_strings =
+            unsafe { LogRedactorInner::to_vec(config.custom_strings, config.custom_strings_len) };
+
+        for path in &container_paths {
+            current = current.replace(path, "[REDACTED CONTAINER PATH]");
+        }
+
+        for s in &custom_strings {
+            current = current.replace(s, "[REDACTED]");
+        }
+
+        if current == input {
             None
+        } else {
+            Some(current)
         }
     }
 
@@ -56,9 +83,12 @@ impl LogRedactorInner {
             .replace_all(input, "[REDACTED ACCOUNT NUMBER]")
     }
 
-    fn redact_network_info<'a>(&self, input: &'a str) -> Cow<'a, str> {
-        self.network_info_regex
-            .replace_all(input, "$start[REDACTED]")
+    fn redact_ipv4<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.ipv4_regex.replace_all(input, "[REDACTED]")
+    }
+
+    fn redact_ipv6<'a>(&self, input: &'a str) -> Cow<'a, str> {
+        self.ipv6_regex.replace_all(input, "[REDACTED]")
     }
 
     fn build_ipv4_regex() -> String {
@@ -107,12 +137,18 @@ impl LogRedactorInner {
             "{long}|{link_local}|{ipv4_mapped}|{ipv4_embedded}|{compressed_8}|{compressed_7}|{compressed_6}|{compressed_5}|{compressed_4}|{compressed_3}|{compressed_2}|{compressed_1}",
         )
     }
-    fn build_mac_regex() -> String {
-        let octet = "[[:xdigit:]]{2}"; // 0 - ff
 
-        // five pairs of two hexadecimal chars followed by colon or dash
-        // followed by a pair of hexadecimal chars
-        format!("(?:{octet}[:-]){{5}}({octet})")
+    unsafe fn to_vec(ptr: *const *const c_char, len: usize) -> Vec<String> {
+        let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
+
+        slice
+            .iter()
+            .map(|&p| {
+                unsafe { std::ffi::CStr::from_ptr(p) }
+                    .to_string_lossy()
+                    .into_owned()
+            })
+            .collect()
     }
 }
 
@@ -125,17 +161,38 @@ pub extern "C" fn init_log_redactor() -> LogRedactor {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn drop_log_redactor(redactor: LogRedactor) {
-    unsafe {
-        Box::from_raw(redactor.ptr);
+       if !redactor.ptr.is_null() {
+        // SAFETY: `redactor.ptr` must be properly aligned and non-null
+        // The caller must guarantee that `redactor.ptr` is not null and has not been freed
+        unsafe {
+            drop(Box::from_raw(redactor.ptr));
+        }
     }
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn redact_log(redactor: LogRedactor, log: *const c_char) -> *mut c_char {
-    let log_str = unsafe { get_string(log) };
+pub extern "C" fn redact_log(
+    redactor: LogRedactor,
+    input: *const c_char,
+    config: *const RedactionConfig,
+) -> *mut c_char {
+    let log_str = unsafe { get_string(input) };
     let log_redactor = unsafe { redactor.inner() };
-    match log_redactor.redact_log(&log_str) {
+    let redaction_config = unsafe { &*config };
+    match log_redactor.redact_log(&log_str, &redaction_config) {
         None => std::ptr::null_mut(),
-        Some(cow_str) => std::ffi::CString::new(cow_str).unwrap_or_default().into_raw(),
+        Some(cow_str) => std::ffi::CString::new(cow_str)
+            .unwrap_or_default()
+            .into_raw(),
+    }
+}
+
+#[unsafe(no_mangle)]
+pub extern "C" fn free_rust_string(ptr: *mut c_char) {
+    if ptr.is_null() {
+        return;
+    }
+    unsafe {
+        drop(CString::from_raw(ptr));
     }
 }

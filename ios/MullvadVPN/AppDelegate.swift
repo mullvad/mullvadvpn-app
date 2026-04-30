@@ -421,7 +421,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(AppLogRedactor())
 
         // Initialize Rust logging to forward to Swift Logger
         RustLogging.initialize()

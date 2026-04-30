@@ -7,11 +7,9 @@
 //
 
 import Foundation
+import MullvadLogging
 
 private let kLogDelimiter = "===================="
-private let kRedactedPlaceholder = "[REDACTED]"
-private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
-private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
 class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
     typealias Metadata = KeyValuePairs<MetadataKey, String>
@@ -33,15 +31,18 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
 
     private let logQueue = DispatchQueue(label: "com.mullvad.consolidation.logs.queue")
     private var logs: [LogAttachment] = []
+    private var redactor: LogRedactorProtocol
 
     init(
         redactCustomStrings: [String]? = nil,
         redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String],
-        bufferSize: UInt64
+        bufferSize: UInt64,
+        redactor: LogRedactorProtocol = SwiftLogRedactor()
     ) {
         metadata = Self.makeMetadata()
         self.redactCustomStrings = redactCustomStrings
         self.bufferSize = bufferSize
+        self.redactor = redactor
 
         applicationGroupContainers =
             securityGroupIdentifiers
@@ -169,74 +170,15 @@ class ConsolidatedApplicationLog: TextOutputStreamable, @unchecked Sendable {
         }
     }
 
-    private func redactCustomStrings(in string: String) -> String {
-        guard let customStrings = redactCustomStrings,
-            !customStrings.isEmpty
-        else {
-            return string
-        }
-        return customStrings.reduce(string) { resultString, redact in
-            resultString.replacingOccurrences(of: redact, with: kRedactedPlaceholder)
-        }
-    }
-
-    public func redact(string: String) -> String {
-        var result = string
-        result = redactContainerPaths(string: result)
-        result = redactAccountNumber(string: result)
-        result = redactIPv4Address(string: result)
-        result = redactIPv6Address(string: result)
-        result = redactCustomStrings(in: result)
-        return result
-    }
-
-    private func redactContainerPaths(string: String) -> String {
-        applicationGroupContainers.reduce(string) { resultString, containerURL -> String in
-            resultString.replacingOccurrences(
-                of: containerURL.path,
-                with: kRedactedContainerPlaceholder
-            )
-        }
-    }
-
-    private func redactAccountNumber(string: String) -> String {
-        // swift-format-ignore: NeverUseForceTry
-        redact(
-            regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
-            string: string,
-            replacementString: kRedactedAccountPlaceholder
-        )
-    }
-
-    private func redactIPv4Address(string: String) -> String {
-        redact(
-            regularExpression: NSRegularExpression.ipv4RegularExpression,
-            string: string,
-            replacementString: kRedactedPlaceholder
-        )
-    }
-
-    private func redactIPv6Address(string: String) -> String {
-        redact(
-            regularExpression: NSRegularExpression.ipv6RegularExpression,
-            string: string,
-            replacementString: kRedactedPlaceholder
-        )
-    }
-
-    private func redact(
-        regularExpression: NSRegularExpression,
-        string: String,
-        replacementString: String
-    ) -> String {
-        let nsRange = NSRange(string.startIndex..<string.endIndex, in: string)
-        let template = NSRegularExpression.escapedTemplate(for: replacementString)
-
-        return regularExpression.stringByReplacingMatches(
-            in: string,
-            options: [],
-            range: nsRange,
-            withTemplate: template
-        )
+    private func redact(string: String) -> String {
+        return redactor.redact(
+            string,
+            using: [
+                .accountNumbers,
+                .ipv4,
+                .ipv6,
+                .customStrings(redactCustomStrings ?? []),
+                .containerPaths(applicationGroupContainers),
+            ])
     }
 }

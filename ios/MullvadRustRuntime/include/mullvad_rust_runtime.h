@@ -114,6 +114,16 @@ typedef struct LogRedactor {
   struct LogRedactorInner *ptr;
 } LogRedactor;
 
+typedef struct RedactionConfig {
+  bool redact_account_numbers;
+  bool redact_ipv4;
+  bool redact_ipv6;
+  const char *const *container_paths;
+  uintptr_t container_paths_len;
+  const char *const *custom_strings;
+  uintptr_t custom_strings_len;
+} RedactionConfig;
+
 /**
  * Callback function type for logging.
  * - `level`: The log level (1=Error, 2=Warn, 3=Info, 4=Debug, 5=Trace)
@@ -841,7 +851,11 @@ struct LogRedactor init_log_redactor(void);
 
 void drop_log_redactor(struct LogRedactor redactor);
 
-char *redact_log(struct LogRedactor redactor, const char *log);
+char *redact_log(struct LogRedactor redactor,
+                 const char *input,
+                 const struct RedactionConfig *config);
+
+void free_rust_string(char *ptr);
 
 /**
  * Initialize the Rust logger with a Swift callback.

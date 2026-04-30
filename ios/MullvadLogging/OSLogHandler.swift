@@ -13,6 +13,7 @@ import os
 public struct OSLogHandler: LogHandler {
     public var metadata: Logging.Logger.Metadata = [:]
     public var logLevel: Logging.Logger.Level = .debug
+    public var logRedactor: AppLogRedactorProtocol
 
     private let label: String
     private let osLog: OSLog
@@ -39,9 +40,10 @@ public struct OSLogHandler: LogHandler {
         }
     }
 
-    public init(subsystem: String, category: String) {
-        label = category
-        osLog = OSLogHandler.getOSLog(subsystem: subsystem, category: category)
+    public init(subsystem: String, category: String, logRedactor: AppLogRedactorProtocol) {
+        self.label = category
+        self.osLog = OSLogHandler.getOSLog(subsystem: subsystem, category: category)
+        self.logRedactor = logRedactor
     }
 
     public subscript(metadataKey metadataKey: String) -> Logging.Logger.Metadata.Value? {

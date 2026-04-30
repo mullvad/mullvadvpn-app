@@ -8,18 +8,21 @@
 
 import Foundation
 import Logging
+import MullvadTypes
 
 // FIXME: remobe @unchecked Sendable when we upgrade to Xcode26 everywhere
 public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
     public var metadata: Logger.Metadata = [:]
     public var logLevel: Logger.Level = .debug
 
+    public let logRedactor: AppLogRedactorProtocol?
     private let label: String
     private let streams: [TextOutputStream]
 
-    public init(label: String, streams: [TextOutputStream]) {
+    public init(label: String, streams: [TextOutputStream], logRedactor: AppLogRedactorProtocol) {
         self.label = label
         self.streams = streams
+        self.logRedactor = logRedactor
     }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {
@@ -47,7 +50,8 @@ public struct CustomFormatLogHandler: @unchecked Sendable, LogHandler {
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" : " \(prettyMetadata)"
         let timestamp = Date().logFormatted
-        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(message)\n"
+        let redactedMessage = logRedactor?.redact(message.description) ?? message.description
+        let formattedMessage = "[\(timestamp)][\(label)][\(level)]\(metadataOutput) \(redactedMessage)\n"
 
         for var stream in streams {
             stream.write(formattedMessage)

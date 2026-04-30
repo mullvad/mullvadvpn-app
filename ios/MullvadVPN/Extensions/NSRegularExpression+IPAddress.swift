@@ -25,27 +25,40 @@ extension NSRegularExpression {
     static var ipv6RegularExpression: NSRegularExpression {
         // Regular expression obtained from:
         // https://stackoverflow.com/a/17871737
-        let pattern = #"""
-                # IPv6 RegEx
-                (
-                ([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|          # 1:2:3:4:5:6:7:8
-                ([0-9a-fA-F]{1,4}:){1,7}:|                         # 1::                              1:2:3:4:5:6:7::
-                ([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|         # 1::8             1:2:3:4:5:6::8  1:2:3:4:5:6::8
-                ([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|  # 1::7:8           1:2:3:4:5::7:8  1:2:3:4:5::8
-                ([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|  # 1::6:7:8         1:2:3:4::6:7:8  1:2:3:4::8
-                ([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|  # 1::5:6:7:8       1:2:3::5:6:7:8  1:2:3::8
-                ([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|  # 1::4:5:6:7:8     1:2::4:5:6:7:8  1:2::8
-                [0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|       # 1::3:4:5:6:7:8   1::3:4:5:6:7:8  1::8
-                :((:[0-9a-fA-F]{1,4}){1,7}|:)|                     # ::2:3:4:5:6:7:8  ::2:3:4:5:6:7:8 ::8       ::
-                fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|     # fe80::7:8%eth0   fe80::7:8%1     (link-local IPv6 addresses with zone index)
-                ::(ffff(:0{1,4}){0,1}:){0,1}
-                ((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}
-                (25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|          # ::255.255.255.255   ::ffff:255.255.255.255  ::ffff:0:255.255.255.255  (IPv4-mapped IPv6 addresses and IPv4-translated addresses)
-                ([0-9a-fA-F]{1,4}:){1,4}:
-                ((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}
-                (25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])           # 2001:db8:3:4::192.0.2.33  64:ff9b::192.0.2.33 (IPv4-Embedded IPv6 Address)
-                )
-            """#
+
+        let ipv4Segment = "(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])"
+        let ipv4Address = "(\(ipv4Segment)\\.){3,3}\(ipv4Segment)"
+
+        let ipv6Segment = "[0-9a-fA-F]{1,4}"
+
+        let long = "(\(ipv6Segment):){7,7}\(ipv6Segment)"
+        let compressed1 = "(\(ipv6Segment):){1,7}:"
+        let compressed2 = "(\(ipv6Segment):){1,6}:\(ipv6Segment)"
+        let compressed3 = "(\(ipv6Segment):){1,5}(:\(ipv6Segment)){1,2}"
+        let compressed4 = "(\(ipv6Segment):){1,4}(:\(ipv6Segment)){1,3}"
+        let compressed5 = "(\(ipv6Segment):){1,3}(:\(ipv6Segment)){1,4}"
+        let compressed6 = "(\(ipv6Segment):){1,2}(:\(ipv6Segment)){1,5}"
+        let compressed7 = "\(ipv6Segment):((:\(ipv6Segment)){1,6})"
+        let compressed8 = ":((:\(ipv6Segment)){1,7}|:)"
+
+        let linkLocal = "[Ff][Ee]80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}"
+        let ipv4Mapped = "::([fF]{4}(:0{1,4}){0,1}:){0,1}\(ipv4Address)"
+        let ipv4Embedded = "(\(ipv6Segment):){1,4}:\(ipv4Address)"
+
+        let pattern = [
+            long,
+            linkLocal,
+            ipv4Mapped,
+            ipv4Embedded,
+            compressed8,
+            compressed7,
+            compressed6,
+            compressed5,
+            compressed4,
+            compressed3,
+            compressed2,
+            compressed1,
+        ].joined(separator: "|")
         // swift-format-ignore: NeverUseForceTry
         return try! NSRegularExpression(pattern: pattern, options: [.allowCommentsAndWhitespace])
     }
