@@ -411,7 +411,10 @@ pub enum DaemonCommand {
     SetObfuscationSettings(ResponseTx<(), settings::Error>, ObfuscationSettings),
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
-    PrepareRestart(bool),
+    PrepareRestart {
+        // If true, also shut down the daemon
+        shutdown: bool,
+    },
     /// Causes a socket to bypass the tunnel. This has no effect when connected. It is only used
     /// to bypass the tunnel in blocking states.
     #[cfg(target_os = "android")]
@@ -1607,7 +1610,7 @@ impl Daemon {
             SetObfuscationSettings(tx, settings) => {
                 self.on_set_obfuscation_settings(tx, settings).await
             }
-            PrepareRestart(shutdown) => self.on_prepare_restart(shutdown),
+            PrepareRestart { shutdown } => self.on_prepare_restart(shutdown),
             #[cfg(target_os = "android")]
             BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
             #[cfg(target_os = "android")]
