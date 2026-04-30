@@ -16,8 +16,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          submodules: true
       - name: Resolve container image
         run: |
           echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
@@ -37,8 +35,6 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          submodules: true
       - name: Run tidy
         shell: bash
         run: |-
