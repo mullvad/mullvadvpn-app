@@ -1,25 +1,35 @@
 name: Sync Fork with Upstream
+
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours
-  workflow_dispatch:  # Manual trigger
+    - cron: '0 */12 * * *' # Every 12 hours
+  workflow_dispatch: # Manual trigger
 
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
+      
       - name: Set up Git user
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "GitHub Actions"
+      
       - name: Sync with upstream
         run: |
           git remote add upstream https://github.com/mullvad/mullvadvpn-app.git
           git fetch upstream
           git checkout main
+          
+          # Merge upstream changes, ignoring changes to README.md
           git merge upstream/main --no-edit
+
+          # Discard changes to README.md and keep the version from the current branch
+          git checkout HEAD README.md
+
           git push origin main
