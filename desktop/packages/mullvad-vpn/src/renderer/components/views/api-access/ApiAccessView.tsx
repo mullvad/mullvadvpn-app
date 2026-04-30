@@ -311,7 +311,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
               ),
               messages.pgettext(
                 'api-access-methods-view',
-                "The CDN used is Datapacket's CDN77. The CDN can only observe the proxied TLS traffic, not the contents.",
+                "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents.",
               ),
             ]}
           />
