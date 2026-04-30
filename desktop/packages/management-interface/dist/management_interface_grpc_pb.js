@@ -426,6 +426,17 @@ function deserialize_mullvad_daemon_management_interface_Settings(buffer_arg) {
   return management_interface_pb.Settings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_SplitFilterMigration(arg) {
+  if (!(arg instanceof management_interface_pb.SplitFilterMigration)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.SplitFilterMigration');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_SplitFilterMigration(buffer_arg) {
+  return management_interface_pb.SplitFilterMigration.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_TunnelState(arg) {
   if (!(arg instanceof management_interface_pb.TunnelState)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.TunnelState');
@@ -1491,6 +1502,37 @@ appUpgrade: {
     requestDeserialize: deserialize_google_protobuf_Empty,
     responseSerialize: serialize_mullvad_daemon_management_interface_LogMessage,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_LogMessage,
+  },
+  // The great multihop migration of 2026
+//
+// If the return value is SplitFilterMigration, a migration took place recently. After
+// ClearMigrationMessage has been called, GetMigrationEvent will indefintely return null.
+// If the return value is null, there is nothing for the clients to do. The migration has either
+// not been run or was already completed.
+getMigrationEvent: {
+    path: '/mullvad_daemon.management_interface.ManagementService/GetMigrationEvent',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.SplitFilterMigration,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_SplitFilterMigration,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_SplitFilterMigration,
+  },
+  // Call this function after *handling* a SplitFilterMigration as returned by GetMigrationEvent to
+// mark the migration as completed. This will cause GetMigrationEvent to return a null-value
+// indefintely.
+clearMigrationMessage: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ClearMigrationMessage',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: google_protobuf_empty_pb.Empty,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_google_protobuf_Empty,
+    responseDeserialize: deserialize_google_protobuf_Empty,
   },
 };
 

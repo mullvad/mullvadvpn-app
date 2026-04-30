@@ -3385,6 +3385,40 @@ export namespace LogMessage {
     }
 }
 
+export class SplitFilterMigration extends jspb.Message { 
+    getMultihopMigration(): SplitFilterMigration.MultihopMigrationState;
+    setMultihopMigration(value: SplitFilterMigration.MultihopMigrationState): SplitFilterMigration;
+    getFiltersSet(): boolean;
+    setFiltersSet(value: boolean): SplitFilterMigration;
+    getRemovedDaitaDirectOnly(): boolean;
+    setRemovedDaitaDirectOnly(value: boolean): SplitFilterMigration;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): SplitFilterMigration.AsObject;
+    static toObject(includeInstance: boolean, msg: SplitFilterMigration): SplitFilterMigration.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: SplitFilterMigration, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): SplitFilterMigration;
+    static deserializeBinaryFromReader(message: SplitFilterMigration, reader: jspb.BinaryReader): SplitFilterMigration;
+}
+
+export namespace SplitFilterMigration {
+    export type AsObject = {
+        multihopMigration: SplitFilterMigration.MultihopMigrationState,
+        filtersSet: boolean,
+        removedDaitaDirectOnly: boolean,
+    }
+
+    export enum MultihopMigrationState {
+    ON_TO_ALWAYS = 0,
+    OFF_TO_NEVER = 1,
+    OFF_TO_WHEN_NEEDED = 2,
+    OFF_TO_ALWAYS = 3,
+    }
+
+}
+
 export enum AfterDisconnect {
     NOTHING = 0,
     BLOCK = 1,
