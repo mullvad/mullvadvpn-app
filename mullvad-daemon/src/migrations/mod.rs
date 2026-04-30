@@ -43,6 +43,8 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
+use crate::{DaemonEventSender, InternalDaemonEvent};
+
 mod account_history;
 mod device;
 mod v1;
@@ -227,7 +229,7 @@ async fn migrate_settings(
 pub(crate) fn migrate_device(
     migration_data: MigrationData,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
-    daemon_tx: crate::DaemonEventSender,
+    daemon_tx: DaemonEventSender<InternalDaemonEvent>,
 ) -> MigrationComplete {
     let migration_complete = MigrationComplete::new(false);
     device::generate_device(

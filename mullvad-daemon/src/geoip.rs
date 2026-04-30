@@ -8,7 +8,7 @@ use talpid_core::mpsc::Sender;
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
-use crate::{DaemonEventSender, InternalDaemonEvent};
+use crate::DaemonEventSender;
 
 // Define the Mullvad connection checking api endpoint.
 //
@@ -45,15 +45,18 @@ const LOCATION_RETRY_STRATEGY: Jittered<ExponentialBackoff> =
 /// Handler for request to am.i.mullvad.net, manages in-flight request and validity of responses.
 pub(crate) struct GeoIpHandler {
     /// Unique ID for each request. If the ID attached to the
-    /// [`InternalDaemonEvent::LocationEvent`] used by [`crate::Daemon::handle_location_event`] to
+    /// The [`LocationEventData`] used by [`crate::Daemon::handle_location_event`] to
     /// determine if the location belongs to the current tunnel state.
     pub request_id: usize,
     rest_service: RequestServiceHandle,
-    location_sender: DaemonEventSender,
+    location_sender: DaemonEventSender<LocationEventData>,
 }
 
 impl GeoIpHandler {
-    pub fn new(rest_service: RequestServiceHandle, location_sender: DaemonEventSender) -> Self {
+    pub fn new(
+        rest_service: RequestServiceHandle,
+        location_sender: DaemonEventSender<LocationEventData>,
+    ) -> Self {
         Self {
             request_id: 0,
             rest_service,
@@ -75,11 +78,10 @@ impl GeoIpHandler {
         let location_sender = self.location_sender.clone();
         tokio::spawn(async move {
             if let Ok(location) = get_geo_location_with_retry(use_ipv6, rest_service).await {
-                let _ =
-                    location_sender.send(InternalDaemonEvent::LocationEvent(LocationEventData {
-                        request_id,
-                        location,
-                    }));
+                let _ = location_sender.send(LocationEventData {
+                    request_id,
+                    location,
+                });
             }
         });
     }
