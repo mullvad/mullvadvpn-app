@@ -58,6 +58,7 @@ data class DnsDialogViewState(
 sealed interface ValidationError {
     sealed interface InvalidAddress : ValidationError {
         data object Blank : InvalidAddress
+
         data object InvalidIp : InvalidAddress
     }
 

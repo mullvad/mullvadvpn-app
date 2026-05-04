@@ -14,7 +14,7 @@ crate-type = ["rlib", "staticlib"]
 anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true }
-clap = { workspace = true, features = ["cargo", "derive"], optional = true }
+domain-fronting = "0.1"
 futures = { workspace = true }
 http = "1.1.0"
 http-body-util = "0.1.2"
@@ -50,9 +50,7 @@ tokio-rustls = { version = "0.26.0", default-features = false, features = [
 ] }
 tokio-socks = "0.5.1"
 tower = { workspace = true }
-tracing-subscriber = { workspace = true, optional = true }
 vec1 = { workspace = true, features = ["serde"] }
-webpki-roots = { workspace = true, optional = true }
 
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }
@@ -64,7 +62,6 @@ mullvad-update = { path = "../mullvad-update", features = ["client"] }
 [features]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
-domain-fronting = ["clap", "tracing-subscriber", "webpki-roots"]
 
 [lints]
 workspace = true

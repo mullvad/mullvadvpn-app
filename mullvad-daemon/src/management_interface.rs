@@ -1444,6 +1444,21 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }
+
+    // The great multihop migration of 2026
+
+    async fn get_migration_event(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::SplitFilterMigration> {
+        // TODO: Implement this function after the migration exists.
+        Ok(Response::new(types::SplitFilterMigration::default()))
+    }
+
+    async fn clear_migration_message(&self, _: Request<()>) -> ServiceResult<()> {
+        // TODO: Implement this function after the migration exists.
+        Ok(Response::new(()))
+    }
 }
 
 #[expect(clippy::result_large_err)]

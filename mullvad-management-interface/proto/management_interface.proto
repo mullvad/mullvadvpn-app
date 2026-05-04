@@ -158,6 +158,18 @@ service ManagementService {
 
   rpc SetLogFilter(LogFilter) returns (google.protobuf.Empty) {}
   rpc LogListen(google.protobuf.Empty) returns (stream LogMessage) {}
+
+  // The great multihop migration of 2026
+
+  // If the return value is SplitFilterMigration, a migration took place recently. After
+  // ClearMigrationMessage has been called, GetMigrationEvent will indefintely return null.
+  // If the return value is null, there is nothing for the clients to do. The migration has either
+  // not been run or was already completed.
+  rpc GetMigrationEvent(google.protobuf.Empty) returns (SplitFilterMigration);
+  // Call this function after *handling* a SplitFilterMigration as returned by GetMigrationEvent to
+  // mark the migration as completed. This will cause GetMigrationEvent to return a null-value
+  // indefintely.
+  rpc ClearMigrationMessage(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
 message AppUpgradeEvent {
@@ -490,11 +502,13 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message EncryptedDnsProxy {}
+  message DomainFronting {}
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
     EncryptedDnsProxy encrypted_dns_proxy = 3;
     CustomProxy custom = 4;
+    DomainFronting domain_fronting = 5;
   }
 }
 
@@ -516,6 +530,7 @@ message ApiAccessMethodSettings {
   AccessMethodSetting mullvad_bridges = 2;
   AccessMethodSetting encrypted_dns_proxy = 3;
   repeated AccessMethodSetting custom = 4;
+  AccessMethodSetting domain_fronting = 5;
 }
 
 message Settings {
@@ -887,3 +902,36 @@ message AllowedIpsList { repeated string values = 1; }
 message LogFilter { string log_filter = 1; }
 
 message LogMessage { string message = 1; }
+
+// The great multihop migration of 2026
+
+message SplitFilterMigration {
+  // In the same update as the SplitFilterMigration is run, the Multihop setting transitions from
+  // being a boolean state (on/off) to now being a tri-state:
+  // * Always
+  // * When needed
+  // * Never
+  MultihopMigrationState multihop_migration = 1;
+  // If any filters were previously set, they were copied and applied as both entry + exit filters.
+  //
+  // true: Previous filters were applied as both entry and exit filters.
+  // false: No previous filters were set, no filters are set for either entry or exit.
+  bool filters_set = 2;
+  // "Daita: Directy only" does not exist anymore, but it is relevant to know if it was enabled.
+  //
+  // true: "Daita: direct only" was previoiusly enabled.
+  // false: "Daita: direct only" was previoiusly disabled.
+  bool removed_daita_direct_only = 3;
+  // This enum value defines all valid transitions from the previous state to the new tri-state,
+  // which necessarily depend on additional settings beyond Multihop.
+  enum MultihopMigrationState {
+    // "On" is always mapped to "Always".
+    on_to_always = 0;
+    // "Off" has been renamed to "Never".
+    off_to_never = 1;
+    // "When needed" is the new default value.
+    off_to_when_needed = 2;
+    // "Magic multihop" - one leaf node in the giga-migration tree.
+    off_to_always = 3;
+  }
+}

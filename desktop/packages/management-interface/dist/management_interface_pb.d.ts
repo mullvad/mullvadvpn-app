@@ -1509,6 +1509,11 @@ export class AccessMethod extends jspb.Message {
     getCustom(): CustomProxy | undefined;
     setCustom(value?: CustomProxy): AccessMethod;
 
+    hasDomainFronting(): boolean;
+    clearDomainFronting(): void;
+    getDomainFronting(): AccessMethod.DomainFronting | undefined;
+    setDomainFronting(value?: AccessMethod.DomainFronting): AccessMethod;
+
     getAccessMethodCase(): AccessMethod.AccessMethodCase;
 
     serializeBinary(): Uint8Array;
@@ -1527,6 +1532,7 @@ export namespace AccessMethod {
         bridges?: AccessMethod.Bridges.AsObject,
         encryptedDnsProxy?: AccessMethod.EncryptedDnsProxy.AsObject,
         custom?: CustomProxy.AsObject,
+        domainFronting?: AccessMethod.DomainFronting.AsObject,
     }
 
 
@@ -1581,6 +1587,23 @@ export namespace AccessMethod {
         }
     }
 
+    export class DomainFronting extends jspb.Message { 
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): DomainFronting.AsObject;
+        static toObject(includeInstance: boolean, msg: DomainFronting): DomainFronting.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: DomainFronting, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): DomainFronting;
+        static deserializeBinaryFromReader(message: DomainFronting, reader: jspb.BinaryReader): DomainFronting;
+    }
+
+    export namespace DomainFronting {
+        export type AsObject = {
+        }
+    }
+
 
     export enum AccessMethodCase {
         ACCESS_METHOD_NOT_SET = 0,
@@ -1588,6 +1611,7 @@ export namespace AccessMethod {
         BRIDGES = 2,
         ENCRYPTED_DNS_PROXY = 3,
         CUSTOM = 4,
+        DOMAIN_FRONTING = 5,
     }
 
 }
@@ -1677,6 +1701,11 @@ export class ApiAccessMethodSettings extends jspb.Message {
     setCustomList(value: Array<AccessMethodSetting>): ApiAccessMethodSettings;
     addCustom(value?: AccessMethodSetting, index?: number): AccessMethodSetting;
 
+    hasDomainFronting(): boolean;
+    clearDomainFronting(): void;
+    getDomainFronting(): AccessMethodSetting | undefined;
+    setDomainFronting(value?: AccessMethodSetting): ApiAccessMethodSettings;
+
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ApiAccessMethodSettings.AsObject;
     static toObject(includeInstance: boolean, msg: ApiAccessMethodSettings): ApiAccessMethodSettings.AsObject;
@@ -1693,6 +1722,7 @@ export namespace ApiAccessMethodSettings {
         mullvadBridges?: AccessMethodSetting.AsObject,
         encryptedDnsProxy?: AccessMethodSetting.AsObject,
         customList: Array<AccessMethodSetting.AsObject>,
+        domainFronting?: AccessMethodSetting.AsObject,
     }
 }
 
@@ -3383,6 +3413,40 @@ export namespace LogMessage {
     export type AsObject = {
         message: string,
     }
+}
+
+export class SplitFilterMigration extends jspb.Message { 
+    getMultihopMigration(): SplitFilterMigration.MultihopMigrationState;
+    setMultihopMigration(value: SplitFilterMigration.MultihopMigrationState): SplitFilterMigration;
+    getFiltersSet(): boolean;
+    setFiltersSet(value: boolean): SplitFilterMigration;
+    getRemovedDaitaDirectOnly(): boolean;
+    setRemovedDaitaDirectOnly(value: boolean): SplitFilterMigration;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): SplitFilterMigration.AsObject;
+    static toObject(includeInstance: boolean, msg: SplitFilterMigration): SplitFilterMigration.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: SplitFilterMigration, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): SplitFilterMigration;
+    static deserializeBinaryFromReader(message: SplitFilterMigration, reader: jspb.BinaryReader): SplitFilterMigration;
+}
+
+export namespace SplitFilterMigration {
+    export type AsObject = {
+        multihopMigration: SplitFilterMigration.MultihopMigrationState,
+        filtersSet: boolean,
+        removedDaitaDirectOnly: boolean,
+    }
+
+    export enum MultihopMigrationState {
+    ON_TO_ALWAYS = 0,
+    OFF_TO_NEVER = 1,
+    OFF_TO_WHEN_NEEDED = 2,
+    OFF_TO_ALWAYS = 3,
+    }
+
 }
 
 export enum AfterDisconnect {
