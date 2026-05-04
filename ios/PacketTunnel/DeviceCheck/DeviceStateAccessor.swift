@@ -12,11 +12,17 @@ import MullvadTypes
 
 /// An object that provides access to `DeviceState` used by `DeviceCheckOperation`.
 struct DeviceStateAccessor: DeviceStateAccessorProtocol {
+    let settingsManager: SettingsManager
+
+    init(settingsManager: SettingsManager) {
+        self.settingsManager = settingsManager
+    }
+
     func read() throws -> DeviceState {
-        try SettingsManager.readDeviceState()
+        try settingsManager.readDeviceState()
     }
 
     func write(_ deviceState: DeviceState) throws {
-        try SettingsManager.writeDeviceState(deviceState)
+        try settingsManager.writeDeviceState(deviceState)
     }
 }

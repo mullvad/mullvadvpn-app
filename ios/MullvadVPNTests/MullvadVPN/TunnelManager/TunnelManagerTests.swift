@@ -15,7 +15,8 @@ import XCTest
 @testable import MullvadTypes
 
 class TunnelManagerTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
+    let store = InMemorySettingsStore<SettingNotFound>()
+    lazy var settingsManager = SettingsManager(store: store)
 
     private let application: TunnelStore.BackgroundTaskProvidingObject = UIApplicationStub()
     private var tunnelObserver: TunnelObserver!
@@ -27,14 +28,6 @@ class TunnelManagerTests: XCTestCase {
     )
     var apiProxy = APIProxyStub()
     var apiContext: MullvadApiContext!
-
-    override static func setUp() {
-        SettingsManager.unitTestStore = store
-    }
-
-    override static func tearDown() {
-        store.reset()
-    }
 
     override func setUp() async throws {
         let shadowsocksLoader = ShadowsocksLoader(
@@ -57,7 +50,7 @@ class TunnelManagerTests: XCTestCase {
             accessMethodChangeListeners: []
         )
 
-        try SettingsManager.writeSettings(LatestTunnelSettings())
+        try settingsManager.writeSettings(LatestTunnelSettings())
     }
 
     override func tearDown() async throws {
@@ -74,7 +67,8 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: RelaySelectorStub.nonFallible()
+            relaySelector: RelaySelectorStub.nonFallible(),
+            settingsManager: settingsManager
         )
 
         _ = try await tunnelManager.setNewAccount()
@@ -91,7 +85,8 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: RelaySelectorStub.nonFallible()
+            relaySelector: RelaySelectorStub.nonFallible(),
+            settingsManager: settingsManager
         )
         _ = try await tunnelManager.setNewAccount()
         await tunnelManager.unsetAccount()
@@ -119,7 +114,8 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: relaySelector
+            relaySelector: relaySelector,
+            settingsManager: settingsManager
         )
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
@@ -129,7 +125,8 @@ class TunnelManagerTests: XCTestCase {
                     apiContext: apiContext,
                     encoder: REST.Coding.makeJSONEncoder()
                 )
-            )
+            ),
+            settingsManager: settingsManager
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
 
@@ -190,7 +187,8 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: relaySelector
+            relaySelector: relaySelector,
+            settingsManager: settingsManager
         )
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
@@ -200,7 +198,8 @@ class TunnelManagerTests: XCTestCase {
                     apiContext: apiContext,
                     encoder: REST.Coding.makeJSONEncoder()
                 )
-            )
+            ),
+            settingsManager: settingsManager
         )
 
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
@@ -265,7 +264,8 @@ class TunnelManagerTests: XCTestCase {
             accountsProxy: accountProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: relaySelector
+            relaySelector: relaySelector,
+            settingsManager: settingsManager
         )
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
@@ -275,7 +275,8 @@ class TunnelManagerTests: XCTestCase {
                     apiContext: apiContext,
                     encoder: REST.Coding.makeJSONEncoder()
                 )
-            )
+            ),
+            settingsManager: settingsManager
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         let tunnelObserver = TunnelBlockObserver(

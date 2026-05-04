@@ -21,11 +21,11 @@ import XCTest
 /// This test would fail on main where `StoredRelays` encoded a deserialized `relays`
 /// property via Codable, losing any fields not declared in `ServerRelaysResponse`.
 class RelayListCacheTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
+    let settingsManager = SettingsManager(store: InMemorySettingsStore<SettingNotFound>())
+    lazy var settingsStore = settingsManager.store
 
     override func setUp() {
         super.setUp()
-        SettingsManager.unitTestStore = Self.store
         RustLogging.initialize(logger: Logger(label: "RelayListCacheTests"))
     }
 

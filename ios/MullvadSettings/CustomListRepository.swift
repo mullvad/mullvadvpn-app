@@ -35,7 +35,11 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
     }()
 
-    public init() {}
+    let store: SettingsStore
+
+    public init(settingsStore: SettingsStore) {
+        self.store = settingsStore
+    }
 
     public func save(list: CustomList) throws {
         guard list.name.count <= NameInputFormatter.maxLength else {
@@ -53,10 +57,10 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
             throw CustomRelayListError.duplicateName
         } else if let index = lists.firstIndex(where: { $0.id == list.id }) {
             lists[index] = list
-            try write(lists)
+            try write(lists, to: store)
         } else {
             lists.append(list)
-            try write(lists)
+            try write(lists, to: store)
         }
     }
 
@@ -65,7 +69,7 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
             var lists = fetchAll()
             if let index = lists.firstIndex(where: { $0.id == id }) {
                 lists.remove(at: index)
-                try write(lists)
+                try write(lists, to: store)
             }
         } catch {
             logger.error(error: error)
@@ -73,24 +77,24 @@ public struct CustomListRepository: CustomListRepositoryProtocol {
     }
 
     public func fetch(by id: UUID) -> CustomList? {
-        try? read().first(where: { $0.id == id })
+        try? read(from: store).first(where: { $0.id == id })
     }
 
     public func fetchAll() -> [CustomList] {
-        (try? read()) ?? []
+        (try? read(from: store)) ?? []
     }
 }
 
 extension CustomListRepository {
-    private func read() throws -> [CustomList] {
-        let data = try SettingsManager.store.read(key: .customRelayLists)
+    private func read(from store: SettingsStore) throws -> [CustomList] {
+        let data = try store.read(key: .customRelayLists)
 
         return try settingsParser.parseUnversionedPayload(as: [CustomList].self, from: data)
     }
 
-    private func write(_ list: [CustomList]) throws {
+    private func write(_ list: [CustomList], to store: SettingsStore) throws {
         let data = try settingsParser.produceUnversionedPayload(list)
 
-        try SettingsManager.store.write(data, for: .customRelayLists)
+        try store.write(data, for: .customRelayLists)
     }
 }

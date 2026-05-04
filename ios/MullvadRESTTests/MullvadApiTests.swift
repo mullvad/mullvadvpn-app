@@ -22,11 +22,11 @@ import XCTest
 class MullvadApiTests: XCTestCase {
     let encoder = JSONEncoder()
 
-    static let store = InMemorySettingsStore<SettingNotFound>()
+    let settingsManager = SettingsManager(store: InMemorySettingsStore<SettingNotFound>())
+    lazy var settingsStore = settingsManager.store
 
     override func setUp() {
         super.setUp()
-        SettingsManager.unitTestStore = MullvadApiTests.store
         RustLogging.initialize(logger: Logger(label: "Rust"))
     }
 

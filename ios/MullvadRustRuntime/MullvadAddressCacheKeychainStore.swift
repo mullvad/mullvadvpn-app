@@ -14,18 +14,20 @@ private let isSettingsStoreAvailable: Bool =
     Bundle.main
     .object(forInfoDictionaryKey: "ApplicationSecurityGroupIdentifier") != nil
 
+private let settingsManager = SettingsManager()
+
 /// Store the address cache, given to us by the Rust code,  to the keychain
 @_cdecl("swift_store_address_cache")
 func storeAddressCache(_ pointer: UnsafeRawPointer, dataSize: UInt64) {
     guard isSettingsStoreAvailable else { return }
     let data = Data(bytes: pointer, count: Int(dataSize))
     // if writing to the Keychain fails, it will do so silently.
-    try? SettingsManager.writeAddressCache(data)
+    try? settingsManager.writeAddressCache(data)
 }
 
 @_cdecl("swift_read_address_cache")
 func readAddressCache() -> SwiftData {
     guard isSettingsStoreAvailable else { return SwiftData(data: NSData()) }
-    let data = (try? SettingsManager.readAddressCache()) ?? Data()
+    let data = (try? settingsManager.readAddressCache()) ?? Data()
     return SwiftData(data: data as NSData)
 }
