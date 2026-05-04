@@ -497,11 +497,13 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message EncryptedDnsProxy {}
+  message DomainFronting {}
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
     EncryptedDnsProxy encrypted_dns_proxy = 3;
     CustomProxy custom = 4;
+    DomainFronting domain_fronting = 5;
   }
 }
 
@@ -523,6 +525,7 @@ message ApiAccessMethodSettings {
   AccessMethodSetting mullvad_bridges = 2;
   AccessMethodSetting encrypted_dns_proxy = 3;
   repeated AccessMethodSetting custom = 4;
+  AccessMethodSetting domain_fronting = 5;
 }
 
 message Settings {

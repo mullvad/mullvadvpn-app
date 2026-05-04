@@ -2,6 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
+import { strings } from '../../../../shared/constants';
 import { AccessMethodSetting } from '../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../shared/gettext';
 import { RoutePath } from '../../../../shared/routes';
@@ -114,6 +115,10 @@ export function ApiAccessView() {
                   <ApiAccessMethod
                     method={methods.encryptedDnsProxy}
                     inUse={methods.encryptedDnsProxy.id === currentMethod?.id}
+                  />
+                  <ApiAccessMethod
+                    method={methods.domainFronting}
+                    inUse={methods.domainFronting.id === currentMethod?.id}
                   />
                   {methods.custom.map((method) => (
                     <ApiAccessMethod
@@ -286,6 +291,50 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
               messages.pgettext(
                 'api-access-methods-view',
                 'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.',
+              ),
+            ]}
+          />
+        )}
+        {props.method.type === 'domain-fronting' && (
+          <InfoButton
+            message={[
+              sprintf(
+                // TRANSLATORS: Part of a description of the 'Domain fronting' API access method
+                // TRANSLATORS: which the app uses to reach Mullvad's API servers
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(domainFronting)s - Will be replaced with: 'Domain fronting'
+                messages.pgettext(
+                  'api-access-methods-view',
+                  'The app communicates with a Mullvad API server via %(domainFronting)s.',
+                ),
+                {
+                  domainFronting: strings.domainFronting,
+                },
+              ),
+              sprintf(
+                // TRANSLATORS: Part of a description of the 'Domain fronting' API access method
+                // TRANSLATORS: which the app uses to reach Mullvad's API servers
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(domainFronting)s - Will be replaced with: 'Domain fronting'
+                messages.pgettext(
+                  'api-access-methods-view',
+                  'With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor.',
+                ),
+                {
+                  domainFronting: strings.domainFronting,
+                },
+              ),
+              // TRANSLATORS: Part of a description of the 'Domain fronting' API access method
+              // TRANSLATORS: which the app uses to reach Mullvad's API servers
+              messages.pgettext(
+                'api-access-methods-view',
+                'This can be useful when direct access and other methods are blocked by censorship.',
+              ),
+              // TRANSLATORS: Part of a description of the 'Domain fronting' API access method
+              // TRANSLATORS: which the app uses to reach Mullvad's API servers
+              messages.pgettext(
+                'api-access-methods-view',
+                'The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents.',
               ),
             ]}
           />

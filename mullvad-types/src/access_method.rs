@@ -10,6 +10,8 @@ pub struct Settings {
     mullvad_bridges: AccessMethodSetting,
     #[serde(default = "Settings::create_encrypted_dns_proxy")]
     encrypted_dns_proxy: AccessMethodSetting,
+    #[serde(default = "Settings::create_domain_fronting")]
+    domain_fronting: AccessMethodSetting,
     /// Custom API access methods.
     custom: Vec<AccessMethodSetting>,
 }
@@ -19,12 +21,14 @@ impl Settings {
         direct: AccessMethodSetting,
         mullvad_bridges: AccessMethodSetting,
         encrypted_dns_proxy: AccessMethodSetting,
+        domain_fronting: AccessMethodSetting,
         custom: Vec<AccessMethodSetting>,
     ) -> Settings {
         Settings {
             direct,
             mullvad_bridges,
             encrypted_dns_proxy,
+            domain_fronting,
             custom,
         }
     }
@@ -152,6 +156,7 @@ impl Settings {
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
             .chain(once(&self.encrypted_dns_proxy))
+            .chain(once(&self.domain_fronting))
             .chain(&self.custom)
     }
 
@@ -161,6 +166,7 @@ impl Settings {
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
             .chain(once(&mut self.encrypted_dns_proxy))
+            .chain(once(&mut self.domain_fronting))
             .chain(&mut self.custom)
     }
 
@@ -187,6 +193,10 @@ impl Settings {
         &self.encrypted_dns_proxy
     }
 
+    pub fn domain_fronting(&self) -> &AccessMethodSetting {
+        &self.domain_fronting
+    }
+
     fn create_direct() -> AccessMethodSetting {
         let method = BuiltInAccessMethod::Direct;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
@@ -201,6 +211,11 @@ impl Settings {
         let method = BuiltInAccessMethod::EncryptedDnsProxy;
         AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
     }
+
+    fn create_domain_fronting() -> AccessMethodSetting {
+        let method = BuiltInAccessMethod::DomainFronting;
+        AccessMethodSetting::new(method.canonical_name(), true, AccessMethod::from(method))
+    }
 }
 
 impl Default for Settings {
@@ -209,6 +224,7 @@ impl Default for Settings {
             direct: Settings::create_direct(),
             mullvad_bridges: Settings::create_mullvad_bridges(),
             encrypted_dns_proxy: Settings::create_encrypted_dns_proxy(),
+            domain_fronting: Settings::create_domain_fronting(),
             custom: vec![],
         }
     }
@@ -346,6 +362,7 @@ pub enum BuiltInAccessMethod {
     Direct,
     Bridge,
     EncryptedDnsProxy,
+    DomainFronting,
 }
 
 impl AccessMethod {
@@ -363,6 +380,7 @@ impl BuiltInAccessMethod {
             BuiltInAccessMethod::Direct => "Direct".to_string(),
             BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
             BuiltInAccessMethod::EncryptedDnsProxy => "Encrypted DNS proxy".to_string(),
+            BuiltInAccessMethod::DomainFronting => "Domain fronting".to_string(),
         }
     }
 }

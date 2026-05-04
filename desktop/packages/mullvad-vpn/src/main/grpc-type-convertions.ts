@@ -17,6 +17,7 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
+  DomainFronting,
   EncryptedDnsProxy,
   EndpointObfuscationType,
   ErrorStateCause,
@@ -1041,6 +1042,11 @@ function fillApiAccessMethodSetting<T extends grpcTypes.NewAccessMethodSetting>(
       accessMethod.setEncryptedDnsProxy(encryptedDnsProxy);
       break;
     }
+    case 'domain-fronting': {
+      const domainFronting = new grpcTypes.AccessMethod.DomainFronting();
+      accessMethod.setDomainFronting(domainFronting);
+      break;
+    }
     default:
       accessMethod.setCustom(convertToCustomProxy(method));
   }
@@ -1110,6 +1116,9 @@ function convertFromApiAccessMethodSettings(
       "no 'Encrypted DNS proxy' access method was found",
     ),
   ) as AccessMethodSetting<EncryptedDnsProxy>;
+  const domainFronting = convertFromApiAccessMethodSetting(
+    ensureExists(accessMethods.getDomainFronting(), "no 'Domain fronting' access method was found"),
+  ) as AccessMethodSetting<DomainFronting>;
   const custom = accessMethods
     .getCustomList()
     .filter((setting) => setting.hasId() && setting.hasAccessMethod())
@@ -1121,6 +1130,7 @@ function convertFromApiAccessMethodSettings(
     direct,
     mullvadBridges: bridges,
     encryptedDnsProxy,
+    domainFronting,
     custom,
   };
 }
@@ -1157,6 +1167,8 @@ function convertFromAccessMethod(method: grpcTypes.AccessMethod): AccessMethod {
       return { type: 'bridges' };
     case grpcTypes.AccessMethod.AccessMethodCase.ENCRYPTED_DNS_PROXY:
       return { type: 'encrypted-dns-proxy' };
+    case grpcTypes.AccessMethod.AccessMethodCase.DOMAIN_FRONTING:
+      return { type: 'domain-fronting' };
     case grpcTypes.AccessMethod.AccessMethodCase.CUSTOM: {
       return convertFromCustomProxy(method.getCustom()!);
     }
