@@ -17,7 +17,11 @@ data class SplitTunnelingUiState(
     val isModal: Boolean = false,
 )
 
-data class AppItem(val title: String, val packageName: PackageName, private val highlight: String = "") {
+data class AppItem(
+    val title: String,
+    val packageName: PackageName,
+    private val highlight: String = "",
+) {
     val titleAnnotated: AnnotatedString
         @Composable get() = title.highlightText(highlight, MaterialTheme.colorScheme.highlight)
 }
