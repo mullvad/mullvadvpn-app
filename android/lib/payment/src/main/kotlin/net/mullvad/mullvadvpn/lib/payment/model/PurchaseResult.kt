@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.lib.payment.model
 
-import net.mullvad.mullvadvpn.lib.payment.model.VerificationError.PlayVerificationError
-
 sealed interface PurchaseResult {
     data object FetchingProducts : PurchaseResult
 
@@ -31,6 +29,7 @@ sealed interface PurchaseResult {
 
         sealed interface VerificationError : Error {
             data object VerificationFailed : VerificationError
+
             data object Other : VerificationError
         }
     }

@@ -141,16 +141,15 @@ class PlayPaymentLogicTest {
     }
 
     @Test
-    fun `when verifyPurchases returns verification failed should not retry`() =
-        runTest {
-            // Arrange
-            coEvery { mockPaymentRepository.verifyPurchases() } returns
-                VerificationError.PlayVerificationError.VerificationFailed.left()
+    fun `when verifyPurchases returns verification failed should not retry`() = runTest {
+        // Arrange
+        coEvery { mockPaymentRepository.verifyPurchases() } returns
+            VerificationError.PlayVerificationError.VerificationFailed.left()
 
-            // Act
-            playPaymentLogic.verifyPurchases()
+        // Act
+        playPaymentLogic.verifyPurchases()
 
-            // Assert
-            coVerify(exactly = 1) { mockPaymentRepository.verifyPurchases() }
-        }
+        // Assert
+        coVerify(exactly = 1) { mockPaymentRepository.verifyPurchases() }
+    }
 }
