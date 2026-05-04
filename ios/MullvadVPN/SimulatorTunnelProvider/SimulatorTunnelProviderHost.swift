@@ -26,16 +26,19 @@
         private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
         public var onHandleProviderMessage: ((TunnelProviderMessage) -> Void)?
+        private let settingsManager: SettingsManager
 
         init(
             relaySelector: RelaySelectorProtocol,
-            apiTransportProvider: APITransportProvider
+            apiTransportProvider: APITransportProvider,
+            settingsManager: SettingsManager
         ) {
             self.relaySelector = relaySelector
             self.apiRequestProxy = APIRequestProxy(
                 dispatchQueue: dispatchQueue,
                 transportProvider: apiTransportProvider
             )
+            self.settingsManager = settingsManager
         }
 
         override func startTunnel(
@@ -177,7 +180,7 @@
         }
 
         private func pickRelays() throws -> SelectedRelays {
-            let settings = try SettingsManager.readSettings()
+            let settings = try settingsManager.readSettings()
             return try relaySelector.selectRelays(
                 tunnelSettings: settings,
                 connectionAttemptCount: 0
@@ -188,7 +191,7 @@
             guard let selectedRelays = selectedRelays else { return }
 
             do {
-                let settings = try SettingsManager.readSettings()
+                let settings = try settingsManager.readSettings()
                 observedState = .reconnecting(
                     ObservedConnectionState(
                         selectedRelays: selectedRelays,
@@ -213,7 +216,7 @@
             self.selectedRelays = selectedRelays
 
             do {
-                let settings = try SettingsManager.readSettings()
+                let settings = try settingsManager.readSettings()
                 observedState = .connected(
                     ObservedConnectionState(
                         selectedRelays: selectedRelays,

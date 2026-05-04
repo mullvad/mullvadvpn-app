@@ -65,8 +65,11 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
 
     private var cancellables: Set<Combine.AnyCancellable> = []
 
-    public init(shadowsocksCiphers: [String]) {
+    private let settingsStore: SettingsStore
+
+    public init(shadowsocksCiphers: [String], settingsStore: SettingsStore) {
         self.shadowsocksCiphers = shadowsocksCiphers
+        self.settingsStore = settingsStore
 
         accessMethodsSubject = CurrentValueSubject([])
         requestAccessMethodSubject = PassthroughSubject()
@@ -179,7 +182,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         let parser = makeParser()
 
         do {
-            let data = try SettingsManager.store.read(key: .apiAccessMethods)
+            let data = try settingsStore.read(key: .apiAccessMethods)
             return try parser.parseUnversionedPayload(as: PersistentAccessMethodStore.self, from: data)
         } catch {
             logger.error("Could not load access method store: \(error)")
@@ -193,7 +196,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         let parser = makeParser()
         let data = try parser.produceUnversionedPayload(store)
 
-        try SettingsManager.store.write(data, for: .apiAccessMethods)
+        try settingsStore.write(data, for: .apiAccessMethods)
     }
 
     private func makeParser() -> SettingsParser {

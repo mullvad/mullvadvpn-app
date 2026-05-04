@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
 import Routing
@@ -34,21 +35,24 @@ final class LoginCoordinator: Coordinator, Presenting {
     }
 
     let navigationController: RootContainerViewController
+    let settingsManager: SettingsManager
 
     init(
         navigationController: RootContainerViewController,
         tunnelManager: TunnelManager,
         devicesProxy: DeviceHandling,
-        breadcrumbsProvider: BreadcrumbsProvider
+        breadcrumbsProvider: BreadcrumbsProvider,
+        settingsManager: SettingsManager
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.devicesProxy = devicesProxy
         self.breadcrumbsProvider = breadcrumbsProvider
+        self.settingsManager = settingsManager
     }
 
     func start(animated: Bool) {
-        let interactor = LoginInteractor(tunnelManager: tunnelManager)
+        let interactor = LoginInteractor(tunnelManager: tunnelManager, settingsManager: settingsManager)
         let loginController = LoginViewController(
             interactor: interactor,
             alertPresenter: AlertPresenter(context: self)

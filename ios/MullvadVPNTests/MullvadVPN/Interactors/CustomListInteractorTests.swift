@@ -7,11 +7,7 @@ import Testing
 @testable import MullvadTypes
 
 struct CustomListInteractorTests {
-    static let store = InMemorySettingsStore<SettingNotFound>()
-
-    init() {
-        SettingsManager.unitTestStore = CustomListInteractorTests.store
-    }
+    let store = InMemorySettingsStore<SettingNotFound>()
 
     private func makeDependencies() -> (
         customListInteractor: CustomListInteractor,
