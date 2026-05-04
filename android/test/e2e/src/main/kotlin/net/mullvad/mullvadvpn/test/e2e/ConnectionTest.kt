@@ -142,8 +142,10 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> {
                 clickConnect()
-                // Currently it takes ~45 seconds to connect with wg obfuscation automatic and UDP
+                // Currently it takes ~60 seconds to connect with wg obfuscation automatic and UDP
                 // traffic blocked so we need to be very forgiving
+                // The order of obfuscation methods in automatic mode can be found here:
+                // mullvad-relay-selector/src/relay_selector/mod.rs
                 waitForConnectedLabel(timeout = VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT)
             }
         }
@@ -512,7 +514,7 @@ class ConnectionTest : EndToEndTest() {
         block().forEach { firewallClient.createRule(it) }
 
     companion object {
-        const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L
+        const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 80000L
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 30000L
         const val ANY_IPV4_ADDRESS = "0.0.0.0/0"
     }
