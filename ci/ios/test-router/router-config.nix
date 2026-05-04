@@ -6,6 +6,10 @@ args@{
   wanMac,
   # MAC address of the upstream interface
   lanIp, # IP adderss/subnet
+  # The IPv4 address/subnet of the wg interface
+  wgIpv4,
+  # The IPv6 address/subnet of the wg interface
+  wgIpv6,
 }:
 
 {
@@ -94,8 +98,8 @@ in
   networking.wireguard.interfaces.staging = {
     privateKeyFile = "/staging-wg-private-key";
     ips = [
-      "10.64.9.184/32"
-      "fc00:bbbb:bbbb:bb01::a40:9b8/128"
+      wgIpv4
+      wgIpv6
     ];
     allowedIPsAsRoutes = true;
     # postSetup could be used to dynamically fetch the IP of the staging API and set up the route to that IP through this interface too.
