@@ -3,14 +3,14 @@
 use crate::config;
 use core::fmt;
 use hickory_resolver::{
-    ResolveError, TokioResolver, config::*, name_server::TokioConnectionProvider,
+    TokioResolver,
+    config::*,
+    net::{NetError, runtime::TokioRuntimeProvider},
 };
 use rustls::ClientConfig;
 use std::{net::IpAddr, time::Duration};
 use tokio::time::error::Elapsed;
 
-/// The port to connect to the DoH resolvers over.
-const RESOLVER_PORT: u16 = 443;
 const DEFAULT_TIMEOUT: Duration = std::time::Duration::from_secs(10);
 
 pub struct Nameserver {
@@ -20,14 +20,14 @@ pub struct Nameserver {
 
 #[derive(Debug)]
 pub enum Error {
-    ResolutionError(ResolveError),
+    ProtocolError(NetError),
     Timeout(Elapsed),
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::ResolutionError(err) => err.fmt(f),
+            Error::ProtocolError(err) => err.fmt(f),
             Error::Timeout(err) => err.fmt(f),
         }
     }
@@ -36,7 +36,7 @@ impl fmt::Display for Error {
 impl std::error::Error for Error {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match self {
-            Self::ResolutionError(err) => err.source(),
+            Self::ProtocolError(err) => err.source(),
             Self::Timeout(err) => err.source(),
         }
     }
@@ -70,25 +70,21 @@ pub async fn resolve_configs(
     resolvers: &[Nameserver],
     domain: &str,
 ) -> Result<Vec<config::ProxyConfig>, Error> {
-    let mut nameservers = ResolverConfig::new();
+    let mut config = ResolverConfig::default();
     for resolver in resolvers.iter() {
-        let ns_config_group = NameServerConfigGroup::from_ips_https(
-            &resolver.addr,
-            RESOLVER_PORT,
-            resolver.name.clone(),
-            false,
-        )
-        .into_inner();
-        for ns_config in ns_config_group {
-            nameservers.add_name_server(ns_config);
+        let servers = ServerGroup {
+            ips: resolver.addr.as_slice(),
+            server_name: &resolver.name,
+            // De facto DoH URL: https://www.rfc-editor.org/rfc/rfc8484
+            path: "/dns-query",
+        };
+        for server in servers.https() {
+            config.add_name_server(server);
         }
     }
 
-    let mut resolver_config: ResolverOpts = Default::default();
-    resolver_config.tls_config = client_config_tls12();
-
-    resolver_config.timeout = Duration::from_secs(5);
-    resolve_config_with_resolverconfig(nameservers, resolver_config, domain, DEFAULT_TIMEOUT).await
+    resolve_config_with_resolverconfig(config, ResolverOpts::default(), domain, DEFAULT_TIMEOUT)
+        .await
 }
 
 pub async fn resolve_config_with_resolverconfig(
@@ -97,17 +93,22 @@ pub async fn resolve_config_with_resolverconfig(
     domain: &str,
     timeout: Duration,
 ) -> Result<Vec<config::ProxyConfig>, Error> {
-    let provider = TokioConnectionProvider::default();
+    let provider = TokioRuntimeProvider::default();
     let resolver = TokioResolver::builder_with_config(resolver_config, provider)
         .with_options(options)
-        .build();
+        .with_tls_config(client_config_tls12())
+        .build()
+        .map_err(Error::ProtocolError)?;
 
-    let lookup = tokio::time::timeout(timeout, resolver.ipv6_lookup(domain))
+    let lookup = tokio::time::timeout(timeout, resolver.lookup_ip(domain))
         .await
         .map_err(Error::Timeout)?
-        .map_err(Error::ResolutionError)?;
+        .map_err(Error::ProtocolError)?;
 
-    let addrs = lookup.into_iter().map(|aaaa_record| aaaa_record.0);
+    let addrs = lookup.iter().filter_map(|addr| match addr {
+        IpAddr::V4(_) => None,
+        IpAddr::V6(addr) => Some(addr),
+    });
 
     let mut proxy_configs = Vec::new();
     for addr in addrs {
