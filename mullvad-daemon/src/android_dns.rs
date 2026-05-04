@@ -2,7 +2,7 @@
 //! See [AndroidDnsResolver].
 
 use async_trait::async_trait;
-use hickory_resolver::{TokioResolver, config::*, name_server::TokioConnectionProvider};
+use hickory_resolver::{TokioResolver, config::*, net::runtime::TokioRuntimeProvider};
 use mullvad_api::DnsResolver;
 use std::{io, net::SocketAddr};
 use talpid_core::connectivity_listener::ConnectivityListener;
@@ -31,22 +31,23 @@ impl DnsResolver for AndroidDnsResolver {
             .map_err(|err| {
                 io::Error::other(format!("Failed to retrieve current servers: {err}"))
             })?;
-        let group = NameServerConfigGroup::from_ips_clear(&ips, 53, false);
-
+        let group = ips.into_iter().map(NameServerConfig::udp_and_tcp).collect();
         let config = ResolverConfig::from_parts(None, vec![], group);
+
         let mut opts = ResolverOpts::default();
         opts.attempts = 0;
         opts.use_hosts_file = ResolveHosts::Never;
-        let provider = TokioConnectionProvider::default();
-        let resolver = TokioResolver::builder_with_config(config, provider)
+
+        let resolver = TokioResolver::builder_with_config(config, TokioRuntimeProvider::default())
             .with_options(opts)
-            .build();
+            .build()
+            .map_err(|err| io::Error::other(format!("Failed to create DNS resolver: {err}")))?;
 
         let lookup = resolver
             .lookup_ip(host)
             .await
             .map_err(|err| io::Error::other(format!("lookup_ip failed: {err}")))?;
 
-        Ok(lookup.into_iter().map(|ip| (ip, 0).into()).collect())
+        Ok(lookup.iter().map(|ip| (ip, 0).into()).collect())
     }
 }
