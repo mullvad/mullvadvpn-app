@@ -40,15 +40,18 @@ struct MullvadAlert: Identifiable {
     let id = UUID()
     let type: AlertType
     let messages: [LocalizedStringKey]
+    let customView: AnyView?
     let actions: [Action]
 
     init(
         type: AlertType,
-        messages: [LocalizedStringKey],
+        messages: [LocalizedStringKey] = [],
+        customView: AnyView? = nil,
         actions: [Action] = []
     ) {
         self.type = type
         self.messages = messages
+        self.customView = customView
         self.actions = actions
     }
 }
@@ -101,7 +104,7 @@ struct AlertModifier: ViewModifier {
     private func alertContent(for alert: MullvadAlert) -> some View {
         VStack(spacing: 16) {
             alertIcon(for: alert.type)
-            alertMessage(alert.messages)
+            alertMessage(alert.messages, customView: alert.customView)
             VStack(spacing: 16) {
                 ForEach(alert.actions) { action in
                     alertAction(for: action)
@@ -128,17 +131,18 @@ struct AlertModifier: ViewModifier {
     }
 
     @ViewBuilder
-    private func alertMessage(_ messages: [LocalizedStringKey]) -> some View {
+    private func alertMessage(_ messages: [LocalizedStringKey], customView: AnyView?) -> some View {
         ScrollView {
             VStack {
                 ForEach(Array(messages.enumerated()), id: \.offset) { _, text in
                     HStack {
                         Text(text)
                             .font(.mullvadSmall)
-                            .foregroundColor(.mullvadTextPrimary.opacity(0.6))
+                            .foregroundColor(.mullvadTextSecondary)
                         Spacer()
                     }
                 }
+                customView
             }.sizeOfView { size in
                 scrollViewHeight = size.height
             }

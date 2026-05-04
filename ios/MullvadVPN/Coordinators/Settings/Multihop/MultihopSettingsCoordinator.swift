@@ -36,7 +36,7 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
     }
 
     func start(animated: Bool) {
-        let view = SettingsMultihopView(tunnelViewModel: self.viewModel)
+        let view = SettingsMultihopView(viewModel: self.viewModel)
 
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString("Multihop", comment: "")

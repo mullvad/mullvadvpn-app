@@ -529,7 +529,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapMultihopCell()
 
         MultihopPage(app)
-            .verifyOnePage()
+            .verifyFourPages()
             .tapMultihopState(.always)
             .tapBackButton()
 
