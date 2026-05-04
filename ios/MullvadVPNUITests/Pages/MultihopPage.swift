@@ -23,8 +23,8 @@ class MultihopPage: Page {
         return self
     }
 
-    @discardableResult func verifyOnePage() -> Self {
-        XCTAssertEqual(app.pageIndicators.firstMatch.value as? String, "page 1 of 1")
+    @discardableResult func verifyFourPages() -> Self {
+        XCTAssertEqual(app.pageIndicators.firstMatch.value as? String, "page 1 of 4")
         return self
     }
 
