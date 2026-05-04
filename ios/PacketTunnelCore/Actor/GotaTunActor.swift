@@ -10,19 +10,18 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 import Network
-import PacketTunnelCore
 
 /// Stub actor for GotaTun tunnel implementation.
 /// Implements `PacketTunnelActorProtocol` with no-op methods — the real
 /// GotaTun logic will be filled in later.
-final class GotaTunActor: PacketTunnelActorProtocol, @unchecked Sendable {
+public final class GotaTunActor: PacketTunnelActorProtocol, @unchecked Sendable {
     private let logger = Logger(label: "GotaTunActor")
 
-    var observedState: ObservedState {
+    public var observedState: ObservedState {
         get async { .disconnected }
     }
 
-    var observedStates: AsyncStream<ObservedState> {
+    public var observedStates: AsyncStream<ObservedState> {
         get async {
             AsyncStream { continuation in
                 continuation.yield(.disconnected)
@@ -31,51 +30,51 @@ final class GotaTunActor: PacketTunnelActorProtocol, @unchecked Sendable {
         }
     }
 
-    init() {
+    public init() {
         logger.info("GotaTunActor initialized (stub)")
     }
 
-    func start(options: StartOptions) {
+    public func start(options: StartOptions) {
         logger.info("start called (no-op)")
     }
 
-    func stop() {
+    public func stop() {
         logger.info("stop called (no-op)")
     }
 
-    func waitUntilDisconnected() async {
+    public func waitUntilDisconnected() async {
         logger.info("waitUntilDisconnected called (no-op)")
     }
 
-    func onSleep() {
+    public func onSleep() {
         logger.info("onSleep called (no-op)")
     }
 
-    func onWake() {
+    public func onWake() {
         logger.info("onWake called (no-op)")
     }
 
-    func updateNetworkReachability(networkPathStatus: NWPath.Status) {
+    public func updateNetworkReachability(networkPathStatus: NWPath.Status) {
         logger.info("updateNetworkReachability called (no-op)")
     }
 
-    func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason) {
+    public func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason) {
         logger.info("reconnect called (no-op)")
     }
 
-    func notifyKeyRotation(date: Date?) {
+    public func notifyKeyRotation(date: Date?) {
         logger.info("notifyKeyRotation called (no-op)")
     }
 
-    func setErrorState(reason: BlockedStateReason) {
+    public func setErrorState(reason: BlockedStateReason) {
         logger.info("setErrorState called (no-op)")
     }
 
-    func notifyEphemeralPeerNegotiated() {
+    public func notifyEphemeralPeerNegotiated() {
         logger.info("notifyEphemeralPeerNegotiated called (no-op)")
     }
 
-    func changeEphemeralPeerNegotiationState(
+    public func changeEphemeralPeerNegotiationState(
         configuration: EphemeralPeerNegotiationState,
         reconfigurationSemaphore: OneshotChannel
     ) {
