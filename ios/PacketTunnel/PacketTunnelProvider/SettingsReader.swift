@@ -11,9 +11,13 @@ import MullvadSettings
 import PacketTunnelCore
 
 struct SettingsReader: SettingsReaderProtocol {
+    private let settingsManager: SettingsManager
+    init(settingsManager: SettingsManager) {
+        self.settingsManager = settingsManager
+    }
     func read() throws -> Settings {
-        let settings = try SettingsManager.readSettings()
-        let deviceState = try SettingsManager.readDeviceState()
+        let settings = try settingsManager.readSettings()
+        let deviceState = try settingsManager.readDeviceState()
         let deviceData = try deviceState.getDeviceData()
 
         return Settings(

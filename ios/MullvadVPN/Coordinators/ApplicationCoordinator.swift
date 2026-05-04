@@ -59,6 +59,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var breadcrumbsObserver: BreadcrumbsBlockObserver?
+    private let settingsManager: SettingsManager
     private let logRedactor: LogRedacting?
 
     private var outOfTimeTimer: Timer?
@@ -80,6 +81,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         ipOverrideRepository: IPOverrideRepository,
         relaySelectorWrapper: RelaySelectorWrapper,
         breadcrumbsProvider: BreadcrumbsProvider,
+        settingsManager: SettingsManager,
         logRedactor: LogRedacting? = nil
     ) {
         self.tunnelManager = tunnelManager
@@ -95,6 +97,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.relaySelectorWrapper = relaySelectorWrapper
         self.breadcrumbsProvider = breadcrumbsProvider
         self.logRedactor = logRedactor
+        self.settingsManager = settingsManager
 
         super.init()
 
@@ -529,7 +532,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             navigationController: navigationContainer,
             tunnelManager: tunnelManager,
             devicesProxy: devicesProxy,
-            breadcrumbsProvider: breadcrumbsProvider
+            breadcrumbsProvider: breadcrumbsProvider,
+            settingsManager: settingsManager
         )
 
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
@@ -587,7 +591,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private func makeTunnelCoordinator() -> TunnelCoordinator {
         let tunnelCoordinator = TunnelCoordinator(
             tunnelManager: tunnelManager,
-            outgoingConnectionService: outgoingConnectionService
+            outgoingConnectionService: outgoingConnectionService,
+            settingsStore: settingsManager.store
         )
 
         tunnelCoordinator.showSelectLocationPicker = { [weak self] in
@@ -612,8 +617,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
             relayCacheTracker: relayCacheTracker,
-            customListRepository: CustomListRepository(),
-            recentConnectionsRepository: RecentConnectionsRepository(store: SettingsManager.store)
+            customListRepository: CustomListRepository(settingsStore: settingsManager.store),
+            recentConnectionsRepository: RecentConnectionsRepository(settingsStore: settingsManager.store)
         )
 
         locationCoordinator.didFinish = { [weak self] _ in
