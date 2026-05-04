@@ -34,8 +34,14 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     var accessMethodReceiver: MullvadAccessMethodReceiver!
     private var shadowsocksCacheCleaner: ShadowsocksCacheCleaner!
 
+    private let settingsManager = SettingsManager()
+    private var settingsStore: SettingsStore {
+        settingsManager.store
+    }
+
     override init() {
         Self.configureLogging()
+
         providerLogger = Logger(label: "PacketTunnelProvider")
         providerLogger.info("Starting new packet tunnel")
 
@@ -43,23 +49,26 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
-            ipOverrideRepository: IPOverrideRepository()
+            ipOverrideRepository: IPOverrideRepository(settingsStore: settingsManager.store)
         )
+
         tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
-        migrationManager = MigrationManager(cacheDirectory: containerURL)
+        migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
 
         super.init()
 
         performSettingsMigration()
 
-        let settingsReader = TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in
+        let settingsReader = TunnelSettingsManager(settingsReader: SettingsReader(settingsManager: settingsManager)) {
+            [weak self] settings in
             guard let self = self else { return }
             tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
         }
 
         let tunnelSettings = (try? settingsReader.read().tunnelSettings) ?? LatestTunnelSettings()
         let accessMethodRepository = AccessMethodRepository(
-            shadowsocksCiphers: ShadowsocksCipherService().getCiphers()
+            shadowsocksCiphers: ShadowsocksCipherService().getCiphers(),
+            settingsStore: settingsStore
         )
 
         setUpApiContextAndAccessMethodReceiver(
@@ -86,7 +95,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()
 
-        deviceChecker = DeviceChecker(accountsProxy: accountsProxy, devicesProxy: devicesProxy)
+        deviceChecker = DeviceChecker(
+            accountsProxy: accountsProxy,
+            devicesProxy: devicesProxy,
+            settingsManager: settingsManager
+        )
 
         #if DEBUG
             if PacketTunnelDebugSettings.useGotaTun {
@@ -177,7 +190,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         nonisolated(unsafe) var hasNotMigrated = true
         repeat {
             migrationManager.migrateSettings(
-                store: SettingsManager.store,
+                store: settingsManager.store,
                 migrationCompleted: { [unowned self] migrationResult in
                     switch migrationResult {
                     case .success:

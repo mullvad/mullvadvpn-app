@@ -15,6 +15,7 @@ import UIKit
 final class AppResetManager {
     private let launchArguments: LaunchArguments
     private let tunnelManager: TunnelManager
+    private let settingsManager: SettingsManager
     private var tunnelObserver: TunnelObserver!
     let logger = Logger(label: "AppResetManager")
 
@@ -22,10 +23,13 @@ final class AppResetManager {
 
     init(
         launchArguments: LaunchArguments,
-        tunnelManager: TunnelManager
+        tunnelManager: TunnelManager,
+        settingsManager: SettingsManager
     ) {
         self.launchArguments = launchArguments
         self.tunnelManager = tunnelManager
+        self.settingsManager = settingsManager
+
         guard launchArguments.target.isUITest else { return }
         addObserver()
         Task {
@@ -82,7 +86,7 @@ final class AppResetManager {
 
     private func resetKeychain() {
         let policy = launchArguments.settingsResetPolicy
-        SettingsManager.resetStore(policy: policy.toSettingsResetPolicy)
+        settingsManager.resetStore(policy: policy.toSettingsResetPolicy)
         if policy.shouldReset(.settings) {
             tunnelManager.updateSettings([.reset])
         }

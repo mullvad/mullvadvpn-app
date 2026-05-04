@@ -12,16 +12,8 @@ import XCTest
 @testable import MullvadSettings
 
 class CustomListRepositoryTests: XCTestCase {
-    nonisolated(unsafe) static let store = InMemorySettingsStore<SettingNotFound>()
-    private var repository = CustomListRepository()
-
-    override class func setUp() {
-        SettingsManager.unitTestStore = store
-    }
-
-    override class func tearDown() {
-        store.reset()
-    }
+    private let store = InMemorySettingsStore<SettingNotFound>()
+    private lazy var repository = CustomListRepository(settingsStore: store)
 
     override func tearDownWithError() throws {
         repository.fetchAll().forEach {

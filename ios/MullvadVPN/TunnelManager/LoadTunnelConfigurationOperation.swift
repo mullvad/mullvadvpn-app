@@ -15,10 +15,11 @@ import Operations
 class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let interactor: TunnelInteractor
+    private let settingsManager: SettingsManager
 
-    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor) {
+    init(dispatchQueue: DispatchQueue, interactor: TunnelInteractor, settingsManager: SettingsManager) {
         self.interactor = interactor
-
+        self.settingsManager = settingsManager
         super.init(dispatchQueue: dispatchQueue)
     }
 
@@ -59,7 +60,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
     }
 
     private func readSettings() -> Result<LatestTunnelSettings?, Error> {
-        Result { try SettingsManager.readSettings() }
+        Result { try settingsManager.readSettings() }
             .flatMapError { error in
                 if let error = error as? ReadSettingsVersionError,
                     let keychainError = error.underlyingError as? KeychainError, keychainError == .itemNotFound
@@ -79,7 +80,7 @@ class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendab
     }
 
     private func readDeviceState() -> Result<DeviceState?, Error> {
-        Result { try SettingsManager.readDeviceState() }
+        Result { try settingsManager.readDeviceState() }
             .flatMapError { error in
                 if let error = error as? KeychainError, error == .itemNotFound {
                     logger.debug("Device state not found in keychain.")

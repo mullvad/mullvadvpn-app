@@ -23,7 +23,7 @@ extension MigrationManagerTests {
         var settingsV1 = TunnelSettingsV1()
         settingsV1.relayConstraints = osakaRelayConstraints
 
-        try write(settings: settingsV1, version: SchemaVersion.v1.rawValue, in: Self.store)
+        try write(settings: settingsV1, version: SchemaVersion.v1.rawValue, in: store)
 
         let backgroundMigrationExpectation = expectation(description: "Migration from packet tunnel")
         let foregroundMigrationExpectation = expectation(description: "Migration from host")
@@ -31,7 +31,7 @@ extension MigrationManagerTests {
         nonisolated(unsafe) var migrationHappenedInHost = false
 
         packetTunnelProcess.async { [unowned self] in
-            manager.migrateSettings(store: MigrationManagerTests.store) { backgroundMigrationResult in
+            manager.migrateSettings(store: store) { backgroundMigrationResult in
                 if case .success = backgroundMigrationResult {
                     migrationHappenedInPacketTunnel = true
                 }
@@ -40,7 +40,7 @@ extension MigrationManagerTests {
         }
 
         hostProcess.async { [unowned self] in
-            manager.migrateSettings(store: MigrationManagerTests.store) { foregroundMigrationResult in
+            manager.migrateSettings(store: store) { foregroundMigrationResult in
                 if case .success = foregroundMigrationResult {
                     migrationHappenedInHost = true
                 }
@@ -53,7 +53,7 @@ extension MigrationManagerTests {
         // Migration happens either in one process, or the other.
         // This check guarantees it didn't happen in both simultaneously.
         XCTAssertNotEqual(migrationHappenedInPacketTunnel, migrationHappenedInHost)
-        let latestSettings = try SettingsManager.readSettings()
+        let latestSettings = try SettingsManager(store: store).readSettings()
         XCTAssertEqual(osakaRelayConstraints, latestSettings.relayConstraints)
     }
 }
