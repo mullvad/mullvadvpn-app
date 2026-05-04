@@ -71,7 +71,7 @@ class VpnSettingsScreenTest {
         navigateToServerIpOverrides: () -> Unit = {},
         onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
         navigateToMtuDialog: (mtu: Mtu?) -> Unit = {},
-        navigateToDns: () -> Unit = { },
+        navigateToDns: () -> Unit = {},
         onBackClick: () -> Unit = {},
         onSelectQuantumResistanceSetting: (Boolean) -> Unit = {},
         onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},

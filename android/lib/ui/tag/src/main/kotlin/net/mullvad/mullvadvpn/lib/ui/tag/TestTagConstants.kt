@@ -51,8 +51,7 @@ const val LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG =
     "lazy_list_anti_censorship_settings_test_tag"
 
 // DnsSettingsScreen
-const val LAZY_LIST_DNS_SETTINGS_TEST_TAG =
-    "lazy_list_dns_settings_test_tag"
+const val LAZY_LIST_DNS_SETTINGS_TEST_TAG = "lazy_list_dns_settings_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
