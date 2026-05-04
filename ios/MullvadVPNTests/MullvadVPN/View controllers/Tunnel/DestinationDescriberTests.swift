@@ -15,12 +15,13 @@ import XCTest
 @testable import MullvadSettings
 
 final class DestinationDescriberTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
-    override static func setUp() {
+    let store = InMemorySettingsStore<SettingNotFound>()
+
+    override func setUp() {
         SettingsManager.unitTestStore = store
     }
 
-    override static func tearDown() {
+    override func tearDown() {
         store.reset()
     }
 
