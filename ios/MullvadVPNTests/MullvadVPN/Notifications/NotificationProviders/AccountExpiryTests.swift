@@ -18,22 +18,27 @@ class AccountExpiryTests: XCTestCase {
     }
 
     func testDateNowDuration() {
-        let accountExpiry = AccountExpiry(expiryDate: Date())
-        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
-        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp))  // In-app expiry triggers on same date as well.
+        let expiryDate = Date()
+        let accountExpiry = AccountExpiry(expiryDate: expiryDate)
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system, after: expiryDate))
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp, after: expiryDate)) // In-app expiry triggers on same date as well.
     }
 
     func testDateInPastDuration() {
-        let accountExpiry = AccountExpiry(expiryDate: Date().addingTimeInterval(-10))
-        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system))
-        XCTAssertNil(accountExpiry.nextTriggerDate(for: .inApp))
+        let referenceDate = Date()
+
+        let expiryDate = referenceDate.addingTimeInterval(-10)
+        let accountExpiry = AccountExpiry(expiryDate: expiryDate)
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .system, after: referenceDate))
+        XCTAssertNil(accountExpiry.nextTriggerDate(for: .inApp, after: referenceDate))
     }
 
     func testDateInFutureDuration() {
-        let accountExpiry = AccountExpiry(expiryDate: calendar.date(byAdding: .day, value: 1, to: Date()))
+        let referenceDate = Date()
+        let accountExpiry = AccountExpiry(expiryDate: calendar.date(byAdding: .day, value: 1, to: referenceDate))
 
-        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .system))
-        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp))
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .system, after: referenceDate))
+        XCTAssertNotNil(accountExpiry.nextTriggerDate(for: .inApp, after: referenceDate))
     }
 
     func testNumberOfTriggerDates() {
