@@ -144,6 +144,8 @@ class ConnectionTest : EndToEndTest() {
                 clickConnect()
                 // Currently it takes ~60 seconds to connect with wg obfuscation automatic and UDP
                 // traffic blocked so we need to be very forgiving
+                // The order of obfuscation methods in automatic mode can be found here:
+                // mullvad-relay-selector/src/relay_selector/mod.rs:48.
                 waitForConnectedLabel(timeout = VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT)
             }
         }
