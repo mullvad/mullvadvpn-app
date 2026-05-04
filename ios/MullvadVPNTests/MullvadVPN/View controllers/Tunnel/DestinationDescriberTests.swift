@@ -15,18 +15,15 @@ import XCTest
 @testable import MullvadSettings
 
 final class DestinationDescriberTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
-    override static func setUp() {
-        SettingsManager.unitTestStore = store
-    }
+    let store = InMemorySettingsStore<SettingNotFound>()
 
-    override static func tearDown() {
+    override func tearDown() {
         store.reset()
     }
 
     func testDescribeList() throws {
         let relayCache = MockRelayCache()
-        let customListRepository = CustomListRepository()
+        let customListRepository = CustomListRepository(settingsStore: store)
         let describer = DestinationDescriber(
             relayCache: relayCache,
             customListRepository: customListRepository
@@ -50,7 +47,7 @@ final class DestinationDescriberTests: XCTestCase {
 
     func testDescribeSubsetOfList() throws {
         let relayCache = MockRelayCache()
-        let customListRepository = CustomListRepository()
+        let customListRepository = CustomListRepository(settingsStore: store)
         let describer = DestinationDescriber(
             relayCache: relayCache,
             customListRepository: customListRepository
@@ -74,7 +71,7 @@ final class DestinationDescriberTests: XCTestCase {
 
     func testDescribeCountryDestination() {
         let relayCache = MockRelayCache()
-        let customListRepository = CustomListRepository()
+        let customListRepository = CustomListRepository(settingsStore: store)
         let describer = DestinationDescriber(
             relayCache: relayCache,
             customListRepository: customListRepository
@@ -84,7 +81,7 @@ final class DestinationDescriberTests: XCTestCase {
 
     func testDescribeCityDestination() {
         let relayCache = MockRelayCache()
-        let customListRepository = CustomListRepository()
+        let customListRepository = CustomListRepository(settingsStore: store)
         let describer = DestinationDescriber(
             relayCache: relayCache,
             customListRepository: customListRepository
@@ -94,7 +91,7 @@ final class DestinationDescriberTests: XCTestCase {
 
     func testDescribeRelayDestination() {
         let relayCache = MockRelayCache()
-        let customListRepository = CustomListRepository()
+        let customListRepository = CustomListRepository(settingsStore: store)
         let describer = DestinationDescriber(
             relayCache: relayCache,
             customListRepository: customListRepository

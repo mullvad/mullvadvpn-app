@@ -107,7 +107,8 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
             viewModel: ListAccessViewModelBridge(
                 interactor: ListAccessMethodInteractor(
                     repository: AccessMethodRepository(
-                        shadowsocksCiphers: []
+                        shadowsocksCiphers: [],
+                        settingsStore: SettingsManager().store
                     )
                 ),
                 delegate: nil

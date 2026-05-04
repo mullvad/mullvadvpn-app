@@ -14,30 +14,19 @@ private let keychainServiceName = "Mullvad VPN"
 private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
-public enum SettingsManager {
-    nonisolated(unsafe) private static let logger = Logger(label: "SettingsManager")
+public struct SettingsManager: @unchecked Sendable {
+    private static let logger = Logger(label: "SettingsManager")
 
-    #if DEBUG
-        nonisolated(unsafe) private static var _store = KeychainSettingsStore(
-            serviceName: keychainServiceName,
-            accessGroup: ApplicationConfiguration.securityGroupIdentifier
-        )
+    public let store: SettingsStore
 
-        /// Alternative store used for tests.
-        nonisolated(unsafe) internal static var unitTestStore: SettingsStore?
-
-        public static var store: SettingsStore {
-            if let unitTestStore { return unitTestStore }
-            return _store
-        }
-
-    #else
-        public static let store: SettingsStore = KeychainSettingsStore(
-            serviceName: keychainServiceName,
-            accessGroup: ApplicationConfiguration.securityGroupIdentifier
-        )
-
-    #endif
+    public init(store: SettingsStore? = nil) {
+        self.store =
+            store
+            ?? KeychainSettingsStore(
+                serviceName: keychainServiceName,
+                accessGroup: ApplicationConfiguration.securityGroupIdentifier
+            )
+    }
 
     private static func makeParser() -> SettingsParser {
         SettingsParser(decoder: JSONDecoder(), encoder: JSONEncoder())
@@ -45,7 +34,7 @@ public enum SettingsManager {
 
     // MARK: - Last used account
 
-    public static func getLastUsedAccount() throws -> String {
+    public func getLastUsedAccount() throws -> String {
         let data = try store.read(key: .lastUsedAccount)
         guard let result = String(bytes: data, encoding: .utf8) else {
             throw StringDecodingError(data: data)
@@ -53,7 +42,7 @@ public enum SettingsManager {
         return result
     }
 
-    public static func setLastUsedAccount(_ string: String?) throws {
+    public func setLastUsedAccount(_ string: String?) throws {
         if let string {
             guard let data = string.data(using: .utf8) else {
                 throw StringEncodingError(string: string)
@@ -73,15 +62,15 @@ public enum SettingsManager {
 
     // MARK: - Should wipe settings
 
-    public static func getShouldWipeSettings() -> Bool {
+    public func getShouldWipeSettings() -> Bool {
         (try? store.read(key: .shouldWipeSettings)) != nil
     }
 
-    public static func setShouldWipeSettings() {
+    public func setShouldWipeSettings() {
         do {
             try store.write(Data(), for: .shouldWipeSettings)
         } catch {
-            logger.error(
+            Self.logger.error(
                 error: error,
                 message: "Failed to set should wipe settings."
             )
@@ -90,10 +79,10 @@ public enum SettingsManager {
 
     // MARK: - Settings
 
-    public static func readSettings() throws -> LatestTunnelSettings {
+    public func readSettings() throws -> LatestTunnelSettings {
         let storedVersion: Int
         let data: Data
-        let parser = makeParser()
+        let parser = Self.makeParser()
 
         do {
             data = try store.read(key: .settings)
@@ -114,8 +103,8 @@ public enum SettingsManager {
         }
     }
 
-    public static func writeSettings(_ settings: LatestTunnelSettings) throws {
-        let parser = makeParser()
+    public func writeSettings(_ settings: LatestTunnelSettings) throws {
+        let parser = Self.makeParser()
         let data = try parser.producePayload(settings, version: SchemaVersion.current.rawValue)
 
         try store.write(data, for: .settings)
@@ -123,15 +112,15 @@ public enum SettingsManager {
 
     // MARK: - Device state
 
-    public static func readDeviceState() throws -> DeviceState {
+    public func readDeviceState() throws -> DeviceState {
         let data = try store.read(key: .deviceState)
-        let parser = makeParser()
+        let parser = Self.makeParser()
 
         return try parser.parseUnversionedPayload(as: DeviceState.self, from: data)
     }
 
-    public static func writeDeviceState(_ deviceState: DeviceState) throws {
-        let parser = makeParser()
+    public func writeDeviceState(_ deviceState: DeviceState) throws {
+        let parser = Self.makeParser()
         let data = try parser.produceUnversionedPayload(deviceState)
 
         try store.write(data, for: .deviceState)
@@ -139,8 +128,8 @@ public enum SettingsManager {
 
     /// Removes all legacy settings, device state, tunnel settings and API access methods but keeps
     /// the last used account number stored.
-    public static func resetStore(policy: SettingsResetPolicy = .partially) {
-        logger.debug("Reset store.")
+    public func resetStore(policy: SettingsResetPolicy = .partially) {
+        Self.logger.debug("Reset store.")
 
         let keys = policy.keys
 
@@ -149,7 +138,7 @@ public enum SettingsManager {
                 try store.delete(key: key)
             } catch {
                 if (error as? KeychainError) != .itemNotFound {
-                    logger.error(error: error, message: "Failed to delete \(key.rawValue).")
+                    Self.logger.error(error: error, message: "Failed to delete \(key.rawValue).")
                 }
             }
         }
@@ -157,20 +146,20 @@ public enum SettingsManager {
 
     // MARK: - API-side Address Cache
 
-    public static func writeAddressCache(_ cache: Data) throws {
+    public func writeAddressCache(_ cache: Data) throws {
         try store.write(cache, for: .addressCache)
     }
 
-    public static func readAddressCache() throws -> Data {
+    public func readAddressCache() throws -> Data {
         try store.read(key: .addressCache)
     }
 
     // MARK: - Private
 
-    private static func checkLatestSettingsVersion() throws {
+    private func checkLatestSettingsVersion() throws {
         let settingsVersion: Int
         do {
-            let parser = makeParser()
+            let parser = Self.makeParser()
             let settingsData = try store.read(key: .settings)
             settingsVersion = try parser.parseVersion(data: settingsData)
         } catch .itemNotFound as KeychainError {
@@ -188,7 +177,7 @@ public enum SettingsManager {
             currentVersion: SchemaVersion.current
         )
 
-        logger.error(error: error, message: "Encountered an unknown version.")
+        Self.logger.error(error: error, message: "Encountered an unknown version.")
 
         throw error
     }

@@ -38,6 +38,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         appDelegate.tunnelManager
     }
 
+    private var settingsManager: SettingsManager {
+        appDelegate.settingsManager
+    }
+
     // MARK: - Private
 
     private func addTunnelObserver() {
@@ -83,6 +87,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             ipOverrideRepository: appDelegate.ipOverrideRepository,
             relaySelectorWrapper: appDelegate.relaySelector,
             breadcrumbsProvider: appDelegate.breadcrumbsProvider,
+            settingsManager: appDelegate.settingsManager,
             logRedactor: appDelegate.logRedactor
         )
 
@@ -180,7 +185,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
         let launchViewController = LaunchViewController(
             launchArguments: appDelegate.launchArguments,
             tunnelManager: tunnelManager,
-            accessMethodRepository: accessMethodRepository)
+            accessMethodRepository: accessMethodRepository,
+            settingsManager: settingsManager)
 
         launchViewController.onAppReady = { [weak self] in
             guard let self = self else { return }

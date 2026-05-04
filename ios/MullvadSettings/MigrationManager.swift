@@ -24,9 +24,11 @@ public enum SettingsMigrationResult: Sendable {
 public struct MigrationManager {
     private let logger = Logger(label: "MigrationManager")
     private let cacheDirectory: URL
+    private let settingsManager: SettingsManager
 
-    public init(cacheDirectory: URL) {
+    public init(cacheDirectory: URL, settingsManager: SettingsManager) {
         self.cacheDirectory = cacheDirectory.appendingPathComponent("migrationState.json")
+        self.settingsManager = settingsManager
     }
 
     /// Migrate settings store if needed.
@@ -56,7 +58,7 @@ public struct MigrationManager {
             let resetStoreHandler = { (result: SettingsMigrationResult) in
                 // Reset store upon failure to migrate settings.
                 if case .failure = result {
-                    SettingsManager.resetStore()
+                    settingsManager.resetStore()
                 }
                 migrationCompleted(result)
             }
