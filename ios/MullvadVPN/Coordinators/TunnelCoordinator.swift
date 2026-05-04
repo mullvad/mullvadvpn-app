@@ -28,7 +28,8 @@ class TunnelCoordinator: Coordinator, Presenting {
 
     init(
         tunnelManager: TunnelManager,
-        outgoingConnectionService: OutgoingConnectionServiceHandling
+        outgoingConnectionService: OutgoingConnectionServiceHandling,
+        settingsStore: SettingsStore
     ) {
         self.tunnelManager = tunnelManager
 
@@ -37,7 +38,7 @@ class TunnelCoordinator: Coordinator, Presenting {
             outgoingConnectionService: outgoingConnectionService
         )
 
-        controller = TunnelViewController(interactor: interactor)
+        controller = TunnelViewController(interactor: interactor, settingsStore: settingsStore)
 
         super.init()
 

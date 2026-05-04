@@ -26,7 +26,11 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     nonisolated(unsafe) private let logger = Logger(label: "IPOverrideRepository")
     private let readWriteLock = NSLock()
 
-    public init() {}
+    private let settingsStore: SettingsStore
+
+    public init(settingsStore: SettingsStore) {
+        self.settingsStore = settingsStore
+    }
 
     public func add(_ overrides: [IPOverride]) {
         var storedOverrides = fetchAll()
@@ -63,7 +67,7 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     public func deleteAll() {
         do {
             try readWriteLock.withLock {
-                try SettingsManager.store.delete(key: .ipOverrides)
+                try settingsStore.delete(key: .ipOverrides)
                 overridesSubject.send([])
             }
         } catch {
@@ -81,7 +85,7 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     private func readIpOverrides() throws -> [IPOverride] {
         try readWriteLock.withLock {
             let parser = makeParser()
-            let data = try SettingsManager.store.read(key: .ipOverrides)
+            let data = try settingsStore.read(key: .ipOverrides)
             return try parser.parseUnversionedPayload(as: [IPOverride].self, from: data)
         }
     }
@@ -91,7 +95,7 @@ public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
         let data = try parser.produceUnversionedPayload(overrides)
 
         try readWriteLock.withLock {
-            try SettingsManager.store.write(data, for: .ipOverrides)
+            try settingsStore.write(data, for: .ipOverrides)
             overridesSubject.send(overrides)
         }
     }

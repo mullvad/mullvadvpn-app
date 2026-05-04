@@ -12,7 +12,7 @@ import XCTest
 @testable import MullvadSettings
 
 final class IPOverrideTests: XCTestCase {
-    let repository = IPOverrideRepository()
+    let repository = IPOverrideRepository(settingsStore: InMemorySettingsStore<SettingNotFound>())
 
     func testCanParseOverrides() throws {
         XCTAssertNoThrow(try parseData(from: overrides))
