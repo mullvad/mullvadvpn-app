@@ -45,6 +45,8 @@ pub struct IpSplitTunnel {
     path: PathBuf,
     ranges: BTreeSet<Ipv4Network>,
     route_manager: RouteManagerHandle,
+    applied_routes: Vec<Ipv4Network>,
+    enabled: bool,
 }
 
 pub enum Command {
@@ -53,6 +55,7 @@ pub enum Command {
     Remove(crate::ResponseTx<(), crate::Error>, String),
     Clear(crate::ResponseTx<(), crate::Error>),
     Check(crate::ResponseTx<Vec<CheckResult>, crate::Error>, Option<String>),
+    Toggle(crate::ResponseTx<bool, crate::Error>),
 }
 
 impl Command {
@@ -81,11 +84,18 @@ impl IpSplitTunnel {
         let path = settings_dir.as_ref().join(STORE_DIR).join(STORE_FILE);
         let ranges = load_ranges(&path).await?;
 
-        Ok(Self {
+        let mut ip_split_tunnel = Self {
             path,
             ranges,
             route_manager,
-        })
+            applied_routes: Vec::new(),
+            enabled: true, // Enabled by default
+        };
+        
+        // Try to load enabled state, but don't fail if it doesn't exist
+        let _ = ip_split_tunnel.load_enabled_state().await;
+        
+        Ok(ip_split_tunnel)
     }
 
     pub fn list(&self) -> Vec<String> {
@@ -110,12 +120,71 @@ impl IpSplitTunnel {
     }
 
     pub async fn apply(&mut self) -> Result<(), Error> {
+        // If disabled, clear all rules and return
+        if !self.enabled {
+            self.clear_applied().await?;
+            self.applied_routes.clear();
+            return Ok(());
+        }
+
         let ranges = self.ranges.iter().copied().collect::<Vec<_>>();
+        
+        // Apply firewall marks - this marks packets destined for whitelisted IPs
+        // so they bypass the tunnel routing table
         talpid_core::firewall::linux::ip_split_tunnel::apply_ranges(
             mullvad_types::TUNNEL_FWMARK,
             &ranges,
         )
-        .map_err(Error::Firewall)
+        .map_err(Error::Firewall)?;
+
+        // The route manager should handle adding routes to the main table
+        // for whitelisted IPs. This is handled by the daemon's tunnel state
+        // transition which calls apply() when connected.
+        
+        self.applied_routes = ranges;
+        Ok(())
+    }
+
+    pub async fn toggle(&mut self) -> bool {
+        self.enabled = !self.enabled;
+        
+        // Save the enabled state
+        if let Err(e) = self.save_enabled_state().await {
+            log::error!("Failed to save IP split-tunnel enabled state: {}", e);
+        }
+        
+        // Apply or clear based on new state
+        if let Err(e) = self.apply().await {
+            log::error!("Failed to apply IP split-tunnel after toggle: {}", e);
+        }
+        
+        self.enabled
+    }
+
+    async fn save_enabled_state(&self) -> Result<(), Error> {
+        // Save enabled state in a separate file
+        let enabled_path = self.path.with_file_name("ip-split-tunnel-enabled.json");
+        let state = serde_json::json!({ "enabled": self.enabled });
+        let contents = serde_json::to_vec(&state).map_err(Error::ParseStore)?;
+        tokio::fs::write(&enabled_path, contents)
+            .await
+            .map_err(Error::WriteStore)
+    }
+
+    async fn load_enabled_state(&mut self) -> Result<(), Error> {
+        let enabled_path = self.path.with_file_name("ip-split-tunnel-enabled.json");
+        let contents = match tokio::fs::read_to_string(&enabled_path).await {
+            Ok(c) => c,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+                self.enabled = true; // Default to enabled
+                return Ok(());
+            }
+            Err(e) => return Err(Error::ReadStore(e)),
+        };
+        
+        let state: serde_json::Value = serde_json::from_str(&contents).map_err(Error::ParseStore)?;
+        self.enabled = state.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true);
+        Ok(())
     }
 
     pub async fn shutdown(&mut self) {
@@ -124,6 +193,10 @@ impl IpSplitTunnel {
                 "{}",
                 error.display_chain_with_msg("Failed to clear IP split-tunnel rules")
             );
+        }
+        // Also clear routes
+        if let Err(e) = self.route_manager.clear_routes() {
+            log::warn!("Failed to clear IP split-tunnel routes on shutdown: {}", e);
         }
     }
 
@@ -183,6 +256,10 @@ impl IpSplitTunnel {
                         );
                     });
                 let _ = tx.send(result);
+            }
+            Command::Toggle(tx) => {
+                let new_state = self.toggle().await;
+                let _ = tx.send(Ok(new_state));
             }
         }
     }

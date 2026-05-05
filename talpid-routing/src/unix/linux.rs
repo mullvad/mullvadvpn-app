@@ -37,6 +37,10 @@ use rtnetlink::{
     sys::SocketAddr,
 };
 
+/// The mark value used by split tunneling to mark packets that should bypass the tunnel.
+/// This must match `talpid_core::split_tunnel::linux::MARK`.
+const SPLIT_TUNNEL_MARK: u32 = 0xf41;
+
 /// A routing table rule that directs IPv4 packets to look up routes from the main
 /// routing table, but to skip default routes, i.e. routes with prefix length 0.
 static SUPPRESS_RULE_V4: LazyLock<RuleMessage> = LazyLock::new(|| {
@@ -64,8 +68,28 @@ static SUPPRESS_RULE_V6: LazyLock<RuleMessage> = LazyLock::new(|| {
     v6_rule
 });
 
-fn all_rules(fwmark: u32, table: u32) -> [RuleMessage; 4] {
+/// Create a routing rule that directs packets marked with `split_tunnel::MARK` 
+/// to the main routing table, bypassing the tunnel.
+fn split_tunnel_rule(fwmark: u32) -> RuleMessage {
+    let mut rule_msg = RuleMessage::default();
+    let header = RuleHeader {
+        family: AddressFamily::Inet,
+        action: RuleAction::ToTable, // FR_ACT_TO_TBL
+        ..RuleHeader::default()
+    };
+    let attributes = vec![
+        RuleAttribute::FwMark(fwmark),
+        RuleAttribute::Table(RT_TABLE_MAIN as u32),
+    ];
+    
+    rule_msg.header = header;
+    rule_msg.attributes = attributes;
+    rule_msg
+}
+
+fn all_rules(fwmark: u32, table: u32) -> [RuleMessage; 5] {
     [
+        split_tunnel_rule(SPLIT_TUNNEL_MARK),
         no_fwmark_rule_v4(fwmark, table),
         no_fwmark_rule_v6(fwmark, table),
         SUPPRESS_RULE_V4.clone(),
