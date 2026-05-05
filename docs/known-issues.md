@@ -146,7 +146,7 @@ any way that a VPN app can mitigate this issue. It has to be solved upstream in 
 * December 18, 2019 - Someone [reports the issue to google](https://issuetracker.google.com/issues/146484540)
 
 
-### Any app can leak the device IP on Android 16 and later
+### Any app can leak the device IP on Android
 
 Android 16 and later has a bug where any app installed on the device can leak UDP traffic outside the tunnel
 (thus exposing the user's real IP address) by calling the `registerQuicConnectionClosePayload` method on
