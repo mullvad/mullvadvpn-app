@@ -12,7 +12,7 @@ import SwiftUI
 struct SettingsMultihopView: View {
     @StateObject var viewModel: MultihopTunnelSettingsViewModel
     @State private var alert: MullvadAlert?
-    private let itemFactory = ListItemFactory()
+    private let itemFactory = SegmentedListItemFactory()
 
     private struct OptionSpec: Identifiable {
         let id: MultihopState
@@ -62,22 +62,21 @@ struct SettingsMultihopView: View {
                 VStack(spacing: 0) {
                     SegmentedListItem(
                         isLastInList: false,
-                        label: {
-                            itemFactory.label(for: .setting(title: "Mode"))
+                        leading: {
+                            itemFactory.leading(for: .setting(title: "Mode"))
                         },
-                        segment: {},
                         groupedContent: {
                             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
                                 SegmentedListItem(
                                     level: 1,
                                     isLastInList: index == options.count - 1,
                                     accessibilityIdentifier: option.accessibilityIdentifier,
-                                    label: {
-                                        itemFactory.label(
+                                    leading: {
+                                        itemFactory.leading(
                                             for: .setting(
                                                 title: option.label,
                                                 level: 1,
-                                                selected:
+                                                isSelected:
                                                     viewModel.multihopState == option.id
                                             ))
                                     },
@@ -90,14 +89,12 @@ struct SettingsMultihopView: View {
                                             )
                                         }
                                     },
-                                    groupedContent: {},
                                     onSelect: {
                                         viewModel.multihopState = option.id
                                     }
                                 )
                             }
-                        },
-                        onSelect: {}
+                        }
                     )
                 }
                 .padding(.leading, UIMetrics.contentInsets.left)

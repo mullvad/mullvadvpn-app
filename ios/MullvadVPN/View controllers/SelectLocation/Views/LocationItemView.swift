@@ -25,7 +25,7 @@ struct LocationItemView: View {
     }
 
     @ViewBuilder var statusIndicator: some View {
-        let itemFactory = ListItemFactory()
+        let itemFactory = SegmentedListItemFactory()
 
         if !node.isActive {
             itemFactory.statusIndicator(for: .dot(.offline))
@@ -78,4 +78,5 @@ struct LocationItemView: View {
         multihopContext: .exit,
         level: 0
     )
+    .background(Color.MullvadList.Item.parent)
 }

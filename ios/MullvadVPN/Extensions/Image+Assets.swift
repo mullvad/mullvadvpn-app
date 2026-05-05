@@ -37,4 +37,7 @@ extension Image {
     static let mullvadIconFilterCutout = Image("IconFilterCutout")
     static let mullvadIconFilterCutoutDisabled = Image("IconFilterCutoutDisabled")
     static let mullvadIconReload = Image("IconReload")
+    static let mullvadIconExternal = Image("IconExtlink")
+    static let mullvadIconCheckboxSelected = Image("CheckboxSelected")
+    static let mullvadIconCheckboxUnselected = Image("CheckboxUnselected")
 }
