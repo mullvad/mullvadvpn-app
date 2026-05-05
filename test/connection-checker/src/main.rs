@@ -42,13 +42,15 @@ fn test_connection(opt: &Opt) {
 fn build_tls_config() -> rustls::ClientConfig {
     let mut root_store = rustls::RootCertStore::empty();
     root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
-    rustls::ClientConfig::builder_with_provider(Arc::new(
-        rustls::crypto::aws_lc_rs::default_provider(),
-    ))
-    .with_safe_default_protocol_versions()
-    .expect("aws-lc-rs should support default TLS versions")
-    .with_root_certificates(root_store)
-    .with_no_client_auth()
+    let provider = rustls::crypto::CryptoProvider {
+        kx_groups: vec![rustls::crypto::aws_lc_rs::kx_group::X25519MLKEM768],
+        ..rustls::crypto::aws_lc_rs::default_provider()
+    };
+    rustls::ClientConfig::builder_with_provider(Arc::new(provider))
+        .with_safe_default_protocol_versions()
+        .expect("aws-lc-rs should support default TLS versions")
+        .with_root_certificates(root_store)
+        .with_no_client_auth()
 }
 
 /// Check if connected to Mullvad and print the result to stdout
