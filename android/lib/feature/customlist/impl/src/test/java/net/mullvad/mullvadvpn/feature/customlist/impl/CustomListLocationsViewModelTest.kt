@@ -80,6 +80,7 @@ class CustomListLocationsViewModelTest {
             val expectedList = DUMMY_COUNTRIES.map {
                 CheckableRelayListItem(
                     item = it,
+                    highlight = "",
                     hierarchy = it.toHierarchy(),
                     checked = false,
                     expanded = false,

@@ -25,7 +25,6 @@ import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
@@ -41,7 +40,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SearchSplitTunnelingNavKey
-import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
@@ -260,7 +258,7 @@ private fun LazyListScope.appList(
 }
 
 internal fun LazyListScope.appItems(
-    apps: List<AppData>,
+    apps: List<AppItem>,
     focusManager: FocusManager,
     onAppClick: (PackageName) -> Unit,
     onResolveIcon: (PackageName) -> Drawable?,
@@ -288,7 +286,7 @@ internal fun LazyListScope.appItems(
             }
         }
         SplitTunnelingListItem(
-            title = listItem.name,
+            title = listItem.titleAnnotated,
             iconState = icon,
             isSelected = excluded,
             isEnabled = enabled,

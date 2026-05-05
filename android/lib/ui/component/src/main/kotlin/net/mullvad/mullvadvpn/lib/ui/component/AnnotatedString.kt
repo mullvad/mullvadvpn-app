@@ -4,6 +4,7 @@ import android.graphics.Typeface
 import android.text.Spanned
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import net.mullvad.mullvadvpn.lib.common.util.splitIncludingDelimiters
 
 /**
  * Appends `text` and styles occurrences of `substring` in `text` with the given `substringStyle`.
@@ -22,13 +24,26 @@ fun AnnotatedString.Builder.appendTextWithStyledSubstring(
     ignoreCase: Boolean = false,
     limit: Int = 0,
 ) {
-    val parts = text.split(substring, ignoreCase = ignoreCase, limit = limit)
+    val parts = text.splitIncludingDelimiters(substring, ignoreCase = ignoreCase, limit = limit)
 
-    parts.forEachIndexed { index, part ->
-        append(part)
-        if (index != parts.lastIndex) {
-            withStyle(substringStyle) { append(substring) }
+    parts.forEach { part ->
+        if (part.equals(substring, ignoreCase = ignoreCase)) {
+            withStyle(substringStyle) { append(part) }
+        } else {
+            append(part)
         }
+    }
+}
+
+fun String.highlightText(text: String, highlightColor: Color): AnnotatedString {
+    if (isBlank()) return AnnotatedString(this)
+    return buildAnnotatedString {
+        appendTextWithStyledSubstring(
+            text = this@highlightText,
+            substring = text,
+            substringStyle = SpanStyle(background = highlightColor),
+            ignoreCase = true,
+        )
     }
 }
 

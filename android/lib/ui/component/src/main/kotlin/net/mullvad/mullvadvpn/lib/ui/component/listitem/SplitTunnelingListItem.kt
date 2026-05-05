@@ -20,10 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.drawablepainter.rememberDrawablePainter
+import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
@@ -31,27 +33,28 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 @Preview
 @Composable
 private fun PreviewSplitTunnelingListItem() {
     PreviewColumn {
         SplitTunnelingListItem(
-            title = "Removable App",
+            title = AnnotatedString("Removable App"),
             isEnabled = true,
             onCellClicked = {},
             isSelected = true,
             iconState = IconState.Loading,
         )
         SplitTunnelingListItem(
-            title = "Addable App",
+            title = "Addable App".highlightText("app", MaterialTheme.colorScheme.highlight),
             isEnabled = true,
             onCellClicked = {},
             isSelected = false,
             iconState = IconState.Loading,
         )
         SplitTunnelingListItem(
-            title = "Disabled App",
+            title = AnnotatedString("Disabled App"),
             isEnabled = false,
             onCellClicked = {},
             isSelected = false,
@@ -65,7 +68,7 @@ fun SplitTunnelingListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Middle,
-    title: String,
+    title: AnnotatedString,
     iconState: IconState,
     isEnabled: Boolean = true,
     isSelected: Boolean,
