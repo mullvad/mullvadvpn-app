@@ -5,9 +5,3 @@
 id = "CVE-2024-21528"  # GHSA-g974-hxvm-x689
 ignoreUntil = 2026-08-16  # The vulnerability is ignored for 4 months as no patch for the affected library exists and we can not address the vulnerability without migrating to another library, which is no minor feat.
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
-
-# ajv: ajv has ReDoS when using $data option
-[[IgnoredVulns]]
-id = "CVE-2025-69873"  # GHSA-2g4f-4pwh-qvx6
-ignoreUntil = 2026-08-04
-reason = "This vulnerability only concerns ReDoS and the package is only used in development by eslint and electron-builder. eslint explicitly does not use the $data option and electron-builder uses it to validate its config, which we fully dictate ourselves."
