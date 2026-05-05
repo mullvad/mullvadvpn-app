@@ -4,6 +4,7 @@ use std::net::IpAddr;
 use std::path::PathBuf;
 
 use anyhow::Context;
+use rustls_pki_types::CertificateDer;
 use tokio::fs;
 #[cfg(test)]
 use vec1::Vec1;
@@ -12,6 +13,7 @@ use crate::defaults;
 use crate::format::response::SignedResponse;
 use crate::version::{VersionInfo, VersionParameters};
 
+use super::tls::build_client_config;
 use super::version_provider::VersionInfoProvider;
 
 use mullvad_api_constants::*;
@@ -56,7 +58,7 @@ pub struct HttpVersionInfoProvider {
     /// Optional host to resolve (to the IP) without DNS
     resolve: Option<(&'static str, IpAddr)>,
     /// Accepted root certificate. Defaults are used unless specified
-    pinned_certificate: Option<reqwest::Certificate>,
+    pinned_certificate: Option<CertificateDer<'static>>,
     /// If set, the response metadata will be serialized and written to this path
     dump_to_path: Option<PathBuf>,
 }
@@ -170,17 +172,14 @@ impl HttpVersionInfoProvider {
     /// `resolve` - Optional host to resolve (to the IP) without DNS
     async fn get(
         url: &str,
-        pinned_certificate: Option<reqwest::Certificate>,
+        pinned_certificate: Option<CertificateDer<'static>>,
         resolve: Option<(&'static str, IpAddr)>,
     ) -> anyhow::Result<Vec<u8>> {
-        let mut req_builder = reqwest::Client::builder();
-        req_builder = req_builder.min_tls_version(reqwest::tls::Version::TLS_1_3);
-
-        if let Some(pinned_certificate) = pinned_certificate {
-            req_builder = req_builder
-                .tls_built_in_root_certs(false)
-                .add_root_certificate(pinned_certificate);
-        }
+        // reqwest is built without a bundled crypto provider, so feed it a
+        // preconfigured aws-lc-rs rustls ClientConfig with TLS 1.3 enforced
+        // and either the pinned cert or webpki roots as trust anchors.
+        let tls_config = build_client_config(pinned_certificate, true);
+        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {
