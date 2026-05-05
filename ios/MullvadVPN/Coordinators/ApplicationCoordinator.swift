@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
@@ -58,6 +59,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var breadcrumbsObserver: BreadcrumbsBlockObserver?
+    private let logRedactor: LogRedacting?
 
     private var outOfTimeTimer: Timer?
 
@@ -77,7 +79,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         accessMethodRepository: AccessMethodRepositoryProtocol,
         ipOverrideRepository: IPOverrideRepository,
         relaySelectorWrapper: RelaySelectorWrapper,
-        breadcrumbsProvider: BreadcrumbsProvider
+        breadcrumbsProvider: BreadcrumbsProvider,
+        logRedactor: LogRedacting? = nil
     ) {
         self.tunnelManager = tunnelManager
         self.storePaymentManager = storePaymentManager
@@ -91,6 +94,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.ipOverrideRepository = ipOverrideRepository
         self.relaySelectorWrapper = relaySelectorWrapper
         self.breadcrumbsProvider = breadcrumbsProvider
+        self.logRedactor = logRedactor
 
         super.init()
 
@@ -660,7 +664,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             tunnelManager: tunnelManager,
             apiProxy: apiProxy,
             relayCacheTracker: relayCacheTracker,
-            ipOverrideRepository: ipOverrideRepository
+            ipOverrideRepository: ipOverrideRepository,
+            redactor: logRedactor
         )
 
         let navigationController = CustomNavigationController()
@@ -717,7 +722,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             tunnelManager: tunnelManager,
             apiProxy: apiProxy,
             relayCacheTracker: relayCacheTracker,
-            ipOverrideRepository: ipOverrideRepository
+            ipOverrideRepository: ipOverrideRepository,
+            redactor: logRedactor
         )
         let coordinator = VPNSettingsCoordinator(
             navigationController: CustomNavigationController(),

@@ -3092,6 +3092,7 @@ dependencies = [
  "mullvad-encrypted-dns-proxy",
  "mullvad-logging",
  "mullvad-types",
+ "regex",
  "shadowsocks",
  "talpid-future",
  "talpid-tunnel-config-client",

@@ -57,6 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
+    nonisolated(unsafe) private(set) var logRedactor: LogRedacting!
 
     // MARK: - Application lifecycle
 
@@ -417,6 +418,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let header = "MullvadVPN version \(Bundle.main.productVersion)"
         let loggerBuilder = LoggerBuilder.shared
 
+        // Create the Rust-backed log redactor with container paths
+        let redactCustomStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
+        let redactor = RustLogRedactor(
+            containerPaths: [ApplicationConfiguration.containerURL.path], customStrings: redactCustomStrings)
+        self.logRedactor = redactor
+
         loggerBuilder.addFileOutput(
             fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL),
             header: header
@@ -424,10 +431,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(redactor)
 
         // Initialize Rust logging to forward to Swift Logger
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
 
         logger = Logger(label: "AppDelegate")
     }

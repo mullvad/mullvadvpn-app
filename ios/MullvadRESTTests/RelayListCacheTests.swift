@@ -5,6 +5,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadMockData
 import MullvadRustRuntime
 import MullvadTypes
@@ -25,7 +26,7 @@ class RelayListCacheTests: XCTestCase {
     override func setUp() {
         super.setUp()
         SettingsManager.unitTestStore = Self.store
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "RelayListCacheTests"))
     }
 
     func testRelayListWithUnknownFieldsSurvivesFullPipeline() async throws {
