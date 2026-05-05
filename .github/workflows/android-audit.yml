@@ -73,6 +73,30 @@ jobs:
       - name: Ensure no changes
         run: git diff --exit-code
 
+  ensure-clean-lockfile-gh-hosted:
+    needs: prepare
+    name: Ensure clean lockfile (GH-hosted)
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+
+      # Needed to run git diff later
+      - name: Fix git dir
+        run: git config --global --add safe.directory $(pwd)
+
+      - name: Re-generate lockfile
+        run: android/scripts/lockfile -u
+
+      - name: Ensure no changes
+        run: git diff --exit-code
+
   verify-lockfile-keys:
     needs: prepare
     name: Verify lockfile keys
