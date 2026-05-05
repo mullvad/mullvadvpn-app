@@ -42,6 +42,9 @@
     "npm": "11.12.1"
   },
   "overrides": {
+    "styled-components": {
+      "postcss": "8.5.13"
+    },
     "grpc_tools_node_protoc_ts": {
       "handlebars": "^4.7.9"
     }
