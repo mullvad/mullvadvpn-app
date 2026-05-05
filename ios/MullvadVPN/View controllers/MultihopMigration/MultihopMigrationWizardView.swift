@@ -11,24 +11,26 @@ import SwiftUI
 
 struct MultihopMigrationWizardView<ViewModel: MultihopMigrationWizardViewModelProtocol>: View {
     @ObservedObject var viewModel: ViewModel
-    @State private var page = 1
+    @State private var currentPage = 0
 
     var body: some View {
         VStack(spacing: 0.0) {
             PaginationView(
                 pages: viewModel.items.map { stateViewModel in
                     MullvadStateView(viewModel: stateViewModel)
-                }
-            )
+                }, currentPage: $currentPage)
 
             HStack(spacing: 8.0) {
                 MainButton(text: "Back", style: .default) {
-
+                    if currentPage > 0 {
+                        currentPage -= 1
+                    }
                 }
-                .showIf(page > 1)
-                MainButton(text: page == viewModel.items.count ? "Got it!" : "Next", style: .default) {
-                    if page < viewModel.items.count {
-                        page = page.advanced(by: 1)
+                .showIf(currentPage > 0)
+
+                MainButton(text: currentPage == viewModel.items.count - 1 ? "Got it!" : "Next", style: .default) {
+                    if currentPage < viewModel.items.count - 1 {
+                        currentPage += 1
                     }
                 }
             }
@@ -53,7 +55,10 @@ final class MockMultihopMigrationWizardViewModel: MultihopMigrationWizardViewMod
             Change(path: .automatic),
             Change(path: .uniqueFilter),
             Change(path: .directOnlyRemoved),
-            Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: MultihopStateV2.always),
+            Change(
+                path: .updatedMultiHop,
+                before: MultihopStateV1.off,
+                after: MultihopStateV2.whenNeeded),
         ]
 
         return changes.map { change in

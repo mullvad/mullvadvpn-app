@@ -79,6 +79,7 @@ struct TextStyle {
 struct TextItem: Identifiable {
     let id = UUID()
     let text: String
+    var symbols: [Image] = []
     let style: TextStyle
 }
 
@@ -143,16 +144,44 @@ struct MullvadStateView: View {
 
 struct StyledTextView: View {
     let item: TextItem
+    private var alignment: Alignment {
+        switch item.style.alignment {
+        case .leading: return .leading
+        case .trailing: return .trailing
+        case .center: return .center
+        }
+    }
 
     var body: some View {
-        Text(item.text)
+        buildText(from: item.text, symbols: item.symbols)
             .font(item.style.font)
             .multilineTextAlignment(item.style.alignment)
             .foregroundStyle(item.style.color)
-            .frame(width: .infinity)
+            .frame(maxWidth: .infinity, alignment: alignment)
             .if(item.style.isItalic) { view in
                 view.italic()
             }
+    }
+
+    private func buildText(from template: String, symbols: [Image]) -> Text {
+        let parts = template.components(separatedBy: "%@")
+
+        return parts.enumerated().reduce(Text("")) { partial, pair in
+            let (index, part) = pair
+
+            var result = partial + Text(part)
+
+            if index < symbols.count {
+                result = result + iconText(symbols[index])
+            }
+
+            return result
+        }
+    }
+
+    private func iconText(_ image: Image) -> Text {
+        Text("\(image.renderingMode(.template))")
+            .font(item.style.font)
     }
 }
 
@@ -191,19 +220,13 @@ struct StateView: View {
             details: [
                 TextItem(
                     text: NSLocalizedString(
-                        "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”.",
-                        comment: ""), style: .primary),
-                TextItem(
-                    text: NSLocalizedString(
-                        "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”.",
-                        comment: ""),
-                    style: .secondary),
-
-                TextItem(
-                    text: NSLocalizedString(
-                        "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”.",
-                        comment: ""),
-                    style: .note),
+                        """
+                        To ensure your current settings work with your selected location, and to avoid blocking your 
+                        connection, the app might automatically multihop via a different entry server.
+                        This will be indicated by the  %@  symbol.
+                        """, comment: ""),
+                    symbols: [Image.mullvadIconMultihopWhenNeeded],
+                    style: .secondary)
             ],
             actions: [
                 Action(

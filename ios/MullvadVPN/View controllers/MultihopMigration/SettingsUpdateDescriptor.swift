@@ -44,8 +44,12 @@ struct SettingsUpdateDescriptor {
                         format: NSLocalizedString("Your multihop setting was migrated from “%@” to “%@”.", comment: ""),
                         "\(change.before!)", "\(change.after!)"), style: .primary),
                 TextItem(
-                    text: String(format: NSLocalizedString("%@", comment: ""), "\(change.after!)"), style: .primary),
-                TextItem(text: (change.after as? MultihopStateV2)?.comment ?? "", style: .secondary),
+                    text: [
+                        (change.after as? MultihopStateV2)?.description ?? "",
+                        (change.after as? MultihopStateV2)?.comment ?? "",
+                    ].joinedParagraphs(lineBreaks: 1),
+                    symbols: [Image.mullvadIconMultihopWhenNeeded],
+                    style: .secondary),
             ]
         case .uniqueFilter:
             [
@@ -115,6 +119,7 @@ extension MultihopStateV2 {
         case .never:
             NSLocalizedString(
                 """
+                \(description)
                 Multihop is disabled. Your selected location must support all active settings in order to establish a connection.
                 """, comment: "")
 
@@ -126,10 +131,11 @@ extension MultihopStateV2 {
         case .whenNeeded:
             NSLocalizedString(
                 """
-                To ensure your current settings work with your selected location, and to avoid blocking your \\\
+                To ensure your current settings work with your selected location, and to avoid blocking your
                 connection, the app might automatically multihop via a different entry server.
-                This will be indicated by the  %@  symbol.
+                This will be indicated by the %@ symbol.
                 """, comment: "")
+
         }
     }
 }
