@@ -12,17 +12,15 @@ use std::ptr;
 use nsis_plugin_api::{nsis_fn, pushint, pushstr};
 
 use crate::NsisStatus;
+use crate::registry::RegKey;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
-use windows_sys::Win32::Foundation::{ERROR_SUCCESS, FALSE, FILETIME, HANDLE, MAX_PATH};
+use windows_sys::Win32::Foundation::{FALSE, FILETIME, HANDLE, MAX_PATH};
 use windows_sys::Win32::Security::{
     DuplicateTokenEx, SecurityImpersonation, TOKEN_ALL_ACCESS, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
     TOKEN_QUERY, TokenPrimary,
 };
 use windows_sys::Win32::System::Com::CoTaskMemFree;
-use windows_sys::Win32::System::Registry::{
-    HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_WRITE, REG_BINARY, RegCloseKey, RegOpenKeyExW,
-    RegQueryValueExW, RegSetValueExW,
-};
+use windows_sys::Win32::System::Registry::{HKEY_CURRENT_USER, KEY_READ, KEY_WRITE};
 use windows_sys::Win32::System::Threading::{
     CreateProcessAsUserW, INFINITE, OpenProcess, OpenProcessToken, PROCESS_INFORMATION,
     PROCESS_QUERY_INFORMATION, PROCESS_TERMINATE, STARTUPINFOW, TerminateProcess,
@@ -335,124 +333,9 @@ fn promote_record(record: &mut IconStreamsRecord) {
 }
 
 // Registry key / value for tray icon data
-const TRAY_KEY_NAME: &[u8] =
-    b"Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\TrayNotify\0";
-const TRAY_VALUE_NAME: &[u8] = b"IconStreams\0";
-
-fn to_wide_nul(s: &[u8]) -> Vec<u16> {
-    s.iter()
-        .take_while(|&&b| b != 0)
-        .map(|&b| b as u16)
-        .chain(std::iter::once(0))
-        .collect()
-}
-
-/// Open the TrayNotify registry key.
-fn open_tray_key(write: bool) -> io::Result<RegKeyGuard> {
-    let key_name = to_wide_nul(TRAY_KEY_NAME);
-    let access = if write {
-        KEY_READ | KEY_WRITE
-    } else {
-        KEY_READ
-    };
-
-    let mut hkey: HKEY = ptr::null_mut();
-    // SAFETY: `key_name` is a null-terminated wide string built above; the
-    // out-pointer is a stack-local.
-    let result = unsafe {
-        RegOpenKeyExW(
-            HKEY_CURRENT_USER,
-            key_name.as_ptr(),
-            0,
-            access,
-            &raw mut hkey,
-        )
-    };
-
-    if result != ERROR_SUCCESS {
-        return Err(io::Error::from_raw_os_error(result as i32));
-    }
-    Ok(RegKeyGuard(hkey))
-}
-
-struct RegKeyGuard(HKEY);
-
-impl Drop for RegKeyGuard {
-    fn drop(&mut self) {
-        // SAFETY: `self.0` is a valid HKEY produced by `RegOpenKeyExW`,
-        // owned uniquely by this guard.
-        unsafe { RegCloseKey(self.0) };
-    }
-}
-
-/// Read the IconStreams binary blob from the registry.
-fn read_icon_streams(key: &RegKeyGuard) -> io::Result<Vec<u8>> {
-    let val_name = to_wide_nul(TRAY_VALUE_NAME);
-    let mut value_type: u32 = 0;
-    let mut buf_size: u32 = 0;
-
-    // SAFETY: `key.0` is a live HKEY, `val_name` is a null-terminated wide
-    // string, and the buffer pointer is null so only `buf_size` is written.
-    unsafe {
-        RegQueryValueExW(
-            key.0,
-            val_name.as_ptr(),
-            ptr::null(),
-            &raw mut value_type,
-            ptr::null_mut(),
-            &raw mut buf_size,
-        )
-    };
-
-    if buf_size == 0 {
-        return Ok(vec![]);
-    }
-
-    let mut buf = vec![0u8; buf_size as usize];
-    // SAFETY: `key.0` is a live HKEY, `val_name` is a null-terminated wide
-    // string, `buf` is `buf_size` writable bytes, and `&mut buf_size` carries
-    // the buffer capacity to the API.
-    let result = unsafe {
-        RegQueryValueExW(
-            key.0,
-            val_name.as_ptr(),
-            ptr::null(),
-            &raw mut value_type,
-            buf.as_mut_ptr(),
-            &raw mut buf_size,
-        )
-    };
-
-    if result != ERROR_SUCCESS {
-        return Err(io::Error::from_raw_os_error(result as i32));
-    }
-
-    buf.truncate(buf_size as usize);
-    Ok(buf)
-}
-
-/// Write the IconStreams binary blob to the registry.
-fn write_icon_streams(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
-    let val_name = to_wide_nul(TRAY_VALUE_NAME);
-
-    // SAFETY: `key.0` is a live HKEY, `val_name` is a null-terminated wide
-    // string, and `blob` is `blob.len()` valid bytes.
-    let result = unsafe {
-        RegSetValueExW(
-            key.0,
-            val_name.as_ptr(),
-            0,
-            REG_BINARY,
-            blob.as_ptr(),
-            blob.len() as u32,
-        )
-    };
-
-    if result != ERROR_SUCCESS {
-        return Err(io::Error::from_raw_os_error(result as i32));
-    }
-    Ok(())
-}
+const TRAY_KEY_NAME: &str =
+    "Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\TrayNotify";
+const TRAY_VALUE_NAME: &str = "IconStreams";
 
 /// Find all process IDs with the given executable name (case-insensitive substring match on path).
 fn find_process_ids_by_name(name: &str) -> Vec<u32> {
@@ -568,7 +451,7 @@ fn explorer_path() -> io::Result<Vec<u16>> {
 }
 
 /// Kill all explorer.exe instances and restart with a duplicated security token.
-fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
+fn restart_explorer(key: &RegKey, blob: &[u8]) -> io::Result<()> {
     let explorer = explorer_path()?;
     let pids = find_process_ids_by_name("explorer.exe");
 
@@ -654,7 +537,7 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
     }
 
     // Write the updated icon streams blob
-    write_icon_streams(key, blob)?;
+    key.write_binary(TRAY_VALUE_NAME, blob)?;
 
     // Restart explorer using the duplicated security context
     let startup_info = STARTUPINFOW {
@@ -700,8 +583,8 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
 
 /// Main implementation of PromoteTrayIcon.
 fn promote_tray_icon() -> io::Result<()> {
-    let key = open_tray_key(true)?;
-    let blob = read_icon_streams(&key)?;
+    let key = RegKey::open(HKEY_CURRENT_USER, TRAY_KEY_NAME, KEY_READ | KEY_WRITE)?;
+    let blob = key.read_binary(TRAY_VALUE_NAME)?;
 
     if blob.is_empty() {
         return Err(io::Error::new(
