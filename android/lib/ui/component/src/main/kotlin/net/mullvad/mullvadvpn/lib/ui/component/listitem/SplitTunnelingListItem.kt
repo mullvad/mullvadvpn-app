@@ -66,6 +66,7 @@ fun SplitTunnelingListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Middle,
     title: String,
+    singleLine: Boolean = true,
     iconState: IconState,
     isEnabled: Boolean = true,
     isSelected: Boolean,
@@ -80,7 +81,7 @@ fun SplitTunnelingListItem(
         onClick = onCellClicked,
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singleLine) 1 else Int.MAX_VALUE) },
         leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(

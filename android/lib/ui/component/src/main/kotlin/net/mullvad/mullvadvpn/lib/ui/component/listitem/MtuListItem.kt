@@ -29,6 +29,7 @@ fun MtuListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     mtuValue: Mtu?,
+    singeLine: Boolean = true,
     onEditMtu: () -> Unit,
     backgroundAlpha: Float = 1f,
 ) {
@@ -40,12 +41,18 @@ fun MtuListItem(
         backgroundAlpha = backgroundAlpha,
         content = {
             Column {
-                Text(text = stringResource(R.string.mtu))
                 Text(
-                    stringResource(
-                        id = R.string.mtu_x,
-                        mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
-                    ),
+                    text = stringResource(R.string.mtu),
+                    maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+                )
+                Text(
+                    text =
+                        stringResource(
+                            id = R.string.mtu_x,
+                            mtuValue?.value?.toString()
+                                ?: stringResource(id = R.string.hint_default),
+                        ),
+                    maxLines = if (singeLine) 1 else Int.MAX_VALUE,
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

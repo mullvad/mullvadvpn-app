@@ -10,13 +10,14 @@ fun EditCustomListListItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
+    singeLine: Boolean = true,
     position: Position,
     onClick: () -> Unit,
 ) {
     MullvadListItem(
         modifier = modifier,
         position = position,
-        content = { TitleAndSubtitle(title = title, subtitle = subtitle) },
+        content = { TitleAndSubtitle(title = title, subtitle = subtitle, singleLine = singeLine) },
         onClick = onClick,
     )
 }
