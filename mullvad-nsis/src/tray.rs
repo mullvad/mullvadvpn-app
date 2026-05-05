@@ -28,10 +28,12 @@ use windows_sys::Win32::System::Threading::{
 };
 use windows_sys::Win32::UI::Shell::{FOLDERID_Windows, KF_FLAG_DEFAULT, SHGetKnownFolderPath};
 
-// Template for a new Mullvad VPN tray record (embedded at compile time)
+/// Template for a new Mullvad VPN tray record in `IconStreams`.
 static MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.bin");
 
 /// ICON_STREAMS_HEADER (packed, 20 bytes)
+///
+/// This is the header of the `IconStreams` binary blob in registry value.
 #[repr(C, packed)]
 #[derive(Clone, Copy)]
 struct IconStreamsHeader {
@@ -41,6 +43,48 @@ struct IconStreamsHeader {
     u3: u16,
     number_records: u32,
     offset_first_record: u32,
+}
+
+/// Tray icon visibility constants
+const SHOW_ICON_AND_NOTIFICATIONS: u32 = 2;
+
+/// ICON_STREAMS_RECORD (packed, 1640 bytes)
+///
+/// This is an entry in the `IconStreams` binary blob registry value.
+#[repr(C, packed)]
+#[derive(Clone, Copy)]
+struct IconStreamsRecord {
+    application_path: [u16; MAX_PATH as usize],
+    /// ID used to identify an icon
+    u1: u32,
+    // 0
+    u2: u32,
+    visibility: u32,
+    year_created: u16,
+    month_created: u16,
+    last_tooltip: [u16; MAX_PATH as usize],
+    // 0
+    u6: u32,
+    // 0 or 1, don't know why
+    u7: u32,
+    // ID of cached icon, or -1
+    imagelist_id: u32,
+    guid: [u8; 16],
+    // 0
+    u8_: u32,
+    // 0
+    u9: u32,
+    // 0
+    u10: u32,
+    /// Discrete event 1 UTC
+    time1: FILETIME,
+    /// Discrete event 2 UTC, or 0
+    time2: FILETIME,
+    // 0
+    u11: u32,
+    dummy_union: DummyUnion,
+    /// Ordering within group
+    ordinal: u32,
 }
 
 /// ICON_STREAMS_RECORD union details variant
@@ -55,7 +99,9 @@ struct DetailsVariant {
 #[repr(C, packed)]
 #[derive(Clone, Copy)]
 struct ExtendedDetailsVariant {
+    // 0x200d0000
     u12: u32,
+    // 0xb0fe
     u13: u16,
     application_name: [u16; 257],
 }
@@ -70,34 +116,6 @@ union DummyUnion {
     extended_details: ExtendedDetailsVariant,
 }
 
-/// Tray icon visibility constants
-const SHOW_ICON_AND_NOTIFICATIONS: u32 = 2;
-
-/// ICON_STREAMS_RECORD (packed, 1640 bytes)
-#[repr(C, packed)]
-#[derive(Clone, Copy)]
-struct IconStreamsRecord {
-    application_path: [u16; MAX_PATH as usize],
-    u1: u32,
-    u2: u32,
-    visibility: u32,
-    year_created: u16,
-    month_created: u16,
-    last_tooltip: [u16; MAX_PATH as usize],
-    u6: u32,
-    u7: u32,
-    imagelist_id: u32,
-    guid: [u8; 16],
-    u8_: u32,
-    u9: u32,
-    u10: u32,
-    time1: FILETIME,
-    time2: FILETIME,
-    u11: u32,
-    dummy_union: DummyUnion,
-    ordinal: u32,
-}
-
 const HEADER_SIZE: usize = mem::size_of::<IconStreamsHeader>();
 const RECORD_SIZE: usize = mem::size_of::<IconStreamsRecord>();
 
@@ -105,45 +123,7 @@ const RECORD_SIZE: usize = mem::size_of::<IconStreamsRecord>();
 const _: () = assert!(HEADER_SIZE == 20);
 const _: () = assert!(RECORD_SIZE == 1640);
 
-/// Apply ROT13 to a single Unicode character (letters only).
-fn rot13_char(c: u16) -> u16 {
-    const CA: u16 = b'A' as u16;
-    const CZ: u16 = b'Z' as u16;
-    const LA: u16 = b'a' as u16;
-    const LZ: u16 = b'z' as u16;
-
-    match c {
-        CA..=CZ => {
-            let shifted = c + 13;
-            if shifted <= CZ {
-                shifted
-            } else {
-                CA + (shifted - CZ - 1)
-            }
-        }
-        LA..=LZ => {
-            let shifted = c + 13;
-            if shifted <= LZ {
-                shifted
-            } else {
-                LA + (shifted - LZ - 1)
-            }
-        }
-        _ => c,
-    }
-}
-
-/// Decode a ROT13-encoded null-terminated wide string.
-fn decode_application_path(encoded: &[u16]) -> String {
-    let decoded: Vec<u16> = encoded
-        .iter()
-        .take_while(|&&c| c != 0)
-        .map(|&c| rot13_char(c))
-        .collect();
-    OsString::from_wide(&decoded).to_string_lossy().into_owned()
-}
-
-/// Parse the binary IconStreams registry blob into header + records.
+/// Parse the binary `IconStreams` registry blob into header + records.
 fn parse_blob(blob: &[u8]) -> io::Result<(IconStreamsHeader, Vec<IconStreamsRecord>)> {
     if blob.len() < HEADER_SIZE {
         return Err(io::Error::new(
@@ -239,6 +219,7 @@ fn find_record<'a>(
     substring: &str,
 ) -> Option<&'a mut IconStreamsRecord> {
     records.iter_mut().find(|r| {
+        // we copy the path here because it is potentially unaligned
         let path = decode_application_path(&{ r.application_path });
         path.contains(substring)
     })
@@ -622,6 +603,47 @@ fn promote_tray_icon() -> io::Result<()> {
     }
 
     Ok(())
+}
+
+/// Decode a ROT13-encoded null-terminated wide string.
+fn decode_application_path(encoded: &[u16]) -> String {
+    let decoded: Vec<u16> = encoded
+        .iter()
+        .take_while(|&&c| c != 0)
+        .map(|&c| rot13_char(c))
+        .collect();
+    // TODO: lossy :(
+    OsString::from_wide(&decoded).to_string_lossy().into_owned()
+}
+
+/// Apply ROT13 to a single Unicode character (letters only).
+///
+/// Modulo applied to stay with `a..=z` or `A..=Z` range.
+fn rot13_char(c: u16) -> u16 {
+    const CA: u16 = b'A' as u16;
+    const CZ: u16 = b'Z' as u16;
+    const LA: u16 = b'a' as u16;
+    const LZ: u16 = b'z' as u16;
+
+    match c {
+        CA..=CZ => {
+            let shifted = c + 13;
+            if shifted <= CZ {
+                shifted
+            } else {
+                CA + (shifted - CZ - 1)
+            }
+        }
+        LA..=LZ => {
+            let shifted = c + 13;
+            if shifted <= LZ {
+                shifted
+            } else {
+                LA + (shifted - LZ - 1)
+            }
+        }
+        _ => c,
+    }
 }
 
 // PromoteTrayIcon
