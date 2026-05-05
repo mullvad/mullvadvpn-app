@@ -23,6 +23,8 @@ pub enum IpSplitTunnel {
     },
     /// Stop excluding all IPv4 ranges from the tunnel
     Clear,
+    /// Toggle IP split tunneling on or off
+    Toggle,
     /// Add known Tailscale and NetBird IPv4 overlay ranges
     ApplyTemplates,
     /// Check whether configured IPv4 ranges would route outside the tunnel
@@ -67,6 +69,18 @@ impl IpSplitTunnel {
                     .clear_split_tunnel_ip_ranges()
                     .await?;
                 println!("Stopped excluding all IPv4 ranges");
+                Ok(())
+            }
+            IpSplitTunnel::Toggle => {
+                let enabled = MullvadProxyClient::new()
+                    .await?
+                    .toggle_split_tunnel_ip()
+                    .await?;
+                if enabled {
+                    println!("IP split tunneling enabled");
+                } else {
+                    println!("IP split tunneling disabled");
+                }
                 Ok(())
             }
             IpSplitTunnel::ApplyTemplates => {

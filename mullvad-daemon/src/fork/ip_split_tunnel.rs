@@ -1,12 +1,12 @@
 use ipnetwork::{IpNetwork, Ipv4Network};
 use serde::{Deserialize, Serialize};
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeSet, HashSet},
     net::{IpAddr, Ipv4Addr},
     path::{Path, PathBuf},
     str::FromStr,
 };
-use talpid_routing::RouteManagerHandle;
+use talpid_routing::{RequiredRoute, RouteManagerHandle};
 use talpid_types::ErrorExt;
 
 const STORE_VERSION: u32 = 1;
@@ -137,9 +137,42 @@ impl IpSplitTunnel {
         )
         .map_err(Error::Firewall)?;
 
-        // The route manager should handle adding routes to the main table
-        // for whitelisted IPs. This is handled by the daemon's tunnel state
-        // transition which calls apply() when connected.
+        // Add routes to main table for whitelisted IPs so they bypass the tunnel
+        let mut routes = HashSet::new();
+        for &range in &ranges {
+            // Get the default route for a sample IP in this range
+            let sample_ip = sample_ip(range);
+            match self
+                .route_manager
+                .get_destination_route(IpAddr::V4(sample_ip), None)
+                .await
+            {
+                Ok(Some(route)) => {
+                    let node = route.get_node().clone();
+                    routes.insert(RequiredRoute::new(
+                        ipnetwork::IpNetwork::V4(range),
+                        node,
+                    ));
+                }
+                Ok(None) => {
+                    log::warn!(
+                        "No route found for {}, cannot add to routing table",
+                        range
+                    );
+                }
+                Err(e) => {
+                    log::error!(
+                        "Failed to get destination route for {}: {}",
+                        range,
+                        e
+                    );
+                }
+            }
+        }
+        
+        if !routes.is_empty() {
+            self.route_manager.add_routes(routes).await.map_err(Error::RouteManager)?;
+        }
         
         self.applied_routes = ranges;
         Ok(())

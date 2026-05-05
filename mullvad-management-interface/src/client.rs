@@ -622,6 +622,12 @@ impl MullvadProxyClient {
         Ok(())
     }
 
+    /// Toggle IP split tunneling on or off. Returns the new state (true = enabled).
+    pub async fn toggle_split_tunnel_ip(&mut self) -> Result<bool> {
+        let response = self.0.toggle_split_tunnel_ip(()).await?.into_inner();
+        Ok(response.enabled)
+    }
+
     #[cfg(target_os = "windows")]
     pub async fn get_excluded_processes(&mut self) -> Result<Vec<ExcludedProcess>> {
         let procs = self.0.get_excluded_processes(()).await?.into_inner();

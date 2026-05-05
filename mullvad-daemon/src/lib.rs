@@ -398,6 +398,9 @@ pub enum DaemonCommand {
     /// Manage IPv4 ranges excluded from the tunnel
     #[cfg(target_os = "linux")]
     IpSplitTunnel(fork::ip_split_tunnel::Command),
+    /// Toggle IP split tunneling on or off. Returns the new state.
+    #[cfg(target_os = "linux")]
+    ToggleSplitTunnelIp(oneshot::Sender<bool>),
     /// Exclude traffic of an application from the tunnel
     #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
     AddSplitTunnelApp(ResponseTx<(), Error>, SplitApp),
@@ -1633,6 +1636,11 @@ impl Daemon {
                 self.ip_split_tunnel
                     .handle_command(command.with_tunnel_interface(tunnel_interface))
                     .await
+            }
+            #[cfg(target_os = "linux")]
+            ToggleSplitTunnelIp(tx) => {
+                let enabled = self.ip_split_tunnel.toggle().await;
+                Self::oneshot_send(tx, enabled, "toggle_split_tunnel_ip response");
             }
             #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
             AddSplitTunnelApp(tx, app) => self.on_add_split_tunnel_app(tx, app),
