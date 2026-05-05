@@ -34,7 +34,7 @@ struct ListItem<StatusIndicator: View>: View {
             Spacer()
         }
         .padding(.vertical, 8)
-        .padding(.leading, CGFloat(16 * (level + 1)))
+        .padding(.leading, CGFloat(16 * level))
         .padding(.trailing, 16)
         .frame(minHeight: UIMetrics.LocationList.cellMinHeight)
     }
