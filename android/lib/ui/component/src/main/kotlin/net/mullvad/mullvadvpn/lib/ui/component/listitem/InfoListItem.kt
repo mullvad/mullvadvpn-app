@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -45,6 +46,33 @@ fun InfoListItem(
     onInfoClicked: (() -> Unit)? = null,
     testTag: String? = null,
 ) {
+    InfoListItem(
+        modifier = modifier,
+        hierarchy = hierarchy,
+        position = position,
+        isEnabled = isEnabled,
+        onCellClicked = onCellClicked,
+        testTag = testTag,
+        backgroundAlpha = backgroundAlpha,
+        content = { Text(title) },
+        iconContentDescription = iconContentDescription,
+        onInfoClicked = onInfoClicked,
+    )
+}
+
+@Composable
+fun InfoListItem(
+    modifier: Modifier = Modifier,
+    hierarchy: Hierarchy = Hierarchy.Parent,
+    position: Position = Position.Single,
+    content: @Composable (BoxScope.() -> Unit),
+    isEnabled: Boolean = true,
+    backgroundAlpha: Float = 1f,
+    iconContentDescription: String? = null,
+    onCellClicked: (() -> Unit)? = null,
+    onInfoClicked: (() -> Unit)? = null,
+    testTag: String? = null,
+) {
     MullvadListItem(
         modifier = modifier,
         hierarchy = hierarchy,
@@ -53,7 +81,7 @@ fun InfoListItem(
         onClick = onCellClicked,
         testTag = testTag,
         backgroundAlpha = backgroundAlpha,
-        content = { Text(title) },
+        content = content,
         trailingContent = {
             if (onInfoClicked != null) {
                 Box(

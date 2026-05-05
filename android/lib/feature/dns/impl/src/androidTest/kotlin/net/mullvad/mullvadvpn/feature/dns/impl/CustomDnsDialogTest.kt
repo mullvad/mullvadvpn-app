@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns
+package net.mullvad.mullvadvpn.feature.dns.impl
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
@@ -8,14 +8,14 @@ import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-class DnsDialogTest {
+class CustomDnsDialogTest {
     @OptIn(ExperimentalTestApi::class)
     @JvmField
     @RegisterExtension
     val composeExtension = createEdgeToEdgeComposeExtension()
 
     private val defaultState =
-        DnsDialogViewState(
+        CustomDnsDialogViewState(
             input = "",
             validationError = null,
             isAllowLanEnabled = false,
@@ -24,14 +24,14 @@ class DnsDialogTest {
         )
 
     private fun ComposeContext.initDialog(
-        state: DnsDialogViewState = defaultState,
+        state: CustomDnsDialogViewState = defaultState,
         onDnsInputChange: (String) -> Unit = { _ -> },
         onSaveDnsClick: () -> Unit = {},
         onRemoveDnsClick: (Int) -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
         setContentWithTheme {
-            DnsDialog(
+            CustomDnsDialog(
                 state = state,
                 onDnsInputChange = onDnsInputChange,
                 onSaveDnsClick = onSaveDnsClick,

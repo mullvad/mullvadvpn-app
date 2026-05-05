@@ -55,6 +55,7 @@ import net.mullvad.mullvadvpn.feature.autoconnect.impl.navigation.autoConnectEnt
 import net.mullvad.mullvadvpn.feature.customlist.impl.navigation.customListEntry
 import net.mullvad.mullvadvpn.feature.daita.impl.navigation.daitaEntry
 import net.mullvad.mullvadvpn.feature.deleteaccount.impl.navigation.deleteAccountEntry
+import net.mullvad.mullvadvpn.feature.dns.impl.navigation.dnsSettingsEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
 import net.mullvad.mullvadvpn.feature.language.impl.navigation.languageEntry
@@ -152,6 +153,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         splashEntry(nav3)
         splitTunnelingEntry(nav3)
         vpnSettingsEntry(nav3)
+        dnsSettingsEntry(nav3)
     }
 
     SharedTransitionLayout {
