@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          submodules: true
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -53,8 +51,6 @@ jobs:
         - gradle-cache:/root/.gradle
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-        with:
-          submodules: true
 
       - name: Cache ktfmt jar
         id: cache-ktfmt
