@@ -795,7 +795,9 @@ impl RequestHandler for ResolverImpl {
 #[cfg(test)]
 mod test {
     use super::*;
-    use hickory_server::resolver::config::{NameServerConfig, ResolverConfig};
+    use hickory_server::resolver::config::{
+        ConnectionConfig, NameServerConfig, ProtocolConfig, ResolverConfig,
+    };
     use std::{net::UdpSocket, sync::Mutex, thread};
     use typed_builder::TypedBuilder;
 
@@ -814,11 +816,13 @@ mod test {
     }
 
     fn get_test_resolver(addr: SocketAddr) -> TokioResolver {
-        let resolver_config = ResolverConfig::from_parts(
-            None,
-            vec![],
-            vec![NameServerConfig::udp_and_tcp(addr.ip())],
-        );
+        let mut udp = ConnectionConfig::udp();
+        udp.port = addr.port();
+        let mut tcp = ConnectionConfig::tcp();
+        tcp.port = addr.port();
+        let nameservers = NameServerConfig::new(addr.ip(), false, vec![udp, tcp]);
+
+        let resolver_config = ResolverConfig::from_parts(None, vec![], vec![nameservers]);
         TokioResolver::builder_with_config(resolver_config, TokioRuntimeProvider::default())
             .build()
             .unwrap()
