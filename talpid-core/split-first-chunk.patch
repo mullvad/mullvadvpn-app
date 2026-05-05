@@ -1,0 +1,42 @@
+diff --git a/talpid-routing/src/unix/macos/data.rs b/talpid-routing/src/unix/macos/data.rs
+index 5e3f433445..afa7670dac 100644
+--- a/talpid-routing/src/unix/macos/data.rs
++++ b/talpid-routing/src/unix/macos/data.rs
+@@ -1103,12 +1103,7 @@ impl ffi::rt_msghdr_short {
+ pub fn split_rtmsg_hdr(buf: &[u8]) -> Result<(libc::rt_msghdr, &[u8])> {
+     const SIZE: usize = std::mem::size_of::<libc::rt_msghdr>();
+ 
+-    let header: libc::rt_msghdr = if buf.len() >= SIZE {
+-        let ptr = buf.as_ptr();
+-        // SAFETY: `ptr` is backed by enough valid bytes to contain a rt_msghdr value and it's
+-        // readable. rt_msghdr doesn't contain any pointers so any values are valid.
+-        unsafe { std::ptr::read(ptr as *const _) }
+-    } else {
++    let Some((header, payload)) = buf.split_first_chunk::<SIZE>() else {
+         return Err(Error::BufferTooSmall {
+             message_type: "rt_msghdr",
+             expect_min_size: SIZE,
+@@ -1116,17 +1111,12 @@ pub fn split_rtmsg_hdr(buf: &[u8]) -> Result<(libc::rt_msghdr, &[u8])> {
+         });
+     };
+ 
+-    let msg_len = usize::from(header.rtm_msglen);
+-    if msg_len > buf.len() {
+-        return Err(Error::BufferTooSmall {
+-            message_type: "route message (rt_msghdr.msg_len)",
+-            expect_min_size: msg_len,
+-            actual_size: buf.len(),
+-        });
+-    }
+-
+-    // NOTE: rtm_msglen includes the header size
+-    let payload = &buf[mem::size_of::<libc::rt_msghdr>()..msg_len];
++    let header: libc::rt_msghdr = {
++        // SAFETY: `header` is backed by enough valid bytes to contain a rt_msghdr value and it's
++        // readable. rt_msghdr doesn't contain any pointers so any values are valid after a bitwise
++        // copy.
++        unsafe { std::ptr::read(header.as_ptr().cast()) }
++    };
+ 
+     Ok((header, payload))
+ }
