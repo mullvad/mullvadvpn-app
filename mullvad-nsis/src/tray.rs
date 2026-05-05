@@ -13,7 +13,7 @@ use nsis_plugin_api::{nsis_fn, pushint, pushstr};
 
 use crate::NsisStatus;
 use std::os::windows::io::{AsRawHandle, FromRawHandle, OwnedHandle};
-use windows_sys::Win32::Foundation::{ERROR_SUCCESS, FALSE, FILETIME, HANDLE};
+use windows_sys::Win32::Foundation::{ERROR_SUCCESS, FALSE, FILETIME, HANDLE, MAX_PATH};
 use windows_sys::Win32::Security::{
     DuplicateTokenEx, SecurityImpersonation, TOKEN_ALL_ACCESS, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
     TOKEN_QUERY, TokenPrimary,
@@ -33,8 +33,6 @@ use windows_sys::Win32::System::Com::CoTaskMemFree;
 // Template for a new Mullvad VPN tray record (embedded at compile time)
 static MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] =
     include_bytes!("mullvad_tray_record.bin");
-
-const MAX_PATH: usize = 260;
 
 /// ICON_STREAMS_HEADER (packed, 20 bytes)
 #[repr(C, packed)]
@@ -82,13 +80,13 @@ const SHOW_ICON_AND_NOTIFICATIONS: u32 = 2;
 #[repr(C, packed)]
 #[derive(Clone, Copy)]
 struct IconStreamsRecord {
-    application_path: [u16; MAX_PATH],
+    application_path: [u16; MAX_PATH as usize],
     u1: u32,
     u2: u32,
     visibility: u32,
     year_created: u16,
     month_created: u16,
-    last_tooltip: [u16; MAX_PATH],
+    last_tooltip: [u16; MAX_PATH as usize],
     u6: u32,
     u7: u32,
     imagelist_id: u32,
