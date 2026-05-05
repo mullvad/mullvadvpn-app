@@ -67,6 +67,19 @@ jobs:
       - name: Fix git dir
         run: git config --global --add safe.directory $(pwd)
 
+      - name: Verify clean checkout state
+        run: |
+          set -e
+          echo "::group::Tracked file modifications"
+          git diff --stat HEAD
+          echo "::endgroup::"
+          echo "::group::Untracked / ignored files anywhere in the tree"
+          git status --porcelain --ignored=traditional
+          echo "::endgroup::"
+          echo "::group::Submodule state"
+          git submodule status --recursive
+          echo "::endgroup::"
+
       - name: Re-generate lockfile
         run: android/scripts/lockfile -u
 
