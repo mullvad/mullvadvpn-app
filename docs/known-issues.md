@@ -153,13 +153,13 @@ Android 16 and later has a bug where any app installed on the device can leak UD
 `ConnectivityManager`, as reported by https://lowlevel.fun/posts/tiny-udp-cannon-android-vpn-bypass .
 This does not require any privileges and works regardless if the device is connected to a Wi-Fi or cellular network.
 This leak happens even if the "Always-On VPN" + "Block connections without VPN" settings are enabled.
+A partial workaround involving running ADB commands is given in the linked article.
 
 #### Timeline
 
 * May 04, 2026 - Mullvad became aware of the issue, and was able to reproduce it on a Pixel 8 running Android 17 and on
 a Pixel 8 running GrapheneOS Android 16.
-* May 05, 2026 - Mullvad reports the issue to the GrapheneOS issue tracker:
-https://github.com/GrapheneOS/os-issue-tracker/issues/7717
+* May 05, 2026 - The vulnerability is fixed in the GrapheneOS code base.
 
 ### Possible leaks on macOS on first start after upgrade
 
