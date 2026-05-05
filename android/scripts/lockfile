@@ -117,8 +117,8 @@ function update_keys {
 
     activate_keys_metadata
 
-    log "Temporarily enabling key servers..."
-    sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
+    #log "Temporarily enabling key servers..."
+    #sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
 
     log "Removing old components..."
     sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
@@ -156,8 +156,8 @@ function update_keys {
         > verification-keyring.new.keys
     mv -f verification-keyring.new.keys verification-keyring.keys
 
-    log "Disabling key servers..."
-    sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
+    #log "Disabling key servers..."
+    #sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
 
     deactivate_keys_metadata
 
