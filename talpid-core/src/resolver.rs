@@ -21,7 +21,7 @@ use futures::{
 };
 
 use hickory_proto::{
-    ProtoErrorKind,
+    ProtoError,
     op::LowerQuery,
     rr::{LowerName, RecordType},
 };
@@ -31,14 +31,14 @@ use hickory_server::{
         EmptyLookup, LookupObject, MessageRequest, MessageResponse, MessageResponseBuilder,
     },
     proto::{
-        op::{Header, header::MessageType, op_code::OpCode},
-        rr::{Record, domain::Name, rdata, record_data::RData},
+        op::{Header, header::MessageType, op::OpCode},
+        rr::{RData, Record, domain::Name, rdata},
     },
     resolver::{
         ResolveError, ResolveErrorKind, TokioResolver,
         config::{NameServerConfigGroup, ResolverConfig, ResolverOpts},
         lookup::Lookup,
-        name_server::TokioConnectionProvider,
+        net::{NetError, runtime::TokioRuntimeProvider},
     },
     server::{Request, RequestHandler, ResponseHandler, ResponseInfo},
 };
@@ -543,9 +543,11 @@ impl LocalResolver {
                     new_config,
                     response_tx,
                 } => {
-                    log::debug!("Updating config: {new_config:?}");
-
-                    self.update_config(new_config);
+                    log::trace!("Updating config: {new_config:?}");
+                    if let Err(err) = self.update_config(new_config) {
+                        log::warn!("Failed to update DNS resolver config: {err}");
+                        continue;
+                    };
                     flush_system_cache();
                     let _ = response_tx.send(());
                 }
@@ -571,7 +573,7 @@ impl LocalResolver {
     }
 
     /// Update the current DNS config.
-    fn update_config(&mut self, config: Config) {
+    fn update_config(&mut self, config: Config) -> Result<(), NetError> {
         match config {
             Config::Blocking => self.blocking(),
             Config::Forwarding {
@@ -580,7 +582,7 @@ impl LocalResolver {
             } => {
                 // make sure not to accidentally forward queries to ourselves
                 dns_servers.retain(|addr| *addr != self.bound_to.ip());
-                self.forwarding(dns_servers, filter_out_aaaa);
+                self.forwarding(dns_servers, filter_out_aaaa)?;
             }
         }
     }
@@ -591,17 +593,18 @@ impl LocalResolver {
     }
 
     /// Turn into a forwarding resolver (forward DNS queries to `dns_servers`).
-    fn forwarding(&mut self, dns_servers: Vec<IpAddr>, filter_out_aaaa: bool) {
+    fn forwarding(
+        &mut self,
+        dns_servers: Vec<IpAddr>,
+        filter_out_aaaa: bool,
+    ) -> Result<(), NetError> {
         let forward_server_config =
             NameServerConfigGroup::from_ips_clear(&dns_servers, DNS_PORT, true);
 
         let forward_config = ResolverConfig::from_parts(None, vec![], forward_server_config);
-        let resolver_opts = ResolverOpts::default();
-
         let resolver =
-            TokioResolver::builder_with_config(forward_config, TokioConnectionProvider::default())
-                .with_options(resolver_opts)
-                .build();
+            TokioResolver::builder_with_config(forward_config, TokioRuntimeProvider::default())
+                .build()?;
 
         self.inner_resolver = Resolver::Forwarding {
             resolver: Box::new(resolver),
