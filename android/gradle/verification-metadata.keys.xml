@@ -100,6 +100,7 @@
          <trusted-key id="350C5D75D04AA599CBAD22348D5059F2B1927A9A" group="com.lemonappdev" name="konsist" version="0.17.3"/>
          <trusted-key id="41CD49B4EF5876F9E9F691DABAC30622339994C4" group="org.jspecify" name="jspecify" version="1.0.0"/>
          <trusted-key id="447C96E2C6AE137D1DC239B85A456ADE180A42C5" group="com.ncorti.ktfmt.gradle" name="plugin" version="0.26.0"/>
+         <trusted-key id="44FBDBBC1A00FE414F1C1873586654072EAD6677" group="org.sonatype.oss" name="oss-parent" version="9"/>
          <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F" group="^com[.]google($|([.].*))" regex="true"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
          <trusted-key id="47BF592261CD1A8A69B703B4E0CB7823CFD00FBF" group="com.jakewharton.android.repackaged" name="dalvik-dx" version="9.0.0_r3"/>
