@@ -107,27 +107,29 @@ const _: () = assert!(RECORD_SIZE == 1640);
 
 /// Apply ROT13 to a single Unicode character (letters only).
 fn rot13_char(c: u16) -> u16 {
-    let ca = b'A' as u16;
-    let cz = b'Z' as u16;
-    let la = b'a' as u16;
-    let lz = b'z' as u16;
+    const CA: u16 = b'A' as u16;
+    const CZ: u16 = b'Z' as u16;
+    const LA: u16 = b'a' as u16;
+    const LZ: u16 = b'z' as u16;
 
-    if c >= ca && c <= cz {
-        let shifted = c + 13;
-        if shifted <= cz {
-            shifted
-        } else {
-            ca + (shifted - cz - 1)
+    match c {
+        CA..=CZ => {
+            let shifted = c + 13;
+            if shifted <= CZ {
+                shifted
+            } else {
+                CA + (shifted - CZ - 1)
+            }
         }
-    } else if c >= la && c <= lz {
-        let shifted = c + 13;
-        if shifted <= lz {
-            shifted
-        } else {
-            la + (shifted - lz - 1)
+        LA..=LZ => {
+            let shifted = c + 13;
+            if shifted <= LZ {
+                shifted
+            } else {
+                LA + (shifted - LZ - 1)
+            }
         }
-    } else {
-        c
+        _ => c,
     }
 }
 
