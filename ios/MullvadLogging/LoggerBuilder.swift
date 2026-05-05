@@ -31,7 +31,6 @@ public final class LoggerBuilder: @unchecked Sendable {
 
     private var logRotationErrors: [Error] = []
     private var outputs: [LoggerOutput] = []
-
     private let metadata: Logger.Metadata
     private var logLevel: Logger.Level = .debug
 
@@ -66,7 +65,7 @@ public final class LoggerBuilder: @unchecked Sendable {
         }
     }
 
-    public func install() {
+    public func install(_ redactor: LogRedacting) {
         Self.lock.withLock {
             guard Self.initializedLoggingSystem == false else { return }
             Self.initializedLoggingSystem = true
@@ -75,7 +74,7 @@ public final class LoggerBuilder: @unchecked Sendable {
                 let logHandlers: [LogHandler] = outputs.map { output in
                     switch output {
                     case let .fileOutput(stream):
-                        return CustomFormatLogHandler(label: label, streams: [stream])
+                        return CustomFormatLogHandler(label: label, streams: [stream], redactor: redactor)
 
                     case let .osLogOutput(subsystem):
                         return OSLogHandler(subsystem: subsystem, category: label)

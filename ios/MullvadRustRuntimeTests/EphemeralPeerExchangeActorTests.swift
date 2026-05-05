@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import NetworkExtension
 import XCTest
 
@@ -18,7 +19,7 @@ class EphemeralPeerExchangeActorTests: XCTestCase {
     var tunnelProvider: TunnelProviderStub!
 
     override func setUpWithError() throws {
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
         tunnelProvider = TunnelProviderStub()
     }
 

@@ -16,6 +16,7 @@ hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
+regex = "1"
 mockito = { workspace = true }
 mullvad-api = { path = "../mullvad-api", default-features = false }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
