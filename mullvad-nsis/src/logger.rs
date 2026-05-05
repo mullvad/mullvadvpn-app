@@ -15,7 +15,7 @@ use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
 use nsis_plugin_api::{nsis_fn, popint, pushint};
-use windows_sys::Win32::Foundation::SYSTEMTIME;
+use windows_sys::Win32::Foundation::{MAX_PATH, SYSTEMTIME};
 use windows_sys::Win32::System::LibraryLoader::{
     GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS, GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
     GetModuleFileNameW, GetModuleHandleExW, LoadLibraryW,
@@ -121,7 +121,7 @@ fn pin_dll() {
             return;
         }
 
-        let mut path = [0u16; 260]; // MAX_PATH
+        let mut path = [0u16; MAX_PATH as usize];
         // SAFETY: `module` is a valid module handle returned above and `path`
         // is a writable buffer of `path.len()` u16s.
         let len = unsafe { GetModuleFileNameW(module, path.as_mut_ptr(), path.len() as u32) };
