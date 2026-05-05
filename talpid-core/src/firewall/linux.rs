@@ -67,6 +67,7 @@ const FORWARD_CHAIN_NAME: &CStr = c"forward";
 const PREROUTING_CHAIN_NAME: &CStr = c"prerouting";
 const MANGLE_CHAIN_NAME: &CStr = c"mangle";
 const NAT_CHAIN_NAME: &CStr = c"nat";
+const SRCNAT_CHAIN_NAME: &CStr = c"srcnat";
 
 /// Allows controlling whether firewall rules should have packet counters or not from an env
 /// variable. Useful for debugging the rules.
@@ -269,6 +270,7 @@ struct PolicyBatch<'a> {
     prerouting_chain: Chain<'a>,
     mangle_chain: Chain<'a>,
     nat_chain: Chain<'a>,
+    srcnat_chain: Chain<'a>,
 }
 
 impl<'a> PolicyBatch<'a> {
@@ -314,6 +316,12 @@ impl<'a> PolicyBatch<'a> {
         nat_chain.set_policy(nftnl::Policy::Accept);
         batch.add(&nat_chain, nftnl::MsgType::Add);
 
+        let mut srcnat_chain = Chain::new(SRCNAT_CHAIN_NAME, table);
+        srcnat_chain.set_type(nftnl::ChainType::Nat);
+        srcnat_chain.set_hook(nftnl::Hook::PostRouting, libc::NF_IP_PRI_NAT_SRC);
+        srcnat_chain.set_policy(nftnl::Policy::Accept);
+        batch.add(&srcnat_chain, nftnl::MsgType::Add);
+
         PolicyBatch {
             batch,
             in_chain,
@@ -322,6 +330,7 @@ impl<'a> PolicyBatch<'a> {
             prerouting_chain,
             mangle_chain,
             nat_chain,
+            srcnat_chain,
         }
     }
 
@@ -333,6 +342,8 @@ impl<'a> PolicyBatch<'a> {
         firewall: &Firewall,
     ) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
+        // TODO: if router { .. }
+        self.add_local_clients_forwaring_rules()?;
         // TODO: Investigate if these rules could/should be handled by PidManager instead.
         // It would allow for the firewall to be set up in a secure way even though split tunneling
         // does not work, which is okay. It would also allow us to de-duplicate some copy-paste
@@ -504,6 +515,33 @@ impl<'a> PolicyBatch<'a> {
             &allow_interface_rule(&self.in_chain, Direction::In, LOOPBACK_IFACE_NAME)?,
             nftnl::MsgType::Add,
         );
+        Ok(())
+    }
+
+    /// TODO: Don't forget sysctl net.ipv4.forwarding ..
+    fn add_local_clients_forwaring_rules(&mut self) -> Result<()> {
+        // Forward traffic stemming from (local) private IP ranges to wherever they want.
+        // TODO: Make sure to document this in nft if we ever add comment expressions..
+        // LAN -> forward
+        for net in ALLOWED_LAN_NETS {
+            let mut forward_from_local_clients = Rule::new(&self.forward_chain);
+            check_net(&mut forward_from_local_clients, End::Src, net);
+            add_verdict(&mut forward_from_local_clients, &Verdict::Accept);
+            if *ADD_COUNTERS {
+                forward_from_local_clients.add_expr(&nft_expr!(counter));
+            };
+            self.batch
+                .add(&forward_from_local_clients, nftnl::MsgType::Add);
+
+            // Src Nat
+            let mut srcnat_rule = Rule::new(&self.srcnat_chain);
+            check_net(&mut srcnat_rule, End::Src, net);
+            srcnat_rule.add_expr(&nft_expr!(masquerade));
+            if *ADD_COUNTERS {
+                srcnat_rule.add_expr(&nft_expr!(counter));
+            };
+            self.batch.add(&srcnat_rule, nftnl::MsgType::Add);
+        }
         Ok(())
     }
 
