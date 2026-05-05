@@ -436,7 +436,8 @@ fn RemoveLogsAndCache() -> Result<(), nsis_plugin_api::Error> {
     } else {
         NsisStatus::GeneralError
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }
 
@@ -450,7 +451,8 @@ fn RemoveSettings() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => NsisStatus::Success,
         Err(_) => NsisStatus::GeneralError,
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }
 
@@ -464,7 +466,8 @@ fn RemoveRelayCache() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -481,7 +484,8 @@ fn RemoveApiAddressCache() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -495,7 +499,8 @@ fn RemoveApiAddressCache() -> Result<(), nsis_plugin_api::Error> {
 // Pushes error message and status code.
 #[nsis_fn]
 fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let (install_path, allow_cancellation) = unsafe { (popstr()?, popint()? != 0) };
 
     let (message, status) =
@@ -504,7 +509,8 @@ fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
             Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
             Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
         };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -517,7 +523,8 @@ fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
 // Pushes SUCCESS if empty, FILE_EXISTS if files found, GENERAL_ERROR on error.
 #[nsis_fn]
 fn IsEmptyDir() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let path = unsafe { popstr()? };
 
     let status = match crate::handle::is_empty_dir(&path) {
@@ -525,6 +532,7 @@ fn IsEmptyDir() -> Result<(), nsis_plugin_api::Error> {
         Ok(false) => NsisStatus::FileExists,
         Err(_) => NsisStatus::GeneralError,
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(status as i32) }
 }

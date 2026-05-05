@@ -147,7 +147,8 @@ fn pin_dll() {
 #[nsis_fn]
 fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
     pin_dll();
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let target_int = unsafe { popint()? };
 
     let result = (|| -> io::Result<()> {
@@ -201,7 +202,8 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
 // Writes a message to the log file.
 #[nsis_fn]
 fn Log() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let message = unsafe { nsis_plugin_api::popstr()? };
 
     if let Ok(mut guard) = LOGGER.lock()
@@ -218,7 +220,8 @@ fn Log() -> Result<(), nsis_plugin_api::Error> {
 // Details are newline-separated within a single NSIS string.
 #[nsis_fn]
 fn LogWithDetails() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let (message, details) = unsafe { (nsis_plugin_api::popstr()?, nsis_plugin_api::popstr()?) };
     let detail_lines: Vec<&str> = details.lines().collect();
 
@@ -260,6 +263,7 @@ fn GetWindowsMajorVersion() -> Result<(), nsis_plugin_api::Error> {
             -1
         }
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe { pushint(value) }
 }

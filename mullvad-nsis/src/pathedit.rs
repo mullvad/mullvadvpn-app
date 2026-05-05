@@ -83,7 +83,8 @@ fn remove_from_path(all_paths: &str, path_to_remove: &str) -> (String, bool) {
 // Pushes error message and status code.
 #[nsis_fn]
 fn AddSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let path_to_add = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
@@ -116,7 +117,8 @@ fn AddSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (e.to_string(), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
@@ -130,7 +132,8 @@ fn AddSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
 // Pushes error message and status code.
 #[nsis_fn]
 fn RemoveSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     let path_to_remove = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
@@ -155,7 +158,8 @@ fn RemoveSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
         Ok(()) => (String::new(), NsisStatus::Success),
         Err(e) => (e.to_string(), NsisStatus::GeneralError),
     };
-    // SAFETY: `exdll_init` was called.
+    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
+    // runs, initializing the static NSIS stack pointer.
     unsafe {
         pushstr(&message)?;
         pushint(status as i32)
