@@ -146,6 +146,21 @@ any way that a VPN app can mitigate this issue. It has to be solved upstream in 
 * December 18, 2019 - Someone [reports the issue to google](https://issuetracker.google.com/issues/146484540)
 
 
+### Android 16 and later allow malicious unprivileged apps to leak the device's real IP address outside the tunnel
+
+Android 16 and later has a bug where any app installed on the device can leak UDP traffic outside the tunnel
+(thus exposing the user's real IP address) by calling the `registerQuicConnectionClosePayload` method on
+`ConnectivityManager`, as reported by https://lowlevel.fun/posts/tiny-udp-cannon-android-vpn-bypass .
+This does not require any privileges and works regardless if the device is connected to a Wi-Fi or cellular network.
+This leak happens even if the "Always-On VPN" + "Block connections without VPN" settings are enabled.
+
+#### Timeline
+
+* May 04, 2026 - Mullvad became aware of the issue, and was able to reproduce it on a Pixel 8 running Android 17 and on
+a Pixel 8 running GrapheneOS Android 16.
+* May 05, 2026 - Mullvad reports the issue to the GrapheneOS issue tracker:
+https://github.com/GrapheneOS/os-issue-tracker/issues/7717
+
 ### Possible leaks on macOS on first start after upgrade
 
 We have found that traffic could be leaking on macOS after system updates. In this scenario the
