@@ -271,12 +271,12 @@ fn current_filetime() -> FILETIME {
     let mut st = windows_sys::Win32::Foundation::SYSTEMTIME::default();
 
     // SAFETY: `&mut st` points to a stack-local SYSTEMTIME the API fills in.
-    unsafe { GetSystemTime(&mut st) };
+    unsafe { GetSystemTime(&raw mut st) };
 
     let mut ft = FILETIME::default();
     // SAFETY: `&st` points to an initialized SYSTEMTIME and `&mut ft` is a
     // stack-local for the API to fill in.
-    unsafe { SystemTimeToFileTime(&st, &mut ft) };
+    unsafe { SystemTimeToFileTime(&raw const st, &raw mut ft) };
     ft
 }
 
@@ -301,7 +301,7 @@ fn inject_mullvad_record(records: &mut Vec<IconStreamsRecord>) -> io::Result<()>
     // Get current system time for year/month fields
     let mut st = windows_sys::Win32::Foundation::SYSTEMTIME::default();
     // SAFETY: `&mut st` points to a stack-local SYSTEMTIME the API fills in.
-    unsafe { windows_sys::Win32::System::SystemInformation::GetSystemTime(&mut st) };
+    unsafe { windows_sys::Win32::System::SystemInformation::GetSystemTime(&raw mut st) };
 
     new_record.visibility = SHOW_ICON_AND_NOTIFICATIONS;
     new_record.year_created = st.wYear;
@@ -350,7 +350,7 @@ fn open_tray_key(write: bool) -> io::Result<RegKeyGuard> {
     // SAFETY: `key_name` is a null-terminated wide string built above; the
     // out-pointer is a stack-local.
     let result = unsafe {
-        RegOpenKeyExW(HKEY_CURRENT_USER, key_name.as_ptr(), 0, access, &mut hkey)
+        RegOpenKeyExW(HKEY_CURRENT_USER, key_name.as_ptr(), 0, access, &raw mut hkey)
     };
 
     if result != ERROR_SUCCESS {
@@ -383,9 +383,9 @@ fn read_icon_streams(key: &RegKeyGuard) -> io::Result<Vec<u8>> {
             key.0,
             val_name.as_ptr(),
             ptr::null(),
-            &mut value_type,
+            &raw mut value_type,
             ptr::null_mut(),
-            &mut buf_size,
+            &raw mut buf_size,
         )
     };
 
@@ -402,9 +402,9 @@ fn read_icon_streams(key: &RegKeyGuard) -> io::Result<Vec<u8>> {
             key.0,
             val_name.as_ptr(),
             ptr::null(),
-            &mut value_type,
+            &raw mut value_type,
             buf.as_mut_ptr(),
-            &mut buf_size,
+            &raw mut buf_size,
         )
     };
 
@@ -450,7 +450,7 @@ fn find_process_ids_by_name(name: &str) -> Vec<u32> {
 
     // SAFETY: `pid_buf` is `bytes_available` writable bytes (2048 u32s) and
     // `&mut bytes_written` is a stack-local.
-    if unsafe { EnumProcesses(pid_buf.as_mut_ptr(), bytes_available, &mut bytes_written) } == 0 {
+    if unsafe { EnumProcesses(pid_buf.as_mut_ptr(), bytes_available, &raw mut bytes_written) } == 0 {
         return vec![];
     }
 
@@ -476,7 +476,7 @@ fn find_process_ids_by_name(name: &str) -> Vec<u32> {
             let mut size = path.len() as u32;
             // SAFETY: `raw` is the live process handle owned by `_handle`;
             // `path` is 1024 writable u16s; `&mut size` carries capacity.
-            if unsafe { QueryFullProcessImageNameW(raw, 0, path.as_mut_ptr(), &mut size) } == 0 {
+            if unsafe { QueryFullProcessImageNameW(raw, 0, path.as_mut_ptr(), &raw mut size) } == 0 {
                 return false;
             }
 
@@ -499,7 +499,7 @@ fn explorer_path() -> io::Result<Vec<u16>> {
             &FOLDERID_Windows,
             KF_FLAG_DEFAULT as u32,
             ptr::null_mut(),
-            &mut path_ptr,
+            &raw mut path_ptr,
         )
     };
 
@@ -562,7 +562,7 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
             OpenProcessToken(
                 process.as_raw_handle().cast(),
                 TOKEN_DUPLICATE | TOKEN_QUERY | TOKEN_IMPERSONATE,
-                &mut raw_token,
+                &raw mut raw_token,
             )
         } == 0
         {
@@ -581,7 +581,7 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
                 ptr::null(),
                 SecurityImpersonation,
                 TokenPrimary,
-                &mut raw_dup,
+                &raw mut raw_dup,
             )
         } == 0
         {
@@ -612,8 +612,7 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
     }
 
     if terminated == 0 {
-        return Err(io::Error::new(
-            io::ErrorKind::Other,
+        return Err(io::Error::other(
             "Could not terminate any explorer.exe instance",
         ));
     }
@@ -646,8 +645,8 @@ fn restart_explorer(key: &RegKeyGuard, blob: &[u8]) -> io::Result<()> {
             0,
             ptr::null(),
             ptr::null(),
-            &startup_info,
-            &mut process_info,
+            &raw const startup_info,
+            &raw mut process_info,
         )
     };
 
