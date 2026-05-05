@@ -33,7 +33,7 @@ function newConfig() {
     compression: noCompression ? 'store' : 'normal',
     extraResources: [
       { from: distAssets('ca.crt'), to: '.' },
-      { from: buildAssets('relays.json'), to: '.' },
+      { from: distAssets('relays/relays.json'), to: '.' },
       { from: root('CHANGELOG.md'), to: '.' },
     ],
 
