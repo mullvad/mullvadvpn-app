@@ -41,10 +41,7 @@ internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationC
     ManagementInterface.LocationConstraint.newBuilder()
         .apply {
             when (this@fromDomain) {
-                Constraint.Any ->
-                    setLocation(
-                        ManagementInterface.GeographicLocationConstraint.getDefaultInstance()
-                    )
+                Constraint.Any -> {}
                 is Constraint.Only ->
                     when (val relayItemId = this@fromDomain.value) {
                         is CustomListId -> setCustomList(relayItemId.value)
