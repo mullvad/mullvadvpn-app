@@ -166,6 +166,10 @@ fun AddTimeBottomSheetContent(
             resetPurchaseState()
             closeBottomSheet(false)
         },
+        shouldDismissOnClickOutside =
+            state is Lc.Content && state.value.purchaseState != PurchaseState.VerificationStarted,
+        shouldDismissOnBackPress =
+            state is Lc.Content && state.value.purchaseState != PurchaseState.VerificationStarted,
     ) {
         when (state) {
             is Lc.Loading ->

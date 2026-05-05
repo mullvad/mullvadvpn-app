@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -60,6 +61,8 @@ fun MullvadModalBottomSheet(
     backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onDismissRequest: () -> Unit,
+    shouldDismissOnBackPress: Boolean = true,
+    shouldDismissOnClickOutside: Boolean = true,
     content: @Composable ColumnScope.(bottomPadding: Dp) -> Unit,
 ) {
     // This is to avoid weird colors in the status bar and the navigation bar
@@ -71,6 +74,10 @@ fun MullvadModalBottomSheet(
         modifier = modifier.semantics { testTagsAsResourceId = true },
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
+        properties = ModalBottomSheetProperties(
+            shouldDismissOnBackPress = shouldDismissOnBackPress,
+            shouldDismissOnClickOutside = shouldDismissOnClickOutside,
+        ),
     ) {
         content(paddingValues.calculateBottomPadding())
         Spacer(
