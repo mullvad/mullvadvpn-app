@@ -146,14 +146,14 @@ any way that a VPN app can mitigate this issue. It has to be solved upstream in 
 * December 18, 2019 - Someone [reports the issue to google](https://issuetracker.google.com/issues/146484540)
 
 
-### Android 16 and later allow malicious unprivileged apps to leak the device's real IP address outside the tunnel
+### Any app can leak the device IP on Android 16 and later
 
 Android 16 and later has a bug where any app installed on the device can leak UDP traffic outside the tunnel
 (thus exposing the user's real IP address) by calling the `registerQuicConnectionClosePayload` method on
-`ConnectivityManager`, first reported in [this blog post](https://lowlevel.fun/posts/tiny-udp-cannon-android-vpn-bypass).
-This does not require any privileges and works regardless if the device is connected to a Wi-Fi or cellular network.
-This leak happens even if the "Always-On VPN" + "Block connections without VPN" settings are enabled.
-A partial workaround involving running ADB commands is given in the linked article.
+`ConnectivityManager`, as first reported in
+[this blog post](https://lowlevel.fun/posts/tiny-udp-cannon-android-vpn-bypass).
+The leak requires no privileges, affects both Wi-Fi and cellular, and bypasses "Always-On VPN" with
+"Block connections without VPN".  A partial workaround involving running ADB commands is given in the linked article.
 
 #### Timeline
 
