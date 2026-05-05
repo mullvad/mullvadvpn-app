@@ -24,17 +24,19 @@ struct ListItem<StatusIndicator: View>: View {
                 Text(title)
                     .font(.mullvadSmallSemiBold)
                     .foregroundStyle(selected ? Color.mullvadSuccessColor : Color.mullvadTextPrimary)
+                    .multilineTextAlignment(.leading)
                 if let subtitle {
                     Text(subtitle)
                         .font(.mullvadMiniSemiBold)
                         .foregroundStyle(Color.mullvadTextPrimary.opacity(0.6))
+                        .multilineTextAlignment(.leading)
                 }
             }
 
             Spacer()
         }
         .padding(.vertical, 8)
-        .padding(.leading, CGFloat(16 * (level + 1)))
+        .padding(.leading, CGFloat(16 * level))
         .padding(.trailing, 16)
         .frame(minHeight: UIMetrics.LocationList.cellMinHeight)
     }

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct AutomaticLocationListItem: View {
     @State private var alert: MullvadAlert?
-    private let itemFactory = ListItemFactory()
+    private let itemFactory = SegmentedListItemFactory()
 
     @Binding var location: LocationNode
     var isRecent: Bool
@@ -20,8 +20,8 @@ struct AutomaticLocationListItem: View {
         SegmentedListItem(
             accessibilityIdentifier: isRecent ? .recentListItem(location.name) : .locationListItem(location.name),
             accessibilityLabel: location.name,
-            label: {
-                itemFactory.label(for: .location(node: location, context: .entry, level: 0))
+            leading: {
+                itemFactory.leading(for: .location(node: location, context: .entry, level: 0))
             },
             segment: {
                 itemFactory.segment(
@@ -30,7 +30,6 @@ struct AutomaticLocationListItem: View {
                     })
                 )
             },
-            groupedContent: {},
             onSelect: {
                 onSelect(location)
             }

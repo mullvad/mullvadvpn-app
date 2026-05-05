@@ -48,7 +48,7 @@ struct RecentItemView: View {
     }
 
     @ViewBuilder var statusIndicator: some View {
-        let itemFactory = ListItemFactory()
+        let itemFactory = SegmentedListItemFactory()
 
         if node.isSelected {
             itemFactory.statusIndicator(for: .tick)

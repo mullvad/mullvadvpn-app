@@ -11,7 +11,7 @@ import SwiftUI
 
 struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
     @State private var alert: MullvadAlert?
-    private let itemFactory = ListItemFactory()
+    private let itemFactory = SegmentedListItemFactory()
 
     @Binding var location: LocationNode
     let multihopContext: MultihopContext
@@ -32,11 +32,9 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
             isDisabled: location.isExcluded,
             accessibilityIdentifier: .recentListItem(location.name),
             accessibilityLabel: location.name,
-            label: {
-                itemFactory.label(for: .recent(node: location, context: multihopContext))
+            leading: {
+                itemFactory.leading(for: .recentLocation(node: location, context: multihopContext))
             },
-            segment: {},
-            groupedContent: {},
             onSelect: {
                 onSelect(location)
             }
