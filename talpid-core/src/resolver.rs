@@ -892,7 +892,7 @@ mod test {
             for domain in &*ALLOWED_DOMAINS {
                 test_resolver.lookup(domain, RecordType::A).await?;
             }
-            Ok::<(), LookupError>(())
+            Ok::<(), NetError>(())
         })
         .expect("Resolution of domains failed");
     }
