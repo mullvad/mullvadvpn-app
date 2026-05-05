@@ -45,7 +45,7 @@ export class ErrorNotificationProvider
             // TRANSLATORS: and will block network traffic until the error is resolved.
             messages.pgettext(
               'notifications',
-              'Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling.',
+              'Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s.',
             ),
             { splitTunneling: strings.splitTunneling.toLowerCase() },
           );
@@ -89,7 +89,7 @@ export class ErrorNotificationProvider
                   // TRANSLATORS: and will block network traffic until the error is resolved.
                   messages.pgettext(
                     'notifications',
-                    'Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling.',
+                    'Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s.',
                   ),
                   { splitTunneling: strings.splitTunneling.toLowerCase() },
                 ),
