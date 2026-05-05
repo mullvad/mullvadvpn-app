@@ -18,6 +18,7 @@ use windows_sys::Win32::Security::{
     DuplicateTokenEx, SecurityImpersonation, TOKEN_ALL_ACCESS, TOKEN_DUPLICATE, TOKEN_IMPERSONATE,
     TOKEN_QUERY, TokenPrimary,
 };
+use windows_sys::Win32::System::Com::CoTaskMemFree;
 use windows_sys::Win32::System::Registry::{
     HKEY, HKEY_CURRENT_USER, KEY_READ, KEY_WRITE, REG_BINARY, RegCloseKey, RegOpenKeyExW,
     RegQueryValueExW, RegSetValueExW,
@@ -28,11 +29,9 @@ use windows_sys::Win32::System::Threading::{
     WaitForSingleObject,
 };
 use windows_sys::Win32::UI::Shell::{FOLDERID_Windows, KF_FLAG_DEFAULT, SHGetKnownFolderPath};
-use windows_sys::Win32::System::Com::CoTaskMemFree;
 
 // Template for a new Mullvad VPN tray record (embedded at compile time)
-static MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] =
-    include_bytes!("mullvad_tray_record.bin");
+static MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.bin");
 
 /// ICON_STREAMS_HEADER (packed, 20 bytes)
 #[repr(C, packed)]
@@ -117,10 +116,18 @@ fn rot13_char(c: u16) -> u16 {
 
     if c >= ca && c <= cz {
         let shifted = c + 13;
-        if shifted <= cz { shifted } else { ca + (shifted - cz - 1) }
+        if shifted <= cz {
+            shifted
+        } else {
+            ca + (shifted - cz - 1)
+        }
     } else if c >= la && c <= lz {
         let shifted = c + 13;
-        if shifted <= lz { shifted } else { la + (shifted - lz - 1) }
+        if shifted <= lz {
+            shifted
+        } else {
+            la + (shifted - lz - 1)
+        }
     } else {
         c
     }
@@ -291,9 +298,8 @@ fn inject_mullvad_record(records: &mut Vec<IconStreamsRecord>) -> io::Result<()>
 
     // SAFETY: we verified the template has exactly `RECORD_SIZE` bytes, so
     // the read is in-bounds; `read_unaligned` handles alignment.
-    let mut new_record: IconStreamsRecord = unsafe {
-        ptr::read_unaligned(MULLVAD_TRAY_RECORD_TEMPLATE.as_ptr() as *const _)
-    };
+    let mut new_record: IconStreamsRecord =
+        unsafe { ptr::read_unaligned(MULLVAD_TRAY_RECORD_TEMPLATE.as_ptr() as *const _) };
 
     let now = current_filetime();
     let ordinal = next_free_ordinal(records, true);
@@ -344,13 +350,23 @@ fn to_wide_nul(s: &[u8]) -> Vec<u16> {
 /// Open the TrayNotify registry key.
 fn open_tray_key(write: bool) -> io::Result<RegKeyGuard> {
     let key_name = to_wide_nul(TRAY_KEY_NAME);
-    let access = if write { KEY_READ | KEY_WRITE } else { KEY_READ };
+    let access = if write {
+        KEY_READ | KEY_WRITE
+    } else {
+        KEY_READ
+    };
 
     let mut hkey: HKEY = ptr::null_mut();
     // SAFETY: `key_name` is a null-terminated wide string built above; the
     // out-pointer is a stack-local.
     let result = unsafe {
-        RegOpenKeyExW(HKEY_CURRENT_USER, key_name.as_ptr(), 0, access, &raw mut hkey)
+        RegOpenKeyExW(
+            HKEY_CURRENT_USER,
+            key_name.as_ptr(),
+            0,
+            access,
+            &raw mut hkey,
+        )
     };
 
     if result != ERROR_SUCCESS {
@@ -368,7 +384,6 @@ impl Drop for RegKeyGuard {
         unsafe { RegCloseKey(self.0) };
     }
 }
-
 
 /// Read the IconStreams binary blob from the registry.
 fn read_icon_streams(key: &RegKeyGuard) -> io::Result<Vec<u8>> {
@@ -450,7 +465,14 @@ fn find_process_ids_by_name(name: &str) -> Vec<u32> {
 
     // SAFETY: `pid_buf` is `bytes_available` writable bytes (2048 u32s) and
     // `&mut bytes_written` is a stack-local.
-    if unsafe { EnumProcesses(pid_buf.as_mut_ptr(), bytes_available, &raw mut bytes_written) } == 0 {
+    if unsafe {
+        EnumProcesses(
+            pid_buf.as_mut_ptr(),
+            bytes_available,
+            &raw mut bytes_written,
+        )
+    } == 0
+    {
         return vec![];
     }
 
@@ -476,7 +498,8 @@ fn find_process_ids_by_name(name: &str) -> Vec<u32> {
             let mut size = path.len() as u32;
             // SAFETY: `raw` is the live process handle owned by `_handle`;
             // `path` is 1024 writable u16s; `&mut size` carries capacity.
-            if unsafe { QueryFullProcessImageNameW(raw, 0, path.as_mut_ptr(), &raw mut size) } == 0 {
+            if unsafe { QueryFullProcessImageNameW(raw, 0, path.as_mut_ptr(), &raw mut size) } == 0
+            {
                 return false;
             }
 
@@ -525,9 +548,22 @@ fn explorer_path() -> io::Result<Vec<u16>> {
     unsafe { CoTaskMemFree(path_ptr as *mut _) };
 
     // Append \explorer.exe\0
-    path.extend_from_slice(&[b'\\' as u16, b'e' as u16, b'x' as u16, b'p' as u16,
-        b'l' as u16, b'o' as u16, b'r' as u16, b'e' as u16, b'r' as u16,
-        b'.' as u16, b'e' as u16, b'x' as u16, b'e' as u16, 0]);
+    path.extend_from_slice(&[
+        b'\\' as u16,
+        b'e' as u16,
+        b'x' as u16,
+        b'p' as u16,
+        b'l' as u16,
+        b'o' as u16,
+        b'r' as u16,
+        b'e' as u16,
+        b'r' as u16,
+        b'.' as u16,
+        b'e' as u16,
+        b'x' as u16,
+        b'e' as u16,
+        0,
+    ]);
     Ok(path)
 }
 

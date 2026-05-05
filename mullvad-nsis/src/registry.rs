@@ -8,8 +8,7 @@ use std::ptr;
 use widestring::U16CString;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 use windows_sys::Win32::System::Registry::{
-    HKEY, REG_EXPAND_SZ, RegCloseKey, RegFlushKey, RegOpenKeyExW, RegQueryValueExW,
-    RegSetValueExW,
+    HKEY, REG_EXPAND_SZ, RegCloseKey, RegFlushKey, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
 };
 
 /// Open registry key handle.
