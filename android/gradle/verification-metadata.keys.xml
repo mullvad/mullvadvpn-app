@@ -11,7 +11,6 @@
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <key-servers enabled="false">
-         <key-server uri="https://keyserver.ubuntu.com"/>
          <key-server uri="https://keys.openpgp.org"/>
       </key-servers>
       <trusted-artifacts>
