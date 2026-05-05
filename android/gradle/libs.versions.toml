@@ -60,7 +60,7 @@ konsist = "0.17.3"
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.3.21"
-kotlin-ksp = "2.3.6"
+kotlin-ksp = "2.3.7"
 kotlinx = "1.10.2"
 kotlinx-serialization-json = "1.11.0"
 ktfmt = "0.26.0"
