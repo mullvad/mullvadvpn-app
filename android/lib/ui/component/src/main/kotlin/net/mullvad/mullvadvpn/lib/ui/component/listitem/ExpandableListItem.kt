@@ -49,6 +49,7 @@ fun ExpandableListItem(
     title: String,
     isExpanded: Boolean,
     isEnabled: Boolean = true,
+    singeLine: Boolean = true,
     onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
@@ -56,7 +57,7 @@ fun ExpandableListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
         isExpanded = isExpanded,
         isEnabled = isEnabled,
         onCellClicked = onCellClicked,

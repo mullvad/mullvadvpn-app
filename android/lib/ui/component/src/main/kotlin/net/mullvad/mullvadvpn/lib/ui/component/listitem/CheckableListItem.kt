@@ -53,6 +53,7 @@ private fun PreviewCheckableListItem() {
 fun CheckableListItem(
     title: String,
     modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     isChecked: Boolean,
@@ -69,7 +70,7 @@ fun CheckableListItem(
                 onCheckedChange = onCheckedChange,
             )
         },
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singleLine) 1 else Int.MAX_VALUE) },
         position = position,
         hierarchy = hierarchy,
         isEnabled = isEnabled,
