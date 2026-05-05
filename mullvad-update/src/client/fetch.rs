@@ -15,6 +15,8 @@ use tokio::{
     io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter},
 };
 
+use super::tls::build_client_config;
+
 use thiserror::Error;
 
 /// Start value of the read timeout. This is doubled on each retry.
@@ -208,8 +210,11 @@ pub async fn get_to_writer(
     size_hint: SizeHint,
     read_timeout: Duration,
 ) -> Result<(), DownloadError> {
-    // Create a new client for each download attempt to prevent stale connections
+    // Create a new client for each download attempt to prevent stale connections.
+    // reqwest has no bundled crypto provider, so supply a preconfigured aws-lc-rs
+    // rustls ClientConfig with webpki roots.
     let client = reqwest::Client::builder()
+        .use_preconfigured_tls(build_client_config(None, false))
         .read_timeout(read_timeout)
         .connect_timeout(CONNECT_TIMEOUT)
         .build()
