@@ -26,6 +26,7 @@ fun DeviceListItem(
     modifier: Modifier = Modifier,
     position: Position,
     device: Device,
+    singleLine: Boolean = true,
     isLoading: Boolean,
     isCurrentDevice: Boolean = false,
     onDeviceRemovalClicked: () -> Unit,
@@ -38,7 +39,9 @@ fun DeviceListItem(
         content = {
             TitleAndSubtitle(
                 title = device.displayName(),
-                subtitle = stringResource(id = R.string.created_x, device.creationDate.formatDate()),
+                subtitle =
+                    stringResource(id = R.string.created_x, device.creationDate.formatDate()),
+                singleLine = singleLine,
             )
         },
         trailingContent = {

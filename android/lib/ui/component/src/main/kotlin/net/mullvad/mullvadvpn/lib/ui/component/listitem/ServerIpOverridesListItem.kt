@@ -33,6 +33,7 @@ private fun PreviewServerIpOverridesListItem() {
 fun ServerIpOverridesListItem(
     active: Boolean?,
     modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
     activeColor: Color = MaterialTheme.colorScheme.positive,
     inactiveColor: Color = MaterialTheme.colorScheme.error,
 ) {
@@ -63,6 +64,7 @@ fun ServerIpOverridesListItem(
                     text =
                         if (active) stringResource(id = R.string.server_ip_overrides_active)
                         else stringResource(id = R.string.server_ip_overrides_inactive),
+                    maxLines = if (singleLine) 1 else Int.MAX_VALUE,
                     modifier = Modifier.padding(horizontal = Dimens.smallPadding),
                 )
             }

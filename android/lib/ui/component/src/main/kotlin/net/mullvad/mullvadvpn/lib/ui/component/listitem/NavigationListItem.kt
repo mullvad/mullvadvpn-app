@@ -48,6 +48,7 @@ fun NavigationListItem(
     position: Position = Position.Single,
     title: String,
     subtitle: String? = null,
+    singeLine: Boolean = true,
     subTitleTextDirection: TextDirection = TextDirection.Unspecified,
     showWarning: Boolean = false,
     isRowEnabled: Boolean = true,
@@ -76,6 +77,7 @@ fun NavigationListItem(
                 title = title,
                 subtitle = subtitle,
                 subTitleTextDirection = subTitleTextDirection,
+                singleLine = singeLine,
             )
         },
         trailingContent = {

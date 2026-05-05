@@ -47,6 +47,7 @@ fun SwitchListItem(
     title: String,
     isToggled: Boolean,
     isEnabled: Boolean = true,
+    singeLine: Boolean = true,
     testTag: String? = null,
     backgroundAlpha: Float = 1f,
     onCellClicked: (Boolean) -> Unit,
@@ -60,7 +61,7 @@ fun SwitchListItem(
         testTag = testTag,
         backgroundAlpha = backgroundAlpha,
         onClick = { onCellClicked(!isToggled) },
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
         trailingContent = {
             Row(
                 modifier = Modifier.fillMaxHeight(),

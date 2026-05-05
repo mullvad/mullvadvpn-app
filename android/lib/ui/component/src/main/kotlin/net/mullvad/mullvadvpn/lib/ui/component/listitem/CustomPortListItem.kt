@@ -61,6 +61,7 @@ fun CustomPortListItem(
     isEnabled: Boolean = true,
     isSelected: Boolean,
     port: Port?,
+    singeLine: Boolean = true,
     mainTestTag: String? = null,
     numberTestTag: String? = null,
     onMainCellClicked: (() -> Unit)? = null,
@@ -83,6 +84,7 @@ fun CustomPortListItem(
                     subtitleColor =
                         if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant
                         else ListItemDefaults.colors().disabledHeadlineColor,
+                    singleLine = singeLine,
                 )
             }
         },

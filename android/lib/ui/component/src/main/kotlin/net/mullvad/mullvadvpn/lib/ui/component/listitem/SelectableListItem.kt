@@ -132,6 +132,7 @@ fun SelectableListItem(
     isEnabled: Boolean = true,
     title: String,
     subtitle: String? = null,
+    singeLine: Boolean = true,
     iconContentDescription: String? = null,
     mainClickArea: ListItemClickArea = ListItemClickArea.All,
     onClick: (() -> Unit)? = null,
@@ -152,10 +153,11 @@ fun SelectableListItem(
         onLongClick = onLongClick,
         content = {
             Column {
-                Text(title)
+                Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE)
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
+                        maxLines = if (singeLine) 1 else Int.MAX_VALUE,
                         style = MaterialTheme.typography.labelLarge,
                         color =
                             if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant

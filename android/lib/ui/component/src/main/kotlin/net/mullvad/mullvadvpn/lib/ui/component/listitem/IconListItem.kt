@@ -40,6 +40,7 @@ private fun PreviewExternalLinkListItem() {
 fun IconListItem(
     modifier: Modifier = Modifier,
     title: String,
+    singeLine: Boolean = true,
     leadingIcon: ImageVector,
     colors: ListItemColors = ListItemDefaults.colors(),
     contentDescription: String? = null,
@@ -49,7 +50,7 @@ fun IconListItem(
 ) {
     MullvadListItem(
         modifier = modifier,
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
         leadingContent = {
             Icon(
                 imageVector = leadingIcon,

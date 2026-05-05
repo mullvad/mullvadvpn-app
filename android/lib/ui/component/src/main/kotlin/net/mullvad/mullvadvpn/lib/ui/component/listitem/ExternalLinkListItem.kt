@@ -44,6 +44,7 @@ fun ExternalLinkListItem(
     title: String,
     subtitle: String? = null,
     subTitleTextDirection: TextDirection = TextDirection.Unspecified,
+    singeLine: Boolean = true,
     leadingIcon: ImageVector? = null,
     colors: ListItemColors = ListItemDefaults.colors(),
     showWarning: Boolean = false,
@@ -81,6 +82,7 @@ fun ExternalLinkListItem(
                 title = title,
                 subtitle = subtitle,
                 subTitleTextDirection = subTitleTextDirection,
+                singleLine = singeLine,
             )
         },
         trailingContent = {
