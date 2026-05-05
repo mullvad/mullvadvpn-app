@@ -12,6 +12,7 @@ use crate::defaults;
 use crate::format::response::SignedResponse;
 use crate::version::{VersionInfo, VersionParameters};
 
+use super::tls::build_client_config;
 use super::version_provider::VersionInfoProvider;
 
 use mullvad_api_constants::*;
@@ -167,10 +168,10 @@ impl HttpVersionInfoProvider {
     /// `url` - URL to fetch
     /// `resolve` - Optional host to resolve (to the IP) without DNS
     async fn get(url: &str, resolve: Option<(&'static str, IpAddr)>) -> anyhow::Result<Vec<u8>> {
-        let mut req_builder = reqwest::Client::builder()
-            .min_tls_version(reqwest::tls::Version::TLS_1_3)
-            .tls_built_in_root_certs(false)
-            .add_root_certificate(defaults::PINNED_CERTIFICATE.clone());
+        // reqwest is built without a bundled crypto provider, so feed it a
+        // preconfigured aws-lc-rs rustls ClientConfig.
+        let tls_config = build_client_config(Some(defaults::PINNED_CERTIFICATE.clone()), true);
+        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {

@@ -98,7 +98,9 @@ proptest = "1.9"
 prost = "0.14.3"
 prost-types = "0.14.3"
 rand = "0.9.3"
-reqwest = { version = "0.12.23", default-features = false, features = ["rustls-tls"] }
+reqwest = { version = "0.12.23", default-features = false, features = [
+  "rustls-tls-webpki-roots-no-provider"
+] }
 rtnetlink = "0.21.0"
 rustls = { version = "0.23", default-features = false }
 rustls-pki-types = "1.13.1"

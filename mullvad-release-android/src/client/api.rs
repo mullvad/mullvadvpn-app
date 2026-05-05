@@ -1,9 +1,11 @@
 //! This module implements fetching of information about app versions
 
 use std::net::IpAddr;
+use std::sync::Arc;
 
 use super::defaults;
 use anyhow::Context;
+use rustls::{ClientConfig, RootCertStore, crypto::aws_lc_rs};
 
 use mullvad_api_constants::*;
 
@@ -55,10 +57,20 @@ impl HttpVersionInfoProvider {
     /// `url` - URL to fetch
     /// `resolve` - Optional host to resolve (to the IP) without DNS
     async fn get(url: &str, resolve: Option<(&'static str, IpAddr)>) -> anyhow::Result<Vec<u8>> {
-        let mut req_builder = reqwest::Client::builder()
-            .min_tls_version(reqwest::tls::Version::TLS_1_3)
-            .tls_built_in_root_certs(false)
-            .add_root_certificate(defaults::PINNED_CERTIFICATE.clone());
+        // reqwest is built without a bundled crypto provider, so feed it a
+        // preconfigured aws-lc-rs rustls ClientConfig with TLS 1.3 enforced
+        // and the pinned certificate as the only trust anchor.
+        let mut roots = RootCertStore::empty();
+        roots
+            .add(defaults::PINNED_CERTIFICATE.clone())
+            .expect("pinned certificate should be a valid trust anchor");
+        let tls_config =
+            ClientConfig::builder_with_provider(Arc::new(aws_lc_rs::default_provider()))
+                .with_protocol_versions(&[&rustls::version::TLS13])
+                .expect("aws-lc-rs crypto provider should support TLS 1.3")
+                .with_root_certificates(roots)
+                .with_no_client_auth();
+        let mut req_builder = reqwest::Client::builder().use_preconfigured_tls(tls_config);
 
         // Resolve name without DNS
         if let Some((host, addr)) = resolve {
