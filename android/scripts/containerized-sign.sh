@@ -6,10 +6,15 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 CONTAINER_IMAGE_NAME=$(cat "$SCRIPT_DIR/../../building/android-container-image.txt")
 
-ARTIFACT_DIR=${1:?'Usage: sign.sh <artifact-dir>'}
+SIGN_DIR=${1:?'Usage: containerized-sign.sh <sign-dir> <bash-command>'}
 
-if [[ ! -d "$ARTIFACT_DIR" ]]; then
-    echo "Error: not a directory: $ARTIFACT_DIR"
+if [[ ! -d "$SIGN_DIR" ]]; then
+    echo "Error: not a directory: $SIGN_DIR"
+    exit 1
+fi
+
+if [[ -z "$2" ]]; then
+    echo "Missing command to execute, use containerized-sign.sh <sign-dir> <bash-command>"
     exit 1
 fi
 
@@ -36,9 +41,9 @@ trap cleanup EXIT
     --secret YUBIKEY_PIN,type=env \
     -v "$SCRIPT_DIR/wait-for-pcscd.sh:/wait-for-pcscd.sh:Z" \
     -v "$SCRIPT_DIR/sign.sh:/sign.sh:Z" \
-    -v "$ARTIFACT_DIR:/artifact_dir:Z" \
+    -v "$SIGN_DIR:/sign_dir:Z" \
     "${optional_override_provider_config[@]}" \
-    -w "/artifact_dir" \
+    -w "/sign_dir" \
     --entrypoint /wait-for-pcscd.sh \
     "$CONTAINER_IMAGE_NAME" \
-    bash -c 'shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk'
+    bash -c "$2"
