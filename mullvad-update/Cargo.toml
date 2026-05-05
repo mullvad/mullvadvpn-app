@@ -27,6 +27,8 @@ rand = { workspace = true }
 # ed25519-dalek still depends on rand_core 0.6 as of ed25519-dalek 2.2.0
 rand_core = { version = "0.6", features = ["getrandom"], optional = true }
 reqwest = { workspace = true, optional = true }
+rustls = { workspace = true, optional = true, features = ["aws-lc-rs", "std", "tls12"] }
+rustls-pki-types = { workspace = true, optional = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 sha2 = { workspace = true }
@@ -39,6 +41,7 @@ tokio = { workspace = true, features = [
   "rt-multi-thread"
 ], optional = true }
 vec1 = { workspace = true }
+webpki-roots = { workspace = true, optional = true }
 zeroize = { workspace = true, features = ["zeroize_derive"] }
 
 [dev-dependencies]
@@ -51,7 +54,7 @@ tokio = { workspace = true, features = ["fs", "macros", "test-util", "time"] }
 
 [features]
 default = []
-client = ["reqwest", "thiserror", "tokio"]
+client = ["reqwest", "rustls", "rustls-pki-types", "thiserror", "tokio", "webpki-roots"]
 sign = ["clap", "rand_core"]
 
 [lints]

@@ -3502,9 +3502,11 @@ dependencies = [
  "mullvad-api-constants",
  "mullvad-version",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "tokio",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -3569,6 +3571,8 @@ dependencies = [
  "rand 0.9.4",
  "rand_core 0.6.4",
  "reqwest",
+ "rustls",
+ "rustls-pki-types",
  "serde",
  "serde_json",
  "sha2",
@@ -3576,6 +3580,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "vec1",
+ "webpki-roots",
  "zeroize",
 ]
 
@@ -4978,7 +4983,6 @@ dependencies = [
  "log",
  "percent-encoding",
  "pin-project-lite",
- "quinn",
  "rustls",
  "rustls-pki-types",
  "serde",
@@ -5091,7 +5095,6 @@ dependencies = [
  "aws-lc-rs",
  "log",
  "once_cell",
- "ring",
  "rustls-pki-types",
  "rustls-webpki",
  "subtle",
