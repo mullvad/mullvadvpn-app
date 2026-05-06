@@ -74,9 +74,9 @@ dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
-hickory-proto = "0.25.2"
-hickory-resolver = "0.25.2"
-hickory-server = { version = "0.25.2", features = ["resolver"] }
+hickory-proto = "0.26.1"
+hickory-resolver = "0.26.1"
+hickory-server = { version = "0.26.1", features = ["resolver"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
   "client-legacy",
@@ -108,7 +108,10 @@ rustls-pki-types = "1.13.1"
 serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
-shadowsocks = { version = "1.23.2", features = ["stream-cipher"] }
+shadowsocks = { version = "1.23.2", default-features = false, features = [
+  "aead-cipher",
+  "stream-cipher"
+] }
 shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
 socket2 = "0.5.7"
 strum = { version = "0.27" }
