@@ -26,6 +26,16 @@ Line wrap the file at 100 chars.                                              Th
 - Optimize LWO performance. The throughput is around 3 times higher in our benchmarks.
 
 
+## [android/2026.5] - 2026-05-06
+### Fixed
+- Fix a rare case of the app setting itself in a blocking state if entry location
+  never was selected.
+
+
+## [android/2026.4] - 2026-04-27
+Identical to `android/2026.4-beta3` except for updated translations.
+
+
 ## [android/2026.4-beta2] - 2026-04-14
 ### Fixed
 - Fix crash when showing the Custom DNS dialog that was introduced in 2026.4-beta1.
