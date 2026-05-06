@@ -24,6 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2026.5] - 2026-05-06
+### Fixed
+- Fix a rare case of app setting itself in a blocking state if entry location
+  had never been selected.
+
+
 ## [android/2026.4] - 2026-04-27
 Identical to `android/2026.4-beta3` except for updated translations.
 
