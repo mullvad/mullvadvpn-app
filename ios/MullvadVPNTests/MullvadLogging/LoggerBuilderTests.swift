@@ -9,13 +9,16 @@
 import Testing
 
 @testable import MullvadLogging
+@testable import MullvadRustRuntime
 
 struct LoggerBuilderTests {
 
     @Test func installIsIdempotent() async throws {
-        LoggerBuilder.shared.install()
+        let redactedLogger = RustLogRedactor()
+
+        LoggerBuilder.shared.install(redactedLogger)
         // This should crash if the `install` function is not idempotent
-        LoggerBuilder.shared.install()
-        LoggerBuilder.shared.install()
+        LoggerBuilder.shared.install(redactedLogger)
+        LoggerBuilder.shared.install(redactedLogger)
     }
 }
