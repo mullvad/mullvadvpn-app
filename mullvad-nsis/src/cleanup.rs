@@ -305,7 +305,7 @@ fn remove_logs_service_user() -> anyhow::Result<()> {
         Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(()),
         Err(e) => {
             return Err(anyhow::Error::from(e))
-                .with_context(|| format!("read_dir {}", app_dir.display()));
+                .with_context(|| format!("read_dir {}", log_dir.display()));
         }
     };
 
@@ -318,7 +318,7 @@ fn remove_logs_service_user() -> anyhow::Result<()> {
     }
 
     // Try to remove the now-empty directory; ignore failure if non-empty.
-    let _ = std::fs::remove_dir(&app_dir);
+    let _ = std::fs::remove_dir(log_dir);
     Ok(())
 }
 
