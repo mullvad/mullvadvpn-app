@@ -20,7 +20,6 @@ mod cleanup;
 mod handle;
 mod logger;
 mod pathedit;
-mod registry;
 mod tray;
 
 /// NSIS status codes returned to the installer scripts.

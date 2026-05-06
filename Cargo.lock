@@ -3247,6 +3247,7 @@ dependencies = [
  "nsis-plugin-api",
  "talpid-platform-metadata",
  "widestring",
+ "windows-registry",
  "windows-sys 0.61.2",
 ]
 

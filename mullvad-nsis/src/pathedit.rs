@@ -4,19 +4,18 @@
 //! - `AddSysEnvPath` - add a directory to the system PATH
 //! - `RemoveSysEnvPath` - remove a directory from the system PATH
 
-use std::ffi::OsString;
 use std::io;
 
 use nsis_plugin_api::{nsis_fn, popstr, pushint, pushstr};
+use windows_registry::{Key, LOCAL_MACHINE};
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, SetLastError};
-use windows_sys::Win32::System::Registry::{KEY_READ, KEY_WRITE};
+use windows_sys::Win32::System::Registry::RegFlushKey;
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     HWND_BROADCAST, SMTO_ABORTIFHUNG, SendMessageTimeoutW, WM_SETTINGCHANGE,
 };
 use windows_sys::w;
 
 use crate::NsisStatus;
-use crate::registry::RegKey;
 
 /// Registry key for the system environment variables.
 const PATH_KEY_NAME: &str = "SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
@@ -99,26 +98,21 @@ fn AddSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
     let path_to_add = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
-        let key = RegKey::open_hklm(PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
-        let current_path = key.read_string(PATH_VAL_NAME)?;
-        let current_path_str = current_path
-            .to_str()
-            .expect("system PATH should be valid UTF-8");
+        let key = LOCAL_MACHINE.options().read().write().open(PATH_KEY_NAME)?;
+        let current_path = key.get_string(PATH_VAL_NAME)?;
 
-        if sys_path_contains(current_path_str, &path_to_add) {
+        if sys_path_contains(&current_path, &path_to_add) {
             return Ok(());
         }
 
-        let new_path = if current_path_str.is_empty() {
-            OsString::from(&path_to_add)
+        let new_path = if current_path.is_empty() {
+            path_to_add.clone()
         } else {
-            let mut p = current_path_str.to_owned();
-            p.push(';');
-            p.push_str(&path_to_add);
-            OsString::from(p)
+            format!("{current_path};{path_to_add}")
         };
 
-        key.write_expand_string(PATH_VAL_NAME, &new_path)?;
+        key.set_expand_string(PATH_VAL_NAME, &new_path)?;
+        flush_key(&key);
         drop(key);
         broadcast_setting_change()?;
         Ok(())
@@ -148,16 +142,14 @@ fn RemoveSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
     let path_to_remove = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
-        let key = RegKey::open_hklm(PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
-        let current_path = key.read_string(PATH_VAL_NAME)?;
-        let current_path_str = current_path
-            .to_str()
-            .expect("system PATH should be valid UTF-8");
+        let key = LOCAL_MACHINE.options().read().write().open(PATH_KEY_NAME)?;
+        let current_path = key.get_string(PATH_VAL_NAME)?;
 
-        let (new_path, changed) = remove_from_path(current_path_str, &path_to_remove);
+        let (new_path, changed) = remove_from_path(&current_path, &path_to_remove);
 
         if changed {
-            key.write_expand_string(PATH_VAL_NAME, &OsString::from(new_path))?;
+            key.set_expand_string(PATH_VAL_NAME, &new_path)?;
+            flush_key(&key);
             drop(key);
             broadcast_setting_change()?;
         }
@@ -175,4 +167,12 @@ fn RemoveSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
         pushstr(&message)?;
         pushint(status as i32)
     }
+}
+
+/// Flush pending writes for `key` to disk. The lazy flusher would do this
+/// eventually, but the installer wants the system PATH change persisted before
+/// broadcasting the change.
+fn flush_key(key: &Key) {
+    // SAFETY: `key.as_raw()` returns the live HKEY owned by `key`.
+    unsafe { RegFlushKey(key.as_raw()) };
 }

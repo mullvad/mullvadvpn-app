@@ -16,6 +16,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 nsis-plugin-api.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 widestring.workspace = true
+windows-registry.workspace = true
 windows-sys = { workspace = true, features = [
   "Wdk_Foundation",
   "Wdk_System",

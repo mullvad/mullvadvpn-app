@@ -12,8 +12,8 @@ use std::ptr;
 
 use nsis_plugin_api::{nsis_fn, pushint, pushstr};
 use widestring::U16CString;
+use windows_registry::{CURRENT_USER, Key, Type};
 
-use crate::registry::RegKey;
 use crate::{NsisStatus, get_known_folder_path};
 use std::os::windows::io::{AsHandle, AsRawHandle, FromRawHandle, OwnedHandle};
 use windows_sys::Win32::Foundation::{FALSE, FILETIME, HANDLE, MAX_PATH, SYSTEMTIME};
@@ -22,7 +22,6 @@ use windows_sys::Win32::Security::{
     TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_QUERY, TOKEN_TYPE, TokenPrimary,
 };
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
-use windows_sys::Win32::System::Registry::{KEY_READ, KEY_WRITE};
 use windows_sys::Win32::System::SystemInformation::GetSystemTime;
 use windows_sys::Win32::System::Threading::{
     CreateProcessAsUserW, INFINITE, OpenProcess, OpenProcessToken, PROCESS_INFORMATION,
@@ -130,7 +129,7 @@ const _: () = assert!(RECORD_SIZE == 1640);
 /// Parsed contents of the `IconStreams` registry value, plus an open
 /// handle to the registry key it was loaded from.
 struct IconStreams {
-    key: RegKey,
+    key: Key,
     header: IconStreamsHeader,
     records: Vec<IconStreamsRecord>,
 }
@@ -143,15 +142,15 @@ impl IconStreams {
 
     /// Open the IconStreams registry key and parse the current blob.
     fn read() -> io::Result<Self> {
-        let key = RegKey::open_hkcu(Self::KEY_NAME, KEY_READ | KEY_WRITE)?;
-        let blob = key.read_binary(Self::VALUE_NAME)?;
-        if blob.is_empty() {
+        let key = CURRENT_USER.options().read().write().open(Self::KEY_NAME)?;
+        let value = key.get_value(Self::VALUE_NAME)?;
+        if value.is_empty() {
             return Err(io::Error::new(
                 io::ErrorKind::NotFound,
                 "IconStreams registry value is empty",
             ));
         }
-        let (header, records) = Self::parse_blob(&blob)?;
+        let (header, records) = Self::parse_blob(&value)?;
         Ok(Self {
             key,
             header,
@@ -161,7 +160,9 @@ impl IconStreams {
 
     /// Pack and write the IconStreams blob back to its registry key.
     fn write(&self) -> io::Result<()> {
-        self.key.write_binary(Self::VALUE_NAME, &self.pack_blob())
+        self.key
+            .set_bytes(Self::VALUE_NAME, Type::Bytes, &self.pack_blob())?;
+        Ok(())
     }
 
     /// Find the record whose decoded ApplicationPath contains `substring`.
