@@ -29,7 +29,15 @@ use windows_sys::Win32::System::Threading::{
 use windows_sys::Win32::UI::Shell::{FOLDERID_Windows, KF_FLAG_DEFAULT, SHGetKnownFolderPath};
 
 /// Template for a new Mullvad VPN tray record in `IconStreams`.
-static MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.bin");
+const MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = {
+    let record = include_bytes!("mullvad_tray_record.bin");
+    // Check if length matches our packed struct
+    assert!(
+        record.len() == RECORD_SIZE,
+        "file must match record struct layout"
+    );
+    record
+};
 
 /// ICON_STREAMS_HEADER (packed, 20 bytes)
 ///
@@ -270,13 +278,6 @@ fn current_filetime() -> FILETIME {
 
 /// Inject a new Mullvad tray record using the embedded template.
 fn inject_mullvad_record(records: &mut Vec<IconStreamsRecord>) -> io::Result<()> {
-    if MULLVAD_TRAY_RECORD_TEMPLATE.len() != RECORD_SIZE {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidData,
-            "Mullvad tray record template has wrong size",
-        ));
-    }
-
     // SAFETY: we verified the template has exactly `RECORD_SIZE` bytes, so
     // the read is in-bounds; `read_unaligned` handles alignment.
     let mut new_record: IconStreamsRecord =
