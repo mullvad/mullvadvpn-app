@@ -47,6 +47,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "am-i-mullvad-client"
+version = "0.0.0"
+dependencies = [
+ "bytes",
+ "http-body-util",
+ "hyper",
+ "hyper-rustls",
+ "hyper-util",
+ "rustls",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "android_system_properties"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -469,14 +485,12 @@ dependencies = [
 name = "connection-checker"
 version = "0.0.0"
 dependencies = [
+ "am-i-mullvad-client",
  "anyhow",
  "clap",
  "ping",
- "reqwest",
- "rustls",
- "serde",
  "socket2 0.5.10",
- "webpki-roots",
+ "tokio",
 ]
 
 [[package]]
@@ -1293,7 +1307,6 @@ dependencies = [
  "http",
  "hyper",
  "hyper-util",
- "log",
  "rustls",
  "tokio",
  "tokio-rustls",
@@ -2821,9 +2834,7 @@ checksum = "eddd3ca559203180a307f12d114c268abf583f59b03cb906fd0b3ff8646c1147"
 dependencies = [
  "base64",
  "bytes",
- "futures-channel",
  "futures-core",
- "futures-util",
  "http",
  "http-body",
  "http-body-util",
@@ -3566,21 +3577,16 @@ dependencies = [
 name = "test-rpc"
 version = "0.0.0"
 dependencies = [
+ "am-i-mullvad-client",
  "bytes",
  "colored",
  "futures",
- "http-body-util",
- "hyper",
- "hyper-rustls",
- "hyper-util",
  "log",
- "rustls-pki-types",
  "serde",
  "serde_json",
  "tarpc",
  "thiserror 2.0.18",
  "tokio",
- "tokio-rustls",
  "tokio-util",
 ]
 
@@ -3588,6 +3594,7 @@ dependencies = [
 name = "test-runner"
 version = "0.0.0"
 dependencies = [
+ "am-i-mullvad-client",
  "bytes",
  "chrono",
  "dirs",

@@ -11,7 +11,7 @@ fast-socks5 = "0.9.5"
 futures = { workspace = true }
 log = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["rt"] }
 
 [lints]
 workspace = true

@@ -84,13 +84,20 @@ impl Error {
     }
 }
 
-/// Response from am.i.mullvad.net
-#[derive(Debug, Serialize, Deserialize)]
-pub struct AmIMullvad {
-    pub ip: IpAddr,
-    pub mullvad_exit_ip: bool,
-    /// Will be `None` when not connected via mullvad relay
-    pub mullvad_exit_ip_hostname: Option<String>,
+pub use am_i_mullvad_client::AmIMullvadResponse;
+
+impl From<am_i_mullvad_client::Error> for Error {
+    fn from(err: am_i_mullvad_client::Error) -> Self {
+        use am_i_mullvad_client::Error as E;
+        match err {
+            E::InvalidUrl(_) => Error::InvalidUrl,
+            E::ParseResponseBody(_) => Error::DeserializeBody,
+            E::Timeout => Error::Timeout,
+            E::Connect(e) => Error::HttpRequest(e.to_string()),
+            E::ReadResponseBody(e) => Error::HttpRequest(e.to_string()),
+            E::UnexpectedStatus(code) => Error::HttpRequest(format!("Unexpected status: {code}")),
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -195,7 +202,7 @@ mod service {
         ) -> Result<(), Error>;
 
         /// Fetch the current location.
-        async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvad, Error>;
+        async fn geoip_lookup(mullvad_host: String) -> Result<AmIMullvadResponse, Error>;
 
         /// Returns the IP of the given interface.
         async fn get_interface_ip(interface: String) -> Result<IpAddr, Error>;

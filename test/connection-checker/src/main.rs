@@ -1,7 +1,6 @@
-use anyhow::{Context, anyhow};
 use clap::Parser;
-use serde::Deserialize;
-use std::{io::stdin, sync::Arc, time::Duration};
+use std::{io::stdin, time::Duration};
+use tokio::runtime::Runtime;
 
 use connection_checker::{
     cli::Opt,
@@ -10,6 +9,10 @@ use connection_checker::{
 
 fn main() {
     let opt = Opt::parse();
+    let runtime = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .expect("Failed to build tokio runtime");
 
     if opt.interactive {
         let stdin = stdin();
@@ -17,14 +20,14 @@ fn main() {
             if line.is_err() {
                 break;
             };
-            test_connection(&opt);
+            test_connection(&opt, &runtime);
         }
     } else {
-        test_connection(&opt);
+        test_connection(&opt, &runtime);
     }
 }
 
-fn test_connection(opt: &Opt) {
+fn test_connection(opt: &Opt, runtime: &Runtime) {
     if let Some(destination) = opt.leak {
         if opt.leak_tcp {
             let _ = send_tcp(opt, destination);
@@ -36,43 +39,21 @@ fn test_connection(opt: &Opt) {
             let _ = send_ping(opt, destination.ip());
         }
     }
-    am_i_mullvad(opt);
-}
-
-fn build_tls_config() -> rustls::ClientConfig {
-    let mut root_store = rustls::RootCertStore::empty();
-    root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
-    let provider = rustls::crypto::CryptoProvider {
-        kx_groups: vec![rustls::crypto::aws_lc_rs::kx_group::X25519MLKEM768],
-        ..rustls::crypto::aws_lc_rs::default_provider()
-    };
-    rustls::ClientConfig::builder_with_provider(Arc::new(provider))
-        .with_safe_default_protocol_versions()
-        .expect("aws-lc-rs should support default TLS versions")
-        .with_root_certificates(root_store)
-        .with_no_client_auth()
+    am_i_mullvad(opt, runtime);
 }
 
 /// Check if connected to Mullvad and print the result to stdout
-fn am_i_mullvad(opt: &Opt) {
-    #[derive(Debug, Deserialize)]
-    struct Response {
-        ip: String,
-        mullvad_exit_ip_hostname: Option<String>,
-    }
-
-    let url = &opt.url;
-
-    let client = reqwest::blocking::Client::builder()
-        .use_preconfigured_tls(build_tls_config())
-        .build()
-        .expect("Failed to build HTTP client");
-    let result: Result<Response, _> = client
-        .get(url)
-        .timeout(Duration::from_secs(opt.timeout))
-        .send()
-        .and_then(|r| r.json())
-        .with_context(|| anyhow!("Failed to GET {url}"));
+fn am_i_mullvad(opt: &Opt, runtime: &Runtime) {
+    let ip_version = if opt.ipv6 {
+        am_i_mullvad_client::IpVersion::V6
+    } else {
+        am_i_mullvad_client::IpVersion::V4
+    };
+    let result = runtime.block_on(am_i_mullvad_client::geoip_lookup(
+        &opt.mullvad_host,
+        ip_version,
+        Duration::from_secs(opt.timeout),
+    ));
 
     match result {
         Ok(response) => {

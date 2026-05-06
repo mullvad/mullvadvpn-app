@@ -36,7 +36,7 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::net::wireguard::{PeerConfig, PrivateKey, TunnelConfig};
-use test_rpc::{AmIMullvad, ServiceClient, SpawnOpts, meta::Os, package::Package};
+use test_rpc::{AmIMullvadResponse, ServiceClient, SpawnOpts, meta::Os, package::Package};
 use tokio::time::sleep;
 
 pub const THROTTLE_RETRY_DELAY: Duration = Duration::from_secs(120);
@@ -529,7 +529,7 @@ where
     Ok(test_context.rpc_provider.new_client().await)
 }
 
-pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvad, Error> {
+pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvadResponse, Error> {
     const MAX_ATTEMPTS: usize = 5;
     const BEFORE_RETRY_DELAY: Duration = Duration::from_secs(2);
 
@@ -1033,11 +1033,6 @@ impl ConnChecker {
         log::debug!("spawning connection checker");
 
         let opts = {
-            let ipvx = match self.leak_destination {
-                SocketAddr::V4(..) => "ipv4",
-                SocketAddr::V6(..) => "ipv6",
-            };
-
             let mut args = [
                 "--interactive",
                 "--timeout",
@@ -1050,11 +1045,15 @@ impl ConnChecker {
                 "--leak-tcp",
                 "--leak-udp",
                 "--leak-icmp",
-                "--url",
-                &format!("https://{ipvx}.am.i.{}/json", TEST_CONFIG.mullvad_host),
+                "--mullvad-host",
+                &TEST_CONFIG.mullvad_host,
             ]
             .map(String::from)
             .to_vec();
+
+            if matches!(self.leak_destination, SocketAddr::V6(..)) {
+                args.push("--ipv6".to_string());
+            }
 
             if let Some(payload) = &self.payload {
                 args.push("--payload".to_string());
