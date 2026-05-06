@@ -7,7 +7,6 @@
 //! - `LogWindowsVersion` - log the Windows version string
 //! - `GetWindowsMajorVersion` - push Windows major version onto the NSIS stack
 
-use std::fmt::Write as FmtWrite;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::Path;
@@ -83,10 +82,7 @@ fn timestamp() -> String {
     let mut time = SYSTEMTIME::default();
     // SAFETY: `&mut time` points to a stack-local SYSTEMTIME the API fills in.
     unsafe { GetLocalTime(&raw mut time) };
-
-    let mut s = String::with_capacity(24);
-    let _ = write!(
-        s,
+    format!(
         "[{:04}-{:02}-{:02} {:02}:{:02}:{:02}.{:03}]",
         time.wYear,
         time.wMonth,
@@ -95,8 +91,7 @@ fn timestamp() -> String {
         time.wMinute,
         time.wSecond,
         time.wMilliseconds
-    );
-    s
+    )
 }
 
 /// Pin the DLL by incrementing its reference count 100 times.
