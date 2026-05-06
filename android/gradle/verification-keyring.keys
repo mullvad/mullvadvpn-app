@@ -1756,6 +1756,28 @@ bT4=
 -----END PGP PUBLIC KEY BLOCK-----
 
 
+pub    571A5291E827E1C7
+uid    Central Repository sync with maven.java.net (Used for signing artifacts that support syncing maven.java.net with the Central Repository) <central@sonatype.com>
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQGiBE9iFawRBACJb4OMk3zqMDNvSJKYZ8fGYrPq7yCcf/ykKDkGb2dtPnAZGkSp
+3mmNlTsU6s9ARn7BtkhIuM5TdbLs+z+okX62h3F0WW3h+CpfIXyKSgl7uWbhZ5G8
+RSCCRr7A8m6y83npkTVDW6m2oFN2cjFwPLm/vxg1gu5pO+NCwz5iBRHdewCg1idO
+Gl6gBAZVNteCRMVnGnX4EhMD/RaYBO2j511h7gR+p+6BBeJTEIA1+tsi+GhTBkS9
+mUMGuD9Z8PyvwL7quGQyXJ/kTe3eB6iyDFn0oemB1w736FQe3vcIX6eePOEiDZs5
+1Uepv7bXI4wn1i3Z3kzynXNKcjCd5ZxAmML5VlQ0zWeE0W18reCjt1P5q5xxBFjw
+0L8WA/9aPi4d5VPakzuDvxfKK29BogScTLn2C3fpEnqWsTfpoWSkNXkRsoB4jUU4
+oIqRFMTxwsjUmjVUPOG+YqoeAaVpj+RBpp+V+CqgfNWpnH4caxzODE9f+6RYRCGm
+LSq/6OmgZg6t38M5XWVpvk7Ixygs6Vrd99VZyIQPJwSBM/pvA7SfQ2VudHJhbCBS
+ZXBvc2l0b3J5IHN5bmMgd2l0aCBtYXZlbi5qYXZhLm5ldCAoVXNlZCBmb3Igc2ln
+bmluZyBhcnRpZmFjdHMgdGhhdCBzdXBwb3J0IHN5bmNpbmcgbWF2ZW4uamF2YS5u
+ZXQgd2l0aCB0aGUgQ2VudHJhbCBSZXBvc2l0b3J5KSA8Y2VudHJhbEBzb25hdHlw
+ZS5jb20+
+=2jV3
+-----END PGP PUBLIC KEY BLOCK-----
+
+
 pub    5796E91EE6619C69
 uid    Eclipse EE4J Project <ee4j-dev@eclipse.org>
 
@@ -1992,6 +2014,35 @@ gQGEDdxYa7jhYx9HbLimtQG2XcCC+javwdubT/ItHrfcAB6B+dV0iRA5b4QDGtU0
 CsD9tY3NoaTSCeYc7Xae5YCXr3viH8vWPap984XZWLJZXM2s2Vm1XdeBTQxWCGVE
 R9dnzGGEDsHNOZoy3UpsL+GQ+AORGsEAjOVJQnCjqUh7gtB8cwiPvps=
 =UjLO
+-----END PGP PUBLIC KEY BLOCK-----
+
+
+pub    5E1F79A7C298661E
+uid    David P. Baker <dpb@google.com>
+
+sub    A7CC6488427379A4
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+mQENBFgRFtYBCADud9fmvTI8Dbs+9GcZUIVzxkL84QYHSDxI9fF+sxfAviq1U+YJ
+a+ZLIW7HsXx8vpn3hqIqAbDxHjrb6MEJ3OWD5Ks7O9Lq7HOhtqAT/mpV3fZmf6pF
+zdEw7c4UrfbtKyBY2kSBpKzTfu6HD3q4OBDm59Ezs2XFhKrXtlNC0fQ30ysBpIvm
+vZH/opwlBgyELKnAYJ6eCmdW1iiju7DPKDBOrGi6zgvslToLpnZeSg6hzSyjM15n
+Gx6Dgby0GNR4VEVze/UdOpsFVTSfP9qXgdt5ZOWQqW2Jg5V/ezvk+3Ok+ecfHWRz
+q8tHkagnqn0SfP6mLqUNvmvAH7xp8crH8L/TABEBAAG0H0RhdmlkIFAuIEJha2Vy
+IDxkcGJAZ29vZ2xlLmNvbT65AQ0EWBEW1gEIAMuetYIGcqEC7KdfWn6EKmO7Zucf
+OEirvo+WXclo48WX0Eo0gsTghKPGTS2kOzglwn/wYCbBVKzYaOngZljIcrR47hJi
+Y/u7OH7EjiCiB0sh5WuEqOaCPPFo8lCA1+SBPAF+c1d7SfIEABL/WCc6e1rkKhe7
+wkBSclspL8YQUG3cr5G/cSCGOV69TsCqq7rtezjkSsfE5dxmcs39Ouur7hs25DKe
+hufUA5bV2i51v49WIuTE8x53VfInYsJyeRs7f4sx3hmkwN+EL2mo1YFymGwEkp8i
+B0Jtrpsevl4AFOajl6X4IrdLn6+XSok/1mzIm+t1ZHokQ3mUWe5FC9c1Y1MAEQEA
+AYkBHwQYAQIACQUCWBEW1gIbDAAKCRBeH3mnwphmHv59CACEnAU1vbN4qxquAzNu
+aalyV6Hyx9olUQqPHopRGBA2ulPs0l+gtAXz5USotNsh3Ai5j39Y4J+qxN3HuDts
+cxEReogawzOo/B+1IKuGuuTzvL6fU6ZFUnEosxChAKwJo9eS5xlyenyumTcXx5yB
+/5X5nqTes6tcZlDcEefh7K5IaazwE5caITBX0ze8g7WQzRxyN+vuhY30U7P8TTKx
+AsavdSBVIb+Hp0e2W2S5T3ogXaGkIi5qllr9uhfX+E9zLxJJKfJot33ix647mPwp
+Xxo7K6teo2rkwOTQij1sEe2sbMZiKZkn4rYSgLpZiVLPiDYuP3RTuHnFenYROA/Y
+cDvA
+=Sagc
 -----END PGP PUBLIC KEY BLOCK-----
 
 
