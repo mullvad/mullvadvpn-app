@@ -168,7 +168,7 @@ pub fn terminate_processes(
         return Ok(false);
     }
 
-    // SAFETY: Trivially safe, probably even if handle is invalid
+    // SAFETY: Trivially safe, even if handle is invalid
     let result =
         unsafe { RestartManager::RmShutdown(handle, RestartManager::RmForceShutdown as u32, None) };
 
