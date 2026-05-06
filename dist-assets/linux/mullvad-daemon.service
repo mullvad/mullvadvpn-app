@@ -16,5 +16,10 @@ RestartSec=1
 ExecStart=/usr/bin/mullvad-daemon -vv --disable-stdout-timestamps
 Environment="MULLVAD_RESOURCE_DIR=/opt/Mullvad VPN/resources/"
 
+# SIGUSR1 causes to daemon to enter lockdown mode before stopping.
+# Lockdown mode is cleared when the daemon is started again.
+# This is used to prevent network leaks on `systemctl restart`
+RestartKillSignal=SIGUSR1
+
 [Install]
 WantedBy=multi-user.target

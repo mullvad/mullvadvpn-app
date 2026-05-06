@@ -23,7 +23,7 @@ pub(crate) fn generate_device(
     migration_data: MigrationData,
     mut migration_complete: MigrationComplete,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
-    daemon_tx: DaemonEventSender,
+    daemon_tx: DaemonEventSender<InternalDaemonEvent>,
 ) {
     tokio::spawn(async move {
         let wg_data: Option<WireguardData> = migration_data.wg_data.and_then(|data| {
