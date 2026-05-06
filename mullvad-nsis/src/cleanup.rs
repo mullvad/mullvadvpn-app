@@ -337,9 +337,8 @@ fn remove_cache_service_user() -> anyhow::Result<()> {
 
 /// Remove the service user's settings directory.
 fn remove_settings_service_user() -> anyhow::Result<()> {
-    let local_appdata = mullvad_paths::windows::get_system_service_appdata()
-        .context("get system service appdata")?;
-    let mullvad_appdata = local_appdata.join("Mullvad VPN");
+    let mullvad_appdata =
+        mullvad_paths::get_default_settings_dir().context("get system service appdata")?;
 
     let _native = ScopedNativeFileSystem::new();
     add_admin_to_object_dacl(&mullvad_appdata)
