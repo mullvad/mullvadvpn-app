@@ -86,6 +86,7 @@ struct VPNSettingsViewModel: Equatable {
     private(set) var wireGuardPort: UInt16?
     var customDNSDomains: [DNSServerEntry]
     var availableWireGuardPortRanges: [[UInt16]] = []
+    var obfuscationSettingsAreValid: ((WireGuardObfuscationSettings) -> Bool)?
 
     private(set) var obfuscationState: WireGuardObfuscationState
     private(set) var obfuscationUpdOverTcpPort: WireGuardObfuscationUdpOverTcpPort
@@ -369,6 +370,28 @@ struct VPNSettingsViewModel: Equatable {
 
             return false
         }
+    }
+
+    static func == (lhs: VPNSettingsViewModel, rhs: VPNSettingsViewModel) -> Bool {
+        lhs.blockAll == rhs.blockAll
+            && lhs.blockAdvertising == rhs.blockAdvertising
+            && lhs.blockTracking == rhs.blockTracking
+            && lhs.blockMalware == rhs.blockMalware
+            && lhs.blockAdultContent == rhs.blockAdultContent
+            && lhs.blockGambling == rhs.blockGambling
+            && lhs.blockSocialMedia == rhs.blockSocialMedia
+            && lhs.enableCustomDNS == rhs.enableCustomDNS
+            && lhs.wireGuardPort == rhs.wireGuardPort
+            && lhs.customDNSDomains == rhs.customDNSDomains
+            && lhs.availableWireGuardPortRanges == rhs.availableWireGuardPortRanges
+            && lhs.obfuscationState == rhs.obfuscationState
+            && lhs.obfuscationUpdOverTcpPort == rhs.obfuscationUpdOverTcpPort
+            && lhs.obfuscationShadowsocksPort == rhs.obfuscationShadowsocksPort
+            && lhs.obfuscationLwoPort == rhs.obfuscationLwoPort
+            && lhs.quantumResistance == rhs.quantumResistance
+            && lhs.multihopState == rhs.multihopState
+            && lhs.ipVersion == rhs.ipVersion
+            && lhs.includeAllNetworks == rhs.includeAllNetworks
     }
 
     /// Replaces all old domains with new, keeping only those that share the same id and updating their content.

@@ -27,6 +27,7 @@ protocol SelectLocationViewModel: ObservableObject {
     func showEditCustomListView(locations: [LocationNode])
     func showAddCustomListView(locations: [LocationNode])
     func showFilterView(context: MultihopContext)
+    func multihopStateIsIncompatible(_ state: MultihopState) -> Bool
     func toggleRecents()
     func manuallyFetchRelayList()
 }
@@ -105,7 +106,7 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
             repository: recentConnectionsRepository)
 
         self.delegate = delegate
-        self.multihopState = tunnelManager.settings.tunnelMultihopState
+        multihopState = tunnelManager.settings.tunnelMultihopState
 
         self.entryCustomListsDataSource = CustomListsDataSource(
             repository: customListRepository
@@ -213,6 +214,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     deinit {
         guard let tunnelObserver else { return }
         tunnelManager.removeObserver(tunnelObserver)
+    }
+
+    func multihopStateIsIncompatible(_ state: MultihopState) -> Bool {
+        MultihopTunnelSettingsViewModel(tunnelManager: tunnelManager).stateIsIncompatible(state)
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
