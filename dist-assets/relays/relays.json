@@ -836,7 +836,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -893,7 +893,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -1017,7 +1017,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "au-mel-wg-401.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -1383,7 +1383,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2142,7 +2142,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-mtr-wg-302.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2257,7 +2257,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-mtr-wg-303.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2372,7 +2372,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-mtr-wg-304.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2487,7 +2487,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-mtr-wg-305.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2602,7 +2602,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-mtr-wg-306.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2925,7 +2925,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-tor-wg-202.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -2952,7 +2952,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "ca-tor-wg-203.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -3175,7 +3175,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -3805,7 +3805,7 @@
       },
       {
         "hostname": "ch-zrh-wg-502",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "ch-zrh",
         "provider": "M247",
@@ -3946,7 +3946,7 @@
         "provider": "M247",
         "ipv4_addr_in": "77.243.184.2",
         "ipv6_addr_in": "2001:ac8:28:ac::f001",
-        "weight": 100,
+        "weight": 200,
         "include_in_country": true,
         "public_key": "ybC4yewkIBN+x530P5iiDdZs3mhY6xHIZOlVHMSobg0=",
         "daita": true,
@@ -4055,7 +4055,7 @@
         "provider": "M247",
         "ipv4_addr_in": "77.243.184.130",
         "ipv6_addr_in": "2001:ac8:28:ad::f001",
-        "weight": 100,
+        "weight": 200,
         "include_in_country": true,
         "public_key": "5ioE7vTw80KVx0S/zYOZonR5ZkR+uiNJogR9Pyqtwzg=",
         "daita": true,
@@ -4290,7 +4290,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -4730,7 +4730,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "de-ber-wg-008.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -5458,7 +5458,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -6075,7 +6075,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -6094,7 +6094,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -6113,7 +6113,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -6810,7 +6810,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -6881,7 +6881,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -7674,7 +7674,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -8759,7 +8759,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -9133,7 +9133,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -9371,7 +9371,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -10183,7 +10183,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -10821,7 +10821,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "nl-ams-wg-007.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -10907,7 +10907,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "nl-ams-wg-008.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11204,7 +11204,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "no-osl-wg-101.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11291,7 +11291,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "no-osl-wg-102.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11416,7 +11416,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11454,7 +11454,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11492,7 +11492,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11511,7 +11511,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11633,7 +11633,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -11766,7 +11766,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12327,7 +12327,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-got-wg-007.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12353,7 +12353,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-got-wg-008.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12547,7 +12547,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12679,7 +12679,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12698,7 +12698,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12742,7 +12742,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-sto-wg-009.blockerad.eu"
           },
-          "lwo": {}
+          "lwo": null
         }
       },
       {
@@ -12780,7 +12780,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13255,7 +13255,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13409,8 +13409,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.116",
         "ipv6_addr_in": "2606:2e00:8000:4::f001",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "SUO0TkKNce4tNTHB3F7PrlvkUzAQeLBSefsgbVnbTkM=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13430,8 +13430,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.117",
         "ipv6_addr_in": "2606:2e00:8000:4::f101",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "OODmjMlAuaUXGeTUzwagEiG42GF3m0ZlHh+3Ssw1Ckg=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13451,8 +13451,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.118",
         "ipv6_addr_in": "2606:2e00:8000:4::f201",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "IR4ZTWn7TBujt2nMDoB9xYISoVigWYTRyaG8mHLji1o=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13461,7 +13461,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13472,8 +13472,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.119",
         "ipv6_addr_in": "2606:2e00:8000:4::f301",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "1JswEeh7qEEq0oy2sQBeqg+QjNkTJRsZ/N9/CN92SCs=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13493,8 +13493,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.120",
         "ipv6_addr_in": "2606:2e00:8000:4::f401",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "wGxVyRjNKWba7RidWKab0jPpdNKQAgeLFzwx/bz3CWQ=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13514,8 +13514,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "67.213.209.121",
         "ipv6_addr_in": "2606:2e00:8000:4::f501",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "Q8oqrXk9nC9+94GLVUXJ7E8xtV10ggdzQIiQgZI3Em4=",
         "daita": false,
         "shadowsocks_extra_addr_in": [
@@ -13524,7 +13524,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13566,7 +13566,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13650,7 +13650,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13671,7 +13671,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13692,7 +13692,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13768,7 +13768,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13806,7 +13806,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13825,7 +13825,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13972,7 +13972,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -13993,7 +13993,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -14338,7 +14338,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-chi-wg-311.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -14453,7 +14453,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-chi-wg-312.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -14568,7 +14568,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-chi-wg-313.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -14683,7 +14683,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-chi-wg-314.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -15232,7 +15232,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-dal-wg-701.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -15347,7 +15347,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-dal-wg-702.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -15462,7 +15462,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-dal-wg-703.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -15577,7 +15577,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-dal-wg-704.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -16136,7 +16136,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -16157,7 +16157,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -17359,7 +17359,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -17378,7 +17378,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -17397,7 +17397,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -19001,7 +19001,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -19022,7 +19022,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -19827,7 +19827,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-qas-wg-307.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -19942,7 +19942,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "us-qas-wg-308.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -20638,8 +20638,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "69.4.234.9",
         "ipv6_addr_in": "2607:fc98:0:8a::f301",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "sSoow0tFfqSrZIUhFRaGsTvwQsUTe33RA/9PLn93Cno=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -20657,8 +20657,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "69.4.234.149",
         "ipv6_addr_in": "2607:fc98:0:8a::f401",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "mKD4untTerTbg+1pJh3FA9zjOAOtoTHqOJzIP0lnqH4=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -20676,8 +20676,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "69.4.234.131",
         "ipv6_addr_in": "2607:fc98:0:8a::f501",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "2yVEeOFScneJRCVTrqCjKlKHg3J2wwOwkY28iy47J1Q=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -20695,8 +20695,8 @@
         "provider": "100TB",
         "ipv4_addr_in": "69.4.234.10",
         "ipv6_addr_in": "2607:fc98:0:8a::f601",
-        "weight": 1,
-        "include_in_country": true,
+        "weight": 0,
+        "include_in_country": false,
         "public_key": "SE7HGeByhTo8Ak7FGsjvrYOUJTydQ2L8fWjo17IvhSw=",
         "daita": false,
         "shadowsocks_extra_addr_in": [],
@@ -20972,7 +20972,7 @@
         "features": {
           "daita": null,
           "quic": null,
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -21225,5 +21225,5 @@
       }
     ]
   },
-  "etag": "\"69ef255d-60c0f\""
+  "etag": "\"69fb186d-610e4\""
 }
