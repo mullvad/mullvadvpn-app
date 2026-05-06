@@ -45,7 +45,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_PORT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
@@ -215,7 +215,7 @@ private fun LazyListScope.content(
                         port = it.port,
                         onSelected = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
                         onNavigate = navigateToLwoPortSettings,
-                        testTag = WIREGUARD_OBFUSCATION_LWO_PORT_TEST_TAG,
+                        testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
                     )
                 }
             is ObfuscationSettingItem.Obfuscation.Quic ->
