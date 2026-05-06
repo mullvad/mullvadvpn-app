@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.ui.tag.BUTTON_ARROW_RIGHT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -40,6 +41,7 @@ class AntiCensorshipSettingsScreenTest {
         obfuscationMode: ObfuscationMode = ObfuscationMode.Auto,
         selectedUdp2TcpObfuscationPort: Constraint<Port> = Constraint.Any,
         selectedShadowsocksObfuscationPort: Constraint<Port> = Constraint.Any,
+        selectedLwoObfuscationPort: Constraint<Port> = Constraint.Any,
         selectedWireguardPort: Constraint<Port> = Constraint.Any,
         isModal: Boolean = false,
     ) =
@@ -49,6 +51,7 @@ class AntiCensorshipSettingsScreenTest {
             selectedUdp2TcpObfuscationPort = selectedUdp2TcpObfuscationPort,
             selectedShadowsocksObfuscationPort = selectedShadowsocksObfuscationPort,
             selectedWireguardPort = selectedWireguardPort,
+            selectedLwoObfuscationPort = selectedLwoObfuscationPort,
         )
 
     private fun ComposeContext.initScreen(
@@ -58,6 +61,7 @@ class AntiCensorshipSettingsScreenTest {
         navigateToShadowSocksSettings: () -> Unit = {},
         navigateToUdp2TcpSettings: () -> Unit = {},
         navigateToWireguardPortSettings: () -> Unit = {},
+        navigateToLwoPortSettings: () -> Unit = {},
     ) {
         setContentWithTheme {
             AntiCensorshipSettingsScreen(
@@ -65,6 +69,7 @@ class AntiCensorshipSettingsScreenTest {
                 navigateToShadowSocksSettings = navigateToShadowSocksSettings,
                 navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 navigateToWireguardPortSettings = navigateToWireguardPortSettings,
+                navigateToLwoPortSettings = navigateToLwoPortSettings,
                 onBackClick = onBackClick,
                 onSelectObfuscationMode = onSelectObfuscationMode,
             )
@@ -142,6 +147,31 @@ class AntiCensorshipSettingsScreenTest {
         onNode(
                 hasTestTag(BUTTON_ARROW_RIGHT_TEST_TAG) and
                     hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)),
+                useUnmergedTree = true,
+            )
+            .assertExists()
+            .performClick()
+
+        // Assert
+        verify(exactly = 1) { mockedClickHandler.invoke() }
+    }
+
+    @Test
+    fun testShowLwoCustomPortDialog() = composeExtension.use {
+        val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+
+        // Arrange
+        initScreen(
+            createDefaultUiState(selectedLwoObfuscationPort = Constraint.Only(Port(5555))).toLc(),
+            navigateToLwoPortSettings = mockedClickHandler,
+        )
+
+        onNodeWithTag(LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG)
+            .performScrollToNode(hasTestTag(WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG))
+
+        onNode(
+                hasTestTag(BUTTON_ARROW_RIGHT_TEST_TAG) and
+                    hasAnyAncestor(hasTestTag(WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG)),
                 useUnmergedTree = true,
             )
             .assertExists()

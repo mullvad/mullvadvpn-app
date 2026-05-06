@@ -142,6 +142,7 @@ import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
+import net.mullvad.mullvadvpn.lib.model.lwo
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.providers
 import net.mullvad.mullvadvpn.lib.model.relayConstraints
@@ -611,6 +612,19 @@ class ManagementService(
         Either.catch {
                 val updatedSettings =
                     ObfuscationSettings.shadowsocks.modify(getSettings().obfuscationSettings) {
+                        it.copy(port = portConstraint)
+                    }
+                grpc.setObfuscationSettings(updatedSettings.fromDomain())
+            }
+            .mapLeft(SetObfuscationOptionsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setLwoObfuscationPort(
+        portConstraint: Constraint<Port>
+    ): Either<SetObfuscationOptionsError, Unit> =
+        Either.catch {
+                val updatedSettings =
+                    ObfuscationSettings.lwo.modify(getSettings().obfuscationSettings) {
                         it.copy(port = portConstraint)
                     }
                 grpc.setObfuscationSettings(updatedSettings.fromDomain())
