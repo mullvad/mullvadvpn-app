@@ -14,13 +14,14 @@ fun BottomSheetListItem(
     title: String,
     backgroundColor: Color,
     onBackgroundColor: Color,
+    singleLine: Boolean = true,
     isEnabled: Boolean = true,
     onClick: (() -> Unit)? = null,
 ) {
     MullvadListItem(
         modifier = modifier,
         position = Position.Middle,
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singleLine) 1 else Int.MAX_VALUE) },
         colors =
             ListItemDefaults.colors(
                 headlineColor = onBackgroundColor,

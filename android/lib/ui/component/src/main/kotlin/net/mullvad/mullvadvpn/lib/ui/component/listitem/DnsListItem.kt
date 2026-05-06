@@ -37,6 +37,7 @@ fun DnsListItem(
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     address: String,
+    singleLine: Boolean = true,
     isUnreachableLocalDnsWarningVisible: Boolean,
     isUnreachableIpv6DnsWarningVisible: Boolean,
     onClick: () -> Unit,
@@ -62,7 +63,7 @@ fun DnsListItem(
                     )
                 }
 
-                Text(address)
+                Text(text = address, maxLines = if (singleLine) 1 else Int.MAX_VALUE)
             }
         },
     )

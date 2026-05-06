@@ -39,6 +39,7 @@ fun InfoListItem(
     position: Position = Position.Single,
     title: String,
     isEnabled: Boolean = true,
+    singeLine: Boolean = true,
     backgroundAlpha: Float = 1f,
     iconContentDescription: String? = null,
     onCellClicked: (() -> Unit)? = null,
@@ -53,7 +54,7 @@ fun InfoListItem(
         onClick = onCellClicked,
         testTag = testTag,
         backgroundAlpha = backgroundAlpha,
-        content = { Text(title) },
+        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
         trailingContent = {
             if (onInfoClicked != null) {
                 Box(
