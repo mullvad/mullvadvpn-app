@@ -27,8 +27,8 @@ struct AccountExpiry {
 
     var expiryDate: Date?
 
-    func nextTriggerDate(for trigger: Trigger) -> Date? {
-        let now = Date().secondsPrecision
+    func nextTriggerDate(for trigger: Trigger, after referenceDate: Date = Date()) -> Date? {
+        let referenceDate = referenceDate.secondsPrecision
         let triggerDates = triggerDates(for: trigger)
 
         // Get earliest trigger date and remove one day. Since we want to count whole days, If first
@@ -38,26 +38,26 @@ struct AccountExpiry {
             let expiryDate,
             let earliestDate = triggerDates.min(),
             let earliestTriggerDate = calendar.date(byAdding: .day, value: -1, to: earliestDate),
-            now <= expiryDate.secondsPrecision,
-            now > earliestTriggerDate.secondsPrecision
+            referenceDate <= expiryDate.secondsPrecision,
+            referenceDate > earliestTriggerDate.secondsPrecision
         else { return nil }
 
         let datesByTimeToTrigger = triggerDates.filter { date in
-            now.secondsPrecision <= date.secondsPrecision  // Ignore dates that have passed.
+            referenceDate.secondsPrecision <= date.secondsPrecision  // Ignore dates that have passed.
         }.sorted { date1, date2 in
-            abs(date1.timeIntervalSince(now)) < abs(date2.timeIntervalSince(now))
+            abs(date1.timeIntervalSince(referenceDate)) < abs(date2.timeIntervalSince(referenceDate))
         }
 
         return datesByTimeToTrigger.first
     }
 
-    func daysRemaining(for trigger: Trigger) -> DateComponents? {
-        let nextTriggerDate = nextTriggerDate(for: trigger)
+    func daysRemaining(for trigger: Trigger, referenceDate: Date = Date()) -> DateComponents? {
+        let nextTriggerDate = nextTriggerDate(for: trigger, after: referenceDate)
         guard let expiryDate, let nextTriggerDate else { return nil }
 
         let dateComponents = calendar.dateComponents(
             [.day],
-            from: Date().secondsPrecision,
+            from: referenceDate.secondsPrecision,
             to: max(nextTriggerDate, expiryDate).secondsPrecision
         )
 
