@@ -166,9 +166,8 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
             }
         };
 
-        let program_data = mullvad_paths::windows::get_allusersprofile_dir()
-            .map_err(|e| io::Error::other(e.to_string()))?;
-        let log_dir = program_data.join("Mullvad VPN");
+        let log_dir =
+            mullvad_paths::get_default_log_dir().map_err(|e| io::Error::other(e.to_string()))?;
 
         // Create the log directory with privileged access
         mullvad_paths::windows::create_privileged_directory(&log_dir)
