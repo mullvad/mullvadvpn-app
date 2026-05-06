@@ -4,7 +4,6 @@ import android.content.res.Resources
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import arrow.core.Either
-import arrow.core.right
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.anticensorship.api.SelectPortNavKey
+import net.mullvad.mullvadvpn.feature.anticensorship.impl.LWO_PRESET_PORTS
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_AVAILABLE_PORTS
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.SHADOWSOCKS_PRESET_PORTS
 import net.mullvad.mullvadvpn.feature.anticensorship.impl.UDP2TCP_PRESET_PORTS
@@ -63,6 +63,7 @@ class SelectPortViewModel(
                 val portTypeState =
                     portType.uiState(
                         wireguardPortRanges = wireguardPortRanges,
+                        lwoPortRanges = wireguardPortRanges,
                         shadowsocksPortRanges = shadowsocksPortRanges,
                     )
                 val customPort =
@@ -107,7 +108,7 @@ class SelectPortViewModel(
             PortType.Udp2Tcp -> settingsRepository.setCustomUdp2TcpObfuscationPort(port)
             PortType.Shadowsocks -> settingsRepository.setCustomShadowsocksObfuscationPort(port)
             PortType.Wireguard -> settingsRepository.setCustomWireguardPort(port)
-            PortType.Lwo -> Unit.right()
+            PortType.Lwo -> settingsRepository.setCustomLwoObfuscationPort(port)
         }
 
     fun resetCustomPort() {
@@ -121,6 +122,7 @@ class SelectPortViewModel(
 
     private fun PortType.uiState(
         wireguardPortRanges: List<PortRange>,
+        lwoPortRanges: List<PortRange>,
         shadowsocksPortRanges: List<PortRange>,
     ): PortTypeUiState =
         when (this) {
@@ -150,10 +152,10 @@ class SelectPortViewModel(
                 )
             PortType.Lwo ->
                 PortTypeUiState(
-                    presetPorts = emptyList(),
-                    allowedPortRanges = emptyList(),
+                    presetPorts = LWO_PRESET_PORTS,
+                    allowedPortRanges = lwoPortRanges,
                     recommendedPortRanges = emptyList(),
-                    customPortEnabled = false,
+                    customPortEnabled = true,
                     title = resources.getString(R.string.lwo),
                 )
         }
@@ -163,6 +165,6 @@ class SelectPortViewModel(
             PortType.Udp2Tcp -> udp2tcp.port
             PortType.Shadowsocks -> shadowsocks.port
             PortType.Wireguard -> wireguardPort
-            PortType.Lwo -> Constraint.Any
+            PortType.Lwo -> lwo.port
         }
 }

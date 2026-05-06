@@ -16,6 +16,7 @@ class AntiCensorshipUiStatePreviewParameterProvider :
                     obfuscationMode = ObfuscationMode.Udp2Tcp,
                     selectedUdp2TcpObfuscationPort = Constraint.Any,
                     selectedShadowsocksObfuscationPort = Constraint.Any,
+                    selectedLwoObfuscationPort = Constraint.Any,
                 )
                 .toLc(),
             Lc.Loading(true),
