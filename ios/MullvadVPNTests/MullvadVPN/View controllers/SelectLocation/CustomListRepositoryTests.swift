@@ -12,21 +12,10 @@ import XCTest
 @testable import MullvadSettings
 
 class CustomListRepositoryTests: XCTestCase {
-    nonisolated(unsafe) static let store = InMemorySettingsStore<SettingNotFound>()
     private var repository = CustomListRepository()
 
-    override class func setUp() {
-        SettingsManager.unitTestStore = store
-    }
-
-    override class func tearDown() {
-        store.reset()
-    }
-
-    override func tearDownWithError() throws {
-        repository.fetchAll().forEach {
-            repository.delete(id: $0.id)
-        }
+    override func setUp() {
+        SettingsManager.unitTestStore = InMemorySettingsStore<SettingNotFound>()
     }
 
     func testFailedAddingDuplicateCustomList() throws {
