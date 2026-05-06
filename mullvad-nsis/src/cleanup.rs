@@ -384,19 +384,16 @@ fn remove_api_address_cache_service_user() -> anyhow::Result<()> {
 // Pushes a status code.
 #[nsis_fn]
 fn RemoveLogsAndCache() -> Result<(), nsis_plugin_api::Error> {
-    let mut success = true;
-    for result in [
+    let result = [
         remove_logs_cache_current_user(),
         remove_logs_cache_other_users(),
         remove_cache_service_user(),
         remove_logs_service_user(),
-    ] {
-        if result.is_err() {
-            success = false;
-        }
-    }
+    ]
+    .into_iter()
+    .collect::<anyhow::Result<()>>();
 
-    let status = if success {
+    let status = if result.is_ok() {
         NsisStatus::Success
     } else {
         NsisStatus::GeneralError
