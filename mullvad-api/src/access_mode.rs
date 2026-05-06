@@ -605,6 +605,7 @@ mod tests {
             ApiEndpoint::new(
                 "mullvad.net".into(),
                 "127.0.0.1:1234".parse().unwrap(),
+                None,
                 true,
             ),
             event_tx,
