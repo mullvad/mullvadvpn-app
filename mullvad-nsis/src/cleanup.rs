@@ -8,6 +8,7 @@
 //! - `CloseHoggingProcesses` - close processes blocking the install directory
 //! - `IsEmptyDir` - check if a directory contains only subdirectories (no files)
 
+use std::fs;
 use std::io;
 use std::path::Path;
 use std::ptr;
@@ -307,11 +308,13 @@ fn remove_logs_service_user() -> anyhow::Result<()> {
                 .with_context(|| format!("read_dir {}", app_dir.display()));
         }
     };
-    for entry in entries.flatten() {
-        if entry.file_type().map(|t| t.is_file()).unwrap_or(false) {
-            std::fs::remove_file(entry.path())
-                .with_context(|| format!("remove {}", entry.path().display()))?;
-        }
+
+    for entry in entries
+        .flatten()
+        .filter(|entry| entry.file_type().is_ok_and(fs::FileType::is_file))
+    {
+        std::fs::remove_file(entry.path())
+            .with_context(|| format!("remove {}", entry.path().display()))?;
     }
 
     // Try to remove the now-empty directory; ignore failure if non-empty.
