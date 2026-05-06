@@ -311,7 +311,7 @@ fn remove_logs_service_user() -> anyhow::Result<()> {
 
     for entry in entries
         .flatten()
-        .filter(|entry| entry.file_type().is_ok_and(fs::FileType::is_file))
+        .filter(|entry| entry.file_type().as_ref().is_ok_and(fs::FileType::is_file))
     {
         std::fs::remove_file(entry.path())
             .with_context(|| format!("remove {}", entry.path().display()))?;
