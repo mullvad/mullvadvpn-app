@@ -43,8 +43,10 @@ import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.NegativeButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -56,10 +58,11 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Disconnected|Connecting|Error")
+@Preview("Disconnected|Connecting|Error|Loading")
 @Composable
 private fun PreviewOutOfTimeScreen(
-    @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
+    @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class)
+    state: Lc<Unit, OutOfTimeUiState>
 ) {
     AppTheme {
         OutOfTimeScreen(
@@ -109,7 +112,7 @@ fun OutOfTime(navigator: Navigator) {
 
 @Composable
 fun OutOfTimeScreen(
-    state: OutOfTimeUiState,
+    state: Lc<Unit, OutOfTimeUiState>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onDisconnectClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -121,20 +124,20 @@ fun OutOfTimeScreen(
     ScaffoldWithTopBarAndDeviceName(
         snackbarHostState = snackbarHostState,
         topBarColor =
-            if (state.tunnelState.isSecured()) {
+            if (state.contentOrNull()?.tunnelState?.isSecured() == true) {
                 MaterialTheme.colorScheme.positive
             } else {
                 MaterialTheme.colorScheme.error
             },
         iconTintColor =
-            if (state.tunnelState.isSecured()) {
+            if (state.contentOrNull()?.tunnelState?.isSecured() == true) {
                 MaterialTheme.colorScheme.onTertiary
             } else {
                 MaterialTheme.colorScheme.onError
             },
         onSettingsClicked = onSettingsClick,
         onAccountClicked = onAccountClick,
-        deviceName = state.deviceName,
+        deviceName = state.contentOrNull()?.deviceName,
         timeLeft = null,
     ) {
         Column(
@@ -154,15 +157,25 @@ fun OutOfTimeScreen(
                     )
                     .background(color = MaterialTheme.colorScheme.surface)
         ) {
-            Content(showSitePayment = state.showSitePayment)
-            Spacer(modifier = Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace))
-            // Button area
-            ButtonPanel(
-                state = state,
-                onDisconnectClick = onDisconnectClick,
-                onAddMoreTimeClick = onAddMoreTimeClick,
-                onInfoClick = onPlayPaymentInfoClick,
-            )
+            when (state) {
+                is Lc.Content -> {
+                    Content(showSitePayment = state.value.showSitePayment)
+                    Spacer(
+                        modifier =
+                            Modifier.weight(1f).defaultMinSize(minHeight = Dimens.verticalSpace)
+                    )
+                    // Button area
+                    ButtonPanel(
+                        state = state.value,
+                        onDisconnectClick = onDisconnectClick,
+                        onAddMoreTimeClick = onAddMoreTimeClick,
+                        onInfoClick = onPlayPaymentInfoClick,
+                    )
+                }
+                is Lc.Loading -> {
+                    Loading()
+                }
+            }
         }
     }
 }
@@ -231,4 +244,12 @@ private fun ButtonPanel(
         }
         VariantButton(onClick = onAddMoreTimeClick, text = stringResource(id = R.string.add_time))
     }
+}
+
+@Composable
+private fun ColumnScope.Loading() {
+    MullvadCircularProgressIndicatorLarge(
+        modifier =
+            Modifier.align(Alignment.CenterHorizontally).padding(vertical = Dimens.smallPadding)
+    )
 }
