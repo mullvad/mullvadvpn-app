@@ -4,25 +4,32 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData.generateConnectingState
 import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData.generateDisconnectedState
 import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData.generateErrorState
+import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 
-class OutOfTimeScreenPreviewParameterProvider : PreviewParameterProvider<OutOfTimeUiState> {
-    override val values: Sequence<OutOfTimeUiState> =
+class OutOfTimeScreenPreviewParameterProvider :
+    PreviewParameterProvider<Lc<Unit, OutOfTimeUiState>> {
+    override val values: Sequence<Lc<Unit, OutOfTimeUiState>> =
         sequenceOf(
             OutOfTimeUiState(
-                tunnelState = generateDisconnectedState(),
-                "Heroic Frog",
-                showSitePayment = true,
-            ),
+                    tunnelState = generateDisconnectedState(),
+                    "Heroic Frog",
+                    showSitePayment = true,
+                )
+                .toLc(),
             OutOfTimeUiState(
-                tunnelState =
-                    generateConnectingState(featureIndicators = 0, quantumResistant = false),
-                "Strong Rabbit",
-                showSitePayment = true,
-            ),
+                    tunnelState =
+                        generateConnectingState(featureIndicators = 0, quantumResistant = false),
+                    "Strong Rabbit",
+                    showSitePayment = true,
+                )
+                .toLc(),
             OutOfTimeUiState(
-                tunnelState = generateErrorState(isBlocking = true),
-                deviceName = "Stable Horse",
-                showSitePayment = true,
-            ),
+                    tunnelState = generateErrorState(isBlocking = true),
+                    deviceName = "Stable Horse",
+                    showSitePayment = true,
+                )
+                .toLc(),
+            Lc.Loading(Unit),
         )
 }
