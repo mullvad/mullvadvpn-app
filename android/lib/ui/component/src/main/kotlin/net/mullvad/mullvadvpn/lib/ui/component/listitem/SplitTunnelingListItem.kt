@@ -84,12 +84,7 @@ fun SplitTunnelingListItem(
         onClick = onCellClicked,
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
-        content = {
-            Text(
-                text = title,
-                maxLines = if (singleLine) 1 else Int.MAX_VALUE,
-            )
-        },
+        content = { Text(text = title, maxLines = if (singleLine) 1 else Int.MAX_VALUE) },
         leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(
