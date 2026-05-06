@@ -365,6 +365,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base16ct"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b59d472eab27ade8d770dcb11da7201c11234bef9f82ce7aa517be028d462b"
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2965,6 +2971,7 @@ dependencies = [
  "chrono",
  "domain-fronting",
  "futures",
+ "hex",
  "http",
  "http-body-util",
  "hyper",
@@ -2981,7 +2988,9 @@ dependencies = [
  "rustls-pki-types",
  "serde",
  "serde_json",
+ "sha2",
  "shadowsocks",
+ "sigsum",
  "talpid-time",
  "talpid-types",
  "thiserror 2.0.18",
@@ -5248,6 +5257,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "rand_core 0.6.4",
+]
+
+[[package]]
+name = "sigsum"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "85cf5c271ac017559bedd2519f22ae055614d07e4bce0621bb714ea4acf65192"
+dependencies = [
+ "base16ct",
+ "base64ct",
+ "ed25519-dalek",
+ "sha2",
+ "thiserror 2.0.18",
 ]
 
 [[package]]
