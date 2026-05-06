@@ -9,7 +9,7 @@ use std::io;
 
 use nsis_plugin_api::{nsis_fn, popstr, pushint, pushstr};
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, SetLastError};
-use windows_sys::Win32::System::Registry::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE};
+use windows_sys::Win32::System::Registry::{KEY_READ, KEY_WRITE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     HWND_BROADCAST, SMTO_ABORTIFHUNG, SendMessageTimeoutW, WM_SETTINGCHANGE,
 };
@@ -99,7 +99,7 @@ fn AddSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
     let path_to_add = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
-        let key = RegKey::open(HKEY_LOCAL_MACHINE, PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
+        let key = RegKey::open_hklm(PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
         let current_path = key.read_string(PATH_VAL_NAME)?;
         let current_path_str = current_path
             .to_str()
@@ -148,7 +148,7 @@ fn RemoveSysEnvPath() -> Result<(), nsis_plugin_api::Error> {
     let path_to_remove = unsafe { popstr()? };
 
     let result = (|| -> io::Result<()> {
-        let key = RegKey::open(HKEY_LOCAL_MACHINE, PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
+        let key = RegKey::open_hklm(PATH_KEY_NAME, KEY_READ | KEY_WRITE)?;
         let current_path = key.read_string(PATH_VAL_NAME)?;
         let current_path_str = current_path
             .to_str()

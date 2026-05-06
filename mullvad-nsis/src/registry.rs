@@ -8,19 +8,35 @@ use std::ptr;
 use widestring::U16CString;
 use windows_sys::Win32::Foundation::ERROR_SUCCESS;
 use windows_sys::Win32::System::Registry::{
-    HKEY, REG_BINARY, REG_EXPAND_SZ, RegCloseKey, RegFlushKey, RegOpenKeyExW, RegQueryValueExW,
-    RegSetValueExW,
+    HKEY, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, REG_BINARY, REG_EXPAND_SZ, RegCloseKey,
+    RegFlushKey, RegOpenKeyExW, RegQueryValueExW, RegSetValueExW,
 };
 
 /// Open registry key handle.
 pub struct RegKey(HKEY);
 
 impl RegKey {
+    /// Open an existing registry subkey in the `HKEY_CURRENT_USER` key.
+    pub fn open_hkcu(subkey: &str, access: u32) -> io::Result<Self> {
+        // SAFETY: `HKEY_CURRENT_USER` is a valid predefined key
+        unsafe { Self::open(HKEY_CURRENT_USER, subkey, access) }
+    }
+
+    /// Open an existing registry subkey in the `HKEY_LOCAL_MACHINE` key.
+    pub fn open_hklm(subkey: &str, access: u32) -> io::Result<Self> {
+        // SAFETY: `HKEY_LOCAL_MACHINE` is a valid predefined key
+        unsafe { Self::open(HKEY_LOCAL_MACHINE, subkey, access) }
+    }
+
     /// Open an existing registry key.
-    pub fn open(root: HKEY, subkey: &str, access: u32) -> io::Result<Self> {
+    ///
+    /// # Safety
+    ///
+    /// `root` must be a valid HKEY.
+    unsafe fn open(root: HKEY, subkey: &str, access: u32) -> io::Result<Self> {
         let subkey = U16CString::from_str_truncate(subkey);
         let mut handle: HKEY = ptr::null_mut();
-        // SAFETY: `root` is a valid HKEY, `subkey` is a null-terminated wide
+        // SAFETY: caller promised that `root` is a valid HKEY, `subkey` is a null-terminated wide
         // string, and `&mut handle` is a stack-local.
         let result = unsafe { RegOpenKeyExW(root, subkey.as_ptr(), 0, access, &raw mut handle) };
         if result != ERROR_SUCCESS {

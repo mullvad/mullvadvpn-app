@@ -22,7 +22,7 @@ use windows_sys::Win32::Security::{
     TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_QUERY, TOKEN_TYPE, TokenPrimary,
 };
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
-use windows_sys::Win32::System::Registry::{HKEY_CURRENT_USER, KEY_READ, KEY_WRITE};
+use windows_sys::Win32::System::Registry::{KEY_READ, KEY_WRITE};
 use windows_sys::Win32::System::SystemInformation::GetSystemTime;
 use windows_sys::Win32::System::Threading::{
     CreateProcessAsUserW, INFINITE, OpenProcess, OpenProcessToken, PROCESS_INFORMATION,
@@ -143,7 +143,7 @@ impl IconStreams {
 
     /// Open the IconStreams registry key and parse the current blob.
     fn read() -> io::Result<Self> {
-        let key = RegKey::open(HKEY_CURRENT_USER, Self::KEY_NAME, KEY_READ | KEY_WRITE)?;
+        let key = RegKey::open_hkcu(Self::KEY_NAME, KEY_READ | KEY_WRITE)?;
         let blob = key.read_binary(Self::VALUE_NAME)?;
         if blob.is_empty() {
             return Err(io::Error::new(
