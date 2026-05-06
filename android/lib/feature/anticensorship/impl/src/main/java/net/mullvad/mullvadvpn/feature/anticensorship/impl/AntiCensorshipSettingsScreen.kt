@@ -72,6 +72,7 @@ private fun PreviewAntiCensorshipSettingsScreen(
             onBackClick = {},
             onSelectObfuscationMode = {},
             navigateToWireguardPortSettings = {},
+            navigateToLwoPortSettings = {},
         )
     }
 }
@@ -100,6 +101,8 @@ fun SharedTransitionScope.AntiCensorshipSettings(
             dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Udp2Tcp)) },
         navigateToWireguardPortSettings =
             dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Wireguard)) },
+        navigateToLwoPortSettings =
+            dropUnlessResumed { navigator.navigate(SelectPortNavKey(PortType.Lwo)) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
         onSelectObfuscationMode = viewModel::onSelectObfuscationMode,
     )
@@ -112,6 +115,7 @@ fun AntiCensorshipSettingsScreen(
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
     navigateToWireguardPortSettings: () -> Unit,
+    navigateToLwoPortSettings: () -> Unit,
     onBackClick: () -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
 ) {
@@ -148,6 +152,7 @@ fun AntiCensorshipSettingsScreen(
                         navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                         onSelectObfuscationMode = onSelectObfuscationMode,
                         navigateToWireguardPortSettings = navigateToWireguardPortSettings,
+                        navigateToLwoPortSettings = navigateToLwoPortSettings,
                     )
             }
         }
@@ -160,6 +165,7 @@ private fun LazyListScope.content(
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
     navigateToWireguardPortSettings: () -> Unit,
+    navigateToLwoPortSettings: () -> Unit,
     onSelectObfuscationMode: (obfuscationMode: ObfuscationMode) -> Unit,
 ) {
     item {
@@ -201,12 +207,14 @@ private fun LazyListScope.content(
                 }
             is ObfuscationSettingItem.Obfuscation.Lwo ->
                 item(key = it::class.simpleName) {
-                    SelectableListItem(
+                    ObfuscationModeListItem(
                         hierarchy = Hierarchy.Child1,
                         position = Position.Middle,
-                        title = stringResource(id = R.string.lwo),
+                        obfuscationMode = ObfuscationMode.Lwo,
                         isSelected = it.selected,
-                        onClick = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
+                        port = it.port,
+                        onSelected = { onSelectObfuscationMode(ObfuscationMode.Lwo) },
+                        onNavigate = navigateToLwoPortSettings,
                         testTag = WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG,
                     )
                 }

@@ -14,6 +14,7 @@ data class AntiCensorshipSettingsUiState(
             obfuscationMode: ObfuscationMode,
             selectedUdp2TcpObfuscationPort: Constraint<Port>,
             selectedShadowsocksObfuscationPort: Constraint<Port>,
+            selectedLwoObfuscationPort: Constraint<Port>,
             selectedWireguardPort: Constraint<Port>,
         ): AntiCensorshipSettingsUiState =
             AntiCensorshipSettingsUiState(
@@ -36,7 +37,7 @@ data class AntiCensorshipSettingsUiState(
                         add(
                             ObfuscationSettingItem.Obfuscation.Lwo(
                                 obfuscationMode == ObfuscationMode.Lwo,
-                                selectedWireguardPort,
+                                selectedLwoObfuscationPort,
                             )
                         )
                         add(ObfuscationSettingItem.Divider)
