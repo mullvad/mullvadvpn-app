@@ -74,10 +74,11 @@ fun MullvadModalBottomSheet(
         modifier = modifier.semantics { testTagsAsResourceId = true },
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
-        properties = ModalBottomSheetProperties(
-            shouldDismissOnBackPress = shouldDismissOnBackPress,
-            shouldDismissOnClickOutside = shouldDismissOnClickOutside,
-        ),
+        properties =
+            ModalBottomSheetProperties(
+                shouldDismissOnBackPress = shouldDismissOnBackPress,
+                shouldDismissOnClickOutside = shouldDismissOnClickOutside,
+            ),
     ) {
         content(paddingValues.calculateBottomPadding())
         Spacer(
