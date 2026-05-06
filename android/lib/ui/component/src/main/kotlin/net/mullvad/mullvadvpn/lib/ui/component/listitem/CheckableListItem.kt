@@ -65,6 +65,7 @@ fun CheckableListItem(
 ) {
     CheckableListItem(
         title = AnnotatedString(title),
+        singleLine = singleLine,
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
@@ -79,6 +80,7 @@ fun CheckableListItem(
 fun CheckableListItem(
     title: AnnotatedString,
     modifier: Modifier = Modifier,
+    singleLine: Boolean = true,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Single,
     isChecked: Boolean,
