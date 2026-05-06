@@ -799,7 +799,7 @@ impl LookupObject for ForwardLookup {
 mod test {
     use super::*;
     use hickory_server::resolver::config::{NameServerConfigGroup, ResolverConfig};
-    use std::{net::UdpSocket, sync::Mutex, thread};
+    use std::{net::UdpSocket, sync::Mutex, thread, time::Instant};
     use typed_builder::TypedBuilder;
 
     /// Can't have multiple local resolvers running at the same time, as they will try to bind to
@@ -807,13 +807,26 @@ mod test {
     static LOCK: Mutex<()> = Mutex::new(());
 
     async fn start_resolver() -> ResolverHandle {
-        // NOTE: We're disabling lo0 aliases
-        super::start_resolver(LocalResolverConfig {
-            // Bind resolver to 127.0.0.1
-            use_random_loopback: false,
-        })
-        .await
-        .unwrap()
+        let start = Instant::now();
+        let timeout = Duration::from_secs(2);
+        loop {
+            // NOTE: We're disabling lo0 aliases
+            let err = match super::start_resolver(LocalResolverConfig {
+                // Bind resolver to 127.0.0.1
+                use_random_loopback: false,
+            })
+            .await
+            {
+                Ok(resolver) => return resolver,
+                Err(err) => err,
+            };
+
+            if start.elapsed() > timeout {
+                panic!("{err:?}");
+            }
+
+            tokio::time::sleep(Duration::from_millis(10)).await;
+        }
     }
 
     fn get_test_resolver(addr: SocketAddr) -> hickory_server::resolver::TokioResolver {
@@ -928,11 +941,7 @@ mod test {
             .build()
             .unwrap();
 
-        let config = LocalResolverConfig {
-            // Bind resolver to 127.0.0.1 so that we can easily bind to the same address here.
-            use_random_loopback: false,
-        };
-        let handle = rt.block_on(super::start_resolver(config)).unwrap();
+        let handle = rt.block_on(start_resolver(config));
         let addr = handle.listening_addr();
         assert_eq!(addr, SocketAddr::from((Ipv4Addr::LOCALHOST, DNS_PORT)));
         rt.block_on(handle.stop());
