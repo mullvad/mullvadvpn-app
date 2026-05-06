@@ -296,12 +296,10 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
 
 /// Remove log files from the service user's ProgramData\Mullvad VPN directory.
 fn remove_logs_service_user() -> anyhow::Result<()> {
-    let program_data =
-        mullvad_paths::windows::get_allusersprofile_dir().context("get allusersprofile dir")?;
-    let app_dir = program_data.join("Mullvad VPN");
+    let log_dir = mullvad_paths::get_default_log_dir().context("get allusersprofile log dir")?;
 
     // Remove only files; leave subdirectories untouched.
-    let entries = match std::fs::read_dir(&app_dir) {
+    let entries = match std::fs::read_dir(&log_dir) {
         Ok(e) => e,
         Err(e) if e.kind() == io::ErrorKind::NotFound => return Ok(()),
         Err(e) => {
