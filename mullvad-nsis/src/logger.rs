@@ -13,6 +13,7 @@ use std::path::Path;
 use std::ptr;
 use std::sync::{Mutex, OnceLock};
 
+use anyhow::{Context, bail};
 use nsis_plugin_api::{nsis_fn, popint, pushint};
 use windows_sys::Win32::Foundation::{MAX_PATH, SYSTEMTIME};
 use windows_sys::Win32::System::LibraryLoader::{
@@ -146,7 +147,7 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
     // runs, initializing the static NSIS stack pointer.
     let target_int = unsafe { popint()? };
 
-    let result = (|| -> io::Result<()> {
+    let result = (|| -> anyhow::Result<()> {
         let target = LogTarget::from_i32(target_int);
 
         let mut logger = LOGGER.lock().unwrap_or_else(|e| e.into_inner());
@@ -159,20 +160,11 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
                 return Ok(());
             }
             None => {
-                return Err(io::Error::new(
-                    io::ErrorKind::InvalidInput,
-                    "invalid log target",
-                ));
+                bail!("Invalid log target");
             }
         };
 
-        let log_dir =
-            mullvad_paths::get_default_log_dir().map_err(|e| io::Error::other(e.to_string()))?;
-
-        // Create the log directory with privileged access
-        mullvad_paths::windows::create_privileged_directory(&log_dir)
-            .map_err(|e| io::Error::other(format!("create log directory: {e}")))?;
-
+        let log_dir = mullvad_paths::log_dir().context("Failed to get or create log dir")?;
         let log_path = log_dir.join(logfile_name);
         *logger = Some(Logger::new(log_path)?);
 
@@ -180,7 +172,7 @@ fn SetLogTarget() -> Result<(), nsis_plugin_api::Error> {
     })();
 
     if let Err(e) = result {
-        let msg = format!("Failed to set logging plugin target.\n{e}\0");
+        let msg = format!("Failed to set logging plugin target.\n{e:?}\0");
         // SAFETY: `msg` is a null-terminated ANSI string (the trailing `\0`
         // above), and the title argument is permitted to be null. `MB_OK`
         // is a valid flags value. `GetActiveWindow` returns a valid HWND or
