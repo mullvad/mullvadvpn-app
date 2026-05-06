@@ -46,6 +46,7 @@ class AntiCensorshipSettingsViewModel(
                         selectedUdp2TcpObfuscationPort = settings.obfuscationSettings.udp2tcp.port,
                         selectedShadowsocksObfuscationPort =
                             settings.obfuscationSettings.shadowsocks.port,
+                        selectedLwoObfuscationPort = settings.obfuscationSettings.lwo.port,
                         selectedWireguardPort = settings.wireguardPort(),
                     )
                     .toLc<Unit, AntiCensorshipSettingsUiState>()

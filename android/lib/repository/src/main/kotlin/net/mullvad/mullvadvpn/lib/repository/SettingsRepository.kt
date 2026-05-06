@@ -65,6 +65,9 @@ class SettingsRepository(
     suspend fun setCustomShadowsocksObfuscationPort(constraint: Constraint<Port>) =
         managementService.setShadowsocksObfuscationPort(constraint)
 
+    suspend fun setCustomLwoObfuscationPort(constraint: Constraint<Port>) =
+        managementService.setLwoObfuscationPort(constraint)
+
     suspend fun setWireguardMtu(mtu: Mtu) = managementService.setWireguardMtu(mtu.value)
 
     suspend fun resetWireguardMtu() = managementService.resetWireguardMtu()
