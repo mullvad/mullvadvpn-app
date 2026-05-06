@@ -15,7 +15,7 @@ use std::ptr;
 use anyhow::Context;
 use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
 use widestring::U16CString;
-use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL, LocalFree};
+use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL};
 use windows_sys::Win32::Security::Authorization::{
     EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
     SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
@@ -65,29 +65,47 @@ impl Drop for ScopedNativeFileSystem {
     }
 }
 
-/// Frees a local-heap allocation (via LocalFree) on drop.
-struct LocalFreeGuard(*mut std::ffi::c_void);
+mod guard {
+    use windows_sys::Win32::Foundation::LocalFree;
 
-impl LocalFreeGuard {
-    fn from_ptr(p: *mut std::ffi::c_void) -> Self {
-        LocalFreeGuard(p)
+    /// Frees a local-heap allocation (via LocalFree) on drop.
+    pub struct LocalFreeGuard<T>(*mut T);
+
+    impl<T> LocalFreeGuard<T> {
+        /// Create a guard for an object that's destroyed with `LocalFree`
+        /// when this is dropped.
+        ///
+        /// # Safety
+        ///
+        /// It must be correct to free `p` with `LocalFree`. This function transfers ownership of
+        /// `p` to this object.
+        pub unsafe fn from_ptr(p: *mut T) -> Self {
+            LocalFreeGuard(p)
+        }
+
+        /// Return the underlying pointer.
+        pub fn as_ptr(&self) -> *const T {
+            self.0
+        }
+    }
+
+    impl<T> Drop for LocalFreeGuard<T> {
+        fn drop(&mut self) {
+            // SAFETY: `self.0` was allocated by a Win32 function that returns
+            // a LocalAlloc-style handle (e.g. `SetEntriesInAclW`); we own it
+            // uniquely and have not freed it.
+            unsafe { LocalFree(self.0.cast()) };
+        }
     }
 }
 
-impl Drop for LocalFreeGuard {
-    fn drop(&mut self) {
-        // SAFETY: `self.0` was allocated by a Win32 function that returns
-        // a LocalAlloc-style handle (e.g. `SetEntriesInAclW`); we own it
-        // uniquely and have not freed it.
-        unsafe { LocalFree(self.0) };
-    }
-}
+use guard::LocalFreeGuard;
 
 /// Self-relative security descriptor returned by `GetNamedSecurityInfoW`.
 /// The borrowed DACL pointer lives as long as `self`.
 struct SecurityDescriptor {
-    sd: *mut std::ffi::c_void,
     dacl: *mut ACL,
+    _sd: LocalFreeGuard<std::ffi::c_void>,
 }
 
 impl SecurityDescriptor {
@@ -115,20 +133,14 @@ impl SecurityDescriptor {
         if result != ERROR_SUCCESS {
             return Err(io::Error::from_raw_os_error(result as i32));
         }
-        Ok(Self { sd, dacl })
+        // SAFETY: The security descriptor must be freed with `LocalFree`.
+        let _sd = unsafe { LocalFreeGuard::from_ptr(sd) };
+        Ok(Self { _sd, dacl })
     }
 
     /// Borrow the DACL pointer (valid for `&self`'s lifetime).
     fn dacl(&self) -> *mut ACL {
         self.dacl
-    }
-}
-
-impl Drop for SecurityDescriptor {
-    fn drop(&mut self) {
-        // SAFETY: `self.sd` was allocated by `GetNamedSecurityInfoW` and
-        // is owned uniquely by `self`.
-        unsafe { LocalFree(self.sd) };
     }
 }
 
@@ -181,7 +193,8 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
         return Err(io::Error::from_raw_os_error(result as i32));
     }
 
-    let _dacl_guard = LocalFreeGuard::from_ptr(new_dacl.cast());
+    // SAFETY: This object must be destroyed with `new_dacl`.
+    let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl.cast()) };
 
     // SAFETY: `path_wide` is a null-terminated wide string; only the DACL
     // pointer is non-null (the API only modifies the DACL portion).
@@ -192,7 +205,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
             DACL_SECURITY_INFORMATION,
             ptr::null_mut(),
             ptr::null_mut(),
-            new_dacl,
+            new_dacl.as_ptr(),
             ptr::null_mut(),
         )
     };
