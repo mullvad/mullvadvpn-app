@@ -7,29 +7,16 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+am-i-mullvad-client = { path = "../am-i-mullvad-client" }
 bytes = { workspace = true }
 colored = { workspace = true }
 futures = { workspace = true }
-http-body-util = "0.1.2"
-hyper = { version = "1.4.1", features = ["client", "http2"] }
-hyper-rustls = { version = "0.27.3", default-features = false, features = [
-  "aws-lc-rs",
-  "http1",
-  "logging",
-  "webpki-roots"
-] }
-hyper-util = { workspace = true }
 log = { workspace = true }
-rustls-pki-types = "1.13.1"
 serde = { workspace = true }
 serde_json = { workspace = true }
 tarpc = { workspace = true }
 thiserror = { workspace = true }
-tokio = { workspace = true }
-tokio-rustls = { version = "0.26.0", default-features = false, features = [
-  "aws-lc-rs",
-  "logging",
-] }
+tokio = { workspace = true, features = ["io-util", "rt", "sync", "time"] }
 
 [dependencies.tokio-util]
 version = "0.7"
