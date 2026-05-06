@@ -8,6 +8,7 @@ use std::ffi::OsString;
 use std::io;
 
 use nsis_plugin_api::{nsis_fn, popstr, pushint, pushstr};
+use windows_sys::Win32::Foundation::{ERROR_SUCCESS, SetLastError};
 use windows_sys::Win32::System::Registry::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE};
 use windows_sys::Win32::UI::WindowsAndMessaging::{
     HWND_BROADCAST, SMTO_ABORTIFHUNG, SendMessageTimeoutW, WM_SETTINGCHANGE,
@@ -33,6 +34,10 @@ const MESSAGE_TIMEOUT_MS: u32 = 5000;
 fn broadcast_setting_change() -> io::Result<()> {
     let mut result: usize = 0;
 
+    // `SendMessageTimeoutW` does not always set the last OS error on failure.
+    // SAFETY: Trivially safe.
+    unsafe { SetLastError(ERROR_SUCCESS) };
+
     // SAFETY: `ENVIRONMENT_W` is a static null-terminated wide string from
     // `w!()`. `&mut result` points to a stack-local for the API to fill in.
     let status = unsafe {
@@ -47,7 +52,13 @@ fn broadcast_setting_change() -> io::Result<()> {
         )
     };
     if status == 0 {
-        return Err(io::Error::last_os_error());
+        let err = io::Error::last_os_error();
+        if err.raw_os_error() == Some(ERROR_SUCCESS as i32) {
+            return Err(io::Error::other(
+                "SendMessageTimeoutW failed without setting an error",
+            ));
+        }
+        return Err(err);
     }
 
     Ok(())
