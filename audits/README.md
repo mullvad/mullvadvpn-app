@@ -18,3 +18,4 @@ Apart from the biannual audits mentioned above, we've also conducted the followi
 
 * [2025-02-24 - NCC Group Mobile Application Security Assessment (MASA) of the Android app](./2025-02-24-nccgroup-android-masa.md)
 * [2025-03-20 - Audit of the installer downloader by Assured](./2025-03-20-assured-installer-downloader.md)
+* [2026-02-17 - Leviathan MAP audit of our Android app](./2026-02-17-leviathan-map.md)
