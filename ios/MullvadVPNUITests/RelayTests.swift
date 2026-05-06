@@ -602,11 +602,8 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapLocationCellExpandButton(
                 withName: BaseUITestCase.testsDefaultQuicCountryName
             )
-            .tapLocationCellExpandButton(
-                withName: BaseUITestCase.testsDefaultQuicCityName
-            )
             .tapLocationCell(
-                withName: BaseUITestCase.testsDefaultQuicRelayName
+                withName: BaseUITestCase.testsDefaultQuicCityName
             )
 
         TunnelControlPage(app)
