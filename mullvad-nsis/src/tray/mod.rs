@@ -13,10 +13,11 @@ use std::ptr;
 use nsis_plugin_api::{nsis_fn, pushint, pushstr};
 use widestring::U16CString;
 use windows_registry::{CURRENT_USER, Key, Type};
+use zerocopy::{FromBytes, FromZeros, Immutable, IntoBytes, KnownLayout, TryFromBytes};
 
 use crate::{NsisStatus, get_known_folder_path};
 use std::os::windows::io::{AsHandle, AsRawHandle, FromRawHandle, OwnedHandle};
-use windows_sys::Win32::Foundation::{FALSE, FILETIME, HANDLE, MAX_PATH, SYSTEMTIME};
+use windows_sys::Win32::Foundation::{FALSE, HANDLE, MAX_PATH, SYSTEMTIME};
 use windows_sys::Win32::Security::{
     DuplicateTokenEx, SECURITY_IMPERSONATION_LEVEL, SecurityImpersonation, TOKEN_ALL_ACCESS,
     TOKEN_DUPLICATE, TOKEN_IMPERSONATE, TOKEN_QUERY, TOKEN_TYPE, TokenPrimary,
@@ -38,15 +39,26 @@ const MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.
 ///
 /// This is the header of the `IconStreams` binary blob in registry value.
 #[repr(C, packed)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, IntoBytes, TryFromBytes, KnownLayout, Immutable)]
 struct IconStreamsHeader {
-    header_size: u32,
+    header_size: IconStreamsHeaderSize,
     u1: u32,
     u2: u16,
     u3: u16,
     number_records: u32,
-    offset_first_record: u32,
+    offset_first_record: IconStreamsHeaderSize,
 }
+
+#[derive(Clone, Copy, IntoBytes, TryFromBytes, KnownLayout, Immutable)]
+#[repr(u32)]
+enum IconStreamsHeaderSize {
+    Size = 20,
+}
+
+const _: () = assert!(
+    IconStreamsHeaderSize::Size as usize == mem::size_of::<IconStreamsHeader>(),
+    "unexpected header size for IconStreamsHeader"
+);
 
 /// Tray icon visibility constants
 const SHOW_ICON_AND_NOTIFICATIONS: u32 = 2;
@@ -55,7 +67,7 @@ const SHOW_ICON_AND_NOTIFICATIONS: u32 = 2;
 ///
 /// This is an entry in the `IconStreams` binary blob registry value.
 #[repr(C, packed)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
 struct IconStreamsRecord {
     application_path: [u16; MAX_PATH as usize],
     /// ID used to identify an icon
@@ -90,9 +102,32 @@ struct IconStreamsRecord {
     ordinal: u32,
 }
 
+#[repr(C, packed)]
+#[derive(IntoBytes, TryFromBytes, KnownLayout, Immutable)]
+struct IconStreamsBlob {
+    header: IconStreamsHeader,
+    records: [IconStreamsRecord],
+}
+
+#[repr(C)]
+#[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
+pub struct FILETIME {
+    pub low_date_time: u32,
+    pub high_date_time: u32,
+}
+
+const _: () = {
+    assert!(
+        mem::size_of::<windows_sys::Win32::Foundation::FILETIME>() == mem::size_of::<FILETIME>()
+    );
+    assert!(
+        mem::align_of::<windows_sys::Win32::Foundation::FILETIME>() == mem::align_of::<FILETIME>()
+    );
+};
+
 /// ICON_STREAMS_RECORD union details variant
 #[repr(C, packed)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
 struct DetailsVariant {
     application_name: [u16; 257],
     padding: [u8; 6],
@@ -100,7 +135,7 @@ struct DetailsVariant {
 
 /// ICON_STREAMS_RECORD union extended_details variant
 #[repr(C, packed)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
 struct ExtendedDetailsVariant {
     // 0x200d0000
     u12: u32,
@@ -113,17 +148,13 @@ const _: () = assert!(mem::size_of::<DetailsVariant>() == mem::size_of::<Extende
 
 /// ICON_STREAMS_RECORD union
 #[repr(C, packed)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
 union DummyUnion {
     details: DetailsVariant,
     extended_details: ExtendedDetailsVariant,
 }
 
-const HEADER_SIZE: usize = mem::size_of::<IconStreamsHeader>();
 const RECORD_SIZE: usize = mem::size_of::<IconStreamsRecord>();
-
-// Compile-time size verification
-const _: () = assert!(HEADER_SIZE == 20);
 const _: () = assert!(RECORD_SIZE == 1640);
 
 /// Parsed contents of the `IconStreams` registry value, plus an open
@@ -192,10 +223,8 @@ impl IconStreams {
             "file must match record struct layout"
         );
 
-        // SAFETY: the template has exactly `RECORD_SIZE` bytes (verified above), so
-        // the read is sound.
-        let mut new_record: IconStreamsRecord =
-            unsafe { ptr::read_unaligned(MULLVAD_TRAY_RECORD_TEMPLATE.as_ptr().cast()) };
+        let mut new_record =
+            IconStreamsRecord::read_from_bytes(MULLVAD_TRAY_RECORD_TEMPLATE).unwrap();
 
         let now = current_filetime();
         let ordinal = self.next_free_ordinal().unwrap_or(0);
@@ -209,7 +238,7 @@ impl IconStreams {
         new_record.u7 = 0;
         new_record.imagelist_id = 0xFFFFFFFF;
         new_record.time1 = now;
-        new_record.time2 = FILETIME::default();
+        new_record.time2 = FILETIME::new_zeroed();
         new_record.ordinal = ordinal;
 
         self.records.push(new_record);
@@ -218,88 +247,31 @@ impl IconStreams {
 
     /// Parse the binary `IconStreams` registry blob into header + records.
     fn parse_blob(blob: &[u8]) -> io::Result<(IconStreamsHeader, Vec<IconStreamsRecord>)> {
-        if blob.len() < HEADER_SIZE {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "IconStreams blob too small for header",
-            ));
-        }
+        let IconStreamsBlob { header, records } = IconStreamsBlob::try_ref_from_bytes(blob)
+            .map_err(|_err| io::Error::other("Invalid IconStreams blob"))?;
 
-        // SAFETY: we verified `blob.len() >= HEADER_SIZE` (= sizeof IconStreamsHeader), so
-        // the read of `IconStreamsHeader` is in-bounds; `read_unaligned` handles
-        // any alignment.
-        let header: IconStreamsHeader = unsafe { ptr::read_unaligned(blob.as_ptr() as *const _) };
-        let num_records = header.number_records as usize;
-        let offset = header.offset_first_record as usize;
-
-        if header.header_size as usize != HEADER_SIZE {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "IconStreams header size mismatch",
-            ));
-        }
-
-        if num_records == 0 {
-            return Ok((header, vec![]));
-        }
-
-        if blob.len() < HEADER_SIZE + RECORD_SIZE {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "IconStreams blob too small for records",
-            ));
-        }
-
-        let expected_size = offset + num_records * RECORD_SIZE;
-        if blob.len() != expected_size {
+        if usize::try_from(header.number_records).unwrap() != records.len() {
+            let num_records = header.number_records;
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
                 format!(
-                    "IconStreams blob size mismatch: expected {expected_size}, got {}",
-                    blob.len()
+                    "Invalid record count in IconStreamsBlob: expected {}, got {}",
+                    num_records,
+                    records.len()
                 ),
             ));
         }
 
-        // SAFETY: the size check above ensures the slice covers `num_records`
-        // records starting at `offset`. `IconStreamsRecord` has alignment 1.
-        let records: Vec<IconStreamsRecord> = unsafe {
-            std::slice::from_raw_parts(
-                blob[offset..].as_ptr() as *const IconStreamsRecord,
-                num_records,
-            )
-        }
-        .to_vec();
-
-        Ok((header, records))
+        Ok((*header, records.to_vec()))
     }
 
     /// Serialize header + records back into a binary blob.
     fn pack_blob(&self) -> Vec<u8> {
         let mut packed_header = self.header;
-        packed_header.header_size = HEADER_SIZE as u32;
         packed_header.number_records = self.records.len() as u32;
-        packed_header.offset_first_record = HEADER_SIZE as u32;
 
-        let total = HEADER_SIZE + self.records.len() * RECORD_SIZE;
-        let mut blob = vec![0u8; total];
-
-        // SAFETY: `blob` is `total >= HEADER_SIZE` bytes, so the write is in-
-        // bounds; `write_unaligned` handles alignment.
-        unsafe {
-            ptr::write_unaligned(blob.as_mut_ptr() as *mut IconStreamsHeader, packed_header);
-        }
-
-        // SAFETY: the bytes after `HEADER_SIZE` cover exactly `records.len()`
-        // records. `IconStreamsRecord` is `#[repr(C, packed)]` so alignment is 1.
-        let records_dst: &mut [IconStreamsRecord] = unsafe {
-            std::slice::from_raw_parts_mut(
-                blob[HEADER_SIZE..].as_mut_ptr() as *mut IconStreamsRecord,
-                self.records.len(),
-            )
-        };
-        records_dst.copy_from_slice(&self.records);
-
+        let mut blob = packed_header.as_bytes().to_vec();
+        blob.extend(self.records.as_bytes());
         blob
     }
 }
@@ -315,10 +287,11 @@ fn get_system_time() -> SYSTEMTIME {
 /// Get the current system time as a FILETIME.
 fn current_filetime() -> FILETIME {
     let st = get_system_time();
-    let mut ft = FILETIME::default();
+    let mut ft = FILETIME::new_zeroed();
     // SAFETY: `&st` points to an initialized SYSTEMTIME and `&mut ft` is a
-    // stack-local for the API to fill in.
-    unsafe { SystemTimeToFileTime(&raw const st, &raw mut ft) };
+    // stack-local for the API to fill in. `FILETIME` has same layout as
+    // type in `windows-sys`.
+    unsafe { SystemTimeToFileTime(&raw const st, &raw mut ft as _) };
     ft
 }
 
