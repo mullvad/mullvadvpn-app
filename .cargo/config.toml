@@ -1,3 +1,20 @@
+# Minimize aws-lc-sys static lib's contribution to the final binaries
+# across every target these crates ships to.
+#
+# - -DOPENSSL_SMALL: drops large precomputed tables (P-256 ECDH/ECDSA,
+#   Ed25519 base point). Saves ~350-500 KiB on every target. Slows
+#   ECDSA P-256 verify a few x and Ed25519 signing 1.5-2x. Not really
+#   anything affecting our app.
+# - -DMY_ASSEMBLER_IS_TOO_OLD_FOR_512AVX: drops AVX-512 AES-GCM/AES-XTS
+#   asm in favor of AVX2/AES-NI. Every C-side use is nested inside an
+#   outer OPENSSL_X86_64 guard, so it's a no-op on non-x86_64 targets.
+#   Saves ~1.2 MiB on Linux/macOS x86_64. Only ~25 KiB on Windows MSVC.
+#   We use AES-GCM in our shadowsocks obfuscator. So this might reduce
+#   performance somewhat on x86_64 machines with the 512AVX instruction
+#   set, but it's not worth all the extra binary size.
+[env]
+AWS_LC_SYS_CFLAGS = "-DOPENSSL_SMALL -DMY_ASSEMBLER_IS_TOO_OLD_FOR_512AVX"
+
 [target.x86_64-pc-windows-msvc]
 rustflags = ["-Ctarget-feature=+crt-static"]
 
