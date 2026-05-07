@@ -47,9 +47,7 @@ the version of the app you are going to release. For example `2018.3-beta1` or `
          3. Set `NOTARIZE_KEYCHAIN` and `NOTARIZE_KEYCHAIN_PROFILE` to the values specified in 2
 
 1. Run `./build.sh` on each computer/platform where you want to create a release artifact. This will
-    do the following for you:
-    1. Update `relays.json` with the latest relays
-    1. Compile and package the app into a distributable artifact for your platform.
+   compile and package the app into a distributable artifact for your platform.
 
-    Please pay attention to the output at the end of the script and make sure the version it says
-    it built matches what you want to release.
+   Please pay attention to the output at the end of the script and make sure the version it says
+   it built matches what you want to release.
