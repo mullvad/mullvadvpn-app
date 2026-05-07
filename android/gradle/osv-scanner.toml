@@ -139,7 +139,7 @@ id = "CVE-2026-42580"  # GHSA-m4cv-j2px-7723
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for external http communication"
 
-# Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection 
+# Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection
 [[IgnoredVulns]]
 id = "CVE-2026-41417"  # GHSA-v8h7-rr48-vmmv
 ignoreUntil = 2026-08-01
@@ -157,13 +157,13 @@ id = "CVE-2026-42578"  # GHSA-45q3-82m4-75jr
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for external http communication"
 
-#  Netty epoll transport denial of service via RST on half-closed TCP connection 
+# Netty epoll transport denial of service via RST on half-closed TCP connection
 [[IgnoredVulns]]
 id = "CVE-2026-42577"  # GHSA-rwm7-x88c-3g2p
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for external http communication"
 
-# Bouncy Castle Has Covert Timing Channel Vulnerability  
+# Bouncy Castle Has Covert Timing Channel Vulnerability
 [[IgnoredVulns]]
 id = "CVE-2026-5598"  # GHSA-p93r-85wp-75v3
 ignoreUntil = 2026-08-01
