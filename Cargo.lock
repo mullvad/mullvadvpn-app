@@ -3626,7 +3626,6 @@ dependencies = [
 [[package]]
 name = "nsis-fn"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/nsis-tauri-utils?rev=13d9edd27b69310e108d6fbd49f90992f8a05390#13d9edd27b69310e108d6fbd49f90992f8a05390"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3636,7 +3635,6 @@ dependencies = [
 [[package]]
 name = "nsis-plugin-api"
 version = "0.0.0"
-source = "git+https://github.com/tauri-apps/nsis-tauri-utils?rev=13d9edd27b69310e108d6fbd49f90992f8a05390#13d9edd27b69310e108d6fbd49f90992f8a05390"
 dependencies = [
  "nsis-fn",
  "windows-sys 0.61.2",
