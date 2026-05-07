@@ -26,7 +26,7 @@ use windows_sys::Win32::System::Time::SystemTimeToFileTime;
 use windows_sys::Win32::UI::Shell::FOLDERID_Windows;
 use windows_sys::Win32::UI::Shell::KF_FLAG_DEFAULT;
 
-use mullvad_paths::windows::get_known_folder_path;
+use mullvad_paths::{PRODUCT_NAME, windows::get_known_folder_path};
 
 /// Template for a new Mullvad VPN tray record in `IconStreams`.
 const MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.bin");
@@ -308,7 +308,7 @@ pub fn promote_tray_icon() -> io::Result<()> {
     let mut streams = IconStreams::read()?;
     let new_ordinal = streams.next_free_ordinal().unwrap_or(0);
 
-    if let Some(record) = streams.find_record("Mullvad VPN") {
+    if let Some(record) = streams.find_record(PRODUCT_NAME) {
         if record.visibility != SHOW_ICON_AND_NOTIFICATIONS {
             // Hidden record found - promote it
             promote_record(record);

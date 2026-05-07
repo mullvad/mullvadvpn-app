@@ -22,7 +22,7 @@ use windows_sys::Win32::UI::Shell::{
     FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData, KF_FLAG_DEFAULT,
 };
 
-use mullvad_paths::windows::get_known_folder_path;
+use mullvad_paths::{PRODUCT_NAME, windows::get_known_folder_path};
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -218,11 +218,11 @@ fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
 pub fn remove_logs_cache_current_user() -> anyhow::Result<()> {
     let local_appdata = get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, None)
         .context("FOLDERID_LocalAppData")?;
-    remove_dir_all_if_exists(&local_appdata.join("Mullvad VPN"))?;
+    remove_dir_all_if_exists(&local_appdata.join(PRODUCT_NAME))?;
 
     let roaming_appdata = get_known_folder_path(&FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, None)
         .context("FOLDERID_RoamingAppData")?;
-    remove_dir_all_if_exists(&roaming_appdata.join("Mullvad VPN"))?;
+    remove_dir_all_if_exists(&roaming_appdata.join(PRODUCT_NAME))?;
 
     Ok(())
 }
@@ -276,10 +276,10 @@ pub fn remove_logs_cache_other_users() -> anyhow::Result<()> {
         }
 
         let user_dir = entry.path();
-        remove_dir_all_if_exists(&user_dir.join(&rel_local).join("Mullvad VPN"))?;
+        remove_dir_all_if_exists(&user_dir.join(&rel_local).join(PRODUCT_NAME))?;
 
         if let Some(rel_roam) = &rel_roaming {
-            remove_dir_all_if_exists(&user_dir.join(rel_roam).join("Mullvad VPN"))?;
+            remove_dir_all_if_exists(&user_dir.join(rel_roam).join(PRODUCT_NAME))?;
         }
     }
 
