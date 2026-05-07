@@ -57,6 +57,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
+    nonisolated(unsafe) private(set) var logRedactor: LogRedacting!
 
     // MARK: - Application lifecycle
 
@@ -151,9 +152,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             relaySelector: relaySelector
         )
 
-        settingsObserver = TunnelBlockObserver(didUpdateTunnelSettings: { _, settings in
-            tunnelSettingsListener.onNewSettings?(settings)
-        })
+        settingsObserver = TunnelBlockObserver(
+            didLoadConfiguration: { [weak self] tunnelManager in
+                // Redact legacy numbers that do not match the account number regex.
+                self?.logRedactor.addCustomString(tunnelManager.deviceState.accountData?.number ?? "")
+            },
+            didUpdateTunnelSettings: { _, settings in
+                tunnelSettingsListener.onNewSettings?(settings)
+            })
         tunnelManager.addObserver(settingsObserver)
 
         storePaymentManager = StorePaymentManager(
@@ -417,6 +423,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let header = "MullvadVPN version \(Bundle.main.productVersion)"
         let loggerBuilder = LoggerBuilder.shared
 
+        // Create the Rust-backed log redactor with container paths
+        let redactor = RustLogRedactor(containerPaths: [ApplicationConfiguration.containerURL.path])
+        self.logRedactor = redactor
+
         loggerBuilder.addFileOutput(
             fileURL: ApplicationConfiguration.newLogFileURL(for: .mainApp, in: ApplicationConfiguration.containerURL),
             header: header
@@ -424,10 +434,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         #if DEBUG
             loggerBuilder.addOSLogOutput(subsystem: ApplicationTarget.mainApp.bundleIdentifier)
         #endif
-        loggerBuilder.install()
+        loggerBuilder.install(redactor)
 
         // Initialize Rust logging to forward to Swift Logger
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
 
         logger = Logger(label: "AppDelegate")
     }

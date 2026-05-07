@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadLogging
 import MullvadMockData
 import MullvadRustRuntime
 import MullvadTypes
@@ -26,7 +27,7 @@ class MullvadApiTests: XCTestCase {
     override func setUp() {
         super.setUp()
         SettingsManager.unitTestStore = MullvadApiTests.store
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "Rust"))
     }
 
     func makeApiProxy(port: UInt16) throws -> APIQuerying {
