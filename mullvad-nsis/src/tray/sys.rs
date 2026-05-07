@@ -18,7 +18,7 @@ use windows_sys::Win32::Security::{
 use windows_sys::Win32::System::ProcessStatus::EnumProcesses;
 use windows_sys::Win32::System::SystemInformation::GetSystemTime;
 use windows_sys::Win32::System::Threading::{
-    CreateProcessAsUserW, INFINITE, OpenProcess, OpenProcessToken, PROCESS_INFORMATION,
+    CreateProcessWithTokenW, INFINITE, OpenProcess, OpenProcessToken, PROCESS_INFORMATION,
     PROCESS_QUERY_INFORMATION, PROCESS_TERMINATE, QueryFullProcessImageNameW, STARTUPINFOW,
     TerminateProcess, WaitForSingleObject,
 };
@@ -391,7 +391,7 @@ fn restart_explorer(streams: IconStreams) -> io::Result<()> {
 
     // Restart explorer using the duplicated security context. The returned
     // process/thread handles are dropped (closed) immediately.
-    let _ = create_process_as_user(&context_token, &explorer)?;
+    let _ = create_process_with_token(&context_token, &explorer)?;
 
     Ok(())
 }
@@ -503,10 +503,19 @@ struct ProcessInfo {
 }
 
 /// Spawn `application` under the given user `token`.
-fn create_process_as_user(token: impl AsHandle, application: &Path) -> io::Result<ProcessInfo> {
-    let app_wide = U16CString::from_os_str_truncate(application).into_vec_with_nul();
-    // CreateProcessAsUserW needs a mutable command line.
-    let mut cmd_wide = app_wide.clone();
+fn create_process_with_token(token: impl AsHandle, application: &Path) -> io::Result<ProcessInfo> {
+    if !application.is_absolute() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path needs to be absolute",
+        ));
+    }
+
+    // CreateProcessWithTokenW needs a quoted command line for argv[0].
+    let mut quoted = OsString::from("\"");
+    quoted.push(application);
+    quoted.push("\"");
+    let mut cmd_wide = U16CString::from_os_str_truncate(&quoted).into_vec_with_nul();
 
     let startup_info = STARTUPINFOW {
         cb: mem::size_of::<STARTUPINFOW>() as u32,
@@ -514,18 +523,14 @@ fn create_process_as_user(token: impl AsHandle, application: &Path) -> io::Resul
     };
     let mut process_info = PROCESS_INFORMATION::default();
 
-    // SAFETY: `token` is a live token handle; `app_wide` and `cmd_wide` are
-    // null-terminated wide strings; the security/environment/dir pointers are
-    // null (allowed); `&startup_info` and `&mut process_info` are stack-locals
-    // the API reads/fills.
+    // SAFETY: `token` is valid; `cmd_wide` is null-terminated, and
+    // the other arguments are valid pointers or null.
     let status = unsafe {
-        CreateProcessAsUserW(
+        CreateProcessWithTokenW(
             token.as_handle().as_raw_handle(),
-            app_wide.as_ptr(),
+            0,
+            ptr::null(),
             cmd_wide.as_mut_ptr(),
-            ptr::null(),
-            ptr::null(),
-            FALSE,
             0,
             ptr::null(),
             ptr::null(),
@@ -538,9 +543,9 @@ fn create_process_as_user(token: impl AsHandle, application: &Path) -> io::Resul
         return Err(io::Error::last_os_error());
     }
 
-    // SAFETY: handle was just produced by `CreateProcessAsUserW`. Caller is responsible for it.
+    // SAFETY: handle was just produced by `CreateProcessWithTokenW`. Caller is responsible for it.
     let process = unsafe { OwnedHandle::from_raw_handle(process_info.hProcess) };
-    // SAFETY: handle was just produced by `CreateProcessAsUserW`. Caller is responsible for it.
+    // SAFETY: handle was just produced by `CreateProcessWithTokenW`. Caller is responsible for it.
     let thread = unsafe { OwnedHandle::from_raw_handle(process_info.hThread) };
     Ok(ProcessInfo { process, thread })
 }
