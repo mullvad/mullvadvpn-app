@@ -152,45 +152,55 @@ impl From<DefaultRoute> for RouteMessage {
 }
 
 impl PrimaryInterfaceMonitor {
-    pub fn new() -> (Self, UnboundedReceiver<Vec<InterfaceEvent>>) {
-        let store = SCDynamicStoreBuilder::new("talpid-routing").build();
+    pub fn new() -> Option<(Self, UnboundedReceiver<Vec<InterfaceEvent>>)> {
+        let store = SCDynamicStoreBuilder::new("talpid-routing").build()?;
         let prefs = SCPreferences::default(&CFString::new("talpid-routing"));
 
         let (tx, rx) = mpsc::unbounded();
         Self::start_listener(tx);
 
-        (Self { store, prefs }, rx)
+        Some((Self { store, prefs }, rx))
     }
 
     fn start_listener(tx: UnboundedSender<Vec<InterfaceEvent>>) {
         std::thread::spawn(|| {
-            let listener_store = SCDynamicStoreBuilder::new("talpid-routing-listener")
-                .callback_context(SCDynamicStoreCallBackContext {
-                    callout: Self::store_change_handler,
-                    info: tx,
-                })
-                .build();
+            let result = (|| -> Option<_> {
+                let listener_store = SCDynamicStoreBuilder::new("talpid-routing-listener")
+                    .callback_context(SCDynamicStoreCallBackContext {
+                        callout: Self::store_change_handler,
+                        info: tx,
+                    })
+                    .build()?;
 
-            let watch_keys: CFArray<CFString> = CFArray::from_CFTypes(&[
-                CFString::new(STATE_IPV4_KEY),
-                CFString::new(STATE_IPV6_KEY),
-            ]);
-            let watch_patterns = CFArray::from_CFTypes(&[CFString::new(STATE_SERVICE_PATTERN)]);
+                let watch_keys: CFArray<CFString> = CFArray::from_CFTypes(&[
+                    CFString::new(STATE_IPV4_KEY),
+                    CFString::new(STATE_IPV6_KEY),
+                ]);
+                let watch_patterns = CFArray::from_CFTypes(&[CFString::new(STATE_SERVICE_PATTERN)]);
 
-            if !listener_store.set_notification_keys(&watch_keys, &watch_patterns) {
-                log::error!("Failed to start interface listener");
-                return;
+                if !listener_store.set_notification_keys(&watch_keys, &watch_patterns) {
+                    log::error!("Failed to start interface listener");
+                    return None;
+                }
+
+                let run_loop_source = listener_store.create_run_loop_source()?;
+
+                // SAFETY: this is just a static string pointer, referencing it should be safe.
+                let run_loop_common_modes = unsafe { kCFRunLoopCommonModes };
+                Some((run_loop_source, run_loop_common_modes))
+            })();
+
+            match result {
+                Some((run_loop_source, run_loop_common_modes)) => {
+                    CFRunLoop::get_current().add_source(&run_loop_source, run_loop_common_modes);
+                    CFRunLoop::run_current();
+
+                    log::debug!("Interface listener exiting");
+                }
+                None => {
+                    log::error!("Failed to start interface listener");
+                }
             }
-
-            let run_loop_source = listener_store.create_run_loop_source();
-
-            // SAFETY: this is just a static string pointer, referencing it should be safe.
-            let run_loop_common_modes = unsafe { kCFRunLoopCommonModes };
-
-            CFRunLoop::get_current().add_source(&run_loop_source, run_loop_common_modes);
-            CFRunLoop::run_current();
-
-            log::debug!("Interface listener exiting");
         });
     }
 
