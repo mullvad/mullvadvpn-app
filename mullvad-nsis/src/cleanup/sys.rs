@@ -1,29 +1,18 @@
-//! Cleanup operations for the Mullvad VPN installer.
-//!
-//! Exports:
-//! - `RemoveLogsAndCache` - remove all logs and cache for all users
-//! - `RemoveSettings` - remove service user settings
-//! - `RemoveRelayCache` - remove relay cache file
-//! - `RemoveApiAddressCache` - remove API address cache file
-//! - `CloseHoggingProcesses` - close processes blocking the install directory
-//! - `IsEmptyDir` - check if a directory contains only subdirectories (no files)
-
 use std::fs;
 use std::io;
 use std::path::Path;
 use std::ptr;
 
 use anyhow::Context;
-use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
 use widestring::U16CString;
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL};
 use windows_sys::Win32::Security::Authorization::{
-    GetNamedSecurityInfoW, SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W,
-    GRANT_ACCESS, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
+    EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
+    SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
 };
 use windows_sys::Win32::Security::{
-    CreateWellKnownSid, WinBuiltinAdministratorsSid, ACL, DACL_SECURITY_INFORMATION,
-    NO_INHERITANCE, SUB_CONTAINERS_AND_OBJECTS_INHERIT,
+    ACL, CreateWellKnownSid, DACL_SECURITY_INFORMATION, NO_INHERITANCE,
+    SUB_CONTAINERS_AND_OBJECTS_INHERIT, WinBuiltinAdministratorsSid,
 };
 use windows_sys::Win32::Storage::FileSystem::MAX_SID_SIZE;
 use windows_sys::Win32::Storage::FileSystem::{
@@ -33,7 +22,7 @@ use windows_sys::Win32::UI::Shell::{
     FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData,
 };
 
-use crate::{get_known_folder_path, NsisStatus};
+use crate::get_known_folder_path;
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -226,7 +215,7 @@ fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
 }
 
 /// Remove Mullvad VPN data from the current user's LocalAppData and RoamingAppData.
-fn remove_logs_cache_current_user() -> anyhow::Result<()> {
+pub fn remove_logs_cache_current_user() -> anyhow::Result<()> {
     let local_appdata =
         get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
     remove_dir_all_if_exists(&local_appdata.join("Mullvad VPN"))?;
@@ -239,7 +228,7 @@ fn remove_logs_cache_current_user() -> anyhow::Result<()> {
 }
 
 /// Remove Mullvad VPN data from all other users' app data directories.
-fn remove_logs_cache_other_users() -> anyhow::Result<()> {
+pub fn remove_logs_cache_other_users() -> anyhow::Result<()> {
     let home_dir = get_known_folder_path(&FOLDERID_Profile).context("FOLDERID_Profile")?;
     let local_appdata =
         get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
@@ -296,7 +285,7 @@ fn remove_logs_cache_other_users() -> anyhow::Result<()> {
 }
 
 /// Remove log files from the service user's ProgramData\Mullvad VPN directory.
-fn remove_logs_service_user() -> anyhow::Result<()> {
+pub fn remove_logs_service_user() -> anyhow::Result<()> {
     let log_dir = mullvad_paths::get_default_log_dir().context("get allusersprofile log dir")?;
 
     // Remove only files; leave subdirectories untouched.
@@ -323,7 +312,7 @@ fn remove_logs_service_user() -> anyhow::Result<()> {
 }
 
 /// Remove the service user's cache directory (ProgramData\Mullvad VPN\cache).
-fn remove_cache_service_user() -> anyhow::Result<()> {
+pub fn remove_cache_service_user() -> anyhow::Result<()> {
     let cache_dir = mullvad_paths::get_default_cache_dir()?;
     remove_dir_all_if_exists(&cache_dir)?;
 
@@ -336,7 +325,7 @@ fn remove_cache_service_user() -> anyhow::Result<()> {
 }
 
 /// Remove the service user's settings directory.
-fn remove_settings_service_user() -> anyhow::Result<()> {
+pub fn remove_settings_service_user() -> anyhow::Result<()> {
     let mullvad_appdata =
         mullvad_paths::get_default_settings_dir().context("get system service appdata")?;
 
@@ -348,7 +337,7 @@ fn remove_settings_service_user() -> anyhow::Result<()> {
         .with_context(|| format!("remove_dir_all {}", mullvad_appdata.display()))
 }
 
-fn remove_relay_cache_service_user() -> anyhow::Result<()> {
+pub fn remove_relay_cache_service_user() -> anyhow::Result<()> {
     let cache_file = mullvad_paths::get_default_cache_dir()?.join("relays.json");
     std::fs::remove_file(&cache_file)
         .or_else(|e| {
@@ -361,7 +350,7 @@ fn remove_relay_cache_service_user() -> anyhow::Result<()> {
         .with_context(|| format!("remove {}", cache_file.display()))
 }
 
-fn remove_api_address_cache_service_user() -> anyhow::Result<()> {
+pub fn remove_api_address_cache_service_user() -> anyhow::Result<()> {
     let cache_file = mullvad_paths::get_default_cache_dir()?.join("api-ip-address.txt");
     std::fs::remove_file(&cache_file)
         .or_else(|e| {
@@ -372,129 +361,4 @@ fn remove_api_address_cache_service_user() -> anyhow::Result<()> {
             }
         })
         .with_context(|| format!("remove {}", cache_file.display()))
-}
-
-// ============================================================================
-// NSIS-exported functions
-// ============================================================================
-
-// RemoveLogsAndCache
-//
-// Removes all logs and cache for current user, other users, and the service user.
-// Pushes a status code.
-#[nsis_fn]
-fn RemoveLogsAndCache() -> Result<(), nsis_plugin_api::Error> {
-    let result = [
-        remove_logs_cache_current_user(),
-        remove_logs_cache_other_users(),
-        remove_cache_service_user(),
-        remove_logs_service_user(),
-    ]
-    .into_iter()
-    .collect::<anyhow::Result<()>>();
-
-    let status = if result.is_ok() {
-        NsisStatus::Success
-    } else {
-        NsisStatus::GeneralError
-    };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe { pushint(status as i32) }
-}
-
-// RemoveSettings
-//
-// Removes the service user's settings directory.
-// Pushes a status code.
-#[nsis_fn]
-fn RemoveSettings() -> Result<(), nsis_plugin_api::Error> {
-    let status = match remove_settings_service_user() {
-        Ok(()) => NsisStatus::Success,
-        Err(_) => NsisStatus::GeneralError,
-    };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe { pushint(status as i32) }
-}
-
-// RemoveRelayCache
-//
-// Removes the relay cache file.
-// Pushes error message and status code.
-#[nsis_fn]
-fn RemoveRelayCache() -> Result<(), nsis_plugin_api::Error> {
-    let (message, status) = match remove_relay_cache_service_user() {
-        Ok(()) => (String::new(), NsisStatus::Success),
-        Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
-    };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe {
-        pushstr(&message)?;
-        pushint(status as i32)
-    }
-}
-
-// RemoveApiAddressCache
-//
-// Removes the API address cache file.
-// Pushes error message and status code.
-#[nsis_fn]
-fn RemoveApiAddressCache() -> Result<(), nsis_plugin_api::Error> {
-    let (message, status) = match remove_api_address_cache_service_user() {
-        Ok(()) => (String::new(), NsisStatus::Success),
-        Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
-    };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe {
-        pushstr(&message)?;
-        pushint(status as i32)
-    }
-}
-
-// CloseHoggingProcesses "installPath" allowCancellation
-//
-// Identifies and closes processes blocking files in the install path.
-// allowCancellation: 1 = show Yes/No dialog, 0 = show OK-only dialog.
-// Pushes error message and status code.
-#[nsis_fn]
-fn CloseHoggingProcesses() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    let (install_path, allow_cancellation) = unsafe { (popstr()?, popint()? != 0) };
-
-    let (message, status) =
-        match crate::handle::terminate_processes(&install_path, allow_cancellation) {
-            Ok(true) => (String::new(), NsisStatus::Success),
-            Ok(false) => (String::from("Cancelled"), NsisStatus::Cancelled),
-            Err(e) => (format!("{e:#}"), NsisStatus::GeneralError),
-        };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe {
-        pushstr(&message)?;
-        pushint(status as i32)
-    }
-}
-
-// IsEmptyDir "path"
-//
-// Checks if the directory contains no files (only directories/symlinks).
-// Pushes SUCCESS if empty, FILE_EXISTS if files found, GENERAL_ERROR on error.
-#[nsis_fn]
-fn IsEmptyDir() -> Result<(), nsis_plugin_api::Error> {
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    let path = unsafe { popstr()? };
-
-    let status = match crate::handle::is_empty_dir(&path) {
-        Ok(true) => NsisStatus::Success,
-        Ok(false) => NsisStatus::FileExists,
-        Err(_) => NsisStatus::GeneralError,
-    };
-    // SAFETY: the `#[nsis_fn]` wrapper called `exdll_init` before this body
-    // runs, initializing the static NSIS stack pointer.
-    unsafe { pushint(status as i32) }
 }
