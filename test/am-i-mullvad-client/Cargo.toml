@@ -1,0 +1,22 @@
+[package]
+name = "am-i-mullvad-client"
+edition.workspace = true
+rust-version.workspace = true
+description = "Async client for the am.i.mullvad.net geoip endpoint"
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+bytes = { workspace = true }
+http-body-util = { workspace = true }
+hyper = { workspace = true }
+hyper-rustls = { workspace = true, features = ["aws-lc-rs", "http2"] }
+hyper-util = { workspace = true }
+rustls = { workspace = true, features = ["aws-lc-rs"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
+
+[lints]
+workspace = true

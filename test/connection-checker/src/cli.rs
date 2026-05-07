@@ -38,7 +38,12 @@ pub struct Opt {
     #[clap(long, requires = "leak", default_value = "Hello there!")]
     pub payload: String,
 
-    /// URL to perform the connection check against. For example, https://am.i.mullvad.net/json.
+    /// Mullvad host to query, e.g. `mullvad.net`. The lookup hits
+    /// `https://ipv4.am.i.<host>/json` (or `ipv6.` if `--ipv6` is set).
     #[clap(long)]
-    pub url: String,
+    pub mullvad_host: String,
+
+    /// Use the IPv6 variant of the am.i.mullvad endpoint.
+    #[clap(long)]
+    pub ipv6: bool,
 }

@@ -187,7 +187,7 @@ impl Service for TestServer {
         self,
         ctx: context::Context,
         mullvad_host: String,
-    ) -> Result<test_rpc::AmIMullvad, test_rpc::Error> {
+    ) -> Result<test_rpc::AmIMullvadResponse, test_rpc::Error> {
         let timeout = ctx
             .deadline
             .duration_since(SystemTime::now())
@@ -196,7 +196,13 @@ impl Service for TestServer {
             .and_then(|d| d.checked_sub(Duration::from_millis(500)))
             .unwrap_or_default();
 
-        test_rpc::net::geoip_lookup(mullvad_host, timeout).await
+        am_i_mullvad_client::geoip_lookup(
+            &mullvad_host,
+            am_i_mullvad_client::IpVersion::V4,
+            timeout,
+        )
+        .await
+        .map_err(Into::into)
     }
 
     async fn resolve_hostname(

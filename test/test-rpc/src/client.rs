@@ -207,7 +207,7 @@ impl ServiceClient {
     }
 
     /// Fetch the current location.
-    pub async fn geoip_lookup(&self, mullvad_host: String) -> Result<AmIMullvad, Error> {
+    pub async fn geoip_lookup(&self, mullvad_host: String) -> Result<AmIMullvadResponse, Error> {
         self.client
             .geoip_lookup(tarpc::context::current(), mullvad_host)
             .await?

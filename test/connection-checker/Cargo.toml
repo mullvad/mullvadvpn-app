@@ -7,16 +7,12 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
+am-i-mullvad-client = { path = "../am-i-mullvad-client" }
 anyhow = "1.0.99"
 clap = { workspace = true, features = ["derive"] }
 ping = { workspace = true }
-reqwest = { version = "0.12.23", default-features = false, features = [
-  "blocking",
-  "json",
-  "rustls-tls"
-] }
-serde = { workspace = true, features = ["derive"] }
 socket2 = { workspace = true, features = ["all"] }
+tokio = { workspace = true, features = ["rt", "time"] }
 
 [lints]
 workspace = true
