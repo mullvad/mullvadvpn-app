@@ -20,7 +20,7 @@ pub fn add_path_to_sys_path(path_to_add: &str) -> io::Result<()> {
     let key = LOCAL_MACHINE.options().read().write().open(PATH_KEY_NAME)?;
     let current_path = key.get_string(PATH_VAL_NAME)?;
 
-    if sys_path_contains(&current_path, &path_to_add) {
+    if sys_path_contains(&current_path, path_to_add) {
         return Ok(());
     }
 
@@ -42,7 +42,7 @@ pub fn remove_path_from_sys_path(path_to_remove: &str) -> io::Result<()> {
     let key = LOCAL_MACHINE.options().read().write().open(PATH_KEY_NAME)?;
     let current_path = key.get_string(PATH_VAL_NAME)?;
 
-    let (new_path, changed) = remove_from_path(&current_path, &path_to_remove);
+    let (new_path, changed) = remove_from_path(&current_path, path_to_remove);
 
     if changed {
         key.set_expand_string(PATH_VAL_NAME, &new_path)?;

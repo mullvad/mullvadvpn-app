@@ -107,6 +107,7 @@ struct IconStreamsBlob {
 
 #[repr(C)]
 #[derive(Clone, Copy, IntoBytes, FromBytes, KnownLayout, Immutable)]
+#[expect(clippy::upper_case_acronyms)]
 pub struct FILETIME {
     pub low_date_time: u32,
     pub high_date_time: u32,
@@ -287,7 +288,12 @@ fn current_filetime() -> FILETIME {
     // SAFETY: `&st` points to an initialized SYSTEMTIME and `&mut ft` is a
     // stack-local for the API to fill in. `FILETIME` has same layout as
     // type in `windows-sys`.
-    unsafe { SystemTimeToFileTime(&raw const st, &raw mut ft as _) };
+    unsafe {
+        SystemTimeToFileTime(
+            &raw const st,
+            &raw mut ft as *mut windows_sys::Win32::Foundation::FILETIME,
+        )
+    };
     ft
 }
 
