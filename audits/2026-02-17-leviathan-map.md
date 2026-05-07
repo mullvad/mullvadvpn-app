@@ -65,9 +65,10 @@ subsequently released as [2026.3] on March 23.
 ## Certificate and reports
 
 The MAP certificate is hosted by App Defense Alliance:
-* [2026-02-17 MAP certificate](TBD)
+* [2026-02-17 MAP certificate](https://appdefensealliance.dev/reports/net.mullvad.mullvadvpn_1775779200000000.pdf)
 
-We also host the compliance report as well as test reports in our repository:
+We also host the test reports (original and re-test of fixed findings) as well as the final compliance
+report in our repository:
 * [2026-02-23 MAP Developer Test Report v1](2026-02-23-leviathan-map-developer-test-report-v1.pdf)
 * [2026-04-16 MAP Developer Test Report v2](2026-04-16-leviathan-map-developer-test-report-v2.pdf)
 * [2026-04-16 MAP Compliance Report](2026-04-16-leviathan-map-compliance-report.pdf)
