@@ -1,3 +1,5 @@
+#![cfg(all(target_arch = "x86", target_os = "windows"))]
+
 #![no_std]
 #![allow(unused)]
 #![allow(nonstandard_style)]
