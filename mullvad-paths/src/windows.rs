@@ -41,7 +41,7 @@ use windows_sys::{
             FOLDERID_LocalAppData, FOLDERID_System, KF_FLAG_DEFAULT, SHGetKnownFolderPath,
         },
     },
-    core::{GUID, PWSTR},
+    core::GUID,
 };
 
 pub const PRODUCT_NAME: &str = "Mullvad VPN";
@@ -282,14 +282,11 @@ pub fn get_system_service_appdata() -> io::Result<PathBuf> {
             let join_handle = std::thread::spawn(|| {
                 impersonate_self(|| {
                     let user_token = get_system_user_token()?;
-                    // SAFETY: `FOLDERID_LocalAppData` is a valid known folder ID
-                    unsafe {
-                        get_known_folder_path(
-                            &FOLDERID_LocalAppData,
-                            KF_FLAG_DEFAULT,
-                            user_token.as_ref().map(|t| t.as_handle()),
-                        )
-                    }
+                    get_known_folder_path(
+                        &FOLDERID_LocalAppData,
+                        KF_FLAG_DEFAULT,
+                        user_token.as_ref().map(|t| t.as_handle()),
+                    )
                 })
                 .or_else(|error| {
                     log::error!("Failed to get AppData path: {error}");
@@ -347,8 +344,7 @@ fn open_process_token(process: &impl AsRawHandle, access: u32) -> io::Result<Own
 
 /// If all else fails, infer the AppData path from the system directory.
 fn infer_appdata_from_system_directory() -> io::Result<PathBuf> {
-    // SAFETY: `FOLDERID_System` is a valid known folder ID
-    let mut sysdir = unsafe { get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, None) }?;
+    let mut sysdir = get_known_folder_path(&FOLDERID_System, KF_FLAG_DEFAULT, None)?;
     sysdir.extend(["config", "systemprofile", "AppData", "Local"]);
     Ok(sysdir)
 }
@@ -438,18 +434,18 @@ fn adjust_token_privilege(
     Ok(())
 }
 
-/// Retrieve path to a known folder for a specific user token.
+/// Get the path for a known Windows folder, with an optional user token.
 ///
-/// # Safety
-///
-/// `folder_id` must be a valid pointer to a known folder ID GUID.
-unsafe fn get_known_folder_path(
-    folder_id: *const GUID,
+/// `folder_id` must point to a valid KNOWNFOLDERID, or this will return an error.
+pub fn get_known_folder_path(
+    folder_id: &GUID,
     flags: i32,
     user_token: Option<BorrowedHandle<'_>>,
-) -> std::io::Result<PathBuf> {
-    let mut folder_path: PWSTR = ptr::null_mut();
-    // SAFETY: All arguments are valid
+) -> io::Result<PathBuf> {
+    let mut path_ptr: windows_sys::core::PWSTR = ptr::null_mut();
+    // SAFETY: `folder_id` is a valid GUID;
+    // null token uses the calling thread's identity; `&mut path_ptr` is a
+    // stack-local for the API to fill in with a CoTaskMem-allocated PWSTR.
     let status = unsafe {
         SHGetKnownFolderPath(
             folder_id,
@@ -457,22 +453,26 @@ unsafe fn get_known_folder_path(
             user_token
                 .map(|h| h.as_raw_handle())
                 .unwrap_or(ptr::null_mut()),
-            &raw mut folder_path,
+            &raw mut path_ptr,
         )
     };
+
     let result = if status == S_OK {
-        // SAFETY: `folder_path` is valid and null-terminated since `SHGetKnownFolderPath` succeeded
-        let path = unsafe { WideCStr::from_ptr_str(folder_path) };
-        Ok(PathBuf::from(path.to_os_string()))
+        // SAFETY: on success `path_ptr` points to a null-terminated wide
+        // string allocated by `SHGetKnownFolderPath`, valid until the
+        // `CoTaskMemFree` below.
+        let wide = unsafe { WideCStr::from_ptr_str(path_ptr) };
+        Ok(PathBuf::from(wide.to_os_string()))
     } else {
-        Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("Can't find known folder {:?}", &folder_id),
-        ))
+        Err(io::Error::from_raw_os_error(status))
     };
 
-    // SAFETY: `folder_path` was allocated by `SHGetKnownFolderPath` and must be freed with `CoTaskMemFree
-    unsafe { CoTaskMemFree(folder_path as *mut _) };
+    // `SHGetKnownFolderPath` requires the caller to free the buffer even on
+    // failure (the API may allocate before returning an error code). A null
+    // `path_ptr` is a documented no-op for `CoTaskMemFree`.
+    // SAFETY: `path_ptr` was either allocated by `SHGetKnownFolderPath`
+    // (CoTaskMem) or is null; either way `CoTaskMemFree` is sound.
+    unsafe { CoTaskMemFree(path_ptr.cast()) };
     result
 }
 

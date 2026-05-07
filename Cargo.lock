@@ -3243,11 +3243,13 @@ name = "mullvad-nsis"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "cbindgen",
  "mullvad-paths",
+ "nsis-plugin-api",
  "talpid-platform-metadata",
  "widestring",
+ "windows-registry",
  "windows-sys 0.61.2",
+ "zerocopy",
 ]
 
 [[package]]
@@ -3619,6 +3621,23 @@ dependencies = [
  "block2 0.5.1",
  "neon",
  "objc2-app-kit",
+]
+
+[[package]]
+name = "nsis-fn"
+version = "0.0.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "nsis-plugin-api"
+version = "0.0.0"
+dependencies = [
+ "nsis-fn",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

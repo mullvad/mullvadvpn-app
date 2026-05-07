@@ -22,9 +22,10 @@ jobs:
 
       - uses: ./.github/actions/mullvad-build-env
 
-      - name: Build mullvad-nsis
+      - name: Build NSIS plugins
         shell: bash
-        run: ci/cargo-ci.sh build --target i686-pc-windows-msvc -p mullvad-nsis
+        run: |
+          ci/cargo-ci.sh build --target i686-pc-windows-msvc -p mullvad-nsis
 
       - name: Check working directory is clean
         shell: bash
