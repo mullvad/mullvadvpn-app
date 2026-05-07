@@ -18,12 +18,12 @@ use nsis_plugin_api::{nsis_fn, popint, popstr, pushint, pushstr};
 use widestring::U16CString;
 use windows_sys::Win32::Foundation::{ERROR_SUCCESS, GENERIC_ALL};
 use windows_sys::Win32::Security::Authorization::{
-    EXPLICIT_ACCESS_W, GRANT_ACCESS, GetNamedSecurityInfoW, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT,
-    SetEntriesInAclW, SetNamedSecurityInfoW, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
+    GetNamedSecurityInfoW, SetEntriesInAclW, SetNamedSecurityInfoW, EXPLICIT_ACCESS_W,
+    GRANT_ACCESS, NO_MULTIPLE_TRUSTEE, SE_FILE_OBJECT, TRUSTEE_IS_GROUP, TRUSTEE_IS_SID, TRUSTEE_W,
 };
 use windows_sys::Win32::Security::{
-    ACL, CreateWellKnownSid, DACL_SECURITY_INFORMATION, NO_INHERITANCE,
-    SUB_CONTAINERS_AND_OBJECTS_INHERIT, WinBuiltinAdministratorsSid,
+    CreateWellKnownSid, WinBuiltinAdministratorsSid, ACL, DACL_SECURITY_INFORMATION,
+    NO_INHERITANCE, SUB_CONTAINERS_AND_OBJECTS_INHERIT,
 };
 use windows_sys::Win32::Storage::FileSystem::MAX_SID_SIZE;
 use windows_sys::Win32::Storage::FileSystem::{
@@ -33,7 +33,7 @@ use windows_sys::Win32::UI::Shell::{
     FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData,
 };
 
-use crate::{NsisStatus, get_known_folder_path};
+use crate::{get_known_folder_path, NsisStatus};
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -194,7 +194,7 @@ fn add_admin_to_object_dacl(path: &Path) -> io::Result<()> {
         return Err(io::Error::from_raw_os_error(result as i32));
     }
 
-    // SAFETY: This object must be destroyed with `new_dacl`.
+    // SAFETY: This object must be destroyed with `LocalFree`.
     let new_dacl = unsafe { LocalFreeGuard::from_ptr(new_dacl.cast()) };
 
     // SAFETY: `path_wide` is a null-terminated wide string; only the DACL
