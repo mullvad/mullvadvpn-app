@@ -16,11 +16,11 @@ edition = "2021"
 readme = false
 license = "MIT OR Apache-2.0"
 build = false
-autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
+autolib = false
 
 [lib]
 name = "nsis_plugin_api"
