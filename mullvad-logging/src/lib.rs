@@ -28,6 +28,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "rustls",
     "netlink_sys",
     "tracing",
+    "hickory_net",
     "hickory_proto",
     "hickory_server",
     "hickory_resolver",
