@@ -108,3 +108,63 @@ reason = "The app does not use dependency directly, it is used by AGP that build
 id = "CVE-2026-0636"  # GHSA-c3fc-8qff-9hwx
 ignoreUntil = 2026-08-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Netty Lz4FrameDecoder is vulnerable to resource exhaustion
+[[IgnoredVulns]]
+id = "CVE-2026-42583"  # GHSA-mj4r-2hfc-f8p6
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty vulnerable to HTTP Request Smuggling due to malformed Transfer-Encoding
+[[IgnoredVulns]]
+id = "CVE-2026-42585"  # GHSA-38f8-5428-x5cv
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty has HttpClientCodec response desynchronization
+[[IgnoredVulns]]
+id = "CVE-2026-42584"  # GHSA-57rv-r2g8-2cj3
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: HttpContentDecompressor maxAllocation bypass when Content-Encoding set to br/zstd/snappy leads to decompression bomb DoS
+[[IgnoredVulns]]
+id = "CVE-2026-42587"  # GHSA-f6hv-jmp6-3vwv
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing
+[[IgnoredVulns]]
+id = "CVE-2026-42580"  # GHSA-m4cv-j2px-7723
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: Start-Line Injection in DefaultHttpRequest.setUri() Allows HTTP Request Smuggling and RTSP Request Injection 
+[[IgnoredVulns]]
+id = "CVE-2026-41417"  # GHSA-v8h7-rr48-vmmv
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty HTTP/1.0 TE+CL Coexistence Bypasses Smuggling Sanitization
+[[IgnoredVulns]]
+id = "CVE-2026-42581"  # GHSA-xxqh-mfjm-7mv9
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty has HTTP Header Injection via HttpProxyHandler Disabled Validation (Incomplete Fix CVE-2025-67735)
+[[IgnoredVulns]]
+id = "CVE-2026-42578"  # GHSA-45q3-82m4-75jr
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+#  Netty epoll transport denial of service via RST on half-closed TCP connection 
+[[IgnoredVulns]]
+id = "CVE-2026-42577"  # GHSA-rwm7-x88c-3g2p
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Bouncy Castle Has Covert Timing Channel Vulnerability  
+[[IgnoredVulns]]
+id = "CVE-2026-5598"  # GHSA-p93r-85wp-75v3
+ignoreUntil = 2026-08-01
+reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
