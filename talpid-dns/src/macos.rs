@@ -16,7 +16,7 @@ use system_configuration::{
         dictionary::{CFDictionary, CFMutableDictionary},
         number::CFNumber,
         propertylist::CFPropertyList,
-        runloop::{CFRunLoop, kCFRunLoopCommonModes},
+        runloop::{CFRunLoop, CFRunLoopSource, kCFRunLoopCommonModes},
         string::CFString,
     },
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
@@ -389,7 +389,9 @@ impl super::DnsMonitorT for DnsMonitor {
         let state = Arc::new(Mutex::new(State::new()));
         Self::spawn(state.clone())?;
         Ok(DnsMonitor {
-            store: SCDynamicStoreBuilder::new("mullvad-dns").build(),
+            store: SCDynamicStoreBuilder::new("mullvad-dns")
+                .build()
+                .ok_or(Error::DynamicStoreInitError)?,
             state,
         })
     }
@@ -416,14 +418,20 @@ impl DnsMonitor {
     /// for DNS changes.
     fn spawn(state: Arc<Mutex<State>>) -> Result<()> {
         let (result_tx, result_rx) = sync_mpsc::channel();
-        thread::spawn(move || match create_dynamic_store(state) {
-            Ok(store) => {
-                result_tx.send(Ok(())).unwrap();
-                run_dynamic_store_runloop(store);
-                // TODO(linus): This is critical. Improve later by sending error signal to Daemon
-                log::error!("Core Foundation main loop exited! It should run forever");
+        thread::spawn(move || {
+            match create_dynamic_store(state).and_then(|store| {
+                store
+                    .create_run_loop_source()
+                    .ok_or(Error::DynamicStoreInitError)
+            }) {
+                Ok(run_loop_source) => {
+                    result_tx.send(Ok(())).unwrap();
+                    run_dynamic_store_runloop(run_loop_source);
+                    // TODO(linus): This is critical. Improve later by sending error signal to Daemon
+                    log::error!("Core Foundation main loop exited! It should run forever");
+                }
+                Err(e) => result_tx.send(Err(e)).unwrap(),
             }
-            Err(e) => result_tx.send(Err(e)).unwrap(),
         });
         result_rx.recv().unwrap()
     }
@@ -459,7 +467,8 @@ fn create_dynamic_store(state: Arc<Mutex<State>>) -> Result<SCDynamicStore> {
 
     let store = SCDynamicStoreBuilder::new("talpid-dns-monitor")
         .callback_context(callback_context)
-        .build();
+        .build()
+        .ok_or(Error::DynamicStoreInitError)?;
 
     let mut store_container = store_container_copy.write().unwrap();
     *store_container = Some(StoreContainer {
@@ -480,8 +489,7 @@ fn create_dynamic_store(state: Arc<Mutex<State>>) -> Result<SCDynamicStore> {
     }
 }
 
-fn run_dynamic_store_runloop(store: SCDynamicStore) {
-    let run_loop_source = store.create_run_loop_source();
+fn run_dynamic_store_runloop(run_loop_source: CFRunLoopSource) {
     CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
 
     log::trace!("Entering DNS CFRunLoop");

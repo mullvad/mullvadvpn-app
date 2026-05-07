@@ -37,7 +37,7 @@ rtnetlink = { workspace = true }
 bitflags = "2"
 libc = "0.2"
 nix = { workspace = true, features = ["fs", "net", "socket"] }
-system-configuration = "0.5.1"
+system-configuration.workspace = true
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }

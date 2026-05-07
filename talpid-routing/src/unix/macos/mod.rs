@@ -44,6 +44,10 @@ const BURST_LONGEST_BUFFER_PERIOD: Duration = Duration::from_secs(2);
 /// Errors that can happen in the macOS routing integration.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    /// Encountered an when creating a RouteManager.
+    #[error("Error creating a route manager - failed to create an interface monitor.")]
+    CreateRouteManager,
+
     /// Encountered an error when interacting with the routing socket
     #[error("Error occurred when interfacing with the routing table")]
     RoutingTable(#[source] watch::Error),
@@ -129,7 +133,7 @@ impl RouteManagerImpl {
         manage_tx: Weak<mpsc::UnboundedSender<RouteManagerCommand>>,
     ) -> Result<Self> {
         let (primary_interface_monitor, interface_change_rx) =
-            interface::PrimaryInterfaceMonitor::new();
+            interface::PrimaryInterfaceMonitor::new().ok_or(Error::CreateRouteManager)?;
 
         let (best_route_rx_v4, best_route_rx_v6) =
             DefaultRouteMonitor::start(primary_interface_monitor, interface_change_rx);
