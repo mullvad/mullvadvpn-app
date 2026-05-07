@@ -10,17 +10,17 @@
 # See Cargo.toml.orig for the original contents.
 
 [package]
-edition = "2021"
 name = "nsis-fn"
 version = "0.0.0"
+edition = "2021"
+readme = false
+license = "MIT OR Apache-2.0"
 build = false
-autolib = false
 autobins = false
 autoexamples = false
 autotests = false
 autobenches = false
-readme = false
-license = "MIT OR Apache-2.0"
+autolib = false
 
 [lib]
 name = "nsis_fn"
