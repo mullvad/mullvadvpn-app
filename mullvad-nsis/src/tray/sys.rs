@@ -496,7 +496,7 @@ fn duplicate_token(
 }
 
 /// Owned handles to a created process and its primary thread.
-#[allow(dead_code)]
+#[expect(dead_code)]
 struct ProcessInfo {
     process: OwnedHandle,
     thread: OwnedHandle,
