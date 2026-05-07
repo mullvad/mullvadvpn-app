@@ -19,6 +19,16 @@ trim-paths = true
 [registry]
 global-min-publish-age = "7 days"
 
+# Build aws-lc-sys with OPENSSL_SMALL to cut ~1.3 MiB of linked code. It gives
+# up the optimized P-256 and Ed25519 implementations, and on x86_64 the AVX-512
+# assembly for AES-GCM and RSA. ChaCha20-Poly1305 is unaffected.
+#
+# aws-lc-sys turns this on by itself at opt-level "s"/"z", but we build it at 3,
+# where benchmarks on one Linux x86_64 machine indicated ~45% faster AES-GCM.
+# So it has to be forced back on here.
+[env]
+AWS_LC_SYS_SMALL = "1"
+
 # The /Brepro and /PDBALTPATH link args below make the linked PE files reproducible:
 # /Brepro replaces the PE TimeDateStamp (normally the link time) with a hash of the
 # inputs, and /PDBALTPATH:%_PDB% embeds only the PDB file name, not its absolute path,
