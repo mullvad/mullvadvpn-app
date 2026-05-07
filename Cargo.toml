@@ -65,6 +65,7 @@ repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0-or-later"
 
 [workspace.dependencies]
+system-configuration = "0.7.0"
 anyhow = "1.0"
 bytes = "1.11.1"
 chrono = { version = "0.4.26", default-features = false }
@@ -75,7 +76,7 @@ either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
 hickory-proto = "0.26.1"
-hickory-resolver = "0.26.1"
+hickory-resolver = { version = "0.26.1", default-features = false, features = ["tokio"] }
 hickory-server = { version = "0.26.1", features = ["resolver"] }
 hyper-util = { version = "0.1.8", features = [
   "client",
