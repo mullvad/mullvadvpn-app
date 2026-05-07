@@ -8,13 +8,19 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.ZonedDateTime
+import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.model.Device
+import net.mullvad.mullvadvpn.lib.model.DeviceId
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -39,7 +45,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 class OutOfTimeViewModelTest {
 
     private val accountExpiryStateFlow = MutableStateFlow<AccountData?>(null)
-    private val accountStateFlow = MutableStateFlow<DeviceState?>(null)
+    private val accountStateFlow =
+        MutableStateFlow<DeviceState?>(DeviceState.LoggedIn(AccountNumber(""), MOCK_DEVICE))
     private val paymentAvailabilityFlow = MutableStateFlow<PaymentAvailability?>(null)
     private val purchaseResultFlow = MutableStateFlow<PurchaseResult?>(null)
     private val outOfTimeFlow = MutableStateFlow(true)
@@ -115,7 +122,8 @@ class OutOfTimeViewModelTest {
             awaitItem()
             tunnelState.emit(tunnelRealStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelRealStateTestItem, result.tunnelState)
+            assertIs<Lc.Content<OutOfTimeUiState>>(result)
+            assertEquals(tunnelRealStateTestItem, result.value.tunnelState)
         }
     }
 
@@ -161,8 +169,17 @@ class OutOfTimeViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val result = awaitItem()
-            assertIs<OutOfTimeUiState>(result)
-            assertEquals(true, result.verificationPending)
+            assertIs<Lc.Content<OutOfTimeUiState>>(result)
+            assertEquals(true, result.value.verificationPending)
         }
+    }
+
+    companion object {
+        private val MOCK_DEVICE =
+            Device(
+                id = DeviceId(UUID.randomUUID()),
+                name = "Test Device",
+                creationDate = ZonedDateTime.now(),
+            )
     }
 }
