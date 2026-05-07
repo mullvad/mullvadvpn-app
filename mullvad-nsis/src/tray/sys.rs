@@ -9,7 +9,6 @@ use widestring::U16CString;
 use windows_registry::{CURRENT_USER, Key, Type};
 use zerocopy::{FromBytes, FromZeros, Immutable, IntoBytes, KnownLayout, TryFromBytes};
 
-use crate::get_known_folder_path;
 use std::os::windows::io::{AsHandle, AsRawHandle, FromRawHandle, OwnedHandle};
 use windows_sys::Win32::Foundation::{FALSE, HANDLE, MAX_PATH, SYSTEMTIME};
 use windows_sys::Win32::Security::{
@@ -25,6 +24,9 @@ use windows_sys::Win32::System::Threading::{
 };
 use windows_sys::Win32::System::Time::SystemTimeToFileTime;
 use windows_sys::Win32::UI::Shell::FOLDERID_Windows;
+use windows_sys::Win32::UI::Shell::KF_FLAG_DEFAULT;
+
+use mullvad_paths::windows::get_known_folder_path;
 
 /// Template for a new Mullvad VPN tray record in `IconStreams`.
 const MULLVAD_TRAY_RECORD_TEMPLATE: &[u8] = include_bytes!("mullvad_tray_record.bin");
@@ -326,7 +328,8 @@ pub fn promote_tray_icon() -> io::Result<()> {
 
 /// Kill all explorer.exe instances and restart with a duplicated security token.
 fn restart_explorer(streams: IconStreams) -> io::Result<()> {
-    let explorer = get_known_folder_path(&FOLDERID_Windows)?.join("explorer.exe");
+    let explorer =
+        get_known_folder_path(&FOLDERID_Windows, KF_FLAG_DEFAULT, None)?.join("explorer.exe");
     let explorer_pids: Vec<u32> = enum_process_ids()
         .into_iter()
         .filter(|&pid| {

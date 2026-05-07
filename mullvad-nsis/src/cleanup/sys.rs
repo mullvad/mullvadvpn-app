@@ -19,10 +19,10 @@ use windows_sys::Win32::Storage::FileSystem::{
     Wow64DisableWow64FsRedirection, Wow64RevertWow64FsRedirection,
 };
 use windows_sys::Win32::UI::Shell::{
-    FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData,
+    FOLDERID_LocalAppData, FOLDERID_Profile, FOLDERID_RoamingAppData, KF_FLAG_DEFAULT,
 };
 
-use crate::get_known_folder_path;
+use mullvad_paths::windows::get_known_folder_path;
 
 /// Disables WOW64 filesystem redirection for the lifetime of this guard.
 /// Necessary for a 32-bit process to access real System32 paths on 64-bit Windows.
@@ -216,12 +216,12 @@ fn remove_dir_all_if_exists(path: &Path) -> anyhow::Result<()> {
 
 /// Remove Mullvad VPN data from the current user's LocalAppData and RoamingAppData.
 pub fn remove_logs_cache_current_user() -> anyhow::Result<()> {
-    let local_appdata =
-        get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
+    let local_appdata = get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, None)
+        .context("FOLDERID_LocalAppData")?;
     remove_dir_all_if_exists(&local_appdata.join("Mullvad VPN"))?;
 
-    let roaming_appdata =
-        get_known_folder_path(&FOLDERID_RoamingAppData).context("FOLDERID_RoamingAppData")?;
+    let roaming_appdata = get_known_folder_path(&FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, None)
+        .context("FOLDERID_RoamingAppData")?;
     remove_dir_all_if_exists(&roaming_appdata.join("Mullvad VPN"))?;
 
     Ok(())
@@ -229,10 +229,12 @@ pub fn remove_logs_cache_current_user() -> anyhow::Result<()> {
 
 /// Remove Mullvad VPN data from all other users' app data directories.
 pub fn remove_logs_cache_other_users() -> anyhow::Result<()> {
-    let home_dir = get_known_folder_path(&FOLDERID_Profile).context("FOLDERID_Profile")?;
-    let local_appdata =
-        get_known_folder_path(&FOLDERID_LocalAppData).context("FOLDERID_LocalAppData")?;
-    let roaming_appdata = get_known_folder_path(&FOLDERID_RoamingAppData).ok();
+    let home_dir = get_known_folder_path(&FOLDERID_Profile, KF_FLAG_DEFAULT, None)
+        .context("FOLDERID_Profile")?;
+    let local_appdata = get_known_folder_path(&FOLDERID_LocalAppData, KF_FLAG_DEFAULT, None)
+        .context("FOLDERID_LocalAppData")?;
+    let roaming_appdata =
+        get_known_folder_path(&FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, None).ok();
 
     // Find relative path from home to LocalAppData (e.g., "AppData\Local")
     let rel_local = local_appdata
