@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeUiState
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
@@ -40,7 +41,7 @@ class OutOfTimeScreenTest {
     }
 
     private fun ComposeContext.initScreen(
-        state: OutOfTimeUiState = OutOfTimeUiState(),
+        state: Lc<Unit, OutOfTimeUiState> = OutOfTimeUiState().toLc(),
         onDisconnectClick: () -> Unit = {},
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
@@ -63,7 +64,7 @@ class OutOfTimeScreenTest {
     @Test
     fun testDisableSitePayment() = composeExtension.use {
         // Arrange
-        initScreen(state = OutOfTimeUiState(deviceName = ""))
+        initScreen(state = OutOfTimeUiState(deviceName = "").toLc())
 
         // Assert
         onNodeWithText("Either buy credit on our website or redeem a voucher.", substring = true)
@@ -76,7 +77,7 @@ class OutOfTimeScreenTest {
 
         // Arrange
         initScreen(
-            state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+            state = OutOfTimeUiState(deviceName = "", showSitePayment = true).toLc(),
             onAccountClick = mockClickListener,
         )
 
@@ -93,10 +94,11 @@ class OutOfTimeScreenTest {
         initScreen(
             state =
                 OutOfTimeUiState(
-                    tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                    deviceName = "",
-                    showSitePayment = true,
-                ),
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        deviceName = "",
+                        showSitePayment = true,
+                    )
+                    .toLc(),
             onDisconnectClick = mockClickListener,
         )
 
@@ -112,7 +114,7 @@ class OutOfTimeScreenTest {
         // Arrange
         val mockOnPlayPaymentInfoClick: () -> Unit = mockk(relaxed = true)
         initScreen(
-            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true),
+            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true).toLc(),
             onPlayPaymentInfoClick = mockOnPlayPaymentInfoClick,
         )
 
@@ -127,7 +129,9 @@ class OutOfTimeScreenTest {
     @Test
     fun testShowVerificationInProgress() = composeExtension.use {
         // Arrange
-        initScreen(state = OutOfTimeUiState(showSitePayment = true, verificationPending = true))
+        initScreen(
+            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true).toLc()
+        )
 
         // Assert
         onNodeWithText("Google Play payment pending").assertExists()
