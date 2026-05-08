@@ -9,16 +9,35 @@
 import Foundation
 import MullvadLogging
 
-/// Global logger instance for Rust logs
-private let rustLogger = Logger(label: "Rust")
+/// Box holding a Logger instance so it can be passed as an opaque pointer through Rust FFI.
+private final class LoggerBox {
+    let logger: Logger
+
+    init(_ logger: Logger) {
+        self.logger = logger
+    }
+}
 
 /// C-compatible logging callback function.
 /// This must be a global function (not a closure) to be passed as a C function pointer.
-private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
-    guard let messagePtr else { return }
+///
+/// The `context` parameter is an opaque pointer to a `LoggerBox` that travels through Rust
+/// and back, so this callback doesn't rely on any global state.
+///
+/// Thread safety: this callback may be invoked concurrently from any thread.
+private func rustLogCallback(
+    context: UnsafeMutableRawPointer?,
+    level: UInt8,
+    targetPtr: UnsafePointer<CChar>?,
+    messagePtr: UnsafePointer<CChar>?
+) {
+    guard let context, let targetPtr, let messagePtr else { return }
+
+    let box = Unmanaged<LoggerBox>.fromOpaque(context).takeUnretainedValue()
+    let target = String(cString: targetPtr)
     let message = String(cString: messagePtr)
 
-    let level: Logger.Level =
+    let logLevel: Logger.Level =
         switch level {
         case 1:
             .error
@@ -34,11 +53,7 @@ private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
             .debug
         }
 
-    rustLogger
-        .log(
-            level: level,
-            "\(message.trimmingCharacters(in: .whitespacesAndNewlines))"
-        )
+    box.logger.log(level: logLevel, "\(message)", metadata: ["rust": .string(target)])
 }
 
 /// Initializes the Rust logging system to forward logs to Swift's Logger.
@@ -46,9 +61,11 @@ private func rustLogCallback(level: UInt8, messagePtr: UnsafePointer<CChar>?) {
 /// This function should be called once early in the application lifecycle,
 /// before any Rust code that uses logging is invoked.
 public enum RustLogging {
-    /// Initialize Rust logging to forward to Swift Logger.
+    /// Initialize Rust logging to forward to the given Swift Logger.
     /// Safe to call multiple times - only the first call has effect.
-    public static func initialize() {
-        init_rust_logging(rustLogCallback)
+    public static func initialize(logger: Logger) {
+        let box = LoggerBox(logger)
+        let context = Unmanaged.passRetained(box).toOpaque()
+        init_rust_logging(rustLogCallback, context)
     }
 }
