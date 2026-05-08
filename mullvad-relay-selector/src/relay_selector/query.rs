@@ -201,7 +201,7 @@ impl From<&Settings> for RelayQuery {
         // with an auto-picked entry.
         let autohop = daita && daita_use_multihop_if_necessary;
 
-        let hops = match (wg.use_multihop, autohop) {
+        let hops = match (wg.multihop, autohop) {
             (false, false) => Hops::Single(singlehop(entry_specific, exit)),
             // Multihop "when needed" (preference for singlehop)
             (false, true) => Hops::Auto(singlehop(entry_specific, exit)),
@@ -240,7 +240,7 @@ impl RelayQuery {
                     wireguard_constraints: WireguardConstraints {
                         ip_version: entry.entry_specific.ip_version,
                         allowed_ips,
-                        use_multihop: false,
+                        multihop: false,
                         entry_location: Constraint::Any,
                         entry_providers: Constraint::Any,
                         entry_ownership: Constraint::Any,
@@ -257,7 +257,7 @@ impl RelayQuery {
                     wireguard_constraints: WireguardConstraints {
                         ip_version: entry.entry_specific.ip_version,
                         allowed_ips,
-                        use_multihop: true,
+                        multihop: true,
                         entry_location: entry.general.location,
                         entry_providers: entry.general.providers,
                         entry_ownership: entry.general.ownership,
