@@ -373,10 +373,24 @@ pub struct TransportPort {
 pub struct WireguardConstraints {
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub multihop: bool,
+    pub multihop: Multihop,
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
+}
+
+/// Possible multihop setting states.
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+pub enum Multihop {
+    /// Always route VPN traffic through multiple relays.
+    Always,
+    /// Depending on the combination of features + location constraints, the VPN may be routed
+    /// through one or more relays.
+    #[default]
+    Auto,
+    /// Never route VPN traffic through more than one relays.
+    Never,
 }
 
 pub use allowed_ip::AllowedIps;
@@ -515,13 +529,13 @@ pub mod allowed_ip {
 
 impl WireguardConstraints {
     /// Enable or disable multihop.
-    pub fn multihop(&mut self, multihop: bool) {
+    pub fn multihop(&mut self, multihop: Multihop) {
         self.multihop = multihop
     }
 
-    /// Check if multihop is enabled.
+    /// Check if multihop may be in effect.
     pub fn is_multihop(&self) -> bool {
-        self.multihop
+        matches!(self.multihop, Multihop::Always | Multihop::Auto)
     }
 }
 
