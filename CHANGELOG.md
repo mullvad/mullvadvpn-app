@@ -60,6 +60,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix potential access violation during cleanup on ARM64.
+- Fix conflicts caused by some other VPN clients that depend on Mullvad's split tunnel driver. Note
+  that split tunneling still cannot be used simultaneously in different clients.
 
 ### Security
 - Remove ability for renderer process to execute arbitrary binaries. This is a defence-in-depth
