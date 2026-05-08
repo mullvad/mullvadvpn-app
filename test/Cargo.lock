@@ -3592,6 +3592,7 @@ version = "0.0.0"
 dependencies = [
  "base64",
  "ipnetwork 0.21.1",
+ "itertools 0.14.0",
  "jnix",
  "log",
  "serde",

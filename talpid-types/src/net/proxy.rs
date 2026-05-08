@@ -114,6 +114,19 @@ impl ShadowsocksCipher {
     pub fn list() -> &'static [&'static str] {
         shadowsocks_crypto::available_ciphers()
     }
+
+    /// Return all unique Shadowsocks ciphers.
+    ///
+    /// Some ciphers from [`ShadowsocksCipher::list`] share the same internal representation, which
+    /// means that parsing the list of strings may yield duplicate elements.
+    pub fn enumerate() -> Vec<Self> {
+        use itertools::Itertools;
+        ShadowsocksCipher::list()
+            .iter()
+            .map(|cipher| ShadowsocksCipher::new(cipher).unwrap())
+            .unique()
+            .collect()
+    }
 }
 
 impl core::fmt::Display for ShadowsocksCipher {
@@ -298,5 +311,13 @@ mod test {
             // It *must be* infallible to convert a ShadowsocksCipher back to the CipherKind type.
             let _kind = cipher.kind();
         }
+    }
+
+    #[test]
+    /// Snapshot all Shadowsocks ciphers. They might change between versions of shadowsocks-rs, and
+    /// we consider a removal of any cipher a breaking change.
+    fn shadowsocks_ciphers() {
+        insta::assert_debug_snapshot!(ShadowsocksCipher::list());
+        insta::assert_debug_snapshot!(ShadowsocksCipher::enumerate());
     }
 }
