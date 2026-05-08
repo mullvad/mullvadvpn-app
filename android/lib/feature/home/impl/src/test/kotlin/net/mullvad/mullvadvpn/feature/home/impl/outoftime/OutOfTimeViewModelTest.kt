@@ -8,8 +8,6 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
-import java.time.ZonedDateTime
-import java.util.UUID
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
@@ -176,10 +174,7 @@ class OutOfTimeViewModelTest {
 
     companion object {
         private val MOCK_DEVICE =
-            Device(
-                id = DeviceId(UUID.randomUUID()),
-                name = "Test Device",
-                creationDate = ZonedDateTime.now(),
-            )
+            Device(id = DeviceId.fromString(UUID), name = "Test Device", creationDate = mockk())
+        private const val UUID = "12345678-1234-5678-1234-567812345678"
     }
 }
