@@ -125,7 +125,7 @@ impl Daemon {
         }
 
         if self.tunnel_state.endpoint().is_some()
-            && relay_settings.wireguard_constraints.multihop()
+            && relay_settings.wireguard_constraints.is_multihop()
             && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                 &relay_settings.wireguard_constraints.entry_location
         {

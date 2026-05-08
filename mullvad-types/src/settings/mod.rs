@@ -147,7 +147,7 @@ impl TryFrom<&RelaySettings> for Recent {
                     .ok_or("Location must be Constraint::Only")?
                     .clone();
 
-                let recent = if constraints.wireguard_constraints.use_multihop {
+                let recent = if constraints.wireguard_constraints.multihop {
                     let entry = constraints
                         .wireguard_constraints
                         .entry_location
