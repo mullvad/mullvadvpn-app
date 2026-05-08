@@ -2,7 +2,7 @@ use futures::TryFutureExt;
 use mullvad_types::{
     access_method::Error as ApiAccessMethodError,
     custom_list::Error as CustomListError,
-    relay_constraints::{RelayConstraints, RelaySettings, WireguardConstraints},
+    relay_constraints::{Multihop, RelayConstraints, RelaySettings, WireguardConstraints},
     settings::{DnsState, Settings},
 };
 use std::{
@@ -454,7 +454,7 @@ impl Display for SettingsSummary<'_> {
 
         let relay_settings = self.settings.get_relay_settings();
 
-        write!(f, ", wg mtu: ")?;
+        write!(f, "wg mtu: ")?;
         Self::fmt_option(f, self.settings.tunnel_options.wireguard.mtu)?;
 
         if let RelaySettings::Normal(RelayConstraints {
@@ -469,14 +469,14 @@ impl Display for SettingsSummary<'_> {
             RelaySettings::Normal(RelayConstraints {
                 wireguard_constraints,
                 ..
-            }) => wireguard_constraints.is_multihop(),
-            _ => false,
+            }) => wireguard_constraints.multihop,
+            _ => Multihop::Never,
         };
 
         write!(
             f,
             ", multihop: {}, ipv6 (tun): {}, lan: {}, pq: {}, obfs: {}",
-            bool_to_label(multihop),
+            multihop,
             bool_to_label(self.settings.tunnel_options.generic.enable_ipv6),
             bool_to_label(self.settings.allow_lan),
             self.settings.tunnel_options.wireguard.quantum_resistant,

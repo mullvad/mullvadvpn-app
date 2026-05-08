@@ -62,6 +62,7 @@ pub struct QuantumResistantStateParseError;
 pub struct DaitaSettings {
     pub enabled: bool,
 
+    // TODO: remove
     #[serde(default = "DaitaSettings::default_use_multihop_if_necessary")]
     /// Whether to use multihop if the selected relay is not DAITA-compatible. Note that this is
     /// the inverse of of "Direct only" in the GUI.
