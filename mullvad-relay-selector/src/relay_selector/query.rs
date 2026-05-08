@@ -150,7 +150,6 @@ impl From<&Settings> for RelayQuery {
             return Self::default();
         };
 
-        #[cfg(daita)]
         let (daita, daita_use_multihop_if_necessary) = (
             settings.tunnel_options.wireguard.daita.enabled,
             settings
@@ -159,8 +158,6 @@ impl From<&Settings> for RelayQuery {
                 .daita
                 .use_multihop_if_necessary,
         );
-        #[cfg(not(daita))]
-        let (daita, daita_use_multihop_if_necessary) = (false, false);
 
         let wg = &relay_settings.wireguard_constraints;
 
