@@ -170,14 +170,13 @@ pub fn compute_feature_indicators(
     let mut multihop = false;
 
     if let crate::relay_constraints::RelaySettings::Normal(constraints) = &settings.relay_settings {
-        multihop =
-            endpoint.entry_endpoint.is_some() && constraints.wireguard_constraints.use_multihop;
+        multihop = endpoint.entry_endpoint.is_some() && constraints.wireguard_constraints.multihop;
 
         {
             // Detect whether we're using multihop, but it is not explicitly enabled.
             daita_multihop = endpoint.daita
                 && endpoint.entry_endpoint.is_some()
-                && !constraints.wireguard_constraints.use_multihop
+                && !constraints.wireguard_constraints.multihop
         }
     };
 
@@ -291,7 +290,7 @@ mod tests {
             protocol: TransportProtocol::Tcp,
         });
         if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
-            constraints.wireguard_constraints.use_multihop = true;
+            constraints.wireguard_constraints.multihop = true;
         };
         expected_indicators.0.insert(FeatureIndicator::Multihop);
         assert_eq!(
@@ -380,7 +379,7 @@ mod tests {
                 .daita
                 .use_multihop_if_necessary = true;
             if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
-                constraints.wireguard_constraints.use_multihop = false;
+                constraints.wireguard_constraints.multihop = false;
             };
             expected_indicators
                 .0
