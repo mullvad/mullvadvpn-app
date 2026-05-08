@@ -373,10 +373,34 @@ pub struct TransportPort {
 pub struct WireguardConstraints {
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub multihop: bool,
+    pub multihop: Multihop,
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
+}
+
+/// Possible multihop setting states.
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
+#[cfg_attr(feature = "clap", derive(clap::ValueEnum))]
+pub enum Multihop {
+    /// Always route VPN traffic through multiple relays.
+    Always,
+    /// Depending on the combination of features + location constraints, the VPN may be routed
+    /// through one or more relays.
+    #[default]
+    Auto,
+    /// Never route VPN traffic through more than one relays.
+    Never,
+}
+
+impl fmt::Display for Multihop {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Multihop::Always => "Always".fmt(f),
+            Multihop::Auto => "Auto".fmt(f),
+            Multihop::Never => "Never".fmt(f),
+        }
+    }
 }
 
 pub use allowed_ip::AllowedIps;
@@ -515,13 +539,14 @@ pub mod allowed_ip {
 
 impl WireguardConstraints {
     /// Enable or disable multihop.
-    pub fn multihop(&mut self, multihop: bool) {
+    pub fn multihop(&mut self, multihop: Multihop) {
         self.multihop = multihop
     }
 
-    /// Check if multihop is enabled.
-    pub fn is_multihop(&self) -> bool {
-        self.multihop
+    /// Check if multihop may be in effect.
+    pub fn multihop_entry(&self) -> Option<&LocationConstraint> {
+        debug_assert!(matches!(self.multihop, Multihop::Always | Multihop::Auto));
+        self.entry_location.as_ref().option()
     }
 }
 
@@ -532,16 +557,15 @@ pub struct WireguardConstraintsFormatter<'a> {
 
 impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // FIXME: What is going on with this formatting ??
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {ip_version},")?;
         }
-        if self.constraints.is_multihop() {
-            let location = self.constraints.entry_location.as_ref().map(|location| {
-                LocationConstraintFormatter {
-                    constraint: location,
-                    custom_lists: self.custom_lists,
-                }
-            });
+        if let Some(entry) = self.constraints.multihop_entry() {
+            let location = LocationConstraintFormatter {
+                constraint: entry,
+                custom_lists: self.custom_lists,
+            };
             write!(f, ", multihop entry {location}")?;
         }
         Ok(())

@@ -774,7 +774,7 @@ mod relay_selection {
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
         assert!(matches!(
-            relay_selector.get_relay(0, talpid_types::net::IpAvailability::Ipv4),
+            relay_selector.get_relay_by_query(RelayQueryBuilder::new().build()),
             Err(Error::NoRelay(_))
         ));
 
