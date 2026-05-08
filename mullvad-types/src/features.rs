@@ -348,63 +348,85 @@ mod tests {
             expected_indicators
         );
 
-        #[cfg(daita)]
-        {
-            endpoint.daita = true;
-            expected_indicators.0.insert(FeatureIndicator::Daita);
-            assert_eq!(
-                compute_feature_indicators(&settings, &endpoint, false),
-                expected_indicators
-            );
-
-            // Should not change regardless of whether `use_multihop_if_necessary` is true, since
-            // multihop is enabled explicitly
-            settings
-                .tunnel_options
-                .wireguard
-                .daita
-                .use_multihop_if_necessary = false;
-            assert_eq!(
-                compute_feature_indicators(&settings, &endpoint, false),
-                expected_indicators,
-            );
-
-            // Here we mock that multihop was automatically enabled by DAITA.
-            // We enable `use_multihop_if_necessary` again and disable the multihop setting, while
-            // keeping the entry relay. In this scenario, we should still get a Multihop
-            // indicator.
-            settings
-                .tunnel_options
-                .wireguard
-                .daita
-                .use_multihop_if_necessary = true;
-            if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
-                constraints.wireguard_constraints.multihop = false;
-            };
+        endpoint.daita = true;
+        expected_indicators.0.insert(FeatureIndicator::Daita);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
             expected_indicators
-                .0
-                .insert(FeatureIndicator::DaitaMultihop);
-            expected_indicators.0.remove(&FeatureIndicator::Daita);
-            expected_indicators.0.remove(&FeatureIndicator::Multihop);
-            assert_eq!(
-                compute_feature_indicators(&settings, &endpoint, false),
-                expected_indicators,
-                "DaitaDirectOnly should be enabled"
-            );
+        );
 
-            // If we also remove the entry relay, we should not get a multihop indicator
-            expected_indicators.0.insert(FeatureIndicator::Daita);
-            endpoint.entry_endpoint = None;
-            expected_indicators.0.remove(&FeatureIndicator::Multihop);
-            expected_indicators
-                .0
-                .remove(&FeatureIndicator::DaitaMultihop);
-            assert_eq!(
-                compute_feature_indicators(&settings, &endpoint, false),
-                expected_indicators,
-                "DaitaDirectOnly should be enabled"
-            );
-        }
+        // Should not change regardless of whether `use_multihop_if_necessary` is true, since
+        // multihop is enabled explicitly
+        settings
+            .tunnel_options
+            .wireguard
+            .daita
+            .use_multihop_if_necessary = false;
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
+            expected_indicators,
+        );
+
+        // Here we mock that multihop was automatically enabled by DAITA.
+        // We enable `use_multihop_if_necessary` again and disable the multihop setting, while
+        // keeping the entry relay. In this scenario, we should still get a Multihop
+        // indicator.
+        settings
+            .tunnel_options
+            .wireguard
+            .daita
+            .use_multihop_if_necessary = true;
+        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+            constraints.wireguard_constraints.multihop = false;
+        };
+
+        // Should not change regardless of whether `use_multihop_if_necessary` is true, since
+        // multihop is enabled explicitly
+        settings
+            .tunnel_options
+            .wireguard
+            .daita
+            .use_multihop_if_necessary = false;
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
+            expected_indicators,
+        );
+
+        // Here we mock that multihop was automatically enabled by DAITA.
+        // We enable `use_multihop_if_necessary` again and disable the multihop setting, while
+        // keeping the entry relay. In this scenario, we should still get a Multihop
+        // indicator.
+        settings
+            .tunnel_options
+            .wireguard
+            .daita
+            .use_multihop_if_necessary = true;
+        if let RelaySettings::Normal(constraints) = &mut settings.relay_settings {
+            constraints.wireguard_constraints.multihop(Multihop::Never);
+        };
+        expected_indicators
+            .0
+            .insert(FeatureIndicator::DaitaMultihop);
+        expected_indicators.0.remove(&FeatureIndicator::Daita);
+        expected_indicators.0.remove(&FeatureIndicator::Multihop);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
+            expected_indicators,
+            "DaitaDirectOnly should be enabled"
+        );
+
+        // If we also remove the entry relay, we should not get a multihop indicator
+        expected_indicators.0.insert(FeatureIndicator::Daita);
+        endpoint.entry_endpoint = None;
+        expected_indicators.0.remove(&FeatureIndicator::Multihop);
+        expected_indicators
+            .0
+            .remove(&FeatureIndicator::DaitaMultihop);
+        assert_eq!(
+            compute_feature_indicators(&settings, &endpoint, false),
+            expected_indicators,
+            "DaitaDirectOnly should be enabled"
+        );
 
         // NOTE: If this match statement fails to compile, it means that a new feature indicator has
         // been added. Please update this test to include the new feature indicator.
