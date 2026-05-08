@@ -10,9 +10,7 @@ android { namespace = "net.mullvad.mullvadvpn.feature.home.impl" }
 
 dependencies {
     implementation(projects.lib.feature.account.api)
-    implementation(projects.lib.feature.account.impl)
     implementation(projects.lib.feature.addtime.api)
-    implementation(projects.lib.feature.addtime.impl)
     implementation(projects.lib.feature.anticensorship.api)
     implementation(projects.lib.feature.appinfo.api)
     implementation(projects.lib.feature.applisting.api)
