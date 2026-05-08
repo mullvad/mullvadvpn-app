@@ -39,7 +39,7 @@ pub enum Error {
 /// - A configured endpoint for Wireguard relay, encapsulating either a single-hop or multi-hop
 ///   connection.
 pub fn wireguard_endpoint(
-    allowed_ips: &Constraint<AllowedIps>,
+    allowed_ips: Constraint<&AllowedIps>,
     data: &EndpointData,
     relay: &WireguardConfig,
     entry_endpoint: SocketAddr,
@@ -56,7 +56,7 @@ pub fn wireguard_endpoint(
 
 /// Configure a single-hop connection using the exit relay data.
 fn wireguard_singlehop_endpoint(
-    allowed_ips: &Constraint<AllowedIps>,
+    allowed_ips: Constraint<&AllowedIps>,
     data: &EndpointData,
     exit: &WireguardRelay,
     endpoint: SocketAddr,
@@ -91,7 +91,7 @@ fn wireguard_singlehop_endpoint(
 /// In a multihop circuit, we need to provide an exit peer configuration in addition to the
 /// peer configuration.
 fn wireguard_multihop_endpoint(
-    allowed_ips: &Constraint<AllowedIps>,
+    allowed_ips: Constraint<&AllowedIps>,
     data: &EndpointData,
     exit: &WireguardRelay,
     entry: &WireguardRelay,
