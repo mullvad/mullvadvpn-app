@@ -4,9 +4,15 @@
 # cargo deny will only evaluate dependencies pulled in by these
 # targets (the ones we ship Rust code to)
 targets = [
-  # Desktop
+  # Desktop - Linux
   { triple = "x86_64-unknown-linux-gnu" },
-  { triple = "x86_64-pc-windows-gnu" },
+  { triple = "aarch64-unknown-linux-gnu" },
+  { triple = "riscv64gc-unknown-linux-gnu" },
+  # Desktop - Windows
+  { triple = "i686-pc-windows-msvc" },
+  { triple = "x86_64-pc-windows-msvc" },
+  { triple = "aarch64-pc-windows-msvc" },
+  # Desktop - macOS
   { triple = "x86_64-apple-darwin" },
   { triple = "aarch64-apple-darwin" },
   # Android
@@ -15,7 +21,6 @@ targets = [
   { triple = "aarch64-linux-android" },
   { triple = "armv7-linux-androideabi" },
   # iOS
-  { triple = "x86_64-apple-ios" },
   { triple = "aarch64-apple-ios" },
 ]
 
