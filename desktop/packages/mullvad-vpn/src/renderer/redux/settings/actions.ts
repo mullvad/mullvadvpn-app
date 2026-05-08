@@ -9,6 +9,7 @@ import {
   ObfuscationSettings,
   type Recents,
   RelayOverride,
+  type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
@@ -113,6 +114,11 @@ export interface ISetCurrentApiAccessMethod {
   accessMethod: AccessMethodSetting;
 }
 
+export interface ISetShadowsocksCiphers {
+  type: 'SET_SHADOWSOCKS_CIPHERS';
+  ciphers: ShadowsocksCipher[];
+}
+
 export interface ISetRelayOverrides {
   type: 'SET_RELAY_OVERRIDES';
   relayOverrides: Array<RelayOverride>;
@@ -145,7 +151,8 @@ export type SettingsAction =
   | ISetRecents
   | ISetApiAccessMethods
   | ISetCurrentApiAccessMethod
-  | ISetRelayOverrides;
+  | ISetRelayOverrides
+  | ISetShadowsocksCiphers;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -311,6 +318,13 @@ function updateRecents(recents?: Recents): ISetRecents {
   };
 }
 
+function updateShadowsocksCiphers(ciphers: ShadowsocksCipher[]): ISetShadowsocksCiphers {
+  return {
+    type: 'SET_SHADOWSOCKS_CIPHERS',
+    ciphers: ciphers,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -334,4 +348,5 @@ export default {
   updateCurrentApiAccessMethod,
   updateRelayOverrides,
   updateRecents,
+  updateShadowsocksCiphers,
 };
