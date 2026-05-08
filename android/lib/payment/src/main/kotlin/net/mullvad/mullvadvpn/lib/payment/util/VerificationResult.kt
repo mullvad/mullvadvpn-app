@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.addtime.impl
+package net.mullvad.mullvadvpn.lib.payment.util
 
 import arrow.core.Either
 import net.mullvad.mullvadvpn.lib.payment.model.VerificationError
