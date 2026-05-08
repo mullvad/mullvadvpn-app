@@ -500,7 +500,7 @@ pub mod allowed_ip {
     /// If the constraint is `Constraint::Any` or `Constraint::Only` with an empty list, it allows all IPs.
     /// Returns a vector of `IpNetwork` containing the resolved allowed IPs.
     pub fn resolve_from_constraint(
-        allowed_ips: &Constraint<AllowedIps>,
+        allowed_ips: Constraint<&AllowedIps>,
         host_ipv4: Option<Ipv4Addr>,
         host_ipv6: Option<Ipv6Addr>,
     ) -> Vec<IpNetwork> {

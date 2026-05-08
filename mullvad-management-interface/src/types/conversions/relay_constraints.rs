@@ -229,7 +229,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                             .option()
                             .map(|ipv| i32::from(proto::IpVersion::from(ipv))),
                         allowed_ips: allowed_ip::resolve_from_constraint(
-                            &constraints.wireguard_constraints.allowed_ips,
+                            constraints.wireguard_constraints.allowed_ips.as_ref(),
                             None,
                             None,
                         )
