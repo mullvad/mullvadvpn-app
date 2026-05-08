@@ -517,8 +517,7 @@ fun VpnSettingsContent(
                 VpnSettingItem.DnsHeader ->
                     item(key = it::class.simpleName) {
                         NavigationListItem(
-                            modifier =
-                                Modifier.animateItem(),
+                            modifier = Modifier.animateItem(),
                             title = stringResource(id = R.string.dns_settings),
                             onClick = navigateToDns,
                         )
