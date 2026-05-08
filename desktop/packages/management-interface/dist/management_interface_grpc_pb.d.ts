@@ -74,6 +74,7 @@ interface IManagementServiceService extends grpc.ServiceDefinition<grpc.UntypedS
     getCurrentApiAccessMethod: IManagementServiceService_IGetCurrentApiAccessMethod;
     testCustomApiAccessMethod: IManagementServiceService_ITestCustomApiAccessMethod;
     testApiAccessMethodById: IManagementServiceService_ITestApiAccessMethodById;
+    shadowsocksCiphers: IManagementServiceService_IShadowsocksCiphers;
     getBridges: IManagementServiceService_IGetBridges;
     getSplitTunnelProcesses: IManagementServiceService_IGetSplitTunnelProcesses;
     addSplitTunnelProcess: IManagementServiceService_IAddSplitTunnelProcess;
@@ -665,6 +666,15 @@ interface IManagementServiceService_ITestApiAccessMethodById extends grpc.Method
     responseSerialize: grpc.serialize<google_protobuf_wrappers_pb.BoolValue>;
     responseDeserialize: grpc.deserialize<google_protobuf_wrappers_pb.BoolValue>;
 }
+interface IManagementServiceService_IShadowsocksCiphers extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.Shadowsocks.Ciphers> {
+    path: "/mullvad_daemon.management_interface.ManagementService/ShadowsocksCiphers";
+    requestStream: false;
+    responseStream: false;
+    requestSerialize: grpc.serialize<google_protobuf_empty_pb.Empty>;
+    requestDeserialize: grpc.deserialize<google_protobuf_empty_pb.Empty>;
+    responseSerialize: grpc.serialize<management_interface_pb.Shadowsocks.Ciphers>;
+    responseDeserialize: grpc.deserialize<management_interface_pb.Shadowsocks.Ciphers>;
+}
 interface IManagementServiceService_IGetBridges extends grpc.MethodDefinition<google_protobuf_empty_pb.Empty, management_interface_pb.BridgeList> {
     path: "/mullvad_daemon.management_interface.ManagementService/GetBridges";
     requestStream: false;
@@ -1010,6 +1020,7 @@ export interface IManagementServiceServer extends grpc.UntypedServiceImplementat
     getCurrentApiAccessMethod: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.AccessMethodSetting>;
     testCustomApiAccessMethod: grpc.handleUnaryCall<management_interface_pb.CustomProxy, google_protobuf_wrappers_pb.BoolValue>;
     testApiAccessMethodById: grpc.handleUnaryCall<management_interface_pb.UUID, google_protobuf_wrappers_pb.BoolValue>;
+    shadowsocksCiphers: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.Shadowsocks.Ciphers>;
     getBridges: grpc.handleUnaryCall<google_protobuf_empty_pb.Empty, management_interface_pb.BridgeList>;
     getSplitTunnelProcesses: grpc.handleServerStreamingCall<google_protobuf_empty_pb.Empty, google_protobuf_wrappers_pb.Int32Value>;
     addSplitTunnelProcess: grpc.handleUnaryCall<google_protobuf_wrappers_pb.Int32Value, google_protobuf_empty_pb.Empty>;
@@ -1229,6 +1240,9 @@ export interface IManagementServiceClient {
     testApiAccessMethodById(request: management_interface_pb.UUID, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     testApiAccessMethodById(request: management_interface_pb.UUID, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     testApiAccessMethodById(request: management_interface_pb.UUID, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
+    shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
+    shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
+    shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
     getBridges(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;
     getBridges(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;
     getBridges(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;
@@ -1508,6 +1522,9 @@ export class ManagementServiceClient extends grpc.Client implements IManagementS
     public testApiAccessMethodById(request: management_interface_pb.UUID, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     public testApiAccessMethodById(request: management_interface_pb.UUID, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
     public testApiAccessMethodById(request: management_interface_pb.UUID, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: google_protobuf_wrappers_pb.BoolValue) => void): grpc.ClientUnaryCall;
+    public shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
+    public shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
+    public shadowsocksCiphers(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.Shadowsocks.Ciphers) => void): grpc.ClientUnaryCall;
     public getBridges(request: google_protobuf_empty_pb.Empty, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;
     public getBridges(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;
     public getBridges(request: google_protobuf_empty_pb.Empty, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: grpc.ServiceError | null, response: management_interface_pb.BridgeList) => void): grpc.ClientUnaryCall;

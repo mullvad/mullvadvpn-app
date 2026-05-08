@@ -17,6 +17,7 @@ import {
   RelayLocation,
   RelayOverride,
   RelayProtocol,
+  type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
@@ -96,6 +97,7 @@ export interface ISettingsReduxState {
   apiAccessMethods: ApiAccessMethodSettings;
   currentApiAccessMethod?: AccessMethodSetting;
   relayOverrides: Array<RelayOverride>;
+  shadowsocksCiphers: ShadowsocksCipher[];
 }
 
 const initialState: ISettingsReduxState = {
@@ -166,6 +168,7 @@ const initialState: ISettingsReduxState = {
   apiAccessMethods: getDefaultApiAccessMethods(),
   currentApiAccessMethod: undefined,
   relayOverrides: [],
+  shadowsocksCiphers: [],
 };
 
 export default function (
@@ -311,6 +314,12 @@ export default function (
       return {
         ...state,
         relayOverrides: action.relayOverrides,
+      };
+
+    case 'SET_SHADOWSOCKS_CIPHERS':
+      return {
+        ...state,
+        shadowsocksCiphers: action.ciphers ?? [],
       };
 
     default:
