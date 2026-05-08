@@ -516,7 +516,7 @@ impl Display for SettingsSummary<'_> {
             RelaySettings::Normal(RelayConstraints {
                 wireguard_constraints,
                 ..
-            }) => wireguard_constraints.multihop(),
+            }) => wireguard_constraints.is_multihop(),
             _ => false,
         };
 
