@@ -28,6 +28,7 @@ import {
   ObfuscationSettings,
   ObfuscationType,
   RelaySettings,
+  type ShadowsocksCipher,
   TunnelState,
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
@@ -39,6 +40,7 @@ import {
   convertFromDaemonEvent,
   convertFromDevice,
   convertFromDeviceState,
+  convertFromGrpcShadowsocksCiphers,
   convertFromRelayList,
   convertFromSettings,
   convertFromTunnelState,
@@ -626,6 +628,14 @@ export class DaemonRpc extends GrpcClient {
       this.client.getCurrentApiAccessMethod,
     );
     return convertFromApiAccessMethodSetting(response);
+  }
+
+  public async getShadowsocksCiphers(): Promise<ShadowsocksCipher[]> {
+    const shadowsocksCiphers = await this.callEmpty<grpcTypes.Shadowsocks.Ciphers>(
+      this.client.shadowsocksCiphers,
+    );
+    const shadowsocksCiphersList = shadowsocksCiphers.getCiphersList();
+    return convertFromGrpcShadowsocksCiphers(shadowsocksCiphersList);
   }
 
   public async removeApiAccessMethod(id: string) {
