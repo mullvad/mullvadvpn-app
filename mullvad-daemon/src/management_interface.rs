@@ -847,6 +847,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn shadowsocks_ciphers(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::shadowsocks::Ciphers> {
+        log::debug!("shadowsocks_ciphers");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ShadowsocksCiphers(tx))?;
+        let ciphers = types::shadowsocks::Ciphers::from(self.wait_for_result(rx).await?);
+        Ok(Response::new(ciphers))
+    }
+
     // Split tunneling
     //
 
