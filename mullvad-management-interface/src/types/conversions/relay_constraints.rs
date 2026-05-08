@@ -38,7 +38,7 @@ impl TryFrom<&proto::WireguardConstraints>
         Ok(mullvad_constraints::WireguardConstraints {
             ip_version: Constraint::from(ip_version),
             allowed_ips,
-            use_multihop: constraints.use_multihop,
+            multihop: constraints.use_multihop,
             entry_location: constraints
                 .entry_location
                 .clone()
@@ -236,7 +236,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                         .into_iter()
                         .map(|ip| ip.to_string())
                         .collect(),
-                        use_multihop: constraints.wireguard_constraints.multihop(),
+                        use_multihop: constraints.wireguard_constraints.is_multihop(),
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location

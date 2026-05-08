@@ -244,7 +244,7 @@ impl Relay {
 
                 print_option!(
                     "Multihop state",
-                    if constraints.wireguard_constraints.multihop() {
+                    if constraints.wireguard_constraints.is_multihop() {
                         "enabled"
                     } else {
                         "disabled"
@@ -356,7 +356,7 @@ impl Relay {
                 let mut rpc = MullvadProxyClient::new().await?;
                 let mut wireguard_constraints = Self::get_wireguard_constraints(&mut rpc).await?;
 
-                wireguard_constraints.use_multihop(*use_multihop);
+                wireguard_constraints.multihop(*use_multihop);
 
                 Self::update_constraints(|constraints| {
                     constraints.wireguard_constraints = wireguard_constraints;
