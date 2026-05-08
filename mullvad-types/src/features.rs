@@ -173,7 +173,6 @@ pub fn compute_feature_indicators(
         multihop =
             endpoint.entry_endpoint.is_some() && constraints.wireguard_constraints.use_multihop;
 
-        #[cfg(daita)]
         {
             // Detect whether we're using multihop, but it is not explicitly enabled.
             daita_multihop = endpoint.daita
@@ -183,7 +182,6 @@ pub fn compute_feature_indicators(
     };
 
     // Daita is mutually exclusive with DaitaMultihop
-    #[cfg(daita)]
     let daita = endpoint.daita && !daita_multihop;
 
     let protocol_features = vec![
@@ -202,7 +200,6 @@ pub fn compute_feature_indicators(
         (quic, FeatureIndicator::Quic),
         (lwo, FeatureIndicator::Lwo),
         (mtu, FeatureIndicator::CustomMtu),
-        #[cfg(daita)]
         (daita, FeatureIndicator::Daita),
         (daita_multihop, FeatureIndicator::DaitaMultihop),
     ];
