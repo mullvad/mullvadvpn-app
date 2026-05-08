@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.problemreport.impl.provider
+package net.mullvad.mullvadvpn.lib.common.provider
 
 import android.content.Context
 import android.content.Intent
@@ -7,7 +7,7 @@ import androidx.core.content.FileProvider
 import java.io.File
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import net.mullvad.mullvadvpn.feature.problemreport.impl.R
+import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 // https://developer.android.com/reference/androidx/core/content/FileProvider
 // From link: It is possible to use FileProvider directly instead of extending it. However, this is

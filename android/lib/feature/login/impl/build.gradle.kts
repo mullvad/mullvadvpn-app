@@ -11,7 +11,6 @@ android { namespace = "net.mullvad.mullvadvpn.feature.login.impl" }
 dependencies {
     implementation(projects.lib.feature.home.api)
     implementation(projects.lib.feature.login.api)
-    implementation(projects.lib.feature.problemreport.impl)
     implementation(projects.lib.feature.settings.api)
     implementation(projects.lib.pushNotification)
     implementation(projects.lib.repository)

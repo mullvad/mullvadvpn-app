@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableInfoDialogResult
 import net.mullvad.mullvadvpn.feature.login.api.ApiUnreachableNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginAction
-import net.mullvad.mullvadvpn.feature.problemreport.impl.provider.createShareLogFile
+import net.mullvad.mullvadvpn.lib.common.provider.createShareLogFile
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.component.textfield.ErrorSupportingText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
