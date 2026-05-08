@@ -1420,8 +1420,11 @@ export class Shadowsocks extends jspb.Message {
     setPort(value: number): Shadowsocks;
     getPassword(): string;
     setPassword(value: string): Shadowsocks;
-    getCipher(): string;
-    setCipher(value: string): Shadowsocks;
+
+    hasCipher(): boolean;
+    clearCipher(): void;
+    getCipher(): Shadowsocks.Cipher | undefined;
+    setCipher(value?: Shadowsocks.Cipher): Shadowsocks;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Shadowsocks.AsObject;
@@ -1438,8 +1441,52 @@ export namespace Shadowsocks {
         ip: string,
         port: number,
         password: string,
-        cipher: string,
+        cipher?: Shadowsocks.Cipher.AsObject,
     }
+
+
+    export class Cipher extends jspb.Message { 
+        getName(): string;
+        setName(value: string): Cipher;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): Cipher.AsObject;
+        static toObject(includeInstance: boolean, msg: Cipher): Cipher.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: Cipher, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): Cipher;
+        static deserializeBinaryFromReader(message: Cipher, reader: jspb.BinaryReader): Cipher;
+    }
+
+    export namespace Cipher {
+        export type AsObject = {
+            name: string,
+        }
+    }
+
+    export class Ciphers extends jspb.Message { 
+        clearCiphersList(): void;
+        getCiphersList(): Array<Shadowsocks.Cipher>;
+        setCiphersList(value: Array<Shadowsocks.Cipher>): Ciphers;
+        addCiphers(value?: Shadowsocks.Cipher, index?: number): Shadowsocks.Cipher;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): Ciphers.AsObject;
+        static toObject(includeInstance: boolean, msg: Ciphers): Ciphers.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: Ciphers, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): Ciphers;
+        static deserializeBinaryFromReader(message: Ciphers, reader: jspb.BinaryReader): Ciphers;
+    }
+
+    export namespace Ciphers {
+        export type AsObject = {
+            ciphersList: Array<Shadowsocks.Cipher.AsObject>,
+        }
+    }
+
 }
 
 export class CustomProxy extends jspb.Message { 

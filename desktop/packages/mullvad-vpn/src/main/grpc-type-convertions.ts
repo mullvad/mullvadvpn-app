@@ -52,6 +52,7 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
+  type ShadowsocksCipher,
   SocksAuth,
   TunnelParameterError,
   TunnelState,
@@ -1085,13 +1086,40 @@ export function convertToCustomProxy(proxy: CustomProxy): grpcTypes.CustomProxy 
       shadowsocks.setIp(proxy.ip);
       shadowsocks.setPort(proxy.port);
       shadowsocks.setPassword(proxy.password);
-      shadowsocks.setCipher(proxy.cipher);
+      shadowsocks.setCipher(convertToGrpcShadowsocksCipher(proxy.cipher));
       customProxy.setShadowsocks(shadowsocks);
       break;
     }
   }
 
   return customProxy;
+}
+
+export function convertFromGrpcShadowsocksCiphers(
+  ciphers: grpcTypes.Shadowsocks.Cipher[],
+): ShadowsocksCipher[] {
+  return ciphers.map((cipher) => {
+    const name = cipher.getName();
+    return {
+      name,
+    };
+  });
+}
+
+export function convertFromGrpcShadowsocksCipher(
+  cipher: grpcTypes.Shadowsocks.Cipher,
+): ShadowsocksCipher {
+  return {
+    name: cipher.getName(),
+  };
+}
+
+export function convertToGrpcShadowsocksCipher(
+  cipher: ShadowsocksCipher,
+): grpcTypes.Shadowsocks.Cipher {
+  const grpcCipher = new grpcTypes.Shadowsocks.Cipher();
+  grpcCipher.setName(cipher.name);
+  return grpcCipher;
 }
 
 function convertToSocksAuth(authentication: SocksAuth): grpcTypes.SocksAuth {
@@ -1208,7 +1236,7 @@ function convertFromCustomProxy(proxy: grpcTypes.CustomProxy): CustomProxy {
         ip: shadowsocks.getIp(),
         port: shadowsocks.getPort(),
         password: shadowsocks.getPassword(),
-        cipher: shadowsocks.getCipher(),
+        cipher: convertFromGrpcShadowsocksCipher(shadowsocks.getCipher()!),
       };
     }
     case grpcTypes.CustomProxy.ProxyMethodCase.PROXY_METHOD_NOT_SET:
