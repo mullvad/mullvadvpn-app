@@ -90,6 +90,8 @@ deny = [
   { name = "openssl-probe" },
   # We are using tokio, so we want to avoid async-std
   { name = "async-std" },
+  # We changed over to aws-lc-rs, and we don't want two crypto primitive libraries
+  { name = "ring" },
   ## Older versions of crates where we only want to use the newer variants
   { name = "clap", version = "2" },
   { name = "clap", version = "3" },
