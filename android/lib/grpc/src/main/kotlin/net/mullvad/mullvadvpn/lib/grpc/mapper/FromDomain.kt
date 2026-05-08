@@ -216,6 +216,10 @@ internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethod =
                     it.setEncryptedDnsProxy(
                         ManagementInterface.AccessMethod.EncryptedDnsProxy.getDefaultInstance()
                     )
+                is ApiAccessMethod.DomainFronting ->
+                    it.setDomainFronting(
+                        ManagementInterface.AccessMethod.DomainFronting.getDefaultInstance()
+                    )
             }
         }
         .build()
