@@ -8,6 +8,7 @@
 
 import CryptoKit
 import Foundation
+import MullvadLogging
 import MullvadRustRuntime
 import XCTest
 
@@ -33,7 +34,7 @@ class MullvadAPIWrapper: @unchecked Sendable {
         .infoDictionary?["ApiEndpoint"] as! String
 
     init() throws {
-        RustLogging.initialize()
+        RustLogging.initialize(logger: Logger(label: "APIWrapperTests"))
         let apiAddress = try Self.getAPIIPAddress() + ":" + Self.getAPIPort()
         let hostname = Self.hostName
         mullvadAPI = try MullvadApi(apiAddress: apiAddress, hostname: hostname)
