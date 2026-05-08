@@ -6,6 +6,7 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
         match feature {
             mullvad_types::features::FeatureIndicator::QuantumResistance => QuantumResistance,
             mullvad_types::features::FeatureIndicator::Multihop => Multihop,
+            mullvad_types::features::FeatureIndicator::MultihopAuto => MultihopAuto,
             mullvad_types::features::FeatureIndicator::SplitTunneling => SplitTunneling,
             mullvad_types::features::FeatureIndicator::LockdownMode => LockdownMode,
             mullvad_types::features::FeatureIndicator::WireguardPort => WireguardPort,
@@ -19,7 +20,6 @@ impl From<mullvad_types::features::FeatureIndicator> for proto::FeatureIndicator
             mullvad_types::features::FeatureIndicator::ServerIpOverride => ServerIpOverride,
             mullvad_types::features::FeatureIndicator::CustomMtu => CustomMtu,
             mullvad_types::features::FeatureIndicator::Daita => Daita,
-            mullvad_types::features::FeatureIndicator::DaitaMultihop => DaitaMultihop,
         }
     }
 }
@@ -29,6 +29,7 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
         match feature {
             proto::FeatureIndicator::QuantumResistance => Self::QuantumResistance,
             proto::FeatureIndicator::Multihop => Self::Multihop,
+            proto::FeatureIndicator::MultihopAuto => Self::MultihopAuto,
             proto::FeatureIndicator::SplitTunneling => Self::SplitTunneling,
             proto::FeatureIndicator::LockdownMode => Self::LockdownMode,
             proto::FeatureIndicator::WireguardPort => Self::WireguardPort,
@@ -42,7 +43,6 @@ impl From<proto::FeatureIndicator> for mullvad_types::features::FeatureIndicator
             proto::FeatureIndicator::ServerIpOverride => Self::ServerIpOverride,
             proto::FeatureIndicator::CustomMtu => Self::CustomMtu,
             proto::FeatureIndicator::Daita => Self::Daita,
-            proto::FeatureIndicator::DaitaMultihop => Self::DaitaMultihop,
         }
     }
 }

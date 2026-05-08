@@ -364,7 +364,7 @@ enum FeatureIndicator {
   SERVER_IP_OVERRIDE = 12;
   CUSTOM_MTU = 13;
   DAITA = 14;
-  DAITA_MULTIHOP = 15;
+  MULTIHOP_AUTO = 15;
 }
 
 message ObfuscationInfo {
@@ -604,10 +604,16 @@ enum IpVersion {
 message WireguardConstraints {
   optional IpVersion ip_version = 2;
   repeated string allowed_ips = 3;
-  bool use_multihop = 4;
+  Multihop multihop = 4;
   LocationConstraint entry_location = 5;
   repeated string entry_providers = 6;
   Ownership entry_ownership = 7;
+
+  enum Multihop {
+    Auto = 0;
+    Always = 1;
+    Never = 2;
+  }
 }
 
 message CustomRelaySettings {
