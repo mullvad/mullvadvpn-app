@@ -131,7 +131,7 @@ pub async fn test_daita(
             constraint.location = Constraint::Only(non_daita_relay_location.clone().into());
             constraint.wireguard_constraints.entry_location =
                 Constraint::Only(daita_relay_location.clone().into());
-            constraint.wireguard_constraints.use_multihop = true;
+            constraint.wireguard_constraints.multihop = true;
         })
         .await?;
         mullvad_client.set_daita_direct_only(true).await?;
@@ -155,7 +155,7 @@ pub async fn test_daita(
             constraint.location = Constraint::Only(daita_relay_location.clone().into());
             constraint.wireguard_constraints.entry_location =
                 Constraint::Only(non_daita_relay_location.into());
-            constraint.wireguard_constraints.use_multihop = true;
+            constraint.wireguard_constraints.multihop = true;
         })
         .await?;
         mullvad_client.set_daita_direct_only(true).await?;
