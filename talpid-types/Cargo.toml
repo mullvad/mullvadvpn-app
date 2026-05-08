@@ -9,6 +9,7 @@ license.workspace = true
 [dependencies]
 base64 = "0.22.0"
 ipnetwork = { workspace = true, features = ["serde"] }
+itertools.workspace = true
 log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 shadowsocks-crypto.workspace = true
