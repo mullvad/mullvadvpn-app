@@ -774,7 +774,7 @@ mod relay_selection {
         // Country-level (default Constraint::Any) query: every relay has
         // include_in_country=false → no relay should be selectable.
         assert!(matches!(
-            relay_selector.get_relay(0, talpid_types::net::IpAvailability::Ipv4),
+            relay_selector.get_relay_by_query(RelayQueryBuilder::new().build()),
             Err(Error::NoRelay(_))
         ));
 
@@ -845,6 +845,7 @@ mod relay_selection {
         // Should be able to connect to non-DAITA relay with autohop
         let query = RelayQueryBuilder::new()
             .autohop()
+            .daita()
             .location(NON_DAITA_RELAY_LOCATION.clone())
             .build();
         let relay = relay_selector
@@ -1597,8 +1598,7 @@ mod partition_relays {
         }
     }
 
-    /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
-    /// relays, while DAITA only affects entry relays.
+    /// "Daita + Autohop + Provider. Providers only affects exit relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
         // "100TB" does not have any DAITA relays, and because filters should apply for both entry
@@ -1608,7 +1608,7 @@ mod partition_relays {
         let constraints = EntryConstraints::default().providers(providers).daita(true);
 
         let query = relay_selector().partition_relays(Predicate::Autohop(constraints));
-        assert_eq!(query.matches.len(), 0);
+        assert!(!query.matches.is_empty());
 
         // Assert that a relay was discarded because we could not select an entry because of
         // DAITA and provider constraints not making sense.
@@ -1619,7 +1619,6 @@ mod partition_relays {
         assert!(
             reasons.is_subset(&HashSet::from([
                 Reason::Providers,
-                Reason::Daita,
                 Reason::Inactive,
                 Reason::IncludeInCountry,
             ])),
