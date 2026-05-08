@@ -26,6 +26,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  type ShadowsocksCipher,
   TunnelState,
   VoucherResponse,
 } from './daemon-rpc-types';
@@ -81,6 +82,7 @@ export interface IAppStateSnapshot {
   navigationHistory?: IHistoryObject;
   currentApiAccessMethod?: AccessMethodSetting;
   isMacOs13OrNewer: boolean;
+  shadowsocksCiphers?: ShadowsocksCipher[];
 }
 
 export type IpcSchema = typeof ipcSchema;

@@ -9,6 +9,7 @@ import {
   Socks5RemoteCustomProxy,
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useShadowsocksCiphers } from '../features/api-access-methods/hooks';
 import { Button, Flex } from '../lib/components';
 import { FlexRow } from '../lib/components/flex-row';
 import { Switch } from '../lib/components/switch';
@@ -259,33 +260,12 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
   const [ip, setIp] = useState(props.proxy?.ip ?? '');
   const [port, setPort] = useState(props.proxy?.port);
   const [password, setPassword] = useState(props.proxy?.password ?? '');
-  const [cipher, setCipher] = useState(props.proxy?.cipher);
-
-  const ciphers = useMemo(
-    () =>
-      [
-        { value: 'aes-128-cfb', label: 'aes-128-cfb' },
-        { value: 'aes-128-cfb1', label: 'aes-128-cfb1' },
-        { value: 'aes-128-cfb8', label: 'aes-128-cfb8' },
-        { value: 'aes-128-cfb128', label: 'aes-128-cfb128' },
-        { value: 'aes-256-cfb', label: 'aes-256-cfb' },
-        { value: 'aes-256-cfb1', label: 'aes-256-cfb1' },
-        { value: 'aes-256-cfb8', label: 'aes-256-cfb8' },
-        { value: 'aes-256-cfb128', label: 'aes-256-cfb128' },
-        { value: 'rc4', label: 'rc4' },
-        { value: 'rc4-md5', label: 'rc4-md5' },
-        { value: 'chacha20', label: 'chacha20' },
-        { value: 'salsa20', label: 'salsa20' },
-        { value: 'chacha20-ietf', label: 'chacha20-ietf' },
-        { value: 'aes-128-gcm', label: 'aes-128-gcm' },
-        { value: 'aes-256-gcm', label: 'aes-256-gcm' },
-        { value: 'chacha20-ietf-poly1305', label: 'chacha20-ietf-poly1305' },
-        { value: 'xchacha20-ietf-poly1305', label: 'xchacha20-ietf-poly1305' },
-        { value: 'aes-128-pmac-siv', label: 'aes-128-pmac-siv' },
-        { value: 'aes-256-pmac-siv', label: 'aes-256-pmac-siv' },
-      ].sort((a, b) => a.label.localeCompare(b.label)),
-    [],
-  );
+  const [cipher, setCipher] = useState(props.proxy?.cipher.name);
+  const { shadowsocksCiphers } = useShadowsocksCiphers();
+  const shadowsocksCipherItems = shadowsocksCiphers.map(({ name }) => ({
+    value: name,
+    label: name,
+  }));
 
   const onUpdate = useEffectEvent(
     (ip: string, port: number | undefined, password: string, cipher: string | undefined) => {
@@ -295,7 +275,7 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
           ip,
           port,
           password,
-          cipher,
+          cipher: { name: cipher },
         });
       }
     },
@@ -354,7 +334,7 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
           direction="up"
           defaultValue={cipher}
           onUpdate={setCipher}
-          items={ciphers}
+          items={shadowsocksCipherItems}
         />
       </SettingsRow>
     </SettingsGroup>
