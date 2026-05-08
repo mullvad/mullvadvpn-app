@@ -18,7 +18,8 @@ use mullvad_types::{
     Intersection,
     constraints::Constraint,
     relay_constraints::{
-        AllowedIps, ObfuscationSettings, RelayConstraints, RelaySettings, WireguardConstraints,
+        AllowedIps, Multihop, ObfuscationSettings, RelayConstraints, RelaySettings,
+        WireguardConstraints,
     },
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
@@ -150,22 +151,13 @@ impl From<&Settings> for RelayQuery {
             return Self::default();
         };
 
-        let (daita, daita_use_multihop_if_necessary) = (
-            settings.tunnel_options.wireguard.daita.enabled,
-            settings
-                .tunnel_options
-                .wireguard
-                .daita
-                .use_multihop_if_necessary,
-        );
-
         let wg = &relay_settings.wireguard_constraints;
 
         let entry_specific = EntrySpecificConstraints {
             obfuscation: obfuscation_constraint_from_settings(
                 settings.obfuscation_settings.clone(),
             ),
-            daita: Constraint::Only(daita),
+            daita: Constraint::Only(settings.tunnel_options.wireguard.daita.enabled),
             ip_version: wg.ip_version,
         };
         let exit = ExitConstraints {
@@ -195,20 +187,10 @@ impl From<&Settings> for RelayQuery {
             exit,
         };
 
-        // Currently, the autohop functionality is exclusive to DAITA, which is bound to change in the near future.
-        // For now, encode the autohop preference as a combination of `daita = true` and `use_multihop_if_necessary = true`.
-        // If multihop itself is disabled, this because the "when needed" mode. If it's enabled, we map it to multihop on
-        // with an auto-picked entry.
-        let autohop = daita && daita_use_multihop_if_necessary;
-
-        let hops = match (wg.multihop, autohop) {
-            (false, false) => Hops::Single(singlehop(entry_specific, exit)),
-            // Multihop "when needed" (preference for singlehop)
-            (false, true) => Hops::Auto(singlehop(entry_specific, exit)),
-            // User-configured multihop
-            (true, false) => Hops::Multi(multihop_constraints(entry_specific, exit)),
-            // Multihop with auto entry
-            (true, true) => Hops::Multi(singlehop(entry_specific, exit).into_autohop()),
+        let hops = match wg.multihop {
+            Multihop::Never => Hops::Single(singlehop(entry_specific, exit)),
+            Multihop::Always => Hops::Multi(multihop_constraints(entry_specific, exit)),
+            Multihop::Auto => Hops::Auto(singlehop(entry_specific, exit)),
         };
 
         RelayQuery {
@@ -232,7 +214,7 @@ impl RelayQuery {
         } = self;
 
         match hops {
-            Hops::Single(entry) | Hops::Auto(entry) => {
+            Hops::Single(entry) => {
                 let constraints = RelayConstraints {
                     location: entry.general.location,
                     providers: entry.general.providers,
@@ -240,7 +222,24 @@ impl RelayQuery {
                     wireguard_constraints: WireguardConstraints {
                         ip_version: entry.entry_specific.ip_version,
                         allowed_ips,
-                        multihop: false,
+                        multihop: Multihop::Never,
+                        entry_location: Constraint::Any,
+                        entry_providers: Constraint::Any,
+                        entry_ownership: Constraint::Any,
+                    },
+                };
+                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
+                (constraints, obfuscation)
+            }
+            Hops::Auto(entry) => {
+                let constraints = RelayConstraints {
+                    location: entry.general.location,
+                    providers: entry.general.providers,
+                    ownership: entry.general.ownership,
+                    wireguard_constraints: WireguardConstraints {
+                        ip_version: entry.entry_specific.ip_version,
+                        allowed_ips,
+                        multihop: Multihop::Auto,
                         entry_location: Constraint::Any,
                         entry_providers: Constraint::Any,
                         entry_ownership: Constraint::Any,
@@ -257,7 +256,7 @@ impl RelayQuery {
                     wireguard_constraints: WireguardConstraints {
                         ip_version: entry.entry_specific.ip_version,
                         allowed_ips,
-                        multihop: true,
+                        multihop: Multihop::Always,
                         entry_location: entry.general.location,
                         entry_providers: entry.general.providers,
                         entry_ownership: entry.general.ownership,
@@ -402,12 +401,8 @@ pub mod builder {
 
         /// Switch to the autohop. Falls back from singlehop to multihop when
         /// no singlehop relay matches the constraints.
-        ///
-        /// Under the current temporary encoding this implies `daita = true`. When the
-        /// standalone autohop setting lands, drop the daita coupling.
         pub fn autohop(mut self) -> Self {
             self.hop_choice = HopChoice::Autohop;
-            self.entry_specific.daita = Constraint::Only(true);
             self
         }
 
