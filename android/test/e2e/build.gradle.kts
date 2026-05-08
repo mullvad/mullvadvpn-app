@@ -21,7 +21,7 @@ android {
         minSdk = libs.versions.min.sdk.get().toInt()
         testApplicationId = "net.mullvad.mullvadvpn.test.e2e"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        // Required to run mock api tests locally
+        // Required to run mock api tests via Android studio
         testInstrumentationRunnerArguments["runnerBuilder"] =
             "de.mannodermaus.junit5.AndroidJUnit5Builder"
         targetProjectPath = ":app"
