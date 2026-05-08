@@ -295,7 +295,7 @@ impl RelaySelector {
             .get_wireguard_obfuscator(&entry_specific.obfuscation, entry_specific.ip_version)?;
 
         let endpoint = wireguard_endpoint(
-            &query.allowed_ips,
+            query.allowed_ips.as_ref(),
             &annotated.inner.wireguard,
             &inner,
             wg_addr,
