@@ -656,7 +656,11 @@ impl MullvadProxyClient {
     pub async fn set_wireguard_allowed_ips(&mut self, allowed_ips: AllowedIps) -> Result<()> {
         self.0
             .set_wireguard_allowed_ips(types::AllowedIpsList {
-                values: allowed_ips.0.iter().map(ToString::to_string).collect(),
+                values: allowed_ips
+                    .networks()
+                    .iter()
+                    .map(ToString::to_string)
+                    .collect(),
             })
             .await?;
         Ok(())

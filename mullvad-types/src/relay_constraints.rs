@@ -388,7 +388,7 @@ pub mod allowed_ip {
     use serde::{Deserialize, Serialize};
 
     #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-    pub struct AllowedIps(pub Vec<IpNetwork>);
+    pub struct AllowedIps(Vec<IpNetwork>);
 
     impl Default for AllowedIps {
         fn default() -> Self {
@@ -423,6 +423,11 @@ pub mod allowed_ip {
     /// including allowing all IPs, parsing from string representations, and
     /// converting into a constraint.
     impl AllowedIps {
+        /// All allowed IP networks.
+        pub fn networks(&self) -> &[IpNetwork] {
+            &self.0
+        }
+
         /// Creates an `AllowedIps` instance that allows all IP addresses.
         ///
         /// # Returns
@@ -501,7 +506,7 @@ pub mod allowed_ip {
     ) -> Vec<IpNetwork> {
         match allowed_ips {
             Constraint::Any => AllowedIps::allow_all(),
-            Constraint::Only(ips) if ips.0.is_empty() => AllowedIps::allow_all(),
+            Constraint::Only(ips) if ips.networks().is_empty() => AllowedIps::allow_all(),
             Constraint::Only(ips) => ips.clone(),
         }
         .resolve(host_ipv4, host_ipv6)
