@@ -373,7 +373,7 @@ pub struct TransportPort {
 pub struct WireguardConstraints {
     pub ip_version: Constraint<IpVersion>,
     pub allowed_ips: Constraint<AllowedIps>,
-    pub use_multihop: bool,
+    pub multihop: bool,
     pub entry_location: Constraint<LocationConstraint>,
     pub entry_providers: Constraint<Providers>,
     pub entry_ownership: Constraint<Ownership>,
@@ -515,13 +515,13 @@ pub mod allowed_ip {
 
 impl WireguardConstraints {
     /// Enable or disable multihop.
-    pub fn use_multihop(&mut self, multihop: bool) {
-        self.use_multihop = multihop
+    pub fn multihop(&mut self, multihop: bool) {
+        self.multihop = multihop
     }
 
     /// Check if multihop is enabled.
-    pub fn multihop(&self) -> bool {
-        self.use_multihop
+    pub fn is_multihop(&self) -> bool {
+        self.multihop
     }
 }
 
@@ -535,7 +535,7 @@ impl fmt::Display for WireguardConstraintsFormatter<'_> {
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {ip_version},")?;
         }
-        if self.constraints.multihop() {
+        if self.constraints.is_multihop() {
             let location = self.constraints.entry_location.as_ref().map(|location| {
                 LocationConstraintFormatter {
                     constraint: location,
