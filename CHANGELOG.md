@@ -25,8 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
-- GotaTun is now used as the userspace WireGuard implementation on all desktop platforms.
-  It replaces wireguard-go.
+- GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, not just
+  macOS. It replaces wireguard-go.
 
 ### Changed
 - Optimize LWO performance. This gives a 1.5 to 3 times speedup in our benchmarks.
@@ -34,7 +34,6 @@ Line wrap the file at 100 chars.                                              Th
   constraint. The relative order among the following constraints is preserved.
 
 #### Linux
-- GotaTun is now used as the userspace WireGuard implementation. It replaces wireguard-go.
 - Switch memory allocator to jemalloc to reduce fragmentation.
 - `mullvad-early-boot-blocking.service` now waits for local file system to be mounted
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
