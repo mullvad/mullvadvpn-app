@@ -5718,7 +5718,6 @@ dependencies = [
  "chrono",
  "futures",
  "gotatun",
- "hex",
  "insta",
  "internet-checksum",
  "ipnetwork",
