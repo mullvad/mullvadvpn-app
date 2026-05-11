@@ -5,14 +5,17 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
@@ -38,23 +41,25 @@ class OutOfTimeViewModel(
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), notOutOfTimeEffect())
 
-    val uiState =
+    val uiState: StateFlow<Lc<Unit, OutOfTimeUiState>> =
         combine(
                 connectionProxy.tunnelState,
-                deviceRepository.deviceState,
+                deviceRepository.deviceState.filterNotNull(),
                 paymentUseCase.paymentAvailability,
             ) { tunnelState, deviceState, paymentAvailability ->
-                OutOfTimeUiState(
-                    tunnelState = tunnelState,
-                    deviceName = deviceState?.displayName() ?: "",
-                    showSitePayment = !isPlayBuild,
-                    verificationPending = paymentAvailability.hasPendingPayment(),
+                Lc.Content(
+                    OutOfTimeUiState(
+                        tunnelState = tunnelState,
+                        deviceName = deviceState.displayName(),
+                        showSitePayment = !isPlayBuild,
+                        verificationPending = paymentAvailability.hasPendingPayment(),
+                    )
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                OutOfTimeUiState(),
+                Lc.Loading(Unit),
             )
 
     init {
