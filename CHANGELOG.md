@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 - `mullvad-early-boot-blocking.service` now waits for local file system to be mounted
   (`After=local-fs.target`). This was assumed before, but not required (and is still not required).
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
+- `mullvad-daemon` now exits without tearing down firewall rules on `SIGUSR1`.
+  This is used to avoid leaking network traffic when restarting systemd service.
 
 #### macOS
 - Restart the GUI after an update if it was running.
