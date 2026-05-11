@@ -162,7 +162,7 @@ pub async fn send_guest_probes(
     rpc: ServiceClient,
     interface: String,
     destination: SocketAddr,
-) -> ProbeResult {
+) -> anyhow::Result<ProbeResult> {
     const MONITOR_DURATION: Duration = Duration::from_secs(8);
 
     let pktmon = start_packet_monitor(
@@ -173,7 +173,7 @@ pub async fn send_guest_probes(
             ..Default::default()
         },
     )
-    .await;
+    .await?;
 
     let send_handle = tokio::spawn(send_guest_probes_without_monitor(
         rpc,
@@ -203,7 +203,7 @@ pub async fn send_guest_probes(
         }
     }
 
-    result
+    Ok(result)
 }
 
 /// Send one probe per transport protocol to `destination` without running a packet monitor
@@ -851,16 +851,18 @@ impl Pinger {
     /// Create a [`Pinger`] with a default configuration.
     ///
     /// See [`PingerBuilder`] for details.
-    pub async fn start(rpc: &test_rpc::ServiceClient) -> Pinger {
-        let defaults = PingerBuilder::default();
-        Self::start_with(defaults, rpc).await
+    pub async fn start(rpc: &test_rpc::ServiceClient) -> anyhow::Result<Pinger> {
+        Self::start_with(PingerBuilder::default(), rpc).await
     }
 
     /// Create a [`Pinger`] using the configuration of `builder`.
     ///
     /// See [`PingerBuilder`] for details on how to configure a [`Pinger`]
     /// before starting it.
-    pub async fn start_with(builder: PingerBuilder, rpc: &test_rpc::ServiceClient) -> Pinger {
+    pub async fn start_with(
+        builder: PingerBuilder,
+        rpc: &test_rpc::ServiceClient,
+    ) -> anyhow::Result<Pinger> {
         // Get the associated IP address of the test runner on the default, non-tunnel interface.
         let guest_ip = obtain_guest_ip(rpc).await;
         log::debug!("Guest IP: {guest_ip}");
@@ -877,7 +879,7 @@ impl Pinger {
             },
             MonitorOptions::default(),
         )
-        .await;
+        .await?;
 
         // Start pinging
         //
@@ -893,13 +895,15 @@ impl Pinger {
             }
         }));
 
-        Pinger {
+        let pinger = Pinger {
             destination: builder.destination,
             interval: builder.interval,
             guest_ip,
             ping_task,
             monitor,
-        }
+        };
+
+        Ok(pinger)
     }
 
     /// Stop pinging and extract the result of the network monitor.
@@ -1213,7 +1217,7 @@ impl ConnCheckerHandle<'_> {
                 ..MonitorOptions::default()
             },
         )
-        .await;
+        .await?;
 
         // Write a newline to the connection checker to prompt it to perform the check.
         self.checker

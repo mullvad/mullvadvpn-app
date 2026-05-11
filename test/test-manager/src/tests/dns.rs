@@ -22,7 +22,7 @@ use super::{
 use crate::{
     TEST_CONFIG,
     network_monitor::{
-        Direction, IpHeaderProtocols, MonitorOptions, start_packet_monitor_until,
+        Direction, IpHeaderProtocols, MonitorOptions, PacketMonitor, start_packet_monitor_until,
         start_tunnel_packet_monitor_until,
     },
     vm::network::wireguard::{
@@ -184,7 +184,7 @@ async fn leak_test_dns(
                 ..Default::default()
             },
         )
-        .await;
+        .await?;
         let non_tunnel_monitor = start_packet_monitor_until(
             move |packet| packet.destination.port() == 53,
             |_packet| false,
@@ -193,7 +193,7 @@ async fn leak_test_dns(
                 ..Default::default()
             },
         )
-        .await;
+        .await?;
         (tunnel_monitor, non_tunnel_monitor)
     } else {
         let tunnel_monitor = start_tunnel_packet_monitor_until(
@@ -204,7 +204,7 @@ async fn leak_test_dns(
                 ..Default::default()
             },
         )
-        .await;
+        .await?;
         let non_tunnel_monitor = start_packet_monitor_until(
             move |packet| packet.destination.port() == 53,
             move |packet| pkt_counter.handle_packet(packet),
@@ -214,7 +214,7 @@ async fn leak_test_dns(
                 ..Default::default()
             },
         )
-        .await;
+        .await?;
         (tunnel_monitor, non_tunnel_monitor)
     };
 
@@ -564,11 +564,9 @@ async fn run_dns_config_non_tunnel_test(
     .await
 }
 
-async fn run_dns_config_test<
-    F: std::future::Future<Output = crate::network_monitor::PacketMonitor>,
->(
+async fn run_dns_config_test(
     rpc: &ServiceClient,
-    create_monitor: impl FnOnce() -> F,
+    create_monitor: impl AsyncFnOnce() -> anyhow::Result<PacketMonitor>,
     mullvad_client: &mut MullvadProxyClient,
     expected_dns_resolver: IpAddr,
 ) -> anyhow::Result<()> {
@@ -602,7 +600,7 @@ async fn run_dns_config_test<
     log::debug!("Tunnel (guest) IP: {tunnel_ip}");
     log::debug!("Non-tunnel (guest) IP: {nontun_ip}");
 
-    let monitor = create_monitor().await;
+    let monitor = create_monitor().await?;
 
     let next_nonce = {
         static NONCE: AtomicUsize = AtomicUsize::new(0);
