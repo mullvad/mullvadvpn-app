@@ -5655,7 +5655,6 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.18",
  "tokio",
- "tun 0.5.5",
  "tun 0.8.7",
  "windows-sys 0.61.2",
 ]
