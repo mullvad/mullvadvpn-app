@@ -7,4 +7,10 @@ data class OutOfTimeUiState(
     val deviceName: String? = null,
     val showSitePayment: Boolean = false,
     val verificationPending: Boolean = false,
-)
+) {
+    init {
+        if (deviceName != null && deviceName.isBlank()) {
+            error("deviceName cannot be blank or empty")
+        }
+    }
+}

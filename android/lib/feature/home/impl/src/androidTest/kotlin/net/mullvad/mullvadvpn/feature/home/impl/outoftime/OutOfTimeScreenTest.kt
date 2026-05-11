@@ -64,7 +64,7 @@ class OutOfTimeScreenTest {
     @Test
     fun testDisableSitePayment() = composeExtension.use {
         // Arrange
-        initScreen(state = OutOfTimeUiState(deviceName = "").toLc())
+        initScreen(state = OutOfTimeUiState(showSitePayment = false).toLc())
 
         // Assert
         onNodeWithText("Either buy credit on our website or redeem a voucher.", substring = true)
@@ -77,7 +77,7 @@ class OutOfTimeScreenTest {
 
         // Arrange
         initScreen(
-            state = OutOfTimeUiState(deviceName = "", showSitePayment = true).toLc(),
+            state = OutOfTimeUiState(showSitePayment = true).toLc(),
             onAccountClick = mockClickListener,
         )
 
@@ -95,7 +95,6 @@ class OutOfTimeScreenTest {
             state =
                 OutOfTimeUiState(
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                        deviceName = "",
                         showSitePayment = true,
                     )
                     .toLc(),
