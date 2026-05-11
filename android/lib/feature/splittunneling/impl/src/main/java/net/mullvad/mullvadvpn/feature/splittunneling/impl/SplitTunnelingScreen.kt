@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,6 +51,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -62,6 +64,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -431,6 +434,9 @@ private inline fun LazyListScope.itemWithDivider(
         itemContent()
         HorizontalDivider(color = Color.Transparent)
     }
+
+val AppItem.titleAnnotated: AnnotatedString
+    @Composable get() = title.highlightText(highlight, MaterialTheme.colorScheme.highlight)
 
 internal object SplitTunnelingContentKey {
     const val EXCLUDED_APPLICATIONS = "excluded"

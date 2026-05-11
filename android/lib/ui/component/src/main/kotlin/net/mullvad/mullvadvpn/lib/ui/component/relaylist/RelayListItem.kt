@@ -1,18 +1,10 @@
 package net.mullvad.mullvadvpn.lib.ui.component.relaylist
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.RelayItem
-import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
-import net.mullvad.mullvadvpn.lib.ui.resource.R
-import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 
 enum class RelayListItemContentType {
     CUSTOM_LIST_HEADER,
@@ -47,13 +39,6 @@ sealed interface RelayListItem {
         val canExpand: Boolean
         val state: RelayListItemState?
         val itemPosition: Position
-
-        val titleAnnotated: AnnotatedString
-            @Composable
-            get() =
-                item.name
-                    .highlightText(highlight, MaterialTheme.colorScheme.highlight)
-                    .withSuffix(state)
     }
 
     data class CustomListHeader(val canEdit: Boolean) : RelayListItem {
@@ -164,27 +149,4 @@ data class CheckableRelayListItem(
     val expanded: Boolean = false,
     val itemPosition: Position = Position.Single,
     val hierarchy: Hierarchy = Hierarchy.Parent,
-) {
-    val titleAnnotated: AnnotatedString
-        @Composable get() = item.name.highlightText(highlight, MaterialTheme.colorScheme.highlight)
-}
-
-@Composable
-private fun AnnotatedString.withSuffix(state: RelayListItemState?): AnnotatedString {
-    if (state == null) return this
-    // This is a bit of a hack since there is no way to do String.format without losing the styling.
-    // Since we want to style on only the name and not the suffix we need to manually do the
-    // formatting. The assumption here is that the string contains a "%1$s" or "%s" placeholder
-    // for the name, if that is not present it will break.
-    val formatStr =
-        when (state) {
-            RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit)
-            RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry)
-        }
-    val parts = formatStr.split($$"%1$s", "%s")
-    return buildAnnotatedString {
-        if (parts.isNotEmpty()) append(parts[0])
-        append(this@withSuffix)
-        if (parts.size > 1) append(parts[1])
-    }
-}
+)
