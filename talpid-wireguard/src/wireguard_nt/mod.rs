@@ -1071,6 +1071,7 @@ mod tests {
             address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
             address_family: AF_INET,
             cidr: 24,
+            flags: 0,
         },
     });
 
