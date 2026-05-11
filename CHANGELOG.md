@@ -46,6 +46,10 @@ Line wrap the file at 100 chars.                                              Th
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
 
+#### Windows
+- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
+  <https://github.com/mullvad/wireguard-nt>.
+
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
   multiple consecutive tunnel state events for the same state.
