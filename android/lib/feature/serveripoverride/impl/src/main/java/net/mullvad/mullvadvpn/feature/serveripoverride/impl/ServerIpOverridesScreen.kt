@@ -121,7 +121,7 @@ fun SharedTransitionScope.ServerIpOverrides(
     val resultStore = LocalResultStore.current
 
     val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
             if (it != null) {
                 vm.importFile(it)
             }
@@ -132,7 +132,7 @@ fun SharedTransitionScope.ServerIpOverrides(
     resultStore.consumeResult<ImportOverrideByTextNavResult> { vm.importText(it.text) }
 
     resultStore.consumeResult<ImportOverrideByFileNavResult> {
-        openFileLauncher.launch("application/json")
+        openFileLauncher.launch(arrayOf("application/json", "text/plain"))
     }
 
     // On successful clear of overrides, show snackbar
