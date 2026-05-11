@@ -6,7 +6,7 @@
 # you need to run three instances of this script.
 #
 # This script works on an $inbox_dir. In this directory it expects one directory per repository.
-# For each repository it will read all files having the .src extension 
+# For each repository it will read all files having the .src extension
 # These files are expected to contain a single line, a path to some directory where
 # it can read new artifacts for that product.
 # All deb and rpm files from that directory will be signed and moved over to a folder with
@@ -109,7 +109,7 @@ function process_inbox {
         # Recreate the artifact dir, cleaning it
         rm -rf "$artifact_dir" && mkdir -p "$artifact_dir" || exit 1
 
-        # The fact that we have processed one .src file is enough tro trigger a repository
+        # The fact that we have processed one .src file is enough to trigger a repository
         # rebuild. Because if a product would like to publish "no artifacts" they should
         # be able to create a .src file pointing to an empty directory
         found_new_artifacts="true"

@@ -69,7 +69,7 @@ apt install qemu-utils qemu-system-x86 libpcap-dev slirp4netns rootlesskit dnsma
 ```
 
 ##### Note for Debian
-By default `sysctl` is only invokable by root.
+By default `sysctl` is only invocable by root.
 
 ## Setting up testing environment
 
@@ -127,7 +127,7 @@ For example, building `test-runner` for Windows would look like this:
 ```
 
 #### Linux
-Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisities](#prerequisites) for more details.
+Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisites](#prerequisites) for more details.
 
 ``` bash
 ./scripts/container-run.sh ./scripts/build-scripts/test-runner.sh linux

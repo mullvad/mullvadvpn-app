@@ -1,6 +1,6 @@
 # End-to-end (e2e) test module
 ## Overview
-The tests in this module are end-to-end tests that rely on the publicly accessible Mullvad infrastucture and APIs. It's therefore required to provide a valid account number (not expired) that can be used to login, connect etc. It's also required to provide an invalid account number which for example is used for negative tests of the login flow. The invalid account number should not exist in the Mullvad infrastucture, however it must be at least 9 characters for some tests to properly run due to input validation.
+The tests in this module are end-to-end tests that rely on the publicly accessible Mullvad infrastructure and APIs. It's therefore required to provide a valid account number (not expired) that can be used to login, connect etc. It's also required to provide an invalid account number which for example is used for negative tests of the login flow. The invalid account number should not exist in the Mullvad infrastructure, however it must be at least 9 characters for some tests to properly run due to input validation.
 
 ## How to run the tests
 ### Locally
