@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.component.preview.PreviewColumn
@@ -65,6 +66,7 @@ fun ServerIpOverridesListItem(
                         if (active) stringResource(id = R.string.server_ip_overrides_active)
                         else stringResource(id = R.string.server_ip_overrides_inactive),
                     maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(horizontal = Dimens.smallPadding),
                 )
             }

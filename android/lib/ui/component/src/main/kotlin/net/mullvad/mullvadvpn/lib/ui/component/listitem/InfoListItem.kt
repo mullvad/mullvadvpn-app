@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -54,7 +55,13 @@ fun InfoListItem(
         onClick = onCellClicked,
         testTag = testTag,
         backgroundAlpha = backgroundAlpha,
-        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
+        content = {
+            Text(
+                text = title,
+                maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         trailingContent = {
             if (onInfoClicked != null) {
                 Box(

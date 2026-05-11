@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -81,7 +82,13 @@ fun SplitTunnelingListItem(
         onClick = onCellClicked,
         backgroundAlpha = backgroundAlpha,
         colors = ListItemDefaults.colors(),
-        content = { Text(text = title, maxLines = if (singleLine) 1 else Int.MAX_VALUE) },
+        content = {
+            Text(
+                text = title,
+                maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         leadingContent = { Icon(iconState = iconState, isEnabled) },
         trailingContent = {
             Icon(
