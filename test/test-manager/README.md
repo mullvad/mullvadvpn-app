@@ -20,7 +20,7 @@ pub async fn test(
 ```
 
 The `test_function` macro allows you to write tests for the MullvadVPN App in a
-format which is very similiar to [standard Rust unit
+format which is very similar to [standard Rust unit
 tests](https://doc.rust-lang.org/book/ch11-01-writing-tests.html). A more
 detailed writeup on how the `#[test_function]` macro works is given as a
 doc-comment in [test_macro::test_function](./test_macro/src/lib.rs).

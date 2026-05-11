@@ -5,7 +5,7 @@ Currently there are two release scripts that deal with different parts of the an
 ## `github-release`
 Download and verifies a release from releases.mullvad.net and push it to gihub with a changelog.
 
-### Prequisites
+### Prerequisites
 This script requires `sequoia-pgp` and `GitHub CLI`.
 See https://github.com/cli/cli#installation for more detailed instructions on how to install `GitHub CLI`.
 
@@ -34,7 +34,7 @@ It will ask you to make any final changes to the changelog. After that it will p
 ## `release`
 Add and remove supported versions and set the latest version.
 
-### Prequisites
+### Prerequisites
 This script requires `rust` and access to the build server.
 It is possible change supported versions and latest version without using rust by calling
 `publish-metadata-to-api` directly, but this requires manually downloading and editing the metadata files.

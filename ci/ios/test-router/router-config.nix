@@ -5,7 +5,7 @@ args@{
   # MAC address of the local area network interface
   wanMac,
   # MAC address of the upstream interface
-  lanIp, # IP adderss/subnet
+  lanIp, # IP address/subnet
   # The IPv4 address/subnet of the wg interface
   wgIpv4,
   # The IPv6 address/subnet of the wg interface

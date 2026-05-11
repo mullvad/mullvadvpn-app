@@ -16,7 +16,7 @@
 #    with a `PackageOverrides` entry. See below for rules. This should be avoided if feasible.
 #
 # Every ignored vulnerability/package entry must have an end date. It is not allowed to ignore
-# vulnerabilies indefinitely. This means specifying an `ignoreUntil` for `IgnoredVulns` entries
+# vulnerabilities indefinitely. This means specifying an `ignoreUntil` for `IgnoredVulns` entries
 # and `effectiveUntil` for `PackageOverrides` entries.
 # * The default should be to ignore a vulnerability for three months.
 # * A vulnerability can be ignored for up to a year at most (Use extremely sparsely).

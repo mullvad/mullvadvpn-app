@@ -238,7 +238,7 @@ Install on Fedora:
 sudo dnf install dist/mullvad-vpn-daemon_<version>_riscv64.rpm
 ```
 
-### Cross-compling for RISC-V from other hosts such as Debian/Ubuntu AMD64
+### Cross-compiling for RISC-V from other hosts such as Debian/Ubuntu AMD64
 
 Install dependencies:
 ```bash
