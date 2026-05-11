@@ -184,6 +184,45 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 !macroend
 
 !define RemoveWireGuardNt '!insertmacro "RemoveWireGuardNt"'
+
+#
+# RemoveAbandonedWireGuardNt
+#
+# Uninstall network adapters from the legacy `mullvad-wireguard.dll` fork
+# (hardware ID `MullvadWireGuard`) and remove the associated OEM INF from the
+# driver store.
+#
+!macro RemoveAbandonedWireGuardNt
+	Push $0
+	Push $1
+
+	mullvad_nsis::Log "RemoveAbandonedWireGuardNt()"
+
+	nsExec::ExecToStack '"$PLUGINSDIR\mullvad-setup.exe" driver remove wg-nt-abandoned'
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${MVSETUP_OK}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove legacy MullvadWireGuard driver: error $0"
+		mullvad_nsis::LogWithDetails $R0 $1
+		Goto RemoveAbandonedWireGuardNt_return_only
+	${EndIf}
+
+	mullvad_nsis::Log "RemoveAbandonedWireGuardNt() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	RemoveAbandonedWireGuardNt_return_only:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveAbandonedWireGuardNt '!insertmacro "RemoveAbandonedWireGuardNt"'
+
 #
 # RemoveAbandonedWintunAdapter
 #
@@ -752,6 +791,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	${ExtractMullvadSetup}
 	${RemoveAbandonedWintunAdapter}
+	${RemoveAbandonedWireGuardNt}
 
 	${RemoveSplitTunnelDriver}
 
