@@ -230,7 +230,7 @@ impl DeviceInfo<'_> {
     /// Read the device's `HardwareID` property (`SPDRP_HARDWAREID`), which is a
     /// `REG_MULTI_SZ` list of hardware IDs.
     pub fn get_hardware_ids(&self) -> io::Result<Vec<String>> {
-        let mut buffer = vec![0u8; 512];
+        let mut buffer = vec![0u16; 512];
         let mut required: u32 = 0;
         loop {
             // SAFETY: `self.set.0` and `self.data` are valid and belong to the same enumeration;
@@ -241,8 +241,8 @@ impl DeviceInfo<'_> {
                     &raw const self.data,
                     SPDRP_HARDWAREID,
                     ptr::null_mut(),
-                    buffer.as_mut_ptr(),
-                    buffer.len() as u32,
+                    buffer.as_mut_ptr().cast(),
+                    (2 * buffer.len()) as u32,
                     &raw mut required,
                 )
             };
@@ -253,6 +253,7 @@ impl DeviceInfo<'_> {
             let err = io::Error::last_os_error();
             const ERROR_INSUFFICIENT_BUFFER: i32 =
                 windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER as i32;
+            let required = required / 2; // bytes -> u16s
             if err.raw_os_error() == Some(ERROR_INSUFFICIENT_BUFFER)
                 && required as usize > buffer.len()
             {
@@ -262,14 +263,8 @@ impl DeviceInfo<'_> {
             return Err(err);
         }
 
-        // Reinterpret as u16 slice and split on NULs (REG_MULTI_SZ).
-        let utf16: &[u16] = {
-            let len = buffer.len() / 2;
-            // SAFETY: `buffer` is at least `len * 2` bytes and properly aligned for u8;
-            // `SetupDiGetDeviceRegistryPropertyW` writes UTF-16 code units for REG_MULTI_SZ.
-            unsafe { std::slice::from_raw_parts(buffer.as_ptr().cast::<u16>(), len) }
-        };
-        Ok(utf16
+        // Split on NULs (REG_MULTI_SZ)
+        Ok(buffer
             .split(|&c| c == 0)
             .filter(|s| !s.is_empty())
             .map(String::from_utf16_lossy)
