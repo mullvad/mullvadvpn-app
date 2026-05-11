@@ -43,6 +43,7 @@ Builds:
       - sed -i -e '/billing/d' ../settings.gradle.kts
       - sed -i -e '/projects.lib.billing/d' build.gradle.kts
       - sed -i '/\"desktop\//d' ../../Cargo.toml
+      - sed -i '/\"mullvad-nsis\"/d' ../../Cargo.toml
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
