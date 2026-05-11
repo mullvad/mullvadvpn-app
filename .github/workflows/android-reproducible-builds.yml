@@ -23,6 +23,7 @@ on:
       - 'flake*'
       - 'nix/android-*.nix'
       - 'nix/common-toolchain.nix'
+      - 'android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml'
   push:
     tags:
       - 'android/**'
