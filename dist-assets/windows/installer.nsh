@@ -192,6 +192,8 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 # (hardware ID `MullvadWireGuard`) and remove the associated OEM INF from the
 # driver store.
 #
+# TODO: This can be removed once we no longer support upgrades from <= 2026.2.
+# Or perhaps earlier. Not removing old drivers is relatively harmless albeit not very nice.
 !macro RemoveAbandonedWireGuardNt
 	Push $0
 	Push $1
