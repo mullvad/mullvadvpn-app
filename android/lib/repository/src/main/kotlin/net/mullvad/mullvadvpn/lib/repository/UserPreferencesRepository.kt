@@ -73,4 +73,12 @@ class UserPreferencesRepository(
             prefs.toBuilder().setShowSystemAppsSplitTunneling(show).build()
         }
     }
+
+    suspend fun hasMigratedEntryLocation(): Boolean = preferences().hasMigratedEntryLocation
+
+    suspend fun setHasMigratedEntryLocation(migrated: Boolean) {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setHasMigratedEntryLocation(migrated).build()
+        }
+    }
 }

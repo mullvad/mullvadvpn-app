@@ -28,17 +28,15 @@ fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == Ob
 
 fun Settings.isLwoEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Lwo
 
-fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
-
 fun Settings.isDaitaEnabled() = daitaSettings().enabled
 
 fun Settings.isDaitaDirectOnly() = daitaSettings().directOnly
-
-fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 
 fun Settings.isMultihopEnabled() =
     relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 
 fun Settings.location() = relaySettings.relayConstraints.location
+
+fun Settings.entryLocation() = relaySettings.relayConstraints.wireguardConstraints.entryLocation
 
 private fun Settings.daitaSettings() = tunnelOptions.daitaSettings

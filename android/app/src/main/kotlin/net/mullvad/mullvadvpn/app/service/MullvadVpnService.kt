@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.app.service.migration.MigrateEntryLocation
 import net.mullvad.mullvadvpn.app.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.app.service.notifications.ForegroundNotificationManager
 import net.mullvad.mullvadvpn.di.vpnServiceModule
@@ -43,6 +44,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var daemonConfig: DaemonConfig
+    private lateinit var migrateEntryLocation: MigrateEntryLocation
 
     private lateinit var foregroundNotificationHandler: ForegroundNotificationManager
 
@@ -69,12 +71,14 @@ class MullvadVpnService : TalpidVpnService() {
             migrateSplitTunneling = get()
             apiEndpointFromIntentHolder = get()
             connectionProxy = get()
+            migrateEntryLocation = get()
         }
 
         keyguardManager = getSystemService<KeyguardManager>()!!
 
         prepareFiles()
         migrateSplitTunneling.migrate()
+        lifecycleScope.launch { migrateEntryLocation.migrate() }
 
         // If it is a debug build and we have an api override in the intent, use it
         // This is for injecting hostname and port for our mock api tests

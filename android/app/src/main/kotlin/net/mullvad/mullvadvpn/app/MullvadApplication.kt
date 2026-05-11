@@ -12,19 +12,13 @@ import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.app.util.FileLogWriter
 import net.mullvad.mullvadvpn.di.ApplicationScope
 import net.mullvad.mullvadvpn.di.KERMIT_FILE_LOG_DIR_NAME
 import net.mullvad.mullvadvpn.di.appModule
-import net.mullvad.mullvadvpn.lib.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationChannelFactory
 import net.mullvad.mullvadvpn.lib.pushnotification.NotificationManager
 import net.mullvad.mullvadvpn.lib.pushnotification.ScheduleNotificationAlarmUseCase
@@ -66,7 +60,6 @@ class MullvadApplication : Application() {
                 scheduleNotificationAlarmUseCase = get<ScheduleNotificationAlarmUseCase>(),
                 accountExpiryNotificationProvider = get<AccountExpiryNotificationProvider>(),
             )
-            GlobalScope.launch { fixEntryLocation(managementService = get<ManagementService>()) }
         }
     }
 
@@ -143,16 +136,5 @@ class MullvadApplication : Application() {
                 }
                 .build()
         )
-    }
-
-    private suspend fun fixEntryLocation(managementService: ManagementService) {
-        val settings = managementService.settings.filterNotNull().first()
-        if (
-            settings.relaySettings.relayConstraints.wireguardConstraints.entryLocation ==
-                Constraint.Only(GeoLocationId.Country(""))
-        ) {
-            managementService.setEntryLocation(Constraint.Any)
-            managementService.reconnect()
-        }
     }
 }
