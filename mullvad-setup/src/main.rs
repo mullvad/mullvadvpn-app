@@ -162,7 +162,7 @@ enum DriverCommand {
 enum DriverRemoveCommand {
     /// Reset split tunnel driver, uninstall the ST device, stop and delete the service
     SplitTunnel,
-    /// Remove the WireGuard-NT driver (loads mullvad-wireguard.dll from the same directory)
+    /// Remove the WireGuard-NT driver (loads wireguard.dll from the same directory)
     WgNt,
     /// Remove the Wintun driver (loads wintun.dll from the same directory)
     Wintun,
