@@ -9,8 +9,6 @@ data class OutOfTimeUiState(
     val verificationPending: Boolean = false,
 ) {
     init {
-        if (deviceName != null && deviceName.isBlank()) {
-            error("deviceName cannot be blank or empty")
-        }
+        require(deviceName?.isBlank() != true) { "deviceName cannot be blank or empty" }
     }
 }
