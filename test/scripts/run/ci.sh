@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script is invoked by the GitHub workflow file below to launch the desktop end to end test framwork.
+# This script is invoked by the GitHub workflow file below to launch the desktop end to end test framework.
 # <https://github.com/mullvad/mullvadvpn-app/blob/main/.github/workflows/desktop-e2e.yml>
 
 # TODO: Break this down into multiple, smaller scripts and compose them in this file.

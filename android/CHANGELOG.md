@@ -431,7 +431,7 @@ Identical to `android/2025.1-beta1`
 
 ## [android/2024.5] - 2024-10-09
 ### Fixed
-- Fix crash when in the edit custom list locations screen and changing app langauge.
+- Fix crash when in the edit custom list locations screen and changing app language.
 
 
 ## [android/2024.5-beta2] - 2024-09-24
@@ -818,7 +818,7 @@ that is the same as the git tag they receive: `android/<version>`.
 - Allow provider constraint to specify multiple hosting providers.
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
-- Shrink account history capactity from 3 account entries to 1.
+- Shrink account history capacity from 3 account entries to 1.
 - WireGuard key is now rotated sooner: every four days instead of seven.
 
 ### Fixed

@@ -31,7 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
   This helps circumvent censorship.
 - Add button to manually update relay list
-- Add support for the Ukranian language
+- Add support for the Ukrainian language
 
 [TunnelCrack]: https://tunnelcrack.mathyvanhoef.com/
 

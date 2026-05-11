@@ -39,7 +39,7 @@ mullvad.test.e2e.prod.accountNumber.valid=INSERT_VALID_ACCOUNT_NUMBER_HERE
 mullvad.test.e2e.prod.accountNumber.invalid=1111222233334444
 
 # For running the e2e tests on the stagemole backend
-mullvad.test.e2e.stagemole.partnerAuth=INSER_PARTNER_AUTH_TOKEN_HERE
+mullvad.test.e2e.stagemole.partnerAuth=INSERT_PARTNER_AUTH_TOKEN_HERE
 mullvad.test.e2e.stagemole.accountNumber.invalid=1111222233334444
 
 # For running e2e tests that require the RAAS router
