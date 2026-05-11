@@ -164,7 +164,7 @@ function newConfig() {
         },
         {
           from: distAssets(
-            path.join('binaries', '${env.TARGET_SUBDIR}', 'wireguard-nt/mullvad-wireguard.dll'),
+            path.join('binaries', '${env.TARGET_SUBDIR}', 'wireguard-nt/wireguard.dll'),
           ),
           to: '.',
         },
