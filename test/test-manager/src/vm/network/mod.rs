@@ -9,8 +9,6 @@ pub use linux as platform;
 
 #[cfg(target_os = "macos")]
 pub mod macos;
-#[cfg(target_os = "macos")]
-pub use macos as platform;
 
 /// Port on NON_TUN_GATEWAY that hosts a SOCKS5 server
 pub const SOCKS5_PORT: u16 = 54321;

@@ -127,7 +127,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
 
     // The tunnel must be configured after the virtual machine is up, or macOS refuses to assign an
     // IP. The reasons for this are poorly understood.
-    crate::vm::network::macos::configure_tunnel().await?;
+    crate::vm::network::wireguard::configure_tunnel().await?;
 
     Ok(TartInstance {
         child,
