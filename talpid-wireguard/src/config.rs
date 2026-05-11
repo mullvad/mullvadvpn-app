@@ -119,32 +119,6 @@ impl Config {
         Ok(config)
     }
 
-    /// Returns a CString with the appropriate config for WireGuard-go
-    // TODO: Consider outputting both overriding and additive configs
-    pub fn to_userspace_format(&self) -> CString {
-        let private_key = &self.tunnel.private_key;
-        let peers = self.peers();
-        // the order of insertion matters, public key entry denotes a new peer entry
-        let mut wg_conf = WgConfigBuffer::new();
-        wg_conf
-            .add::<&[u8]>("private_key", private_key.to_bytes().as_ref())
-            .add("listen_port", "0");
-
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = self.fwmark {
-            wg_conf.add("fwmark", fwmark.to_string().as_str());
-        }
-
-        wg_conf.add("replace_peers", "true");
-
-        for peer in peers {
-            write_peer_to_config(&mut wg_conf, peer)
-        }
-
-        let bytes = wg_conf.into_config();
-        CString::new(bytes).expect("null bytes inside config")
-    }
-
     /// Return whether the config connects to an exit peer from another remote peer.
     pub fn is_multihop(&self) -> bool {
         self.exit_peer.is_some()
