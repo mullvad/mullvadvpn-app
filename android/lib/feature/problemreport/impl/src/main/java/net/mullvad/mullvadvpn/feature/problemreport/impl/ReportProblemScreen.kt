@@ -376,7 +376,7 @@ private fun AccountInformationWarning(
 }
 
 @Composable
-private fun ColumnScope.ProblemMessageTextField(
+private fun ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
     isError: Boolean,
