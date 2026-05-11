@@ -55,14 +55,6 @@ pub enum Error {
     NftRun(io::Error),
     #[error("'nft' command failed: {0}")]
     NftFailed(i32),
-    #[error("Failed to create wg config")]
-    CreateWireguardConfig(#[source] async_tempfile::Error),
-    #[error("Failed to write wg config")]
-    WriteWireguardConfig(#[source] io::Error),
-    #[error("Failed to start 'wg'")]
-    WgStart(io::Error),
-    #[error("'wg' failed: {0}")]
-    WgFailed(i32),
     #[error("Failed to start 'dnsmasq'")]
     DnsmasqStart(io::Error),
     #[error("Failed to create dnsmasq tempfile")]

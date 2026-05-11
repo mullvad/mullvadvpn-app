@@ -33,8 +33,6 @@ const DEFAULT_AMOUNT_MEMORY: usize = 4096;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
-    #[error("Failed to set up network")]
-    Network(#[source] network::linux::Error),
     #[error("Failed to start QEMU")]
     StartQemu(#[source] io::Error),
     #[error("QEMU exited unexpectedly")]
