@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.app.service.migration
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.invoke
 import net.mullvad.mullvadvpn.lib.common.util.entryLocation
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.UserPreferences
 
+@Suppress("TooManyFunctions")
 class UserPreferencesRepository(
     private val userPreferencesStore: DataStore<UserPreferences>,
     private val buildVersion: BuildVersion,
