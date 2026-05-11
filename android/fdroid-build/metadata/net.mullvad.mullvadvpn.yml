@@ -36,6 +36,7 @@ Builds:
       - windows
       - building/sigstore
       - android/lib/billing
+      - mullvad-nsis
     prebuild:
       - sed -i -e 's|Repositories.GradlePlugins|"https://plugins.gradle.org/m2/"|'
         ../build.gradle.kts
