@@ -243,7 +243,7 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
-            if userspace_wireguard {
+            if !userspace_wireguard {
                 Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                     .await?;
             }
