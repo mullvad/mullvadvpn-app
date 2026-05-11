@@ -5,13 +5,18 @@ import { RoutePath } from '../../../../src/shared/routes';
 import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
-// This test expects the daemon to be logged in and only have "Direct" and "Mullvad Bridges"
-// access methods.
+// This test expects the daemon to be logged in and only have the default access methods:
+// "Direct", "Mullvad Bridges", "Encrypted DNS proxy" and "Domain fronting"
 // Env parameters:
 //   `SHADOWSOCKS_SERVER_IP`
 //   `SHADOWSOCKS_SERVER_PORT`
 //   `SHADOWSOCKS_SERVER_CIPHER`
 //   `SHADOWSOCKS_SERVER_PASSWORD`
+
+process.env.SHADOWSOCKS_SERVER_IP = '185.65.134.116';
+process.env.SHADOWSOCKS_SERVER_PORT = '443';
+process.env.SHADOWSOCKS_SERVER_CIPHER = 'aes-256-gcm';
+process.env.SHADOWSOCKS_SERVER_PASSWORD = 'mullvad';
 
 const DIRECT_NAME = 'Direct';
 const BRIDGES_NAME = 'Mullvad Bridges';
@@ -47,7 +52,7 @@ test('App should display access methods', async () => {
   await navigateToAccessMethods();
 
   const accessMethods = page.getByTestId('access-method');
-  await expect(accessMethods).toHaveCount(3);
+  await expect(accessMethods).toHaveCount(4);
 
   const direct = accessMethods.first();
   const bridges = accessMethods.nth(1);
@@ -90,8 +95,8 @@ test('App should add invalid access method', async () => {
   await util.expectRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
-  // Direct, Bridges, Encrypted DNS Proxy & the non-functioning access method.
-  await expect(accessMethods).toHaveCount(4);
+  // Direct, Bridges, Encrypted DNS Proxy, Domain fronting & the non-functioning access method.
+  await expect(accessMethods).toHaveCount(5);
 
   await expect(accessMethods.last()).toHaveText(NON_FUNCTIONING_METHOD_NAME);
 });
@@ -147,8 +152,8 @@ test('App should edit access method', async () => {
   await util.expectRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
-  // Direct, Bridges, Encrypted DNS Proxy & the custom access method.
-  await expect(accessMethods).toHaveCount(4);
+  // Direct, Bridges, Encrypted DNS Proxy, Domain fronting & the custom access method.
+  await expect(accessMethods).toHaveCount(5);
 
   await expect(accessMethods.last()).toHaveText(FUNCTIONING_METHOD_NAME);
 });
@@ -185,6 +190,6 @@ test('App should delete method', async () => {
 
   await expect(page.getByText(`Delete ${FUNCTIONING_METHOD_NAME}?`)).toBeVisible();
   await page.locator('button:has-text("Delete")').click();
-  // Direct, Bridges, Encrypted DNS Proxy.
-  await expect(accessMethods).toHaveCount(3);
+  // Direct, Bridges, Encrypted DNS Proxy, Domain fronting.
+  await expect(accessMethods).toHaveCount(4);
 });
