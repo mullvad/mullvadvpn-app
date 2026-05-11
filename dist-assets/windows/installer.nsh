@@ -93,7 +93,7 @@ ManifestSupportedOS "{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"
 
 	SetOutPath "$PLUGINSDIR"
 	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wintun\wintun.dll"
-	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wireguard-nt\mullvad-wireguard.dll"
+	File "${BUILD_RESOURCES_DIR}\binaries\$%TARGET_TRIPLE%\wireguard-nt\wireguard.dll"
 
 !macroend
 
