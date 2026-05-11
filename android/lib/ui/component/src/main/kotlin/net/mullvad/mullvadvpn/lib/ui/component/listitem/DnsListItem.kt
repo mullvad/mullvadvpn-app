@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.component.R
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
@@ -63,7 +64,11 @@ fun DnsListItem(
                     )
                 }
 
-                Text(text = address, maxLines = if (singleLine) 1 else Int.MAX_VALUE)
+                Text(
+                    text = address,
+                    maxLines = if (singleLine) 1 else Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         },
     )

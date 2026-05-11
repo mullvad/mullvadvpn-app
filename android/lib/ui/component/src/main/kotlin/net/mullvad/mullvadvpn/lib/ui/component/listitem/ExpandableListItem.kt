@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
@@ -57,7 +58,13 @@ fun ExpandableListItem(
         modifier = modifier,
         hierarchy = hierarchy,
         position = position,
-        content = { Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE) },
+        content = {
+            Text(
+                text = title,
+                maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
         isExpanded = isExpanded,
         isEnabled = isEnabled,
         onCellClicked = onCellClicked,

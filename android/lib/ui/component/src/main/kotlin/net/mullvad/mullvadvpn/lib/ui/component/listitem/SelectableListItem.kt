@@ -20,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
@@ -153,11 +154,16 @@ fun SelectableListItem(
         onLongClick = onLongClick,
         content = {
             Column {
-                Text(text = title, maxLines = if (singeLine) 1 else Int.MAX_VALUE)
+                Text(
+                    text = title,
+                    maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
                         maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+                        overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.labelLarge,
                         color =
                             if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant

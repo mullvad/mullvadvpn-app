@@ -1,11 +1,8 @@
 package net.mullvad.mullvadvpn.lib.ui.component.listitem
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -40,23 +37,15 @@ fun MtuListItem(
         onClick = onEditMtu,
         backgroundAlpha = backgroundAlpha,
         content = {
-            Column {
-                Text(
-                    text = stringResource(R.string.mtu),
-                    maxLines = if (singeLine) 1 else Int.MAX_VALUE,
-                )
-                Text(
-                    text =
-                        stringResource(
-                            id = R.string.mtu_x,
-                            mtuValue?.value?.toString()
-                                ?: stringResource(id = R.string.hint_default),
-                        ),
-                    maxLines = if (singeLine) 1 else Int.MAX_VALUE,
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            TitleAndSubtitle(
+                title = stringResource(R.string.mtu),
+                subtitle =
+                    stringResource(
+                        id = R.string.mtu_x,
+                        mtuValue?.value?.toString() ?: stringResource(id = R.string.hint_default),
+                    ),
+                singleLine = singeLine,
+            )
         },
         trailingContent = { Icon(imageVector = Icons.Rounded.Edit, contentDescription = null) },
     )
