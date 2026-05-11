@@ -213,7 +213,7 @@ pub async fn open_gotatun_tunnel(
 
         // TODO We should also wait for routes before sending any ping / connectivity check
 
-        // There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
+        // There is a brief period of time between setting up a Wireguard tunnel and the tunnel being ready to serve
         // traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
         if is_new_tunnel {
             let expected_routes = tun_provider.lock().unwrap().real_routes();

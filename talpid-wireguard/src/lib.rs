@@ -158,9 +158,8 @@ impl WireguardMonitor {
             .obfuscation
             .as_ref()
             .is_some_and(obfuscation::is_single_lwo);
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD
-            || params.use_userspace_wg()
-            || (is_single_lwo && cfg!(not(feature = "wireguard-go")));
+        let userspace_wireguard =
+            *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg() || is_single_lwo;
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
@@ -175,9 +174,6 @@ impl WireguardMonitor {
             .map(|ep| ep.address.ip())
             .collect();
 
-        // GotaTun is the userspace WireGuard implementation when the wireguard-go feature is off.
-        let is_gotatun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         // For GotaTun + LWO, apply_obfuscation_config returns None and obfuscation is inline.
@@ -188,7 +184,7 @@ impl WireguardMonitor {
                 &mut config,
                 obfuscation_mtu,
                 close_obfs_sender.clone(),
-                is_gotatun,
+                userspace_wireguard,
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
         if params.options.mtu.is_none()
@@ -285,7 +281,7 @@ impl WireguardMonitor {
                     obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    is_gotatun,
+                    userspace_wireguard,
                 )
                 .await
                 {
