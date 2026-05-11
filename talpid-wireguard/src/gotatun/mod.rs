@@ -33,7 +33,7 @@ use std::{
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
-use tun08::{AbstractDevice, AsyncDevice};
+use tun::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
 use gotatun::tun::{
@@ -226,10 +226,10 @@ pub async fn open_gotatun_tunnel(
                 .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
         }
 
-        let mut tun_config = tun08::Configuration::default();
+        let mut tun_config = tun::Configuration::default();
         tun_config.raw_fd(fd);
 
-        let mut device = tun08::Device::new(&tun_config).unwrap();
+        let mut device = tun::Device::new(&tun_config).unwrap();
 
         // HACK: the `tun` crate does not implement AbstractDevice::(set_)mtu on Android, instead
         // they are stubbed. `mtu()` will simply return the value set by `set_mtu()`, or 1500.
@@ -237,7 +237,7 @@ pub async fn open_gotatun_tunnel(
         // GotaTun will try to read the MTU from this, so call set_mtu here with the correct value.
         device.set_mtu(config.mtu).unwrap();
 
-        (Arc::new(tun), tun08::AsyncDevice::new(device).unwrap())
+        (Arc::new(tun), tun::AsyncDevice::new(device).unwrap())
     };
 
     let interface_name = async_tun.deref().tun_name().unwrap();

@@ -130,7 +130,8 @@ tonic-build = { version = "0.13.1", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
-tun = { version = "0.5.5", features = ["async"] }
+tun = { version = "0.8.5", default-features = false, features = ["async"] }
+tun05 = { package = "tun", version = "0.5.5", features = ["async"] }
 vec1 = "1.12"
 webpki-roots = "1.0.4"
 widestring = "1.2"

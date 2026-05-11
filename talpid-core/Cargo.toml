@@ -54,7 +54,7 @@ socket2 = { workspace = true }
 talpid-macos = { path = "../talpid-macos" }
 talpid-net = { path = "../talpid-net" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-tun = { workspace = true, features = ["async"] }
+tun05 = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dev-dependencies]
 typed-builder = "0.20.0"
