@@ -233,7 +233,7 @@ async fn start_packet_monitor_for_interface(
         .expect("Failed to open capture handle")
         .immediate_mode(true)
         .open()
-        .context("Failed to activate capture")?;
+        .with_context(|| format!("Failed to activate capture on interface {interface}"))?;
 
     if let Some(direction) = monitor_options.direction {
         dev.direction(direction).unwrap();
