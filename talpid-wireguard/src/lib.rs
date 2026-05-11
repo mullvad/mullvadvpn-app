@@ -696,10 +696,9 @@ impl WireguardMonitor {
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
-
-            let f = gotatun::open_gotatun_tunnel(config, tun_provider);
-
-            let tunnel = runtime.block_on(f).map(Box::new)?;
+            let tunnel = runtime
+                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                .map(Box::new)?;
             Ok(tunnel)
         } else {
             let res = if will_nm_manage_dns() {
