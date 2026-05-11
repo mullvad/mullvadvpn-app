@@ -138,10 +138,9 @@ pub fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
 
 #[cfg(target_os = "android")]
 pub(crate) fn create_bypass_tx(
-    event_sender: &DaemonEventSender,
+    daemon_tx: DaemonEventSender<DaemonCommand>,
 ) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
     let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
-    let daemon_tx = event_sender.to_specialized_sender();
     tokio::spawn(async move {
         while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
             if daemon_tx
