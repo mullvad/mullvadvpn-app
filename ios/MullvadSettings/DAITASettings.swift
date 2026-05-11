@@ -1,17 +1,22 @@
-//
-//  DAITASettings.swift
-//  MullvadSettings
-//
-//  Created by Mojgan on 2024-08-08.
-//  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+////
+////  DAITASettings.swift
+////  MullvadSettings
+////
+////  Created by Mojgan on 2024-08-08.
+////  Copyright © 2026 Mullvad VPN AB. All rights reserved.
+////
 //
 
 import Foundation
 
-/// Whether DAITA is enabled.
+/// Whether DAITA is enabled
 public enum DAITAState: Codable, Sendable {
     case on
     case off
+
+    public var isEnabled: Bool {
+        self == .on
+    }
 }
 
 /// Whether "direct only" is enabled, meaning no automatic routing to DAITA relays.
@@ -20,12 +25,7 @@ public enum DirectOnlyState: Codable, Sendable {
     case off
 
     public var isEnabled: Bool {
-        get {
-            self == .on
-        }
-        set {
-            self = newValue ? .on : .off
-        }
+        self == .on
     }
 }
 
@@ -35,20 +35,45 @@ public enum DAITASettingsCompatibilityError {
 }
 
 public struct DAITASettings: Codable, Equatable, Sendable {
+
+    enum CodingKeys: String, CodingKey {
+        // new serialized name
+        case daitaState
+        case directOnlyState
+
+        // old serialized names
+        case smartRoutingState
+        case state
+    }
+
     @available(*, deprecated, renamed: "daitaState")
     public let state: DAITAState = .off
 
     public var daitaState: DAITAState
-    /// > Warning: Deprecated and should only be used in multihop migration.
-    public var directOnlyState: DirectOnlyState = .off
+
+    @available(
+        *, deprecated,
+        message: "Deprecated: Do not use this API in new implementations. It is supported only for multihop migration.."
+    )
+    public var directOnlyState: DirectOnlyState
 
     public var isEnabled: Bool {
         get { daitaState == .on }
         set { daitaState = newValue ? .on : .off }
     }
 
-    public init(daitaState: DAITAState = .off) {
+    public init(daitaState: DAITAState = .off, directOnlyState: DirectOnlyState = .off) {
         self.daitaState = daitaState
+        self.directOnlyState = directOnlyState
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(daitaState, forKey: .daitaState)
+
+        // encode only the new key
+        try container.encode(directOnlyState, forKey: .directOnlyState)
     }
 
     public init(from decoder: any Decoder) throws {
@@ -57,6 +82,17 @@ public struct DAITASettings: Codable, Equatable, Sendable {
         daitaState =
             try container.decodeIfPresent(DAITAState.self, forKey: .daitaState)
             ?? container.decodeIfPresent(DAITAState.self, forKey: .state)
+            ?? .off
+
+        directOnlyState =
+            try container.decodeIfPresent(
+                DirectOnlyState.self,
+                forKey: .directOnlyState
+            )
+            ?? container.decodeIfPresent(
+                DirectOnlyState.self,
+                forKey: .smartRoutingState
+            )
             ?? .off
     }
 }
