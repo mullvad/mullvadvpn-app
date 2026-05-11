@@ -122,17 +122,12 @@ rustc-link-lib = ["dbus-1"]
 
 ## Windows
 
-The host has to have the following installed:
+In addition to the above, the host has to have the following installed:
 
 - Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
   Community or Pro edition works as well).
 
 - Windows 10 (or Windows 11) SDK.
-
-- `bash` and base Unix utilities must be installed and available in PATH (see the requirement in
-  the [All platforms](#all-platforms) section above).
-
-- `zig` installed and available in `%PATH%`. 0.14 or later is recommended: https://ziglang.org/download/.
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
@@ -178,14 +173,6 @@ In addition to the above requirements:
 
   The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
   that that script assumes that you're running VS 2022 Community.
-
-## macOS
-
-The host has to have the following installed:
-
-- A recent version of `bash`. The default version in macOS (3.2.57) isn't supported.
-
-- `clang` is required for CGo.
 
 # Building and packaging the app
 
