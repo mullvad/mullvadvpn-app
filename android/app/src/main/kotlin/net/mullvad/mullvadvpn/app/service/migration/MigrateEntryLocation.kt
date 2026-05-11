@@ -14,7 +14,7 @@ class MigrateEntryLocation(
     suspend fun migrate() {
         if (!userPreferencesRepository.hasMigratedEntryLocation()) {
             if (
-                managementService.settings.firstOrNull()?.entryLocation() !=
+                managementService.settings.firstOrNull()?.entryLocation() ==
                     Constraint.Only(GeoLocationId.Country(""))
             ) {
                 managementService.setEntryLocation(Constraint.Any)
