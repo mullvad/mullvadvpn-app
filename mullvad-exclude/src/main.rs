@@ -21,7 +21,7 @@ mod inner {
         #[error("Invalid arguments")]
         InvalidArguments,
 
-        #[error("Cannot assing process to cgroup")]
+        #[error("Cannot assign process to cgroup")]
         AddProcToCGroup(#[from] talpid_cgroup::Error),
 
         #[error("Failed to drop root user privileges for the process")]
