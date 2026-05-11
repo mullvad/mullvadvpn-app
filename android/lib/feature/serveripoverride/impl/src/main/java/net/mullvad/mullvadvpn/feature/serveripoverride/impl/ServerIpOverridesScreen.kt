@@ -95,6 +95,8 @@ private fun PreviewServerIpOverridesScreen(
     }
 }
 
+private val SUPPORTED_SERVER_IP_OVERRIDE_FILE_TYPES = arrayOf("application/json", "text/plain")
+
 @Composable
 fun SharedTransitionScope.ServerIpOverrides(
     navArgs: ServerIpOverrideNavKey,
@@ -121,7 +123,7 @@ fun SharedTransitionScope.ServerIpOverrides(
     val resultStore = LocalResultStore.current
 
     val openFileLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
+        rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
             if (it != null) {
                 vm.importFile(it)
             }
@@ -132,7 +134,7 @@ fun SharedTransitionScope.ServerIpOverrides(
     resultStore.consumeResult<ImportOverrideByTextNavResult> { vm.importText(it.text) }
 
     resultStore.consumeResult<ImportOverrideByFileNavResult> {
-        openFileLauncher.launch("application/json")
+        openFileLauncher.launch(SUPPORTED_SERVER_IP_OVERRIDE_FILE_TYPES)
     }
 
     // On successful clear of overrides, show snackbar
