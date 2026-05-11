@@ -196,7 +196,7 @@ private fun ReportProblemScreen(
 }
 
 @Composable
-private fun InputContent(
+private fun ColumnScope.InputContent(
     state: ReportProblemUiState,
     onEmailChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
@@ -225,6 +225,7 @@ private fun InputContent(
     )
 
     ProblemMessageTextField(
+        modifier = Modifier.weight(1f),
         value = state.description,
         isError = state.descriptionError != null,
         onDescriptionChanged = onDescriptionChanged,
@@ -375,7 +376,7 @@ private fun AccountInformationWarning(
 }
 
 @Composable
-private fun ProblemMessageTextField(
+private fun ColumnScope.ProblemMessageTextField(
     modifier: Modifier = Modifier,
     value: String,
     isError: Boolean,
