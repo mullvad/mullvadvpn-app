@@ -148,7 +148,7 @@ fun InactiveRelayIndicator(modifier: Modifier = Modifier, tint: Color) {
 private val RelayListItem.SelectableItem.titleAnnotated: AnnotatedString
     @Composable
     get() =
-        item.name.highlightText(highlight, MaterialTheme.colorScheme.highlight).withSuffix(state)
+        item.name.highlightText(highlights, MaterialTheme.colorScheme.highlight).withSuffix(state)
 
 @Composable
 private fun AnnotatedString.withSuffix(state: RelayListItemState?): AnnotatedString {

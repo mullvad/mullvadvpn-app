@@ -247,7 +247,7 @@ private fun createCustomListRelayItems(
         add(
             RelayListItem.CustomListItem(
                 item = customList,
-                highlight = searchTerm,
+                highlights = searchTerm.highlights(),
                 isSelected = selectedByThisEntryExitList == customList.id,
                 state =
                     customList.createState(
@@ -412,7 +412,7 @@ private fun createGeoLocationEntry(
     add(
         RelayListItem.GeoLocationItem(
             item = item,
-            highlight = searchTerm,
+            highlights = searchTerm.highlights(),
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(
@@ -557,3 +557,10 @@ private fun RelayItem.createState(
         null
     }
 }
+
+private fun String.highlights() =
+    if (this.isNotEmpty()) {
+        listOf(this)
+    } else {
+        emptyList()
+    }
