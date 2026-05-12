@@ -64,12 +64,12 @@ mod test {
               "normal": {
                 "wireguard_constraints": {
                     "entry_location": {
-          "only": {
-            "location": {
-              "country": ""
-            }
-          }
-        }
+                        "only": {
+                            "location": {
+                                "country": ""
+                            }
+                        }
+                    }
                 }
               }
             }
@@ -102,12 +102,12 @@ mod test {
               "normal": {
                 "wireguard_constraints": {
                     "entry_location": {
-          "only": {
-            "location": {
-              "country": "se"
-            }
-          }
-        }
+                        "only": {
+                            "location": {
+                                "country": "se"
+                            }
+                        }
+                    }
                 }
               }
             }
