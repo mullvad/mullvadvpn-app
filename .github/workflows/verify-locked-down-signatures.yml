@@ -19,7 +19,6 @@ on:
       - mullvad-ios/deny.toml
       - rust-toolchain.toml
       - desktop/package-lock.json
-      - wireguard-go-rs/libwg/go.sum
       - ci/keys/**
       - ci/verify-locked-down-signatures.sh
       - ios/MullvadVPN.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved

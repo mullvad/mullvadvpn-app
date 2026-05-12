@@ -1,7 +1,7 @@
 use super::TunConfig;
 use std::{io, net::IpAddr, ops::Deref};
-use tun08::{self as tun, AbstractDeviceExt};
-use tun08::{AbstractDevice, AsyncDevice, Configuration};
+use tun::{self, AbstractDeviceExt};
+use tun::{AbstractDevice, AsyncDevice, Configuration};
 use windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH;
 
 /// Errors that can occur while setting up a tunnel device.
@@ -70,7 +70,7 @@ impl WindowsTunProvider {
             builder.config.mtu(self.config.mtu);
             builder
                 .config
-                .platform_config(|cfg: &mut tun08::PlatformConfig| {
+                .platform_config(|cfg: &mut tun::PlatformConfig| {
                     cfg.device_guid(ADAPTER_GUID);
 
                     let wintun_path = self.config.resource_dir.join("wintun.dll");

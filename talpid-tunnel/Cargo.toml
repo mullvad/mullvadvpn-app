@@ -15,13 +15,8 @@ talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 tokio = { workspace = true, features = ["fs", "process", "rt-multi-thread"] }
 
-[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-tun = { workspace = true, optional = true }  # use tun 0.5.5 for wireguard-go
-
 [target.'cfg(not(target_os = "android"))'.dependencies]
-tun08 = { package = "tun", version = "0.8.5", default-features = false, features = [
-  "async",
-] }
+tun = { workspace = true }
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.5.1", features = ["derive"] }
@@ -37,9 +32,6 @@ features = [
   "Win32_NetworkManagement_Ndis",
   "Win32_Networking_WinSock",
 ]
-
-[features]
-wireguard-go = ["dep:tun"]
 
 [lints]
 workspace = true

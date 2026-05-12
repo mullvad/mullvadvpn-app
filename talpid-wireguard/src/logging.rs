@@ -1,4 +1,4 @@
-#![cfg(any(windows, feature = "wireguard-go"))]
+#![cfg(windows)]
 use parking_lot::Mutex;
 use std::{collections::HashMap, fmt, fs, io::Write, path::Path, sync::LazyLock};
 
@@ -46,21 +46,15 @@ pub fn clean_up_logging(ordinal: u64) {
 }
 
 pub enum LogLevel {
-    #[cfg_attr(all(windows, not(feature = "wireguard-go")), expect(dead_code))]
+    #[cfg_attr(windows, expect(dead_code))]
     Verbose,
     #[cfg_attr(
-        all(
-            any(target_os = "linux", target_os = "android", target_os = "macos"),
-            feature = "wireguard-go"
-        ),
+        any(target_os = "linux", target_os = "android", target_os = "macos"),
         expect(dead_code)
     )]
     Info,
     #[cfg_attr(
-        all(
-            any(target_os = "linux", target_os = "android", target_os = "macos"),
-            feature = "wireguard-go"
-        ),
+        any(target_os = "linux", target_os = "android", target_os = "macos"),
         expect(dead_code)
     )]
     Warning,

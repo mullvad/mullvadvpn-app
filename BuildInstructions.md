@@ -36,9 +36,6 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- Install Go (ideally version `1.21`) by following the [official instructions](https://golang.org/doc/install).
-  Newer versions may work too. This is optional if using `--gotatun`.
-
 - Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
   binaries are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases)
@@ -125,17 +122,12 @@ rustc-link-lib = ["dbus-1"]
 
 ## Windows
 
-The host has to have the following installed:
+In addition to the above, the host has to have the following installed:
 
 - Microsoft's _Build Tools for Visual Studio 2022_ (a regular installation of Visual Studio 2022
   Community or Pro edition works as well).
 
 - Windows 10 (or Windows 11) SDK.
-
-- `bash` and base Unix utilities must be installed and available in PATH (see the requirement in
-  the [All platforms](#all-platforms) section above).
-
-- `zig` installed and available in `%PATH%`. 0.14 or later is recommended: https://ziglang.org/download/.
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
@@ -182,14 +174,6 @@ In addition to the above requirements:
   The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
   that that script assumes that you're running VS 2022 Community.
 
-## macOS
-
-The host has to have the following installed:
-
-- A recent version of `bash`. The default version in macOS (3.2.57) isn't supported.
-
-- `clang` is required for CGo.
-
 # Building and packaging the app
 
 The simplest way to build the entire app and generate an installer is to just run the build script.
@@ -205,7 +189,6 @@ Building this requires at least 1GB of memory.
 ## Notes on options
 
 - `--daemon-only` - This will build daemon only Linux packages (e.g. `mullvad-vpn-daemon`). You will need to install additional build tools: `cargo install cargo-deb cargo-generate-rpm`.
-- `--gotatun` - This will build with the `gotatun` Rust library instead the `wireguard-go-rs` Go library.
 
 ## Notes on targeting ARM64
 

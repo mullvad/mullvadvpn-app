@@ -31,11 +31,7 @@ use talpid_types::{
 };
 use tokio::sync::Mutex as AsyncMutex;
 
-#[cfg(not(feature = "wireguard-go"))]
 mod gotatun;
-
-#[cfg(feature = "wireguard-go")]
-mod wireguard_go;
 
 /// WireGuard config data-types
 pub mod config;
@@ -162,9 +158,8 @@ impl WireguardMonitor {
             .obfuscation
             .as_ref()
             .is_some_and(obfuscation::is_single_lwo);
-        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD
-            || params.use_userspace_wg()
-            || (is_single_lwo && cfg!(not(feature = "wireguard-go")));
+        let userspace_wireguard =
+            *FORCE_USERSPACE_WIREGUARD || params.use_userspace_wg() || is_single_lwo;
         let route_mtu = args
             .runtime
             .block_on(get_route_mtu(params, &args.route_manager));
@@ -179,9 +174,6 @@ impl WireguardMonitor {
             .map(|ep| ep.address.ip())
             .collect();
 
-        // GotaTun is the userspace WireGuard implementation when the wireguard-go feature is off.
-        let is_gotatun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         // For GotaTun + LWO, apply_obfuscation_config returns None and obfuscation is inline.
@@ -192,7 +184,7 @@ impl WireguardMonitor {
                 &mut config,
                 obfuscation_mtu,
                 close_obfs_sender.clone(),
-                is_gotatun,
+                userspace_wireguard,
             ))?;
         // Adjust tunnel MTU again for obfuscation packet overhead
         if params.options.mtu.is_none()
@@ -211,10 +203,7 @@ impl WireguardMonitor {
             &config,
             #[cfg(target_os = "windows")]
             args.resource_dir,
-            #[cfg(not(all(target_os = "windows", feature = "wireguard-go")))]
             args.tun_provider.clone(),
-            #[cfg(all(windows, feature = "wireguard-go"))]
-            args.route_manager.clone(),
             #[cfg(target_os = "windows")]
             setup_done_tx,
             userspace_wireguard,
@@ -254,8 +243,7 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             #[cfg(windows)]
-            // NOTE: For gotatun, we use the `tun` crate to create our tunnel interface.
-            if cfg!(feature = "wireguard-go") || !userspace_wireguard {
+            if !userspace_wireguard {
                 Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                     .await?;
             }
@@ -293,7 +281,7 @@ impl WireguardMonitor {
                     obfuscation_mtu,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    is_gotatun,
+                    userspace_wireguard,
                 )
                 .await
                 {
@@ -412,7 +400,7 @@ impl WireguardMonitor {
     ///
     /// This differs from [`start`] on other platforms in multiple ways. Here is a list of some
     /// notable differences:
-    /// - A ping is sent between the Wireguard-GO tunnel is started and an ephemeral peer is
+    /// - A ping is sent between the WG tunnel is started and an ephemeral peer is
     ///   negotiated. There seems to be a race condition between starting the tunnel and the tunnel
     ///   being ready to serve traffic.
     /// - No routes are configured on android.
@@ -420,9 +408,7 @@ impl WireguardMonitor {
     pub fn start(
         params: &TunnelParameters,
         args: TunnelArgs<'_>,
-        #[cfg_attr(not(feature = "wireguard-go"), expect(unused_variables))] log_path: Option<
-            &Path,
-        >,
+        _log_path: Option<&Path>,
     ) -> Result<WireguardMonitor> {
         let route_mtu = args
             .runtime
@@ -460,7 +446,6 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        #[cfg_attr(feature = "wireguard-go", expect(unused_mut))]
         let mut connectivity_monitor = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
@@ -468,7 +453,6 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        #[cfg(not(feature = "wireguard-go"))]
         let tunnel = args
             .runtime
             .block_on(gotatun::open_gotatun_tunnel(
@@ -476,22 +460,6 @@ impl WireguardMonitor {
                 args.tun_provider.clone(),
                 args.route_manager,
                 should_negotiate_ephemeral_peer,
-            ))
-            .map(Box::new)? as Box<dyn Tunnel>;
-
-        #[cfg(feature = "wireguard-go")]
-        let tunnel = args
-            .runtime
-            .block_on(wireguard_go::open_wireguard_go_tunnel(
-                &config,
-                log_path,
-                args.tun_provider.clone(),
-                args.route_manager,
-                // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
-                // that we only allows traffic to/from the gateway. This is only needed on Android
-                // since we lack a firewall there.
-                should_negotiate_ephemeral_peer,
-                cancel_receiver,
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
@@ -519,7 +487,6 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-            #[cfg(not(feature = "wireguard-go"))]
             {
                 let lock = tunnel.lock().await;
                 let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
@@ -676,10 +643,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         resource_dir: &Path,
-        #[cfg(not(feature = "wireguard-go"))] tun_provider: Arc<
-            std::sync::Mutex<tun_provider::TunProvider>,
-        >,
-        #[cfg(feature = "wireguard-go")] route_manager: talpid_routing::RouteManagerHandle,
+        tun_provider: Arc<std::sync::Mutex<tun_provider::TunProvider>>,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         userspace_wireguard: bool,
         _log_path: Option<&Path>,
@@ -689,19 +653,8 @@ impl WireguardMonitor {
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
 
-            #[cfg(not(feature = "wireguard-go"))]
             let tunnel = runtime
                 .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
-                .map(Box::new)?;
-
-            #[cfg(feature = "wireguard-go")]
-            let tunnel = runtime
-                .block_on(wireguard_go::open_wireguard_go_tunnel(
-                    config,
-                    _log_path,
-                    setup_done_tx,
-                    route_manager,
-                ))
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
@@ -725,16 +678,6 @@ impl WireguardMonitor {
 
         log::debug!("Using userspace WireGuard implementation");
 
-        #[cfg(feature = "wireguard-go")]
-        let tunnel = runtime
-            .block_on(wireguard_go::open_wireguard_go_tunnel(
-                config,
-                _log_path,
-                tun_provider,
-            ))
-            .map(Box::new)?;
-
-        #[cfg(not(feature = "wireguard-go"))]
         let tunnel = runtime
             .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
             .map(Box::new)?;
@@ -753,14 +696,9 @@ impl WireguardMonitor {
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
-
-            #[cfg(feature = "wireguard-go")]
-            let f = wireguard_go::open_wireguard_go_tunnel(config, _log_path, tun_provider);
-
-            #[cfg(not(feature = "wireguard-go"))]
-            let f = gotatun::open_gotatun_tunnel(config, tun_provider);
-
-            let tunnel = runtime.block_on(f).map(Box::new)?;
+            let tunnel = runtime
+                .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                .map(Box::new)?;
             Ok(tunnel)
         } else {
             let res = if will_nm_manage_dns() {
@@ -776,22 +714,9 @@ impl WireguardMonitor {
             res.or_else(|err| {
                     log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
 
-                    #[cfg(feature = "wireguard-go")]
-                    {
-                        Ok(runtime
-                            .block_on(wireguard_go::open_wireguard_go_tunnel(
-                                config,
-                                _log_path,
-                                tun_provider,
-                            ))
-                            .map(Box::new)?)
-                    }
-                    #[cfg(not(feature = "wireguard-go"))]
-                    {
-                        Ok(runtime
-                            .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
-                            .map(Box::new)?)
-                    }
+                    Ok(runtime
+                        .block_on(gotatun::open_gotatun_tunnel(config, tun_provider))
+                        .map(Box::new)?)
                 })
         }
     }
@@ -975,7 +900,7 @@ impl WireguardMonitor {
         // TODO: surely this applies to all kinds of userspace multihop, not just gotatun?
         // For userspace multihop, per-route MTU is unnecessary. Packets are not sent back to
         // the tunnel interface, so we're not constrained by its MTU.
-        let using_gotatun = userspace_wireguard && cfg!(not(feature = "wireguard-go"));
+        let using_gotatun = userspace_wireguard;
 
         if !config.is_multihop() || using_gotatun {
             route
@@ -1135,7 +1060,7 @@ pub enum TunnelError {
     InvalidAlias,
 
     /// Failure to set up logging
-    #[cfg(any(windows, feature = "wireguard-go"))]
+    #[cfg(windows)]
     #[error("Failed to set up logging")]
     LoggingError(#[source] logging::Error),
 
@@ -1150,12 +1075,10 @@ pub enum TunnelError {
     DaitaNotSupported,
 
     /// GotaTun device error
-    #[cfg(not(feature = "wireguard-go"))]
     #[error("GotaTun: {0:?}")]
     GotaTunDevice(::gotatun::device::Error),
 
     /// Failed to configure GotaTun device.
-    #[cfg(not(feature = "wireguard-go"))]
     #[error("Failed to configure the GotaTun device")]
     ConfigureGotaTunDevice(#[source] gotatun::ConfigureGotaTunDeviceError),
 }
