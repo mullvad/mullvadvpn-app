@@ -2,7 +2,8 @@ mod device;
 mod service;
 mod split_tunnel;
 
-use std::{io, path::PathBuf, ptr};
+use std::os::windows::ffi::OsStrExt;
+use std::{ffi::OsStr, io, path::PathBuf, ptr};
 use windows_sys::Win32::{
     Devices::DeviceAndDriverInstallation::GUID_DEVCLASS_NET,
     Foundation::{FALSE, FreeLibrary, HMODULE},
@@ -140,7 +141,7 @@ struct Dll {
 impl Dll {
     /// - path: Path to a dll library.
     fn load(path: PathBuf) -> Result<Self, Error> {
-        let dll_path = encode_as_utf16(path);
+        let dll_path = as_utf16_with_nul(path);
         // SAFETY: `dll_path` is a NUL-terminated UTF-16 string; the reserved handle is NULL as required.
         let handle: HMODULE = unsafe {
             LoadLibraryExW(
@@ -205,9 +206,7 @@ fn dll_path(dll_name: &str) -> io::Result<PathBuf> {
     std::env::current_exe().map(|path| path.parent().unwrap().join(dll_name))
 }
 
-fn encode_as_utf16(path: PathBuf) -> Vec<u16> {
-    path.to_string_lossy()
-        .encode_utf16()
-        .chain(std::iter::once(0))
-        .collect()
+/// Encode `s` as a NUL-terminated UTF-16/WTF-16 string.
+fn as_utf16_with_nul(s: impl AsRef<OsStr>) -> Vec<u16> {
+    s.as_ref().encode_wide().chain(std::iter::once(0)).collect()
 }

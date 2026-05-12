@@ -1,7 +1,7 @@
 use std::{
     ffi::{OsStr, OsString},
     io, mem,
-    os::windows::ffi::{OsStrExt, OsStringExt},
+    os::windows::ffi::OsStringExt,
     path::PathBuf,
     ptr,
 };
@@ -22,6 +22,8 @@ use windows_sys::{
     },
     core::GUID,
 };
+
+use super::as_utf16_with_nul;
 
 const ERROR_INSUFFICIENT_BUFFER: i32 =
     windows_sys::Win32::Foundation::ERROR_INSUFFICIENT_BUFFER as i32;
@@ -66,7 +68,7 @@ impl DeviceInfoSet {
             )
         };
 
-        if device_info_set == -1 {
+        if device_info_set == INVALID_HANDLE_VALUE as isize {
             return Err(io::Error::last_os_error());
         }
 
@@ -378,12 +380,12 @@ impl<'d, 'a: 'd> CompatDriverInfoList<'d, 'a> {
                 }
             }
 
-            let nul_at = detail
+            let inf_path = detail
                 .InfFileName
-                .iter()
-                .position(|&c| c == 0)
+                .split(|&c| c == 0)
+                .next()
                 .expect("path is null-terminated");
-            let inf_path = OsString::from_wide(&detail.InfFileName[..nul_at]);
+            let inf_path = OsString::from_wide(inf_path);
             if let Some(file_name) = PathBuf::from(inf_path).file_name() {
                 inf_names.push(file_name.to_os_string());
             }
@@ -492,9 +494,4 @@ impl Drop for DevRegKey {
         // SAFETY: `self.key` is a valid reg key handle
         unsafe { RegCloseKey(self.key) };
     }
-}
-
-/// Encode `s` as a NUL-terminated UTF-16 string.
-fn as_utf16_with_nul(s: impl AsRef<OsStr>) -> Vec<u16> {
-    s.as_ref().encode_wide().chain(std::iter::once(0)).collect()
 }
