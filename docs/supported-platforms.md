@@ -63,10 +63,9 @@ DEs, but we don't regularly test those.
 |------------------------|--------------|--------------|
 | Debian 12              | x86-64       | manual       |
 | Debian 13              | x86-64       | e2e, manual  |
-| Ubuntu 22.04           | x86-64       | e2e, manual  |
 | Ubuntu 24.04           | x86-64       | e2e, manual  |
-| Ubuntu 25.04           | x86-64       | e2e, manual  |
 | Ubuntu 25.10           | x86-64       | e2e, manual  |
+| Ubuntu 26.04           | x86-64       | e2e, manual  |
 | Fedora 43              | x86-64       | e2e, manual  |
 | Fedora 44              | x86-64       | e2e, manual  |
 
