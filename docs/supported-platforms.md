@@ -67,8 +67,8 @@ DEs, but we don't regularly test those.
 | Ubuntu 24.04           | x86-64       | e2e, manual  |
 | Ubuntu 25.04           | x86-64       | e2e, manual  |
 | Ubuntu 25.10           | x86-64       | e2e, manual  |
-| Fedora 42              | x86-64       | e2e, manual  |
 | Fedora 43              | x86-64       | e2e, manual  |
+| Fedora 44              | x86-64       | e2e, manual  |
 
 ## Android
 
