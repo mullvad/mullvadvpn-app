@@ -71,6 +71,7 @@ class EditApiAccessMethodScreenTest {
                     formData = EditApiAccessFormData.empty(),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 )
         )
 
@@ -88,6 +89,7 @@ class EditApiAccessMethodScreenTest {
                     formData = EditApiAccessFormData.empty(),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 )
         )
 
@@ -113,6 +115,7 @@ class EditApiAccessMethodScreenTest {
                         ),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 )
         )
 
@@ -138,6 +141,7 @@ class EditApiAccessMethodScreenTest {
                         ),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 )
         )
 
@@ -166,6 +170,7 @@ class EditApiAccessMethodScreenTest {
                         ),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 )
         )
 
@@ -185,6 +190,7 @@ class EditApiAccessMethodScreenTest {
                     formData = EditApiAccessFormData.empty(),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 ),
             onNameChanged = onNameChanged,
             // This is required to avoid a crash due to the keyboard trying to open at the same
@@ -219,6 +225,7 @@ class EditApiAccessMethodScreenTest {
                             ),
                         hasChanges = false,
                         isTestingApiAccessMethod = false,
+                        shadowSocksCiphers = emptyList(),
                     )
             )
 
@@ -238,6 +245,7 @@ class EditApiAccessMethodScreenTest {
                     formData = EditApiAccessFormData.empty(),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 ),
             onTestMethod = onTestMethod,
         )
@@ -260,6 +268,7 @@ class EditApiAccessMethodScreenTest {
                     formData = EditApiAccessFormData.empty(),
                     hasChanges = false,
                     isTestingApiAccessMethod = false,
+                    shadowSocksCiphers = emptyList(),
                 ),
             onAddMethod = onAddMethod,
         )

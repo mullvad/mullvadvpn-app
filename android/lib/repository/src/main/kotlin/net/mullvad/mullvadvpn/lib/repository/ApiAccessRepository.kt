@@ -14,7 +14,9 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.GetApiAccessMethodError
+import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.UpdateApiAccessMethodError
 
@@ -95,4 +97,7 @@ class ApiAccessRepository(
             }
         }
     }
+
+    suspend fun getShadowsocksCiphers(): Either<GetShadowsocksCiphersError, List<Cipher>> =
+        managementService.getShadowsocksCiphers()
 }

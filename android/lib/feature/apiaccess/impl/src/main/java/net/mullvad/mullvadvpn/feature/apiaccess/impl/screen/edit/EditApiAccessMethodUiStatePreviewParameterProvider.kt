@@ -18,6 +18,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                 formData = EditApiAccessFormData.empty(),
                 hasChanges = false,
                 isTestingApiAccessMethod = false,
+                shadowSocksCiphers = emptyList(),
             ),
             // Shadowsocks, no errors
             EditApiAccessMethodUiState.Content(
@@ -36,6 +37,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                         )
                     },
                 isTestingApiAccessMethod = false,
+                shadowSocksCiphers = emptyList(),
             ),
             // Socks5 Remote, no errors, testing method
             EditApiAccessMethodUiState.Content(
@@ -54,6 +56,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                         )
                     },
                 isTestingApiAccessMethod = true,
+                shadowSocksCiphers = emptyList(),
             ),
             // Socks 5 remote, required errors
             EditApiAccessMethodUiState.Content(
@@ -72,6 +75,7 @@ class EditApiAccessMethodUiStatePreviewParameterProvider :
                             )
                         ),
                 isTestingApiAccessMethod = false,
+                shadowSocksCiphers = emptyList(),
             ),
         )
 }
