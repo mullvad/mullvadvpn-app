@@ -28,6 +28,6 @@ val CUSTOM_ACCESS_METHOD =
                 ip = "1.1.1.1",
                 port = Port(123),
                 password = "Password",
-                cipher = Cipher.RC4,
+                cipher = Cipher("rc4"),
             ),
     )

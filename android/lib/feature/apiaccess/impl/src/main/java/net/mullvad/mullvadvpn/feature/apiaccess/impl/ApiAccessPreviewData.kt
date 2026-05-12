@@ -51,6 +51,6 @@ internal val shadowsocks =
             ip = "192.168.1.1",
             port = Port(123),
             password = "Password",
-            cipher = Cipher.fromString("aes-128-cfb"),
+            cipher = Cipher("aes-128-cfb"),
         ),
     )
