@@ -17,6 +17,7 @@ sealed interface EditApiAccessMethodUiState {
         val formData: EditApiAccessFormData,
         val hasChanges: Boolean,
         val isTestingApiAccessMethod: Boolean,
+        val shadowSocksCiphers: List<Cipher>,
     ) : EditApiAccessMethodUiState
 
     fun hasChanges() = this is Content && hasChanges
@@ -37,7 +38,7 @@ data class EditApiAccessFormData(
     val usernameError: InvalidDataError.UserNameError? = null,
     val password: String,
     val passwordError: InvalidDataError.PasswordError? = null,
-    val cipher: Cipher = Cipher.first(),
+    val cipher: Cipher = Cipher(""),
 ) {
     fun updateWithErrors(errors: NonEmptyList<InvalidDataError>): EditApiAccessFormData =
         copy(

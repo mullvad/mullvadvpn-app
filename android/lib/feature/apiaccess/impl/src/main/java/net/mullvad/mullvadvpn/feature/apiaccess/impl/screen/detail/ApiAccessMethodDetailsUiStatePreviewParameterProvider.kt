@@ -41,7 +41,7 @@ class ApiAccessMethodDetailsUiStatePreviewParameterProvider :
                                     "123.123.123.123",
                                     Port.fromString("1234").getOrNull()!!,
                                     null,
-                                    Cipher.CHACHA20_IETF_POLY1305,
+                                    Cipher("aes-128-cfb"),
                                 ),
                         ),
                     isCurrentMethod = true,
