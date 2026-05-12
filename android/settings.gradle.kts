@@ -58,6 +58,8 @@ include(
     ":lib:feature:daita:api",
     ":lib:feature:deleteaccount:impl",
     ":lib:feature:deleteaccount:api",
+    ":lib:feature:dns:impl",
+    ":lib:feature:dns:api",
     ":lib:feature:filter:impl",
     ":lib:feature:filter:api",
     ":lib:feature:home:impl",

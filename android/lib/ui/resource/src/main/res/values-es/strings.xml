@@ -123,7 +123,6 @@
     <string name="current_device">Dispositivo actual</string>
     <string name="current_method">Actual: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Deshabilite todos los «%1$s» de arriba para activar este ajuste.</string>
-    <string name="custom_dns_footer">Active esta opción para agregar como mínimo un servidor DNS.</string>
     <string name="custom_dns_hint">Introducir IP</string>
     <string name="custom_list_error_list_exists">Este nombre ya se está utilizando.</string>
     <string name="custom_lists">Listas personalizadas</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Descartar</string>
     <string name="divier_or">O bien</string>
     <string name="dns_content_blockers">Bloqueadores de contenido DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">Atención: este ajuste no se puede utilizar en combinación con «Usar servidor DNS personalizado».</string>
-    <string name="dns_content_blockers_info">Al activar esta opción se evita que el dispositivo contacte con determinados dominios o sitios web que se sabe que distribuyen anuncios, malware, rastreadores y más.</string>
     <string name="dns_content_blockers_subtitle">Deshabilite «%1$s» abajo para activar estos ajustes.</string>
-    <string name="dns_content_blockers_warning">Esto podría causar problemas con determinados sitios web, servicios y aplicaciones.</string>
     <string name="duplicate_address_warning">Esta dirección ya se ha introducido.</string>
     <string name="edit_custom_lists">Editar listas personalizadas</string>
     <string name="edit_list">Editar lista</string>
@@ -427,7 +423,6 @@
     <string name="settings">Configuración</string>
     <string name="settings_account">Cuenta</string>
     <string name="settings_api_access">Acceso a API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Los cambios en la configuración relacionada con el DNS no surtirán efecto inmediatamente debido a los resultados en caché.</string>
     <string name="settings_changes_effect_warning_short">La configuración de DNS podría no surtir efecto inmediatamente</string>
     <string name="settings_notifications">Notificaciones</string>
     <string name="settings_patch_error_failed_to_apply_patch">Error al aplicar el parche</string>

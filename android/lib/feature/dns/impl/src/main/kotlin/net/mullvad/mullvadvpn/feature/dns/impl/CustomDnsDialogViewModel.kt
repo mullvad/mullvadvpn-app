@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.feature.vpnsettings.impl.dns
+package net.mullvad.mullvadvpn.feature.dns.impl
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -20,7 +20,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.DnsNavKey
+import net.mullvad.mullvadvpn.feature.dns.api.CustomDnsNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.customDnsAddresses
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -28,13 +28,13 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.usecase.DeleteCustomDnsUseCase
 import org.apache.commons.validator.routines.InetAddressValidator
 
-sealed interface DnsDialogSideEffect {
-    data class Complete(val isDnsListEmpty: Boolean) : DnsDialogSideEffect
+sealed interface CustomDnsDialogSideEffect {
+    data class Complete(val isDnsListEmpty: Boolean) : CustomDnsDialogSideEffect
 
-    data object Error : DnsDialogSideEffect
+    data object Error : CustomDnsDialogSideEffect
 }
 
-data class DnsDialogViewState(
+data class CustomDnsDialogViewState(
     val input: String,
     val validationError: ValidationError?,
     val isAllowLanEnabled: Boolean,
@@ -65,8 +65,8 @@ sealed interface ValidationError {
     data object DuplicateAddress : ValidationError
 }
 
-class DnsDialogViewModel(
-    navArgs: DnsNavKey,
+class CustomDnsDialogViewModel(
+    navArgs: CustomDnsNavKey,
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
     private val deleteCustomDnsUseCase: DeleteCustomDnsUseCase,
@@ -77,12 +77,12 @@ class DnsDialogViewModel(
     private val currentIndex = MutableStateFlow(navArgs.index)
     private val _ipAddressInput = MutableStateFlow(navArgs.initialValue ?: EMPTY_STRING)
 
-    val uiState: StateFlow<DnsDialogViewState> =
+    val uiState: StateFlow<CustomDnsDialogViewState> =
         combine(_ipAddressInput, currentIndex, settings.filterNotNull()) {
                 input,
                 currentIndex,
                 settings ->
-                DnsDialogViewState(
+                CustomDnsDialogViewState(
                     input = input,
                     validationError =
                         input
@@ -96,7 +96,7 @@ class DnsDialogViewModel(
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
-                DnsDialogViewState(
+                CustomDnsDialogViewState(
                     input = _ipAddressInput.value,
                     validationError = null,
                     isAllowLanEnabled = false,
@@ -105,7 +105,7 @@ class DnsDialogViewModel(
                 ),
             )
 
-    private val _uiSideEffect = Channel<DnsDialogSideEffect>()
+    private val _uiSideEffect = Channel<CustomDnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     init {
@@ -144,8 +144,8 @@ class DnsDialogViewModel(
                 }
 
             result.fold(
-                { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                { _uiSideEffect.send(DnsDialogSideEffect.Complete(false)) },
+                { _uiSideEffect.send(CustomDnsDialogSideEffect.Error) },
+                { _uiSideEffect.send(CustomDnsDialogSideEffect.Complete(false)) },
             )
         }
 
@@ -154,8 +154,8 @@ class DnsDialogViewModel(
             deleteCustomDnsUseCase
                 .invoke(index)
                 .fold(
-                    { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                    { _uiSideEffect.send(DnsDialogSideEffect.Complete(it == 0)) },
+                    { _uiSideEffect.send(CustomDnsDialogSideEffect.Error) },
+                    { _uiSideEffect.send(CustomDnsDialogSideEffect.Complete(it == 0)) },
                 )
         }
 

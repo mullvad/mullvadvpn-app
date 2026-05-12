@@ -123,7 +123,6 @@
     <string name="current_device">Поточний пристрій</string>
     <string name="current_method">Поточний: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Вимкніть усі %1$s вище, щоб активувати цей параметр.</string>
-    <string name="custom_dns_footer">Щоб додати хоча б один DNS-сервер, увімкніть цей параметр.</string>
     <string name="custom_dns_hint">Введіть IP-адресу</string>
     <string name="custom_list_error_list_exists">Ім’я вже використовується.</string>
     <string name="custom_lists">Користувацькі списки</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Закрити</string>
     <string name="divier_or">Або</string>
     <string name="dns_content_blockers">DNS-блокувальники контенту</string>
-    <string name="dns_content_blockers_custom_dns_warning">Увага: цей параметр не можна використовувати з опцією «Використовувати користувацький DNS-сервер».</string>
-    <string name="dns_content_blockers_info">Коли ця функція ввімкнена, пристрій припиняє зв’язок із певними доменами або вебсайтами, які поширюють рекламу, шкідливі програми, трекери тощо.</string>
     <string name="dns_content_blockers_subtitle">Вимкніть параметр «%1$s», щоб активувати ці налаштування.</string>
-    <string name="dns_content_blockers_warning">Це може викликати проблеми під час використання певних вебсайтів, сервісів або застосунків.</string>
     <string name="duplicate_address_warning">Цю адресу вже введено.</string>
     <string name="edit_custom_lists">Редагування користувацьких списків</string>
     <string name="edit_list">Редагування списку</string>
@@ -427,7 +423,6 @@
     <string name="settings">Налаштування</string>
     <string name="settings_account">Обліковий запис</string>
     <string name="settings_api_access">Доступ до API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Зміни в налаштуваннях, пов’язаних із DNS, можуть не набрати чинності одразу через кешовані результати.</string>
     <string name="settings_changes_effect_warning_short">Налаштування DNS можуть не зразу набути чинності</string>
     <string name="settings_notifications">Сповіщення</string>
     <string name="settings_patch_error_failed_to_apply_patch">Не вдалося застосувати патч</string>

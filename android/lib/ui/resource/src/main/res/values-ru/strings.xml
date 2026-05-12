@@ -123,7 +123,6 @@
     <string name="current_device">Текущее устройство</string>
     <string name="current_method">Текущий: %1$s</string>
     <string name="custom_dns_disable_mode_subtitle">Чтобы активировать этот параметр, отключите все %1$s выше.</string>
-    <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_list_error_list_exists">Такое название уже используется.</string>
     <string name="custom_lists">Свои списки</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">Закрыть</string>
     <string name="divier_or">или</string>
     <string name="dns_content_blockers">DNS-блокировщики контента</string>
-    <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
-    <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти настройки, отключите параметр «%1$s».</string>
-    <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и приложений.</string>
     <string name="duplicate_address_warning">Этот адрес уже введен.</string>
     <string name="edit_custom_lists">Изменение своих списков</string>
     <string name="edit_list">Изменение списка</string>
@@ -427,7 +423,6 @@
     <string name="settings">Настройки</string>
     <string name="settings_account">Учетная запись</string>
     <string name="settings_api_access">Доступ к API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Изменения в настройках, связанные с DNS, могут не сразу вступить в силу из-за кешированных результатов.</string>
     <string name="settings_changes_effect_warning_short">Настройки DNS могут не сразу вступить в силу</string>
     <string name="settings_notifications">Уведомления</string>
     <string name="settings_patch_error_failed_to_apply_patch">Не удалось применить патч</string>

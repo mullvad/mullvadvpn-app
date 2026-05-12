@@ -3021,10 +3021,16 @@ msgstr ""
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr ""
 
+msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
+msgstr ""
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr ""
 
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
+msgstr ""
+
+msgid "<b>DNS content blockers</b>"
 msgstr ""
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
@@ -3129,9 +3135,6 @@ msgstr ""
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
-msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
-msgstr ""
-
 msgid "Auto-connect & Lockdown mode"
 msgstr ""
 
@@ -3160,9 +3163,6 @@ msgid "Can’t connect?"
 msgstr ""
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
-msgstr ""
-
-msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
 msgid "Clear input"
@@ -3205,6 +3205,9 @@ msgid "Current: %s"
 msgstr ""
 
 msgid "Custom DNS server addresses %1$s are invalid"
+msgstr ""
+
+msgid "DNS settings"
 msgstr ""
 
 msgid "DNS settings might not go into effect immediately"
@@ -3537,6 +3540,9 @@ msgstr ""
 msgid "Port is out of range"
 msgstr ""
 
+msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr ""
+
 msgid "Privacy"
 msgstr ""
 
@@ -3814,6 +3820,9 @@ msgid "You can add more time via the account view or website to continue using t
 msgstr ""
 
 msgid "You can add more time via the account view to continue using the VPN."
+msgstr ""
+
+msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
 msgstr ""
 
 msgid "You will lose access to this account on all devices."

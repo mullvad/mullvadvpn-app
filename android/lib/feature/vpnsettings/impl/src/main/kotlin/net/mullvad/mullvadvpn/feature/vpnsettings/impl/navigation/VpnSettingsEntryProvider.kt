@@ -22,13 +22,9 @@ fun EntryProviderScope<NavKey2>.vpnSettingsEntry(navigator: Navigator) {
     }
 
     connectOnStartupInfoEntry(navigator)
-    contentBlockersInfoEntry(navigator)
-    customDnsInfoEntry(navigator)
     deviceIpInfoEntry(navigator)
-    dnsEntry(navigator)
     localNetworkSharingInfoEntry(navigator)
     ipv6InfoEntry(navigator)
-    malwareInfoEntry(navigator)
     mtuEntry(navigator)
     quantumResistanceInfoEntry(navigator)
 }

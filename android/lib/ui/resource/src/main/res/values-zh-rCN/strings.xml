@@ -123,7 +123,6 @@
     <string name="current_device">当前设备</string>
     <string name="current_method">当前：%1$s</string>
     <string name="custom_dns_disable_mode_subtitle">停用上方的所有“%1$s”以激活此设置。</string>
-    <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_list_error_list_exists">名称已被占用。</string>
     <string name="custom_lists">自定义列表</string>
@@ -193,10 +192,7 @@
     <string name="dismiss">关闭</string>
     <string name="divier_or">或者</string>
     <string name="dns_content_blockers">DNS 内容阻止程序</string>
-    <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与“使用自定义 DNS 服务器”结合使用。</string>
-    <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
     <string name="dns_content_blockers_subtitle">停用下方的“%1$s”以激活这些设置。</string>
-    <string name="dns_content_blockers_warning">这可能会导致某些网站、服务和应用出现问题。</string>
     <string name="duplicate_address_warning">此地址已输入过。</string>
     <string name="edit_custom_lists">编辑自定义列表</string>
     <string name="edit_list">编辑列表</string>
@@ -427,7 +423,6 @@
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
     <string name="settings_api_access">API 访问</string>
-    <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
     <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
