@@ -1,7 +1,8 @@
-# 2026-02-17 - Leviathan MAP audit of our Android app
+# 2026-02-17 - Leviathan security assessment of our Android app
 
-[Leviathan Security Group] conducted a Mobile Application Profile (MAP, successor to MASA) audit
-of our Android app.
+[Leviathan Security Group] conducted a Mobile Application Security Assessment (MASA) of our Android
+app. It's a standardized assessment that checks an app against a specification called Mobile
+Application Profile (MAP).
 
 ## Overview of findings
 
@@ -21,9 +22,9 @@ attacks.
 
 ### 1.6.2.1 The app only uses software components without known vulnerabilities
 
-A dependency with a vulnerability was pulled in by a transitive dependency.
+A transitive dependency was flagged as vulnerable but it was later discovered to be a false-positive.
 
-**Conclusion:** Addressed in [PR #9887]
+**Conclusion:** False-positive
 
 ### 1.6.3.1 Compiler security features shall be enabled
 
@@ -64,8 +65,8 @@ subsequently released as [2026.3] on March 23.
 
 ## Certificate and reports
 
-The MAP certificate is hosted by App Defense Alliance:
-* [2026-02-17 MAP certificate](https://appdefensealliance.dev/reports/net.mullvad.mullvadvpn_1775779200000000.pdf)
+The MASA Certificate is hosted by App Defense Alliance:
+* [2026-04-10 MASA Certificate](https://appdefensealliance.dev/reports/net.mullvad.mullvadvpn_1775779200000000.pdf)
 
 We also host the test reports (original and re-test of fixed findings) as well as the final compliance
 report in our repository:
