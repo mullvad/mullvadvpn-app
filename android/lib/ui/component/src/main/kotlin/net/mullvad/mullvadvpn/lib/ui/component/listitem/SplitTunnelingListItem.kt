@@ -55,7 +55,9 @@ private fun PreviewSplitTunnelingListItem() {
             iconState = IconState.Loading,
         )
         SplitTunnelingListItem(
-            title = "Highlights App".highlightText(listOf("high, app"), MaterialTheme.colorScheme.highlight),
+            title =
+                "Highlights App"
+                    .highlightText(listOf("high", "app"), MaterialTheme.colorScheme.highlight),
             isEnabled = true,
             onCellClicked = {},
             isSelected = false,
