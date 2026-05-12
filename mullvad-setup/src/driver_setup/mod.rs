@@ -94,28 +94,22 @@ pub fn remove_wg_nt_abandoned() -> Result<(), Error> {
 // TODO: Check if this is actually true.
 fn uninstall_devices_by_hardware_id(hardware_id: &str) -> Result<usize, Error> {
     let mut removed = 0;
-    loop {
+    'outer: loop {
         let device_info_set =
             DeviceInfoSet::new(GUID_DEVCLASS_NET).map_err(Error::DeviceEnumeration)?;
-        let mut found = None;
         for info in device_info_set.iter() {
             let device_info = info.map_err(Error::DeviceEnumeration)?;
             if let Ok(ids) = device_info.get_hardware_ids()
                 && ids.iter().any(|id| id.eq_ignore_ascii_case(hardware_id))
             {
-                found = Some(device_info);
-                break;
-            }
-        }
-        match found {
-            Some(device_info) => {
                 device_info
                     .uninstall_device()
                     .map_err(Error::DeviceEnumeration)?;
                 removed += 1;
+                continue 'outer;
             }
-            None => return Ok(removed),
         }
+        return Ok(removed);
     }
 }
 
