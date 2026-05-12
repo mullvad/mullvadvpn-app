@@ -14,6 +14,12 @@
     ./hardware-configuration.nix
   ];
 
+  # Make sure we use Kernel 6.18.22 or later to mitigate the Copy Fail exploit.
+  # See: https://discourse.nixos.org/t/is-nixos-affected-by-copy-fail-edit-yes-it-is/77317/17
+  boot.kernelPackages = lib.mkIf (lib.versionOlder pkgs.linux.version "6.18.22") (
+    lib.mkDefault pkgs.linuxPackages_6_18
+  );
+
   # Bootloader.
   boot.loader = {
     systemd-boot.enable = true;
