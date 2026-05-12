@@ -8,7 +8,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
@@ -54,7 +53,7 @@ fun CheckableRelayListItem(
         modifier = modifier,
         hierarchy = item.hierarchy,
         position = item.itemPosition,
-        title = item.titleAnnotated,
+        title = item.item.name.highlightText(item.highlights, MaterialTheme.colorScheme.highlight),
         isChecked = item.checked,
         onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {
@@ -68,6 +67,3 @@ fun CheckableRelayListItem(
         },
     )
 }
-
-private val CheckableRelayListItem.titleAnnotated: AnnotatedString
-    @Composable get() = item.name.highlightText(highlight, MaterialTheme.colorScheme.highlight)

@@ -100,4 +100,40 @@ class StringExtensionsTest {
         // Assert
         assertEquals(listOf("one ", "two", " one two one"), result)
     }
+
+    @Test
+    fun `when matching multiple substrings should split on all`() {
+        // Arrange
+        val text = "one two one three one"
+
+        // Act
+        val result = text.splitIncludingDelimiters("two", "three", ignoreCase = false, limit = 0)
+
+        // Assert
+        assertEquals(listOf("one ", "two", " one ", "three", " one"), result)
+    }
+
+    @Test
+    fun `when matching one of multiple substrings should split only on matching substrings`() {
+        // Arrange
+        val text = "one two one three one"
+
+        // Act
+        val result = text.splitIncludingDelimiters("two", "four", ignoreCase = false, limit = 0)
+
+        // Assert
+        assertEquals(listOf("one ", "two", " one three one"), result)
+    }
+
+    @Test
+    fun `when limit is 2 and multiple substrings should only match on first two occurrences`() {
+        // Arrange
+        val text = "one two one two three one"
+
+        // Act
+        val result = text.splitIncludingDelimiters("two", "three", ignoreCase = false, limit = 2)
+
+        // Assert
+        assertEquals(listOf("one ", "two", " one ", "two", " three one"), result)
+    }
 }

@@ -32,7 +32,7 @@ sealed interface RelayListItem {
 
     sealed interface SelectableItem : RelayListItem {
         val item: RelayItem
-        val highlight: String
+        val highlights: List<String>
         val hierarchy: Hierarchy
         val isSelected: Boolean
         val expanded: Boolean
@@ -48,7 +48,7 @@ sealed interface RelayListItem {
 
     data class CustomListItem(
         override val item: RelayItem.CustomList,
-        override val highlight: String = "",
+        override val highlights: List<String> = emptyList(),
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
         override val state: RelayListItemState? = null,
@@ -75,7 +75,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false
         override val contentType = RelayListItemContentType.CUSTOM_LIST_ENTRY_ITEM
         override val canExpand: Boolean = item.hasChildren
-        override val highlight: String = ""
+        override val highlights: List<String> = emptyList()
     }
 
     data class CustomListFooter(val hasCustomList: Boolean) : RelayListItem {
@@ -90,7 +90,7 @@ sealed interface RelayListItem {
 
     data class GeoLocationItem(
         override val item: RelayItem.Location,
-        override val highlight: String = "",
+        override val highlights: List<String> = emptyList(),
         override val isSelected: Boolean = false,
         override val hierarchy: Hierarchy,
         override val expanded: Boolean = false,
@@ -118,7 +118,7 @@ sealed interface RelayListItem {
         override val hierarchy: Hierarchy = Hierarchy.Parent
         override val contentType = RelayListItemContentType.RECENT_LIST_ITEM
         override val canExpand: Boolean = false
-        override val highlight: String = ""
+        override val highlights: List<String> = emptyList()
     }
 
     data object RecentsListFooter : RelayListItem {
@@ -144,7 +144,7 @@ sealed interface RelayListItem {
 
 data class CheckableRelayListItem(
     val item: RelayItem.Location,
-    val highlight: String = "",
+    val highlights: List<String> = emptyList(),
     val checked: Boolean = false,
     val expanded: Boolean = false,
     val itemPosition: Position = Position.Single,

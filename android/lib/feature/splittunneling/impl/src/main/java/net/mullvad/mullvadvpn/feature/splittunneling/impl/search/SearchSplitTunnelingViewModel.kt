@@ -36,7 +36,7 @@ class SearchSplitTunnelingViewModel(
                                     AppItem(
                                         title = it.name,
                                         packageName = it.packageName,
-                                        highlight = searchTerm,
+                                        highlights = searchTerm.toHighlights(),
                                     )
                                 },
                         includedApps =
@@ -46,7 +46,7 @@ class SearchSplitTunnelingViewModel(
                                     AppItem(
                                         title = it.name,
                                         packageName = it.packageName,
-                                        highlight = searchTerm,
+                                        highlights = searchTerm.toHighlights(),
                                     )
                                 },
                     )
@@ -68,6 +68,11 @@ class SearchSplitTunnelingViewModel(
 
     fun onExcludeAppClick(packageName: PackageName) {
         viewModelScope.launch(dispatcher) { splitTunnelingRepository.excludeApp(packageName) }
+    }
+
+    private fun String.toHighlights(): List<String> {
+        if (isEmpty()) return emptyList()
+        return listOf(this)
     }
 
     companion object {
