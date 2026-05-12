@@ -17,7 +17,7 @@ pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
 
     migrate_entry_location(settings);
 
-    //settings["settings_version"] = serde_json::json!(SettingsVersion::V16);
+    settings["settings_version"] = json!(SettingsVersion::V16);
 
     Ok(())
 }
