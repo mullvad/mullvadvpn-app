@@ -55,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo as ModelAppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.ClearAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.ClearAllOverridesError
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -83,6 +84,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
+import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
@@ -985,6 +987,12 @@ class ManagementService(
             .onLeft { Logger.e("Set multihop error") }
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
+
+    suspend fun getShadowsocksCiphers(): Either<GetShadowsocksCiphersError, List<Cipher>> =
+        Either.catch { grpc.shadowsocksCiphers(Empty.getDefaultInstance()) }
+            .map { it.toDomain() }
+            .onLeft { Logger.e("Get all shadowsocks ciphers error") }
+            .mapLeft(GetShadowsocksCiphersError::Unknown)
 
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
