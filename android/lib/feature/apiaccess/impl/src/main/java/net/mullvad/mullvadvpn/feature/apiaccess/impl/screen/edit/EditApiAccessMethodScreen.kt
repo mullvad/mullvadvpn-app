@@ -255,6 +255,7 @@ fun EditApiAccessMethodScreen(
                         ApiAccessMethodTypes.SHADOWSOCKS ->
                             ShadowsocksForm(
                                 formData = state.formData,
+                                ciphers = state.shadowSocksCiphers,
                                 onIpChanged = onIpChanged,
                                 onPortChanged = onPortChanged,
                                 onPasswordChanged = onPasswordChanged,
@@ -353,6 +354,7 @@ private fun ApiAccessMethodTypeSelection(
 @Composable
 private fun ShadowsocksForm(
     formData: EditApiAccessFormData,
+    ciphers: List<Cipher>,
     onIpChanged: (String) -> Unit,
     onPortChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -371,7 +373,11 @@ private fun ShadowsocksForm(
             optional = true,
             onPasswordChanged = onPasswordChanged,
         )
-        CipherSelection(cipher = formData.cipher, onCipherChange = onCipherChange)
+        CipherSelection(
+            cipher = formData.cipher,
+            ciphers = ciphers,
+            onCipherChange = onCipherChange,
+        )
     }
 }
 
@@ -537,13 +543,17 @@ private fun PasswordInput(
 }
 
 @Composable
-private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
+private fun CipherSelection(
+    cipher: Cipher,
+    ciphers: List<Cipher>,
+    onCipherChange: (Cipher) -> Unit,
+) {
     MullvadExposedDropdownMenuBox(
         label = stringResource(id = R.string.cipher),
-        title = cipher.label,
+        title = cipher.value,
         colors = mullvadDarkTextFieldColors(),
     ) { close ->
-        Cipher.listAll().forEachIndexed { index, item ->
+        ciphers.forEachIndexed { index, item ->
             if (index > 0) {
                 HorizontalDivider(
                     color = MaterialTheme.colorScheme.outlineVariant,
@@ -551,7 +561,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                 )
             }
             MullvadDropdownMenuItem(
-                text = item.label,
+                text = item.value,
                 onClick = {
                     close()
                     onCipherChange(item)
