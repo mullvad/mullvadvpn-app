@@ -263,7 +263,7 @@ class CustomListLocationsViewModel(
         add(
             CheckableRelayListItem(
                 item = this@toRelayItems,
-                highlight = searchTerm,
+                highlights = searchTerm.highlights(),
                 hierarchy = hierarchy,
                 checked = isSelected(this@toRelayItems),
                 expanded = expanded,
@@ -349,6 +349,13 @@ class CustomListLocationsViewModel(
     private fun Set<RelayItemId>.with(overrides: Map<RelayItemId, Boolean>): Set<RelayItemId> =
         this + overrides.filterValues { expanded -> expanded }.keys -
             overrides.filterValues { expanded -> !expanded }.keys
+
+    private fun String.highlights(): List<String> =
+        if (this.isNotEmpty()) {
+            listOf(this)
+        } else {
+            emptyList()
+        }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

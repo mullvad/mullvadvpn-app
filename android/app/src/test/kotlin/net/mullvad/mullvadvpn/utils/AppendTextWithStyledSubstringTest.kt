@@ -14,7 +14,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = "",
-                substring = "abc",
+                substrings = listOf("abc"),
                 substringStyle = SpanStyle(),
             )
         }
@@ -30,7 +30,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = split,
-                substring = split,
+                substrings = listOf(split),
                 substringStyle = SpanStyle(),
             )
         }
@@ -46,7 +46,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = split,
-                substring = split,
+                substrings = listOf(split),
                 substringStyle = SpanStyle(),
             )
         }
@@ -63,7 +63,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = split,
+                substrings = listOf(split),
                 substringStyle = SpanStyle(),
             )
         }
@@ -80,7 +80,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = split,
+                substrings = listOf(split),
                 substringStyle = SpanStyle(),
             )
         }
@@ -104,7 +104,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = substring,
+                substrings = listOf(substring),
                 substringStyle = SpanStyle(),
             )
         }
@@ -122,7 +122,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = substring,
+                substrings = listOf(substring),
                 substringStyle = SpanStyle(),
                 ignoreCase = true,
             )
@@ -140,7 +140,7 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = substring,
+                substrings = listOf(substring),
                 substringStyle = SpanStyle(),
                 ignoreCase = true,
             )
@@ -158,12 +158,48 @@ class AppendTextWithStyledSubstringTest {
         val output = buildAnnotatedString {
             appendTextWithStyledSubstring(
                 text = text,
-                substring = substring,
+                substrings = listOf(substring),
                 substringStyle = SpanStyle(),
                 ignoreCase = false,
             )
         }
 
         assertTrue(output.spanStyles.isEmpty())
+    }
+
+    @Test
+    fun `when two substrings match should apply styling to both`() {
+
+        val text = "This is a text"
+        val substrings = listOf("a", "text")
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substrings = substrings,
+                substringStyle = SpanStyle(),
+                ignoreCase = false,
+            )
+        }
+
+        assertEquals(2, output.spanStyles.size)
+    }
+
+    @Test
+    fun `when only one substrings match should apply styling to only one`() {
+
+        val text = "This is a text"
+        val substrings = listOf("axe", "text")
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substrings = substrings,
+                substringStyle = SpanStyle(),
+                ignoreCase = false,
+            )
+        }
+
+        assertEquals(1, output.spanStyles.size)
     }
 }

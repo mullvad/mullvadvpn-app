@@ -16,7 +16,7 @@ fun String.removeHtmlTags(): String =
 fun List<String>.trimAll() = map { it.trim() }
 
 fun String.splitIncludingDelimiters(
-    substring: String,
+    vararg substring: String,
     ignoreCase: Boolean,
     limit: Int = 0,
 ): List<String> {
@@ -24,7 +24,8 @@ fun String.splitIncludingDelimiters(
     val result = mutableListOf<String>()
     var remaining = this
     while (remaining.isNotEmpty()) {
-        val matchIndex = remaining.indexOf(substring, ignoreCase = ignoreCase)
+        val (matchIndex, matchString) =
+            remaining.findAnyOf(substring.toList(), ignoreCase = ignoreCase) ?: (-1 to "")
         if (matchIndex == -1 || (limit > 0 && result.size >= limit * 2 - 1)) {
             result.add(remaining)
             break
@@ -32,8 +33,8 @@ fun String.splitIncludingDelimiters(
         if (matchIndex > 0) {
             result.add(remaining.substring(0, matchIndex))
         }
-        result.add(remaining.substring(matchIndex, matchIndex + substring.length))
-        remaining = remaining.substring(matchIndex + substring.length)
+        result.add(remaining.substring(matchIndex, matchIndex + matchString.length))
+        remaining = remaining.substring(matchIndex + matchString.length)
     }
     return result
 }

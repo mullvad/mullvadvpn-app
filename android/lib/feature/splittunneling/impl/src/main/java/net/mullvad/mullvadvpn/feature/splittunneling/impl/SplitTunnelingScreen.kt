@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -289,7 +288,11 @@ internal fun LazyListScope.appItems(
             }
         }
         SplitTunnelingListItem(
-            title = listItem.titleAnnotated,
+            title =
+                listItem.title.highlightText(
+                    listItem.highlights,
+                    MaterialTheme.colorScheme.highlight,
+                ),
             iconState = icon,
             isSelected = excluded,
             isEnabled = enabled,
@@ -434,9 +437,6 @@ private inline fun LazyListScope.itemWithDivider(
         itemContent()
         HorizontalDivider(color = Color.Transparent)
     }
-
-val AppItem.titleAnnotated: AnnotatedString
-    @Composable get() = title.highlightText(highlight, MaterialTheme.colorScheme.highlight)
 
 internal object SplitTunnelingContentKey {
     const val EXCLUDED_APPLICATIONS = "excluded"

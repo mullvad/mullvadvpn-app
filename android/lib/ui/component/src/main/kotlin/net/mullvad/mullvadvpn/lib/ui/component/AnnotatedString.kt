@@ -15,19 +15,24 @@ import androidx.compose.ui.text.withStyle
 import net.mullvad.mullvadvpn.lib.common.util.splitIncludingDelimiters
 
 /**
- * Appends `text` and styles occurrences of `substring` in `text` with the given `substringStyle`.
+ * Appends `text` and styles occurrences of `substrings` in `text` with the given `substringStyle`.
  */
 fun AnnotatedString.Builder.appendTextWithStyledSubstring(
     text: String,
-    substring: String,
+    substrings: List<String>,
     substringStyle: SpanStyle,
     ignoreCase: Boolean = false,
     limit: Int = 0,
 ) {
-    val parts = text.splitIncludingDelimiters(substring, ignoreCase = ignoreCase, limit = limit)
+    val parts =
+        text.splitIncludingDelimiters(
+            substring = substrings.toTypedArray(),
+            ignoreCase = ignoreCase,
+            limit = limit,
+        )
 
     parts.forEach { part ->
-        if (part.equals(substring, ignoreCase = ignoreCase)) {
+        if (substrings.any { part.equals(it, ignoreCase = ignoreCase) }) {
             withStyle(substringStyle) { append(part) }
         } else {
             append(part)
@@ -35,12 +40,12 @@ fun AnnotatedString.Builder.appendTextWithStyledSubstring(
     }
 }
 
-fun String.highlightText(text: String, highlightColor: Color): AnnotatedString {
+fun String.highlightText(highlights: List<String>, highlightColor: Color): AnnotatedString {
     if (isBlank()) return AnnotatedString(this)
     return buildAnnotatedString {
         appendTextWithStyledSubstring(
             text = this@highlightText,
-            substring = text,
+            substrings = highlights,
             substringStyle = SpanStyle(background = highlightColor),
             ignoreCase = true,
         )

@@ -25,7 +25,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                                 relaysPerCity = 2,
                                                 active = true,
                                             ),
-                                        highlight = "",
+                                        highlights = emptyList(),
                                     ),
                                     CheckableRelayListItem(
                                         item =
@@ -37,7 +37,7 @@ class CustomListLocationUiStatePreviewParameterProvider :
                                                     active = false,
                                                 )
                                                 .copy(id = GeoLocationId.Country("se")),
-                                        highlight = "",
+                                        highlights = emptyList(),
                                     ),
                                 ),
                             searchTerm = "",
