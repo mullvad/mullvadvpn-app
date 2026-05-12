@@ -202,4 +202,22 @@ class AppendTextWithStyledSubstringTest {
 
         assertEquals(1, output.spanStyles.size)
     }
+
+    @Test
+    fun `when two substring match with different case and ignore case is true should apply correct styling`() {
+
+        val text = "Highlights App"
+        val substrings = listOf("high", "app")
+
+        val output = buildAnnotatedString {
+            appendTextWithStyledSubstring(
+                text = text,
+                substrings = substrings,
+                substringStyle = SpanStyle(),
+                ignoreCase = true,
+            )
+        }
+
+        assertEquals(2, output.spanStyles.size)
+    }
 }

@@ -25,7 +25,7 @@ fun String.splitIncludingDelimiters(
     var remaining = this
     while (remaining.isNotEmpty()) {
         val (matchIndex, matchString) =
-            remaining.findAnyOf(substring.toList(), ignoreCase = ignoreCase) ?: (-1 to "")
+            remaining.findAnyOf(substring.asList(), ignoreCase = ignoreCase) ?: (-1 to "")
         if (matchIndex == -1 || (limit > 0 && result.size >= limit * 2 - 1)) {
             result.add(remaining)
             break
