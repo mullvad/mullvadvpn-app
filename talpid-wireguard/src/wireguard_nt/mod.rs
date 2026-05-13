@@ -11,7 +11,7 @@ use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::OnceCell;
 use std::{
-    ffi::{CStr, c_uchar},
+    ffi::CStr,
     fmt,
     future::Future,
     io,
@@ -111,7 +111,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Failed to load WireGuardNT
-    #[error("Failed to load mullvad-wireguard.dll")]
+    #[error("Failed to load wireguard.dll")]
     LoadDll(#[source] io::Error),
 
     /// Failed to create tunnel interface
@@ -213,6 +213,7 @@ struct WgAllowedIp {
     address: WgIpAddr,
     address_family: u16,
     cidr: u8,
+    flags: u32,
 }
 
 impl WgAllowedIp {
@@ -222,6 +223,7 @@ impl WgAllowedIp {
             address,
             address_family,
             cidr,
+            flags: 0,
         })
     }
 
@@ -325,7 +327,6 @@ struct WgPeer {
     rx_bytes: u64,
     last_handshake: u64,
     allowed_ips_count: u32,
-    constant_packet_size: c_uchar,
 }
 
 #[derive(Clone, Copy)]
@@ -639,8 +640,7 @@ unsafe impl Sync for WgNtDll {}
 
 impl WgNtDll {
     pub fn new(resource_dir: &Path) -> io::Result<Self> {
-        let wg_nt_dll =
-            U16CString::from_os_str_truncate(resource_dir.join("mullvad-wireguard.dll"));
+        let wg_nt_dll = U16CString::from_os_str_truncate(resource_dir.join("wireguard.dll"));
 
         let handle = unsafe {
             LoadLibraryExW(
@@ -830,7 +830,6 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: u32::try_from(peer.allowed_ips.len()).unwrap(),
-            constant_packet_size: 0,
         };
 
         buffer.extend(as_uninit_byte_slice(&wg_peer));
@@ -1067,12 +1066,12 @@ mod tests {
             rx_bytes: 0,
             last_handshake: 0,
             allowed_ips_count: 1,
-            constant_packet_size: 0,
         },
         p0_allowed_ip_0: WgAllowedIp {
             address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
             address_family: AF_INET,
             cidr: 24,
+            flags: 0,
         },
     });
 
