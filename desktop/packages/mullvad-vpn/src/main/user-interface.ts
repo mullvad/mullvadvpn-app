@@ -604,9 +604,33 @@ export default class UserInterface implements WindowControllerDelegate {
           }
         });
         break;
-      case 'linux':
-        this.tray?.on('click', () => this.windowController.show());
+      case 'linux': {
+        const desktop = process.env.XDG_CURRENT_DESKTOP?.toLowerCase() ?? '';
+
+        const session = process.env.DESKTOP_SESSION?.toLowerCase() ?? '';
+
+        const isGnome = desktop.includes('gnome') || session.includes('gnome');
+
+        this.addContextMenu();
+
+        if (isGnome) {
+          // GNOME/AppIndicator-safe behavior
+          this.tray?.on('click', () => {
+            this.windowController.show();
+          });
+        } else {
+          // KDE/X11/etc
+          this.tray?.on('click', () => {
+            if (this.windowController.isVisible()) {
+              this.windowController.hide();
+            } else {
+              this.windowController.show();
+            }
+          });
+        }
+
         break;
+      }
     }
   }
 
