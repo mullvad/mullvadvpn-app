@@ -78,7 +78,7 @@ report in our repository:
 ## Last words
 
 We would like to thank Leviathan for the thorough assessment. The communication was professional,
-and the assessment was carried out to a high standard and gave valuable insight.
+and the assessment was carried out to a high standard and provided us with valuable insights.
 
 [Leviathan Security Group]: https://www.leviathansecurity.com/
 [PR #9886]: https://github.com/mullvad/mullvadvpn-app/pull/9886
