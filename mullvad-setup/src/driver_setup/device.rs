@@ -239,7 +239,7 @@ impl DeviceInfo<'_> {
         let mut required: u32 = 0;
         loop {
             // SAFETY: `self.set.0` and `self.data` are valid and belong to the same enumeration;
-            // `buffer` is sized by its length.
+            // `buffer` is sized by its length in bytes.
             let result = unsafe {
                 SetupDiGetDeviceRegistryPropertyW(
                     self.set.0,
@@ -247,6 +247,7 @@ impl DeviceInfo<'_> {
                     SPDRP_HARDWAREID,
                     ptr::null_mut(),
                     buffer.as_mut_ptr().cast(),
+                    // current size of `buffer` in bytes.
                     (2 * buffer.len()) as u32,
                     &raw mut required,
                 )
