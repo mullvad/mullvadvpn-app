@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
         run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
@@ -126,7 +126,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
@@ -174,7 +174,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run mullvad-version
         id: cargo-run
         run: |
@@ -196,7 +196,7 @@ jobs:
     runs-on: [self-hosted, desktop-test, Linux]  # app-test-linux
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Build test-manager
         run: ./test/scripts/container-run.sh cargo build --package test-manager --release
@@ -223,7 +223,7 @@ jobs:
       needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Build binaries
         run: |
           # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
@@ -263,7 +263,7 @@ jobs:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Create binaries directory & add to PATH
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
@@ -332,7 +332,7 @@ jobs:
         run: |
           git config --system core.longpaths true
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         shell: bash
@@ -377,7 +377,7 @@ jobs:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Create binaries directory & add to PATH
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
@@ -433,7 +433,7 @@ jobs:
     runs-on: [self-hosted, desktop-test, macOS]  # app-test-macos-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         run: ./build.sh
@@ -469,7 +469,7 @@ jobs:
           name: macos-build
           path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run end-to-end tests
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
