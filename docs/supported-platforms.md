@@ -48,7 +48,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 ### Linux
 
 Supported versions:
-- **Ubuntu**: The two latest LTS releases and the latest non-LTS releases
+- **Ubuntu**: The two latest LTS releases and the latest non-LTS release
 - **Fedora**: Versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life)
 - **Debian**: 12 and newer
 
