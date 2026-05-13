@@ -6,6 +6,7 @@ on:
       - .github/workflows/workflow-check.yml
       - .github/pinact.yml
       - .github/workflows/android-*.yml
+      - .github/workflows/desktop-*.yml
   workflow_dispatch:
 
 permissions: {}
