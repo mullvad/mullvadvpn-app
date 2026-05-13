@@ -70,9 +70,9 @@ The MASA Certificate is hosted by App Defense Alliance:
 
 We also host the test reports (original and re-test of fixed findings) as well as the final compliance
 report in our repository:
-* [2026-02-23 MAP Developer Test Report v1](2026-02-23-leviathan-map-developer-test-report-v1.pdf)
-* [2026-04-16 MAP Developer Test Report v2](2026-04-16-leviathan-map-developer-test-report-v2.pdf)
-* [2026-04-16 MAP Compliance Report](2026-04-16-leviathan-map-compliance-report.pdf)
+* [2026-02-23 MAP Developer Test Report v1](2026-02-23-leviathan-masa-map-developer-test-report-v1.pdf)
+* [2026-04-16 MAP Developer Test Report v2](2026-04-16-leviathan-masa-map-developer-test-report-v2.pdf)
+* [2026-04-16 MAP Compliance Report](2026-04-16-leviathan-masa-map-compliance-report.pdf)
 
 ## Last words
 
