@@ -56,7 +56,7 @@ private class DrawerValueProvider : PreviewParameterProvider<DrawerValue> {
 
 @Preview("Closed|Open")
 @Composable
-fun PreviewNavigationDrawerTvClosed(
+private fun PreviewNavigationDrawerTvClosed(
     @PreviewParameter(DrawerValueProvider::class) drawerValue: DrawerValue
 ) {
     AppTheme {

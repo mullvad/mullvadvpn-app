@@ -80,7 +80,7 @@ private object AnimationKey {
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
-private fun CollapsibleSinglehopSelector() {
+private fun PreviewCollapsibleSinglehopSelector() {
 
     var progress by remember { mutableFloatStateOf(1f) }
     var isExitError by remember { mutableStateOf(false) }
@@ -107,7 +107,7 @@ private fun CollapsibleSinglehopSelector() {
 
 @Preview
 @Composable
-private fun CollapsibleMultihopSelector() {
+private fun PreviewCollapsibleMultihopSelector() {
     var progress by remember { mutableFloatStateOf(1f) }
     var exitSelected by remember { mutableStateOf(true) }
     var isExitError by remember { mutableStateOf(false) }
@@ -144,7 +144,7 @@ private fun CollapsibleMultihopSelector() {
 @PreviewFontScale
 @Preview
 @Composable
-fun MultihopSelectorPreview() {
+private fun PreviewMultihopSelector() {
     AppTheme {
         Surface {
             Column(
@@ -403,7 +403,7 @@ fun MultihopSelector(
 
 @Preview
 @Composable
-fun SinglehopSelectorPreview() {
+private fun PreviewSinglehopSelector() {
     AppTheme {
         Surface {
             Column(
@@ -543,7 +543,7 @@ fun Singlehop(
 
 @Preview
 @Composable
-fun HopPreview() {
+private fun PreviewHop() {
     AppTheme {
         Surface {
             Column(

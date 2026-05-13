@@ -22,7 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.Longitude
 
 @Preview
 @Composable
-fun MapPreview() {
+private fun PreviewMap() {
     val infinite = rememberInfiniteTransition()
     val spin =
         infinite.animateFloat(
