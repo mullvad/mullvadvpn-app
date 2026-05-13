@@ -82,7 +82,7 @@ object RelayListHeaderTokens {
 
 @Preview(backgroundColor = 0xFF192E45, showBackground = true)
 @Composable
-fun PreviewListHeader() =
+private fun PreviewListHeader() =
     PreviewColumn(Modifier.padding(horizontal = Dimens.mediumPadding)) {
         ListHeader(content = { Text("Header") })
         ListHeader(

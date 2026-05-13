@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ComposeTest {
     @Test
     fun `ensure we don't use collectAsState`() =
-        Konsist.scopeFromProduction("app").imports.assertFalse {
+        Konsist.scopeFromProduction().imports.assertFalse {
             it.name == "androidx.compose.runtime.collectAsState"
         }
 
@@ -18,5 +18,5 @@ class ComposeTest {
         allAppComposeFunctions().assertFalse { it.hasParameter { it.name == "uiState" } }
 
     private fun allAppComposeFunctions() =
-        Konsist.scopeFromProduction("app").functions().withAllAnnotationsOf(Composable::class)
+        Konsist.scopeFromProduction().functions().withAllAnnotationsOf(Composable::class)
 }

@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
 @Preview
 @Composable
-fun PreviewNotificationBannerTv() {
+private fun PreviewNotificationBannerTv() {
     AppTheme {
         NotificationBannerTv(
             notification = InAppNotification.NewDevice("Sad Panda"),

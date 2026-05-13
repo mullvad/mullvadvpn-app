@@ -16,5 +16,5 @@ class ComposePreviewTest {
         allPreviewFunctions().assertTrue { it.name.startsWith("Preview") }
 
     private fun allPreviewFunctions() =
-        Konsist.scopeFromProduction("app").functions().withAllAnnotationsOf(Preview::class)
+        Konsist.scopeFromProduction().functions().withAllAnnotationsOf(Preview::class)
 }
