@@ -48,7 +48,7 @@ Supported versions: The three most recent major releases. Both Intel (x86-64) an
 ### Linux
 
 Supported versions:
-- **Ubuntu**: The two latest LTS releases and the latest non-LTS releases
+- **Ubuntu**: The two latest LTS releases and the latest non-LTS release
 - **Fedora**: Versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life)
 - **Debian**: 12 and newer
 
@@ -63,12 +63,11 @@ DEs, but we don't regularly test those.
 |------------------------|--------------|--------------|
 | Debian 12              | x86-64       | manual       |
 | Debian 13              | x86-64       | e2e, manual  |
-| Ubuntu 22.04           | x86-64       | e2e, manual  |
 | Ubuntu 24.04           | x86-64       | e2e, manual  |
-| Ubuntu 25.04           | x86-64       | e2e, manual  |
 | Ubuntu 25.10           | x86-64       | e2e, manual  |
-| Fedora 42              | x86-64       | e2e, manual  |
+| Ubuntu 26.04           | x86-64       | e2e, manual  |
 | Fedora 43              | x86-64       | e2e, manual  |
+| Fedora 44              | x86-64       | e2e, manual  |
 
 ## Android
 
