@@ -3134,15 +3134,11 @@ impl Daemon {
     }
 
     fn on_shadowsocks_ciphers(&mut self, tx: oneshot::Sender<Vec<ShadowsocksCipher>>) {
-        use itertools::Itertools;
-        let ciphers = ShadowsocksCipher::list()
-            .iter()
-            .map(|cipher| ShadowsocksCipher::new(cipher).unwrap())
-            // Some ShadowsocksCiphers from ShadowsocksCipher::list() share the same internal
-            // representation.
-            .unique()
-            .collect();
-        Self::oneshot_send(tx, ciphers, "shadowsocks_ciphers response");
+        Self::oneshot_send(
+            tx,
+            ShadowsocksCipher::enumerate(),
+            "shadowsocks_ciphers response",
+        );
     }
 
     fn on_test_proxy_as_access_method(
