@@ -169,7 +169,7 @@ function checkout_ref {
     git reset --hard || return 1
 
     git submodule update
-    git clean -df
+    git clean -dff
 }
 
 function build_ref {
