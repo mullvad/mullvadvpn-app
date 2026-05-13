@@ -20,7 +20,7 @@ The `<repo>/scripts/localization` script is, among other things, calling into `f
 and `integrate-relay-locations.py` in this directory.
 
 * `fetch-relay-locations.py` fetches the relay list and extracts all country and city names.
-* `intregrate-relay-locations.py` integrates the fetched relay locations into
+* `integrate-relay-locations.py` integrates the fetched relay locations into
 `../locales/relay-locations.pot`.
 
 ### Locking Python dependencies

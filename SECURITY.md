@@ -20,7 +20,7 @@ Before reporting issues, we recommend that you read the following documents:
 
 **Please do not report security vulnerabilities through GitHub issues or other
 public channels.** Instead please [create a vulnerability report on Github]. Or email our
-support on [support@mullvadvpn.net]. Preferrably encrypted with our [support's PGP] key.
+support on [support@mullvadvpn.net]. Preferably encrypted with our [support's PGP] key.
 
 [create a vulnerability report on Github]: https://github.com/mullvad/mullvadvpn-app/security/advisories/new
 [support@mullvadvpn.net]: mailto:support@mullvadvpn.net

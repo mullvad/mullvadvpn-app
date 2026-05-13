@@ -941,7 +941,7 @@ This release is identical to 2024.3-beta1.
 - Fix issue where app stopped responding on ARM Macs.
 
 #### Linux
-- Fix RPM package containing unecessary files causing conflicts with other electron-builder based
+- Fix RPM package containing unnecessary files causing conflicts with other electron-builder based
   packages.
 
 
@@ -1631,7 +1631,7 @@ This release is for desktop only.
 - Allow provider constraint to specify multiple hosting providers.
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
-- Shrink account history capactity from 3 account entries to 1.
+- Shrink account history capacity from 3 account entries to 1.
 - Allow whitespace in account token in CLI.
 - Read account token from standard input unless given as an argument in CLI.
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
@@ -1766,7 +1766,7 @@ This release is for desktop only.
 
 ### Changed
 - Upgrade wireguard-go to v0.0.20201118.
-- Reduce logging about time outs when conneting to a WireGuard tunnel.
+- Reduce logging about time outs when connecting to a WireGuard tunnel.
 
 ### Fixed
 #### Android
