@@ -1,0 +1,19 @@
+---
+source: mullvad-daemon/src/migrations/v15.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "relay_settings": {
+    "normal": {
+      "wireguard_constraints": {
+        "entry_location": {
+          "only": {
+            "location": {
+              "country": ""
+            }
+          }
+        }
+      }
+    }
+  }
+}
