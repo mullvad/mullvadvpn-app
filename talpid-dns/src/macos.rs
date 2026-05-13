@@ -427,8 +427,13 @@ impl DnsMonitor {
                 Ok(run_loop_source) => {
                     result_tx.send(Ok(())).unwrap();
                     run_dynamic_store_runloop(run_loop_source);
-                    // TODO(linus): This is critical. Improve later by sending error signal to Daemon
-                    log::error!("Core Foundation main loop exited! It should run forever");
+                    // the Core Foundation main loop should only exit when macOS is shut down.
+                    // If it exits in any other case, that would be a bug,
+                    // and DNS monitoring would break.
+                    //
+                    // If we start seeing this happen on a running system, we should add error
+                    // handling that tries to restart the main loop (or even the entire daemon).
+                    log::warn!("Core Foundation main loop exited! Is macOS shutting down?");
                 }
                 Err(e) => result_tx.send(Err(e)).unwrap(),
             }
