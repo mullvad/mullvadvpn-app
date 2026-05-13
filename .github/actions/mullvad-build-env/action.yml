@@ -103,12 +103,6 @@ runs:
       with:
         vs-version: latest
 
-    - name: Install latest zig
-      if: runner.os == 'Windows'
-      uses: mlugg/setup-zig@v2
-      with:
-        version: 0.14.1
-
     - name: Install build dependencies
       if: runner.os == 'Linux'
       shell: bash
