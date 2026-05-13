@@ -20,7 +20,7 @@ runs:
       shell: bash
 
     - name: Configure cache
-      uses: actions/cache@v3
+      uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
       with:
         path: ios/${{ env.SOURCE_PACKAGES_PATH }}
         key: ${{ runner.os }}-spm-${{ hashFiles('ios/**/Package.resolved') }}
