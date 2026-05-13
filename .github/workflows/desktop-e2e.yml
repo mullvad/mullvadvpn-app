@@ -149,7 +149,7 @@ jobs:
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-build
@@ -200,7 +200,7 @@ jobs:
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Build test-manager
         run: ./test/scripts/container-run.sh cargo build --package test-manager --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-test-manager-build
@@ -232,7 +232,7 @@ jobs:
           mv -t ./bin/ \
             "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
             "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-test-runner-binaries
@@ -312,7 +312,7 @@ jobs:
           ls -la "$TEST_DIST_DIR"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -349,7 +349,7 @@ jobs:
       - name: Build test executable
         shell: bash
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: windows-build
@@ -417,7 +417,7 @@ jobs:
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -439,7 +439,7 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: macos-build
@@ -482,7 +482,7 @@ jobs:
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -528,7 +528,7 @@ jobs:
           ${{ github.workspace }}/bin/test-manager \
           format-test-reports ${{ github.workspace }}/*_report \
           | tee summary.html >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: summary.html
           path: summary.html
