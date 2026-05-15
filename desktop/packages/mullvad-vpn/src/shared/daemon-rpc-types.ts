@@ -567,12 +567,8 @@ export type BridgesMethod = { type: 'bridges' };
 export type EncryptedDnsProxy = { type: 'encrypted-dns-proxy' };
 export type DomainFronting = { type: 'domain-fronting' };
 
-export type AccessMethod =
-  | DirectMethod
-  | BridgesMethod
-  | EncryptedDnsProxy
-  | CustomProxy
-  | DomainFronting;
+export type AccessMethod = DirectMethod | BridgesMethod | EncryptedDnsProxy | CustomProxy;
+// | DomainFronting;
 
 export type NamedAccessMethod<T extends AccessMethod> = T & { name: string };
 
@@ -589,7 +585,7 @@ export type ApiAccessMethodSettings = {
   direct: AccessMethodSetting<DirectMethod>;
   mullvadBridges: AccessMethodSetting<BridgesMethod>;
   encryptedDnsProxy: AccessMethodSetting<EncryptedDnsProxy>;
-  domainFronting: AccessMethodSetting<DomainFronting>;
+  // domainFronting: AccessMethodSetting<DomainFronting>;
   custom: Array<AccessMethodSetting<CustomProxy>>;
 };
 
