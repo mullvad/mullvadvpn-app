@@ -27,7 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add list of recent server selections in the select location view.
 - GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, not just
   macOS. It replaces wireguard-go.
-- Add support for API access method based on domain fronting.
 
 ### Changed
 - Optimize LWO performance. This gives a 1.5 to 3 times speedup in our benchmarks.
