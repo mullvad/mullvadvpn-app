@@ -72,7 +72,9 @@ ctrlc = "3.5"
 dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
-gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
+gotatun = { version = "0.6.0", default-features = false, features = [
+  "aws-lc-rs"
+] }
 hickory-proto = "0.26.1"
 hickory-resolver = { version = "0.26.1", default-features = false, features = [
   "tokio"
@@ -103,7 +105,7 @@ prost = "0.13.3"
 prost-types = "0.13.3"
 rand = "0.9.3"
 reqwest = { version = "0.12.23", default-features = false, features = [
-  "rustls-tls"
+  "rustls-tls-webpki-roots-no-provider"
 ] }
 rtnetlink = "0.21.0"
 rustls = { version = "0.23", default-features = false }
@@ -111,11 +113,11 @@ rustls-pki-types = "1.13.1"
 serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
-shadowsocks = { version = "1.23.2", default-features = false, features = [
+shadowsocks = { git = "https://github.com/shadowsocks/shadowsocks-rust", branch = "master", default-features = false, features = [
   "aead-cipher",
   "stream-cipher"
 ] }
-shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
+shadowsocks-crypto = { version = "0.7.0", features = ["v1-stream"] }
 socket2 = "0.5.7"
 strum = { version = "0.27" }
 surge-ping = "0.8.4"
@@ -194,13 +196,13 @@ lto = true
 
 # Selectively optimize packages where we know it makes a difference
 [profile.release.package]
+aws-lc-rs.opt-level = 3
 gotatun.opt-level = 3
 mullvad-masque-proxy.opt-level = 3
 pqcrypto-hqc.opt-level = 3
 quinn.opt-level = 3
 quinn-proto.opt-level = 3
 quinn-udp.opt-level = 3
-ring.opt-level = 3
 
 [profile.release-debuginfo]
 inherits = "release"

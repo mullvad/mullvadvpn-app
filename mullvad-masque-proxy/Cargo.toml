@@ -23,7 +23,7 @@ log = { workspace = true }
 quinn = { version = "0.11", default-features = false, features = [
   "log",
   "runtime-tokio",
-  "rustls-ring"
+  "rustls-aws-lc-rs"
 ] }
 rustls = { workspace = true }
 rustls-pki-types.workspace = true

@@ -212,7 +212,7 @@ fn load_server_test_cert() -> anyhow::Result<rustls::ServerConfig> {
     let cert_chain = CertificateDer::from_pem_file("tests/test.crt")?;
 
     let mut tls_config = rustls::ServerConfig::builder_with_provider(Arc::new(
-        rustls::crypto::ring::default_provider(),
+        rustls::crypto::aws_lc_rs::default_provider(),
     ))
     .with_protocol_versions(&[&rustls::version::TLS13])?
     .with_no_client_auth()
