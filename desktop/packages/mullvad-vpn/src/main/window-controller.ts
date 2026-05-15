@@ -201,7 +201,7 @@ export default class WindowController {
     if (this.window) {
       const position = this.windowPositioning.getPosition(this.window);
       const size = WindowController.getContentSize(this.delegate.isUnpinnedWindow());
-      this.window.setBounds({ ...position, ...size }, false);
+      this.window.setContentBounds({ ...position, ...size }, false);
     }
 
     this.notifyUpdateWindowShape();
