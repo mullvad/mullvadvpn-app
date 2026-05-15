@@ -61,7 +61,7 @@ konsist = "0.17.3"
 # https://github.com/google/ksp/releases
 kotlin = "2.3.21"
 kotlin-ksp = "2.3.8"
-kotlinx = "1.10.2"
+kotlinx = "1.11.0"
 kotlinx-serialization-json = "1.11.0"
 ktfmt = "0.26.0"
 ktor = "3.5.0"
