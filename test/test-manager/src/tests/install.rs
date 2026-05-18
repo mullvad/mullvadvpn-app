@@ -92,7 +92,7 @@ pub async fn test_upgrade_app(
 
     // Begin monitoring outgoing traffic and pinging
     //
-    let pinger = Pinger::start(&rpc).await;
+    let pinger = Pinger::start(&rpc).await?;
 
     // install new package
 
@@ -330,7 +330,7 @@ pub async fn test_installation_idempotency(
     // Start continuously pinging while monitoring the network traffic. No
     // traffic should be observed going outside of the tunnel during either
     // installation process.
-    let pinger = Pinger::start(&rpc).await;
+    let pinger = Pinger::start(&rpc).await?;
     for _ in 0..2 {
         // Install the app
         log::info!("Installing new app");

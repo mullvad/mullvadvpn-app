@@ -4,6 +4,7 @@ use std::{
     time::Duration,
 };
 
+use anyhow::{Context, Result};
 use futures::{StreamExt, channel::oneshot, pin_mut};
 pub use pcap::Direction;
 use pcap::PacketCodec;
@@ -14,7 +15,7 @@ use pnet_packet::{
 
 pub use pnet_packet::ip::IpNextHeaderProtocols as IpHeaderProtocols;
 
-use crate::{tests::config::TEST_CONFIG, vm::network::CUSTOM_TUN_INTERFACE_NAME};
+use crate::{tests::config::TEST_CONFIG, vm::network::wireguard::CUSTOM_TUN_INTERFACE_NAME};
 
 struct Codec {
     no_frame: bool,
@@ -189,7 +190,7 @@ pub struct MonitorOptions {
 pub async fn start_packet_monitor(
     filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
     monitor_options: MonitorOptions,
-) -> PacketMonitor {
+) -> Result<PacketMonitor> {
     start_packet_monitor_until(filter_fn, |_| true, monitor_options).await
 }
 
@@ -197,7 +198,7 @@ pub async fn start_packet_monitor_until(
     filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
     should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
     monitor_options: MonitorOptions,
-) -> PacketMonitor {
+) -> Result<PacketMonitor> {
     start_packet_monitor_for_interface(
         &TEST_CONFIG.host_bridge_name,
         filter_fn,
@@ -211,7 +212,7 @@ pub async fn start_tunnel_packet_monitor_until(
     filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
     should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
     mut monitor_options: MonitorOptions,
-) -> PacketMonitor {
+) -> Result<PacketMonitor> {
     monitor_options.no_frame = true;
     start_packet_monitor_for_interface(
         CUSTOM_TUN_INTERFACE_NAME,
@@ -227,12 +228,12 @@ async fn start_packet_monitor_for_interface(
     filter_fn: impl Fn(&ParsedPacket) -> bool + Send + 'static,
     mut should_continue_fn: impl FnMut(&ParsedPacket) -> bool + Send + 'static,
     monitor_options: MonitorOptions,
-) -> PacketMonitor {
+) -> Result<PacketMonitor> {
     let dev = pcap::Capture::from_device(interface)
         .expect("Failed to open capture handle")
         .immediate_mode(true)
         .open()
-        .expect("Failed to activate capture");
+        .with_context(|| format!("Failed to activate capture on interface {interface}"))?;
 
     if let Some(direction) = monitor_options.direction {
         dev.direction(direction).unwrap();
@@ -314,7 +315,7 @@ async fn start_packet_monitor_for_interface(
     // Wait for the loop to start receiving its first packet
     let _ = is_receiving_rx.await;
 
-    PacketMonitor { stop_tx, handle }
+    Ok(PacketMonitor { stop_tx, handle })
 }
 
 /// Poll the future once and notify `tx` that it has been polled. Then return
