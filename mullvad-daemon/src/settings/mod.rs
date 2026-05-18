@@ -112,12 +112,8 @@ fn handle_custom_list_error(
     }
 }
 
-type ChangeListener = Box<
-    dyn FnMut(&Settings) -> std::pin::Pin<Box<dyn Future<Output = ()> + Send>>
-        + Send
-        + Sync
-        + 'static,
->;
+type ChangeListener =
+    Box<dyn FnMut(&Settings) -> std::pin::Pin<Box<dyn Future<Output = ()> + Send>>>;
 
 pub struct SettingsPersister {
     settings: Settings,
@@ -401,10 +397,7 @@ impl SettingsPersister {
         }
     }
 
-    pub fn register_change_listener<F: FnMut(&Settings) + Send + Sync + 'static>(
-        &mut self,
-        mut change_listener: F,
-    ) {
+    pub fn register_change_listener(&mut self, change_listener: impl Fn(&Settings) + 'static) {
         self.on_change_listeners.push(Box::new(move |settings| {
             change_listener(settings);
             // lord forgive me
@@ -413,12 +406,7 @@ impl SettingsPersister {
     }
 
     pub fn register_change_listener_async<
-        F: FnMut(
-                &Settings,
-            )
-                -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send + 'static>>
-            + Send
-            + Sync
+        F: FnMut(&Settings) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>
             + 'static,
     >(
         &mut self,
