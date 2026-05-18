@@ -2032,8 +2032,8 @@ export class WireguardConstraints extends jspb.Message {
     getAllowedIpsList(): Array<string>;
     setAllowedIpsList(value: Array<string>): WireguardConstraints;
     addAllowedIps(value: string, index?: number): string;
-    getUseMultihop(): boolean;
-    setUseMultihop(value: boolean): WireguardConstraints;
+    getMultihop(): WireguardConstraints.Multihop;
+    setMultihop(value: WireguardConstraints.Multihop): WireguardConstraints;
 
     hasEntryLocation(): boolean;
     clearEntryLocation(): void;
@@ -2060,11 +2060,18 @@ export namespace WireguardConstraints {
     export type AsObject = {
         ipVersion?: IpVersion,
         allowedIpsList: Array<string>,
-        useMultihop: boolean,
+        multihop: WireguardConstraints.Multihop,
         entryLocation?: LocationConstraint.AsObject,
         entryProvidersList: Array<string>,
         entryOwnership: Ownership,
     }
+
+    export enum Multihop {
+    ALWAYS = 0,
+    NEVER = 1,
+    AUTO = 2,
+    }
+
 }
 
 export class CustomRelaySettings extends jspb.Message { 
@@ -3441,7 +3448,7 @@ export enum FeatureIndicator {
     SERVER_IP_OVERRIDE = 12,
     CUSTOM_MTU = 13,
     DAITA = 14,
-    DAITA_MULTIHOP = 15,
+    MULTIHOP_AUTO = 15,
 }
 
 export enum Ownership {
