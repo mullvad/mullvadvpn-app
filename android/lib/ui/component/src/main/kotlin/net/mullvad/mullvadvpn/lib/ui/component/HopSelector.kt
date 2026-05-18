@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
@@ -201,7 +202,7 @@ fun MultihopSelector(
                         AnimationKey.Device,
                         AnimationKey.Panel,
                     )
-                createVerticalChain(internet, exit, exitError, entry, entryError, device)
+                createVerticalChain(device, entry, entryError, exit, exitError, internet)
                 constrain(exit) { linkTo(start = parent.start, end = parent.end) }
                 constrain(entry) { linkTo(start = parent.start, end = parent.end) }
                 constrain(exitError) {
@@ -218,10 +219,10 @@ fun MultihopSelector(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                     linkTo(
-                        top = exit.top,
-                        bottom = entryError.bottom,
-                        start = exit.start,
-                        end = exit.end,
+                        top = entry.top,
+                        bottom = exitError.bottom,
+                        start = entry.start,
+                        end = entry.end,
                     )
                 }
             }
@@ -239,10 +240,10 @@ fun MultihopSelector(
                         AnimationKey.Panel,
                     )
 
-                constrain(internet) { top.linkTo(parent.top) }
-                constrain(device) { bottom.linkTo(parent.bottom) }
+                constrain(device) { top.linkTo(parent.top) }
+                constrain(internet) { bottom.linkTo(parent.bottom) }
 
-                createVerticalChain(exit, exitError, entry, entryError)
+                createVerticalChain(entry, entryError, exit, exitError)
 
                 constrain(exit) { linkTo(start = parent.start, end = parent.end) }
                 constrain(entry) { linkTo(start = parent.start, end = parent.end) }
@@ -262,10 +263,10 @@ fun MultihopSelector(
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                     linkTo(
-                        top = exit.top,
-                        bottom = entryError.bottom,
-                        start = exit.start,
-                        end = exit.end,
+                        top = entry.top,
+                        bottom = exitError.bottom,
+                        start = entry.start,
+                        end = entry.end,
                     )
                 }
             }
@@ -300,20 +301,20 @@ fun MultihopSelector(
 
                     drawVerticalLegend(
                         x = legendXPosition,
-                        y1 = internet.bottomIn(motionLayout),
-                        y2 = exit.topIn(motionLayout),
-                        color = colors.legendColor,
-                    )
-                    drawVerticalLegend(
-                        x = legendXPosition,
-                        y1 = exit.bottomIn(motionLayout),
+                        y1 = device.bottomIn(motionLayout),
                         y2 = entry.topIn(motionLayout),
                         color = colors.legendColor,
                     )
                     drawVerticalLegend(
                         x = legendXPosition,
                         y1 = entry.bottomIn(motionLayout),
-                        y2 = device.topIn(motionLayout),
+                        y2 = exit.topIn(motionLayout),
+                        color = colors.legendColor,
+                    )
+                    drawVerticalLegend(
+                        x = legendXPosition,
+                        y1 = exit.bottomIn(motionLayout),
+                        y2 = internet.topIn(motionLayout),
                         color = colors.legendColor,
                     )
                 },
@@ -321,18 +322,18 @@ fun MultihopSelector(
         progress = expandProgress,
     ) {
         LocationHint(
-            modifier = Modifier.layoutId(AnimationKey.Internet),
-            text = "Internet",
-            imageVector = Icons.Rounded.Language,
-            colors = colors,
-            onIconGloballyPositioned = { internetIconLC = it },
-        )
-        LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
-            text = "Your device",
+            text = stringResource(R.string.your_device),
             imageVector = Icons.Rounded.PhoneAndroid,
             colors = colors,
             onIconGloballyPositioned = { deviceIconLC = it },
+        )
+        LocationHint(
+            modifier = Modifier.layoutId(AnimationKey.Internet),
+            text = stringResource(R.string.internet),
+            imageVector = Icons.Rounded.Language,
+            colors = colors,
+            onIconGloballyPositioned = { internetIconLC = it },
         )
         Box(
             Modifier.layoutId(AnimationKey.Panel)
@@ -341,38 +342,10 @@ fun MultihopSelector(
         ) {}
         Hop(
             modifier =
-                Modifier.layoutId(AnimationKey.Exit)
-                    .padding(
-                        start = 4.dp,
-                        top = 4.dp,
-                        end = 4.dp,
-                        bottom = if (exitErrorText == null) 4.dp else 0.dp,
-                    ),
-            leadingIcon = Icons.Outlined.LocationOn,
-            text = exitLocation,
-            selected = exitSelected,
-            onSelect = onExitClick,
-            isError = exitErrorText != null,
-            colors = colors,
-            onIconGloballyPositioned = { exitIconLC = it },
-        )
-
-        Text(
-            modifier =
-                Modifier.layoutId(AnimationKey.ExitError)
-                    .padding(
-                        start = Dimens.hopSelectorErrorStartPadding,
-                        end = Dimens.smallPadding,
-                    ),
-            text = exitErrorText ?: "No error",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.error,
-        )
-        Hop(
-            modifier =
                 Modifier.testTag(HOP_SELECTOR_ENTRY_TEST_TAG)
                     .layoutId(AnimationKey.Entry)
                     .padding(
+                        top = 4.dp,
                         start = 4.dp,
                         end = 4.dp,
                         bottom = if (entryErrorText == null) Dimens.tinyPadding else 0.dp,
@@ -392,9 +365,36 @@ fun MultihopSelector(
                     .padding(
                         start = Dimens.hopSelectorErrorStartPadding,
                         end = Dimens.smallPadding,
-                        bottom = Dimens.tinyPadding,
                     ),
             text = entryErrorText ?: "No error",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+        Hop(
+            modifier =
+                Modifier.layoutId(AnimationKey.Exit)
+                    .padding(
+                        start = 4.dp,
+                        end = 4.dp,
+                        bottom = if (exitErrorText == null) 4.dp else 0.dp,
+                    ),
+            leadingIcon = Icons.Outlined.LocationOn,
+            text = exitLocation,
+            selected = exitSelected,
+            onSelect = onExitClick,
+            isError = exitErrorText != null,
+            colors = colors,
+            onIconGloballyPositioned = { exitIconLC = it },
+        )
+        Text(
+            modifier =
+                Modifier.layoutId(AnimationKey.ExitError)
+                    .padding(
+                        start = Dimens.hopSelectorErrorStartPadding,
+                        end = Dimens.smallPadding,
+                        bottom = Dimens.tinyPadding,
+                    ),
+            text = exitErrorText ?: "No error",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.error,
         )
@@ -439,7 +439,7 @@ fun Singlehop(
                         AnimationKey.ExitError,
                         AnimationKey.Device,
                     )
-                createVerticalChain(internet, exit, exitError, device)
+                createVerticalChain(device, exit, exitError, internet)
                 constrain(exitError) {
                     visibility = if (errorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
@@ -456,14 +456,14 @@ fun Singlehop(
                         AnimationKey.ExitError,
                         AnimationKey.Device,
                     )
-                constrain(internet) { top.linkTo(parent.top) }
+                constrain(device) { top.linkTo(parent.top) }
                 createVerticalChain(exit, exitError)
                 constrain(exitError) {
                     visibility = if (errorText == null) Visibility.Gone else Visibility.Visible
                     width = Dimension.fillToConstraints
                     linkTo(start = parent.start, end = parent.end)
                 }
-                constrain(device) { bottom.linkTo(parent.bottom) }
+                constrain(internet) { bottom.linkTo(parent.bottom) }
             }
 
         defaultTransition(collapseSet, expandSet) {}
@@ -491,14 +491,14 @@ fun Singlehop(
                     val legendXPosition = motionLayout.localPositionOf(exit).x + exit.size.width / 2
                     drawVerticalLegend(
                         x = legendXPosition,
-                        y1 = internet.bottomIn(motionLayout),
+                        y1 = device.bottomIn(motionLayout),
                         y2 = exit.topIn(motionLayout),
                         color = colors.legendColor,
                     )
                     drawVerticalLegend(
                         x = legendXPosition,
                         y1 = exit.bottomIn(motionLayout),
-                        y2 = device.topIn(motionLayout),
+                        y2 = internet.topIn(motionLayout),
                         color = colors.legendColor,
                     )
                 },
@@ -506,18 +506,18 @@ fun Singlehop(
         progress = expandProgress,
     ) {
         LocationHint(
-            modifier = Modifier.layoutId(AnimationKey.Internet),
-            text = "Internet",
-            imageVector = Icons.Rounded.Language,
-            colors = colors,
-            onIconGloballyPositioned = { internetIconLC = it },
-        )
-        LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
-            text = "Your device",
+            text = stringResource(R.string.your_device),
             imageVector = Icons.Rounded.PhoneAndroid,
             onIconGloballyPositioned = { deviceIconLC = it },
             colors = colors,
+        )
+        LocationHint(
+            modifier = Modifier.layoutId(AnimationKey.Internet),
+            text = stringResource(R.string.internet),
+            imageVector = Icons.Rounded.Language,
+            colors = colors,
+            onIconGloballyPositioned = { internetIconLC = it },
         )
         Hop(
             modifier =
