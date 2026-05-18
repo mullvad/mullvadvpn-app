@@ -406,8 +406,7 @@ impl SettingsPersister {
     }
 
     pub fn register_change_listener_async<
-        F: FnMut(&Settings) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>
-            + 'static,
+        F: Fn(&Settings) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> + 'static,
     >(
         &mut self,
         change_listener: F,
