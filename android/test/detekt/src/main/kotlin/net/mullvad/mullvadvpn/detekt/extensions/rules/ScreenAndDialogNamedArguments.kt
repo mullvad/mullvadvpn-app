@@ -1,25 +1,18 @@
 package net.mullvad.mullvadvpn.detekt.extensions.rules
 
-import io.gitlab.arturbosch.detekt.api.CodeSmell
-import io.gitlab.arturbosch.detekt.api.Config
-import io.gitlab.arturbosch.detekt.api.Debt
-import io.gitlab.arturbosch.detekt.api.Entity
-import io.gitlab.arturbosch.detekt.api.Issue
-import io.gitlab.arturbosch.detekt.api.Rule
-import io.gitlab.arturbosch.detekt.api.Severity
+import dev.detekt.api.Config
+import dev.detekt.api.Entity
+import dev.detekt.api.Finding
+import dev.detekt.api.Rule
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtLambdaArgument
 
-class ScreenAndDialogNamedArguments(config: Config) : Rule(config) {
-
-    override val issue =
-        Issue(
-            javaClass.simpleName,
-            Severity.CodeSmell,
+class ScreenAndDialogNamedArguments(config: Config) :
+    Rule(
+        config,
+        description =
             "This rule reports Screen and Dialog composable calls that do not exclusively use named arguments",
-            Debt(mins = 1),
-        )
-
+    ) {
     override fun visitCallExpression(expression: KtCallExpression) {
         super.visitCallExpression(expression)
         val name = expression.calleeExpression?.text ?: return
@@ -35,8 +28,7 @@ class ScreenAndDialogNamedArguments(config: Config) : Rule(config) {
         val hasUnnamed = args.any { !it.isNamed() }
         if (hasUnnamed) {
             report(
-                CodeSmell(
-                    issue = issue,
+                Finding(
                     entity = Entity.from(element = expression.originalElement, offset = 0),
                     message = "Call to composable `$name` must use only named arguments.",
                 )
