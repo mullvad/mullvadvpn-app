@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -59,6 +60,7 @@ import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -76,6 +78,7 @@ import net.mullvad.mullvadvpn.lib.model.RelaySettings
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.SplitTunnelSettings
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
@@ -820,3 +823,36 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
 internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.map {
     Cipher(it.name)
 }
+
+internal fun ManagementInterface.SplitFilterMigration.toDomain(): SplitFilterMigration =
+    SplitFilterMigration(
+        multihopMigrationState = multihopMigration.toDomain(),
+        filtersSet = filtersSet,
+        daitaMigration = daitaMigration.toDomain(),
+    )
+
+internal fun ManagementInterface.SplitFilterMigration.MultihopMigrationState.toDomain():
+    MultihopMigrationState =
+    when (this) {
+        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_never ->
+            MultihopMigrationState.OFF_TO_NEVER
+        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_when_needed ->
+            MultihopMigrationState.OFF_TO_WHEN_NEEDED
+        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_always ->
+            MultihopMigrationState.OFF_TO_ALWAYS
+        ManagementInterface.SplitFilterMigration.MultihopMigrationState.on_to_always ->
+            MultihopMigrationState.ON_TO_ALWAYS
+        ManagementInterface.SplitFilterMigration.MultihopMigrationState.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized multihop migration state")
+    }
+
+internal fun ManagementInterface.SplitFilterMigration.PreviousDaitaState.toDomain():
+    PreviousDaitaState =
+    when (this) {
+        ManagementInterface.SplitFilterMigration.PreviousDaitaState.on -> PreviousDaitaState.ON
+        ManagementInterface.SplitFilterMigration.PreviousDaitaState.direct_only ->
+            PreviousDaitaState.DIRECT_ONLY
+        ManagementInterface.SplitFilterMigration.PreviousDaitaState.off -> PreviousDaitaState.OFF
+        ManagementInterface.SplitFilterMigration.PreviousDaitaState.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized previous daita state")
+    }
