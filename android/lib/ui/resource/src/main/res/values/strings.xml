@@ -104,6 +104,8 @@
     <string name="switch_location">Switch location</string>
     <string name="tcp">TCP</string>
     <string name="udp">UDP</string>
+    <string name="internet">Internet</string>
+    <string name="your_device">Your device</string>
     <string name="blocking_internet">Blocking internet</string>
     <string name="blocking_internet_device_offline">Blocking internet (device offline)</string>
     <string name="invalid_dns_servers">Custom DNS server addresses %1$s are invalid</string>

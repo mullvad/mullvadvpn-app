@@ -3381,6 +3381,9 @@ msgstr ""
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr ""
 
+msgid "Internet"
+msgstr ""
+
 msgid "Invalid IP address"
 msgstr ""
 
@@ -3829,6 +3832,9 @@ msgid "You will lose access to this account on all devices."
 msgstr ""
 
 msgid "You will lose your remaining"
+msgstr ""
+
+msgid "Your device"
 msgstr ""
 
 msgid "\"%s\" was created"
