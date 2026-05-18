@@ -2,4 +2,5 @@
     <color name="colorPrimary">#294D73</color>
     <color name="darkBlue">#192E45</color>
     <color name="icon_background">@color/darkBlue</color>
+    <color name="mascot_hat">#FFD524</color>
 </resources>

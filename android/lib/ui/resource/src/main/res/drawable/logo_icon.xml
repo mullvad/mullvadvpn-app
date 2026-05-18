@@ -13,7 +13,7 @@
           android:fillColor="#FFCD86"
           android:fillType="evenOdd" />
     <path android:pathData="M101.2,69.9c-1.5,-4.1,-1.1,-9.4,1,-14.4c3,-6.9,8.7,-11.5,14.1,-11.5c1.1,0,2.1,0.2,3.1,0.6c3.1,-2.8,6.7,-5.1,10.7,-6.7c22,-8.8,54.3,6.9,62.6,28.5c4,10.5,2.8,21.9,-0.6,32.4c-2.8,8.6,-13,21,-9.2,30.3c-1.5,-0.4,-32.8,-11,-41.8,-15.8c-14.1,-8.8,-26.7,-19.6,-36.2,-27.9l-0.3,-0.3l-32,-15.2c-0.4,-0.2,-0.8,-0.4,-1.1,-0.6C75.9,69.5,93.4,71.6,101.2,69.9z"
-          android:fillColor="#FFD524"
+          android:fillColor="@color/mascot_hat"
           android:fillType="evenOdd" />
     <group android:pivotX="113.8"
            android:pivotY="60.4"
