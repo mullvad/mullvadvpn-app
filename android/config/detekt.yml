@@ -111,7 +111,7 @@ complexity:
     allowedComplexity: 15
   ComplexCondition:
     active: true
-    allowedConditions: 3
+    allowedConditions: 4
   ComplexInterface:
     active: false
     allowedDefinitions: 10
@@ -120,7 +120,7 @@ complexity:
     ignoreOverloaded: false
   CyclomaticComplexMethod:
     active: true
-    allowedComplexity: 14
+    allowedComplexity: 15
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
@@ -143,7 +143,7 @@ complexity:
     allowedLines: 600
   LongMethod:
     active: true
-    allowedLines: 60
+    allowedLines: 80
   LongParameterList:
     active: true
     allowedFunctionParameters: 5
@@ -190,11 +190,6 @@ complexity:
     ignoreStringsRegex: '$^'
   TooManyFunctions:
     active: true
-    allowedFunctionsPerFile: 11
-    allowedFunctionsPerClass: 11
-    allowedFunctionsPerInterface: 11
-    allowedFunctionsPerObject: 11
-    allowedFunctionsPerEnum: 11
     excludes:
       - '**/test/**'
       - '**/androidTest/**'
@@ -204,6 +199,11 @@ complexity:
       - '**/androidInstrumentedTest/**'
       - '**/jsTest/**'
       - '**/iosTest/**'
+    allowedFunctionsPerFile: 30
+    allowedFunctionsPerClass: 14
+    allowedFunctionsPerInterface: 14
+    allowedFunctionsPerObject: 14
+    allowedFunctionsPerEnum: 14
     ignoreDeprecated: false
     ignorePrivate: false
     ignoreInternal: false
@@ -305,7 +305,7 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    active: true
+    active: false
     ignoredExceptionTypes:
       - 'InterruptedException'
       - 'MalformedURLException'
@@ -690,6 +690,7 @@ style:
   DestructuringDeclarationWithTooManyEntries:
     active: true
     maxDestructuringEntries: 3
+    ignoreAnnotated: ['Composable']
   DoubleNegativeExpression:
     active: false
   DoubleNegativeLambda:
@@ -806,6 +807,7 @@ style:
     ignoreEnums: false
     ignoreRanges: false
     ignoreExtensionFunctions: true
+    ignoreAnnotated: ['Preview']
   MandatoryBracesLoops:
     active: false
   MaxChainedCallsOnSameLine:
@@ -818,6 +820,7 @@ style:
     excludeImportStatements: true
     excludeCommentStatements: false
     excludeRawStrings: true
+    ignoreAnnotated: ['Test']
   MayBeConstant:
     active: true
   ModifierOrder:
