@@ -12,10 +12,11 @@ sealed class Page {
 
 inline fun <reified T : Page> on(scope: T.() -> Unit = {}) {
     val page = T::class.java.getConstructor().newInstance()
-    // Wait for the screen to settle and so we don't proceed with actions too early. Otherwise, we
+
+    page.assertIsDisplayed()
+    // Wait for the screen to settle, and so we don't proceed with actions too early. Otherwise, we
     // might start clicking on the screen before it is in a resumed state.
     page.uiDevice.waitForStableInActiveWindow()
-    page.assertIsDisplayed()
 
     page.scope()
 }
