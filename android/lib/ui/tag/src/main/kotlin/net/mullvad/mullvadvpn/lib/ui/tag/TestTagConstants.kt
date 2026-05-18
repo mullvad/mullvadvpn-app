@@ -179,3 +179,6 @@ const val ADD_TIME_BOTTOM_SHEET_TITLE_TEST_TAG = "add_time_bottom_sheet_title_te
 // LoginScreen
 const val LOGIN_SCREEN_DELETE_ACCOUNT_HISTORY_TEST_TAG =
     "login_screen_delete_account_history_test_tag"
+
+// MultihopMigrationScreen
+const val MULTIHOP_MIGRATION_SCREEN_NEXT_BUTTON_TEST_TAG = "multihop_migration_screen_next_button_test_tag"

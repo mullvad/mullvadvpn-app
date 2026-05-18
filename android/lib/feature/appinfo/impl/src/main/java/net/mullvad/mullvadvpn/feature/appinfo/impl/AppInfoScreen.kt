@@ -25,11 +25,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.appinfo.api.ChangelogNavKey
+import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.safeOpenUri
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -56,6 +60,7 @@ private fun PreviewAppInfoScreen(
             onBackClick = {},
             navigateToChangelog = {},
             openAppListing = {},
+            navigateToMultihopMigrationGuide = {},
         )
     }
 }
@@ -85,6 +90,18 @@ fun AppInfo(navigator: Navigator) {
         onBackClick = dropUnlessResumed { navigator.goBack() },
         navigateToChangelog = dropUnlessResumed { navigator.navigate(ChangelogNavKey()) },
         openAppListing = dropUnlessResumed { vm.openAppListing() },
+        navigateToMultihopMigrationGuide =
+            dropUnlessResumed { splitFilterMigration ->
+                navigator.navigate(
+                    MultihopMigrationNavKey(
+                        multihopMigrationData =
+                            MultihopMigrationData(
+                                splitFilterMigration = splitFilterMigration,
+                                userBlocked = false,
+                            )
+                    )
+                )
+            },
     )
 }
 
@@ -96,6 +113,7 @@ fun AppInfo(
     onBackClick: () -> Unit,
     navigateToChangelog: () -> Unit,
     openAppListing: () -> Unit,
+    navigateToMultihopMigrationGuide: (SplitFilterMigration) -> Unit,
 ) {
     ScaffoldWithSmallTopBar(
         appBarTitle = stringResource(id = R.string.app_info),
@@ -124,6 +142,7 @@ fun AppInfo(
                         state = state.value,
                         navigateToChangelog = navigateToChangelog,
                         openAppListing = openAppListing,
+                        navigateToMultihopMigrationGuide = navigateToMultihopMigrationGuide,
                     )
             }
         }
@@ -135,9 +154,16 @@ private fun AppInfoContent(
     state: AppInfoUiState,
     navigateToChangelog: () -> Unit,
     openAppListing: () -> Unit,
+    navigateToMultihopMigrationGuide: (SplitFilterMigration) -> Unit,
 ) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
         ChangelogRow(navigateToChangelog)
+        if (state.splitFilterMigration != null) {
+            HorizontalDivider()
+            MultihopMigrationRow(
+                onClick = { navigateToMultihopMigrationGuide(state.splitFilterMigration) }
+            )
+        }
         HorizontalDivider()
         AppVersionRow(state, openAppListing)
     }
@@ -179,6 +205,15 @@ private fun ChangelogRow(navigateToChangelog: () -> Unit) {
         title = stringResource(R.string.changelog_title),
         onClick = navigateToChangelog,
         position = Position.Top,
+    )
+}
+
+@Composable
+private fun MultihopMigrationRow(onClick: () -> Unit) {
+    NavigationListItem(
+        title = stringResource(R.string.migrated_settings),
+        onClick = onClick,
+        position = Position.Middle,
     )
 }
 
