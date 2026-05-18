@@ -32,6 +32,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEST_TAG
@@ -55,6 +56,8 @@ fun AnimatedNotificationBanner(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     // Fix for animating to invisible state
     val previous = rememberPrevious(current = notification, shouldUpdate = { _, _ -> true })
@@ -89,6 +92,8 @@ fun AnimatedNotificationBanner(
                     onClickDismissNewDevice = onClickDismissNewDevice,
                     onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
                     onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+                    onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                    onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
                 ),
             )
     }

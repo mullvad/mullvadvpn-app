@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.isTv
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.tv.NotificationBannerTv
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedNotificationBanner
@@ -59,6 +60,8 @@ private fun PreviewNotificationBanner() {
                     onClickDismissNewDevice = {},
                     onClickShowWireguardPortSettings = {},
                     onClickDismissAndroid16UpgradeWarning = {},
+                    onClickShowMultihopMigrationWizard = {},
+                    onClickDismissMigrateMultihopWarning = {},
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }
@@ -80,6 +83,8 @@ fun NotificationBanner(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     if (isTv()) {
         NotificationBannerTv(
@@ -95,6 +100,8 @@ fun NotificationBanner(
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+            onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+            onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
         )
     } else {
         AnimatedNotificationBanner(
@@ -111,6 +118,8 @@ fun NotificationBanner(
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+            onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+            onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
         )
     }
 }

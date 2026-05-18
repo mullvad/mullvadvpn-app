@@ -86,6 +86,7 @@ import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
+import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
@@ -114,6 +115,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
@@ -168,6 +170,8 @@ private fun PreviewAccountScreen(
             onClickShowWireguardPortSettings = {},
             onClickDismissAndroid16UpgradeWarning = {},
             onClickShowAndroid16UpgradeInfo = {},
+            onClickShowMultihopMigrationWizard = {},
+            onClickDismissMigrateMultihopWarning = {},
         )
     }
 }
@@ -318,6 +322,14 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                 connectViewModel::dismissAndroid16UpgradeWarning,
             onClickShowAndroid16UpgradeInfo =
                 dropUnlessResumed { navigator.navigate(Android16UpgradeInfoNavKey) },
+            onClickShowMultihopMigrationWizard =
+                dropUnlessResumed { multihopMigrationData: MultihopMigrationData ->
+                    navigator.navigate(
+                        MultihopMigrationNavKey(multihopMigrationData = multihopMigrationData)
+                    )
+                },
+            onClickDismissMigrateMultihopWarning =
+                connectViewModel::dismissMultihopMigrationWarning,
         )
     }
 }
@@ -344,29 +356,33 @@ fun ConnectScreen(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
     val content =
         @Composable { padding: PaddingValues ->
             Content(
-                contentFocusRequester,
-                padding,
-                state,
-                onDisconnectClick,
-                onReconnectClick,
-                onConnectClick,
-                onCancelClick,
-                onSwitchLocationClick,
-                onOpenAppListing,
-                onManageAccountClick,
-                onChangelogClick,
-                onDismissChangelogClick,
-                onDismissNewDeviceClick,
-                onNavigateToFeature,
-                onClickShowWireguardPortSettings,
-                onClickDismissAndroid16UpgradeWarning,
-                onClickShowAndroid16UpgradeInfo,
+                focusRequester = contentFocusRequester,
+                paddingValues = padding,
+                state = state,
+                onDisconnectClick = onDisconnectClick,
+                onReconnectClick = onReconnectClick,
+                onConnectClick = onConnectClick,
+                onCancelClick = onCancelClick,
+                onSwitchLocationClick = onSwitchLocationClick,
+                onOpenAppListing = onOpenAppListing,
+                onManageAccountClick = onManageAccountClick,
+                onChangelogClick = onChangelogClick,
+                onDismissChangelogClick = onDismissChangelogClick,
+                onDismissNewDeviceClick = onDismissNewDeviceClick,
+                onNavigateToFeature = onNavigateToFeature,
+                onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
+                onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+                onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
+                onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
             )
         }
 
@@ -424,6 +440,8 @@ private fun Content(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val screenHeight =
         with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
@@ -477,6 +495,8 @@ private fun Content(
                 onClickDismissNewDevice = onDismissNewDeviceClick,
                 onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
                 onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+                onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
             )
             ConnectionCard(
                 state = state,

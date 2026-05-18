@@ -73,4 +73,13 @@ class UserPreferencesRepository(
             prefs.toBuilder().setShowSystemAppsSplitTunneling(show).build()
         }
     }
+
+    fun hasSeenMultihopMigrationGuide(): Flow<Boolean> =
+        userPreferencesStore.data.map { it.hasSeenMultihopMigrationGuide }
+
+    suspend fun setHasSeenMultihopMigrationGuide() {
+        userPreferencesStore.updateData { prefs ->
+            prefs.toBuilder().setHasSeenMultihopMigrationGuide(true).build()
+        }
+    }
 }

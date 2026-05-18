@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -75,6 +76,8 @@ class ConnectScreenTest {
         onClickShowWireguardPortSettings: () -> Unit = {},
         onClickShowAndroid16UpgradeInfo: () -> Unit = {},
         onClickDismissAndroid16UpgradeWarning: () -> Unit = {},
+        onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit = {},
+        onClickDismissMigrateMultihopWarning: () -> Unit = {},
     ) {
         setContentWithTheme {
             ConnectScreen(
@@ -95,6 +98,8 @@ class ConnectScreenTest {
                 onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
                 onClickShowAndroid16UpgradeInfo = onClickShowAndroid16UpgradeInfo,
                 onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+                onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
             )
         }
     }

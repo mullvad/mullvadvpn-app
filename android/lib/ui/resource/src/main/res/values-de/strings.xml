@@ -341,6 +341,7 @@
     <string name="new_device_notification_message">Willkommen, dieses Gerät heißt jetzt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NEUES GERÄT ERSTELLT</string>
     <string name="new_list">Neue Liste</string>
+    <string name="next">Weiter</string>
     <string name="no_custom_lists_available">Keine eigenen Listen verfügbar</string>
     <string name="no_email_app_available">Keine E-Mail-App auf dem Gerät verfügbar</string>
     <string name="no_internet_connection">Keine Internetverbindung</string>
