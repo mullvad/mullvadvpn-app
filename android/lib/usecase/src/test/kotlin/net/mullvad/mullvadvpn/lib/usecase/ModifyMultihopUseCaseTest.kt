@@ -10,9 +10,12 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
@@ -54,6 +57,8 @@ class ModifyMultihopUseCaseTest {
         val mockSettings: Settings = mockk()
         every { mockSettings.relaySettings.relayConstraints.location } returns
             Constraint.Only(mockRelayItemId)
+        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.multihop } returns
+            MultihopMode.ALWAYS
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns true
         val change = RelayMultihopChange.Entry(mockRelayItem)
@@ -76,6 +81,9 @@ class ModifyMultihopUseCaseTest {
         every {
             mockSettings.relaySettings.relayConstraints.wireguardConstraints.entryLocation
         } returns Constraint.Only(mockRelayItemId)
+        every {
+            mockSettings.relaySettings.relayConstraints.wireguardConstraints.multihop
+        } returns MultihopMode.ALWAYS
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns true
         val change = RelayMultihopChange.Exit(mockRelayItem)
@@ -90,7 +98,7 @@ class ModifyMultihopUseCaseTest {
     }
 
     @Test
-    fun `when changing entry and exit is the same but daita is enabled without direct only should not throw error`() =
+    fun `when changing entry and exit is the same but multihop is when needed should not throw error`() =
         runTest {
             // Arrange
             val mockRelayItemId: GeoLocationId.Hostname = mockk()
@@ -98,9 +106,11 @@ class ModifyMultihopUseCaseTest {
             val mockSettings: Settings = mockk()
             every { mockSettings.relaySettings.relayConstraints.location } returns
                 Constraint.Only(mockRelayItemId)
+            every {
+                mockSettings.relaySettings.relayConstraints.wireguardConstraints.multihop
+            } returns MultihopMode.WHEN_NEEDED
             every { mockRelayItem.id } returns mockRelayItemId
             every { mockRelayItem.active } returns true
-            every { mockSettings.isDaitaEnabled() } returns true
             coEvery { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) } returns
                 Unit.right()
             val change = RelayMultihopChange.Entry(mockRelayItem)

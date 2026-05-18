@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
     <string name="direct">다이렉트</string>
-    <string name="direct_only">직접 전용</string>
     <string name="direct_only_description">일부 서버에는 %1$s가 활성화되어 있지 않습니다. 인터넷 사용을 위해 활성화 후 새 위치를 선택해야 할 수 있습니다.</string>
     <string name="disable_multihop">멀티홉 비활성화</string>
     <string name="disable_recents">최근 항목 비활성화</string>
@@ -339,6 +338,7 @@
     <string name="new_device_notification_message">환영합니다. 이 장치의 호칭은 이제 <b>%1$s</b>입니다.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
+    <string name="next">다음</string>
     <string name="no_custom_lists_available">이용 가능한 사용자 지정 목록 없음</string>
     <string name="no_email_app_available">이 장치에서 사용할 수 있는 이메일 앱이 없습니다</string>
     <string name="no_internet_connection">인터넷에 연결되지 않음</string>

@@ -12,9 +12,3 @@ data class WireguardConstraints(
 ) {
     companion object
 }
-
-enum class MultihopMode {
-    WHEN_NEEDED,
-    ALWAYS,
-    NEVER,
-}

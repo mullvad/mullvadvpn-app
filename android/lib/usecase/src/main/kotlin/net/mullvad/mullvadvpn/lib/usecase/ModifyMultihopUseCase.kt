@@ -10,6 +10,7 @@ import kotlin.collections.first
 import net.mullvad.mullvadvpn.lib.common.util.location
 import net.mullvad.mullvadvpn.lib.common.util.multihopMode
 import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopMode

@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
     <string name="direct">Напрямую</string>
-    <string name="direct_only">Только напрямую</string>
     <string name="direct_only_description">%1$s поддерживается не на всех серверах. Поэтому, чтобы выйти онлайн после включения этой функции, вам, возможно, придется выбрать новое местоположение.</string>
     <string name="disable_multihop">Отключить многократный переход</string>
     <string name="disable_recents">Отключить недавние</string>
@@ -339,6 +338,7 @@
     <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется <b>%1$s</b>.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
+    <string name="next">Далее</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
     <string name="no_email_app_available">На устройстве нет приложения для работы с электронной почтой</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>

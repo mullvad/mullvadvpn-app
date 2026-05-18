@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn.</string>
     <string name="direct">Direkte</string>
-    <string name="direct_only">Kun direkte</string>
     <string name="direct_only_description">Ikke alle serverne våre er %1$s-aktiverte. For å kunne bruke internettet må du kanskje velge en ny plassering etter aktivering.</string>
     <string name="disable_multihop">Deaktiver multihopp</string>
     <string name="disable_recents">Deaktiver nylige</string>
@@ -339,6 +338,7 @@
     <string name="new_device_notification_message">Velkommen. Denne enheten har fått navnet <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NY ENHET OPPRETTET</string>
     <string name="new_list">Ny liste</string>
+    <string name="next">Neste</string>
     <string name="no_custom_lists_available">Ingen tilgjengelige egendefinerte lister</string>
     <string name="no_email_app_available">Ingen app for e-post tilgjengelig på enheten</string>
     <string name="no_internet_connection">Ingen internettforbindelse</string>

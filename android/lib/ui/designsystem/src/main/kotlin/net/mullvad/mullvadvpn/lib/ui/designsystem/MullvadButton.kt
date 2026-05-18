@@ -210,16 +210,54 @@ fun NegativeOutlinedButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    colors: ButtonColors =
-        ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.onError,
-            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
-        ),
-    border: BorderStroke =
-        BorderStroke(
-            width = Dimens.outLineButtonBorderWidth,
-            color = MaterialTheme.colorScheme.error,
-        ),
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    ColoredOutlinedButton(
+        onClick = onClick,
+        text = text,
+        outlineColor = MaterialTheme.colorScheme.error,
+        textColor = MaterialTheme.colorScheme.error,
+        modifier = modifier,
+        isEnabled = isEnabled,
+        isLoading = isLoading,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
+fun PrimaryOutlinedButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    ColoredOutlinedButton(
+        onClick = onClick,
+        text = text,
+        outlineColor = MaterialTheme.colorScheme.primary,
+        textColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = modifier,
+        isEnabled = isEnabled,
+        isLoading = isLoading,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
+fun ColoredOutlinedButton(
+    onClick: () -> Unit,
+    text: String,
+    outlineColor: Color,
+    textColor: Color,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -229,9 +267,13 @@ fun NegativeOutlinedButton(
     OutlinedButton(
         onClick = onClick,
         modifier = modifier.wrapContentHeight().width(IntrinsicSize.Max),
-        colors = colors,
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                contentColor = textColor,
+                disabledContentColor = textColor.copy(alpha = Alpha20),
+            ),
         enabled = !isLoading && isEnabled,
-        border = border,
+        border = BorderStroke(width = Dimens.outLineButtonBorderWidth, color = outlineColor),
         contentPadding =
             if (hasIcon) {
                 PaddingValues(vertical = Dimens.buttonSpacing)
@@ -303,8 +345,8 @@ private fun RowScope.BaseButtonContent(
     text: String,
     isLoading: Boolean,
     textDecoration: TextDecoration = TextDecoration.None,
-    leadingIcon: @Composable() (() -> Unit)?,
-    trailingIcon: @Composable() (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
 ) {
     when {
         leadingIcon != null ->

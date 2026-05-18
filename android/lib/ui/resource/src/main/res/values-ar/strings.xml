@@ -182,7 +182,6 @@
     <string name="device_name_info_second_paragraph">يمكنك تسجيل الدخول إلى ما يصل إلى 5 أجهزة على حساب Mullvad واحد.</string>
     <string name="device_name_info_third_paragraph">عند تسجيل الخروج، سيتم حذف الجهاز واسمه. وعند تسجيل الدخول مجددًا، سيحصل الجهاز على اسم جديد.</string>
     <string name="direct">مباشر</string>
-    <string name="direct_only">المباشر فقط</string>
     <string name="direct_only_description">ليست كل خوادمنا تدعم ميزة %1$s. قد تحتاج إلى اختيار موقع جديد بعد تفعيلها لاستخدام الإنترنت.</string>
     <string name="disable_multihop">إيقاف القفز المتعدد</string>
     <string name="disable_recents">إيقاف المواقع الحديثة</string>
@@ -339,6 +338,7 @@
     <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن <b>%1$s</b>.</string>
     <string name="new_device_notification_title">تم إنشاء جهاز جديد</string>
     <string name="new_list">قائمة جديدة</string>
+    <string name="next">التالي</string>
     <string name="no_custom_lists_available">لا توجد قوائم مُخصَّصة متاحة</string>
     <string name="no_email_app_available">لا يتوفَّر تطبيق بريد إلكتروني على الجهاز</string>
     <string name="no_internet_connection">لا يتوفَّر اتصال بالإنترنت</string>
