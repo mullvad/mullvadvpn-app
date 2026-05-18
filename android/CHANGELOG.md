@@ -22,10 +22,6 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Added
-- Add a new access method: Domain fronting. Domain fronting is a way to reach the API via
-  proxies. The access method is enabled by default.
-
 ### Changed
 - Optimize LWO performance. The throughput is around 3 times higher in our benchmarks.
 
