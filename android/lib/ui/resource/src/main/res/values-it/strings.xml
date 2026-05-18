@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Utilizzando un\'IA sofisticata è possibile analizzare il traffico dei pacchetti di dati in entrata e in uscita dal dispositivo (anche se il traffico è crittografato).</string>
     <string name="daita_description_slide_2_first_paragraph">Se un osservatore monitora questi pacchetti di dati, %1$s rende molto più difficile per lui identificare quali siti web stai visitando o con chi stai comunicando.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s lo fa aggiungendo con attenzione rumore di rete e rendendo tutti i pacchetti di rete della stessa dimensione.</string>
-    <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
     <string name="days_were_added_30">30 giorni aggiunti al tuo account.</string>
     <string name="days_were_added_90">90 giorni aggiunti al tuo account.</string>
     <string name="delete">Elimina</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">Puoi avere fino a 5 dispositivi registrati su un account Mullvad.</string>
     <string name="device_name_info_third_paragraph">Se ti disconnetti, il dispositivo e il relativo nome verranno rimossi. Quando accedi nuovamente, il dispositivo assumerà un nuovo nome.</string>
     <string name="direct">Diretto</string>
-    <string name="direct_only_description">Non tutti i nostri server sono abilitati per %1$s. Per usare Internet, potresti dover selezionare una nuova posizione dopo l\'abilitazione.</string>
     <string name="disable_multihop">Disabilita multihop</string>
     <string name="disable_recents">Disabilita recenti</string>
     <string name="discard">Ignora modifiche</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Abilita tutto e riprova</string>
     <string name="enable_anyway">Abilita comunque</string>
     <string name="enable_custom_dns">Usa un server DNS personalizzato</string>
-    <string name="enable_direct_only">Abilita %1$s</string>
     <string name="enable_ipv6">In-tunnel IPv6</string>
     <string name="enable_location_in_notification">Mostra la posizione nella notifica</string>
     <string name="enable_method">Abilita metodo</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">Ti diamo il benvenuto, questo dispositivo ora si chiama <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="new_list">Nuovo elenco</string>
+    <string name="next">Avanti</string>
     <string name="no_custom_lists_available">Nessun elenco personalizzato disponibile</string>
     <string name="no_email_app_available">Nessuna app di posta elettronica disponibile sul dispositivo</string>
     <string name="no_internet_connection">Nessuna connessione Internet</string>

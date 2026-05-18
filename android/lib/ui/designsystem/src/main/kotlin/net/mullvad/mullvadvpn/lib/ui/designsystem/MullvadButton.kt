@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -100,7 +101,7 @@ fun NegativeButton(
     BaseButton(
         onClick = onClick,
         colors = colors,
-        text = text,
+        text = AnnotatedString(text),
         modifier = modifier,
         isEnabled = isEnabled,
         isLoading = isLoading,
@@ -129,7 +130,7 @@ fun VariantButton(
     BaseButton(
         onClick = onClick,
         colors = colors,
-        text = text,
+        text = AnnotatedString(text),
         modifier = modifier,
         isEnabled = isEnabled,
         isLoading = isLoading,
@@ -141,6 +142,35 @@ fun VariantButton(
 fun PrimaryButton(
     onClick: () -> Unit,
     text: String,
+    modifier: Modifier = Modifier,
+    colors: ButtonColors =
+        ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = Alpha20),
+            disabledContainerColor = MaterialTheme.colorScheme.primaryDisabled,
+        ),
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    PrimaryButton(
+        onClick = onClick,
+        text = AnnotatedString(text),
+        modifier = modifier,
+        colors = colors,
+        isEnabled = isEnabled,
+        isLoading = isLoading,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
+fun PrimaryButton(
+    onClick: () -> Unit,
+    text: AnnotatedString,
     modifier: Modifier = Modifier,
     colors: ButtonColors =
         ButtonDefaults.buttonColors(
@@ -196,7 +226,7 @@ fun PrimaryTextButton(
             },
     ) {
         BaseButtonContent(
-            text = text,
+            text = AnnotatedString(text),
             textDecoration = textDecoration,
             isLoading = isLoading,
             leadingIcon = leadingIcon,
@@ -210,16 +240,54 @@ fun NegativeOutlinedButton(
     onClick: () -> Unit,
     text: String,
     modifier: Modifier = Modifier,
-    colors: ButtonColors =
-        ButtonDefaults.outlinedButtonColors(
-            contentColor = MaterialTheme.colorScheme.onError,
-            disabledContentColor = MaterialTheme.colorScheme.onError.copy(alpha = Alpha20),
-        ),
-    border: BorderStroke =
-        BorderStroke(
-            width = Dimens.outLineButtonBorderWidth,
-            color = MaterialTheme.colorScheme.error,
-        ),
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    ColoredOutlinedButton(
+        onClick = onClick,
+        text = text,
+        outlineColor = MaterialTheme.colorScheme.error,
+        textColor = MaterialTheme.colorScheme.error,
+        modifier = modifier,
+        isEnabled = isEnabled,
+        isLoading = isLoading,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
+fun PrimaryOutlinedButton(
+    onClick: () -> Unit,
+    text: String,
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+) {
+    ColoredOutlinedButton(
+        onClick = onClick,
+        text = text,
+        outlineColor = MaterialTheme.colorScheme.primary,
+        textColor = MaterialTheme.colorScheme.onPrimary,
+        modifier = modifier,
+        isEnabled = isEnabled,
+        isLoading = isLoading,
+        leadingIcon = leadingIcon,
+        trailingIcon = trailingIcon,
+    )
+}
+
+@Composable
+fun ColoredOutlinedButton(
+    onClick: () -> Unit,
+    text: String,
+    outlineColor: Color,
+    textColor: Color,
+    modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -229,9 +297,13 @@ fun NegativeOutlinedButton(
     OutlinedButton(
         onClick = onClick,
         modifier = modifier.wrapContentHeight().width(IntrinsicSize.Max),
-        colors = colors,
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                contentColor = textColor,
+                disabledContentColor = textColor.copy(alpha = Alpha20),
+            ),
         enabled = !isLoading && isEnabled,
-        border = border,
+        border = BorderStroke(width = Dimens.outLineButtonBorderWidth, color = outlineColor),
         contentPadding =
             if (hasIcon) {
                 PaddingValues(vertical = Dimens.buttonSpacing)
@@ -240,7 +312,7 @@ fun NegativeOutlinedButton(
             },
     ) {
         BaseButtonContent(
-            text = text,
+            text = AnnotatedString(text),
             isLoading = isLoading,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
@@ -253,7 +325,7 @@ fun NegativeOutlinedButton(
 private fun BaseButton(
     onClick: () -> Unit,
     colors: ButtonColors,
-    text: String,
+    text: AnnotatedString,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
@@ -300,11 +372,11 @@ fun SmallPrimaryButton(
 
 @Composable
 private fun RowScope.BaseButtonContent(
-    text: String,
+    text: AnnotatedString,
     isLoading: Boolean,
     textDecoration: TextDecoration = TextDecoration.None,
-    leadingIcon: @Composable() (() -> Unit)?,
-    trailingIcon: @Composable() (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
 ) {
     when {
         leadingIcon != null ->

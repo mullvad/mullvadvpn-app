@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">С помощью сложных ИИ-алгоритмов можно анализировать входящий и исходящий трафик пакетов данных вашего устройства (даже если трафик зашифрован).</string>
     <string name="daita_description_slide_2_first_paragraph">В случае, если наблюдатель отслеживает пакеты данных, %1$s значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</string>
     <string name="daita_description_slide_2_second_paragraph">Для этого %1$s добавляет в трафик сетевой шум, а все пакеты приводятся к одному размеру.</string>
-    <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="days_were_added_30">На учетную запись добавлено 30 дней.</string>
     <string name="days_were_added_90">На вашу учетную запись добавлено 90 дней.</string>
     <string name="delete">Удалить</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
     <string name="direct">Напрямую</string>
-    <string name="direct_only_description">%1$s поддерживается не на всех серверах. Поэтому, чтобы выйти онлайн после включения этой функции, вам, возможно, придется выбрать новое местоположение.</string>
     <string name="disable_multihop">Отключить многократный переход</string>
     <string name="disable_recents">Отключить недавние</string>
     <string name="discard">Сбросить</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Включить все и повторить попытку</string>
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
-    <string name="enable_direct_only">Включить режим %1$s</string>
     <string name="enable_ipv6">IPv6 внутри туннеля</string>
     <string name="enable_location_in_notification">Показывать местоположение в уведомлении</string>
     <string name="enable_method">Включить метод</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">Добро пожаловать! Это устройство теперь называется <b>%1$s</b>.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
+    <string name="next">Далее</string>
     <string name="no_custom_lists_available">Нет своих списков</string>
     <string name="no_email_app_available">На устройстве нет приложения для работы с электронной почтой</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>

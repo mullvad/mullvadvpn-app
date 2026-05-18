@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Dzięki użyciu zaawansowanej sztucznej inteligencji możliwe jest analizowanie ruchu pakietów danych przychodzących i wychodzących z Twojego urządzenia (nawet jeśli ruch jest szyfrowany).</string>
     <string name="daita_description_slide_2_first_paragraph">Jeśli obserwator monitoruje te pakiety danych, %1$s znacznie utrudnia mu zidentyfikowanie witryn internetowych, które odwiedzasz lub z którymi się komunikujesz.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s w tym celu ostrożnie dodaje szum sieciowy i nadaje ten sam rozmiar wszystkim pakietom sieciowym.</string>
-    <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
     <string name="days_were_added_30">Do konta dodano 30 dni.</string>
     <string name="days_were_added_90">Do konta dodano 90 dni.</string>
     <string name="delete">Usuń</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
     <string name="device_name_info_third_paragraph">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
     <string name="direct">Bezpośredni</string>
-    <string name="direct_only_description">Nie wszystkie nasze serwery obsługują %1$s. Aby korzystać z Internetu, być może trzeba będzie wybrać nową lokalizację po włączeniu tej funkcji.</string>
     <string name="disable_multihop">Wyłącz wielokrotne przeskoki</string>
     <string name="disable_recents">Wyłącz ostatnie</string>
     <string name="discard">Odrzuć</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Włącz wszystko i spróbuj ponownie</string>
     <string name="enable_anyway">Mimo to włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
-    <string name="enable_direct_only">Włącz %1$s</string>
     <string name="enable_ipv6">Protokół IPv6 w tunelu</string>
     <string name="enable_location_in_notification">Pokaż lokalizację w powiadomieniu</string>
     <string name="enable_method">Włącz metodę</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">To urządzenie ma teraz nazwę <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UTWORZONO NOWE URZĄDZENIE</string>
     <string name="new_list">Nowa lista</string>
+    <string name="next">Dalej</string>
     <string name="no_custom_lists_available">Brak dostępnych list niestandardowych</string>
     <string name="no_email_app_available">Na urządzeniu nie ma dostępnej aplikacji poczty elektronicznej</string>
     <string name="no_internet_connection">Brak połączenia z Internetem</string>

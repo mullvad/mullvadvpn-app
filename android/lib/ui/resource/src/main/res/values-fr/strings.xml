@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observateur surveille ces paquets de données, %1$s rend beaucoup plus difficile l\'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</string>
-    <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="days_were_added_30">30 jours ont été ajoutés à votre compte.</string>
     <string name="days_were_added_90">90 jours ont été ajoutés à votre compte.</string>
     <string name="delete">Supprimer</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct">Direct</string>
-    <string name="direct_only_description">Tous nos serveurs ne sont pas compatibles %1$s. Pour utiliser l\'internet, vous devrez peut-être sélectionner une nouvelle localisation après activation.</string>
     <string name="disable_multihop">Désactiver le multihop</string>
     <string name="disable_recents">Désactiver les récents</string>
     <string name="discard">Annuler</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Tout activer et réessayer</string>
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
-    <string name="enable_direct_only">Activer %1$s</string>
     <string name="enable_ipv6">IPv6 en tunnel</string>
     <string name="enable_location_in_notification">Afficher la localisation dans les notifications</string>
     <string name="enable_method">Activer la méthode</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">Bienvenue, cet appareil est maintenant appelé <b>%1$s</b>.</string>
     <string name="new_device_notification_title">NOUVEL APPAREIL CRÉÉ</string>
     <string name="new_list">Nouvelle liste</string>
+    <string name="next">Suivant</string>
     <string name="no_custom_lists_available">Aucune liste personnalisée disponible</string>
     <string name="no_email_app_available">Aucune application d\'e-mail disponible sur cet appareil</string>
     <string name="no_internet_connection">Aucune connexion à Internet</string>

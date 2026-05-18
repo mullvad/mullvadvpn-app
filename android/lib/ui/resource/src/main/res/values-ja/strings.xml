@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_description_slide_2_first_paragraph">%1$sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。</string>
     <string name="daita_description_slide_2_second_paragraph">%1$sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
-    <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
     <string name="days_were_added_30">アカウントに30日分が追加されました。</string>
     <string name="days_were_added_90">アカウントに90日分が追加されました。</string>
     <string name="delete">削除</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
     <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
     <string name="direct">ダイレクト</string>
-    <string name="direct_only_description">すべてのサーバーが%1$sに対応しているわけではありません。インターネットを使用するには、有効化した後に新しい場所を選択する必要がある場合もあります。</string>
     <string name="disable_multihop">マルチホップを無効化する</string>
     <string name="disable_recents">最近の項目を無効化</string>
     <string name="discard">破棄</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">すべて有効化してもう一度試す</string>
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
-    <string name="enable_direct_only">%1$sを有効にする</string>
     <string name="enable_ipv6">トンネル内のIPv6</string>
     <string name="enable_location_in_notification">通知に場所を表示する</string>
     <string name="enable_method">方法を有効化する</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">ようこそ。このデバイス名は<b>%1$s</b>です。</string>
     <string name="new_device_notification_title">新しいデバイスが作成されました</string>
     <string name="new_list">新規リスト</string>
+    <string name="next">次へ</string>
     <string name="no_custom_lists_available">利用可能なカスタムリストはありません</string>
     <string name="no_email_app_available">デバイスに利用可能なメールアプリがありません</string>
     <string name="no_internet_connection">インターネット接続がありません</string>

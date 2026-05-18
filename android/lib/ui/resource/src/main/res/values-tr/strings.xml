@@ -143,7 +143,6 @@
     <string name="daita_description_slide_1_third_paragraph">Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür.</string>
     <string name="daita_description_slide_2_first_paragraph">Bir gözlemci bu veri paketlerini izliyorsa, %1$s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
-    <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
     <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
     <string name="days_were_added_90">Hesabınıza 90 gün eklendi.</string>
     <string name="delete">Sil</string>
@@ -182,7 +181,6 @@
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
     <string name="device_name_info_third_paragraph">Oturumu kapatırsanız cihaz ve cihaz adı kaldırılır. Tekrar oturum açtığınızda cihaza yeni bir ad verilir.</string>
     <string name="direct">Doğrudan</string>
-    <string name="direct_only_description">%1$s, tüm sunucularımızda etkin değildir. İnterneti kullanmak için özelliği etkinleştirdikten sonra yeni bir konum seçmeniz gerekir.</string>
     <string name="disable_multihop">Çoklu geçişi devre dışı bırak</string>
     <string name="disable_recents">Son filtreleri devre dışı bırak</string>
     <string name="discard">İptal et</string>
@@ -212,7 +210,6 @@
     <string name="enable_all_methods">Tümünü etkinleştir ve tekrar dene</string>
     <string name="enable_anyway">Yine de etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
-    <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
     <string name="enable_ipv6">Tünel içi IPv6</string>
     <string name="enable_location_in_notification">Bildirimlerde konumu göster</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
@@ -338,6 +335,7 @@
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık <b>%1$s</b>.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
+    <string name="next">Sonraki</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
     <string name="no_email_app_available">Cihazda e-posta uygulaması yok</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
