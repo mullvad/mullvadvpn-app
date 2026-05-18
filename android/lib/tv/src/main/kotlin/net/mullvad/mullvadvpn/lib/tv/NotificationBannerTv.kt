@@ -10,6 +10,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedNotificationBanner
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -29,6 +30,8 @@ private fun PreviewNotificationBannerTv() {
             onClickDismissNewDevice = {},
             onClickShowWireguardPortSettings = {},
             onClickDismissAndroid16UpgradeWarning = {},
+            onClickShowMultihopMigrationWizard = {},
+            onClickDismissMigrateMultihopWarning = {},
         )
     }
 }
@@ -47,6 +50,8 @@ fun NotificationBannerTv(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     AnimatedNotificationBanner(
         modifier = modifier,
@@ -72,5 +77,7 @@ fun NotificationBannerTv(
         onClickDismissNewDevice = onClickDismissNewDevice,
         onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
         onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+        onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+        onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
     )
 }
