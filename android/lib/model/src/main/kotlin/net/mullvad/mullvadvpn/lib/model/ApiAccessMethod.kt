@@ -10,8 +10,6 @@ sealed interface ApiAccessMethod : Parcelable {
 
     @Parcelize data object EncryptedDns : ApiAccessMethod
 
-    @Parcelize data object DomainFronting : ApiAccessMethod
-
     sealed interface CustomProxy : ApiAccessMethod {
         @Parcelize
         data class Socks5Remote(val ip: String, val port: Port, val auth: SocksAuth?) : CustomProxy
