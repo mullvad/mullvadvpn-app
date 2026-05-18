@@ -903,10 +903,10 @@ impl Daemon {
         });
 
         let param_gen_relay_settings = parameters_generator.clone();
-        settings.register_change_listener(move |settings| {
+        settings.register_change_listener_async(move |settings| {
             let settings = settings.clone();
             let param_gen = param_gen_relay_settings.clone();
-            tokio::spawn(async move { param_gen.set_settings(settings).await });
+            async move { param_gen.set_settings(settings).await }
         });
 
         // Register a listener for generic settings changes.
@@ -991,13 +991,13 @@ impl Daemon {
 
         // Notify the relay list updater when new relay IP overrides are available.
         let relay_list_updater_handle = relay_list_updater.clone();
-        settings.register_change_listener(move |settings| {
+        settings.register_change_listener_async(move |settings| {
             // Notify relay selector of changes to the settings/selector config
             let mut relay_list_updater = relay_list_updater_handle.clone();
             let overrides = settings.relay_overrides.clone();
-            tokio::spawn(async move {
+            async move {
                 relay_list_updater.update_overrides(overrides).await;
-            });
+            }
         });
 
         #[cfg(not(target_os = "android"))]
