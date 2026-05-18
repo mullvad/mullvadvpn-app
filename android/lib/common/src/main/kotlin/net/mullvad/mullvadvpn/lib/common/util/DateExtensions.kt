@@ -20,8 +20,7 @@ fun ZonedDateTime.toExpiryDateString(): String =
         Logger.e("Error formatting date with default locale: $e")
         fallbackDateFormat()
     } catch (e: IllegalArgumentException) {
-        // This is due to a bug in Android 9 to 11 where burmese locale causes a crash when using
-        // format style short.
+        // Fix date crash on android 9-11 using burmese locale.
         // See: https://bugs.openjdk.org/browse/JDK-8209047
         // We will fall back to ISO_LOCAL_DATE_TIME.
         Logger.e("Error formatting date with default locale: $e")
