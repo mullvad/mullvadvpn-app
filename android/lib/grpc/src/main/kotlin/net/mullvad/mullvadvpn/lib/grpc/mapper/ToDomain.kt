@@ -743,7 +743,7 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
     activeFeaturesList.map { it.toDomain() }.sorted()
 
-@Suppress("ComplexMethod")
+@Suppress("CyclomaticComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
         ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->
