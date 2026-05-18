@@ -1,5 +1,26 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues/>
-  <CurrentIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ToDomain.kt:@Suppress("ComplexMethod") internal fun ManagementInterface.FeatureIndicator.toDomain</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:AnimatedNotificationBanner.kt:val (status, textTitle, textMessage, actionIcon) = createRefs()</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:AnimatedNotificationBanner.kt:val (title, message, statusLevel, action) = notificationBannerData</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:AutoConnectAndLockdownModeScreen.kt:val (pager, backButtonRef, nextButtonRef, pageIndicatorRef) = createRefs()</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:ConnectionDetailPanel.kt:val (inAddrHeader, inAddr, outAddrV4Header, outAddrV4, outAddrV6Header, outAddrV6) = createRefs()</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:HopSelector.kt:val (internet, exit, exitError, device) = createRefsFor( AnimationKey.Internet, AnimationKey.Exit, AnimationKey.ExitError, AnimationKey.Device, )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:HopSelector.kt:val (internet, exit, exitError, entry, entryError, device, panel) = createRefsFor( AnimationKey.Internet, AnimationKey.Exit, AnimationKey.ExitError, AnimationKey.Entry, AnimationKey.EntryError, AnimationKey.Device, AnimationKey.Panel, )</ID>
+    <ID>EmptyKotlinFile:SplitTunnelingContentKey.kt:net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingContentKey.kt</ID>
+    <ID>MaxLineLength:AddTimeBottomSheetTest.kt:AddTimeBottomSheetTest$"We were unable to start the payment process, please make sure you have the latest version of Google Play."</ID>
+    <ID>MaxLineLength:AntiCensorshipSettingsViewModelTest.kt:AntiCensorshipSettingsViewModelTest$fun</ID>
+    <ID>MaxLineLength:AutoStartAndConnectOnBootRepositoryTest.kt:AutoStartAndConnectOnBootRepositoryTest$fun</ID>
+    <ID>MaxLineLength:BillingRepositoryTest.kt:BillingRepositoryTest$fun</ID>
+    <ID>MaxLineLength:ChangelogRepositoryTest.kt:ChangelogRepositoryTest$"Added very nice new feature with a very long descriptive message-with-hyphens\n - about how it works..."</ID>
+    <ID>MaxLineLength:TunnelStateNotificationUseCaseTest.kt:TunnelStateNotificationUseCaseTest$fun</ID>
+    <ID>MaxLineLength:init.gradle.kts:DumpModelTask$project.logger.lifecycle("Model Name: ${modelName.get()} for module: ${project.path} written to ${outputFile.get().asFile.absolutePath}")</ID>
+    <ID>TooManyFunctions:ConnectScreen.kt:net.mullvad.mullvadvpn.feature.home.impl.connect.ConnectScreen.kt</ID>
+    <ID>TooManyFunctions:EditApiAccessMethodScreen.kt:net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMethodScreen.kt</ID>
+    <ID>TooManyFunctions:RelayItemListCreator.kt:net.mullvad.mullvadvpn.feature.location.impl.search.RelayItemListCreator.kt</ID>
+    <ID>TooManyFunctions:Settings.kt:net.mullvad.mullvadvpn.lib.common.util.Settings.kt</ID>
+    <ID>TooManyFunctions:SplitTunnelingScreen.kt:net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingScreen.kt</ID>
+  </CurrentIssues>
 </SmellBaseline>
