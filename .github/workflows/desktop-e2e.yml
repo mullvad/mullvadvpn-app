@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
         run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
@@ -126,12 +126,12 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1
-      - uses: actions/cache@v4
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         id: cache-app-cargo-artifacts
         with:
           path: |
@@ -149,7 +149,7 @@ jobs:
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-build
@@ -174,7 +174,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run mullvad-version
         id: cargo-run
         run: |
@@ -196,11 +196,11 @@ jobs:
     runs-on: [self-hosted, desktop-test, Linux]  # app-test-linux
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Build test-manager
         run: ./test/scripts/container-run.sh cargo build --package test-manager --release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-test-manager-build
@@ -223,7 +223,7 @@ jobs:
       needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Build binaries
         run: |
           # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
@@ -232,7 +232,7 @@ jobs:
           mv -t ./bin/ \
             "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
             "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: linux-test-runner-binaries
@@ -263,7 +263,7 @@ jobs:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Create binaries directory & add to PATH
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
@@ -312,7 +312,7 @@ jobs:
           ls -la "$TEST_DIST_DIR"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -332,7 +332,7 @@ jobs:
         run: |
           git config --system core.longpaths true
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         shell: bash
@@ -349,7 +349,7 @@ jobs:
       - name: Build test executable
         shell: bash
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: windows-build
@@ -377,7 +377,7 @@ jobs:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Create binaries directory & add to PATH
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
@@ -417,7 +417,7 @@ jobs:
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -433,13 +433,13 @@ jobs:
     runs-on: [self-hosted, desktop-test, macOS]  # app-test-macos-arm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - uses: ./.github/actions/mullvad-build-env
       - name: Build app
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: macos-build
@@ -469,7 +469,7 @@ jobs:
           name: macos-build
           path: ~/Library/Caches/mullvad-test/packages
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Run end-to-end tests
         # bash args:
         # -l: source ~/.profile. May be needed for e.g. '~/.cargo/env' or 'brew shellenv`
@@ -482,7 +482,7 @@ jobs:
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -528,7 +528,7 @@ jobs:
           ${{ github.workspace }}/bin/test-manager \
           format-test-reports ${{ github.workspace }}/*_report \
           | tee summary.html >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: summary.html
           path: summary.html
