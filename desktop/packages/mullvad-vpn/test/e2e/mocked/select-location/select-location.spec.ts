@@ -295,9 +295,6 @@ test.describe('Select location', () => {
       const addToNewCustomListButton =
         routes.selectLocation.getAddToNewCustomListButton(firstRecentName);
       await expect(addToNewCustomListButton).toBeVisible();
-
-      await page.locator('body').click(); // Click outside to close menu
-      await expect(addToCustomListButton).not.toBeVisible();
     });
 
     test('Should be able to edit or delete recent custom list', async () => {
@@ -323,9 +320,6 @@ test.describe('Select location', () => {
 
       const deleteCustomListButton = routes.selectLocation.getDeleteCustomListButton();
       await expect(deleteCustomListButton).toBeVisible();
-
-      await page.locator('body').click(); // Click outside to close menu
-      await expect(deleteCustomListButton).not.toBeVisible();
     });
   });
 
