@@ -262,10 +262,13 @@ function EditShadowsocks(props: EditProxyProps<ShadowsocksCustomProxy>) {
   const [password, setPassword] = useState(props.proxy?.password ?? '');
   const [cipher, setCipher] = useState(props.proxy?.cipher.name);
   const { shadowsocksCiphers } = useShadowsocksCiphers();
-  const shadowsocksCipherItems = shadowsocksCiphers.map(({ name }) => ({
-    value: name,
-    label: name,
-  }));
+
+  const shadowsocksCipherItems = shadowsocksCiphers
+    .map(({ name }) => ({
+      value: name,
+      label: name,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   const onUpdate = useEffectEvent(
     (ip: string, port: number | undefined, password: string, cipher: string | undefined) => {
