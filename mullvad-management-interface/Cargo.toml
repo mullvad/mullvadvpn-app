@@ -6,6 +6,9 @@ description = "Mullvad VPN IPC. Contains types and functions for IPC clients and
 repository.workspace = true
 license.workspace = true
 
+[package.metadata.cargo-shear]
+ignored = ["tonic-prost"]
+
 [dependencies]
 chrono = { workspace = true }
 futures = { workspace = true }
@@ -20,14 +23,12 @@ thiserror = { workspace = true }
 tipsy = { workspace = true }
 tokio = { workspace = true, features = ["rt"] }
 tonic = { workspace = true }
+tonic-prost = { workspace = true }
 tower = { workspace = true }
 vec1 = { workspace = true }
 
 [build-dependencies]
-tonic-build = { workspace = true, default-features = false, features = [
-  "prost",
-  "transport"
-] }
+tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["fs", "user"] }
