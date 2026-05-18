@@ -77,16 +77,6 @@ for dpi_size in "mdpi-48" "hdpi-72" "xhdpi-96" "xxhdpi-144" "xxxhdpi-192"; do
     convert_image "$ICON_SVG_PATH" "$dpi_size" "ic_launcher" "mipmap"
 done
 
-# Logo used in some GUI areas
-for dpi_size in "mdpi-50" "hdpi-75" "xhdpi-100" "xxhdpi-150" "xxxhdpi-200"; do
-    convert_image "$ICON_SVG_PATH" "$dpi_size" "logo_icon"
-done
-
-# Large logo used in the launch screen
-for dpi_size in "mdpi-120" "hdpi-180" "xhdpi-240" "xxhdpi-360" "xxxhdpi-480"; do
-    convert_image "$ICON_SVG_PATH" "$dpi_size" "launch_logo"
-done
-
 # The white icon is generated from the black one
 white_mono_icon_path="$(mktemp)"
 
