@@ -11,6 +11,7 @@ import {
 import { View } from '../../../lib/components/view';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
+import { isPlatform } from '../../../utils';
 import { AppNavigationHeader } from '../..';
 import { BackAction } from '../../keyboard-navigation';
 import { NavigationContainer } from '../../NavigationContainer';
@@ -27,6 +28,9 @@ const AnimateMapContainer = styled.div({
 export function UserInterfaceSettingsView() {
   const { pop } = useHistory();
   const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
+
+  const showUnpinnedWindowSetting = isPlatform('win32') || isPlatform('darwin');
+  const showStartMinimizedSetting = showUnpinnedWindowSetting && unpinnedWindow;
 
   return (
     <View backgroundColor="darkBlue">
@@ -49,13 +53,8 @@ export function UserInterfaceSettingsView() {
                 <NotificationsSetting position="solo" />
                 <MonochromaticTrayIconSetting position="solo" />
                 <LanguageListItem position="solo" />
-
-                {(window.env.platform === 'win32' ||
-                  (window.env.platform === 'darwin' && window.env.development)) && (
-                  <UnpinnedWindowSetting position="solo" />
-                )}
-
-                {unpinnedWindow && <StartMinimizedSetting position="solo" />}
+                {showUnpinnedWindowSetting && <UnpinnedWindowSetting position="solo" />}
+                {showStartMinimizedSetting && <StartMinimizedSetting position="solo" />}
                 <AnimateMapContainer>
                   <AnimateMapSetting />
                 </AnimateMapContainer>
