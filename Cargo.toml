@@ -101,6 +101,7 @@ pnet_packet = "0.35.0"
 proptest = "1.9"
 prost = "0.14.3"
 prost-types = "0.14.3"
+protox = { version = "0.9.1", default-features = false }
 rand = "0.9.3"
 reqwest = { version = "0.12.23", default-features = false, features = [
   "rustls-tls"

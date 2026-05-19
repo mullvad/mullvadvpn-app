@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Optimize LWO performance. This gives a 1.5 to 3 times speedup in our benchmarks.
 - Change [default retry connection attempts](docs/relay-selector.md). LWO is now the third default
   constraint. The relative order among the following constraints is preserved.
+- Remove `protoc` as a build-time dependency.
 
 #### Linux
 - Switch memory allocator to jemalloc to reduce fragmentation.

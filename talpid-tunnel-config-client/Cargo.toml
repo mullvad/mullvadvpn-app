@@ -36,6 +36,7 @@ tower = { workspace = true }
 zeroize = { workspace = true }
 
 [build-dependencies]
+protox.workspace = true
 tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [target.'cfg(unix)'.dependencies]

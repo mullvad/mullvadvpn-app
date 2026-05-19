@@ -36,14 +36,6 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
-  via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
-  binaries are available on their GitHub [page](https://github.com/protocolbuffers/protobuf/releases)
-  and they have to be put in `%PATH`. An additional package might also be required depending on
-  Linux distro:
-  - `protobuf-devel` on Fedora.
-  - `libprotobuf-dev` and `protobuf-compiler` on Debian/Ubuntu.
-
 - **`bash` must be installed and available in PATH on all platforms**. This is required for building
   the desktop app:
 - Bash version 4.0 or later is required for all platforms and must be added to your PATH environment variable.

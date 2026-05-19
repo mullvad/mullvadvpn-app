@@ -9,10 +9,6 @@ inputs:
     description: "Space-separated Rustup components to install (e.g. rustfmt, clippy)"
     default: clippy
     required: false
-  protoc-token:
-    description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
-    default: "${{ github.token }}"
-    required: false
   rust-cache-targets:
     description: >-
       Determines whether workspace `target` directories are cached. If `false`,
@@ -56,11 +52,6 @@ runs:
         # `cache-bin` causes `~/.cargo/bin/rustup` to be deleted for self-hosted runners
         # See https://github.com/Swatinem/rust-cache/issues/16
         cache-bin: false
-
-    - name: Install Protoc
-      uses: arduino/setup-protoc@v3
-      with:
-        repo-token: ${{ inputs.protoc-token }}
 
     - name: Checkout Mullvad binaries submodule
       # macOS does not depend on any of our binaries.
