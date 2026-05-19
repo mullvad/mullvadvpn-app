@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
@@ -59,6 +60,7 @@ class ConnectViewModel(
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
+    private val multihopMigrationRepository: MultihopMigrationRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -213,6 +215,10 @@ class ConnectViewModel(
 
     fun dismissNewChangelogNotification() = viewModelScope.launch {
         changelogRepository.setDismissNewChangelogNotification()
+    }
+
+    fun dismissMultihopMigrationWarning() = viewModelScope.launch {
+        multihopMigrationRepository.clearMultihopMigrationState()
     }
 
     private fun outOfTimeEffect() =

@@ -59,6 +59,8 @@ private fun PreviewNotificationBanner() {
                     onClickDismissNewDevice = {},
                     onClickShowWireguardPortSettings = {},
                     onClickDismissAndroid16UpgradeWarning = {},
+                    onClickShowMultihopMigrationWizard = {},
+                    onClickDismissMigrateMultihopWarning = {},
                 )
                 Spacer(modifier = Modifier.size(16.dp))
             }
@@ -80,6 +82,8 @@ fun NotificationBanner(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: () -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     if (isTv()) {
         NotificationBannerTv(
@@ -95,6 +99,8 @@ fun NotificationBanner(
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+            onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+            onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
         )
     } else {
         AnimatedNotificationBanner(
@@ -111,6 +117,8 @@ fun NotificationBanner(
             onClickDismissNewDevice = onClickDismissNewDevice,
             onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
             onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+            onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+            onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
         )
     }
 }

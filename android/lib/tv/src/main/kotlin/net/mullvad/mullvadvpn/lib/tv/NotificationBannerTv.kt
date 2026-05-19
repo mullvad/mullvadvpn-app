@@ -29,6 +29,8 @@ private fun PreviewNotificationBannerTv() {
             onClickDismissNewDevice = {},
             onClickShowWireguardPortSettings = {},
             onClickDismissAndroid16UpgradeWarning = {},
+            onClickShowMultihopMigrationWizard = {},
+            onClickDismissMigrateMultihopWarning = {},
         )
     }
 }
@@ -47,6 +49,8 @@ fun NotificationBannerTv(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
+    onClickShowMultihopMigrationWizard: () -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     AnimatedNotificationBanner(
         modifier = modifier,
@@ -72,5 +76,7 @@ fun NotificationBannerTv(
         onClickDismissNewDevice = onClickDismissNewDevice,
         onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
         onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+        onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+        onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
     )
 }

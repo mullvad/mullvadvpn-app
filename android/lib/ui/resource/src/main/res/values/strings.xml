@@ -539,4 +539,7 @@
     <string name="dns_settings_description_first_item">Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
     <string name="dns_settings_description_second_item">You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps.</string>
     <string name="dns_settings_description_warning"><b>Attention: DNS settings might not go into effect immediately.</b></string>
+    <string name="multihop_migration_in_app_message_title">Settings Migrated</string>
+    <string name="multihop_migration_in_app_message_description">Some of your settings have been migrated, please review the changes.</string>
+    <string name="click_here_to_read_more">Click here to read more</string>
 </resources>

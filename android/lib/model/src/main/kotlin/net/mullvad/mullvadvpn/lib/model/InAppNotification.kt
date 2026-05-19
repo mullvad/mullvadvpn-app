@@ -38,6 +38,11 @@ sealed class InAppNotification {
         override val priority: Long = 1002
     }
 
+    data class MultihopMigration(val splitFilterMigration: SplitFilterMigration) : InAppNotification() {
+        override val statusLevel = StatusLevel.Warning
+        override val priority: Long = 1002
+    }
+
     data class AccountExpiry(val expiry: Duration) : InAppNotification() {
         override val statusLevel = StatusLevel.Warning
         override val priority: Long = 1001
