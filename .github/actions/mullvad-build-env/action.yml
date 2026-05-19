@@ -9,10 +9,6 @@ inputs:
     description: "Space-separated Rustup components to install (e.g. rustfmt, clippy)"
     default: clippy
     required: false
-  protoc-token:
-    description: "Token for setup-protoc (defaults to GITHUB_TOKEN)"
-    default: "${{ github.token }}"
-    required: false
   cache-rust-targets:
     description: >-
       Determines whether the Rust cache is set up. Caches both the cargo
@@ -92,15 +88,6 @@ runs:
         # their own branch and the default branch. So uploading in branches
         # costs a lot of time and does not give much benefit
         save-if: ${{ github.ref == 'refs/heads/main' }}
-
-    - name: Install Protoc
-      uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
-      env:
-        # Workaround for arduino/setup-protoc#112
-        # TODO: Remove this once setup/protoc upstream ships node24.
-        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      with:
-        repo-token: ${{ inputs.protoc-token }}
 
     - name: Checkout Mullvad binaries submodule
       # macOS does not depend on any of our binaries.

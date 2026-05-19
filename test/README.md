@@ -30,11 +30,10 @@ For macOS, the host machine must be macOS. All other platforms assume that the h
 
 ### macOS
 
-Normally, you would use Tart here. It can be installed with Homebrew. You'll also need
-`wireguard-tools`, a protobuf compiler, and OpenSSL:
+Normally, you would use Tart here. It can be installed with Homebrew. You'll also need OpenSSL:
 
 ```bash
-brew install cirruslabs/cli/tart wireguard-tools pkg-config openssl protobuf
+brew install cirruslabs/cli/tart pkg-config openssl
 ```
 
 #### Wireshark
@@ -56,10 +55,9 @@ For running tests on Linux and Windows guests, you will need these tools and lib
 
 #### Fedora
 ```bash
-dnf install git gcc protobuf-devel libpcap-devel qemu \
-    podman golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
-    dbus-devel pkgconf-pkg-config swtpm edk2-ovmf \
-    wireguard-tools
+dnf install git gcc libpcap-devel qemu podman \
+    golang-github-rootless-containers-rootlesskit slirp4netns dnsmasq \
+    dbus-devel pkgconf-pkg-config swtpm edk2-ovmf
 ```
 
 

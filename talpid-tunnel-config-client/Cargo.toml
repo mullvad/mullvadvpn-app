@@ -42,6 +42,7 @@ zeroize = { workspace = true }
 tokio = { workspace = true, features = ["net"] }
 
 [build-dependencies]
+protox.workspace = true
 tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [lints]
