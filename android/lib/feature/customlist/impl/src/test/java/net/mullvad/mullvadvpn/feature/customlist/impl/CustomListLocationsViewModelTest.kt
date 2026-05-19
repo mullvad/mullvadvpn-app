@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -79,7 +80,8 @@ class CustomListLocationsViewModelTest {
             // Arrange
             val expectedList = DUMMY_COUNTRIES.map {
                 CheckableRelayListItem(
-                    item = it,
+                    location = it,
+                    highlightedTitle = HighlightedString.fromString(it.name),
                     hierarchy = it.toHierarchy(),
                     checked = false,
                     expanded = false,
@@ -328,7 +330,7 @@ class CustomListLocationsViewModelTest {
     }
 
     private fun Lce.Content<CustomListLocationsData>.selectedLocations() =
-        this.value.locations.filter { it.checked }.map { it.item.id }
+        this.value.locations.filter { it.checked }.map { it.location.id }
 
     private fun RelayItem.Location.toHierarchy() =
         when (this) {

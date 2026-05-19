@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.Custo
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsScreen
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
@@ -101,10 +102,18 @@ class CustomListLocationsScreenTest {
                                     listOf(
                                         CheckableRelayListItem(
                                             DUMMY_RELAY_COUNTRIES[0],
+                                            highlightedTitle =
+                                                HighlightedString.fromString(
+                                                    DUMMY_RELAY_COUNTRIES[0].name
+                                                ),
                                             checked = true,
                                         ),
                                         CheckableRelayListItem(
                                             DUMMY_RELAY_COUNTRIES[1],
+                                            highlightedTitle =
+                                                HighlightedString.fromString(
+                                                    DUMMY_RELAY_COUNTRIES[1].name
+                                                ),
                                             checked = false,
                                         ),
                                     ),
@@ -134,7 +143,14 @@ class CustomListLocationsScreenTest {
                         Lce.Content(
                             CustomListLocationsData(
                                 locations =
-                                    listOf(CheckableRelayListItem(selectedCountry, checked = true)),
+                                    listOf(
+                                        CheckableRelayListItem(
+                                            selectedCountry,
+                                            checked = true,
+                                            highlightedTitle =
+                                                HighlightedString.fromString(selectedCountry.name),
+                                        )
+                                    ),
                                 searchTerm = "",
                                 saveEnabled = false,
                                 hasUnsavedChanges = false,
