@@ -477,8 +477,12 @@ export default class UserInterface implements WindowControllerDelegate {
   // even though the app menu itself is not visible because the app does not appear in the dock.
   private setMacOsAppMenu() {
     const mullvadVpnSubmenu: Electron.MenuItemConstructorOptions[] = [];
+    if (this.delegate.isUnpinnedWindow()) {
+      mullvadVpnSubmenu.unshift({ role: 'quit' });
+    }
+
     if (process.env.NODE_ENV === 'development') {
-      mullvadVpnSubmenu.unshift({ role: 'quit' }, { role: 'reload' }, { role: 'forceReload' });
+      mullvadVpnSubmenu.unshift({ role: 'reload' }, { role: 'forceReload' });
     }
 
     const template: Electron.MenuItemConstructorOptions[] = [
