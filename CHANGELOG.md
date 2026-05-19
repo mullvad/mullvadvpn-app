@@ -22,12 +22,21 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+### Added
+- Add support for API access method based on domain fronting.
+
+### Changed
+#### Windows
+- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
+  <https://github.com/mullvad/wireguard-nt>.
+
+## [2026.3-beta1] - 2026-05-19
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
 - GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, not just
   macOS. It replaces wireguard-go.
-- Add support for API access method based on domain fronting.
 
 ### Changed
 - Optimize LWO performance. This gives a 1.5 to 3 times speedup in our benchmarks.
@@ -45,10 +54,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
-
-#### Windows
-- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
-  <https://github.com/mullvad/wireguard-nt>.
 
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
