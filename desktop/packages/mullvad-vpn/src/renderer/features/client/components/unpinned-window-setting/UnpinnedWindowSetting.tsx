@@ -11,9 +11,11 @@ export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
   const descriptionId = React.useId();
   const messageLabel =
     process.platform === 'win32'
-      ? // TRANSLATORS: Label for a setting to unpin the app window from the Windows "taskbar"
+      ? // This line is here to prevent the following one to be moved up here by prettier
+        // TRANSLATORS: Label for a setting to unpin the app window from the Windows "taskbar"
         messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')
-      : // TRANSLATORS: Label for a setting to unpin the app window from the macOS "menu bar"
+      : // This line is here to prevent the following one to be moved up here by prettier
+        // TRANSLATORS: Label for a setting to unpin the app window from the macOS "menu bar"
         messages.pgettext('user-interface-settings-view', 'Unpin app from menu bar');
   return (
     <SettingsListItem {...props}>
