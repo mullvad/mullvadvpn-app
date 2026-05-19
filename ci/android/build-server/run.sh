@@ -151,9 +151,11 @@ function build_sign_and_publish_ref {
 
     # Sign all artifacts
     if [[ "$ENABLE_SIGNING" == "true" ]]; then
+        local sign_command='shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk'
         YUBIKEY_PIN=$YUBIKEY_PIN \
         YUBIKEY_PATH=$(readlink -f /dev/android-jks-signing-key) \
-        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" || return 1
+        "./android/scripts/containerized-sign.sh" "$BUILD_DIR/$artifact_dir" "$sign_command" \
+            || return 1
     else
         echo "WARNING: Signing skipped for $version"
     fi
