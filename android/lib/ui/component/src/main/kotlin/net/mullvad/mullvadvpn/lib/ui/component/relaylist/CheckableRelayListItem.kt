@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.HighlightedString
-import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
@@ -35,13 +34,10 @@ private fun PreviewCheckableRelayListItem(
                 Spacer(Modifier.size(1.dp))
                 CheckableRelayListItem(
                     item =
-                        MatchItem(
-                            text = HighlightedString.fromString(it.name),
-                            item =
-                                CheckableRelayListItem(
-                                    location = it,
-                                    itemPosition = Position.Single,
-                                ),
+                        CheckableRelayListItem(
+                            location = it,
+                            itemPosition = Position.Single,
+                            highlightedTitle = HighlightedString.fromString(it.name),
                         ),
                     onExpand = {},
                     modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
@@ -54,24 +50,24 @@ private fun PreviewCheckableRelayListItem(
 @Composable
 fun CheckableRelayListItem(
     modifier: Modifier = Modifier,
-    item: MatchItem<CheckableRelayListItem>,
+    item: CheckableRelayListItem,
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
 
     CheckableListItem(
         modifier = modifier,
-        hierarchy = item.item.hierarchy,
-        position = item.item.itemPosition,
-        title = item.text.toAnnotatedString(MaterialTheme.colorScheme.highlight),
-        isChecked = item.item.checked,
-        onCheckedChange = { onRelayCheckedChange(!item.item.checked) },
+        hierarchy = item.hierarchy,
+        position = item.itemPosition,
+        title = item.highlightedTitle.toAnnotatedString(MaterialTheme.colorScheme.highlight),
+        isChecked = item.checked,
+        onCheckedChange = { onRelayCheckedChange(!item.checked) },
         trailingContent = {
-            if (item.item.location.hasChildren) {
+            if (item.location.hasChildren) {
                 ExpandChevronDivider(
-                    isExpanded = item.item.expanded,
+                    isExpanded = item.expanded,
                     modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
-                    onClick = { onExpand(!item.item.expanded) },
+                    onClick = { onExpand(!item.expanded) },
                 )
             }
         },

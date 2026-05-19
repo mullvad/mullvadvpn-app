@@ -13,5 +13,5 @@ data class CustomListLocationsData(
     val saveEnabled: Boolean,
     val hasUnsavedChanges: Boolean,
     val searchTerm: String,
-    val locations: List<MatchItem<CheckableRelayListItem>>,
+    val locations: List<CheckableRelayListItem>,
 )

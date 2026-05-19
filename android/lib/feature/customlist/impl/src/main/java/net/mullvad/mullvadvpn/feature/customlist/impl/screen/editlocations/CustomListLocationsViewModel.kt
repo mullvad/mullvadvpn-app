@@ -23,7 +23,6 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.HighlightedString
-import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
@@ -260,25 +259,23 @@ class CustomListLocationsViewModel(
         isExpanded: (RelayItemId) -> Boolean,
         hierarchy: Hierarchy,
         isLastChild: Boolean,
-    ): List<MatchItem<CheckableRelayListItem>> = buildList {
+    ): List<CheckableRelayListItem> = buildList {
         val expanded = isExpanded(id)
         add(
-            MatchItem(
-                text = HighlightedString.partialMatch(this@toRelayItems.name, searchTerm),
-                item =
-                    CheckableRelayListItem(
-                        location = this@toRelayItems,
-                        hierarchy = hierarchy,
-                        checked = isSelected(this@toRelayItems),
-                        expanded = expanded,
-                        itemPosition =
-                            when {
-                                this@toRelayItems is RelayItem.Location.Country ->
-                                    if (!expanded) Position.Single else Position.Top
-                                isLastChild && !expanded -> Position.Bottom
-                                else -> Position.Middle
-                            },
-                    ),
+            CheckableRelayListItem(
+                location = this@toRelayItems,
+                highlightedTitle =
+                    HighlightedString.partialMatch(this@toRelayItems.name, searchTerm),
+                hierarchy = hierarchy,
+                checked = isSelected(this@toRelayItems),
+                expanded = expanded,
+                itemPosition =
+                    when {
+                        this@toRelayItems is RelayItem.Location.Country ->
+                            if (!expanded) Position.Single else Position.Top
+                        isLastChild && !expanded -> Position.Bottom
+                        else -> Position.Middle
+                    },
             )
         )
         if (expanded) {

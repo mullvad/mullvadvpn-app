@@ -145,6 +145,7 @@ sealed interface RelayListItem {
 
 data class CheckableRelayListItem(
     val location: RelayItem.Location,
+    val highlightedTitle: HighlightedString,
     val checked: Boolean = false,
     val expanded: Boolean = false,
     val itemPosition: Position = Position.Single,
