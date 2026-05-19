@@ -9,13 +9,17 @@ export type UnpinnedWindowSettingProps = Omit<ListItemProps, 'children'>;
 
 export function UnpinnedWindowSetting(props: UnpinnedWindowSettingProps) {
   const descriptionId = React.useId();
+  const messageLabel =
+    process.platform === 'win32'
+      ? // TRANSLATORS: Label for a setting to unpin the app window from the Windows "taskbar"
+        messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')
+      : // TRANSLATORS: Label for a setting to unpin the app window from the macOS "menu bar"
+        messages.pgettext('user-interface-settings-view', 'Unpin app from menu bar');
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
         <UnpinnedWindowSwitch descriptionId={descriptionId}>
-          <UnpinnedWindowSwitch.Label>
-            {messages.pgettext('user-interface-settings-view', 'Unpin app from taskbar')}
-          </UnpinnedWindowSwitch.Label>
+          <UnpinnedWindowSwitch.Label>{messageLabel}</UnpinnedWindowSwitch.Label>
           <SettingsListItem.Item.ActionGroup>
             <UnpinnedWindowSwitch.Input />
           </SettingsListItem.Item.ActionGroup>
