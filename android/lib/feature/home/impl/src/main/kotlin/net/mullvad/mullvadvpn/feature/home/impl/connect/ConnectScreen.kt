@@ -166,6 +166,8 @@ private fun PreviewAccountScreen(
             onClickShowWireguardPortSettings = {},
             onClickDismissAndroid16UpgradeWarning = {},
             onClickShowAndroid16UpgradeInfo = {},
+            onClickShowMultihopMigrationWizard = {},
+            onClickDismissMigrateMultihopWarning = {},
         )
     }
 }
@@ -316,6 +318,8 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                 connectViewModel::dismissAndroid16UpgradeWarning,
             onClickShowAndroid16UpgradeInfo =
                 dropUnlessResumed { navigator.navigate(Android16UpgradeInfoNavKey) },
+            onClickShowMultihopMigrationWizard = dropUnlessResumed { /* TODO */ },
+            onClickDismissMigrateMultihopWarning = connectViewModel::dismissMultihopMigrationWarning,
         )
     }
 }
@@ -342,6 +346,8 @@ fun ConnectScreen(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
+    onClickShowMultihopMigrationWizard: () -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
 
@@ -365,6 +371,8 @@ fun ConnectScreen(
                 onClickShowWireguardPortSettings,
                 onClickDismissAndroid16UpgradeWarning,
                 onClickShowAndroid16UpgradeInfo,
+                onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
             )
         }
 
@@ -422,6 +430,8 @@ private fun Content(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
+    onClickShowMultihopMigrationWizard: () -> Unit,
+    onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val screenHeight =
         with(LocalDensity.current) { LocalWindowInfo.current.containerSize.height.toDp() }
@@ -475,6 +485,8 @@ private fun Content(
                 onClickDismissNewDevice = onDismissNewDeviceClick,
                 onClickShowWireguardPortSettings = onClickShowWireguardPortSettings,
                 onClickDismissAndroid16UpgradeWarning = onClickDismissAndroid16UpgradeWarning,
+                onClickShowMultihopMigrationWizard = onClickShowMultihopMigrationWizard,
+                onClickDismissMigrateMultihopWarning = onClickDismissMigrateMultihopWarning,
             )
             ConnectionCard(
                 state = state,

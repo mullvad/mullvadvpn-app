@@ -547,4 +547,7 @@
     <string name="verification_failed_dialog_message">We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support.</string>
     <string name="payment_status_verification_failed">Google Play payment verification failed</string>
     <string name="ongoing_verification_warning">Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?</string>
+    <string name="multihop_migration_in_app_message_title">Settings Migrated</string>
+    <string name="multihop_migration_in_app_message_description">Some of your settings have been migrated, please review the changes.</string>
+    <string name="click_here_to_read_more">Click here to read more</string>
 </resources>
