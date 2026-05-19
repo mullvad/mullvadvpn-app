@@ -17,6 +17,7 @@ allow = [
   "Unicode-DFS-2016",
   "Unicode-3.0",
   "CDLA-Permissive-2.0",
+  "Zlib",
 ]
 # Allow GPL3 licensed crates with permission to relicense like Mullvads own.
 exceptions = [
