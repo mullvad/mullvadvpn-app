@@ -107,9 +107,7 @@ class RelayListCacheTests: XCTestCase {
         let context = try MullvadApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: "",
-            domainFrontingProxyHost: "",
+            domain: REST.encryptedDNSHostname,
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),
