@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.3-beta1] - 2026-05-19
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
