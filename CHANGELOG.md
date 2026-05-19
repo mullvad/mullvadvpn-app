@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
 
 #### Windows
+- Switch winreg out for windows_registry.
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
 

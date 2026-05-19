@@ -372,10 +372,9 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
             .map_err(|e| test_rpc::Error::Registry(e.to_string()))?;
     }
     // Persist the changed environment variables, such that we can retrieve them at will.
-    use winreg::{RegKey, enums::*};
-    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    use windows_registry::LOCAL_MACHINE;
     let path = Path::new(MULLVAD_WIN_REGISTRY).join("Environment");
-    let (registry, _) = hklm.create_subkey(&path).map_err(|error| {
+    let (registry, _) = LOCAL_MACHINE.create(&path).map_err(|error| {
         test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
     })?;
     for (k, v) in env {
@@ -392,29 +391,27 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
 }
 
 pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
-    use winreg::{enums::*, *};
+    use windows_registry::LOCAL_MACHINE;
 
-    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-    let key = hklm
-        .open_subkey("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
+    let key = LOCAL_MACHINE
+        .open("SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
         .map_err(|error| {
             test_rpc::Error::Registry(format!("Failed to open Environment subkey: {error}"))
         })?;
 
     let path: String = key
-        .get_value("Path")
+        .get_string("Path")
         .map_err(|error| test_rpc::Error::Registry(format!("Failed to get PATH: {error}")))?;
 
     Ok(path)
 }
 
 pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
-    use winreg::{RegKey, enums::*};
+    use windows_registry::LOCAL_MACHINE;
 
     let env =
         tokio::task::spawn_blocking(|| -> Result<HashMap<String, String>, test_rpc::Error> {
-            let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-            let key = hklm.open_subkey(MULLVAD_WIN_REGISTRY).map_err(|error| {
+            let key = LOCAL_MACHINE.open(MULLVAD_WIN_REGISTRY).map_err(|error| {
                 test_rpc::Error::Registry(format!("Failed to open Mullvad VPN subkey: {error}"))
             })?;
 

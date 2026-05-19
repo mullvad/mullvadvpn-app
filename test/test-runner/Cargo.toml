@@ -54,7 +54,7 @@ nix = { workspace = true, features = ["user"] }
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../../talpid-windows" }
 windows-service = "0.6"
-winreg = "0.55"
+windows-registry = { workspace = true }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 version = "0.45.0"

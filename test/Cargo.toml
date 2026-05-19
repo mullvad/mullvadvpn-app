@@ -47,6 +47,7 @@ tokio = { version = "1.44", default-features = false }
 tokio-serial = "5.4.1"
 tonic = "0.13.1"
 tower = "0.5.1"
+windows-registry = "0.6.1"
 windows-sys = "0.52.0"
 
 [workspace.lints.clippy]

@@ -2,12 +2,8 @@ use super::{DnsMonitorT, ResolvedDnsConfig};
 use std::{io, net::IpAddr};
 use talpid_types::ErrorExt;
 use talpid_windows::net::{guid_from_luid, luid_from_alias};
+use windows_registry::{LOCAL_MACHINE, Transaction};
 use windows_sys::{Win32::System::Com::StringFromGUID2, core::GUID};
-use winreg::{
-    RegKey,
-    enums::{HKEY_LOCAL_MACHINE, KEY_SET_VALUE},
-    transaction::Transaction,
-};
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(thiserror::Error, Debug)]
@@ -76,10 +72,17 @@ impl DnsMonitor {
 }
 
 fn set_dns(interface: &GUID, servers: &[IpAddr]) -> Result<(), Error> {
-    let transaction = Transaction::new().map_err(Error::SetResolvers)?;
+    let transaction = Transaction::new()
+        .map_err(|error| windows_result_code_to_io(error.code().0))
+        .map_err(Error::SetResolvers)?;
     let result = match set_dns_inner(&transaction, interface, servers) {
-        Ok(()) => transaction.commit(),
-        Err(error) => transaction.rollback().and(Err(error)),
+        Ok(()) => transaction
+            .commit()
+            .map_err(|error| windows_result_code_to_io(error.code().0)),
+        Err(error) => {
+            std::mem::drop(transaction);
+            Err(error)
+        }
     };
     result.map_err(Error::SetResolvers)
 }
@@ -120,34 +123,40 @@ fn config_interface(
 
     let reg_path =
         format!(r#"SYSTEM\CurrentControlSet\Services\{service}\Parameters\Interfaces\{guid}"#,);
-    let adapter_key = match RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey_transacted_with_flags(
-        reg_path,
-        transaction,
-        KEY_SET_VALUE,
-    ) {
+    let adapter_key = match LOCAL_MACHINE
+        .options()
+        .read()
+        .write()
+        .transaction(transaction)
+        .open(reg_path)
+    {
         Ok(adapter_key) => Ok(adapter_key),
         Err(error) => {
-            if nameservers.is_empty() && error.kind() == io::ErrorKind::NotFound {
+            let io_err = windows_result_code_to_io(error.code().0);
+            if nameservers.is_empty() && io_err.kind() == io::ErrorKind::NotFound {
                 return Ok(());
             }
-            Err(error)
+            Err(io_err)
         }
     }?;
 
     if !nameservers.is_empty() {
-        adapter_key.set_value("NameServer", &nameservers.join(","))?;
+        adapter_key
+            .set_string("NameServer", &nameservers.join(","))
+            .map_err(|error| windows_result_code_to_io(error.code().0))?;
     } else {
-        adapter_key.delete_value("NameServer").or_else(|error| {
-            if error.kind() == io::ErrorKind::NotFound {
+        adapter_key.remove_value("NameServer").or_else(|error| {
+            let io_err = windows_result_code_to_io(error.code().0);
+            if io_err.kind() == io::ErrorKind::NotFound {
                 Ok(())
             } else {
-                Err(error)
+                Err(io_err)
             }
         })?;
     }
 
     // Try to disable LLMNR on the interface
-    if let Err(error) = adapter_key.set_value("EnableMulticast", &0u32) {
+    if let Err(error) = adapter_key.set_u32("EnableMulticast", 0) {
         log::error!(
             "{}\nService: {service}",
             error.display_chain_with_msg("Failed to disable LLMNR on the tunnel interface")
@@ -174,4 +183,13 @@ fn string_from_guid(guid: &GUID) -> String {
     assert!(length > 0);
     let length = length - 1;
     String::from_utf16(&buffer[0..length]).unwrap()
+}
+
+// all windows_registry functions return a windows_result::error::Error, which is not defined in
+// the public API of windows_registry. So this function needs to take the inner error code.
+fn windows_result_code_to_io(hresult: i32) -> io::Error {
+    // windows_result::error::Error hresults needs to be truncated to the first 2 bytes to get the
+    // OS code that works with io::Error. Inverse of the function performed here:
+    // https://docs.rs/windows-result/0.4.1/src/windows_result/hresult.rs.html#129
+    io::Error::from_raw_os_error(hresult & 0x0000FFFF)
 }
