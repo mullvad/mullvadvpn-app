@@ -177,7 +177,7 @@ fun CustomListLocationsScreen(
             }
 
             if (state.content is Lce.Content && !state.newList) {
-                val firstChecked = state.content.value.locations.indexOfFirst { it.checked }
+                val firstChecked = state.content.value.locations.indexOfFirst { it.item.checked }
                 LaunchedEffect(Unit) {
                     if (firstChecked != -1) {
                         lazyListState.scrollToItem(firstChecked)
@@ -223,14 +223,14 @@ private fun LazyListScope.content(
             LocationsEmptyText(searchTerm = uiState.searchTerm)
         }
     } else {
-        items(uiState.locations, key = { listItem -> listItem.item.id }) { listItem ->
+        items(uiState.locations, key = { listItem -> listItem.item.location.id }) { listItem ->
             CheckableRelayListItem(
-                modifier = Modifier.animateItem().positionalPadding(listItem.itemPosition),
+                modifier = Modifier.animateItem().positionalPadding(listItem.item.itemPosition),
                 item = listItem,
                 onRelayCheckedChange = { isChecked ->
-                    onRelaySelectedChanged(listItem.item, isChecked)
+                    onRelaySelectedChanged(listItem.item.location, isChecked)
                 },
-                onExpand = { expand -> onExpand(listItem.item, expand) },
+                onExpand = { expand -> onExpand(listItem.item.location, expand) },
             )
         }
     }

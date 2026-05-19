@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
+import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.generateRelayItemCountry
 
@@ -17,27 +19,36 @@ class CustomListLocationUiStatePreviewParameterProvider :
                         CustomListLocationsData(
                             locations =
                                 listOf(
-                                    CheckableRelayListItem(
-                                        item =
-                                            generateRelayItemCountry(
-                                                name = "A relay",
-                                                cityNames = listOf("City 1", "City 2"),
-                                                relaysPerCity = 2,
-                                                active = true,
-                                            ),
-                                        highlights = emptyList(),
-                                    ),
-                                    CheckableRelayListItem(
-                                        item =
-                                            generateRelayItemCountry(
-                                                    name = "Another relay",
-                                                    cityNames =
-                                                        listOf("City X", "City Y", "City Z"),
-                                                    relaysPerCity = 1,
-                                                    active = false,
+                                    MatchItem(
+                                        text = HighlightedString.fromString("A relay"),
+                                        CheckableRelayListItem(
+                                            location =
+                                                generateRelayItemCountry(
+                                                    name = "A relay",
+                                                    cityNames = listOf("City 1", "City 2"),
+                                                    relaysPerCity = 2,
+                                                    active = true,
                                                 )
-                                                .copy(id = GeoLocationId.Country("se")),
-                                        highlights = emptyList(),
+                                        ),
+                                    ),
+                                    MatchItem(
+                                        text = HighlightedString.fromString("Another relay"),
+                                        item =
+                                            CheckableRelayListItem(
+                                                location =
+                                                    generateRelayItemCountry(
+                                                            name = "Another relay",
+                                                            cityNames =
+                                                                listOf(
+                                                                    "City X",
+                                                                    "City Y",
+                                                                    "City Z",
+                                                                ),
+                                                            relaysPerCity = 1,
+                                                            active = false,
+                                                        )
+                                                        .copy(id = GeoLocationId.Country("se"))
+                                            ),
                                     ),
                                 ),
                             searchTerm = "",

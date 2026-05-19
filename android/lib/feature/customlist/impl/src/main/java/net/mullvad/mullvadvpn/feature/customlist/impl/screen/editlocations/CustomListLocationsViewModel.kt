@@ -22,6 +22,8 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.ancestors
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.descendants
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
+import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
@@ -258,22 +260,25 @@ class CustomListLocationsViewModel(
         isExpanded: (RelayItemId) -> Boolean,
         hierarchy: Hierarchy,
         isLastChild: Boolean,
-    ): List<CheckableRelayListItem> = buildList {
+    ): List<MatchItem<CheckableRelayListItem>> = buildList {
         val expanded = isExpanded(id)
         add(
-            CheckableRelayListItem(
-                item = this@toRelayItems,
-                highlights = searchTerm.highlights(),
-                hierarchy = hierarchy,
-                checked = isSelected(this@toRelayItems),
-                expanded = expanded,
-                itemPosition =
-                    when {
-                        this@toRelayItems is RelayItem.Location.Country ->
-                            if (!expanded) Position.Single else Position.Top
-                        isLastChild && !expanded -> Position.Bottom
-                        else -> Position.Middle
-                    },
+            MatchItem(
+                text = HighlightedString.partialMatch(this@toRelayItems.name, searchTerm),
+                item =
+                    CheckableRelayListItem(
+                        location = this@toRelayItems,
+                        hierarchy = hierarchy,
+                        checked = isSelected(this@toRelayItems),
+                        expanded = expanded,
+                        itemPosition =
+                            when {
+                                this@toRelayItems is RelayItem.Location.Country ->
+                                    if (!expanded) Position.Single else Position.Top
+                                isLastChild && !expanded -> Position.Bottom
+                                else -> Position.Middle
+                            },
+                    ),
             )
         )
         if (expanded) {
@@ -349,13 +354,6 @@ class CustomListLocationsViewModel(
     private fun Set<RelayItemId>.with(overrides: Map<RelayItemId, Boolean>): Set<RelayItemId> =
         this + overrides.filterValues { expanded -> expanded }.keys -
             overrides.filterValues { expanded -> !expanded }.keys
-
-    private fun String.highlights(): List<String> =
-        if (this.isNotEmpty()) {
-            listOf(this)
-        } else {
-            emptyList()
-        }
 
     companion object {
         private const val EMPTY_SEARCH_TERM = ""

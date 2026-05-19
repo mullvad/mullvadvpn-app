@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations
 
 import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 
 data class CustomListLocationsUiState(
@@ -12,5 +13,5 @@ data class CustomListLocationsData(
     val saveEnabled: Boolean,
     val hasUnsavedChanges: Boolean,
     val searchTerm: String,
-    val locations: List<CheckableRelayListItem>,
+    val locations: List<MatchItem<CheckableRelayListItem>>,
 )

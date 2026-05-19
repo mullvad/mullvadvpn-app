@@ -44,13 +44,13 @@ import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSiz
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.SearchButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
-import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
@@ -63,7 +63,6 @@ import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
-import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 import net.mullvad.mullvadvpn.lib.ui.util.visible
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -288,11 +287,7 @@ internal fun LazyListScope.appItems(
             }
         }
         SplitTunnelingListItem(
-            title =
-                listItem.title.highlightText(
-                    listItem.highlights,
-                    MaterialTheme.colorScheme.highlight,
-                ),
+            title = HighlightedString.fromString(listItem.title),
             iconState = icon,
             isSelected = excluded,
             isEnabled = enabled,

@@ -6,6 +6,18 @@ import org.junit.jupiter.api.Test
 class StringExtensionsTest {
 
     @Test
+    fun `when ignore case is false should not match if case is different`() {
+        // Arrange
+        val text = "Text with CASE"
+
+        // Act
+        val result = text.splitIncludingDelimiters("WITH", ignoreCase = false)
+
+        // Assert
+        assertEquals(listOf("Text with CASE"), result)
+    }
+
+    @Test
     fun `when delimiter is not present should return list with the original string`() {
         // Arrange
         val text = "Text"
@@ -63,18 +75,6 @@ class StringExtensionsTest {
 
         // Assert
         assertEquals("Text", result[0])
-    }
-
-    @Test
-    fun `when ignore case is false should not match if case is different`() {
-        // Arrange
-        val text = "Text with CASE"
-
-        // Act
-        val result = text.splitIncludingDelimiters("WITH", ignoreCase = false)
-
-        // Assert
-        assertEquals(listOf("Text with CASE"), result)
     }
 
     @Test

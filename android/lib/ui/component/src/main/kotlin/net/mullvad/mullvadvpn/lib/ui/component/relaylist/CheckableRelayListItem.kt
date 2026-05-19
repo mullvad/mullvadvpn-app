@@ -11,10 +11,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
+import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
-import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.CheckableListItem
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
@@ -32,7 +34,15 @@ private fun PreviewCheckableRelayListItem(
             relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
                 CheckableRelayListItem(
-                    item = CheckableRelayListItem(item = it, itemPosition = Position.Single),
+                    item =
+                        MatchItem(
+                            text = HighlightedString.fromString(it.name),
+                            item =
+                                CheckableRelayListItem(
+                                    location = it,
+                                    itemPosition = Position.Single,
+                                ),
+                        ),
                     onExpand = {},
                     modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
                 )
@@ -44,24 +54,24 @@ private fun PreviewCheckableRelayListItem(
 @Composable
 fun CheckableRelayListItem(
     modifier: Modifier = Modifier,
-    item: CheckableRelayListItem,
+    item: MatchItem<CheckableRelayListItem>,
     onRelayCheckedChange: (isChecked: Boolean) -> Unit = { _ -> },
     onExpand: (Boolean) -> Unit,
 ) {
 
     CheckableListItem(
         modifier = modifier,
-        hierarchy = item.hierarchy,
-        position = item.itemPosition,
-        title = item.item.name.highlightText(item.highlights, MaterialTheme.colorScheme.highlight),
-        isChecked = item.checked,
-        onCheckedChange = { onRelayCheckedChange(!item.checked) },
+        hierarchy = item.item.hierarchy,
+        position = item.item.itemPosition,
+        title = item.text.toAnnotatedString(MaterialTheme.colorScheme.highlight),
+        isChecked = item.item.checked,
+        onCheckedChange = { onRelayCheckedChange(!item.item.checked) },
         trailingContent = {
-            if (item.item.hasChildren) {
+            if (item.item.location.hasChildren) {
                 ExpandChevronDivider(
-                    isExpanded = item.expanded,
+                    isExpanded = item.item.expanded,
                     modifier = Modifier.testTag(EXPAND_BUTTON_TEST_TAG),
-                    onClick = { onExpand(!item.expanded) },
+                    onClick = { onExpand(!item.item.expanded) },
                 )
             }
         },

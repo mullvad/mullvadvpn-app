@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.feature.location.impl.search
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filterOnSearchTerm
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -239,7 +240,7 @@ private fun createCustomListRelayItems(
     selectedByOtherEntryExitList: RelayItemId?,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = customLists.flatMap { customList ->
-    // It is possible for an custom list to be expanded without children if the children were
+    // It is possible for a custom list to be expanded without children if the children were
     // removed after the item was expanded. In those cases we should treat the item as
     // collapsed.
     val expanded = isExpanded(customList.id.expandKey()) && customList.hasChildren
@@ -247,7 +248,7 @@ private fun createCustomListRelayItems(
         add(
             RelayListItem.CustomListItem(
                 item = customList,
-                highlights = searchTerm.highlights(),
+                highlightedTitle = HighlightedString.partialMatch(customList.name, searchTerm),
                 isSelected = selectedByThisEntryExitList == customList.id,
                 state =
                     customList.createState(
@@ -412,7 +413,7 @@ private fun createGeoLocationEntry(
     add(
         RelayListItem.GeoLocationItem(
             item = item,
-            highlights = searchTerm.highlights(),
+            highlightedTitle = HighlightedString.partialMatch(item.name, searchTerm),
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(
@@ -557,10 +558,3 @@ private fun RelayItem.createState(
         null
     }
 }
-
-private fun String.highlights() =
-    if (this.isNotEmpty()) {
-        listOf(this)
-    } else {
-        emptyList()
-    }
