@@ -10,6 +10,10 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# shellcheck source=ci/android/build-server/config.sh
+source "$SCRIPT_DIR/config.sh"
+
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
@@ -58,11 +62,33 @@ function prepare_release_cdn_inbox {
     cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 }
 
+function prepare_fdroid_inbox {
+    version=$1
+    artifact_dir=$2
+    version_code="$(cat dist-assets/android-version-code.txt)"
+    inbox_version="$FDROID_INBOX_DIR/$version"
+    mkdir -p "$inbox_version"
+    cp "$artifact_dir/MullvadVPN-$version.apk" "$inbox_version/"
+    cp "android/src/main/play/release-notes/en-US/default.txt" \
+        "$inbox_version/$version_code.txt"
+}
+
 function prepare_publishing_inboxes {
     version=$1
     artifact_dir=$2
 
     (cd "$artifact_dir" && prepare_release_cdn_inbox "$version") || return 1
+
+    if [[ $version != *"-dev-"* ]]; then
+        prepare_fdroid_inbox "$version" "$artifact_dir"
+    fi
+}
+
+function publish_fdroid_repos {
+    local version=$1
+    YUBIKEY_PIN=$YUBIKEY_PIN \
+    "$SCRIPT_DIR/fdroid.sh" update-and-deploy "$FDROID_INBOX_DIR/$version" \
+        || echo "Failed to publish F-Droid repos for $version"
 }
 
 function run_in_linux_container {
@@ -174,6 +200,10 @@ function build_sign_and_publish_ref {
     # TODO: Should be migrated to our prepare_publishing_inboxes approach (DROID-2714).
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
+
+    if [[ $version != *"-dev-"* ]]; then
+        publish_fdroid_repos "$version"
+    fi
 
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
