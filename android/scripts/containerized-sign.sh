@@ -28,6 +28,10 @@ if [[ -n ${OVERRIDE_PROVIDER_CONFIG-} ]]; then
     optional_override_provider_config=(-v "$OVERRIDE_PROVIDER_CONFIG:/usr/local/etc/pkcs11_java.cfg:Z")
 fi
 
+if [[ -n ${RCLONE_CONFIG_HOST_PATH-} ]]; then
+    optional_rclone_config=(-v "$RCLONE_CONFIG_HOST_PATH:/etc/rclone.conf:ro,Z")
+fi
+
 printf '%s' "$YUBIKEY_PIN" | "$CONTAINER_RUNNER" secret create --replace YUBIKEY_PIN -
 cleanup() { "$CONTAINER_RUNNER" secret rm YUBIKEY_PIN 2>/dev/null || true; }
 trap cleanup EXIT
@@ -39,6 +43,7 @@ trap cleanup EXIT
     -v "$SCRIPT_DIR/sign.sh:/sign.sh:Z" \
     -v "$WORK_DIR:/work:Z" \
     "${optional_override_provider_config[@]}" \
+    "${optional_rclone_config[@]}" \
     -w "/work" \
     --entrypoint /wait-for-pcscd.sh \
     "$CONTAINER_IMAGE_NAME" \
