@@ -25,9 +25,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevronDivider
-import net.mullvad.mullvadvpn.lib.ui.component.highlightText
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
@@ -113,7 +114,7 @@ fun SelectableRelayListItem(
         },
         content = {
             Name(
-                name = relayListItem.titleAnnotated,
+                name = relayListItem.highlightedTitle.titleAnnotated(relayListItem.state),
                 textColor = colors.headlineColor(enabled = active, selected = selected),
             )
         },
@@ -145,10 +146,9 @@ fun InactiveRelayIndicator(modifier: Modifier = Modifier, tint: Color) {
     )
 }
 
-private val RelayListItem.SelectableItem.titleAnnotated: AnnotatedString
-    @Composable
-    get() =
-        item.name.highlightText(highlights, MaterialTheme.colorScheme.highlight).withSuffix(state)
+@Composable
+private fun HighlightedString.titleAnnotated(state: RelayListItemState?): AnnotatedString =
+    toAnnotatedString(MaterialTheme.colorScheme.highlight).withSuffix(state)
 
 @Composable
 private fun AnnotatedString.withSuffix(state: RelayListItemState?): AnnotatedString {

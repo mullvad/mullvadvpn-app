@@ -11,46 +11,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
-import net.mullvad.mullvadvpn.lib.common.util.splitIncludingDelimiters
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 
-/**
- * Appends `text` and styles occurrences of `substrings` in `text` with the given `substringStyle`.
- */
-fun AnnotatedString.Builder.appendTextWithStyledSubstring(
-    text: String,
-    substrings: List<String>,
-    substringStyle: SpanStyle,
-    ignoreCase: Boolean = false,
-    limit: Int = 0,
-) {
-    val parts =
-        text.splitIncludingDelimiters(
-            substring = substrings.toTypedArray(),
-            ignoreCase = ignoreCase,
-            limit = limit,
-        )
-
-    parts.forEach { part ->
-        if (substrings.any { part.equals(it, ignoreCase = ignoreCase) }) {
-            withStyle(substringStyle) { append(part) }
-        } else {
-            append(part)
+fun HighlightedString.toAnnotatedString(highlightColor: Color): AnnotatedString =
+    buildAnnotatedString {
+        append(text)
+        highlights.forEach {
+            addStyle(SpanStyle(background = highlightColor), it.first, it.last + 1)
         }
     }
-}
-
-fun String.highlightText(highlights: List<String>, highlightColor: Color): AnnotatedString {
-    if (isBlank()) return AnnotatedString(this)
-    return buildAnnotatedString {
-        appendTextWithStyledSubstring(
-            text = this@highlightText,
-            substrings = highlights,
-            substringStyle = SpanStyle(background = highlightColor),
-            ignoreCase = true,
-        )
-    }
-}
 
 fun CharSequence.toAnnotatedString(): AnnotatedString =
     if (this is Spanned) {
