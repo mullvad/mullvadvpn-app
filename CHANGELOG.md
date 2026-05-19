@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
+- Add setting to allow to unpin the app window from the menu bar.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
