@@ -170,8 +170,12 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
         &mut self,
         params: &gotatun::udp::UdpTransportFactoryParams,
     ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) =
-            UdpSocketFactory.bind(params).await?;
+        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = UdpSocketFactory {
+            recv_buffer_size: Some(udp_recv_buffer_size()),
+            send_buffer_size: Some(udp_send_buffer_size()),
+        }
+        .bind(params)
+        .await?;
 
         self.tun.bypass(&udp_v4_tx).unwrap();
         self.tun.bypass(&udp_v6_tx).unwrap();
@@ -287,7 +291,10 @@ async fn create_devices(
     let base_factory = AndroidUdpSocketFactory { tun: android_tun };
 
     #[cfg(not(target_os = "android"))]
-    let base_factory = UdpSocketFactory;
+    let base_factory = UdpSocketFactory {
+        recv_buffer_size: Some(udp_recv_buffer_size()),
+        send_buffer_size: Some(udp_send_buffer_size()),
+    };
 
     let factory = MaybeObfuscatingTransportFactory::from_config(base_factory, config);
 
@@ -703,4 +710,43 @@ where
     let ip_recv = PcapSniffer::new(ip_recv, w, start_time);
 
     (ip_send, ip_recv)
+}
+
+/// For performance reasons, adjust the UDP socket send buffer size.
+/// See [`DeviceBuilder::udp_send_buffer_size`] for details.
+#[inline(always)]
+fn udp_send_buffer_size() -> usize {
+    match use_large_udp_buffers() {
+        true => const { 7 * 1024 * 1024 }, // 7 MB (mirror the default of `gotatun-cli`)
+        false => const { 1024 * 1024 },    // 1 MB
+    }
+}
+
+/// For performance reasons, adjust the UDP socket recv buffer size.
+/// See [`DeviceBuilder::udp_recv_buffer_size`] for details.
+#[inline(always)]
+fn udp_recv_buffer_size() -> usize {
+    match use_large_udp_buffers() {
+        true => const { 7 * 1024 * 1024 }, // 7 MB (mirror the default of `gotatun-cli`)
+        false => const { 1024 * 1024 },    // 1 MB
+    }
+}
+
+/// If larger UDP socket buffers may be used for the associated `gotatun` tunnel. This could be
+/// beneficial for performance reasons.
+///
+/// Some target platforms support larger socket buffers than others. Currently we try to increase
+/// the socket buffer sizes as much as possible, and fall back on a conservative default otherwise.
+/// This could be further tweaked per platform with some benchmarking.
+#[inline(always)]
+fn use_large_udp_buffers() -> bool {
+    cfg_select! {
+        // macOS <= 14 does not like large send/recv buffers.
+        target_os = "macos" => {
+            use talpid_platform_metadata::MacosVersion;
+            let version = MacosVersion::new().expect("Could not detect macOS version");
+            version >= MacosVersion::from_raw_version("15.0").unwrap()
+        }
+        _ => true
+    }
 }
