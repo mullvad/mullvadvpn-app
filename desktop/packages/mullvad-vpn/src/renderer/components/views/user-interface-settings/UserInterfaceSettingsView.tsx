@@ -50,8 +50,7 @@ export function UserInterfaceSettingsView() {
                 <MonochromaticTrayIconSetting position="solo" />
                 <LanguageListItem position="solo" />
 
-                {(window.env.platform === 'win32' ||
-                  (window.env.platform === 'darwin' && window.env.development)) && (
+                {(window.env.platform === 'win32' || window.env.platform === 'darwin') && (
                   <UnpinnedWindowSetting position="solo" />
                 )}
 
