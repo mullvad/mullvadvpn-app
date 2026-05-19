@@ -44,7 +44,7 @@ compose-constraintlayout = "1.1.1"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
 dependency-versions = "0.54.0"
-detekt = "1.23.8"
+detekt = "2.0.0-alpha.3"
 accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.81.0"
@@ -131,8 +131,8 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
-detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
-detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
+detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
@@ -188,7 +188,7 @@ android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" 
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 # noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
 # noinspection SimilarGradleDependency
