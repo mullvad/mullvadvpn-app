@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations
 
 import net.mullvad.mullvadvpn.lib.common.Lce
-import net.mullvad.mullvadvpn.lib.model.MatchItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 
 data class CustomListLocationsUiState(
