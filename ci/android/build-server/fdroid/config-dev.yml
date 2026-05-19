@@ -1,0 +1,24 @@
+sdk_path: $ANDROID_HOME
+repo_url: https://fdroid.devmole.eu/fdroid/repo
+repo_name: Mullvad VPN (dev)
+repo_description: >-
+   This is the official Mullvad VPN F-Droid repository. It hosts
+   reproducible binaries with faster updates than the main F-Droid
+   repository. NOTE: The apps in this repository are signed with a
+   different key than the main F-Droid repository (signed by F-Droid
+   rather than us), so switching repositories requires reinstalling
+   apps. We do however use the same signing key across this
+   repository, GitHub Releases and our website.
+archive_older: 0
+# Used by rclone
+awsbucket: appteam-android-fdroid-dev
+rclone_config:
+  - cdn77-fdroid-dev
+path_to_custom_rclone_config: /etc/rclone.conf
+keystore: NONE
+repo_keyalias: "X.509 Certificate for PIV Authentication"
+smartcardoptions: |
+   -providerClass sun.security.pkcs11.SunPKCS11
+   -providerArg /usr/local/etc/pkcs11_java.cfg
+   -storetype PKCS11
+keystorepass: {env: YUBIKEY_PIN}
