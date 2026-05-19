@@ -157,6 +157,7 @@ pub enum ConfigureGotaTunDeviceError {
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
     pub tun: Arc<Tun>,
+    pub udp: UdpSocketFactory,
 }
 
 #[cfg(target_os = "android")]
@@ -170,8 +171,7 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
         &mut self,
         params: &gotatun::udp::UdpTransportFactoryParams,
     ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) =
-            UdpSocketFactory.bind(params).await?;
+        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.udp.bind(params).await?;
 
         self.tun.bypass(&udp_v4_tx).unwrap();
         self.tun.bypass(&udp_v6_tx).unwrap();
@@ -271,98 +271,6 @@ pub async fn open_gotatun_tunnel(
     );
 
     Ok(gotatun)
-}
-
-/// Create and configure gotatun devices.
-///
-/// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
-/// and a [SinglehopDevice] otherwise.
-async fn create_devices(
-    config: &Config, // TODO: do not include config to reduce confusion
-    daita: Option<&DaitaSettings>,
-    tun_dev: GotaTunDevice,
-    #[cfg(target_os = "android")] android_tun: Arc<Tun>,
-) -> Result<Devices, TunnelError> {
-    #[cfg(target_os = "android")]
-    let base_factory = AndroidUdpSocketFactory { tun: android_tun };
-
-    #[cfg(not(target_os = "android"))]
-    let base_factory = UdpSocketFactory;
-
-    let factory = MaybeObfuscatingTransportFactory::from_config(base_factory, config);
-
-    let mut devices = if let Some(exit_peer) = &config.exit_peer {
-        // Multihop setup
-
-        let source_v4 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
-                IpAddr::V6(..) => None,
-            })
-            .unwrap_or(Ipv4Addr::UNSPECIFIED);
-
-        let source_v6 = config
-            .tunnel
-            .addresses
-            .iter()
-            .find_map(|ip| match ip {
-                &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
-                IpAddr::V4(..) => None,
-            })
-            .unwrap_or(Ipv6Addr::UNSPECIFIED);
-
-        // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
-        let multihop_overhead = match exit_peer.endpoint.ip() {
-            IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-            IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
-        };
-
-        let exit_mtu = tun_dev.mtu();
-        let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
-
-        let (tun_channel_tx, tun_channel_rx, udp_channels) =
-            new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
-
-        let exit_device = DeviceBuilder::new()
-            .with_udp(udp_channels)
-            .with_ip(tun_dev)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-
-        // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
-        // See docs on wrap_in_pcap_sniffer for an explanation.
-        #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
-        let (tun_channel_tx, tun_channel_rx) = wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
-
-        let entry_device = DeviceBuilder::new()
-            .with_udp(factory)
-            .with_ip_pair(tun_channel_tx, tun_channel_rx)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-        Devices::Multihop {
-            entry_device,
-            exit_device,
-        }
-    } else {
-        // Singlehop setup
-
-        let device = DeviceBuilder::new()
-            .with_udp(factory)
-            .with_ip(tun_dev)
-            .build()
-            .await
-            .map_err(TunnelError::GotaTunDevice)?;
-        Devices::Singlehop { device }
-    };
-
-    configure_devices(&mut devices, config, daita).await?;
-
-    Ok(devices)
 }
 
 /// Configure a gotatun entry or singlehop device
@@ -557,6 +465,141 @@ impl Tunnel for GotaTun {
     }
 }
 
+/// Create and configure gotatun devices.
+///
+/// Will create an [EntryDevice] and an [ExitDevice] if `config` is a multihop config,
+/// and a [SinglehopDevice] otherwise.
+async fn create_devices(
+    config: &Config, // TODO: do not include config to reduce confusion
+    daita: Option<&DaitaSettings>,
+    tun_dev: GotaTunDevice,
+    #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+) -> Result<Devices, TunnelError> {
+    async fn create_devices_inner(
+        config: &Config, // TODO: do not include config to reduce confusion
+        daita: Option<&DaitaSettings>,
+        tun_dev: GotaTunDevice,
+        #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+        optimize_buffer_size: bool,
+    ) -> Result<Devices, TunnelError> {
+        let factory = udp_obfuscator_factory(
+            config,
+            optimize_buffer_size,
+            #[cfg(target_os = "android")]
+            android_tun,
+        );
+        let mut devices = if let Some(exit_peer) = &config.exit_peer {
+            // Multihop setup
+
+            let source_v4 = config
+                .tunnel
+                .addresses
+                .iter()
+                .find_map(|ip| match ip {
+                    &IpAddr::V4(ipv4_addr) => Some(ipv4_addr),
+                    IpAddr::V6(..) => None,
+                })
+                .unwrap_or(Ipv4Addr::UNSPECIFIED);
+
+            let source_v6 = config
+                .tunnel
+                .addresses
+                .iter()
+                .find_map(|ip| match ip {
+                    &IpAddr::V6(ipv6_addr) => Some(ipv6_addr),
+                    IpAddr::V4(..) => None,
+                })
+                .unwrap_or(Ipv6Addr::UNSPECIFIED);
+
+            // Calculate length of extra headers, assuming no optional header fields (i.e. IP options)
+            let multihop_overhead = match exit_peer.endpoint.ip() {
+                IpAddr::V4(..) => Ipv4Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+                IpAddr::V6(..) => Ipv6Header::LEN + UdpHeader::LEN + WgData::OVERHEAD,
+            };
+
+            let exit_mtu = tun_dev.mtu();
+            let entry_mtu = exit_mtu.increase(multihop_overhead as u16).unwrap(/* TODO: this can happen if tun mtu is max i think*/);
+
+            let (tun_channel_tx, tun_channel_rx, udp_channels) =
+                new_udp_tun_channel(PACKET_CHANNEL_CAPACITY, source_v4, source_v6, entry_mtu);
+
+            let exit_device = DeviceBuilder::new()
+                .with_udp(udp_channels)
+                .with_ip(tun_dev)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+
+            // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
+            // See docs on wrap_in_pcap_sniffer for an explanation.
+            #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
+            let (tun_channel_tx, tun_channel_rx) =
+                wrap_in_pcap_sniffer(tun_channel_tx, tun_channel_rx);
+
+            let entry_device = DeviceBuilder::new()
+                .with_udp(factory)
+                .with_ip_pair(tun_channel_tx, tun_channel_rx)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::Multihop {
+                entry_device,
+                exit_device,
+            }
+        } else {
+            // Singlehop setup
+
+            let device = DeviceBuilder::new()
+                .with_udp(factory)
+                .with_ip(tun_dev)
+                .build()
+                .await
+                .map_err(TunnelError::GotaTunDevice)?;
+            Devices::Singlehop { device }
+        };
+
+        configure_devices(&mut devices, config, daita).await?;
+
+        Ok(devices)
+    }
+
+    match create_devices_inner(
+        config,
+        daita,
+        tun_dev.clone(),
+        #[cfg(target_os = "android")]
+        android_tun.clone(),
+        true,
+    )
+    .await
+    {
+        Ok(devices) => Ok(devices),
+        // Empirically, creating devices may fail when binding the UDP socket due to
+        // us wanting to tweak the UDP socket buffer sizes to a larger value than
+        // the OS default (suspected hardware related issues / limitations). In that
+        // case, `os error 55 ("No buffer space available")`  has been observed.
+        //
+        // Try to bind UDP sockets with default buffer sizes.
+        #[cfg(unix)]
+        Err(TunnelError::GotaTunDevice(ref err @ gotatun::device::Error::Bind(ref io_err, _)))
+            if let Some(errno) = io_err.raw_os_error()
+                && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
+        {
+            log::error!("Failed to bind UDP socket: {err} - retrying with default buffer sizes");
+            create_devices_inner(
+                config,
+                daita,
+                tun_dev,
+                #[cfg(target_os = "android")]
+                android_tun.clone(),
+                false,
+            )
+            .await
+        }
+        Err(err) => Err(err),
+    }
+}
+
 #[cfg(target_os = "windows")]
 fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
@@ -703,4 +746,46 @@ where
     let ip_recv = PcapSniffer::new(ip_recv, w, start_time);
 
     (ip_send, ip_recv)
+}
+
+/// Provide a [`UdpSocketFactory`] for the entry-device.
+///
+/// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
+///   now always succeed due to suspected hardware related issues / limitations.
+fn udp_obfuscator_factory(
+    config: &Config,
+    optimize_buffer_size: bool,
+    #[cfg(target_os = "android")] android_tun: Arc<Tun>,
+) -> MaybeObfuscatingTransportFactory<UdpFactory> {
+    let factory = cfg_select! {
+        target_os = "android" => {
+            AndroidUdpSocketFactory {
+                tun: android_tun,
+                udp: udp_socket_factory(optimize_buffer_size),
+            }
+        },
+        _ => { udp_socket_factory(optimize_buffer_size) }
+    };
+    MaybeObfuscatingTransportFactory::from_config(factory, config)
+}
+
+/// Provide a [`UdpSocketFactory`] for the entry-device.
+///
+/// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked.
+///   This could be beneficial for performance reasons.
+#[inline(always)]
+fn udp_socket_factory(optimize_buffer_size: bool) -> UdpSocketFactory {
+    /// See [`DeviceBuilder::udp_send_buffer_size`] for details.
+    const UDP_SEND_BUFFER_SIZE: usize = 7 * 1024 * 1024; // 7 MB (mirror the default of `gotatun-cli`)
+    /// See [`DeviceBuilder::udp_recv_buffer_size`] for details.
+    const UDP_RECV_BUFFER_SIZE: usize = 7 * 1024 * 1024;
+
+    if optimize_buffer_size {
+        UdpSocketFactory {
+            recv_buffer_size: Some(UDP_RECV_BUFFER_SIZE),
+            send_buffer_size: Some(UDP_SEND_BUFFER_SIZE),
+        }
+    } else {
+        UdpSocketFactory::default()
+    }
 }
