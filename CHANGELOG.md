@@ -56,6 +56,9 @@ Line wrap the file at 100 chars.                                              Th
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
 
+#### Windows
+- Switch winreg out for windows_registry.
+
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
   multiple consecutive tunnel state events for the same state.
