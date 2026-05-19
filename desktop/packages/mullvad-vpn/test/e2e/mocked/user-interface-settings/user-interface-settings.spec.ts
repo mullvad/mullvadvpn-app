@@ -86,7 +86,7 @@ test.describe('User interface settings', () => {
   });
 
   test.describe('Unpinned window setting', () => {
-    test.skip(() => process.platform !== 'win32');
+    test.skip(() => !(process.platform === 'win32' || process.platform === 'darwin'));
 
     test('Should toggle unpinned window setting', async () => {
       const unpinnedWindowSwitch = routes.userInterfaceSettings.selectors.unpinnedWindowSwitch();
@@ -104,7 +104,7 @@ test.describe('User interface settings', () => {
   });
 
   test.describe('Start minimized setting', () => {
-    test.skip(() => process.platform !== 'win32');
+    test.skip(() => !(process.platform === 'win32' || process.platform === 'darwin'));
 
     test('Should toggle start minimized setting', async () => {
       await setGuiSettings({ unpinnedWindow: true });
