@@ -44,8 +44,8 @@ export class ConnectionObserver {
   };
 }
 
-export class GrpcClient {
-  protected client: ManagementServiceClient;
+export abstract class GrpcClient<Client extends ManagementServiceClient> {
+  protected client: Client;
   private isConnectedValue = false;
   private isClosed = false;
   private reconnectionTimeout?: NodeJS.Timeout;
@@ -54,12 +54,10 @@ export class GrpcClient {
     private rpcPath: string,
     private connectionObserver?: ConnectionObserver,
   ) {
-    this.client = new ManagementServiceClient(
-      this.prefixedRpcPath(),
-      grpc.credentials.createInsecure(),
-      this.channelOptions(),
-    );
+    this.client = this.createClient();
   }
+
+  abstract createClient(): Client;
 
   public get isConnected() {
     return this.isConnectedValue;
@@ -68,11 +66,7 @@ export class GrpcClient {
   public reopen(connectionObserver?: ConnectionObserver) {
     if (this.isClosed) {
       this.isClosed = false;
-      this.client = new ManagementServiceClient(
-        this.prefixedRpcPath(),
-        grpc.credentials.createInsecure(),
-        this.channelOptions(),
-      );
+      this.client = this.createClient();
 
       this.connectionObserver = connectionObserver;
     }
@@ -166,7 +160,17 @@ export class GrpcClient {
     }
   }
 
-  private prefixedRpcPath(): string {
+  protected channelOptions(): grpc.ClientOptions {
+    return {
+      'grpc.max_reconnect_backoff_ms': 3000,
+      'grpc.initial_reconnect_backoff_ms': 3000,
+      'grpc.keepalive_time_ms': Math.pow(2, 30),
+      'grpc.keepalive_timeout_ms': Math.pow(2, 30),
+      'grpc.client_idle_timeout_ms': Math.pow(2, 30),
+    };
+  }
+
+  protected prefixedRpcPath(): string {
     return `${RPC_PATH_PREFIX}${this.rpcPath}`;
   }
 
@@ -183,16 +187,6 @@ export class GrpcClient {
     this.isConnectedValue = false;
 
     this.connectionObserver?.onClose(wasConnected, error);
-  }
-
-  private channelOptions(): grpc.ClientOptions {
-    return {
-      'grpc.max_reconnect_backoff_ms': 3000,
-      'grpc.initial_reconnect_backoff_ms': 3000,
-      'grpc.keepalive_time_ms': Math.pow(2, 30),
-      'grpc.keepalive_timeout_ms': Math.pow(2, 30),
-      'grpc.client_idle_timeout_ms': Math.pow(2, 30),
-    };
   }
 
   private connectivityChangeCallback(timeoutErr?: Error) {
