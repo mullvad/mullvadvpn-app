@@ -92,6 +92,7 @@ RUN apt-get update -y && apt-get install -y \
     pcscd \
     python3-pip \
     rclone \
+    python3-qrcode \
     && rm -rf /var/lib/apt/lists/*
 
 # Install fdroid server using pip instead to get a version that is using a later versions of androguard
