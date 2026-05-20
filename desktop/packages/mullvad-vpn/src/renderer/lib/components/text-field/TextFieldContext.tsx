@@ -4,6 +4,7 @@ import { TextFieldProps } from './TextField';
 
 type TextFieldContextType = Omit<TextFieldProviderProps, 'children'> & {
   labelId: string;
+  descriptionId: string;
 };
 
 const TextFieldContext = createContext<TextFieldContextType | undefined>(undefined);
@@ -14,9 +15,12 @@ type TextFieldProviderProps = React.PropsWithChildren<
 
 export const TextFieldProvider = ({ children, ...props }: TextFieldProviderProps) => {
   const labelId = React.useId();
+  const descriptionId = React.useId();
 
   return (
-    <TextFieldContext.Provider value={{ labelId, ...props }}>{children}</TextFieldContext.Provider>
+    <TextFieldContext.Provider value={{ labelId, descriptionId, ...props }}>
+      {children}
+    </TextFieldContext.Provider>
   );
 };
 

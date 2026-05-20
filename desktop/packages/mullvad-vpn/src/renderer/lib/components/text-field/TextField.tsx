@@ -10,6 +10,7 @@ import {
   TextFieldIconButton,
   TextFieldInput,
   TextFieldLabel,
+  TextFieldSupportingText,
 } from './components';
 import { TextFieldProvider } from './TextFieldContext';
 
@@ -71,6 +72,7 @@ const TextFieldNamespace = Object.assign(TextField, {
   Label: TextFieldLabel,
   Icon: TextFieldIcon,
   IconButton: TextFieldIconButton,
+  SupportingText: TextFieldSupportingText,
 });
 
 export { TextFieldNamespace as TextField };
