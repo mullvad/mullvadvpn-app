@@ -66,6 +66,7 @@ import { isMacOs13OrNewer } from './platform-version';
 import * as problemReport from './problem-report';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
+import { RelaySelectorRpc } from './relay-selector-rpc';
 import Settings, { SettingsDelegate } from './settings';
 import TunnelStateHandler, {
   TunnelStateHandlerDelegate,
@@ -95,6 +96,7 @@ class ApplicationMain
     AccountDelegate
 {
   private daemonRpc: DaemonRpc;
+  private relaySelectorRpc: RelaySelectorRpc;
 
   private notificationController = new NotificationController(this);
   private version: Version;
@@ -146,6 +148,7 @@ class ApplicationMain
     this.daemonRpc = new DaemonRpc(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
     );
+    this.relaySelectorRpc = new RelaySelectorRpc();
 
     this.version = new Version(this, this.daemonRpc, UPDATE_NOTIFICATION_DISABLED);
     this.settings = new Settings(this, this.daemonRpc, this.version.currentVersion);
@@ -516,6 +519,7 @@ class ApplicationMain
 
     const wasConnected = this.daemonRpc.isConnected;
     IpcMainEventChannel.navigation.notifyReset?.();
+    this.relaySelectorRpc.disconnect();
     this.daemonRpc.disconnect();
     this.onDaemonDisconnected(wasConnected, undefined, true);
   };
@@ -525,6 +529,7 @@ class ApplicationMain
     this.daemonRpc.reopen(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
     );
+    this.relaySelectorRpc.reopen();
     this.connectToDaemon();
   };
 
@@ -757,6 +762,9 @@ class ApplicationMain
     void this.daemonRpc
       .connect()
       .catch((error) => log.error(`Unable to connect to daemon: ${error.message}`));
+    void this.relaySelectorRpc
+      .connect()
+      .catch((error) => log.error(`Unable to connect to relay selector: ${error.message}`));
   }
 
   private handleBootstrapError(_error?: Error) {
