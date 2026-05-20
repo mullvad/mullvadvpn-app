@@ -68,7 +68,7 @@ parking_lot = "0.12.0"
 serde = { workspace = true, features = ["derive"] }
 talpid-windows = { path = "../talpid-windows" }
 widestring = { workspace = true }
-windows = "0.58.0"
+windows = { workspace = true }
 windows-registry = { workspace = true }
 windows-service = "0.6.0"
 wmi = { workspace = true }
