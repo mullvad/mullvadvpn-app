@@ -168,3 +168,9 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-5598"  # GHSA-p93r-85wp-75v3
 ignoreUntil = 2026-08-01
 reason = "The app does not use dependency directly, it is used by AGP that builds the app, no impact on app"
+
+# Wire: skipGroup() missing negative-length check allows 10-byte payload to crash any Wire-decoding service
+[[IgnoredVulns]]
+id = "CVE-2026-45799"  # GHSA-7xpr-hc2w-34m9
+ignoreUntil = 2026-08-01
+reason = "Used by benchmark lib, used to create baseline profiles. No impact on app."
