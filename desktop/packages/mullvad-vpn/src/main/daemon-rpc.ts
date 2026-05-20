@@ -1,6 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
+import { ManagementServiceClient } from 'management-interface/management-interface';
 import * as grpcTypes from 'management-interface/management-interface/grpc-types';
 
 import {
@@ -77,7 +78,7 @@ export class SubscriptionListener<T> {
   }
 }
 
-export class DaemonRpc extends GrpcClient {
+export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
   private nextSubscriptionId = 0;
   private subscriptions: Map<
     number,
@@ -86,6 +87,14 @@ export class DaemonRpc extends GrpcClient {
 
   public constructor(connectionObserver?: ConnectionObserver) {
     super(DAEMON_RPC_PATH, connectionObserver);
+  }
+
+  createClient(): ManagementServiceClient {
+    return new ManagementServiceClient(
+      this.prefixedRpcPath(),
+      grpc.credentials.createInsecure(),
+      this.channelOptions(),
+    );
   }
 
   public disconnect() {
