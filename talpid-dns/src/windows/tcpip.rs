@@ -73,12 +73,10 @@ impl DnsMonitor {
 
 fn set_dns(interface: &GUID, servers: &[IpAddr]) -> Result<(), Error> {
     let transaction = Transaction::new()
-        .map_err(|error| windows_result_code_to_io(error.code().0))
+        .map_err(windows_result_code_to_io)
         .map_err(Error::SetResolvers)?;
     let result = match set_dns_inner(&transaction, interface, servers) {
-        Ok(()) => transaction
-            .commit()
-            .map_err(|error| windows_result_code_to_io(error.code().0)),
+        Ok(()) => transaction.commit().map_err(windows_result_code_to_io),
         Err(error) => {
             std::mem::drop(transaction);
             Err(error)
@@ -132,7 +130,7 @@ fn config_interface(
     {
         Ok(adapter_key) => Ok(adapter_key),
         Err(error) => {
-            let io_err = windows_result_code_to_io(error.code().0);
+            let io_err = windows_result_code_to_io(error);
             if nameservers.is_empty() && io_err.kind() == io::ErrorKind::NotFound {
                 return Ok(());
             }
@@ -143,10 +141,10 @@ fn config_interface(
     if !nameservers.is_empty() {
         adapter_key
             .set_string("NameServer", nameservers.join(","))
-            .map_err(|error| windows_result_code_to_io(error.code().0))?;
+            .map_err(windows_result_code_to_io)?;
     } else {
         adapter_key.remove_value("NameServer").or_else(|error| {
-            let io_err = windows_result_code_to_io(error.code().0);
+            let io_err = windows_result_code_to_io(error);
             if io_err.kind() == io::ErrorKind::NotFound {
                 Ok(())
             } else {
@@ -185,11 +183,10 @@ fn string_from_guid(guid: &GUID) -> String {
     String::from_utf16(&buffer[0..length]).unwrap()
 }
 
-// all windows_registry functions return a windows_result::error::Error, which is not defined in
-// the public API of windows_registry. So this function needs to take the inner error code.
-fn windows_result_code_to_io(hresult: i32) -> io::Error {
+fn windows_result_code_to_io(error: windows_result::Error) -> io::Error {
     // windows_result::error::Error hresults needs to be truncated to the first 2 bytes to get the
     // OS code that works with io::Error. Inverse of the function performed here:
     // https://docs.rs/windows-result/0.4.1/src/windows_result/hresult.rs.html#129
+    let hresult = error.code().0;
     io::Error::from_raw_os_error(hresult & 0x0000FFFF)
 }

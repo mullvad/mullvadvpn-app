@@ -91,6 +91,7 @@ deny = [
   { name = "tokio", version = "0" },
   { name = "time", version = "0.1" },
   { name = "rand", version = "<0.9.3 " },
+  { name = "winreg" },
 ]
 
 # This section is considered when running `cargo deny check sources`.

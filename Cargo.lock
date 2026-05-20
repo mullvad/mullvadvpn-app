@@ -5544,6 +5544,7 @@ dependencies = [
  "triggered",
  "which",
  "windows-registry",
+ "windows-result 0.4.1",
  "windows-sys 0.61.2",
 ]
 
