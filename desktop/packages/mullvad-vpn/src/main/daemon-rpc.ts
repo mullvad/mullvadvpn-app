@@ -3,6 +3,8 @@ import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
 import { ManagementServiceClient } from 'management-interface/management-interface';
 import * as grpcTypes from 'management-interface/management-interface/grpc-types';
+import { RelaySelectorServiceClient } from 'management-interface/relay-selector';
+import * as grpcTypesRelaySelector from 'management-interface/relay-selector/grpc-types';
 
 import {
   AccessMethodExistsError,
@@ -75,6 +77,31 @@ export class SubscriptionListener<T> {
   // @internal
   public onError(error: Error) {
     this.errorHandler(error);
+  }
+}
+
+export class RelaySelectorRpc extends GrpcClient<RelaySelectorServiceClient> {
+  public constructor(connectionObserver?: ConnectionObserver) {
+    super(DAEMON_RPC_PATH, connectionObserver);
+  }
+
+  createClient(): RelaySelectorServiceClient {
+    return new RelaySelectorServiceClient(
+      this.prefixedRpcPath(),
+      grpc.credentials.createInsecure(),
+      this.channelOptions(),
+    );
+  }
+
+  public async getMatchingRelays(
+    predicate: grpcTypesRelaySelector.Predicate,
+  ): Promise<grpcTypesRelaySelector.RelayPartitions> {
+    const response = await this.call<
+      grpcTypesRelaySelector.Predicate,
+      grpcTypesRelaySelector.RelayPartitions
+    >(this.client.partitionRelays, predicate);
+
+    return response;
   }
 }
 
