@@ -744,7 +744,7 @@ impl InitializedSplitTunnelState {
         });
 
         let handle = init_rx
-            .recv_timeout(REQUEST_TIMEOUT)
+            .recv()
             .map_err(|_| Error::RequestThreadStuck)??;
 
         let handle_copy = handle.clone();

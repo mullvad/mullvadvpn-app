@@ -17,7 +17,10 @@ const SPLIT_TUNNEL_SERVICE: &str = "mullvad-split-tunnel";
 const SPLIT_TUNNEL_DISPLAY_NAME: &str = "Mullvad Split Tunnel Service";
 const DRIVER_FILENAME: &str = "mullvad-split-tunnel.sys";
 
-const WAIT_STATUS_TIMEOUT: Duration = Duration::from_secs(8);
+// TODO: Starting 'mullvad-split-tunnel' can take some time during boot. So we need a very
+// generous timeout here. It might make sense to redesign split tunneling to not block the rest
+// of the tunnel state machine from starting up, especially if split tunneling is disabled.
+const WAIT_STATUS_TIMEOUT: Duration = Duration::from_mins(2);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
