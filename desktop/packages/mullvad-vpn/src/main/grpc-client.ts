@@ -8,6 +8,7 @@ import {
   UInt32Value,
 } from 'google-protobuf/google/protobuf/wrappers_pb.js';
 import { ManagementServiceClient } from 'management-interface/management-interface';
+import { RelaySelectorServiceClient } from 'management-interface/relay-selector';
 import { promisify } from 'util';
 
 import log from '../shared/logging';
@@ -44,7 +45,9 @@ export class ConnectionObserver {
   };
 }
 
-export abstract class GrpcClient<Client extends ManagementServiceClient> {
+export abstract class GrpcClient<
+  Client extends ManagementServiceClient | RelaySelectorServiceClient,
+> {
   protected client: Client;
   private isConnectedValue = false;
   private isClosed = false;
