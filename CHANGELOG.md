@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+#### Windows
+- Fix split tunnel driver becoming unavailable if slow to load during boot.
+
 
 ## [2026.3-beta1] - 2026-05-19
 ### Added
