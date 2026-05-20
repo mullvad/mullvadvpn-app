@@ -17,12 +17,12 @@
       "types": "./dist/management_interface_pb.d.ts"
     },
     "./relay-selector": {
-      "default": "./dist/relay-selector.js",
-      "types": "./dist/relay-selector.d.ts"
+      "default": "./dist/relay_selector_grpc_pb.js",
+      "types": "./dist/relay_selector_grpc_pb.d.ts"
     },
     "./relay-selector/grpc-types": {
-      "default": "./dist/relay-selector.js",
-      "types": "./dist/relay-selector.d.ts"
+      "default": "./dist/relay_selector_pb.js",
+      "types": "./dist/relay_selector_pb.d.ts"
     }
   },
   "scripts": {
