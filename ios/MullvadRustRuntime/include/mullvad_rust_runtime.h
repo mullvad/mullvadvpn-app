@@ -14,13 +14,10 @@ enum SwiftAccessMethodKind {
   KindEncryptedDnsProxy,
   KindShadowsocks,
   KindSocks5Local,
-  KindDomainFronting,
 };
 typedef uint8_t SwiftAccessMethodKind;
 
 typedef struct ApiContext ApiContext;
-
-typedef struct DomainFrontingConfigContext DomainFrontingConfigContext;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
@@ -41,14 +38,6 @@ typedef struct SwiftApiContext {
 typedef struct SwiftAccessMethodSettingsWrapper {
   struct SwiftAccessMethodSettingsContext *_0;
 } SwiftAccessMethodSettingsWrapper;
-
-/**
- * Opaque wrapper around domain fronting configuration, created by
- * [`new_domain_fronting_config`] and consumed by the init functions.
- */
-typedef struct SwiftDomainFrontingConfig {
-  struct DomainFrontingConfigContext *_0;
-} SwiftDomainFrontingConfig;
 
 typedef struct SwiftShadowsocksLoaderWrapperContext {
   const void *shadowsocks_loader;
@@ -167,17 +156,6 @@ void mullvad_api_use_access_method(struct SwiftApiContext api_context,
 void mullvad_api_update_address_cache(struct SwiftApiContext swift_api_context);
 
 /**
- * Creates a [`SwiftDomainFrontingConfig`] that owns copies of the provided strings.
- *
- * # Safety
- *
- * Both `front` and `proxy_host` must be pointers to null-terminated strings.
- * The pointers only need to be valid for the duration of this call.
- */
-struct SwiftDomainFrontingConfig new_domain_fronting_config(const char *front,
-                                                            const char *proxy_host);
-
-/**
  * # Safety
  *
  * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
@@ -193,8 +171,7 @@ struct SwiftDomainFrontingConfig new_domain_fronting_config(const char *front,
  */
 struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
                                                          const char *address,
-                                                         const char *encrypted_dns_domain,
-                                                         struct SwiftDomainFrontingConfig domain_fronting,
+                                                         const char *domain,
                                                          struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                                          struct SwiftAccessMethodSettingsWrapper settings_provider,
                                                          void (*access_method_change_callback)(const void*,
@@ -210,7 +187,7 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
  * `address` must be a pointer to a null terminated string representing a socket address through which
  * the Mullvad API can be reached directly.
  *
- * access_method_change_callback is a function with the C calling convention which will be called
+ * address_method_change_callback is a function with the C calling convention which will be called
  * whenever the access method changes with a user-specified opaque pointer and a pointer to the bytes
  * of the access method's UUID. Note that this callback must remain valid for the lifetime of the
  * program.
@@ -225,8 +202,7 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
  */
 struct SwiftApiContext mullvad_api_init_new(const char *host,
                                             const char *address,
-                                            const char *encrypted_dns_domain,
-                                            struct SwiftDomainFrontingConfig domain_fronting,
+                                            const char *domain,
                                             struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftAccessMethodSettingsWrapper settings_provider,
                                             void (*access_method_change_callback)(const void*,
@@ -249,8 +225,7 @@ struct SwiftApiContext mullvad_api_init_new(const char *host,
  */
 struct SwiftApiContext mullvad_api_init_inner(const char *host,
                                               const char *address,
-                                              const char *encrypted_dns_domain,
-                                              struct SwiftDomainFrontingConfig domain_fronting,
+                                              const char *domain,
                                               bool disable_tls,
                                               struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                               struct SwiftAccessMethodSettingsWrapper settings_provider,
@@ -283,15 +258,13 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
  * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
  *
  * # SAFETY
- * `direct_method_raw`, `bridges_method_raw`, `encrypted_dns_method_raw` and
- * `domain_fronting_method_raw` must be raw pointers resulting from a call to
- * `convert_builtin_access_method_setting`.
+ * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
+ * resulting from a call to `convert_builtin_access_method_setting`
  * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
  */
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
                                                                             const void *bridges_method_raw,
                                                                             const void *encrypted_dns_method_raw,
-                                                                            const void *domain_fronting_method_raw,
                                                                             const void *custom_methods_raw,
                                                                             uintptr_t custom_method_count);
 

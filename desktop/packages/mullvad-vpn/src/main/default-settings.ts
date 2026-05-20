@@ -99,12 +99,12 @@ export function getDefaultApiAccessMethods(): ApiAccessMethodSettings {
       enabled: false,
       type: 'encrypted-dns-proxy',
     },
-    domainFronting: {
-      id: '',
-      enabled: false,
-      name: 'Domain fronting',
-      type: 'domain-fronting',
-    },
+    // domainFronting: {
+    //   id: '',
+    //   enabled: false,
+    //   name: 'Domain fronting',
+    //   type: 'domain-fronting',
+    // },
     custom: [],
   };
 }

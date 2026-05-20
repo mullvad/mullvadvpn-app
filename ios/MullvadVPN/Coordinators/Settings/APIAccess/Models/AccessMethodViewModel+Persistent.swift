@@ -66,8 +66,6 @@ extension AccessMethodViewModel {
             .bridges
         case .encryptedDNS:
             .encryptedDNS
-        case .domainFronting:
-            .domainFronting
         case .socks5:
             try socks.intoPersistentProxyConfiguration()
         case .shadowsocks:
