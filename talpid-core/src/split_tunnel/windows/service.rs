@@ -166,6 +166,8 @@ fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
         return Err(Error::StartService(error));
     }
 
+    log::debug!("Split tunnel service start pending");
+
     wait_for_status(service, ServiceState::Running)?;
 
     log::debug!("Split tunnel service started");
@@ -186,7 +188,7 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
             return Err(Error::StartTimeout);
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_millis(250));
     }
 
     Ok(())
