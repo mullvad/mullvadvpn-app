@@ -23,9 +23,6 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
-### Added
-- Add support for API access method based on domain fronting.
-
 ### Changed
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
