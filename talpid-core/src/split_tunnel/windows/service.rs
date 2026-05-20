@@ -156,17 +156,20 @@ fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
 fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
     log::debug!("Starting split tunnel service");
 
-    if let Err(error) = service.start::<&OsStr>(&[]) {
-        if let windows_service::Error::Winapi(error) = &error
-            && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32)
-        {
-            log::debug!("Split tunnel service is already running");
-            return Ok(());
+    match service.start::<&OsStr>(&[]) {
+        Ok(()) => {
+            log::debug!("Split tunnel service start pending");
         }
-        return Err(Error::StartService(error));
+        Err(error)
+            if let windows_service::Error::Winapi(error) = &error
+                && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32) =>
+        {
+            // Service started, but we don't know if its state is yet "running"
+            // (never mind what the error is called).
+            log::debug!("Split tunnel service already started. Checking state");
+        }
+        Err(error) => return Err(Error::StartService(error)),
     }
-
-    log::debug!("Split tunnel service start pending");
 
     wait_for_status(service, ServiceState::Running)?;
 
