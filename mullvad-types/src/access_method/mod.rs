@@ -130,7 +130,7 @@ impl Settings {
     /// Check that `self` contains atleast one enabled access methods. If not,
     /// the `Direct` access method is re-enabled.
     fn ensure_consistent_state(&mut self) {
-        if self.iter().all(|access_method| access_method.disabled()) {
+        if self.iter().all(AccessMethodSetting::disabled) {
             self.direct.enable();
         }
     }
