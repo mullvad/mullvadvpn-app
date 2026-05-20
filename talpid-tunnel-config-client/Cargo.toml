@@ -6,6 +6,9 @@ description = "Uses the relay RPC service to set up PQ-safe peers, etc."
 repository.workspace = true
 license.workspace = true
 
+[package.metadata.cargo-shear]
+ignored = ["tonic-prost"]
+
 [lib]
 crate-type = ["rlib", "staticlib"]
 
@@ -28,14 +31,12 @@ sha2 = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }
+tonic-prost = { workspace = true }
 tower = { workspace = true }
 zeroize = { workspace = true }
 
 [build-dependencies]
-tonic-build = { workspace = true, default-features = false, features = [
-  "prost",
-  "transport",
-] }
+tonic-prost-build = { workspace = true, features = ["transport"] }
 
 [target.'cfg(unix)'.dependencies]
 nix = { workspace = true, features = ["socket"] }
