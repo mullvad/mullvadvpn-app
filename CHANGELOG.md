@@ -31,6 +31,10 @@ Line wrap the file at 100 chars.                                              Th
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
 
+### Fixed
+- Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`.
+
+
 ## [2026.3-beta1] - 2026-05-19
 ### Added
 - Add port setting for LWO obfuscation.
