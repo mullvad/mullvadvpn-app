@@ -14,9 +14,10 @@ import UIKit
 extension RelayFilterSelection {
     final class DataSource: UITableViewDiffableDataSource<
         DataSource.Section,
-        DataSource.Item
+        DataSourceItem
     >
     {
+        typealias Item = DataSourceItem
         private weak var tableView: UITableView?
         private var viewModel: ViewModel
         private let relayFilterCellFactory: CellFactory
@@ -67,7 +68,7 @@ extension RelayFilterSelection {
                 .store(in: &disposeBag)
         }
 
-        private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [DataSource.Item] {
+        private func availableProviders(givenOwnership ownership: RelayFilter.Ownership) -> [Item] {
             [DataSource.Item.allProviders]
                 + viewModel
                 .availableProviders(for: ownership)
@@ -76,7 +77,7 @@ extension RelayFilterSelection {
         private func createDataSnapshot() {
             var snapshot = NSDiffableDataSourceSnapshot<Section, DataSource.Item>()
             snapshot.appendSections(Section.allCases)
-            snapshot.appendItems(DataSource.Item.ownerships, toSection: .ownership)
+            snapshot.appendItems(Item.ownerships, toSection: .ownership)
             snapshot.appendItems(
                 availableProviders(givenOwnership: viewModel.relayFilter.ownership),
                 toSection: .providers
@@ -86,14 +87,14 @@ extension RelayFilterSelection {
 
         private func updateDataSnapshot(filter: RelayFilter) {
             let oldSnapshot = snapshot()
-            var newSnapshot = NSDiffableDataSourceSnapshot<Section, DataSource.Item>()
+            var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
             newSnapshot.appendSections(Section.allCases)
 
             Section.allCases.forEach { section in
                 switch section {
                 case .ownership:
                     if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                        newSnapshot.appendItems(DataSource.Item.ownerships, toSection: .ownership)
+                        newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
                     }
                 case .providers:
                     if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
@@ -108,7 +109,7 @@ extension RelayFilterSelection {
         }
 
         private func applySnapshot(
-            _ snapshot: NSDiffableDataSourceSnapshot<Section, DataSource.Item>,
+            _ snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
             animated: Bool,
             completion: (() -> Void)? = nil
         ) {
@@ -140,7 +141,7 @@ extension RelayFilterSelection {
             }
         }
 
-        private func isItemSelected(_ item: DataSource.Item, for filter: RelayFilter) -> Bool {
+        private func isItemSelected(_ item: Item, for filter: RelayFilter) -> Bool {
             switch item.type {
             case .ownershipAny, .ownershipOwned, .ownershipRented:
                 return viewModel.ownership(for: item) == filter.ownership
@@ -165,9 +166,9 @@ extension RelayFilterSelection {
         private func handleCollapseOwnership(isExpanded: Bool) {
             var newSnapshot = snapshot()
             if isExpanded {
-                newSnapshot.deleteItems(DataSource.Item.ownerships)
+                newSnapshot.deleteItems(Item.ownerships)
             } else {
-                newSnapshot.appendItems(DataSource.Item.ownerships, toSection: .ownership)
+                newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
             }
             applySnapshot(newSnapshot, animated: !isExpanded)
         }
