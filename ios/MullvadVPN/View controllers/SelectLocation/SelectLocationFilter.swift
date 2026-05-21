@@ -4,7 +4,7 @@ import SwiftUI
 
 enum SelectLocationFilter: Hashable {
     case daita
-    case obfuscation
+    case obfuscation(WireGuardObfuscationState)
     case ipv6
     case owned
     case rented
@@ -28,14 +28,23 @@ enum SelectLocationFilter: Hashable {
         }
     }
 
-    var title: LocalizedStringKey {
+    func labelText(style: LabelStyle) -> LocalizedStringKey {
         switch self {
         case .daita:
-            "Setting: \("DAITA")"
-        case .obfuscation:
-            "Setting: \("Obfuscation")"
+            switch style {
+            case .general: "Setting: \("DAITA")"
+            case .specific: "DAITA"
+            }
+        case .obfuscation(let obfuscationType):
+            switch style {
+            case .general: "Setting: \("Obfuscation")"
+            case .specific: LocalizedStringKey(obfuscationType.description)
+            }
         case .ipv6:
-            "Setting: \("IPv6")"
+            switch style {
+            case .general: "Setting: \("IPv6")"
+            case .specific: "IPv6"
+            }
         case .owned:
             "Owned"
         case .rented:
@@ -80,12 +89,13 @@ enum SelectLocationFilter: Hashable {
             }
         }
 
-        let isObfuscation = settings.wireGuardObfuscation.state.affectsRelaySelection
+        let obfuscationState: WireGuardObfuscationState = settings.wireGuardObfuscation.state
+        let isObfuscation = obfuscationState.affectsRelaySelection
         if isObfuscation {
             if isMultihop {
-                activeEntryFilter.append(.obfuscation)
+                activeEntryFilter.append(.obfuscation(obfuscationState))
             } else {
-                activeExitFilter.append(.obfuscation)
+                activeExitFilter.append(.obfuscation(obfuscationState))
             }
         }
 
@@ -119,6 +129,13 @@ enum SelectLocationFilter: Hashable {
                 locationFilter.append(.provider(provider.count))
             }
         }
+    }
+}
+
+extension SelectLocationFilter {
+    enum LabelStyle {
+        case general
+        case specific
     }
 }
 

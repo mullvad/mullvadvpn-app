@@ -8,75 +8,77 @@
 
 import UIKit
 
-@MainActor
-struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
-    let tableView: UITableView
+extension RelayFilterSelection {
+    @MainActor
+    struct CellFactory: @preconcurrency CellFactoryProtocol {
+        let tableView: UITableView
 
-    func makeCell(for item: RelayFilterDataSourceItem, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(
-            withIdentifier: RelayFilterDataSource.CellReuseIdentifiers.allCases[indexPath.section].rawValue,
-            for: indexPath
-        )
-        configureCell(cell, item: item, indexPath: indexPath)
+        func makeCell(for item: DataSourceItem, indexPath: IndexPath) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: DataSource.CellReuseIdentifiers.allCases[indexPath.section].rawValue,
+                for: indexPath
+            )
+            configureCell(cell, item: item, indexPath: indexPath)
 
-        return cell
-    }
-
-    func configureCell(
-        _ cell: UITableViewCell,
-        item: RelayFilterDataSourceItem,
-        indexPath: IndexPath
-    ) {
-        switch item.type {
-        case .ownershipAny, .ownershipOwned, .ownershipRented:
-            configureOwnershipCell(cell as? SelectableSettingsCell, item: item)
-        case .allProviders, .provider:
-            configureProviderCell(cell as? CheckableSettingsCell, item: item)
-        }
-    }
-
-    private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: RelayFilterDataSourceItem) {
-        guard let cell = cell else { return }
-
-        cell.titleLabel.text = item.name
-
-        let accessibilityIdentifier: AccessibilityIdentifier
-        switch item.type {
-        case .ownershipAny:
-            accessibilityIdentifier = .ownershipAnyCell
-        case .ownershipOwned:
-            accessibilityIdentifier = .ownershipMullvadOwnedCell
-        case .ownershipRented:
-            accessibilityIdentifier = .ownershipRentedCell
-        default:
-            assertionFailure("Unexpected ownership item: \(item)")
-            return
+            return cell
         }
 
-        cell.setAccessibilityIdentifier(accessibilityIdentifier)
-        cell.applySubCellStyling()
-    }
-
-    private func configureProviderCell(_ cell: CheckableSettingsCell?, item: RelayFilterDataSourceItem) {
-        guard let cell = cell else { return }
-        let alpha = item.isEnabled ? 1.0 : 0.2
-
-        cell.titleLabel.text = item.name
-        cell.detailTitleLabel.text = item.description
-
-        if item.type == .allProviders {
-            setFontWeight(.semibold, to: cell.titleLabel)
-        } else {
-            setFontWeight(.regular, to: cell.titleLabel)
+        func configureCell(
+            _ cell: UITableViewCell,
+            item: DataSourceItem,
+            indexPath: IndexPath
+        ) {
+            switch item.type {
+            case .ownershipAny, .ownershipOwned, .ownershipRented:
+                configureOwnershipCell(cell as? SelectableSettingsCell, item: item)
+            case .allProviders, .provider:
+                configureProviderCell(cell as? CheckableSettingsCell, item: item)
+            }
         }
 
-        cell.applySubCellStyling()
-        cell.setAccessibilityIdentifier(.relayFilterProviderCell)
-        cell.titleLabel.alpha = alpha
-        cell.detailTitleLabel.alpha = alpha
-    }
+        private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: DataSourceItem) {
+            guard let cell = cell else { return }
 
-    private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {
-        label.font = UIFont.systemFont(ofSize: label.font.pointSize, weight: weight)
+            cell.titleLabel.text = item.name
+
+            let accessibilityIdentifier: AccessibilityIdentifier
+            switch item.type {
+            case .ownershipAny:
+                accessibilityIdentifier = .ownershipAnyCell
+            case .ownershipOwned:
+                accessibilityIdentifier = .ownershipMullvadOwnedCell
+            case .ownershipRented:
+                accessibilityIdentifier = .ownershipRentedCell
+            default:
+                assertionFailure("Unexpected ownership item: \(item)")
+                return
+            }
+
+            cell.setAccessibilityIdentifier(accessibilityIdentifier)
+            cell.applySubCellStyling()
+        }
+
+        private func configureProviderCell(_ cell: CheckableSettingsCell?, item: DataSourceItem) {
+            guard let cell = cell else { return }
+            let alpha = item.isEnabled ? 1.0 : 0.2
+
+            cell.titleLabel.text = item.name
+            cell.detailTitleLabel.text = item.description
+
+            if item.type == .allProviders {
+                setFontWeight(.semibold, to: cell.titleLabel)
+            } else {
+                setFontWeight(.regular, to: cell.titleLabel)
+            }
+
+            cell.applySubCellStyling()
+            cell.setAccessibilityIdentifier(.relayFilterProviderCell)
+            cell.titleLabel.alpha = alpha
+            cell.detailTitleLabel.alpha = alpha
+        }
+
+        private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {
+            label.font = UIFont.systemFont(ofSize: label.font.pointSize, weight: weight)
+        }
     }
 }

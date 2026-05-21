@@ -188,6 +188,13 @@ extension LocationCoordinator {
         relayFilterCoordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
         }
+        relayFilterCoordinator.onFeatureChipTapped = { [weak self] feature in
+            switch feature {
+            case .daita: self?.navigateToDaitaSettings()
+            case .obfuscation: self?.navigateToObfuscationSettings()
+            default: break
+            }
+        }
         relayFilterCoordinator.start()
 
         presentChild(relayFilterCoordinator, animated: true)

@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol {
     @ObservedObject var viewModel: ViewModel
-    let tunnelState: TunnelState
     @Binding var isExpanded: Bool
 
     @State private var chipContainerHeight: CGFloat = .zero
@@ -99,35 +98,6 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
     StatefulPreviewWrapper(false) { isExpanded in
         ChipContainerView(
             viewModel: MockFeatureIndicatorsViewModel(),
-            tunnelState: .connected(
-                .init(
-                    entry: nil,
-                    exit: .init(
-                        endpoint: .init(
-                            socketAddress: .ipv4(.init(ip: .allHostsGroup, port: 1234)),
-                            ipv4Gateway: .allHostsGroup,
-                            ipv6Gateway: .broadcast,
-                            publicKey: Data(),
-                            obfuscation: .shadowsocks,
-
-                        ),
-                        hostname: "hostname",
-                        location: .init(
-                            country: "Sweden",
-                            countryCode: "SE",
-                            city: "Gothenburg",
-                            cityCode: "gbg",
-                            latitude: 1234,
-                            longitude: 1234
-                        ),
-                        isIPOverridden: false,
-                        features: nil
-                    ),
-                    retryAttempt: 0,
-                ),
-                isPostQuantum: false,
-                isDaita: false
-            ),
             isExpanded: isExpanded
         )
         .background(UIColor.secondaryColor.color)
