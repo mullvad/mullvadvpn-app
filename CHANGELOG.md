@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+#### Windows
+- Fix timeout when loading split tunnel driver during boot.
 
 
 ## [2026.3-beta1] - 2026-05-19
