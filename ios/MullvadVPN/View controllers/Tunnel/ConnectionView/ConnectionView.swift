@@ -67,7 +67,7 @@ struct ConnectionView: View {
 
                                     ChipContainerView(
                                         viewModel: indicatorsViewModel,
-                                        tunnelState: connectionViewModel.tunnelStatus.state,
+                                        style: .mainScreen,
                                         isExpanded: $isExpanded
                                     )
                                     .padding(.bottom, isExpanded ? 16 : 0)

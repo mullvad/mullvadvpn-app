@@ -80,6 +80,11 @@
 		4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8D2D2828A4001B13C9 /* HeaderView.swift */; };
 		4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
+		4449B4A02FA8DFE50030C2B3 /* UIStackView+Initializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */; };
+		4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */; };
+		4449B4A32FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */; };
+		4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */; };
+		4449B4A82FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */; };
 		446436E22F62F6D300233CA5 /* TunnelSettingsV8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 446436E12F62F6CC00233CA5 /* TunnelSettingsV8.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
@@ -1785,6 +1790,9 @@
 		4419AA8D2D2828A4001B13C9 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
+		4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIStackView+Initializer.swift"; sourceTree = "<group>"; };
+		4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSettingsView.swift; sourceTree = "<group>"; };
+		4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterSelectionNameSpace.swift; sourceTree = "<group>"; };
 		446436E12F62F6CC00233CA5 /* TunnelSettingsV8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV8.swift; sourceTree = "<group>"; };
 		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsView.swift; sourceTree = "<group>"; };
@@ -3641,6 +3649,7 @@
 				440870812D7A00B00038972F /* UIImage+Assets.swift */,
 				F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */,
 				F0C9CE3D2F110C2A00EF41CE /* UIStackView+Contentsize.swift */,
+				4449B49F2FA8DFD00030C2B3 /* UIStackView+Initializer.swift */,
 				58CEB2FC2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift */,
 				7A58699A2B482FE200640D27 /* UITableViewCell+Disable.swift */,
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
@@ -4677,10 +4686,12 @@
 		7AF9BE912A39F47D00DBFEDB /* RelayFilter */ = {
 			isa = PBXGroup;
 			children = (
+				4449B4A62FBB61070030C2B3 /* RelayFilterSelectionNameSpace.swift */,
 				F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */,
 				7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */,
 				7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */,
 				F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */,
+				4449B4A12FACDE140030C2B3 /* RelayFilterSettingsView.swift */,
 				7A1A26442A29CEF700B978AA /* RelayFilterViewController.swift */,
 				7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */,
 			);
@@ -6229,6 +6240,7 @@
 				A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */,
 				F0D8825C2B04F70E00D3EF9A /* OutgoingConnectionData.swift in Sources */,
 				44B3C43D2C00CBBD0079782C /* PacketTunnelActorReducerTests.swift in Sources */,
+				4449B4A32FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */,
 				F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */,
 				A9A5F9EC2ACB05160083449F /* CodingErrors+CustomErrorDescription.swift in Sources */,
 				7A52C45A2F7277C9005CD885 /* BreadcrumbsProvider.swift in Sources */,
@@ -6361,6 +6373,7 @@
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
 				F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */,
+				4449B4A82FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */,
 				7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */,
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				44E1F75A2D3FDCCA003A60FF /* DestinationDescriberTests.swift in Sources */,
@@ -6603,6 +6616,7 @@
 				440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */,
 				F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */,
 				7A95A9E72FADC1760096009A /* BlockedStateString.swift in Sources */,
+				4449B4A02FA8DFE50030C2B3 /* UIStackView+Initializer.swift in Sources */,
 				F91CCBF82DFABB75007F1925 /* DeviceManagementView.swift in Sources */,
 				7A8A19282CF603EB000BCB5B /* SettingsViewControllerFactory.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
@@ -6743,6 +6757,7 @@
 				7A6389E92B7F8FE2008E77E1 /* CustomListValidationError.swift in Sources */,
 				585CA70F25F8C44600B47C62 /* UIMetrics.swift in Sources */,
 				E1187ABD289BBB850024E748 /* OutOfTimeContentView.swift in Sources */,
+				4449B4A72FBB610E0030C2B3 /* RelayFilterSelectionNameSpace.swift in Sources */,
 				7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */,
 				7A1A26432A2612AE00B978AA /* PaymentAlertPresenter.swift in Sources */,
 				58CCA01822426713004F3011 /* AccountViewController.swift in Sources */,
@@ -6869,6 +6884,7 @@
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				A9EE85612DF1BE2900F2D769 /* TermsOfServiceView.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
+				4449B4A22FACDE210030C2B3 /* RelayFilterSettingsView.swift in Sources */,
 				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
 				4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
