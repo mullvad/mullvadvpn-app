@@ -15,7 +15,6 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     private let tunnelManager: TunnelManager
     private let relaySelectorWrapper: RelaySelectorWrapper
     private let multihopContext: MultihopContext
-    private var tunnelObserver: TunnelObserver?
 
     let navigationController: UINavigationController
 
@@ -23,13 +22,14 @@ class RelayFilterCoordinator: Coordinator, Presentable {
         return navigationController
     }
 
-    var relayFilterViewController: RelayFilterViewController? {
+    var relayFilterViewController: RelayFilterSelection.ViewController? {
         return navigationController.viewControllers.first {
-            $0 is RelayFilterViewController
-        } as? RelayFilterViewController
+            $0 is RelayFilterSelection.ViewController
+        } as? RelayFilterSelection.ViewController
     }
 
     var didFinish: ((RelayFilterCoordinator, RelayFilter?) -> Void)?
+    var onFeatureChipTapped: ((FeatureType) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -44,11 +44,16 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     }
 
     func start() {
-        let relayFilterViewController = RelayFilterViewController(
-            settings: tunnelManager.settings,
+
+        let relayFilterViewModel = RelayFilterSelection.ViewModel(
+            tunnelManager: tunnelManager,
             relaySelectorWrapper: relaySelectorWrapper,
             multihopContext: multihopContext
         )
+        relayFilterViewModel.onFeatureChipTapped = { [weak self] feature in
+            self?.onFeatureChipTapped?(feature)
+        }
+        let relayFilterViewController = RelayFilterSelection.ViewController(viewModel: relayFilterViewModel)
 
         relayFilterViewController.onApplyFilter = { [weak self] filter, multihopContext in
             guard let self else { return }
