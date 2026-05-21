@@ -22,11 +22,15 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
 ### Changed
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
+
+### Fixed
+#### Windows
+- Fix timeout when loading split tunnel driver during boot.
+
 
 ## [2026.3-beta1] - 2026-05-19
 ### Added
