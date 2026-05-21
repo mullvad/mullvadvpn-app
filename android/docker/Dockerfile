@@ -70,7 +70,7 @@ ENV JAVA_HOME=/opt/jdk-21
 
 ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
 
-# Make adb,apk signer, apk analyzer and other tools accessible
+# Make adb, apk signer, apk analyzer and other tools accessible
 ENV PATH="\
 ${JAVA_HOME}/bin\
 :${ANDROID_SDK_ROOT}/platform-tools\
