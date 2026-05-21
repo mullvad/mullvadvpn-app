@@ -20,7 +20,7 @@ import Network
 extension PacketTunnelActor {
     /**
      Tell actor to start the tunnel.
-
+    
      - Parameter options: start options.
      */
     nonisolated public func start(options: StartOptions) {
@@ -43,7 +43,7 @@ extension PacketTunnelActor {
 
     /**
      Tell actor to reconnect the tunnel.
-
+    
      - Parameter nextRelays: next relays to connect to.
      */
     public nonisolated func reconnect(to nextRelays: NextRelays, reconnectReason: ActorReconnectReason) {
@@ -52,7 +52,7 @@ extension PacketTunnelActor {
 
     /**
      Tell actor that key rotation took place.
-
+    
      - Parameter date: date when last key rotation took place.
      */
     nonisolated public func notifyKeyRotation(date: Date?) {

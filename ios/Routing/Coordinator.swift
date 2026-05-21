@@ -46,7 +46,7 @@ open class Coordinator: NSObject {
 
     /**
      Add child coordinator.
-
+    
      Adding the same coordinator twice is a no-op.
      */
     public func addChild(_ child: Coordinator) {
@@ -60,7 +60,7 @@ open class Coordinator: NSObject {
 
     /**
      Remove child coordinator.
-
+    
      Removing coordinator that's no longer a child of this coordinator is a no-op.
      */
     public func removeChild(_ child: Coordinator) {
@@ -123,7 +123,7 @@ extension Presenting where Self: Presentable {
 extension Presenting {
     /**
      Present child coordinator.
-
+    
      Automatically adds child and removes it upon interactive dismissal.
      */
     public func presentChild(
@@ -175,7 +175,7 @@ extension Presenting {
 extension Presentable {
     /**
      Dismiss this coordinator.
-
+    
      Automatically removes itself from parent.
      */
     public func dismiss(animated: Bool, completion: (@MainActor () -> Void)? = nil) {
