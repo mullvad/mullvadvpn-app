@@ -64,13 +64,13 @@ extension LocationCellViewModel {
     /* Exclusion of other locations in the same node tree (as the currently excluded location)
      happens when there are no more hosts in that tree that can be selected.
      We check this by doing the following, in order:
-    
+
      1. Count hostnames in the tree. More than one means that there are other locations than
      the excluded one for the relay selector to choose from. No exclusion.
-    
+
      2. Count hostnames in the excluded node. More than one means that there are multiple
      locations for the relay selector to choose from. No exclusion.
-    
+
      3. Check existence of a location in the tree that matches the currently excluded location.
      No match means no exclusion.
      */
