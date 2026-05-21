@@ -13,7 +13,7 @@ extension RelayFilterSelection {
     struct CellFactory: @preconcurrency CellFactoryProtocol {
         let tableView: UITableView
 
-        func makeCell(for item: DataSource.Item, indexPath: IndexPath) -> UITableViewCell {
+        func makeCell(for item: DataSourceItem, indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: DataSource.CellReuseIdentifiers.allCases[indexPath.section].rawValue,
                 for: indexPath
@@ -25,7 +25,7 @@ extension RelayFilterSelection {
 
         func configureCell(
             _ cell: UITableViewCell,
-            item: DataSource.Item,
+            item: DataSourceItem,
             indexPath: IndexPath
         ) {
             switch item.type {
@@ -36,7 +36,7 @@ extension RelayFilterSelection {
             }
         }
 
-        private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: DataSource.Item) {
+        private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: DataSourceItem) {
             guard let cell = cell else { return }
 
             cell.titleLabel.text = item.name
@@ -58,7 +58,7 @@ extension RelayFilterSelection {
             cell.applySubCellStyling()
         }
 
-        private func configureProviderCell(_ cell: CheckableSettingsCell?, item: DataSource.Item) {
+        private func configureProviderCell(_ cell: CheckableSettingsCell?, item: DataSourceItem) {
             guard let cell = cell else { return }
             let alpha = item.isEnabled ? 1.0 : 0.2
 

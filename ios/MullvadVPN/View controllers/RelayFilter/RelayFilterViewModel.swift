@@ -11,6 +11,13 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
+protocol RelayFilterViewModelSettingsProviding {
+    var settings: LatestTunnelSettings { get }
+    func addObserver(_ observer: TunnelObserver)
+    func removeObserver(_ observer: TunnelObserver)
+}
+extension TunnelManager: RelayFilterViewModelSettingsProviding {}
+
 extension RelayFilterSelection {
     final class ViewModel {
         @Published var relayFilter: RelayFilter
@@ -27,11 +34,11 @@ extension RelayFilterSelection {
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
-        private let tunnelManager: TunnelManager
+        private let tunnelManager: RelayFilterViewModelSettingsProviding
         private var tunnelObserver: TunnelObserver?
 
         init(
-            tunnelManager: TunnelManager,
+            tunnelManager: RelayFilterViewModelSettingsProviding,
             relaySelectorWrapper: RelaySelectorProtocol,
             multihopContext: MultihopContext
         ) {
@@ -91,7 +98,8 @@ extension RelayFilterSelection {
             chips = [
                 settings.daita.isEnabled ? .init(id: .daita, name: "Setting: DAITA") : nil,
                 settings.wireGuardObfuscation.state.isEnabled
-                    ? .init(id: .obfuscation, name: "Setting: \(settings.wireGuardObfuscation.state.description)") : nil,
+                    ? .init(id: .obfuscation, name: "Setting: \(settings.wireGuardObfuscation.state.description)")
+                    : nil,
 
             ].compactMap { $0 }
 
@@ -113,7 +121,7 @@ extension RelayFilterSelection {
 
         // MARK: - public Methods
 
-        func toggleItem(_ item: DataSource.Item) {
+        func toggleItem(_ item: DataSourceItem) {
             switch item.type {
             case .ownershipAny, .ownershipOwned, .ownershipRented:
                 relayFilter.ownership = ownership(for: item) ?? .any
@@ -124,15 +132,15 @@ extension RelayFilterSelection {
             }
         }
 
-        func availableProviders(for ownership: RelayFilter.Ownership) -> [DataSource.Item] {
+        func availableProviders(for ownership: RelayFilter.Ownership) -> [DataSourceItem] {
             providers(for: ownership)
                 .map {
                     providerItem(for: $0)
                 }.sorted()
         }
 
-        func ownership(for item: DataSource.Item) -> RelayFilter.Ownership? {
-            let ownershipMapping: [DataSource.Item.ItemType: RelayFilter.Ownership] = [
+        func ownership(for item: DataSourceItem) -> RelayFilter.Ownership? {
+            let ownershipMapping: [DataSourceItem.ItemType: RelayFilter.Ownership] = [
                 .ownershipAny: .any,
                 .ownershipOwned: .owned,
                 .ownershipRented: .rented,
@@ -141,22 +149,22 @@ extension RelayFilterSelection {
             return ownershipMapping[item.type]
         }
 
-        func ownershipItem(for ownership: RelayFilter.Ownership) -> DataSource.Item? {
-            let ownershipMapping: [RelayFilter.Ownership: DataSource.Item.ItemType] = [
+        func ownershipItem(for ownership: RelayFilter.Ownership) -> DataSourceItem? {
+            let ownershipMapping: [RelayFilter.Ownership: DataSourceItem.ItemType] = [
                 .any: .ownershipAny,
                 .owned: .ownershipOwned,
                 .rented: .ownershipRented,
             ]
 
-            return DataSource.Item.ownerships
+            return DataSourceItem.ownerships
                 .first { $0.type == ownershipMapping[ownership] }
         }
 
-        func providerItem(for providerName: String) -> DataSource.Item {
+        func providerItem(for providerName: String) -> DataSourceItem {
             let isProviderEnabled = isProviderEnabled(for: providerName)
             let filterDescriptor = getFilteredRelays(relayFilter)
 
-            return DataSource.Item(
+            return DataSourceItem(
                 name: providerName,
                 description: filterDescriptor.shouldShowDaitaDescription && isProviderEnabled
                     ? String(format: NSLocalizedString("%@-enabled", comment: ""), "DAITA")
@@ -234,8 +242,15 @@ extension RelayFilterSelection {
 }
 
 extension RelayFilterSelection.ViewModel: ChipViewModelProtocol {
-
     func onPressed(item: ChipModel) {
         onFeatureChipTapped?(item.id)
+    }
+}
+
+extension RelayFilterSelection.ViewModel {
+    struct MockTunnelManager: RelayFilterViewModelSettingsProviding {
+        let settings: LatestTunnelSettings
+        func addObserver(_ observer: TunnelObserver) {}
+        func removeObserver(_ observer: TunnelObserver) {}
     }
 }
