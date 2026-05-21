@@ -18,6 +18,10 @@ public struct RelayFilter: Codable, Equatable, Sendable {
     public var ownership: Ownership
     public var providers: RelayConstraint<[String]>
 
+    public var isActive: Bool {
+        ownership != .any || providers != .any
+    }
+
     public init(ownership: Ownership = .any, providers: RelayConstraint<[String]> = .any) {
         self.ownership = ownership
         self.providers = providers

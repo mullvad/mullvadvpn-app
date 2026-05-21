@@ -273,6 +273,7 @@ public enum AccessibilityIdentifier: Equatable {
     // Multihop
     case multihopState(String)
     case multihopMenuPicker
+    case multihopPromptAlert
 
     // WireGuard obfuscation settings
     case wireGuardObfuscationUdpOverTcpTable
