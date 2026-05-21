@@ -160,12 +160,19 @@ fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
         if let windows_service::Error::Winapi(error) = &error
             && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32)
         {
+            log::debug!("Split tunnel service is already running");
             return Ok(());
         }
         return Err(Error::StartService(error));
     }
 
-    wait_for_status(service, ServiceState::Running)
+    log::debug!("Split tunnel service start pending");
+
+    wait_for_status(service, ServiceState::Running)?;
+
+    log::debug!("Split tunnel service started");
+
+    Ok(())
 }
 
 fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), Error> {
@@ -181,7 +188,7 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
             return Err(Error::StartTimeout);
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_millis(250));
     }
 
     Ok(())
