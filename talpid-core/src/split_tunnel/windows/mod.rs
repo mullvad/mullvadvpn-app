@@ -336,6 +336,9 @@ enum Request {
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
 
+const START_TIMEOUT: Duration = service::WAIT_STATUS_TIMEOUT
+    .checked_add(Duration::from_secs(5))
+    .unwrap();
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 #[derive(Default, PartialEq, Clone)]
@@ -744,7 +747,9 @@ impl InitializedSplitTunnelState {
         });
 
         let handle = init_rx
-            .recv_timeout(REQUEST_TIMEOUT)
+            // NOTE: The timeout is needed in case the ST device is unresponsive. This can
+            // cause `DeviceHandle::new` to block forever on IOCTL calls.
+            .recv_timeout(START_TIMEOUT)
             .map_err(|_| Error::RequestThreadStuck)??;
 
         let handle_copy = handle.clone();
