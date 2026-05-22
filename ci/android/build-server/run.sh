@@ -10,6 +10,10 @@ set -eu
 shopt -s nullglob
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# shellcheck source=ci/android/build-server/config.sh
+source "$SCRIPT_DIR/config.sh"
+
 BUILD_DIR="$SCRIPT_DIR/mullvadvpn-app"
 LAST_BUILT_DIR="$SCRIPT_DIR/last-built"
 UPLOAD_DIR="/home/upload/upload"
@@ -47,10 +51,10 @@ fi
 function stage_cdn_upload {
     version=$1
 
-    # Only include files. Skip subdirectories.
+    # Only include files. Skip subdirectories and F-Droid changelogs.
     files=()
     for f in *; do
-        [[ -f "$f" ]] && files+=("$f")
+        [[ -f "$f" && "$f" != *.txt ]] && files+=("$f")
     done
     checksums_path="android+$(hostname)+$version.sha256"
     sha256sum "${files[@]}" > "$checksums_path"
@@ -63,6 +67,17 @@ function stage_for_publishing {
     artifact_dir=$2
 
     (cd "$artifact_dir" && stage_cdn_upload "$version") || return 1
+
+    if [[ $version != *"-dev-"* ]]; then
+        "$SCRIPT_DIR/fdroid.sh" stage development "$version" "$artifact_dir" || return 1
+    fi
+}
+
+function publish_fdroid_repo {
+    local repo_env=$1
+    YUBIKEY_PIN=$YUBIKEY_PIN \
+    "$SCRIPT_DIR/fdroid.sh" publish "$repo_env" \
+        || echo "Failed to publish F-Droid repos for $repo_env"
 }
 
 function run_in_linux_container {
@@ -83,6 +98,9 @@ function build {
     ./building/containerized-build.sh android "$task" || return 1
 
     mv dist/*.{aab,apk} "$artifact_dir" || return 1
+
+    cp android/src/main/play/release-notes/en-US/default.txt \
+        "$artifact_dir/$(cat dist-assets/android-version-code.txt).txt" || return 1
 }
 
 # Checks out the passed git reference passed to the working directory.
@@ -173,6 +191,10 @@ function build_sign_and_publish_ref {
 
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
+
+    if [[ $version != *"-dev-"* ]]; then
+        publish_fdroid_repo development
+    fi
 
     # shellcheck disable=SC2216
     yes | rm -r "$artifact_dir"
