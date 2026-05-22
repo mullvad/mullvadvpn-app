@@ -6,3 +6,8 @@ exclude = [
   "windows/libwfp/**",
   "windows/windows-libraries/**",
 ]
+
+[[schemas]]
+toml-version = "v1.0.0"
+path = "tombi://www.schemastore.org/cargo.json"
+include = ["Cargo.toml"]
