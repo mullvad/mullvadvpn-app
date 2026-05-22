@@ -70,7 +70,7 @@ ENV JAVA_HOME=/opt/jdk-21
 
 ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
 
-# Make adb,apk signer, apk analyzer and other tools accessible
+# Make adb, apk signer, apk analyzer and other tools accessible
 ENV PATH="\
 ${JAVA_HOME}/bin\
 :${ANDROID_SDK_ROOT}/platform-tools\
@@ -92,6 +92,7 @@ RUN apt-get update -y && apt-get install -y \
     pcscd \
     python3-pip \
     rclone \
+    python3-qrcode \
     && rm -rf /var/lib/apt/lists/*
 
 # Install fdroid server using pip instead to get a version that is using a later versions of androguard
