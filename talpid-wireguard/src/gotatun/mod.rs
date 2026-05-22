@@ -482,7 +482,7 @@ async fn create_devices(
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
         optimize_buffer_size: bool,
     ) -> Result<Devices, TunnelError> {
-        let factory = udp_socket_factory_obfuscator(
+        let factory = udp_obfuscator_factory(
             config,
             optimize_buffer_size,
             #[cfg(target_os = "android")]
@@ -752,7 +752,7 @@ where
 ///
 /// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
 ///   now always succeed due to suspected hardware related issues / limitations.
-fn udp_socket_factory_obfuscator(
+fn udp_obfuscator_factory(
     config: &Config,
     optimize_buffer_size: bool,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
