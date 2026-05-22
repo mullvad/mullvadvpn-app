@@ -27,7 +27,6 @@ import {
   NewAccessMethodSetting,
   NewCustomList,
   ObfuscationSettings,
-  ObfuscationType,
   RelaySettings,
   type ShadowsocksCipher,
   TunnelState,
@@ -45,6 +44,7 @@ import {
   convertFromRelayList,
   convertFromSettings,
   convertFromTunnelState,
+  convertToAntiCensorshipSettings,
   convertToApiAccessMethodSetting,
   convertToCustomList,
   convertToCustomProxy,
@@ -310,76 +310,7 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
   }
 
   public async setObfuscationSettings(obfuscationSettings: ObfuscationSettings): Promise<void> {
-    const grpcObfuscationSettings = new grpcTypes.ObfuscationSettings();
-    switch (obfuscationSettings.selectedObfuscation) {
-      case ObfuscationType.auto:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.AUTO,
-        );
-        break;
-      case ObfuscationType.off:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF,
-        );
-        break;
-      case ObfuscationType.shadowsocks:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS,
-        );
-        break;
-      case ObfuscationType.udp2tcp:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
-        );
-        break;
-      case ObfuscationType.quic:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC,
-        );
-        break;
-      case ObfuscationType.lwo:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
-        );
-        break;
-      case ObfuscationType.wireGuardPort:
-        grpcObfuscationSettings.setSelectedObfuscation(
-          grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT,
-        );
-        break;
-    }
-
-    if (obfuscationSettings.udp2tcpSettings) {
-      const grpcUdp2tcpSettings = new grpcTypes.ObfuscationSettings.Udp2TcpObfuscation();
-      if (obfuscationSettings.udp2tcpSettings.port !== 'any') {
-        grpcUdp2tcpSettings.setPort(obfuscationSettings.udp2tcpSettings.port.only);
-      }
-      grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
-    }
-
-    if (obfuscationSettings.shadowsocksSettings) {
-      const shadowsocksSettings = new grpcTypes.ObfuscationSettings.Shadowsocks();
-      if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
-        shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
-      }
-      grpcObfuscationSettings.setShadowsocks(shadowsocksSettings);
-    }
-
-    if (obfuscationSettings.wireGuardPortSettings) {
-      const wireGuardPortSettings = new grpcTypes.ObfuscationSettings.WireguardPort();
-      if (obfuscationSettings.wireGuardPortSettings.port !== 'any') {
-        wireGuardPortSettings.setPort(obfuscationSettings.wireGuardPortSettings.port.only);
-      }
-      grpcObfuscationSettings.setWireguardPort(wireGuardPortSettings);
-    }
-
-    if (obfuscationSettings.lwoSettings) {
-      const lwoSettings = new grpcTypes.ObfuscationSettings.Lwo();
-      if (obfuscationSettings.lwoSettings.port !== 'any') {
-        lwoSettings.setPort(obfuscationSettings.lwoSettings.port.only);
-      }
-      grpcObfuscationSettings.setLwo(lwoSettings);
-    }
+    const grpcObfuscationSettings = convertToAntiCensorshipSettings(obfuscationSettings);
 
     await this.call<grpcTypes.ObfuscationSettings, Empty>(
       this.client.setObfuscationSettings,
