@@ -45,6 +45,7 @@ inline fun <T> LazyListScope.itemsIndexedWithDivider(
         itemContent(index, item)
         HorizontalDivider(color = Color.Transparent)
     }
+
 suspend fun LazyListState.scrollAndCentralizeItem(index: Int) {
     // First, bring the item into the viewport so the layout system measures it.
     scrollToItem(index)

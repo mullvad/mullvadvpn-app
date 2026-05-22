@@ -33,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.common.compose.animateScrollCentralizeItem
 import net.mullvad.mullvadvpn.common.compose.scrollAndCentralizeItem
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
@@ -103,9 +102,9 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    // The first time the list is opened and we have content we should scroll to the selected item.
-    // Due to how recomposition works and that the viewmodel is preserved between we need to use
-    // this hack to only scroll the first time.
+    // The first time the list is opened, and we have content, we should scroll to the selected
+    // item. Due to how recomposition works and that the viewmodel is preserved between we need to
+    // use this hack to only scroll the first time.
     LaunchedEffect(Unit) {
         val stateActual = viewModel.uiState.first { it is Content }
         if (scrollToList) {
@@ -173,8 +172,7 @@ private fun SelectLocationListContent(
 
     LazyColumn(
         modifier =
-            Modifier
-                .fillMaxSize()
+            Modifier.fillMaxSize()
                 .padding(horizontal = Dimens.mediumPadding)
                 .drawVerticalScrollbar(
                     lazyListState,
