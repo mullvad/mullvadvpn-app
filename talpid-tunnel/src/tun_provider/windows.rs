@@ -1,4 +1,5 @@
 use super::TunConfig;
+use std::time::Duration;
 use std::{io, net::IpAddr, ops::Deref};
 use tun::{self, AbstractDeviceExt};
 use tun::{AbstractDevice, AsyncDevice, Configuration};
@@ -27,6 +28,14 @@ pub enum Error {
     #[error("Failed to get tunnel device name")]
     GetDeviceName(#[source] tun::Error),
 
+    /// Timeout waiting for IP interfaces
+    #[error("Error waiting for IP interfaces")]
+    WaitForInterfaces(#[source] talpid_windows::net::Error),
+
+    /// Failed to configure IP interfaces
+    #[error("Failed to configure MTU and metric")]
+    InitializeInterfaces(#[source] std::io::Error),
+
     /// IO error
     #[error("IO error")]
     Io(#[from] io::Error),
@@ -53,10 +62,13 @@ impl WindowsTunProvider {
         let mut tunnel_device = {
             let mut builder = TunnelDeviceBuilder::default();
 
+            // TODO: see comment on `wait_for_interfaces_sync` for why MTU and metric are not set
+            // here. Revert when fixed.
             // When routing, the metric of a route is equal to the sum of the interface metric and
             // metric value set for the route itself. Setting the interface metric to 1 gives tunnel
             // routes the highest possible priority.
-            builder.config.metric(1);
+            //builder.config.metric(1);
+            //builder.config.mtu(self.config.mtu);
 
             /// Tunnel adapter name
             const ADAPTER_NAME: &str = "Mullvad";
@@ -67,7 +79,6 @@ impl WindowsTunProvider {
             const ADAPTER_GUID: u128 = 0xAFE4_3773_E1F8_4EBB_8536_576A_B86A_FE9A;
 
             builder.config.tun_name(ADAPTER_NAME);
-            builder.config.mtu(self.config.mtu);
             builder
                 .config
                 .platform_config(|cfg: &mut tun::PlatformConfig| {
@@ -79,6 +90,37 @@ impl WindowsTunProvider {
 
             builder.create()?
         };
+
+        let luid = NET_LUID_LH {
+            Value: tunnel_device.dev.tun_luid(),
+        };
+        let has_ipv4 = self.config.addresses.iter().any(|addr| addr.is_ipv4());
+        let has_ipv6 = self.config.addresses.iter().any(|addr| addr.is_ipv6());
+
+        // TODO: `tun` does not wait for IP interfaces to become configurable after creating the tun
+        // interface. This can cause `SetIpInterfaceEntry` to fail when setting metric, MTU, IP
+        // addresses, etc. Upstream a fix.
+        // TODO: This isn't cancellable by the user or TSM, which means tunnel state machine can
+        // become unresponsive if it takes a long time for the interfaces to appear. Seems to happen
+        // for some users.
+        log::debug!("Waiting for IP interfaces");
+        talpid_windows::net::wait_for_interfaces_sync(
+            luid,
+            has_ipv4,
+            has_ipv6,
+            Duration::from_secs(30),
+        )
+        .map_err(Error::WaitForInterfaces)?;
+        log::debug!("Waiting for IP interfaces: done");
+
+        let mtu = self.config.mtu.into();
+        // TODO: see comment on `wait_for_interfaces_sync` for why we don't use tun here.
+        crate::network_interface::initialize_interfaces(
+            luid,
+            has_ipv4.then_some(mtu),
+            has_ipv6.then_some(mtu),
+        )
+        .map_err(Error::InitializeInterfaces)?;
 
         // TODO: `tun` currently cannot handle IPv6 without using netsh,
         // so we add IPs ourselves.
