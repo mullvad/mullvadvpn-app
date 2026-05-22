@@ -97,11 +97,6 @@ impl WindowsTunProvider {
         let has_ipv4 = self.config.addresses.iter().any(|addr| addr.is_ipv4());
         let has_ipv6 = self.config.addresses.iter().any(|addr| addr.is_ipv6());
 
-        assert!(
-            has_ipv4 || has_ipv6,
-            "must have at least IPv4 or IPv6 interface"
-        );
-
         // TODO: `tun` does not wait for IP interfaces to become configurable after creating the tun
         // interface. This can cause `SetIpInterfaceEntry` to fail when setting metric, MTU, IP
         // addresses, etc. Upstream a fix.
