@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.common.compose.animateScrollCentralizeItem
+import net.mullvad.mullvadvpn.common.compose.scrollAndCentralizeItem
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.CustomListHeader
@@ -109,8 +110,7 @@ fun SelectLocationList(
         val stateActual = viewModel.uiState.first { it is Content }
         if (scrollToList) {
             stateActual.indexOfSelectedRelayItem()?.let { index ->
-                lazyListState.scrollToItem(index)
-                lazyListState.animateScrollAndCentralizeItem(index)
+                lazyListState.scrollAndCentralizeItem(index)
             }
         }
     }
@@ -173,7 +173,8 @@ private fun SelectLocationListContent(
 
     LazyColumn(
         modifier =
-            Modifier.fillMaxSize()
+            Modifier
+                .fillMaxSize()
                 .padding(horizontal = Dimens.mediumPadding)
                 .drawVerticalScrollbar(
                     lazyListState,
