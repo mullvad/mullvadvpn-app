@@ -157,7 +157,7 @@ pub enum ConfigureGotaTunDeviceError {
 #[cfg(target_os = "android")]
 struct AndroidUdpSocketFactory {
     pub tun: Arc<Tun>,
-    pub factory: UdpSocketFactory,
+    pub udp: UdpSocketFactory,
 }
 
 #[cfg(target_os = "android")]
@@ -171,7 +171,7 @@ impl UdpTransportFactory for AndroidUdpSocketFactory {
         &mut self,
         params: &gotatun::udp::UdpTransportFactoryParams,
     ) -> std::io::Result<((Self::SendV4, Self::RecvV4), (Self::SendV6, Self::RecvV6))> {
-        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.factory.bind(params).await?;
+        let ((udp_v4_tx, udp_v4_rx), (udp_v6_tx, udp_v6_rx)) = self.udp.bind(params).await?;
 
         self.tun.bypass(&udp_v4_tx).unwrap();
         self.tun.bypass(&udp_v6_tx).unwrap();
@@ -580,9 +580,10 @@ async fn create_devices(
         // case, `os error 55 ("No buffer space available")`  has been observed.
         //
         // Try to bind UDP sockets with default buffer sizes.
-        Err(TunnelError::GotaTunDevice(gotatun::device::Error::Bind(err, _)))
-            if err.kind() == std::io::Error::from_raw_os_error(55).kind() =>
+        Err(err @ TunnelError::GotaTunDevice(gotatun::device::Error::Bind(io_err, _)))
+            if io_err.kind() == std::io::Error::from_raw_os_error(55).kind() =>
         {
+            log::warn!("Failed to bind UDP socket: {io_err} - retrying with default buffer sizes");
             create_devices_inner(
                 config,
                 daita,
@@ -758,7 +759,7 @@ fn udp_socket_factory_obfuscator(
         target_os = "android" => {
             AndroidUdpSocketFactory {
                 tun: android_tun,
-                factory: udp_socket_factory(optimize_buffer_size),
+                udp: udp_socket_factory(optimize_buffer_size),
             }
         },
         _ => { udp_socket_factory(optimize_buffer_size) }
