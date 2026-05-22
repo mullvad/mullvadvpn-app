@@ -35,6 +35,11 @@ const USER_AGENT: &str = "mullvad-app";
 
 pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+/// How long an HTTP connection may sit idle in hyper's connection pool before
+/// it is evicted. Closes pooled keepalive sockets (and their upstream proxy
+/// connections, if any) after a quiet period without affecting in-flight
+/// requests.
+const POOL_IDLE_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// Describes all the ways a REST request can fail
 #[derive(thiserror::Error, Debug, Clone)]
@@ -176,6 +181,8 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         );
         let client =
             hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .pool_idle_timeout(Some(POOL_IDLE_TIMEOUT))
+                .pool_timer(hyper_util::rt::TokioTimer::new())
                 .build(connector.clone());
 
         let (command_tx, command_rx) = mpsc::unbounded();
@@ -771,3 +778,145 @@ impl_into_arc_err!(hyper_util::client::legacy::Error);
 impl_into_arc_err!(serde_json::Error);
 impl_into_arc_err!(http::Error);
 impl_into_arc_err!(http::uri::InvalidUri);
+
+#[cfg(all(test, not(target_os = "android")))]
+mod idle_pool_tests {
+    use super::*;
+    use crate::{
+        NullDnsResolver,
+        proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    };
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use tokio::{
+        io::{AsyncReadExt, AsyncWriteExt},
+        net::{TcpListener, TcpStream},
+        sync::Notify,
+    };
+
+    /// Spawns a minimal HTTP/1.1 keepalive server. If `release` is `Some`, each
+    /// request is held until the notify is signaled before responding `200 OK`;
+    /// if `None`, requests are answered immediately.
+    /// Returns the bound port and a counter incremented on every accepted TCP connection.
+    async fn spawn_test_server(release: Option<Arc<Notify>>) -> (u16, Arc<AtomicUsize>) {
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let port = listener.local_addr().unwrap().port();
+        let accepts = Arc::new(AtomicUsize::new(0));
+        let accepts_inner = accepts.clone();
+        tokio::spawn(async move {
+            loop {
+                let (stream, _) = match listener.accept().await {
+                    Ok(pair) => pair,
+                    Err(_) => return,
+                };
+                accepts_inner.fetch_add(1, Ordering::SeqCst);
+                tokio::spawn(handle_conn(stream, release.clone()));
+            }
+        });
+        (port, accepts)
+    }
+
+    async fn handle_conn(mut stream: TcpStream, release: Option<Arc<Notify>>) {
+        let mut buf = vec![0u8; 4096];
+        let mut filled = 0;
+        loop {
+            // Read until we see the end-of-headers marker.
+            let header_end = loop {
+                if let Some(idx) = buf[..filled].windows(4).position(|w| w == b"\r\n\r\n") {
+                    break idx + 4;
+                }
+                if filled == buf.len() {
+                    return;
+                }
+                match stream.read(&mut buf[filled..]).await {
+                    Ok(0) | Err(_) => return,
+                    Ok(n) => filled += n,
+                }
+            };
+            if let Some(release) = release.as_ref() {
+                release.notified().await;
+            }
+            let resp = b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: keep-alive\r\n\r\n";
+            if stream.write_all(resp).await.is_err() {
+                return;
+            }
+            // Shift any bytes after the headers we just consumed to the front of the buffer.
+            buf.copy_within(header_end..filled, 0);
+            filled -= header_end;
+        }
+    }
+
+    fn make_request_service() -> RequestServiceHandle {
+        RequestService::spawn(
+            ApiAvailability::default(),
+            StaticConnectionModeProvider::new(ApiConnectionMode::Direct),
+            Arc::new(NullDnsResolver),
+            true,
+        )
+    }
+
+    /// Verifies that the hyper pool actually evicts idle keepalive connections after
+    /// `POOL_IDLE_TIMEOUT` elapses. Without `.pool_timer(...)` the configured
+    /// `pool_idle_timeout` is silently inert — this test guards against that regression.
+    /// Uses paused time so the 60s production constant doesn't slow the test.
+    #[tokio::test(start_paused = true)]
+    async fn idle_pool_evicts_keepalive_connections_after_timeout() {
+        let (port, accepts) = spawn_test_server(None).await;
+        let handle = make_request_service();
+        let uri = format!("https://127.0.0.1:{port}/");
+
+        let resp = handle.request(get(&uri).unwrap()).await.unwrap();
+        assert!(resp.status().is_success());
+        assert_eq!(accepts.load(Ordering::SeqCst), 1);
+
+        let resp = handle.request(get(&uri).unwrap()).await.unwrap();
+        assert!(resp.status().is_success());
+        assert_eq!(
+            accepts.load(Ordering::SeqCst),
+            1,
+            "expected hyper to reuse the pooled keepalive connection"
+        );
+
+        // Advance virtual time past the idle window. Hyper's pool checks an entry's
+        // age on checkout via `tokio::time::Instant::now()` (mocked under paused
+        // time), so the next request sees the entry as expired and discards it.
+        tokio::time::advance(POOL_IDLE_TIMEOUT + Duration::from_secs(1)).await;
+
+        let resp = handle.request(get(&uri).unwrap()).await.unwrap();
+        assert!(resp.status().is_success());
+        assert_eq!(
+            accepts.load(Ordering::SeqCst),
+            2,
+            "expected hyper to open a fresh connection after the idle timeout"
+        );
+    }
+
+    /// Verifies that pool eviction never disturbs an in-flight request. The server
+    /// is held mid-response across more than one idle window; the request must
+    /// still complete once the server releases.
+    #[tokio::test(start_paused = true)]
+    async fn in_flight_request_survives_idle_eviction_window() {
+        let release = Arc::new(Notify::new());
+        let (port, _accepts) = spawn_test_server(Some(release.clone())).await;
+        let handle = make_request_service();
+        let uri = format!("https://127.0.0.1:{port}/");
+
+        let request_task = tokio::spawn(async move {
+            handle
+                .request(get(&uri).unwrap().timeout(Duration::from_secs(3600)))
+                .await
+        });
+
+        // Let the request reach the server and start waiting on `release`.
+        tokio::task::yield_now().await;
+
+        // Sit past the eviction window. The in-flight connection is checked out of
+        // the pool, so it must not be touched by any eviction that fires here.
+        tokio::time::advance(POOL_IDLE_TIMEOUT * 3).await;
+
+        // Now let the server respond. The request should complete normally.
+        release.notify_one();
+
+        let resp = request_task.await.unwrap().unwrap();
+        assert!(resp.status().is_success());
+    }
+}
