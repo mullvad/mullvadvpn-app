@@ -771,30 +771,21 @@ fn udp_socket_factory_obfuscator(
 
 /// Provide a [`UdpSocketFactory`] for the entry-device.
 ///
-/// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked. Empirically this might
-///   now always succeed due to suspected hardware related issues / limitations.
+/// - `optimize_buffer_size`: if UDP socket buffer sizes should be tweaked.
+///   This could be beneficial for performance reasons.
 #[inline(always)]
 fn udp_socket_factory(optimize_buffer_size: bool) -> UdpSocketFactory {
+    /// See [`DeviceBuilder::udp_send_buffer_size`] for details.
+    const UDP_SEND_BUFFER_SIZE: usize = 7 * 1024 * 1024; // 7 MB (mirror the default of `gotatun-cli`)
+    /// See [`DeviceBuilder::udp_recv_buffer_size`] for details.
+    const UDP_RECV_BUFFER_SIZE: usize = 7 * 1024 * 1024;
+
     if optimize_buffer_size {
         UdpSocketFactory {
-            recv_buffer_size: Some(udp_recv_buffer_size()),
-            send_buffer_size: Some(udp_send_buffer_size()),
+            recv_buffer_size: Some(UDP_RECV_BUFFER_SIZE),
+            send_buffer_size: Some(UDP_SEND_BUFFER_SIZE),
         }
     } else {
         UdpSocketFactory::default()
     }
-}
-
-/// For performance reasons, adjust the UDP socket send buffer size.
-/// See [`DeviceBuilder::udp_send_buffer_size`] for details.
-#[inline(always)]
-const fn udp_send_buffer_size() -> usize {
-    const { 7 * 1024 * 1024 } // 7 MB (mirror the default of `gotatun-cli`)
-}
-
-/// For performance reasons, adjust the UDP socket recv buffer size.
-/// See [`DeviceBuilder::udp_recv_buffer_size`] for details.
-#[inline(always)]
-const fn udp_recv_buffer_size() -> usize {
-    const { 7 * 1024 * 1024 } // 7 MB (mirror the default of `gotatun-cli`)
 }
