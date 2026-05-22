@@ -8,8 +8,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 
 inline fun LazyListScope.itemWithDivider(
     key: Any? = null,
@@ -42,6 +45,20 @@ inline fun <T> LazyListScope.itemsIndexedWithDivider(
         itemContent(index, item)
         HorizontalDivider(color = Color.Transparent)
     }
+
+suspend fun LazyListState.scrollAndCentralizeItem(index: Int) {
+    // First, bring the item into the viewport so the layout system measures it.
+    scrollToItem(index)
+    // Wait until the item is actually present in layoutInfo (i.e. measured).
+    val itemInfo =
+        snapshotFlow { layoutInfo.visibleItemsInfo.firstOrNull { it.index == index } }
+            .mapNotNull { it }
+            .first()
+    val center = layoutInfo.viewportEndOffset / 2
+    // A negative scrollOffset tells LazyList to show `|offset|` pixels of content
+    // above item [index], which effectively places the item center at the viewport center.
+    scrollToItem(index, scrollOffset = -(center - itemInfo.size / 2))
+}
 
 suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
     val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
