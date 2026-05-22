@@ -89,3 +89,24 @@ unexpectedly excluded, simply because the parent is excluded.
 The limitations due to IPC are perhaps especially noticeable on macOS, since WebKit relies on other
 processes to render web pages. This means that many browsers, including Safari, cannot be excluded
 from the VPN.
+
+A subtle variant of the link-clicking case described above occurs when an excluded background
+service is configured to open the user's default browser at system startup. This is a common
+pattern for locally-running services that come with a web-based admin UI and an "open browser on
+startup" option enabled by default. The service starts with Windows, spawns the browser to load
+its local web UI, and the browser process inherits the excluded status from the service.
+
+Because browsers use a launcher process model where the spawned `firefox.exe` or `chrome.exe`
+forwards URLs to an existing instance via IPC and exits, the inherited status can persist
+on the long-running browser session that opens the user's saved tabs. The user sees a normal
+browser, the Mullvad app UI shows "Connected", and the only externally visible symptom is that the
+public IP reported by sites is the user's real ISP IP.
+
+DNS continues to be sent through the tunnel because the system DNS resolver runs in its own
+process tree, so DNS leak tests pass and reinforce the incorrect impression that the browser is
+tunneled.
+
+Workaround: in the settings of any excluded background service that has an auto-launch-browser
+option, disable that option. The service continues running in the background; only the auto-spawn
+of an external browser at startup is suppressed. Manual access to the service's web UI via a
+bookmark or by typing the URL into an already-running browser is not affected.
