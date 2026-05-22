@@ -78,15 +78,23 @@ extension RelayFilterSelection {
             buttonContainerView.addArrangedSubview(applyButton)
 
             filterSettingsView.backgroundColor = .secondaryColor
-            view.addConstrainedSubviews([filterSettingsView, tableView, buttonContainerView]) {
-                filterSettingsView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
-                tableView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
+
+            let viewOrder =
+                (viewModel.multihopContext == .entry ? [filterSettingsView] : []) + [tableView, buttonContainerView]
+
+            view.addConstrainedSubviews(viewOrder) {
+                if viewModel.multihopContext == .entry {
+                    viewOrder[0].pinEdgesToSuperview(.all().excluding([.top, .bottom]))
+                    tableView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
+                    filterSettingsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
+                    tableView.topAnchor.constraint(
+                        equalTo: filterSettingsView.bottomAnchor,
+                        constant: UIMetrics.contentLayoutMargins.top
+                    )
+                } else {
+                    tableView.pinEdgesToSuperview(.all().excluding(.bottom))
+                }
                 buttonContainerView.pinEdgesToSuperviewMargins(.all().excluding(.top))
-                filterSettingsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
-                tableView.topAnchor.constraint(
-                    equalTo: filterSettingsView.bottomAnchor,
-                    constant: UIMetrics.contentLayoutMargins.top
-                )
                 buttonContainerView.topAnchor.constraint(
                     equalTo: tableView.bottomAnchor,
                     constant: UIMetrics.contentLayoutMargins.top
