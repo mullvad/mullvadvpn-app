@@ -45,16 +45,19 @@ talpid-types = { path = "../../talpid-types" }
 test_macro = { path = "./test_macro" }
 test-rpc = { path = "../test-rpc" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = [
-  "fs",
-  "io-util",
-  "macros",
-  "net",
-  "process",
-  "rt",
-  "rt-multi-thread",
-  "time"
-] }
+tokio = {
+  workspace = true,
+  features = [
+    "fs",
+    "io-util",
+    "macros",
+    "net",
+    "process",
+    "rt",
+    "rt-multi-thread",
+    "time"
+  ]
+}
 tokio-serial = { workspace = true }
 tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
 tonic = { workspace = true }

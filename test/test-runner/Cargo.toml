@@ -19,21 +19,27 @@ rand = { workspace = true }
 serde_json = { workspace = true }
 socket2 = { workspace = true, features = ["all"] }
 surge-ping = { workspace = true }
-talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
+talpid-platform-metadata = {
+  path = "../../talpid-platform-metadata",
+  default-features = false
+}
 tarpc = { workspace = true }
 test-rpc = { path = "../test-rpc" }
 thiserror = { workspace = true }
 tipsy = { workspace = true }
-tokio = { workspace = true, features = [
-  "fs",
-  "io-util",
-  "macros",
-  "net",
-  "process",
-  "rt",
-  "rt-multi-thread",
-  "time"
-] }
+tokio = {
+  workspace = true,
+  features = [
+    "fs",
+    "io-util",
+    "macros",
+    "net",
+    "process",
+    "rt",
+    "rt-multi-thread",
+    "time"
+  ]
+}
 tokio-serial = { workspace = true }
 
 [dependencies.tokio-util]

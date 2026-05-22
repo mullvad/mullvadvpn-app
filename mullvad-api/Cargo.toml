@@ -35,19 +35,26 @@ shadowsocks = { workspace = true, features = ["stream-cipher"] }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = [
-  "fs",
-  "io-std",
-  "io-util",
-  "macros",
-  "net",
-  "rt-multi-thread",
-  "time",
-] }
-tokio-rustls = { version = "0.26.0", default-features = false, features = [
-  "logging",
-  "ring",
-] }
+tokio = {
+  workspace = true,
+  features = [
+    "fs",
+    "io-std",
+    "io-util",
+    "macros",
+    "net",
+    "rt-multi-thread",
+    "time",
+  ]
+}
+tokio-rustls = {
+  version = "0.26.0",
+  default-features = false,
+  features = [
+    "logging",
+    "ring",
+  ]
+}
 tokio-socks = "0.5.1"
 tower = { workspace = true }
 vec1 = { workspace = true, features = ["serde"] }

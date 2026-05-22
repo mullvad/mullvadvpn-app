@@ -13,11 +13,14 @@ LegalCopyright = "(c) 2026 Mullvad VPN AB"
 
 [build-dependencies]
 anyhow = { workspace = true }
-windows-sys = { workspace = true, features = [
-  "Win32_System",
-  "Win32_System_LibraryLoader",
-  "Win32_System_SystemServices"
-] }
+windows-sys = {
+  workspace = true,
+  features = [
+    "Win32_System",
+    "Win32_System_LibraryLoader",
+    "Win32_System_SystemServices"
+  ]
+}
 winres = "0.1"
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
@@ -44,18 +47,20 @@ objc_id = "0.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 mullvad-paths = { path = "../mullvad-paths" }
-native-windows-gui = { version = "1.0.12", default-features = false, features = [
-  "embed-resource",
-  "frame",
-  "image-decoder",
-  "progress-bar"
-] }
-windows-sys = { workspace = true, features = [
-  "Win32_Graphics",
-  "Win32_Graphics_Gdi",
-  "Win32_UI",
-  "Win32_UI_WindowsAndMessaging"
-] }
+native-windows-gui = {
+  version = "1.0.12",
+  default-features = false,
+  features = ["embed-resource", "frame", "image-decoder", "progress-bar"]
+}
+windows-sys = {
+  workspace = true,
+  features = [
+    "Win32_Graphics",
+    "Win32_Graphics_Gdi",
+    "Win32_UI",
+    "Win32_UI_WindowsAndMessaging"
+  ]
+}
 
 [lints]
 workspace = true

@@ -12,14 +12,10 @@ clap = { workspace = true, features = ["derive"] }
 futures.workspace = true
 log.workspace = true
 socket2 = { workspace = true, features = ["all"] }
-tokio = { workspace = true, features = [
-  "macros",
-  "net",
-  "process",
-  "rt",
-  "sync",
-  "time"
-] }
+tokio = {
+  workspace = true,
+  features = ["macros", "net", "process", "rt", "sync", "time"]
+}
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

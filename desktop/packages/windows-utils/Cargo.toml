@@ -16,14 +16,17 @@ neon = "1"
 talpid-types = { path = "../../../talpid-types" }
 talpid-windows = { path = "../../../talpid-windows" }
 thiserror = { workspace = true }
-windows = { workspace = true, features = [
-  "Win32",
-  "Win32_Storage_FileSystem",
-  "Win32_System",
-  "Win32_System_Com",
-  "Win32_UI",
-  "Win32_UI_Shell"
-] }
+windows = {
+  workspace = true,
+  features = [
+    "Win32",
+    "Win32_Storage_FileSystem",
+    "Win32_System",
+    "Win32_System_Com",
+    "Win32_UI",
+    "Win32_UI_Shell"
+  ]
+}
 
 [lints]
 workspace = true

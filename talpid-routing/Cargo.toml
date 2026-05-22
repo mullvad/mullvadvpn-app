@@ -12,13 +12,10 @@ ipnetwork = { workspace = true }
 log = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = [
-  "io-util",
-  "net",
-  "process",
-  "rt-multi-thread",
-  "time"
-] }
+tokio = {
+  workspace = true,
+  features = ["io-util", "net", "process", "rt-multi-thread", "time"]
+}
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["test-util"] }

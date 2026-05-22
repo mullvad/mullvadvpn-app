@@ -32,12 +32,11 @@ serde_json = { workspace = true }
 sha2 = { workspace = true }
 strum = { workspace = true, features = ["derive"], optional = true }
 thiserror = { workspace = true, optional = true }
-tokio = { workspace = true, features = [
-  "fs",
-  "macros",
-  "process",
-  "rt-multi-thread"
-], optional = true }
+tokio = {
+  workspace = true,
+  features = ["fs", "macros", "process", "rt-multi-thread"],
+  optional = true
+}
 vec1 = { workspace = true }
 zeroize = { workspace = true, features = ["zeroize_derive"] }
 

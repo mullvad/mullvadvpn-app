@@ -23,14 +23,15 @@ rand = { workspace = true, features = ["small_rng"] }
 shadowsocks = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = [
-  "io-util",
-  "macros",
-  "net",
-  "rt-multi-thread"
-] }
+tokio = {
+  workspace = true,
+  features = ["io-util", "macros", "net", "rt-multi-thread"]
+}
 tokio-util = { workspace = true, features = ["rt"] }
-udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303" }
+udp-over-tcp = {
+  git = "https://github.com/mullvad/udp-over-tcp",
+  rev = "5c6d8f44a5aa12ed9bb4ae51dd17e5e22e5ec303"
+}
 
 [dev-dependencies]
 criterion = { version = "0.7.0", features = ["async_tokio", "html_reports"] }

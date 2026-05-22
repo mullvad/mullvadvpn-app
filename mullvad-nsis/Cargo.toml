@@ -17,27 +17,30 @@ nsis-plugin-api.workspace = true
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 widestring.workspace = true
 windows-registry.workspace = true
-windows-sys = { workspace = true, features = [
-  "Wdk_Foundation",
-  "Wdk_System",
-  "Wdk_System_SystemInformation",
-  "Win32_Foundation",
-  "Win32_Security",
-  "Win32_Security_Authorization",
-  "Win32_Storage_FileSystem",
-  "Win32_System_Com",
-  "Win32_System_LibraryLoader",
-  "Win32_System_ProcessStatus",
-  "Win32_System_Registry",
-  "Win32_System_RestartManager",
-  "Win32_System_SystemInformation",
-  "Win32_System_Threading",
-  "Win32_System_Time",
-  "Win32_System_WindowsProgramming",
-  "Win32_UI_Input_KeyboardAndMouse",
-  "Win32_UI_Shell",
-  "Win32_UI_WindowsAndMessaging",
-] }
+windows-sys = {
+  workspace = true,
+  features = [
+    "Wdk_Foundation",
+    "Wdk_System",
+    "Wdk_System_SystemInformation",
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Security_Authorization",
+    "Win32_Storage_FileSystem",
+    "Win32_System_Com",
+    "Win32_System_LibraryLoader",
+    "Win32_System_ProcessStatus",
+    "Win32_System_Registry",
+    "Win32_System_RestartManager",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+    "Win32_System_Time",
+    "Win32_System_WindowsProgramming",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_Shell",
+    "Win32_UI_WindowsAndMessaging",
+  ]
+}
 zerocopy = { workspace = true, features = ["derive"] }
 
 [lints]

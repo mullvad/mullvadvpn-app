@@ -74,16 +74,21 @@ either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
 hickory-proto = "0.26.1"
-hickory-resolver = { version = "0.26.1", default-features = false, features = [
-  "tokio"
-] }
+hickory-resolver = {
+  version = "0.26.1",
+  default-features = false,
+  features = ["tokio"]
+}
 hickory-server = { version = "0.26.1", features = ["resolver"] }
-hyper-util = { version = "0.1.8", features = [
-  "client",
-  "client-legacy",
-  "http1",
-  "http2",
-] }
+hyper-util = {
+  version = "0.1.8",
+  features = [
+    "client",
+    "client-legacy",
+    "http1",
+    "http2",
+  ]
+}
 insta = { version = "1.42", features = ["yaml"] }
 ipnetwork = "0.21.1"
 itertools = "0.14"
@@ -102,19 +107,22 @@ proptest = "1.9"
 prost = "0.14.3"
 prost-types = "0.14.3"
 rand = "0.9.3"
-reqwest = { version = "0.12.23", default-features = false, features = [
-  "rustls-tls"
-] }
+reqwest = {
+  version = "0.12.23",
+  default-features = false,
+  features = ["rustls-tls"]
+}
 rtnetlink = "0.21.0"
 rustls = { version = "0.23", default-features = false }
 rustls-pki-types = "1.13.1"
 serde = "1.0.204"
 serde_json = "1.0.122"
 sha2 = "0.10"
-shadowsocks = { version = "1.23.2", default-features = false, features = [
-  "aead-cipher",
-  "stream-cipher"
-] }
+shadowsocks = {
+  version = "1.23.2",
+  default-features = false,
+  features = ["aead-cipher", "stream-cipher"]
+}
 shadowsocks-crypto = { version = "0.6.2", features = ["v1-stream"] }
 socket2 = "0.5.7"
 strum = { version = "0.27" }
@@ -169,16 +177,19 @@ non_ascii_idents = "forbid"
 # Deny old style Rust
 rust_2018_idioms = { level = "deny", priority = -1 }
 single_use_lifetimes = "warn"
-unexpected_cfgs = { level = "warn", check-cfg = [
-  # The `class!` macro in `objc` uses an unknown feature. We rely on this in 'installer-downloader'.
-  # The unexpected cfg warning stems from https://github.com/SSheldon/rust-objc/issues/125
-  # We need to ignore this until cacao migrates to another objc implementation,
-  # or we use another `msg_send!` macro ourselves.
-  'cfg(feature, values("cargo-clippy"))',
-  # Warning silenced due to a bug in zerocopy:
-  # https://github.com/google/zerocopy/issues/2755
-  "cfg(zerocopy_derive_union_into_bytes)"
-] }
+unexpected_cfgs = {
+  level = "warn",
+  check-cfg = [
+    # The `class!` macro in `objc` uses an unknown feature. We rely on this in 'installer-downloader'.
+    # The unexpected cfg warning stems from https://github.com/SSheldon/rust-objc/issues/125
+    # We need to ignore this until cacao migrates to another objc implementation,
+    # or we use another `msg_send!` macro ourselves.
+    'cfg(feature, values("cargo-clippy"))',
+    # Warning silenced due to a bug in zerocopy:
+    # https://github.com/google/zerocopy/issues/2755
+    "cfg(zerocopy_derive_union_into_bytes)"
+  ]
+}
 unused_lifetimes = "warn"
 unused_macro_rules = "warn"
 
