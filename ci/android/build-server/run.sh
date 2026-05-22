@@ -44,7 +44,7 @@ if [[ "$ENABLE_SIGNING" == "true" && -z ${YUBIKEY_PIN-} ]]; then
 fi
 
 # Move files for CDN upload by: buildserver-upload.sh
-function prepare_for_cdn_upload {
+function stage_cdn_upload {
     version=$1
 
     # Only include files. Skip subdirectories.
@@ -56,6 +56,13 @@ function prepare_for_cdn_upload {
     sha256sum "${files[@]}" > "$checksums_path"
 
     cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
+}
+
+function stage_for_publishing {
+    version=$1
+    artifact_dir=$2
+
+    (cd "$artifact_dir" && stage_cdn_upload "$version") || return 1
 }
 
 function run_in_linux_container {
@@ -160,7 +167,7 @@ function build_sign_and_publish_ref {
         echo "WARNING: Signing skipped for $version"
     fi
 
-    (cd "$artifact_dir" && prepare_for_cdn_upload "$version") || return 1
+    stage_for_publishing "$version" "$artifact_dir" || return 1
 
     touch "$LAST_BUILT_DIR/$current_hash"
 
