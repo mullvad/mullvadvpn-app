@@ -45,9 +45,6 @@ rtnetlink = { workspace = true }
 talpid-dbus = { workspace = true }
 zerocopy = { workspace = true, features = ["derive"] }
 
-[target.'cfg(target_os = "macos")'.dependencies]
-talpid-platform-metadata = { path = "../talpid-platform-metadata" }
-
 [target.'cfg(unix)'.dependencies]
 libc = "0.2.150"
 nix = { workspace = true, features = ["fs"] }

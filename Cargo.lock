@@ -5718,7 +5718,6 @@ dependencies = [
  "surge-ping",
  "talpid-dbus",
  "talpid-net",
- "talpid-platform-metadata",
  "talpid-routing",
  "talpid-tunnel",
  "talpid-tunnel-config-client",
