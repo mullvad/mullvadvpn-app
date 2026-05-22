@@ -1,0 +1,11 @@
+# Template for the rclone config used by fdroid.sh to deploy F-Droid repos.
+# Copy this file, fill in the PLEASE_CONFIGURE_ME placeholders, and deploy it to the
+# path referenced by FDROID_RCLONE_CONFIG_PATH in config.sh.
+
+[development]
+type = s3
+provider = Other
+endpoint = PLEASE_CONFIGURE_ME
+access_key_id = PLEASE_CONFIGURE_ME
+secret_access_key = PLEASE_CONFIGURE_ME
+region = us-east-1
