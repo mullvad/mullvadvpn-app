@@ -423,7 +423,6 @@
     <string name="settings">الإعدادات</string>
     <string name="settings_account">الحساب</string>
     <string name="settings_api_access">الوصول إلى واجهة API</string>
-    <string name="settings_changes_effect_warning_short">قد لا يتم تطبيق إعدادات DNS على الفور</string>
     <string name="settings_notifications">الإشعارات</string>
     <string name="settings_patch_error_failed_to_apply_patch">فشل تطبيق التصحيح</string>
     <string name="settings_patch_error_invalid_or_missing_value">القيمة \"%1$s\" غير صالحة أو مفقودة</string>

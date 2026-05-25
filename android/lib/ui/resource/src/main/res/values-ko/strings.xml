@@ -423,7 +423,6 @@
     <string name="settings">설정</string>
     <string name="settings_account">계정</string>
     <string name="settings_api_access">API 액세스</string>
-    <string name="settings_changes_effect_warning_short">DNS 설정이 즉시 적용되지 않을 수도 있습니다</string>
     <string name="settings_notifications">알림</string>
     <string name="settings_patch_error_failed_to_apply_patch">패치 적용 실패</string>
     <string name="settings_patch_error_invalid_or_missing_value">\"%1$s\" 값이 유효하지 않거나 누락되었습니다</string>
