@@ -423,7 +423,6 @@
     <string name="settings">Ayarlar</string>
     <string name="settings_account">Hesap</string>
     <string name="settings_api_access">API erişimi</string>
-    <string name="settings_changes_effect_warning_short">DNS ayarları hemen etkili olmayabilir</string>
     <string name="settings_notifications">Bildirimler</string>
     <string name="settings_patch_error_failed_to_apply_patch">Yama uygulanamadı</string>
     <string name="settings_patch_error_invalid_or_missing_value">Geçersiz veya eksik \"%1$s\" değeri</string>
