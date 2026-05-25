@@ -67,9 +67,8 @@ class VpnSettingsScreenTest {
         state: Lc<Boolean, VpnSettingsUiState> = createDefaultUiState().toLc(),
         navigateToAutoConnectScreen: () -> Unit = {},
         navigateToQuantumResistanceInfo: () -> Unit = {},
-        navigateToLocalNetworkSharingInfo: () -> Unit = {},
+        navigateToLocalNetworkSharing: () -> Unit = {},
         navigateToServerIpOverrides: () -> Unit = {},
-        onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
         navigateToMtuDialog: (mtu: Mtu?) -> Unit = {},
         navigateToDns: () -> Unit = {},
         onBackClick: () -> Unit = {},
@@ -87,9 +86,7 @@ class VpnSettingsScreenTest {
                 state = state,
                 navigateToAutoConnectScreen = navigateToAutoConnectScreen,
                 navigateToQuantumResistanceInfo = navigateToQuantumResistanceInfo,
-                navigateToLocalNetworkSharingInfo = navigateToLocalNetworkSharingInfo,
                 navigateToServerIpOverrides = navigateToServerIpOverrides,
-                onToggleLocalNetworkSharing = onToggleLocalNetworkSharing,
                 navigateToMtuDialog = navigateToMtuDialog,
                 navigateToDns = navigateToDns,
                 onBackClick = onBackClick,
@@ -101,6 +98,7 @@ class VpnSettingsScreenTest {
                 navigateToDeviceIpInfo = navigateToDeviceIpInfo,
                 navigateToConnectOnDeviceOnStartUpInfo = navigateToConnectOnDeviceOnStartUpInfo,
                 navigateToAntiCensorship = navigateToAntiCensorship,
+                navigateToLocalNetworkSharing = navigateToLocalNetworkSharing,
                 initialScrollToFeature = null,
             )
         }
