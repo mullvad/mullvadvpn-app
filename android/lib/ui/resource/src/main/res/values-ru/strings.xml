@@ -274,8 +274,6 @@
     <string name="loading_products">Загрузка продуктов</string>
     <string name="loading_verifying">Идет проверка оплаты...</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
-    <string name="local_network_sharing_additional_info">Это достигается путем разрешения сетевого взаимодействия вне туннеля с локальными многоадресными и широковещательными диапазонами, а также со следующими диапазонами частных IP-адресов:</string>
-    <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="local_network_sharing_info_block_connections_warning">Внимание! Если включена функция «Блокировать соединения без VPN», обмен данными в локальной сети работать не будет.</string>
     <string name="location_added">%1$s (добавлено)</string>
     <string name="location_was_added_to_list">Местоположение %1$s добавлено в список «%2$s»</string>

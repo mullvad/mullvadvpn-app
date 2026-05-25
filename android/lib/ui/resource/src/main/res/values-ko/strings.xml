@@ -274,8 +274,6 @@
     <string name="loading_products">제품을 로드하는 중</string>
     <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
-    <string name="local_network_sharing_additional_info">이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다.</string>
-    <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="local_network_sharing_info_block_connections_warning">주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다.</string>
     <string name="location_added">%1$s(추가됨)</string>
     <string name="location_was_added_to_list">%1$s이(가) \"%2$s\"에 추가되었습니다</string>

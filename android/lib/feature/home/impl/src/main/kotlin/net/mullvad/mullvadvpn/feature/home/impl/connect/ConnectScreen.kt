@@ -81,6 +81,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.Connectio
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
+import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
@@ -805,10 +806,11 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.SHADOWSOCKS,
         FeatureIndicator.LWO -> AntiCensorshipNavKey(selectedFeature = this, isModal = true)
 
+        FeatureIndicator.LAN_SHARING -> LocalNetworkSharingNavKey(isModal = true)
+
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS -> DnsSettingsNavKey(selectedFeature = this, isModal = true)
 
         FeatureIndicator.QUANTUM_RESISTANCE,
-        FeatureIndicator.LAN_SHARING,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }
