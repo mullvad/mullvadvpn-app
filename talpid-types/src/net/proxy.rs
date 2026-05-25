@@ -95,7 +95,7 @@ pub struct Shadowsocks {
 /// A [ShadowsocksCipher] constructed via [ShadowsocksCipher::new] is guaranteed to:
 /// - Hnfallibly convert into a [shadowsocks_crypto::CipherKind].
 /// - Have the same string representation as [shadowsocks_crypto::CipherKind].
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, PartialEq, Eq, Hash)]
 pub struct ShadowsocksCipher(String);
 
 impl ShadowsocksCipher {
@@ -126,6 +126,33 @@ impl ShadowsocksCipher {
             .map(|cipher| ShadowsocksCipher::new(cipher).unwrap())
             .unique()
             .collect()
+    }
+}
+
+impl<'de> Deserialize<'de> for ShadowsocksCipher {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct CipherVisitor(std::marker::PhantomData<Self>);
+        impl serde::de::Visitor<'_> for CipherVisitor {
+            type Value = ShadowsocksCipher;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(formatter, "a cipher string")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                value
+                    .parse::<Self::Value>()
+                    .map_err(serde::de::Error::custom)
+            }
+        }
+
+        deserializer.deserialize_str(CipherVisitor(std::marker::PhantomData))
     }
 }
 
