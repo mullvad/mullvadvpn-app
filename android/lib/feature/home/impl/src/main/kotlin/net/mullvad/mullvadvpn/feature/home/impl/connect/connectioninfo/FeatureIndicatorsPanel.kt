@@ -20,8 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
-import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip

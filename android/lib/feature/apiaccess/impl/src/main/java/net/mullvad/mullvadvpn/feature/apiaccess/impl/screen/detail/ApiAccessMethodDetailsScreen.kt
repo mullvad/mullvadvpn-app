@@ -38,8 +38,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.apiaccess.api.DeleteApiAccessMethodConfirmedNavResult
@@ -48,6 +46,8 @@ import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.EncryptedDnsProxyInfoNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.component.TestMethodButton
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.toDisplayName
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar

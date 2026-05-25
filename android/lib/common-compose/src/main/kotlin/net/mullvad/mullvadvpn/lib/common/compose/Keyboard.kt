@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.common.compose
+package net.mullvad.mullvadvpn.lib.common.compose
 
 import android.content.Context
 import androidx.compose.ui.text.input.KeyboardType

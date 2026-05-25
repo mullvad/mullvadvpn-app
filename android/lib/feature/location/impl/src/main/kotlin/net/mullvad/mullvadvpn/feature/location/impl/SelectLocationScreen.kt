@@ -70,10 +70,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
@@ -94,6 +90,10 @@ import net.mullvad.mullvadvpn.feature.location.api.UndoChangeMultihopAction
 import net.mullvad.mullvadvpn.feature.location.impl.bottomsheet.showResultSnackbar
 import net.mullvad.mullvadvpn.feature.location.impl.list.SelectLocationList
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.isTv
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.HopSelection

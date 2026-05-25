@@ -37,11 +37,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.goBack
-import net.mullvad.mullvadvpn.common.compose.navigateReplaceTop
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavKey
@@ -51,6 +46,11 @@ import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNameNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.R
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.goBack
+import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceTop
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.canAddLocation
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName

@@ -22,11 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
-import net.mullvad.mullvadvpn.common.compose.createUriHook
-import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.common.compose.itemWithDivider
-import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.ApiAccessNavKey
@@ -41,6 +36,11 @@ import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.assureHasDetailPane
+import net.mullvad.mullvadvpn.lib.common.compose.createUriHook
+import net.mullvad.mullvadvpn.lib.common.compose.isTv
+import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
+import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton

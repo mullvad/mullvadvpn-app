@@ -38,13 +38,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
-import net.mullvad.mullvadvpn.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
-import net.mullvad.mullvadvpn.common.compose.assureHasDetailPane
-import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.navigateReplaceIfDetailPane
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
@@ -60,6 +53,13 @@ import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.QuantumResistanceInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.RunOnKeyChange
+import net.mullvad.mullvadvpn.lib.common.compose.SETTINGS_HIGHLIGHT_REPEAT_COUNT
+import net.mullvad.mullvadvpn.lib.common.compose.assureHasDetailPane
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceIfDetailPane
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.indexOfFirstOrNull
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator

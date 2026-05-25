@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.common.compose
+package net.mullvad.mullvadvpn.lib.common.compose
 
 import android.app.Activity
 import android.view.WindowManager
@@ -9,7 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.isSensitiveData
 import androidx.compose.ui.semantics.semantics
-import net.mullvad.mullvadvpn.lib.common.compose.BuildConfig
 
 @Composable
 fun SecureScreenWhileInView() {
