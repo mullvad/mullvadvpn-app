@@ -218,6 +218,7 @@ fun DnsSettingsScreen(
     }
 }
 
+@Suppress("LongMethod")
 private fun LazyListScope.content(
     state: DnsSettingsUiState,
     navigateToDns: (index: Int?, address: String?) -> Unit,
