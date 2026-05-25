@@ -9,22 +9,9 @@
 import SwiftUI
 
 struct ChipView: View {
-    enum Style {
-        case mainScreen
-        case dialog
-    }
-
     let item: ChipModel
-    let style: Style
     let onPress: (() -> Void)?
     private let borderWidth: CGFloat = 1
-
-    var backgroundColor: Color {
-        switch style {
-        case .mainScreen: UIColor.secondaryColor.color
-        case .dialog: UIColor.primaryColor.color
-        }
-    }
 
     var body: some View {
         Button {
@@ -52,33 +39,24 @@ struct ChipView: View {
                 )
                 .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(backgroundColor)
+                        .fill(UIColor.secondaryColor.color)
                 )
                 .padding(borderWidth)
         )
     }
 }
 
-#Preview("Text only, main style") {
+#Preview("Text only") {
     ZStack {
-        ChipView(item: ChipModel(id: .daita, name: "Example"), style: .mainScreen) {}
+        ChipView(item: ChipModel(id: .daita, name: "Example")) {}
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(UIColor.secondaryColor.color)
 }
 
-#Preview("Text only, dialog style") {
-    ZStack {
-        ChipView(item: ChipModel(id: .daita, name: "Example"), style: .dialog) {}
-    }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
-    .background(Color.mullvadBackground)
-}
-
 #Preview("Text + icon") {
     ZStack {
-        ChipView(item: ChipModel(id: .daita, name: "Example", icon: .mullvadIconMultihopWhenNeeded), style: .mainScreen)
-        {}
+        ChipView(item: ChipModel(id: .daita, name: "Example", icon: .mullvadIconMultihopWhenNeeded)) {}
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(UIColor.secondaryColor.color)
