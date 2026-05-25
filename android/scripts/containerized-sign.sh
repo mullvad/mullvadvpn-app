@@ -7,7 +7,8 @@ CONTAINER_RUNNER=${CONTAINER_RUNNER:-"podman"}
 CONTAINER_IMAGE_NAME=$(cat "$SCRIPT_DIR/../../building/android-container-image.txt")
 
 WORK_DIR=${1:?'Usage: containerized-sign.sh <work-dir> <bash-command>'}
-COMMAND=${2:?'Usage: containerized-sign.sh <work-dir> <bash-command>'}
+# Default to original sign command for backwards compatibility.
+COMMAND=${2:-'shopt -s nullglob; /sign.sh MullvadVPN-*.aab MullvadVPN-*.apk'}
 
 if [[ ! -d "$WORK_DIR" ]]; then
     echo "Error: not a directory: $WORK_DIR"
