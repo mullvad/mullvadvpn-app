@@ -192,7 +192,6 @@
     <string name="block_social_media_title">Social media</string>
     <string name="dns_content_blockers_subtitle">Disable \"%s\" below to activate these settings.</string>
     <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
-    <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="automatic">Automatic</string>
     <string name="off">Off</string>
     <string name="none">None</string>

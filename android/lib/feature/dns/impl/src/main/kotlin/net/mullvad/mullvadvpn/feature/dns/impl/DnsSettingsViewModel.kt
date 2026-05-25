@@ -41,8 +41,6 @@ sealed interface DnsSettingsSideEffect {
     data object NavigateToDnsDialog : DnsSettingsSideEffect
 
     sealed interface ShowToast : DnsSettingsSideEffect {
-        data object ApplySettingWarning : ShowToast
-
         data object GenericError : ShowToast
     }
 }
@@ -125,16 +123,12 @@ class DnsSettingsViewModel(
         if (hasDnsEntries) {
             settingsRepository
                 .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-                .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
+                .onLeft { showGenericErrorToast() }
         } else {
             // If they enable custom DNS and has no current entries we show the dialog
             // to add one.
             viewModelScope.launch { _uiSideEffect.send(DnsSettingsSideEffect.NavigateToDnsDialog) }
         }
-    }
-
-    fun showApplySettingChangesWarningToast() = viewModelScope.launch {
-        _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.ApplySettingWarning)
     }
 
     fun showGenericErrorToast() = viewModelScope.launch {
@@ -143,15 +137,10 @@ class DnsSettingsViewModel(
 
     private fun updateContentBlockersAndNotify(update: (DefaultDnsOptions) -> DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
-            settingsRepository
-                .updateContentBlockers(update)
-                .fold(
-                    {
-                        Logger.e("Failed to update content blockers")
-                        _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
-                    },
-                    { showApplySettingChangesWarningToast() },
-                )
+            settingsRepository.updateContentBlockers(update).onLeft {
+                Logger.e("Failed to update content blockers")
+                _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
+            }
         }
 
     private fun List<InetAddress>.asStringAddressList(): List<CustomDnsEntry> = map {
