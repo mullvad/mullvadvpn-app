@@ -29,10 +29,10 @@ struct Hop {
         } else {
             switch multihopContext {
             case .entry:
-                if selectedLocation is AutomaticLocationNode {
-                    multihopState.icon
+                if multihopState.isWhenNeeded && selectedLocation is AutomaticLocationNode {
+                    .mullvadIconMultihopWhenNeeded
                 } else {
-                    .mullvadServer
+                    .mullvadIconMultihopAlways
                 }
             case .exit:
                 .mullvadLocation
