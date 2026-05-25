@@ -3182,9 +3182,6 @@ msgstr ""
 msgid "DNS settings"
 msgstr ""
 
-msgid "DNS settings might not go into effect immediately"
-msgstr ""
-
 msgid "Delete \"%s\"?"
 msgstr ""
 
