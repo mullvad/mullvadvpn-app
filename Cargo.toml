@@ -143,9 +143,9 @@ thiserror = "2.0"
 tipsy = "0.7.0"
 tokio = { version = "1.54" }
 tokio-util = "0.7"
-tonic = "0.14.6"
-tonic-prost = "0.14.6"
-tonic-prost-build = { version = "0.14.6", default-features = false }
+tonic = "0.14.9"
+tonic-prost = "0.14.9"
+tonic-prost-build = { git = "https://github.com/markus-mullvad/grpc-rust", rev = "7019439e754e4886fa3c7a4cc7bf26ecf0ce8603", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 tracing = "0.1.44"
 tracing-appender = "0.2.4"
