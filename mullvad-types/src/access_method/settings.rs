@@ -1,7 +1,18 @@
-use serde::{Deserialize, Serialize};
-use talpid_types::net::proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote};
+//! Settings for API access methods.
 
-/// Settings for API access methods.
+use serde::{Deserialize, Serialize};
+
+use crate::access_method::{AccessMethod, BuiltInAccessMethod, Id, protobuf::AccessMethodSetting};
+
+#[derive(thiserror::Error, Debug, PartialEq)]
+pub enum Error {
+    #[error("Access method with name already exists")]
+    DuplicateName,
+    /// Built-in access methods can not be removed
+    #[error("Cannot remove built-in access method {}", attempted)]
+    RemoveBuiltin { attempted: BuiltInAccessMethod },
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct Settings {
     #[serde(default = "Settings::create_direct")]
@@ -45,24 +56,24 @@ impl Settings {
     /// This function will return an error if a built-in API access is about to
     /// be removed.
     pub fn remove(&mut self, api_access_method: &Id) -> Result<(), Error> {
-        let maybe_setting = self
+        let Some(setting) = self
             .custom
             .iter()
-            .find(|setting| setting.get_id() == *api_access_method);
+            .find(|setting| setting.get_id() == *api_access_method)
+        else {
+            return Ok(());
+        };
 
-        match maybe_setting {
-            Some(x) => match x.access_method {
-                AccessMethod::BuiltIn(ref built_in) => Err(Error::RemoveBuiltin {
-                    attempted: built_in.clone(),
-                }),
-                AccessMethod::Custom(_) => {
-                    self.custom
-                        .retain(|method| method.get_id() != *api_access_method);
-                    self.ensure_consistent_state();
-                    Ok(())
-                }
-            },
-            None => Ok(()),
+        match setting.access_method {
+            AccessMethod::BuiltIn(ref built_in) => Err(Error::RemoveBuiltin {
+                attempted: built_in.clone(),
+            }),
+            AccessMethod::Custom(_) => {
+                self.custom
+                    .retain(|method| method.get_id() != *api_access_method);
+                self.ensure_consistent_state();
+                Ok(())
+            }
         }
     }
 
@@ -130,7 +141,7 @@ impl Settings {
     /// Check that `self` contains atleast one enabled access methods. If not,
     /// the `Direct` access method is re-enabled.
     fn ensure_consistent_state(&mut self) {
-        if self.iter().all(|access_method| access_method.disabled()) {
+        if self.iter().all(AccessMethodSetting::disabled) {
             self.direct.enable();
         }
     }
@@ -142,7 +153,7 @@ impl Settings {
         new_api_access_method: &AccessMethodSetting,
     ) -> Result<(), Error> {
         if self.custom.iter().any(|api_access_method| {
-            api_access_method.id != new_api_access_method.id
+            api_access_method.get_id() != new_api_access_method.get_id()
                 && api_access_method.name == new_api_access_method.name
         }) {
             return Err(Error::DuplicateName);
@@ -156,7 +167,7 @@ impl Settings {
         once(&self.direct)
             .chain(once(&self.mullvad_bridges))
             .chain(once(&self.encrypted_dns_proxy))
-            // .chain(once(&self.domain_fronting))
+            //.chain(once(&self.domain_fronting))
             .chain(&self.custom)
     }
 
@@ -166,7 +177,7 @@ impl Settings {
         once(&mut self.direct)
             .chain(once(&mut self.mullvad_bridges))
             .chain(once(&mut self.encrypted_dns_proxy))
-            // .chain(once(&mut self.domain_fronting))
+            //.chain(once(&mut self.domain_fronting))
             .chain(&mut self.custom)
     }
 
@@ -227,196 +238,5 @@ impl Default for Settings {
             // domain_fronting: Settings::create_domain_fronting(),
             custom: vec![],
         }
-    }
-}
-
-#[derive(thiserror::Error, Debug, PartialEq)]
-pub enum Error {
-    #[error("Access method with name already exists")]
-    DuplicateName,
-    /// Built-in access methods can not be removed
-    #[error("Cannot remove built-in access method {}", attempted)]
-    RemoveBuiltin { attempted: BuiltInAccessMethod },
-}
-
-/// API Access Method datastructure
-///
-/// Mirrors the protobuf definition
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
-pub struct AccessMethodSetting {
-    /// Some unique id (distinct for each `AccessMethod`).
-    id: Id,
-    pub name: String,
-    pub enabled: bool,
-    pub access_method: AccessMethod,
-}
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Id(uuid::Uuid);
-
-impl Id {
-    #[expect(clippy::new_without_default)]
-    pub fn new() -> Self {
-        Self(uuid::Uuid::new_v4())
-    }
-    /// Tries to parse a UUID from a raw String. If it is successful, an
-    /// [`Id`] is instantiated.
-    pub fn from_string(id: String) -> Option<Self> {
-        use std::str::FromStr;
-        uuid::Uuid::from_str(&id).ok().map(Self)
-    }
-
-    pub fn as_bytes(&self) -> &[u8] {
-        self.0.as_bytes()
-    }
-}
-
-impl std::fmt::Display for Id {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-/// Access Method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
-#[serde(rename_all = "snake_case")]
-pub enum AccessMethod {
-    BuiltIn(BuiltInAccessMethod),
-    Custom(CustomProxy),
-}
-
-impl AccessMethodSetting {
-    pub fn new(name: String, enabled: bool, access_method: AccessMethod) -> Self {
-        Self {
-            id: Id::new(),
-            name,
-            enabled,
-            access_method,
-        }
-    }
-
-    /// Just like [`new`], [`with_id`] will create a new [`AccessMethodSetting`].
-    /// But instead of automatically generating a new UUID, the id is instead
-    /// passed as an argument.
-    ///
-    /// This is useful when converting to [`AccessMethodSetting`] from other data
-    /// representations, such as protobuf.
-    ///
-    /// [`new`]: AccessMethodSetting::new
-    /// [`with_id`]: AccessMethodSetting::with_id
-    pub fn with_id(id: Id, name: String, enabled: bool, access_method: AccessMethod) -> Self {
-        Self {
-            id,
-            name,
-            enabled,
-            access_method,
-        }
-    }
-
-    pub fn get_id(&self) -> Id {
-        self.id.clone()
-    }
-
-    pub fn get_name(&self) -> String {
-        self.name.clone()
-    }
-
-    pub fn enabled(&self) -> bool {
-        self.enabled
-    }
-
-    pub fn disabled(&self) -> bool {
-        !self.enabled
-    }
-
-    pub fn as_custom(&self) -> Option<&CustomProxy> {
-        self.access_method.as_custom()
-    }
-
-    pub fn is_builtin(&self) -> bool {
-        self.as_custom().is_none()
-    }
-
-    pub fn is_direct(&self) -> bool {
-        matches!(
-            self.access_method,
-            AccessMethod::BuiltIn(BuiltInAccessMethod::Direct)
-        )
-    }
-
-    /// Set an API access method to be enabled.
-    pub fn enable(&mut self) {
-        self.enabled = true;
-    }
-
-    /// Set an API access method to be disabled.
-    pub fn disable(&mut self) {
-        self.enabled = false;
-    }
-}
-
-/// Built-In access method datastructure.
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
-#[serde(rename_all = "snake_case")]
-pub enum BuiltInAccessMethod {
-    Direct,
-    Bridge,
-    EncryptedDnsProxy,
-    // DomainFronting,
-}
-
-impl AccessMethod {
-    pub fn as_custom(&self) -> Option<&CustomProxy> {
-        match self {
-            AccessMethod::BuiltIn(_) => None,
-            AccessMethod::Custom(access_method) => Some(access_method),
-        }
-    }
-}
-
-impl BuiltInAccessMethod {
-    pub fn canonical_name(&self) -> String {
-        match self {
-            BuiltInAccessMethod::Direct => "Direct".to_string(),
-            BuiltInAccessMethod::Bridge => "Mullvad Bridges".to_string(),
-            BuiltInAccessMethod::EncryptedDnsProxy => "Encrypted DNS proxy".to_string(),
-            // BuiltInAccessMethod::DomainFronting => "Domain fronting".to_string(),
-        }
-    }
-}
-
-impl std::fmt::Display for BuiltInAccessMethod {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&self.canonical_name())
-    }
-}
-
-impl From<BuiltInAccessMethod> for AccessMethod {
-    fn from(value: BuiltInAccessMethod) -> Self {
-        AccessMethod::BuiltIn(value)
-    }
-}
-
-impl From<CustomProxy> for AccessMethod {
-    fn from(value: CustomProxy) -> Self {
-        AccessMethod::Custom(value)
-    }
-}
-
-impl From<Socks5Remote> for AccessMethod {
-    fn from(value: Socks5Remote) -> Self {
-        CustomProxy::Socks5Remote(value).into()
-    }
-}
-
-impl From<Socks5Local> for AccessMethod {
-    fn from(value: Socks5Local) -> Self {
-        CustomProxy::Socks5Local(value).into()
-    }
-}
-
-impl From<Shadowsocks> for AccessMethod {
-    fn from(value: Shadowsocks) -> Self {
-        CustomProxy::Shadowsocks(value).into()
     }
 }

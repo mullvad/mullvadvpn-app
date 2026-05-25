@@ -19,6 +19,7 @@ import {
   ErrorStateCause,
   IRelayListWithEndpointData,
   ISettings,
+  type ShadowsocksCipher,
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
@@ -134,6 +135,8 @@ class ApplicationMain
   private relayList?: IRelayListWithEndpointData;
 
   private currentApiAccessMethod?: AccessMethodSetting;
+
+  private shadowsocksCiphers?: ShadowsocksCipher[];
 
   // If set to true, the GUI should restart the daemon when it exits.
   // This is to make sure that the daemon is granted full-disk access.
@@ -666,6 +669,16 @@ class ApplicationMain
       return this.handleBootstrapError(error);
     }
 
+    // fetch Shadowsocks ciphers
+    try {
+      this.shadowsocksCiphers = await this.daemonRpc.getShadowsocksCiphers();
+    } catch (e) {
+      const error = e as Error;
+      log.error(`Failed to fetch Shadowsocks ciphers: ${error.message}`);
+
+      return this.handleBootstrapError(error);
+    }
+
     // fetch the latest version info in background
     if (!UPDATE_NOTIFICATION_DISABLED) {
       void this.version.fetchLatestVersion();
@@ -849,6 +862,7 @@ class ApplicationMain
       navigationHistory: this.navigationHistory,
       currentApiAccessMethod: this.currentApiAccessMethod,
       isMacOs13OrNewer: isMacOs13OrNewer(),
+      shadowsocksCiphers: this.shadowsocksCiphers,
     }));
 
     IpcMainEventChannel.map.handleGetData(async () => {

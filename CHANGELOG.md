@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
   <https://github.com/mullvad/wireguard-nt>.
 
 ### Fixed
+- Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
+  existing, invalid access method is removed with a settings migration.
+
 #### Windows
 - Fix timeout when loading split tunnel driver during boot.
 - Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.

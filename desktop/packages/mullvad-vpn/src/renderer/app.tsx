@@ -32,6 +32,7 @@ import {
   NewCustomList,
   ObfuscationSettings,
   RelaySettings,
+  type ShadowsocksCipher,
   TunnelState,
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
@@ -334,6 +335,7 @@ export default class AppRenderer {
     this.setChangelog(initialState.changelog);
     this.setCurrentApiAccessMethod(initialState.currentApiAccessMethod);
     this.reduxActions.userInterface.setIsMacOs13OrNewer(initialState.isMacOs13OrNewer);
+    this.setShadowsocksCiphers(initialState.shadowsocksCiphers ?? []);
 
     if (initialState.macOsScrollbarVisibility !== undefined) {
       this.reduxActions.userInterface.setMacOsScrollbarVisibility(
@@ -991,6 +993,10 @@ export default class AppRenderer {
 
   private setChangelog(changelog: IChangelog) {
     this.reduxActions.userInterface.setChangelog(changelog);
+  }
+
+  private setShadowsocksCiphers(ciphers: ShadowsocksCipher[]) {
+    this.reduxActions.settings.updateShadowsocksCiphers(ciphers);
   }
 
   private updateLocation() {

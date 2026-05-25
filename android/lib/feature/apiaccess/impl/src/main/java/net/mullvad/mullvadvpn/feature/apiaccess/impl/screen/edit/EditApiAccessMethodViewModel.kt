@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -45,18 +46,22 @@ class EditApiAccessMethodViewModel(
 
     private val _uiSideEffect = Channel<EditApiAccessSideEffect>(Channel.BUFFERED)
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
+    private val shadowSocksCiphers = MutableStateFlow<List<Cipher>?>(null)
     private val isTestingApiAccessMethod = MutableStateFlow(false)
     private val formData = MutableStateFlow(initialData())
     val uiState =
-        combine(flowOf(initialData()), formData, isTestingApiAccessMethod) {
-                initialData,
+        combine(
+                flowOf(initialData()),
                 formData,
-                isTestingApiAccessMethod ->
+                isTestingApiAccessMethod,
+                shadowSocksCiphers.filterNotNull(),
+            ) { initialData, formData, isTestingApiAccessMethod, shadowSocksCiphers ->
                 EditApiAccessMethodUiState.Content(
                     editMode = apiAccessMethodId != null,
                     formData = formData,
                     hasChanges = initialData != formData,
                     isTestingApiAccessMethod = isTestingApiAccessMethod,
+                    shadowSocksCiphers = shadowSocksCiphers,
                 )
             }
             .stateIn(
@@ -64,6 +69,21 @@ class EditApiAccessMethodViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 EditApiAccessMethodUiState.Loading(editMode = apiAccessMethodId != null),
             )
+
+    init {
+        viewModelScope.launch {
+            val supportedCiphers =
+                apiAccessRepository.getShadowsocksCiphers().getOrElse { emptyList() }
+            shadowSocksCiphers.value = supportedCiphers
+            formData.update {
+                if (it.cipher.value.isBlank() && supportedCiphers.isNotEmpty()) {
+                    it.copy(cipher = supportedCiphers.first())
+                } else {
+                    it
+                }
+            }
+        }
+    }
 
     fun setAccessMethodType(accessMethodType: ApiAccessMethodTypes) {
         formData.update { it.copy(apiAccessMethodTypes = accessMethodType) }

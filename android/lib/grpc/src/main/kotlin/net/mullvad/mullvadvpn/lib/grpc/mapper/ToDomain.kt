@@ -720,7 +720,7 @@ internal fun ManagementInterface.Shadowsocks.toDomain(): ApiAccessMethod.CustomP
         ip = ip,
         port = Port(port),
         password = password,
-        cipher = Cipher.fromString(cipher),
+        cipher = Cipher(cipher.name),
     )
 
 internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.CustomProxy.Socks5Remote =
@@ -816,3 +816,7 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
         port = port,
         conflictWithOtherHop = conflictWithOtherHop,
     )
+
+internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.map {
+    Cipher(it.name)
+}

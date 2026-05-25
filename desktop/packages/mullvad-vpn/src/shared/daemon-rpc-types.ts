@@ -456,6 +456,10 @@ export type MultihopRecentLocation = {
   exit: RelayLocation;
 };
 
+export type ShadowsocksCipher = {
+  name: string;
+};
+
 export interface ICustomList {
   id: string;
   name: string;
@@ -556,7 +560,7 @@ export type ShadowsocksCustomProxy = {
   ip: string;
   port: number;
   password: string;
-  cipher: string;
+  cipher: ShadowsocksCipher;
 };
 
 export type CustomProxy = Socks5LocalCustomProxy | Socks5RemoteCustomProxy | ShadowsocksCustomProxy;
