@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.MINIMUM_LOADING_TIME_MILLIS
+import net.mullvad.mullvadvpn.lib.common.compose.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.delayAtLeast
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod

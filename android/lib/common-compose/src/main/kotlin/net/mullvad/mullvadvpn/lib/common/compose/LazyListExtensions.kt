@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.common.compose
+package net.mullvad.mullvadvpn.lib.common.compose
 
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyItemScope

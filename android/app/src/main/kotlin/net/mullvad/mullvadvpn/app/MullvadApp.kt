@@ -33,8 +33,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.cancel
-import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
-import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -72,6 +70,8 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.navigation.serverIpO
 import net.mullvad.mullvadvpn.feature.settings.impl.navigation.settingsEntry
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnelingEntry
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
+import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry

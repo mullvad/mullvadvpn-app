@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.common.compose
+package net.mullvad.mullvadvpn.lib.common.compose
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.ExperimentalMaterial3Api

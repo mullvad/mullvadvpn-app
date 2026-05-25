@@ -42,10 +42,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import co.touchlab.kermit.Logger
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.account.api.AccountNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
@@ -54,6 +50,10 @@ import net.mullvad.mullvadvpn.feature.home.api.ConnectNavKey
 import net.mullvad.mullvadvpn.feature.home.api.DeviceNameInfoNavKey
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.groupWithSpaces
 import net.mullvad.mullvadvpn.lib.ui.component.CopyAnimatedIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar

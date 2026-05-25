@@ -7,9 +7,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
-import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.lib.common.compose.clickableAnnotatedString
+import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
 import net.mullvad.mullvadvpn.lib.ui.component.dialog.InfoDialog
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme

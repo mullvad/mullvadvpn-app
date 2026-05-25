@@ -50,8 +50,6 @@ import androidx.compose.ui.unit.Dp.Companion.Hairline
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.apiaccess.api.DiscardApiAccessChangesConfirmedNavResult
@@ -60,6 +58,8 @@ import net.mullvad.mullvadvpn.feature.apiaccess.api.EditApiAccessMethodNavResult
 import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavKey
 import net.mullvad.mullvadvpn.feature.apiaccess.api.SaveApiAccessMethodNavResult
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.component.TestMethodButton
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.Cipher

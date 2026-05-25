@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.common.compose
+package net.mullvad.mullvadvpn.lib.common.compose
 
 import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable

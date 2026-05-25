@@ -32,14 +32,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.first
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.animateScrollAndCentralizeItem
-import net.mullvad.mullvadvpn.common.compose.animateScrollCentralizeItem
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.CustomListHeader
 import net.mullvad.mullvadvpn.feature.location.impl.relayListContent
 import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.animateScrollAndCentralizeItem
+import net.mullvad.mullvadvpn.lib.common.compose.animateScrollCentralizeItem
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem

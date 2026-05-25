@@ -36,9 +36,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.app.MainActivity
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
