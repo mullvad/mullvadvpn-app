@@ -208,3 +208,10 @@ inherits = "release"
 debug = true
 strip = false
 lto = "thin"
+
+[patch.crates-io]
+# TODO: Update to latest version on crates.io when this fix has been released:
+# https://github.com/meh/rust-tun/pull/160
+# The current version when writing this (0.8.9) is problematic because it misreports the MTU.
+# Branch: backport-fix-wintun-mtu
+tun = { git = "https://github.com/mullvad/rust-tun", rev = "b1b36d383d94148cbb6e33dcc7d37406bc56a3f4" }
