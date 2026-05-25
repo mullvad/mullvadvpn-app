@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha40
 
 @Composable
 fun Accordion(
@@ -45,7 +46,7 @@ fun Accordion(
         modifier =
             modifier
                 .background(
-                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.4f),
+                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = Alpha40),
                     shape = MaterialTheme.shapes.medium,
                 )
                 .clip(MaterialTheme.shapes.medium)
