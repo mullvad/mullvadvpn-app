@@ -99,6 +99,8 @@ const val EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG = "edit_custom_list_dialog_inpu
 
 // CustomListLocationsScreen
 const val SAVE_BUTTON_TEST_TAG = "save_button_test_tag"
+const val CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG =
+    "custom_list_locations_search_input_test_tag"
 
 // CustomListsScreen
 const val NEW_LIST_BUTTON_TEST_TAG = "new_list_button_test_tag"
