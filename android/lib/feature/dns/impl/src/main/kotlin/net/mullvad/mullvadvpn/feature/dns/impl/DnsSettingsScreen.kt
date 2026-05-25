@@ -45,6 +45,7 @@ import net.mullvad.mullvadvpn.feature.dns.api.MalwareInfoNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -260,13 +261,8 @@ private fun LazyListScope.content(
 
     item { Description() }
 
-    item {
-        ContentBlockersHeader(
-            numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled()
-        )
-    }
-
     contentBlockers(
+        numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
         contentBlockersEnabled = state.contentBlockersEnabled,
         defaultDnsOptions = state.defaultDnsOptions,
         onToggleAllBlockers = onToggleAllBlockers,
@@ -279,22 +275,7 @@ private fun LazyListScope.content(
         navigateToMalwareInfo = navigateToMalwareInfo,
     )
 
-    if (!state.contentBlockersEnabled) {
-        item {
-            ListItemInfo(
-                text =
-                    stringResource(
-                        id = R.string.dns_content_blockers_subtitle,
-                        stringResource(id = R.string.enable_custom_dns),
-                    ),
-                modifier = Modifier.animateItem(),
-            )
-        }
-    } else {
-        item { Spacer(modifier = Modifier.height(Dimens.mediumPadding).animateItem()) }
-    }
-
-    item {
+    itemWithDivider {
         SwitchListItem(
             modifier = Modifier.animateItem(),
             position = if (state.customDnsEnabled) Position.Top else Position.Single,
@@ -379,7 +360,6 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
         content = {
             Row {
                 Text(
-                    modifier = Modifier.weight(1f),
                     text = stringResource(R.string.dns_content_blockers),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -389,6 +369,8 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
                     Text(
                         stringResource(R.string.number_parentheses, numberOfBlockersEnabled),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -397,6 +379,7 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
 }
 
 private fun LazyListScope.contentBlockers(
+    numberOfBlockersEnabled: Int,
     contentBlockersEnabled: Boolean,
     defaultDnsOptions: DefaultDnsOptions,
     onToggleAllBlockers: (Boolean) -> Unit,
@@ -408,7 +391,9 @@ private fun LazyListScope.contentBlockers(
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
 ) {
-    item {
+    itemWithDivider { ContentBlockersHeader(numberOfBlockersEnabled = numberOfBlockersEnabled) }
+
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.all),
             isToggled = defaultDnsOptions.isAllBlockersEnabled,
@@ -416,7 +401,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleAllBlockers,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_ads_title),
             isToggled = defaultDnsOptions.blockAds,
@@ -424,7 +409,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockAds,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_trackers_title),
             isToggled = defaultDnsOptions.blockTrackers,
@@ -432,7 +417,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockTrackers,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_malware_title),
             isToggled = defaultDnsOptions.blockMalware,
@@ -441,7 +426,7 @@ private fun LazyListScope.contentBlockers(
             onInfoClicked = navigateToMalwareInfo,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_gambling_title),
             isToggled = defaultDnsOptions.blockGambling,
@@ -449,7 +434,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockGambling,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_adult_content_title),
             isToggled = defaultDnsOptions.blockAdultContent,
@@ -457,7 +442,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockAdultContent,
         )
     }
-    item {
+    itemWithDivider {
         ContentBlocker(
             title = stringResource(R.string.block_social_media_title),
             isToggled = defaultDnsOptions.blockSocialMedia,
@@ -465,6 +450,21 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockSocialMedia,
             position = Position.Bottom,
         )
+    }
+
+    if (!contentBlockersEnabled) {
+        item {
+            ListItemInfo(
+                text =
+                    stringResource(
+                        id = R.string.dns_content_blockers_subtitle,
+                        stringResource(id = R.string.enable_custom_dns),
+                    ),
+                modifier = Modifier.animateItem(),
+            )
+        }
+    } else {
+        item { Spacer(modifier = Modifier.height(Dimens.mediumPadding).animateItem()) }
     }
 }
 
