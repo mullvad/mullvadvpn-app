@@ -188,6 +188,15 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
     export MULLVAD_ADD_MANIFEST="1"
 fi
 
+# Tell jemalloc to use 64KiB page size on ARM Linux.
+#
+# Jemalloc needs to be compiled with a page size that is >= to the page size of the
+# system it's running on. Page size is 4KiB, except on ARM where it's configurable.
+# 64KiB seems like a good upper limit.
+case $HOST in
+    aarch64-unknown-linux-gnu) export JEMALLOC_SYS_WITH_LG_PAGE="16";; # 2^16 == 64KiB
+esac
+
 ################################################################################
 # Compile and build
 ################################################################################
