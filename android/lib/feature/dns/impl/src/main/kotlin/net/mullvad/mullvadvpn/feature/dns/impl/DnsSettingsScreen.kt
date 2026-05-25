@@ -109,13 +109,8 @@ fun SharedTransitionScope.DnsSettings(
     val snackbarHostState = remember { SnackbarHostState() }
 
     resultStore.consumeResult<CustomDnsNavResult> { result ->
-        when (result) {
-            is CustomDnsNavResult.Success -> {
-                vm.showApplySettingChangesWarningToast()
-            }
-            CustomDnsNavResult.Error -> {
-                vm.showGenericErrorToast()
-            }
+        if (result == CustomDnsNavResult.Error) {
+            vm.showGenericErrorToast()
         }
     }
 
@@ -123,13 +118,6 @@ fun SharedTransitionScope.DnsSettings(
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             DnsSettingsSideEffect.NavigateToDnsDialog -> navigator.navigate(CustomDnsNavKey())
-            DnsSettingsSideEffect.ShowToast.ApplySettingWarning ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(R.string.settings_changes_effect_warning_short)
-                    )
-                }
             DnsSettingsSideEffect.ShowToast.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
