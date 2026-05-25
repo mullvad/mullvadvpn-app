@@ -274,8 +274,6 @@
     <string name="loading_products">正在載入產品</string>
     <string name="loading_verifying">正在驗證購買…</string>
     <string name="local_network_sharing">本機網路分享</string>
-    <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
-    <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，將無法使用「本機網路共享」功能。</string>
     <string name="location_added">%1$s (已新增)</string>
     <string name="location_was_added_to_list">已將 %1$s 新增至「%2$s」</string>

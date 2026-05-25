@@ -43,11 +43,11 @@ import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.anticensorship.api.AntiCensorshipNavKey
 import net.mullvad.mullvadvpn.feature.autoconnect.api.AutoConnectNavKey
 import net.mullvad.mullvadvpn.feature.dns.api.DnsSettingsNavKey
+import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
 import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.ConnectOnStartupInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.DeviceIpInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.Ipv6InfoNavKey
-import net.mullvad.mullvadvpn.feature.vpnsettings.api.LocalNetworkSharingInfoNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.MtuNavResult
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.QuantumResistanceInfoNavKey
@@ -107,7 +107,6 @@ private fun PreviewVpnSettings(
             state = state,
             initialScrollToFeature = null,
             snackbarHostState = SnackbarHostState(),
-            onToggleLocalNetworkSharing = {},
             navigateToMtuDialog = {},
             navigateToDns = {},
             onBackClick = {},
@@ -115,7 +114,7 @@ private fun PreviewVpnSettings(
             onToggleAutoStartAndConnectOnBoot = { _ -> },
             navigateToAutoConnectScreen = {},
             navigateToQuantumResistanceInfo = {},
-            navigateToLocalNetworkSharingInfo = {},
+            navigateToLocalNetworkSharing = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIpv6 = {},
@@ -178,11 +177,10 @@ fun SharedTransitionScope.VpnSettings(
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(AutoConnectNavKey) },
         navigateToQuantumResistanceInfo =
             dropUnlessResumed { navigator.navigate(QuantumResistanceInfoNavKey) },
-        navigateToLocalNetworkSharingInfo =
-            dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoNavKey) },
+        navigateToLocalNetworkSharing =
+            dropUnlessResumed { navigator.navigate(LocalNetworkSharingNavKey()) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigateReplaceIfDetailPane(ServerIpOverrideNavKey()) },
-        onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
         navigateToMtuDialog = dropUnlessResumed { mtu: Mtu? -> navigator.navigate(MtuNavKey(mtu)) },
         navigateToDns = dropUnlessResumed { navigator.navigate(DnsSettingsNavKey()) },
         onSelectQuantumResistanceSetting = vm::onSelectQuantumResistanceSetting,
@@ -210,9 +208,8 @@ fun VpnSettingsScreen(
     navigateToAutoConnectScreen: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
-    navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToLocalNetworkSharing: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
-    onToggleLocalNetworkSharing: (Boolean) -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
     navigateToDns: () -> Unit,
     onBackClick: () -> Unit,
@@ -255,10 +252,9 @@ fun VpnSettingsScreen(
                             initialScrollToFeature = initialScrollToFeature,
                             navigateToAutoConnectScreen = navigateToAutoConnectScreen,
                             navigateToQuantumResistanceInfo = navigateToQuantumResistanceInfo,
-                            navigateToLocalNetworkSharingInfo = navigateToLocalNetworkSharingInfo,
+                            navigateToLocalNetworkSharing = navigateToLocalNetworkSharing,
                             navigateToServerIpOverrides = navigateToServerIpOverrides,
                             navigateToAntiCensorship = navigateToAntiCensorship,
-                            onToggleLocalNetworkSharing = onToggleLocalNetworkSharing,
                             navigateToMtuDialog = navigateToMtuDialog,
                             navigateToDns = navigateToDns,
                             onSelectQuantumResistanceSetting = onSelectQuantumResistanceSetting,
@@ -283,10 +279,9 @@ fun VpnSettingsContent(
     initialScrollToFeature: FeatureIndicator?,
     navigateToAutoConnectScreen: () -> Unit,
     navigateToQuantumResistanceInfo: () -> Unit,
-    navigateToLocalNetworkSharingInfo: () -> Unit,
+    navigateToLocalNetworkSharing: () -> Unit,
     navigateToServerIpOverrides: () -> Unit,
     navigateToAntiCensorship: () -> Unit,
-    onToggleLocalNetworkSharing: (Boolean) -> Unit,
     navigateToMtuDialog: (mtu: Mtu?) -> Unit,
     navigateToDns: () -> Unit,
     onSelectQuantumResistanceSetting: (Boolean) -> Unit,
@@ -444,19 +439,10 @@ fun VpnSettingsContent(
 
                 is VpnSettingItem.LocalNetworkSharingSetting ->
                     item(key = it::class.simpleName) {
-                        SwitchListItem(
-                            modifier =
-                                Modifier.animateItem()
-                                    .focusRequester(
-                                        focusRequesters.getValue(FeatureIndicator.LAN_SHARING)
-                                    ),
-                            backgroundAlpha =
-                                highlightBackgroundAlpha(FeatureIndicator.LAN_SHARING),
-                            title = stringResource(R.string.local_network_sharing),
-                            isToggled = it.enabled,
-                            isEnabled = true,
-                            onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
-                            onInfoClicked = navigateToLocalNetworkSharingInfo,
+                        NavigationListItem(
+                            modifier = Modifier.animateItem(),
+                            title = stringResource(id = R.string.local_network_sharing),
+                            onClick = navigateToLocalNetworkSharing,
                         )
                     }
 

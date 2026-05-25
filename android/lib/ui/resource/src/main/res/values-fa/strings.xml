@@ -274,8 +274,6 @@
     <string name="loading_products">در حال بارگذاری محصولات</string>
     <string name="loading_verifying">در حال تأیید خرید...</string>
     <string name="local_network_sharing">اشتراک‌گذاری شبکهٔ محلی</string>
-    <string name="local_network_sharing_additional_info">این کار را با اجازه‌دادن به ارتباطات شبکه‌ای خارج از تونل برای محدوده‌های چندپخشی و پخشی محلی، و همچنین برای ارسال و دریافت در این بازه‌های IP خصوصی انجام می‌دهد:</string>
-    <string name="local_network_sharing_info">این قابلیت اجازه می‌دهد به دستگاه‌های دیگر در شبکهٔ محلی دسترسی داشته باشید؛ مانند اشتراک‌گذاری، چاپ، پخش رسانه و موارد مشابه.</string>
     <string name="local_network_sharing_info_block_connections_warning">توجه: اگر «مسدود کردن اتصال‌ها بدون VPN» فعال باشد، «اشتراک‌گذاری شبکهٔ محلی» کار نخواهد کرد.</string>
     <string name="location_added">%1$s (اضافه شد)</string>
     <string name="location_was_added_to_list">%1$s به «%2$s» اضافه شد</string>

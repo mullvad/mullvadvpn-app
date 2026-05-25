@@ -274,8 +274,6 @@
     <string name="loading_products">Завантаження продуктів</string>
     <string name="loading_verifying">Покупка перевіряється…</string>
     <string name="local_network_sharing">Обмін даними в локальній мережі</string>
-    <string name="local_network_sharing_additional_info">Це досягається завдяки дозволу мережевої взаємодії поза тунелем із локальними мультикастовими й широкомовними діапазонами, а також із цими діапазонами приватних IP-адрес:</string>
-    <string name="local_network_sharing_info">Функція забезпечує доступ до інших пристроїв у локальній мережі, наприклад для обміну файлами, друку, потокового передавання тощо.</string>
     <string name="local_network_sharing_info_block_connections_warning">Увага: якщо ввімкнено функцію «Блокувати з’єднання без VPN», обмін даними в локальній мережі не працюватиме.</string>
     <string name="location_added">%1$s (додано)</string>
     <string name="location_was_added_to_list">Розташування %1$s додано до списку «%2$s»</string>
