@@ -33,6 +33,7 @@ use std::{
 };
 use talpid_tunnel::tun_provider::{self, Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
+use talpid_types::net::wireguard::PeerConfig;
 use tun::{AbstractDevice, AsyncDevice};
 
 #[cfg(all(feature = "multihop-pcap", target_os = "linux"))]
@@ -118,40 +119,75 @@ impl GotaTun {
 }
 
 enum Devices {
-    Singlehop {
-        device: SinglehopDevice,
-    },
+    Singlehop(Singlehop),
+    Multihop(Multihop),
+}
 
-    Multihop {
-        entry_device: EntryDevice,
-        exit_device: ExitDevice,
-    },
+struct Singlehop {
+    device: SinglehopDevice,
+}
+
+impl Singlehop {
+    /// (Re)Configure gotatun devices.
+    async fn configure(
+        &mut self,
+        config: &Config,
+        daita: Option<&DaitaSettings>,
+    ) -> Result<(), gotatun::device::Error> {
+        log::trace!(
+            "configuring gotatun singlehop device (daita={})",
+            daita.is_some()
+        );
+        configure_entry_device(&self.device, config, daita).await
+    }
+}
+
+struct Multihop {
+    entry_device: EntryDevice,
+    exit_device: ExitDevice,
+}
+
+impl Multihop {
+    /// (Re)Configure gotatun devices.
+    ///
+    /// Take precaution to ensure that `exit_peer` is linked to `config`.
+    async fn configure(
+        &mut self,
+        config: &Config,
+        // TODO: Express relationship between `config` and `exit_peer` at the type level.
+        exit_peer: &PeerConfig,
+        daita: Option<&DaitaSettings>,
+    ) -> Result<(), gotatun::device::Error> {
+        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
+        let exit_peer = to_gotatun_peer(exit_peer, daita);
+
+        log::trace!(
+            "configuring gotatun multihop device (daita={})",
+            daita.is_some()
+        );
+
+        configure_entry_device(&self.entry_device, config, daita).await?;
+        configure_exit_device(&self.exit_device, private_key, exit_peer).await?;
+
+        Ok(())
+    }
 }
 
 impl Devices {
     async fn stop(self) {
         match self {
-            Devices::Singlehop { device } => {
+            Devices::Singlehop(Singlehop { device }) => {
                 device.stop().await;
             }
-            Devices::Multihop {
+            Devices::Multihop(Multihop {
                 entry_device,
                 exit_device,
-            } => {
+            }) => {
                 exit_device.stop().await;
                 entry_device.stop().await;
             }
         }
     }
-}
-
-/// Errors that can happen when setting up / restarting / reconfiguring GotaTun devices.
-#[derive(thiserror::Error, Debug)]
-pub enum ConfigureGotaTunDeviceError {
-    #[error("Multihop devices were provided with a single config")]
-    ExpectedSinglehopDevice,
-    #[error("Single devices were provided with a multihop config")]
-    ExpectedMultihopDevice,
 }
 
 #[cfg(target_os = "android")]
@@ -278,7 +314,7 @@ async fn configure_entry_device(
     device: &Device<impl DeviceTransports>,
     config: &Config,
     daita: Option<&DaitaSettings>,
-) -> Result<(), TunnelError> {
+) -> Result<(), gotatun::device::Error> {
     let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
     let entry_peer = to_gotatun_peer(&config.entry_peer, daita);
     device
@@ -294,9 +330,8 @@ async fn configure_entry_device(
         })
         .await
         .flatten()
-        .map_err(|err| {
+        .inspect_err(|err| {
             log::error!("Failed to set gotatun config: {err:#}");
-            TunnelError::SetConfigError
         })
 }
 
@@ -305,7 +340,7 @@ async fn configure_exit_device(
     device: &Device<impl DeviceTransports>,
     private_key: StaticSecret,
     exit_peer: gotatun::device::Peer,
-) -> Result<(), TunnelError> {
+) -> Result<(), gotatun::device::Error> {
     device
         .write(async |device| {
             device.clear_peers();
@@ -313,60 +348,9 @@ async fn configure_exit_device(
             device.add_peer(exit_peer);
         })
         .await
-        .map_err(|err| {
+        .inspect_err(|err| {
             log::error!("Failed to set gotatun config: {err:#}");
-            TunnelError::SetConfigError
         })
-}
-
-/// (Re)Configure gotatun devices.
-async fn configure_devices(
-    devices: &mut Devices,
-    config: &Config,
-    daita: Option<&DaitaSettings>,
-) -> Result<(), TunnelError> {
-    if let Some(exit_peer) = &config.exit_peer {
-        log::trace!(
-            "configuring gotatun multihop device (daita={})",
-            daita.is_some()
-        );
-
-        let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-        let exit_peer = to_gotatun_peer(exit_peer, daita);
-
-        match devices {
-            Devices::Multihop {
-                entry_device,
-                exit_device,
-            } => {
-                configure_entry_device(entry_device, config, daita).await?;
-                configure_exit_device(exit_device, private_key, exit_peer).await?;
-            }
-            _ => {
-                return Err(TunnelError::ConfigureGotaTunDevice(
-                    ConfigureGotaTunDeviceError::ExpectedMultihopDevice,
-                ));
-            }
-        }
-    } else {
-        log::trace!(
-            "configuring gotatun singlehop device (daita={})",
-            daita.is_some()
-        );
-
-        match devices {
-            Devices::Singlehop { device } => {
-                configure_entry_device(device, config, daita).await?;
-            }
-            _ => {
-                return Err(TunnelError::ConfigureGotaTunDevice(
-                    ConfigureGotaTunDeviceError::ExpectedSinglehopDevice,
-                ));
-            }
-        }
-    }
-
-    Ok(())
 }
 
 #[async_trait::async_trait]
@@ -402,11 +386,11 @@ impl Tunnel for GotaTun {
         }
 
         let stats = match self.devices.as_ref() {
-            Some(Devices::Singlehop { device }) => get_stats(device).await,
-            Some(Devices::Multihop {
+            Some(Devices::Singlehop(Singlehop { device })) => get_stats(device).await,
+            Some(Devices::Multihop(Multihop {
                 entry_device,
                 exit_device,
-            }) => {
+            })) => {
                 let mut stats = get_stats(entry_device).await;
                 stats.extend(get_stats(exit_device).await);
                 stats
@@ -443,8 +427,22 @@ impl Tunnel for GotaTun {
             }
 
             match &mut self.devices {
-                Some(devices) => {
-                    configure_devices(devices, &self.config, daita.as_ref()).await?;
+                Some(Devices::Singlehop(device)) => {
+                    device
+                        .configure(&self.config, daita.as_ref())
+                        .await
+                        .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+                }
+                Some(Devices::Multihop(devices))
+                    if let Some(exit_peer) = self.config.exit_peer.as_ref() =>
+                {
+                    devices
+                        .configure(&self.config, exit_peer, daita.as_ref())
+                        .await
+                        .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+                }
+                Some(Devices::Multihop(_devices)) => {
+                    todo!("This is unpossible!")
                 }
                 None => {
                     self.devices = Some(
@@ -488,9 +486,8 @@ async fn create_devices(
             #[cfg(target_os = "android")]
             android_tun,
         );
-        let mut devices = if let Some(exit_peer) = &config.exit_peer {
+        let devices = if let Some(exit_peer) = &config.exit_peer {
             // Multihop setup
-
             let source_v4 = config
                 .tunnel
                 .addresses
@@ -542,10 +539,15 @@ async fn create_devices(
                 .build()
                 .await
                 .map_err(TunnelError::GotaTunDevice)?;
-            Devices::Multihop {
+            let mut devices = Multihop {
                 entry_device,
                 exit_device,
-            }
+            };
+            devices
+                .configure(config, exit_peer, daita)
+                .await
+                .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+            Devices::Multihop(devices)
         } else {
             // Singlehop setup
 
@@ -555,10 +557,13 @@ async fn create_devices(
                 .build()
                 .await
                 .map_err(TunnelError::GotaTunDevice)?;
-            Devices::Singlehop { device }
+            let mut device = Singlehop { device };
+            device
+                .configure(config, daita)
+                .await
+                .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+            Devices::Singlehop(device)
         };
-
-        configure_devices(&mut devices, config, daita).await?;
 
         Ok(devices)
     }
@@ -581,11 +586,17 @@ async fn create_devices(
         //
         // Try to bind UDP sockets with default buffer sizes.
         #[cfg(unix)]
-        Err(TunnelError::GotaTunDevice(ref err @ gotatun::device::Error::Bind(ref io_err, _)))
-            if let Some(errno) = io_err.raw_os_error()
-                && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
+        Err(
+            TunnelError::ConfigureGotaTunSinglehopDevice(
+                ref err @ gotatun::device::Error::Bind(ref io_err, _),
+            )
+            | TunnelError::ConfigureGotaTunMultihopDevice(
+                ref err @ gotatun::device::Error::Bind(ref io_err, _),
+            ),
+        ) if let Some(errno) = io_err.raw_os_error()
+            && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
         {
-            log::error!("Failed to bind UDP socket: {err} - retrying with default buffer sizes");
+            log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
             create_devices_inner(
                 config,
                 daita,
