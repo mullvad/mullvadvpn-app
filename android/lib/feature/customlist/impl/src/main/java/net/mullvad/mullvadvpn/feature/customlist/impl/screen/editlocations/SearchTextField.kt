@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material.icons.rounded.Search
@@ -16,17 +19,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import kotlinx.coroutines.flow.collectLatest
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -59,21 +61,25 @@ fun SearchTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onValueChange: (String) -> Unit,
 ) {
-    var searchTerm by rememberSaveable { mutableStateOf("") }
+    val textFieldState = rememberTextFieldState("")
+    LaunchedEffect(textFieldState) {
+        snapshotFlow { textFieldState.text.toString() }.collectLatest { onValueChange(it) }
+    }
 
     BasicTextField(
-        value = searchTerm,
+        state = textFieldState,
         textStyle = MaterialTheme.typography.bodyLarge.copy(color = textColor),
-        onValueChange = { text: String ->
-            searchTerm = text
-            onValueChange.invoke(text)
-        },
-        singleLine = singleLine,
+        lineLimits =
+            if (singleLine) {
+                TextFieldLineLimits.SingleLine
+            } else {
+                TextFieldLineLimits.MultiLine()
+            },
         cursorBrush = SolidColor(textColor),
-        decorationBox =
+        decorator =
             @Composable { innerTextField ->
                 TextFieldDefaults.DecorationBox(
-                    value = searchTerm,
+                    value = textFieldState.text.toString(),
                     innerTextField = innerTextField,
                     enabled = enabled,
                     singleLine = singleLine,
@@ -95,12 +101,12 @@ fun SearchTextField(
                         Text(text = placeHolder, style = MaterialTheme.typography.bodyLarge)
                     },
                     trailingIcon = {
-                        if (searchTerm.isNotEmpty()) {
+                        if (textFieldState.text.isNotEmpty()) {
                             Icon(
                                 modifier =
                                     Modifier.size(Dimens.smallIconSize).clickable {
-                                        searchTerm = ""
-                                        onValueChange.invoke(searchTerm)
+                                        textFieldState.clearText()
+                                        onValueChange.invoke(textFieldState.text.toString())
                                     },
                                 imageVector = Icons.Rounded.Clear,
                                 tint = textColor,

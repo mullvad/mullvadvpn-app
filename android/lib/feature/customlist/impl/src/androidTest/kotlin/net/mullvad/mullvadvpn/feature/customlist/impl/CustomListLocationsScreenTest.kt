@@ -13,11 +13,11 @@ import net.mullvad.mullvadvpn.feature.customlist.impl.data.DUMMY_RELAY_COUNTRIES
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsData
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsScreen
 import net.mullvad.mullvadvpn.feature.customlist.impl.screen.editlocations.CustomListLocationsUiState
-import net.mullvad.mullvadvpn.feature.customlist.impl.util.DisableSoftKeyboard
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.tag.CIRCULAR_PROGRESS_INDICATOR_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
@@ -41,19 +41,16 @@ class CustomListLocationsScreenTest {
         onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
         onExpand: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
         onBackClick: () -> Unit = {},
-        disableKeyboard: Boolean = false,
     ) {
         setContentWithTheme {
-            DisableSoftKeyboard(disable = disableKeyboard) {
-                CustomListLocationsScreen(
-                    state = state,
-                    onSearchTermInput = onSearchTermInput,
-                    onSaveClick = onSaveClick,
-                    onRelaySelectionClick = onRelaySelectionClick,
-                    onExpand = onExpand,
-                    onBackClick = onBackClick,
-                )
-            }
+            CustomListLocationsScreen(
+                state = state,
+                onSearchTermInput = onSearchTermInput,
+                onSaveClick = onSaveClick,
+                onRelaySelectionClick = onRelaySelectionClick,
+                onExpand = onExpand,
+                onBackClick = onBackClick,
+            )
         }
     }
 
@@ -173,14 +170,13 @@ class CustomListLocationsScreenTest {
                         ),
                 ),
             onSearchTermInput = mockedSearchTermInput,
-            // This is required to avoid a crash due to the keyboard trying to open at the same
-            // time as the test makes input
-            disableKeyboard = true,
         )
         val mockSearchString = "SEARCH"
 
         // Act
-        onNodeWithText(SEARCH_PLACEHOLDER).performTextInput(mockSearchString)
+        onNodeWithTag(CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG)
+            .performTextInput(mockSearchString)
+        waitForIdle()
 
         // Assert
         verify { mockedSearchTermInput.invoke(mockSearchString) }
@@ -282,7 +278,6 @@ class CustomListLocationsScreenTest {
         const val EDIT_LOCATIONS_TEXT = "Edit locations"
         const val SEARCH_PLACEHOLDER = "Search for..."
         const val EMPTY_SEARCH = "No result for \"%s\", please try a different search"
-        const val NO_LOCATIONS_FOUND_TEXT = "No locations found"
         const val NO_MATCHING_SERVERS_FOUNDS = "No matching servers found."
     }
 }
