@@ -174,6 +174,7 @@ export default class WindowController {
   }
 
   public show(whenReady = true) {
+    return; // TODO: Remove this
     if (whenReady) {
       this.executeWhenWindowIsReady(() => this.showImmediately());
     } else {

@@ -292,7 +292,7 @@ export default class UserInterface implements WindowControllerDelegate {
         sandbox: !this.sandboxDisabled,
         contextIsolation: true,
         spellcheck: false,
-        devTools: process.env.NODE_ENV === 'development',
+        devTools: false, // TODO: REMOVE THIS process.env.NODE_ENV === 'development',
       },
     };
 
