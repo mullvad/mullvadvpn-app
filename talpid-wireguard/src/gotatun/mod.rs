@@ -581,11 +581,8 @@ async fn create_devices(
         //
         // Try to bind UDP sockets with default buffer sizes.
         #[cfg(unix)]
-        Err(TunnelError::GotaTunDevice(ref err @ gotatun::device::Error::Bind(ref io_err, _)))
-            if let Some(errno) = io_err.raw_os_error()
-                && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
-        {
-            log::error!("Failed to bind UDP socket: {err} - retrying with default buffer sizes");
+        Err(TunnelError::SetConfigError) => {
+            log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
             create_devices_inner(
                 config,
                 daita,
