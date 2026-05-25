@@ -128,7 +128,7 @@ tokio = { version = "1.44" }
 tokio-util = "0.7"
 tonic = "0.14.6"
 tonic-prost = "0.14.6"
-tonic-prost-build = { version = "0.14.6", default-features = false }
+tonic-prost-build = { git = "https://github.com/MarkusPettersson98/tonic", rev = "0a7661b5f084ad0bc43873b704bb64f8276cc555", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }

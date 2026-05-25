@@ -4145,8 +4145,7 @@ dependencies = [
 [[package]]
 name = "tonic-build"
 version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c68f61875ac5293cf72e6c8cf0158086428c82c37229e98c840878f1706b0322"
+source = "git+https://github.com/MarkusPettersson98/tonic?rev=0a7661b5f084ad0bc43873b704bb64f8276cc555#0a7661b5f084ad0bc43873b704bb64f8276cc555"
 dependencies = [
  "prettyplease",
  "proc-macro2",
@@ -4168,8 +4167,7 @@ dependencies = [
 [[package]]
 name = "tonic-prost-build"
 version = "0.14.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "654e5643eff75d7f8c99197ce1440ed19a3474eada74c12bbac488b2cafdae27"
+source = "git+https://github.com/MarkusPettersson98/tonic?rev=0a7661b5f084ad0bc43873b704bb64f8276cc555#0a7661b5f084ad0bc43873b704bb64f8276cc555"
 dependencies = [
  "prettyplease",
  "proc-macro2",
