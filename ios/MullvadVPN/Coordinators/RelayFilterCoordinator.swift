@@ -29,7 +29,7 @@ class RelayFilterCoordinator: Coordinator, Presentable {
     }
 
     var didFinish: ((RelayFilterCoordinator, RelayFilter?) -> Void)?
-    var onFeatureChipTapped: ((FeatureType) -> Void)?
+    var onFeatureChipTapped: ((SelectLocationFilter) -> Void)?
 
     init(
         navigationController: UINavigationController,

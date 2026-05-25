@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol {
     @ObservedObject var viewModel: ViewModel
-    let style: ChipView.Style
     @Binding var isExpanded: Bool
 
     @State private var chipContainerHeight: CGFloat = .zero
@@ -60,7 +59,7 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
         nonisolated(unsafe) var height = CGFloat.zero
 
         return ForEach(chips) { data in
-            ChipView(item: data, style: style) {
+            ChipView(item: data) {
                 viewModel.onPressed(item: data)
             }
             .padding(
@@ -99,7 +98,6 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
     StatefulPreviewWrapper(false) { isExpanded in
         ChipContainerView(
             viewModel: MockFeatureIndicatorsViewModel(),
-            style: .mainScreen,
             isExpanded: isExpanded
         )
         .background(UIColor.secondaryColor.color)
