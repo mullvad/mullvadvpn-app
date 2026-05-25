@@ -66,6 +66,8 @@ include(
     ":lib:feature:home:api",
     ":lib:feature:language:impl",
     ":lib:feature:language:api",
+    ":lib:feature:lansharing:api",
+    ":lib:feature:lansharing:impl",
     ":lib:feature:location:impl",
     ":lib:feature:location:api",
     ":lib:feature:login:impl",

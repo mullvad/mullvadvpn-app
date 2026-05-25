@@ -274,8 +274,6 @@
     <string name="loading_products">Produkte werden geladen</string>
     <string name="loading_verifying">Kauf verifizieren …</string>
     <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
-    <string name="local_network_sharing_additional_info">Das geschieht, indem die Netzwerkkommunikation außerhalb des Tunnels zu lokalen Multicast- und Broadcast-Bereichen sowie zu und von diesen privaten IP-Bereichen zugelassen wird:</string>
-    <string name="local_network_sharing_info">Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw.</string>
     <string name="local_network_sharing_info_block_connections_warning">Achtung: Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, funktioniert „Teilen im lokalen Netzwerk“ nicht.</string>
     <string name="location_added">%1$s (hinzugefügt)</string>
     <string name="location_was_added_to_list">%1$s wurde zu „%2$s“ hinzugefügt</string>

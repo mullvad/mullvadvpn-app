@@ -197,8 +197,11 @@
     <string name="off">Off</string>
     <string name="none">None</string>
     <string name="created_x">Created: %s</string>
-    <string name="local_network_sharing_info">This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.</string>
-    <string name="local_network_sharing_additional_info">It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:</string>
+    <string name="local_network_sharing_info">Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN.</string>
+    <string name="local_network_sharing_info2"><b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others.</string>
+    <string name="local_network_sharing_info3">The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel.</string>
+    <string name="local_network_sharing_info4"><b>Private IP ranges</b>\n0.0.0.0/8\n172.16.0.0/12\n192.168.0.0/16\n169.254.0.0/16\nfe80::/10\nfc00::/7</string>
+    <string name="how_it_works">How it works</string>
     <string name="quantum_resistant_title">Quantum-resistant tunnel</string>
     <string name="quantum_resistant_info_first_paragaph">This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</string>
     <string name="quantum_resistant_info_second_paragaph">It does this by performing an extra key exchange using a quantum safe algorithm and mixing the result into WireGuard’s regular encryption. This extra step uses approximately 500 kiB of traffic every time a new tunnel is established.</string>
@@ -461,6 +464,7 @@
     <string name="enable_multihop">Enable multihop</string>
     <string name="unavailable">Unavailable</string>
     <string name="warning">Warning</string>
+    <string name="info">Info</string>
     <string name="add_to_list">Add to list</string>
     <string name="set_as_multihop_entry">Set as multihop entry</string>
     <string name="set_as_multihop_exit">Set as multihop exit</string>

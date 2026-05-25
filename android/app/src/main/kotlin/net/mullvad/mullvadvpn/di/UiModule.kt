@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.devicerevoked.DeviceRevokedViewM
 import net.mullvad.mullvadvpn.feature.home.impl.outoftime.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.feature.home.impl.welcome.WelcomeViewModel
 import net.mullvad.mullvadvpn.feature.language.impl.LanguageViewModel
+import net.mullvad.mullvadvpn.feature.lansharing.impl.LocalNetworkSharingViewModel
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.RelayListScrollConnection
 import net.mullvad.mullvadvpn.feature.location.impl.SelectLocationViewModel
@@ -329,6 +330,7 @@ val uiModule = module {
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
     viewModel { params -> AntiCensorshipSettingsViewModel(isModal = params.get(), get()) }
+    viewModel { params -> LocalNetworkSharingViewModel(isModal = params.get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel {
         ReportProblemViewModel(

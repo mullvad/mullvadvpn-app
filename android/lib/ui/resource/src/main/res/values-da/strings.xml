@@ -274,8 +274,6 @@
     <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
-    <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
-    <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere.</string>
     <string name="location_added">%1$s (tilføjet)</string>
     <string name="location_was_added_to_list">%1$s blev tilføjet til \"%2$s\"</string>

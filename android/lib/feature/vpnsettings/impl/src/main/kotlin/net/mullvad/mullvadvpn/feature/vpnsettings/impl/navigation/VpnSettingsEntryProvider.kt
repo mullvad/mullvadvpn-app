@@ -23,7 +23,6 @@ fun EntryProviderScope<NavKey2>.vpnSettingsEntry(navigator: Navigator) {
 
     connectOnStartupInfoEntry(navigator)
     deviceIpInfoEntry(navigator)
-    localNetworkSharingInfoEntry(navigator)
     ipv6InfoEntry(navigator)
     mtuEntry(navigator)
     quantumResistanceInfoEntry(navigator)
