@@ -19,10 +19,10 @@ protocol RelayFilterViewModelSettingsProviding {
 extension TunnelManager: RelayFilterViewModelSettingsProviding {}
 
 extension RelayFilterSelection {
-    final class ViewModel {
+    final class ViewModel: ObservableObject, RelayFilterSettingsViewModelProtocol {
         @Published var relayFilter: RelayFilter
         let multihopContext: MultihopContext
-        var onFeatureChipTapped: ((FeatureType) -> Void)?
+        var onFeatureChipTapped: ((SelectLocationFilter) -> Void)?
 
         private var settings: LatestTunnelSettings {
             didSet {
@@ -31,6 +31,7 @@ extension RelayFilterSelection {
             }
         }
         @Published var chips: [ChipModel] = []
+        var filters: [SelectLocationFilter] = []
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
@@ -105,7 +106,15 @@ extension RelayFilterSelection {
                     : nil,
 
             ].compactMap { $0 }
+            filters = [
+                settings.daita.isEnabled ? .daita : nil,
+                settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
+            ].compactMap { $0 }
 
+        }
+
+        func onFilterTapped(_ filter: SelectLocationFilter) {
+            self.onFeatureChipTapped?(filter)
         }
 
         private var relays: [REST.ServerRelay] { relaysWithLocation.relays }
@@ -241,12 +250,6 @@ extension RelayFilterSelection {
                 RelayFilter(ownership: relayFilter.ownership, providers: .only([providerName]))
             ).isEnabled
         }
-    }
-}
-
-extension RelayFilterSelection.ViewModel: ChipViewModelProtocol {
-    func onPressed(item: ChipModel) {
-        onFeatureChipTapped?(item.id)
     }
 }
 
