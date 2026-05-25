@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
-import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCAL_NETWORK_SHARING_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
