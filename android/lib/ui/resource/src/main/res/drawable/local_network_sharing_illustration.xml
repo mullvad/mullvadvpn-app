@@ -14,10 +14,12 @@
   ~ limitations under the License.
   -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:width="328dp"
     android:height="103dp"
     android:viewportWidth="328"
-    android:viewportHeight="103">
+    android:viewportHeight="103"
+    tools:ignore="VectorRaster">
   <group>
     <clip-path
         android:pathData="M0,12C0,5.37 5.37,0 12,0H316C322.63,0 328,5.37 328,12V91C328,97.63 322.63,103 316,103H12C5.37,103 0,97.63 0,91V12Z"/>

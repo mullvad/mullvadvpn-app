@@ -29,9 +29,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlin.text.appendLine
-import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.component.Accordion
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
-import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCAL_NETWORK_SHARING_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -152,6 +151,12 @@ private fun LocalNetworkSharingContent(
             text =
                 buildAnnotatedString {
                     appendLine(annotatedStringResource(R.string.local_network_sharing_info))
+                    append(
+                        annotatedStringResource(
+                            R.string.local_network_sharing_info_block_connections_warning
+                        )
+                    )
+                    appendLine()
                     appendLine()
                     append(annotatedStringResource(R.string.local_network_sharing_info2))
                 },
@@ -166,6 +171,8 @@ private fun LocalNetworkSharingContent(
                     appendLine(annotatedStringResource(R.string.local_network_sharing_info3))
                     appendLine()
                     append(annotatedStringResource(R.string.local_network_sharing_info4))
+                    appendLine()
+                    append(annotatedStringResource(R.string.local_network_sharing_ip_ranges))
                 },
             icon = Icons.Rounded.Info,
             iconContentDescription = stringResource(R.string.info),

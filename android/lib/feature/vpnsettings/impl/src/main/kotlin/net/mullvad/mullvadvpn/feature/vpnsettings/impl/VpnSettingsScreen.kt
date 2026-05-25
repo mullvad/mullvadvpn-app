@@ -294,7 +294,6 @@ fun VpnSettingsContent(
 ) {
     val initialIndexFocus =
         when (initialScrollToFeature) {
-            FeatureIndicator.LAN_SHARING -> VpnSettingItem.LocalNetworkSharingSetting::class
             FeatureIndicator.QUANTUM_RESISTANCE -> VpnSettingItem.QuantumResistantSetting::class
             FeatureIndicator.CUSTOM_MTU -> VpnSettingItem.Mtu::class
             else -> null
@@ -546,8 +545,4 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
 
 // A list of feature indicators on this screen
 private fun featureIndicators() =
-    listOf(
-        FeatureIndicator.LAN_SHARING,
-        FeatureIndicator.QUANTUM_RESISTANCE,
-        FeatureIndicator.CUSTOM_MTU,
-    )
+    listOf(FeatureIndicator.QUANTUM_RESISTANCE, FeatureIndicator.CUSTOM_MTU)

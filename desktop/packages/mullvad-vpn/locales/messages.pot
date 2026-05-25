@@ -2996,6 +2996,9 @@ msgstr ""
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr ""
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr ""
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr ""
 
@@ -3008,7 +3011,7 @@ msgstr ""
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
-msgid "<b>Private IP ranges</b>\\n0.0.0.0/8\\n172.16.0.0/12\\n192.168.0.0/16\\n169.254.0.0/16\\nfe80::/10\\nfc00::/7"
+msgid "<b>Private IP ranges</b>"
 msgstr ""
 
 msgid "<b>This action cannot be undone.</b>"
@@ -3105,9 +3108,6 @@ msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr ""
 
 msgid "At least one method needs to be enabled"
-msgstr ""
-
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr ""
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."

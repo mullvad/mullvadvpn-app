@@ -274,7 +274,6 @@
     <string name="loading_products">Завантаження продуктів</string>
     <string name="loading_verifying">Покупка перевіряється…</string>
     <string name="local_network_sharing">Обмін даними в локальній мережі</string>
-    <string name="local_network_sharing_info_block_connections_warning">Увага: якщо ввімкнено функцію «Блокувати з’єднання без VPN», обмін даними в локальній мережі не працюватиме.</string>
     <string name="location_added">%1$s (додано)</string>
     <string name="location_was_added_to_list">Розташування %1$s додано до списку «%2$s»</string>
     <string name="location_was_removed_from_list">Розташування %1$s вилучено зі списку «%2$s»</string>

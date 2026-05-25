@@ -274,7 +274,6 @@
     <string name="loading_products">Caricamento prodotti</string>
     <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
-    <string name="local_network_sharing_info_block_connections_warning">Attenzione: se è abilitato \"Blocca connessioni senza VPN\", \"Condivisione rete locale\" non funzionerà.</string>
     <string name="location_added">%1$s (aggiunto)</string>
     <string name="location_was_added_to_list">Aggiunta di %1$s a \"%2$s\"</string>
     <string name="location_was_removed_from_list">Rimozione di %1$s da \"%2$s\"</string>

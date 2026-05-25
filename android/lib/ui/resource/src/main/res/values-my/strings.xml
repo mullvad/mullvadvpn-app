@@ -274,7 +274,6 @@
     <string name="loading_products">ထုတ်ကုန်များကို လုပ်ဆောင်နေသည်</string>
     <string name="loading_verifying">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ...</string>
     <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
-    <string name="local_network_sharing_info_block_connections_warning">သတိပြုရန်- \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက \"လိုကယ် ကွန်ရက် ဝေမျှမှု\" အလုပ်လုပ်မည် မဟုတ်ပါ။</string>
     <string name="location_added">%1$s (ထည့်ပြီး)</string>
     <string name="location_was_added_to_list">%1$s ကို \"%2$s\" တွင် ထည့်ထားပါသည်</string>
     <string name="location_was_removed_from_list">%1$s ကို \"%2$s\" မှ ဖယ်ရှားထားပါသည်</string>

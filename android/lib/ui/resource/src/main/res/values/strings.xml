@@ -199,7 +199,7 @@
     <string name="local_network_sharing_info">Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN.</string>
     <string name="local_network_sharing_info2"><b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others.</string>
     <string name="local_network_sharing_info3">The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel.</string>
-    <string name="local_network_sharing_info4"><b>Private IP ranges</b>\n0.0.0.0/8\n172.16.0.0/12\n192.168.0.0/16\n169.254.0.0/16\nfe80::/10\nfc00::/7</string>
+    <string name="local_network_sharing_info4"><b>Private IP ranges</b></string>
     <string name="how_it_works">How it works</string>
     <string name="quantum_resistant_title">Quantum-resistant tunnel</string>
     <string name="quantum_resistant_info_first_paragaph">This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers.</string>
@@ -360,7 +360,7 @@
     <string name="app_info">App info</string>
     <string name="changelog_title">What’s new</string>
     <string name="version">Version</string>
-    <string name="local_network_sharing_info_block_connections_warning">Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work.</string>
+    <string name="local_network_sharing_info_block_connections_warning"><b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”.</string>
     <string name="encrypted_dns_proxy_info_message_part1">With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</string>
     <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</string>
     <string name="connection_details_out">Out</string>
