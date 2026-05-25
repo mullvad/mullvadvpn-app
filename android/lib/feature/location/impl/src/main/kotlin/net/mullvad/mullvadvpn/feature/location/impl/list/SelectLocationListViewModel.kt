@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -25,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -53,7 +55,9 @@ class SelectLocationListViewModel(
         MutableStateFlow(initialExpand(initialSelection()))
 
     val uiState: StateFlow<Lce<Unit, SelectLocationListUiState, Unit>> =
-        combine(relayListItems(), settingsRepository.settingsUpdates) { relayListItems, settings ->
+        combine(relayListItems(), settingsRepository.settingsUpdates.filterNotNull()) {
+                relayListItems,
+                settings ->
                 if (relayListType.isEntryAndBlocked(settings)) {
                     Lce.Error(Unit)
                 } else {
@@ -61,6 +65,7 @@ class SelectLocationListViewModel(
                         SelectLocationListUiState(
                             relayListType = relayListType,
                             relayListItems = relayListItems,
+                            recentsEnabled = settings.recents is Recents.Enabled,
                         )
                     )
                 }

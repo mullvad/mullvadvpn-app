@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.WrongLocation
@@ -640,7 +639,6 @@ private fun RelayLists(
     }
 
     val lazyListStates = remember { mutableStateMapOf<RelayListType, LazyListState>() }
-    val scrollToLists = remember { mutableSetOf<RelayListType>() }
 
     Crossfade(relayListType) {
         when (it) {
@@ -655,9 +653,7 @@ private fun RelayLists(
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
-                            lazyListState =
-                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
-                            scrollToList = scrollToLists.add(it),
+                            lazyListStates = lazyListStates,
                         )
 
                     MultihopRelayListType.EXIT ->
@@ -669,9 +665,7 @@ private fun RelayLists(
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
-                            lazyListState =
-                                lazyListStates.getOrPut(it, { rememberLazyListState() }),
-                            scrollToList = scrollToLists.add(it),
+                            lazyListStates = lazyListStates,
                         )
                 }
 
@@ -684,8 +678,7 @@ private fun RelayLists(
                     onAddCustomList = onAddCustomList,
                     onEditCustomLists = onEditCustomLists,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
-                    lazyListState = lazyListStates.getOrPut(it, { rememberLazyListState() }),
-                    scrollToList = scrollToLists.add(it),
+                    lazyListStates = lazyListStates,
                 )
         }
     }

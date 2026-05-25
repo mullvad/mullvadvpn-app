@@ -1,26 +1,27 @@
 package net.mullvad.mullvadvpn.feature.location.impl.list
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.intl.Locale
@@ -31,14 +32,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlin.Unit
 import kotlinx.coroutines.flow.first
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
-import net.mullvad.mullvadvpn.feature.location.impl.ContentType
 import net.mullvad.mullvadvpn.feature.location.impl.CustomListHeader
 import net.mullvad.mullvadvpn.feature.location.impl.relayListContent
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.lib.common.compose.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.lib.common.compose.animateScrollCentralizeItem
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -47,6 +47,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListTokens
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
@@ -65,16 +66,17 @@ private fun PreviewSelectLocationList(
 ) {
     AppTheme {
         Surface {
-            SelectLocationListContent(
+            SelectLocationList(
                 state = state,
-                lazyListState = rememberLazyListState(),
                 bottomMargin = 0.dp,
-                openDaitaSettings = {},
+                relayListType = RelayListType.Single,
                 onSelectRelayItem = { _, _ -> },
-                onUpdateBottomSheetState = {},
+                openDaitaSettings = {},
                 onAddCustomList = {},
                 onEditCustomLists = {},
+                onUpdateBottomSheetState = {},
                 onToggleExpand = { _, _, _ -> },
+                lazyListStates = SnapshotStateMap(),
             )
         }
     }
@@ -93,8 +95,7 @@ fun SelectLocationList(
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
-    lazyListState: LazyListState,
-    scrollToList: Boolean,
+    lazyListStates: SnapshotStateMap<RelayListType, LazyListState>,
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
@@ -102,18 +103,6 @@ fun SelectLocationList(
             parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    // The first time the list is opened and we have content we should scroll to the selected item.
-    // Due to how recomposition works and that the viewmodel is preserved between we need to use
-    // this hack to only scroll the first time.
-    LaunchedEffect(Unit) {
-        val stateActual = viewModel.uiState.first { it is Content }
-        if (scrollToList) {
-            stateActual.indexOfSelectedRelayItem()?.let { index ->
-                lazyListState.scrollToItem(index)
-                lazyListState.animateScrollAndCentralizeItem(index)
-            }
-        }
-    }
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         val stateActual = viewModel.uiState.first { it is Content }
@@ -140,29 +129,77 @@ fun SelectLocationList(
             }
 
         if (index != null && index != -1) {
-            lazyListState.animateScrollCentralizeItem(index)
+            lazyListStates[relayListType]?.animateScrollCentralizeItem(index)
         }
     }
 
-    SelectLocationListContent(
+    SelectLocationList(
         state = state,
-        lazyListState = lazyListState,
         bottomMargin = bottomMargin,
-        openDaitaSettings = openDaitaSettings,
+        relayListType = relayListType,
         onSelectRelayItem = onSelectRelayItem,
-        onUpdateBottomSheetState = onUpdateBottomSheetState,
+        openDaitaSettings = openDaitaSettings,
         onAddCustomList = onAddCustomList,
         onEditCustomLists = onEditCustomLists,
-        onToggleExpand = viewModel::onToggleExpand,
+        onUpdateBottomSheetState = onUpdateBottomSheetState,
+        onToggleExpand = { id, customListId, expand ->
+            viewModel.onToggleExpand(id, customListId, expand)
+        },
+        lazyListStates = lazyListStates,
     )
 }
 
 @Composable
-private fun SelectLocationListContent(
+fun SelectLocationList(
     state: Lce<Unit, SelectLocationListUiState, Unit>,
+    bottomMargin: Dp,
+    relayListType: RelayListType,
+    onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
+    openDaitaSettings: () -> Unit,
+    onAddCustomList: () -> Unit,
+    onEditCustomLists: (() -> Unit)?,
+    onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
+    onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
+    lazyListStates: SnapshotStateMap<RelayListType, LazyListState>,
+) {
+    when (state) {
+        is Lce.Content -> {
+            val density = LocalDensity.current
+            val lazyListState =
+                lazyListStates.getOrPut(relayListType) {
+                    if (state.value.recentsEnabled) {
+                        // If we have recents we start on the top of the list
+                        rememberLazyListState()
+                    } else {
+                        // If no recents we focus the selected item
+                        val selectedIndex = state.indexOfSelectedRelayItem()
+                        val listItemHeight =
+                            with(density) { ListTokens.listItemMinHeight.toPx().toInt() }
+                        rememberLazyListState(selectedIndex ?: 0, (-2 * listItemHeight))
+                    }
+                }
+
+            SelectLocationListContent(
+                state = state.value,
+                lazyListState = lazyListState,
+                bottomMargin = bottomMargin,
+                onSelectRelayItem = onSelectRelayItem,
+                onUpdateBottomSheetState = onUpdateBottomSheetState,
+                onAddCustomList = onAddCustomList,
+                onEditCustomLists = onEditCustomLists,
+                onToggleExpand = onToggleExpand,
+            )
+        }
+        is Lce.Loading -> Loading()
+        is EntryBlocked -> EntryBlocked(openDaitaSettings = openDaitaSettings)
+    }
+}
+
+@Composable
+private fun SelectLocationListContent(
+    state: SelectLocationListUiState,
     lazyListState: LazyListState,
     bottomMargin: Dp,
-    openDaitaSettings: () -> Unit,
     onSelectRelayItem: (relayItem: RelayItem, relayListType: RelayListType) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     onAddCustomList: () -> Unit,
@@ -183,55 +220,44 @@ private fun SelectLocationListContent(
         contentPadding = PaddingValues(bottom = bottomMargin),
         state = lazyListState,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement =
-            if (state is EntryBlocked) {
-                Arrangement.Center
-            } else {
-                Arrangement.Top
-            },
     ) {
-        when (state) {
-            is Lce.Loading -> loading()
-            is EntryBlocked -> entryBlocked(openDaitaSettings = openDaitaSettings)
-            is Content -> {
-                // When recents have been disabled and are enabled again and we are at the
-                // top of the list we scroll up so that recents are visible again.
-                val shouldScrollToTop =
-                    state.value.relayListItems.firstOrNull() is RelayListItem.RecentsListHeader &&
-                        prevTopItem !is RelayListItem.RecentsListHeader &&
-                        lazyListState.firstVisibleItemIndex == 0 &&
-                        lazyListState.firstVisibleItemScrollOffset == 0
+        // When recents have been disabled and are enabled again and we are at the
+        // top of the list we scroll up so that recents are visible again.
+        val shouldScrollToTop =
+            state.relayListItems.firstOrNull() is RelayListItem.RecentsListHeader &&
+                prevTopItem !is RelayListItem.RecentsListHeader &&
+                lazyListState.firstVisibleItemIndex == 0 &&
+                lazyListState.firstVisibleItemScrollOffset == 0
 
-                prevTopItem = state.value.relayListItems.firstOrNull()
+        prevTopItem = state.relayListItems.firstOrNull()
 
-                relayListContent(
-                    relayListItems = state.value.relayListItems,
-                    relayListType = state.value.relayListType,
-                    onSelectRelayItem = { onSelectRelayItem(it, state.value.relayListType) },
-                    onToggleExpand = onToggleExpand,
-                    onUpdateBottomSheetState = onUpdateBottomSheetState,
-                    customListHeader = {
-                        CustomListHeader(
-                            onAddCustomList,
-                            if (it.canEdit) onEditCustomLists else null,
-                        )
-                    },
-                )
+        relayListContent(
+            relayListItems = state.relayListItems,
+            relayListType = state.relayListType,
+            onSelectRelayItem = { onSelectRelayItem(it, state.relayListType) },
+            onToggleExpand = onToggleExpand,
+            onUpdateBottomSheetState = onUpdateBottomSheetState,
+            customListHeader = {
+                CustomListHeader(onAddCustomList, if (it.canEdit) onEditCustomLists else null)
+            },
+        )
 
-                if (shouldScrollToTop) {
-                    lazyListState.requestScrollToItem(0)
-                }
-            }
+        if (shouldScrollToTop) {
+            lazyListState.requestScrollToItem(0)
         }
     }
 }
 
-private fun LazyListScope.loading() {
-    item(contentType = ContentType.PROGRESS) { MullvadCircularProgressIndicatorLarge() }
+@Composable
+private fun Loading() {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        MullvadCircularProgressIndicatorLarge()
+    }
 }
 
-private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
-    item(contentType = ContentType.DESCRIPTION) {
+@Composable
+private fun EntryBlocked(openDaitaSettings: () -> Unit) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text =
                 stringResource(
@@ -245,11 +271,7 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         )
-    }
-    item(contentType = ContentType.SPACER) {
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
-    }
-    item(contentType = ContentType.BUTTON) {
         PrimaryButton(
             text =
                 stringResource(R.string.open_feature_settings, stringResource(id = R.string.daita)),
