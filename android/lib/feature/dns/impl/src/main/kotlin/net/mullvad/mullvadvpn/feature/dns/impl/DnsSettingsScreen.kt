@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.dns.impl
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -45,6 +44,7 @@ import net.mullvad.mullvadvpn.feature.dns.api.MalwareInfoNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
@@ -108,13 +108,8 @@ fun SharedTransitionScope.DnsSettings(
     val snackbarHostState = remember { SnackbarHostState() }
 
     resultStore.consumeResult<CustomDnsNavResult> { result ->
-        when (result) {
-            is CustomDnsNavResult.Success -> {
-                vm.showApplySettingChangesWarningToast()
-            }
-            CustomDnsNavResult.Error -> {
-                vm.showGenericErrorToast()
-            }
+        if (result == CustomDnsNavResult.Error) {
+            vm.showGenericErrorToast()
         }
     }
 
@@ -122,13 +117,6 @@ fun SharedTransitionScope.DnsSettings(
     CollectSideEffectWithLifecycle(vm.uiSideEffect) {
         when (it) {
             DnsSettingsSideEffect.NavigateToDnsDialog -> navigator.navigate(CustomDnsNavKey())
-            DnsSettingsSideEffect.ShowToast.ApplySettingWarning ->
-                launch {
-                    snackbarHostState.showSnackbarImmediately(
-                        message =
-                            resources.getString(R.string.settings_changes_effect_warning_short)
-                    )
-                }
             DnsSettingsSideEffect.ShowToast.GenericError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -206,8 +194,7 @@ fun DnsSettingsScreen(
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
                     .testTag(LAZY_LIST_DNS_SETTINGS_TEST_TAG)
-                    .padding(horizontal = Dimens.sideMarginNew)
-                    .animateContentSize(),
+                    .padding(horizontal = Dimens.sideMarginNew),
             state = lazyListState,
         ) {
             when (state) {
@@ -245,7 +232,7 @@ private fun LazyListScope.content(
     onToggleBlockTrackers: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
 ) {
-    item {
+    item(key = ContentKey.IMAGE) {
         // Scale image to fit width up to certain width
         Image(
             contentScale = ContentScale.FillWidth,
@@ -258,15 +245,10 @@ private fun LazyListScope.content(
         )
     }
 
-    item { Description() }
-
-    item {
-        ContentBlockersHeader(
-            numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled()
-        )
-    }
+    item(key = ContentKey.DESCRIPTION) { Description() }
 
     contentBlockers(
+        numberOfBlockersEnabled = state.defaultDnsOptions.numberOfBlockersEnabled(),
         contentBlockersEnabled = state.contentBlockersEnabled,
         defaultDnsOptions = state.defaultDnsOptions,
         onToggleAllBlockers = onToggleAllBlockers,
@@ -279,22 +261,7 @@ private fun LazyListScope.content(
         navigateToMalwareInfo = navigateToMalwareInfo,
     )
 
-    if (!state.contentBlockersEnabled) {
-        item {
-            ListItemInfo(
-                text =
-                    stringResource(
-                        id = R.string.dns_content_blockers_subtitle,
-                        stringResource(id = R.string.enable_custom_dns),
-                    ),
-                modifier = Modifier.animateItem(),
-            )
-        }
-    } else {
-        item { Spacer(modifier = Modifier.height(Dimens.mediumPadding).animateItem()) }
-    }
-
-    item {
+    itemWithDivider(key = ContentKey.ENABLE_CUSTOM_DNS) {
         SwitchListItem(
             modifier = Modifier.animateItem(),
             position = if (state.customDnsEnabled) Position.Top else Position.Single,
@@ -324,7 +291,7 @@ private fun LazyListScope.content(
         }
 
         if (state.customDnsEntries.isNotEmpty()) {
-            item {
+            item(key = ContentKey.CUSTOM_DNS_ADD) {
                 MullvadListItem(
                     modifier = Modifier.animateItem().testTag(CUSTOM_DNS_ADD_ITEM_TEST_TAG),
                     hierarchy = Hierarchy.Child1,
@@ -340,7 +307,7 @@ private fun LazyListScope.content(
     }
 
     if (state.defaultDnsOptions.isAnyBlockerEnabled) {
-        item {
+        item(key = ContentKey.CUSTOM_DNS_DISABLE_INFO) {
             ListItemInfo(
                 modifier = Modifier.animateItem(),
                 text =
@@ -352,7 +319,9 @@ private fun LazyListScope.content(
         }
     }
 
-    item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
+    item(key = ContentKey.SPACER) {
+        Spacer(modifier = Modifier.animateItem().height(Dimens.cellVerticalSpacing))
+    }
 }
 
 @Composable
@@ -379,7 +348,6 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
         content = {
             Row {
                 Text(
-                    modifier = Modifier.weight(1f),
                     text = stringResource(R.string.dns_content_blockers),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -389,6 +357,8 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
                     Text(
                         stringResource(R.string.number_parentheses, numberOfBlockersEnabled),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -397,6 +367,7 @@ private fun LazyItemScope.ContentBlockersHeader(numberOfBlockersEnabled: Int) {
 }
 
 private fun LazyListScope.contentBlockers(
+    numberOfBlockersEnabled: Int,
     contentBlockersEnabled: Boolean,
     defaultDnsOptions: DefaultDnsOptions,
     onToggleAllBlockers: (Boolean) -> Unit,
@@ -408,7 +379,11 @@ private fun LazyListScope.contentBlockers(
     onToggleBlockSocialMedia: (Boolean) -> Unit,
     navigateToMalwareInfo: () -> Unit,
 ) {
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKERS_HEADER) {
+        ContentBlockersHeader(numberOfBlockersEnabled = numberOfBlockersEnabled)
+    }
+
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ALL) {
         ContentBlocker(
             title = stringResource(R.string.all),
             isToggled = defaultDnsOptions.isAllBlockersEnabled,
@@ -416,7 +391,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleAllBlockers,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ADS) {
         ContentBlocker(
             title = stringResource(R.string.block_ads_title),
             isToggled = defaultDnsOptions.blockAds,
@@ -424,7 +399,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockAds,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_TRACKERS) {
         ContentBlocker(
             title = stringResource(R.string.block_trackers_title),
             isToggled = defaultDnsOptions.blockTrackers,
@@ -432,7 +407,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockTrackers,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_MALWARE) {
         ContentBlocker(
             title = stringResource(R.string.block_malware_title),
             isToggled = defaultDnsOptions.blockMalware,
@@ -441,7 +416,7 @@ private fun LazyListScope.contentBlockers(
             onInfoClicked = navigateToMalwareInfo,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_GAMBLING) {
         ContentBlocker(
             title = stringResource(R.string.block_gambling_title),
             isToggled = defaultDnsOptions.blockGambling,
@@ -449,7 +424,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockGambling,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_ADULT_CONTENT) {
         ContentBlocker(
             title = stringResource(R.string.block_adult_content_title),
             isToggled = defaultDnsOptions.blockAdultContent,
@@ -457,7 +432,7 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockAdultContent,
         )
     }
-    item {
+    itemWithDivider(key = ContentKey.DNS_CONTENT_BLOCKER_SOCIAL_MEDIA) {
         ContentBlocker(
             title = stringResource(R.string.block_social_media_title),
             isToggled = defaultDnsOptions.blockSocialMedia,
@@ -465,6 +440,23 @@ private fun LazyListScope.contentBlockers(
             onClicked = onToggleBlockSocialMedia,
             position = Position.Bottom,
         )
+    }
+
+    if (!contentBlockersEnabled) {
+        item(key = ContentKey.DNS_CONTENT_BLOCKERS_DISABLE_INFO) {
+            ListItemInfo(
+                text =
+                    stringResource(
+                        id = R.string.dns_content_blockers_subtitle,
+                        stringResource(id = R.string.enable_custom_dns),
+                    ),
+                modifier = Modifier.animateItem(),
+            )
+        }
+    } else {
+        item(key = ContentKey.CONTENT_BLOCKERS_SPACER) {
+            Spacer(modifier = Modifier.height(Dimens.mediumPadding).animateItem())
+        }
     }
 }
 
@@ -490,5 +482,25 @@ private fun LazyItemScope.ContentBlocker(
 }
 
 private fun LazyListScope.loading() {
-    item { MullvadCircularProgressIndicatorLarge() }
+    item(key = ContentKey.LOADING) { MullvadCircularProgressIndicatorLarge() }
+}
+
+private object ContentKey {
+    const val IMAGE = "image"
+    const val DESCRIPTION = "description"
+    const val DNS_CONTENT_BLOCKERS_HEADER = "dns_content_blockers_header"
+    const val DNS_CONTENT_BLOCKER_ALL = "dns_content_blocker_all"
+    const val DNS_CONTENT_BLOCKER_ADS = "dns_content_blocker_ads"
+    const val DNS_CONTENT_BLOCKER_TRACKERS = "dns_content_blocker_trackers"
+    const val DNS_CONTENT_BLOCKER_MALWARE = "dns_content_blocker_malware"
+    const val DNS_CONTENT_BLOCKER_GAMBLING = "dns_content_blocker_gambling"
+    const val DNS_CONTENT_BLOCKER_ADULT_CONTENT = "dns_content_blocker_adult_content"
+    const val DNS_CONTENT_BLOCKER_SOCIAL_MEDIA = "dns_content_blocker_social_media"
+    const val DNS_CONTENT_BLOCKERS_DISABLE_INFO = "dns_content_blockers_disable_info"
+    const val CONTENT_BLOCKERS_SPACER = "content_blockers_spacer"
+    const val ENABLE_CUSTOM_DNS = "enable_custom_dns"
+    const val CUSTOM_DNS_ADD = "custom_dns_add"
+    const val CUSTOM_DNS_DISABLE_INFO = "custom_dns_disable_info"
+    const val SPACER = "spacer"
+    const val LOADING = "loading"
 }
