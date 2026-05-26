@@ -13,6 +13,7 @@ use crate::device::AccountManagerHandle;
 
 /// Mullvad app install path
 const APP_PATH: &str = "/Applications/Mullvad VPN.app";
+const BUNDLE_ID: &str = "net.mullvad.vpn";
 
 /// Bump filehandle limit
 pub fn bump_filehandle_limit() {
@@ -147,6 +148,10 @@ pub async fn handle_app_bundle_removal(
         log(format_args!("Failed to remove device: {error:#?}"));
     }
 
+    if let Err(error) = remove_login_item() {
+        log(format_args!("Failed to remove login item: {error:#?}"));
+    }
+
     // This will kill the daemon.
     log(format_args!("Running {UNINSTALL_SCRIPT_PATH:?}"));
     let mut cmd = Command::new("/bin/bash");
@@ -166,6 +171,17 @@ pub async fn handle_app_bundle_removal(
         cmd.stderr(log_file);
     };
     cmd.spawn().context("Failed to spawn uninstaller script")?;
+
+    Ok(())
+}
+
+fn remove_login_item() -> anyhow::Result<()> {
+    use objc2_foundation::{NSOperatingSystemVersion, NSProcessInfo, NSURL, ns_string};
+    use objc2_service_management::{SMAppService, SMAppServiceStatus};
+    unsafe {
+        let service = SMAppService::mainAppService();
+        service.unregisterAndReturnError()?;
+    }
 
     Ok(())
 }
