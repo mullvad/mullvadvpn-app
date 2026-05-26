@@ -1,0 +1,3 @@
+- Optimized the anti-censorship method LWO. The performance increased up to 3x.
+- Updated the login screen to a new design.
+- Moved DNS content blockers and custom DNS into a new screen called DNS settings.
