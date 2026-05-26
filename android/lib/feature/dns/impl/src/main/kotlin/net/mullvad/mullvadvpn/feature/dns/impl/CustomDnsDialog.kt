@@ -74,12 +74,14 @@ fun CustomDns(navArgs: CustomDnsNavKey, navigator: Navigator) {
     val viewModel = koinViewModel<CustomDnsDialogViewModel> { parametersOf(navArgs) }
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
-        when (it) {
-            is CustomDnsDialogSideEffect.Complete ->
-                navigator.goBack(result = CustomDnsNavResult.Success(it.isDnsListEmpty))
-
-            CustomDnsDialogSideEffect.Error -> navigator.goBack(result = CustomDnsNavResult.Error)
-        }
+        navigator.goBack(
+            result =
+                when (it) {
+                    is CustomDnsDialogSideEffect.Complete ->
+                        CustomDnsNavResult.Success(it.isDnsListEmpty)
+                    CustomDnsDialogSideEffect.Error -> CustomDnsNavResult.Error
+                }
+        )
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 

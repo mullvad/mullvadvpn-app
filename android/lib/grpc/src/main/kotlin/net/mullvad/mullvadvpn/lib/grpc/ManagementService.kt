@@ -516,10 +516,7 @@ class ManagementService(
                 val updatedDnsOptions = currentDnsOptions.copy {
                     DnsOptions.customOptions.addresses set
                         currentDnsOptions.customOptions.addresses + address
-                    // If it is the first address, then turn on Custom Dns
-                    DnsOptions.state set
-                        if (currentDnsOptions.customOptions.addresses.isEmpty()) DnsState.Custom
-                        else currentDnsOptions.state
+                    DnsOptions.state set currentDnsOptions.state
                 }
                 grpc.setDnsOptions(updatedDnsOptions.fromDomain())
                 updatedDnsOptions.customOptions.addresses.lastIndex
