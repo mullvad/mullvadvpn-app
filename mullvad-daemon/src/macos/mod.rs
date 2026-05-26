@@ -55,7 +55,7 @@ pub async fn handle_app_bundle_removal(
     account_manager_handle: AccountManagerHandle,
 ) -> anyhow::Result<()> {
     /// Uninstall script to run if the .app disappears
-    const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../dist-assets/uninstall_macos.sh");
+    const UNINSTALL_SCRIPT: &[u8] = include_bytes!("../../../dist-assets/uninstall_macos.sh");
 
     /// Path to extract the uninstall script to.
     /// This directory must be owned by root to prevent privilege escalation.
