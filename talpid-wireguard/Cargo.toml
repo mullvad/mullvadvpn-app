@@ -11,6 +11,7 @@ async-trait = "0.1"
 byteorder = "1"
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }
+hex = { workspace = true }
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }
 log = { workspace = true }
