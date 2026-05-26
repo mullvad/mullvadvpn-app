@@ -270,9 +270,9 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
                     InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
                         params: ParsedShadowsocksConfig {
                             peer: config.endpoint,
-                            password: config.password,
+                            password: config.password.into_inner(),
                             cipher: CipherKind::from_str(&config.cipher)
-                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?,
+                                .map_err(|_| ProxyConfigError::InvalidCipher(config.cipher))?
                         },
                         proxy_context: SsContext::new_shared(ServerType::Local),
                     })

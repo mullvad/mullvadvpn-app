@@ -1,4 +1,5 @@
 use crate::net::Endpoint;
+use safelog::Sensitive;
 use serde::{Deserialize, Serialize};
 use std::{fmt, net::SocketAddr};
 
@@ -86,7 +87,7 @@ impl From<Shadowsocks> for CustomProxy {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
-    pub password: String,
+    pub password: Sensitive<String>,
     /// One of [`SHADOWSOCKS_CIPHERS`].
     /// Gets validated at a later stage. Is assumed to be valid.
     pub cipher: String,
@@ -110,7 +111,7 @@ pub struct Socks5Remote {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct SocksAuth {
     username: String,
-    password: String,
+    password: Sensitive<String>,
 }
 
 impl SocksAuth {
@@ -170,7 +171,10 @@ impl SocksAuth {
             ));
         }
 
-        Ok(SocksAuth { username, password })
+        Ok(SocksAuth {
+            username,
+            password: password.into(),
+        })
     }
 
     /// Read the username.
@@ -188,7 +192,7 @@ impl Shadowsocks {
     pub fn new<I: Into<SocketAddr>>(endpoint: I, cipher: String, password: String) -> Self {
         Shadowsocks {
             endpoint: endpoint.into(),
-            password,
+            password: password.into(),
             cipher,
         }
     }
