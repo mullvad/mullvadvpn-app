@@ -7,6 +7,7 @@ import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -135,6 +136,13 @@ class DnsSettingsViewModel(
         _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
     }
 
+    fun onCustomDnsDialogSuccess() = viewModelScope.launch {
+        // This is to fix an ui issue where the switch gets stuck due to animations starting at the
+        // same time
+        delay(SHORT_DELAY)
+        settingsRepository.setDnsState(DnsState.Custom).onLeft { showGenericErrorToast() }
+    }
+
     private fun updateContentBlockersAndNotify(update: (DefaultDnsOptions) -> DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             settingsRepository.updateContentBlockers(update).onLeft {
@@ -152,4 +160,8 @@ class DnsSettingsViewModel(
     }
 
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
+
+    companion object {
+        private const val SHORT_DELAY = 5L
+    }
 }
