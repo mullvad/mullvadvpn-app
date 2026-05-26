@@ -111,7 +111,10 @@ impl ApiAccess {
                 CustomProxy::Shadowsocks(shadowsocks) => {
                     let ip = cmd.params.ip.unwrap_or(shadowsocks.endpoint.ip());
                     let port = cmd.params.port.unwrap_or(shadowsocks.endpoint.port());
-                    let password = cmd.params.password.unwrap_or(shadowsocks.password);
+                    let password = cmd
+                        .params
+                        .password
+                        .unwrap_or(shadowsocks.password.to_string());
                     let cipher = cmd.params.cipher.unwrap_or(shadowsocks.cipher);
                     AccessMethod::from(Shadowsocks::new((ip, port), cipher, password))
                 }
