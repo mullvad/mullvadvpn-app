@@ -924,14 +924,14 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setEntryLocation(
-        entryLocation: RelayItemId
+        entryLocation: Constraint<RelayItemId>
     ): Either<SetWireguardConstraintsError, Unit> =
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated =
                     RelaySettings.relayConstraints.wireguardConstraints.entryLocation.set(
                         relaySettings,
-                        Constraint.Only(entryLocation),
+                        entryLocation,
                     )
                 grpc.setRelaySettings(updated.fromDomain())
             }
