@@ -9,7 +9,8 @@ license.workspace = true
 [dependencies]
 hickory-resolver = { workspace = true, default-features = false, features = [
   "https-ring",
-  "tls-ring"
+  "tls-ring",
+  "tokio"
 ] }
 log = { workspace = true }
 rustls.workspace = true
