@@ -1,6 +1,4 @@
 fn main() {
-    tonic_prost_build::configure()
-        .with_extended_rust_types(true)
-        .compile_protos(&["proto/ephemeralpeer.proto"], &["proto/"])
-        .unwrap();
+    let fds = protox::compile(["ephemeralpeer.proto"], ["proto/"]).unwrap();
+    tonic_prost_build::configure().compile_fds(fds).unwrap();
 }

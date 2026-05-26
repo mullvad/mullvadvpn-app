@@ -64,21 +64,6 @@ ENV PATH=/root/.cargo/bin:$PATH
 ENV CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER="aarch64-linux-gnu-gcc" \
     PKG_CONFIG_SYSROOT_DIR_aarch64_unknown_linux_gnu=/usr/lib/aarch64-linux-gnu
 
-# === protobuf (for compiling .proto files) ===
-
-RUN apt-get update -y && \
-    apt-get install -y --mark-auto cmake g++ && \
-    rm -rf /var/lib/apt/lists/* && \
-    git clone https://github.com/protocolbuffers/protobuf.git && \
-    cd protobuf && \
-    git reset --hard "$PROTOBUF_COMMIT_REF" && \
-    git submodule update --init --recursive && \
-    cmake . -DCMAKE_CXX_STANDARD=14 && \
-    cmake --build . -j $(nproc) && \
-    cmake --install . && \
-    cd .. && rm -rf protobuf && \
-    apt-get autoremove -y
-
 # === Volta for npm + node ===
 
 ENV PATH=/root/.volta/bin:$PATH
