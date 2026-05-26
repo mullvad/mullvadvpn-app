@@ -61,7 +61,6 @@ fun MullvadModalBottomSheet(
     backgroundColor: Color = MaterialTheme.colorScheme.secondaryContainer,
     onBackgroundColor: Color = MaterialTheme.colorScheme.onSurface,
     onDismissRequest: () -> Unit,
-    shouldDismissOnBackPress: Boolean = true,
     shouldDismissOnClickOutside: Boolean = true,
     content: @Composable ColumnScope.(bottomPadding: Dp) -> Unit,
 ) {
@@ -75,10 +74,7 @@ fun MullvadModalBottomSheet(
         contentWindowInsets = { WindowInsets(0, 0, 0, 0) }, // No insets
         dragHandle = { BottomSheetDefaults.DragHandle(color = onBackgroundColor) },
         properties =
-            ModalBottomSheetProperties(
-                shouldDismissOnBackPress = shouldDismissOnBackPress,
-                shouldDismissOnClickOutside = shouldDismissOnClickOutside,
-            ),
+            ModalBottomSheetProperties(shouldDismissOnClickOutside = shouldDismissOnClickOutside),
     ) {
         content(paddingValues.calculateBottomPadding())
         Spacer(
