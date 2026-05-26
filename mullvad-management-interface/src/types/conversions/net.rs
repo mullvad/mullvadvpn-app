@@ -384,7 +384,7 @@ mod proxy {
             proto::Shadowsocks {
                 ip: value.endpoint.ip().to_string(),
                 port: value.endpoint.port() as u32,
-                password: value.password,
+                password: value.password.into_inner(),
                 cipher: Some(cipher),
             }
         }

@@ -242,7 +242,9 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
                 endpoint: extract_str(custom_bridge_shadowsocks.get("peer"))?
                     .parse()
                     .map_err(|_| Error::InvalidSettingsContent)?,
-                password: extract_str(custom_bridge_shadowsocks.get("password"))?.to_string(),
+                password: extract_str(custom_bridge_shadowsocks.get("password"))?
+                    .to_string()
+                    .into(),
                 cipher: extract_str(custom_bridge_shadowsocks.get("cipher")).and_then(
                     |cipher| ShadowsocksCipher::new(cipher).or(Err(Error::InvalidSettingsContent)),
                 )?,

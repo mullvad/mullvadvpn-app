@@ -516,7 +516,7 @@ impl ShadowsocksEndpointData {
     pub fn to_proxy_settings(&self, addr: IpAddr) -> Shadowsocks {
         Shadowsocks {
             endpoint: SocketAddr::new(addr, self.port),
-            password: self.password.clone(),
+            password: self.password.clone().into(),
             cipher: self.cipher.clone(),
         }
     }

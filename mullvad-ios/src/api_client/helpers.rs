@@ -60,7 +60,7 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
 
     let shadowsocks_configuration = Shadowsocks {
         endpoint,
-        password,
+        password: password.into(),
         cipher,
     };
 
