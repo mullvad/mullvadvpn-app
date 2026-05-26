@@ -83,7 +83,7 @@ impl From<ShadowsocksAdd> for Shadowsocks {
     fn from(add: ShadowsocksAdd) -> Self {
         Self {
             endpoint: SocketAddr::new(add.remote_ip, add.remote_port),
-            password: add.password,
+            password: add.password.into(),
             cipher: add.cipher,
         }
     }
