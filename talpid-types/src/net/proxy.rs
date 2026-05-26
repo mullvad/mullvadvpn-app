@@ -259,7 +259,10 @@ impl SocksAuth {
             ));
         }
 
-        Ok(SocksAuth { username, password: password.into() })
+        Ok(SocksAuth {
+            username,
+            password: password.into(),
+        })
     }
 
     /// Read the username.
