@@ -105,7 +105,8 @@ impl GotaTun {
             #[cfg(target_os = "android")]
             android_tun.clone(),
         )
-        .await?;
+        .await
+        .map_err(TunnelError::GotaTunDevice)?;
 
         Ok(Self {
             config,
@@ -128,7 +129,7 @@ struct Singlehop {
 }
 
 impl Singlehop {
-    /// (Re)Configure gotatun devices.
+    /// (Re)Configure the gotatun device.
     async fn configure(
         &mut self,
         config: &Config,
@@ -139,6 +140,10 @@ impl Singlehop {
             daita.is_some()
         );
         configure_entry_device(&self.device, config, daita).await
+    }
+
+    async fn stop(self) {
+        self.device.stop().await
     }
 }
 
@@ -171,21 +176,22 @@ impl Multihop {
 
         Ok(())
     }
+
+    async fn stop(self) {
+        let Multihop {
+            entry_device,
+            exit_device,
+        } = self;
+        exit_device.stop().await;
+        entry_device.stop().await;
+    }
 }
 
 impl Devices {
     async fn stop(self) {
         match self {
-            Devices::Singlehop(Singlehop { device }) => {
-                device.stop().await;
-            }
-            Devices::Multihop(Multihop {
-                entry_device,
-                exit_device,
-            }) => {
-                exit_device.stop().await;
-                entry_device.stop().await;
-            }
+            Devices::Singlehop(device) => device.stop().await,
+            Devices::Multihop(devices) => devices.stop().await,
         }
     }
 }
@@ -409,55 +415,69 @@ impl Tunnel for GotaTun {
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         Box::pin(async move {
             self.config = config;
-
-            // if we're switching to/from multihop, we'll need to tear down the old device(s)
+            // If we're switching to/from multihop, we'll need to tear down the old device(s)
             // and set them up with the new DeviceTransports
-            // TODO: Debug configure_devices. Currently we need to tear down the old devices
-            // after having exchanged tunnel params with the ephemeral peer. Empirically this
-            // is true for both DAITA & PQ.
-            // let recreate_devices = old_config.is_multihop() != self.config.is_multihop();
-            let recreate_devices = true;
-
-            if recreate_devices {
-                // TODO: devices should never be None while this GotaTun instance is running.
-                debug_assert!(self.devices.is_some());
-                if let Some(devices) = self.devices.take() {
-                    devices.stop().await;
+            let devices = match self.devices.take() {
+                // Switching from singlehop to multihop
+                Some(Devices::Singlehop(device))
+                    if let Some(_exit_peer) = self.config.exit_peer.as_ref() =>
+                {
+                    // Tear down old device and recreate new multihop devices.
+                    device.stop().await;
+                    create_devices(
+                        &self.config,
+                        daita.as_ref(),
+                        self.tun_dev.clone(),
+                        #[cfg(target_os = "android")]
+                        self.android_tun.clone(),
+                    )
+                    .await
+                    .map_err(TunnelError::GotaTunDevice)?
                 }
-            }
-
-            match &mut self.devices {
-                Some(Devices::Singlehop(device)) => {
+                // Simply reconfigure the singlehop device.
+                Some(Devices::Singlehop(mut device)) => {
                     device
                         .configure(&self.config, daita.as_ref())
                         .await
-                        .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+                        .map_err(TunnelError::GotaTunDevice)?;
+                    Devices::Singlehop(device)
                 }
-                Some(Devices::Multihop(devices))
+                // Simply reconfigure the multihop devices.
+                Some(Devices::Multihop(mut devices))
                     if let Some(exit_peer) = self.config.exit_peer.as_ref() =>
                 {
                     devices
                         .configure(&self.config, exit_peer, daita.as_ref())
                         .await
-                        .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+                        .map_err(TunnelError::GotaTunDevice)?;
+                    Devices::Multihop(devices)
                 }
-                Some(Devices::Multihop(_devices)) => {
-                    todo!("This is unpossible!")
-                }
-                None => {
-                    self.devices = Some(
-                        create_devices(
-                            &self.config,
-                            daita.as_ref(),
-                            self.tun_dev.clone(),
-                            #[cfg(target_os = "android")]
-                            self.android_tun.clone(),
-                        )
-                        .await?,
+                // Switching from multihop to singlehop
+                Some(Devices::Multihop(devices)) => {
+                    // Tear down old devices and recreate new singlehop device.
+                    devices.stop().await;
+                    create_devices(
+                        &self.config,
+                        daita.as_ref(),
+                        self.tun_dev.clone(),
+                        #[cfg(target_os = "android")]
+                        self.android_tun.clone(),
                     )
+                    .await
+                    .map_err(TunnelError::GotaTunDevice)?
                 }
+                None => create_devices(
+                    &self.config,
+                    daita.as_ref(),
+                    self.tun_dev.clone(),
+                    #[cfg(target_os = "android")]
+                    self.android_tun.clone(),
+                )
+                .await
+                .map_err(TunnelError::GotaTunDevice)?,
             };
 
+            self.devices = Some(devices);
             Ok(())
         })
     }
@@ -472,14 +492,14 @@ async fn create_devices(
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
-) -> Result<Devices, TunnelError> {
+) -> Result<Devices, gotatun::device::Error> {
     async fn create_devices_inner(
         config: &Config, // TODO: do not include config to reduce confusion
         daita: Option<&DaitaSettings>,
         tun_dev: GotaTunDevice,
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
         optimize_buffer_size: bool,
-    ) -> Result<Devices, TunnelError> {
+    ) -> Result<Devices, gotatun::device::Error> {
         let factory = udp_obfuscator_factory(
             config,
             optimize_buffer_size,
@@ -524,8 +544,7 @@ async fn create_devices(
                 .with_udp(udp_channels)
                 .with_ip(tun_dev)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
 
             // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
             // See docs on wrap_in_pcap_sniffer for an explanation.
@@ -537,16 +556,12 @@ async fn create_devices(
                 .with_udp(factory)
                 .with_ip_pair(tun_channel_tx, tun_channel_rx)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
             let mut devices = Multihop {
                 entry_device,
                 exit_device,
             };
-            devices
-                .configure(config, exit_peer, daita)
-                .await
-                .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+            devices.configure(config, exit_peer, daita).await?;
             Devices::Multihop(devices)
         } else {
             // Singlehop setup
@@ -555,13 +570,9 @@ async fn create_devices(
                 .with_udp(factory)
                 .with_ip(tun_dev)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
             let mut device = Singlehop { device };
-            device
-                .configure(config, daita)
-                .await
-                .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+            device.configure(config, daita).await?;
             Devices::Singlehop(device)
         };
 
@@ -586,15 +597,9 @@ async fn create_devices(
         //
         // Try to bind UDP sockets with default buffer sizes.
         #[cfg(unix)]
-        Err(
-            TunnelError::ConfigureGotaTunSinglehopDevice(
-                ref err @ gotatun::device::Error::Bind(ref io_err, _),
-            )
-            | TunnelError::ConfigureGotaTunMultihopDevice(
-                ref err @ gotatun::device::Error::Bind(ref io_err, _),
-            ),
-        ) if let Some(errno) = io_err.raw_os_error()
-            && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
+        Err(ref err @ gotatun::device::Error::Bind(ref io_err, _))
+            if let Some(errno) = io_err.raw_os_error()
+                && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
         {
             log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
             create_devices_inner(
