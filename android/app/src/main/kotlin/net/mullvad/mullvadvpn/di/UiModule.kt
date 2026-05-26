@@ -54,6 +54,7 @@ import net.mullvad.mullvadvpn.feature.login.impl.apiunreachable.ApiUnreachableVi
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.DeviceListViewModel
 import net.mullvad.mullvadvpn.feature.managedevices.impl.ManageDevicesViewModel
 import net.mullvad.mullvadvpn.feature.multihop.impl.MultihopViewModel
+import net.mullvad.mullvadvpn.feature.multihopmigration.impl.MultihopMigrationViewModel
 import net.mullvad.mullvadvpn.feature.notification.impl.NotificationSettingsViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.ReportProblemViewModel
 import net.mullvad.mullvadvpn.feature.problemreport.impl.viewlogs.ViewLogsViewModel
@@ -455,6 +456,13 @@ val uiModule = module {
             isModal = params.get(),
             settingsRepository = get(),
             dispatcher = Dispatchers.IO,
+        )
+    }
+    viewModel { params ->
+        MultihopMigrationViewModel(
+            navArgs = params.get(),
+            multihopMigrationRepository = get(),
+            wireguardConstraintsRepository = get(),
         )
     }
 

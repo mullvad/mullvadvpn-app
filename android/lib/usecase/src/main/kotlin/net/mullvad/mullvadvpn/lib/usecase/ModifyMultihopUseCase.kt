@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.common.util.location
 import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -36,7 +37,9 @@ class ModifyMultihopUseCase(
                 .bind()
             when (change) {
                     is MultihopChange.Entry ->
-                        wireguardConstraintsRepository.setEntryLocation(change.item.id)
+                        wireguardConstraintsRepository.setEntryLocation(
+                            Constraint.Only(change.item.id)
+                        )
                     is MultihopChange.Exit ->
                         relayListRepository.updateSelectedRelayLocation(change.item.id)
                 }

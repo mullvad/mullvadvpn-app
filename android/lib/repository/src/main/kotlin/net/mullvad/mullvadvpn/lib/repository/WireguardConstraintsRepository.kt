@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.lib.repository
 
+import arrow.core.Either
+import arrow.core.right
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +11,9 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.SetWireguardConstraintsError
 
 class WireguardConstraintsRepository(
     private val managementService: ManagementService,
@@ -22,7 +26,7 @@ class WireguardConstraintsRepository(
 
     suspend fun setMultihop(enabled: Boolean) = managementService.setMultihop(enabled)
 
-    suspend fun setEntryLocation(relayItemId: RelayItemId) =
+    suspend fun setEntryLocation(relayItemId: Constraint<RelayItemId>) =
         managementService.setEntryLocation(relayItemId)
 
     suspend fun setDeviceIpVersion(ipVersion: Constraint<IpVersion>) =
@@ -32,4 +36,10 @@ class WireguardConstraintsRepository(
         multihopEnabled: Boolean,
         entryRelayItemId: RelayItemId,
     ) = managementService.setMultihopAndEntryLocation(multihopEnabled, entryRelayItemId)
+
+    suspend fun setMultihopMode(
+        multihopMode: MultihopMode
+    ): Either<SetWireguardConstraintsError, Unit> {
+        return Unit.right()
+    }
 }

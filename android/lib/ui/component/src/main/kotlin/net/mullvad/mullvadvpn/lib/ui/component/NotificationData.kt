@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
+import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.ClickableText
 import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.Text
@@ -84,7 +85,7 @@ fun InAppNotification.toNotificationData(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
-    onClickShowMultihopMigrationWizard: () -> Unit,
+    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) =
     when (this) {
@@ -226,7 +227,7 @@ fun InAppNotification.toNotificationData(
                                     append(stringResource(R.string.click_here_to_read_more))
                                 }
                             },
-                        onClick = onClickShowMultihopMigrationWizard,
+                        onClick = { onClickShowMultihopMigrationWizard(splitFilterMigration) },
                         contentDescription = stringResource(id = R.string.click_here_to_read_more),
                     ),
                 statusLevel = statusLevel,
