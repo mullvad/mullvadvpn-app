@@ -73,11 +73,13 @@ dirs = "6.0.0"
 either = "1.15.0"
 futures = "0.3.15"
 gotatun = { version = "0.6.0", default-features = false, features = ["ring"] }
-hickory-proto = "0.26.1"
+hickory-proto = { version = "0.26.1", default-features = false }
 hickory-resolver = { version = "0.26.1", default-features = false, features = [
   "tokio"
 ] }
-hickory-server = { version = "0.26.1", features = ["resolver"] }
+hickory-server = { version = "0.26.1", default-features = false, features = [
+  "resolver"
+] }
 hyper-util = { version = "0.1.8", features = [
   "client",
   "client-legacy",
