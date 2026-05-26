@@ -196,6 +196,13 @@ impl Shadowsocks {
             cipher,
         }
     }
+
+    /// Get a reference to the password in plaintext.
+    ///
+    /// Caution: DO NOT LOG THIS ANYWHERE.
+    pub fn plaintext_password(&self) -> &str {
+        self.password.as_inner()
+    }
 }
 
 impl Socks5Local {
