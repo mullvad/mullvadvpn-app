@@ -1077,15 +1077,6 @@ pub enum TunnelError {
     /// GotaTun device error
     #[error("GotaTun: {0:?}")]
     GotaTunDevice(::gotatun::device::Error),
-
-    // Errors that can happen when setting up / restarting / reconfiguring GotaTun devices.
-    /// Failed to configure GotaTun device.
-    #[error("Multihop devices were provided with a single config")]
-    ConfigureGotaTunSinglehopDevice(::gotatun::device::Error),
-
-    /// Failed to configure GotaTun multihop device.
-    #[error("Single devices were provided with a multihop config")]
-    ConfigureGotaTunMultihopDevice(::gotatun::device::Error),
 }
 
 #[cfg(target_os = "linux")]

@@ -105,7 +105,8 @@ impl GotaTun {
             #[cfg(target_os = "android")]
             android_tun.clone(),
         )
-        .await?;
+        .await
+        .map_err(TunnelError::GotaTunDevice)?;
 
         Ok(Self {
             config,
@@ -431,7 +432,7 @@ impl Tunnel for GotaTun {
                     device
                         .configure(&self.config, daita.as_ref())
                         .await
-                        .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+                        .map_err(TunnelError::GotaTunDevice)?;
                 }
                 Some(Devices::Multihop(devices))
                     if let Some(exit_peer) = self.config.exit_peer.as_ref() =>
@@ -439,7 +440,7 @@ impl Tunnel for GotaTun {
                     devices
                         .configure(&self.config, exit_peer, daita.as_ref())
                         .await
-                        .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+                        .map_err(TunnelError::GotaTunDevice)?;
                 }
                 Some(Devices::Multihop(_devices)) => {
                     todo!("This is unpossible!")
@@ -453,7 +454,8 @@ impl Tunnel for GotaTun {
                             #[cfg(target_os = "android")]
                             self.android_tun.clone(),
                         )
-                        .await?,
+                        .await
+                        .map_err(TunnelError::GotaTunDevice)?,
                     )
                 }
             };
@@ -472,14 +474,14 @@ async fn create_devices(
     daita: Option<&DaitaSettings>,
     tun_dev: GotaTunDevice,
     #[cfg(target_os = "android")] android_tun: Arc<Tun>,
-) -> Result<Devices, TunnelError> {
+) -> Result<Devices, gotatun::device::Error> {
     async fn create_devices_inner(
         config: &Config, // TODO: do not include config to reduce confusion
         daita: Option<&DaitaSettings>,
         tun_dev: GotaTunDevice,
         #[cfg(target_os = "android")] android_tun: Arc<Tun>,
         optimize_buffer_size: bool,
-    ) -> Result<Devices, TunnelError> {
+    ) -> Result<Devices, gotatun::device::Error> {
         let factory = udp_obfuscator_factory(
             config,
             optimize_buffer_size,
@@ -524,8 +526,7 @@ async fn create_devices(
                 .with_udp(udp_channels)
                 .with_ip(tun_dev)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
 
             // Hacky way of dumping entry<->exit traffic to a unix socket which wireshark can read.
             // See docs on wrap_in_pcap_sniffer for an explanation.
@@ -537,16 +538,12 @@ async fn create_devices(
                 .with_udp(factory)
                 .with_ip_pair(tun_channel_tx, tun_channel_rx)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
             let mut devices = Multihop {
                 entry_device,
                 exit_device,
             };
-            devices
-                .configure(config, exit_peer, daita)
-                .await
-                .map_err(TunnelError::ConfigureGotaTunMultihopDevice)?;
+            devices.configure(config, exit_peer, daita).await?;
             Devices::Multihop(devices)
         } else {
             // Singlehop setup
@@ -555,13 +552,9 @@ async fn create_devices(
                 .with_udp(factory)
                 .with_ip(tun_dev)
                 .build()
-                .await
-                .map_err(TunnelError::GotaTunDevice)?;
+                .await?;
             let mut device = Singlehop { device };
-            device
-                .configure(config, daita)
-                .await
-                .map_err(TunnelError::ConfigureGotaTunSinglehopDevice)?;
+            device.configure(config, daita).await?;
             Devices::Singlehop(device)
         };
 
@@ -586,15 +579,9 @@ async fn create_devices(
         //
         // Try to bind UDP sockets with default buffer sizes.
         #[cfg(unix)]
-        Err(
-            TunnelError::ConfigureGotaTunSinglehopDevice(
-                ref err @ gotatun::device::Error::Bind(ref io_err, _),
-            )
-            | TunnelError::ConfigureGotaTunMultihopDevice(
-                ref err @ gotatun::device::Error::Bind(ref io_err, _),
-            ),
-        ) if let Some(errno) = io_err.raw_os_error()
-            && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
+        Err(ref err @ gotatun::device::Error::Bind(ref io_err, _))
+            if let Some(errno) = io_err.raw_os_error()
+                && nix::errno::Errno::from_raw(errno) == nix::errno::Errno::ENOBUFS =>
         {
             log::error!("Failed to bind UDP socket - retrying with default buffer sizes");
             create_devices_inner(
