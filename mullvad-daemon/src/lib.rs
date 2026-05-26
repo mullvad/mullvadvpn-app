@@ -719,6 +719,9 @@ impl Daemon {
         daemon_command_channel: DaemonCommandChannel,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
+        macos::start_shutdown_detection();
+
+        #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
         let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)

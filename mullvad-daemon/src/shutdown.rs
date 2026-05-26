@@ -27,11 +27,9 @@ pub fn is_shutdown_user_initiated() -> bool {
 }
 
 /// Currently returns false all of the time to ensure that no leaks occur during shutdown.
-// FIXME: implement shutdown detection - the current implementation will always block network
-// traffic when the daemon is shut down.
 #[cfg(target_os = "macos")]
 pub fn is_shutdown_user_initiated() -> bool {
-    false
+    crate::macos::IS_SHUTTING_DOWN.load(std::sync::atomic::Ordering::SeqCst)
 }
 
 /// Install a signal handler for `SIGUSR1`.

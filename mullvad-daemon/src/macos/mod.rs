@@ -11,6 +11,10 @@ use tokio::{fs::File, process::Command};
 
 use crate::device::AccountManagerHandle;
 
+mod shutdown;
+
+pub use shutdown::*;
+
 /// Mullvad app install path
 const APP_PATH: &str = "/Applications/Mullvad VPN.app";
 
