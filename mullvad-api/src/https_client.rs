@@ -360,7 +360,7 @@ impl From<ApiConnectionMode> for InnerConnectionMode {
                     InnerConnectionMode::Shadowsocks(ShadowsocksConfig {
                         params: ParsedShadowsocksConfig {
                             peer: config.endpoint,
-                            password: config.password,
+                            password: config.password.into_inner(),
                             cipher: config.cipher.kind(),
                         },
                         proxy_context: SsContext::new_shared(ServerType::Local),
