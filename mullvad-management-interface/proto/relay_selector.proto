@@ -53,7 +53,7 @@ message EntryConstraints {
   // -- Entry specific constraints --
   management_interface.ObfuscationSettings obfuscation_settings = 2;
   management_interface.DaitaSettings daita_settings = 3;
-  management_interface.IpVersion ip_version = 4;
+  optional management_interface.IpVersion ip_version = 4;
 }
 
 // Constraints that apply to the second hop in a multihop configuration.

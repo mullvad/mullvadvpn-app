@@ -75,7 +75,10 @@ export class EntryConstraints extends jspb.Message {
     clearDaitaSettings(): void;
     getDaitaSettings(): management_interface_pb.DaitaSettings | undefined;
     setDaitaSettings(value?: management_interface_pb.DaitaSettings): EntryConstraints;
-    getIpVersion(): management_interface_pb.IpVersion;
+
+    hasIpVersion(): boolean;
+    clearIpVersion(): void;
+    getIpVersion(): management_interface_pb.IpVersion | undefined;
     setIpVersion(value: management_interface_pb.IpVersion): EntryConstraints;
 
     serializeBinary(): Uint8Array;
@@ -93,7 +96,7 @@ export namespace EntryConstraints {
         generalConstraints?: ExitConstraints.AsObject,
         obfuscationSettings?: management_interface_pb.ObfuscationSettings.AsObject,
         daitaSettings?: management_interface_pb.DaitaSettings.AsObject,
-        ipVersion: management_interface_pb.IpVersion,
+        ipVersion?: management_interface_pb.IpVersion,
     }
 }
 
