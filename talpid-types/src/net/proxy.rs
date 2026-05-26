@@ -87,7 +87,7 @@ impl From<Shadowsocks> for CustomProxy {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
-    pub password: Sensitive<String>,
+    password: Sensitive<String>,
     pub cipher: ShadowsocksCipher,
 }
 
@@ -287,6 +287,13 @@ impl Shadowsocks {
             password: password.into(),
             cipher,
         }
+    }
+
+    /// Get a reference to the password in plaintext.
+    ///
+    /// Caution: DO NOT LOG THIS ANYWHERE.
+    pub fn plaintext_password(&self) -> &str {
+        self.password.as_inner()
     }
 }
 
