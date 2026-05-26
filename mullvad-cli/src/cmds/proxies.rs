@@ -81,11 +81,7 @@ pub struct ShadowsocksAdd {
 
 impl From<ShadowsocksAdd> for Shadowsocks {
     fn from(add: ShadowsocksAdd) -> Self {
-        Self {
-            endpoint: SocketAddr::new(add.remote_ip, add.remote_port),
-            password: add.password.into(),
-            cipher: add.cipher,
-        }
+        Shadowsocks::new((add.remote_ip, add.remote_port), add.cipher, add.password)
     }
 }
 
@@ -139,7 +135,7 @@ pub mod pp {
                 CustomProxy::Shadowsocks(shadowsocks) => {
                     print_option!("Protocol", format!("Shadowsocks [{}]", shadowsocks.cipher));
                     print_option!("Peer", shadowsocks.endpoint);
-                    print_option!("Password", shadowsocks.password);
+                    print_option!("Password", shadowsocks.plaintext_password());
                     Ok(())
                 }
                 CustomProxy::Socks5Remote(remote) => {

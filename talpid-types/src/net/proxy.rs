@@ -87,7 +87,7 @@ impl From<Shadowsocks> for CustomProxy {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
-    pub password: Sensitive<String>,
+    password: Sensitive<String>,
     /// One of [`SHADOWSOCKS_CIPHERS`].
     /// Gets validated at a later stage. Is assumed to be valid.
     pub cipher: String,

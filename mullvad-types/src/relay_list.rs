@@ -5,7 +5,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
 };
 use talpid_types::net::{TransportProtocol, proxy::Shadowsocks, wireguard};
@@ -500,11 +500,11 @@ pub struct ShadowsocksEndpointData {
 
 impl ShadowsocksEndpointData {
     pub fn to_proxy_settings(&self, addr: IpAddr) -> Shadowsocks {
-        Shadowsocks {
-            endpoint: SocketAddr::new(addr, self.port),
-            password: self.password.clone().into(),
-            cipher: self.cipher.clone(),
-        }
+        Shadowsocks::new(
+            (addr, self.port),
+            self.cipher.clone(),
+            self.password.clone(),
+        )
     }
 }
 

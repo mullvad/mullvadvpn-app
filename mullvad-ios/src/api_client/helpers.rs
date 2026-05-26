@@ -56,11 +56,7 @@ pub unsafe extern "C" fn new_shadowsocks_access_method_setting(
     let password = unsafe { get_string(c_password) };
     let cipher = unsafe { get_string(c_cipher) };
 
-    let shadowsocks_configuration = Shadowsocks {
-        endpoint,
-        password: password.into(),
-        cipher,
-    };
+    let shadowsocks_configuration = Shadowsocks::new(endpoint, cipher, password);
 
     Box::into_raw(Box::new(shadowsocks_configuration)) as *mut c_void
 }
