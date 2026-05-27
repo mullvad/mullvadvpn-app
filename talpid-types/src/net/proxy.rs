@@ -110,7 +110,7 @@ pub struct Socks5Remote {
 /// RFC 1929: <https://datatracker.ietf.org/doc/html/rfc1929>.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct SocksAuth {
-    username: String,
+    username: Sensitive<String>,
     password: Sensitive<String>,
 }
 
@@ -172,7 +172,7 @@ impl SocksAuth {
         }
 
         Ok(SocksAuth {
-            username,
+            username: username.into(),
             password: password.into(),
         })
     }

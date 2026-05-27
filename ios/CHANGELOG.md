@@ -25,7 +25,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Stop logging access method credentials in logs.
 
-
 ## [2026.2 - 2026-04-21]
 ### Add
 - Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
