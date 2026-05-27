@@ -21,9 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## [Unreleased]
+## [android/2026.6-beta1] - 2026-05-27
 ### Changed
-- Optimize LWO performance. The throughput is around 3 times higher in our benchmarks.
+- Optimize LWO performance, substantially reducing its performance overhead compared to
+  unobfuscated WireGuard.
+- Change [default retry connection attempts](../docs/relay-selector.md). LWO is now the third
+  default constraint. The relative order among the following constraints is preserved.
+- New design for the login screen
+- Move DNS content blockers and Custom DNS setting into a new screen called DNS settings.
 
 
 ## [android/2026.5] - 2026-05-06
