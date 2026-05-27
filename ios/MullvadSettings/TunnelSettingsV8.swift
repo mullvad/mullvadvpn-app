@@ -39,6 +39,13 @@ public struct TunnelSettingsV8: Codable, Equatable, TunnelSettings, Sendable {
             || (tunnelMultihopState == .always && relayConstraints.entryLocations == .any)
     }
 
+    public var withAnyLocation: Self {
+        var copy = self
+        copy.relayConstraints.entryLocations = .any
+        copy.relayConstraints.exitLocations = .any
+        return copy
+    }
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),

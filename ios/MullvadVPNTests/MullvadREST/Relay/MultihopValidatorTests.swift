@@ -53,7 +53,7 @@ class MultihopValidatorTests: XCTestCase {
             relayConstraints: multihopWithFiltersConstraints,
             tunnelMultihopState: .whenNeeded
         )
-        
+
         let validator = MultihopValidator(tunnelSettings: settings, relaySelector: relaySelector)
         XCTAssertFalse(validator.stateWillOverrideFilters(.whenNeeded))
     }
