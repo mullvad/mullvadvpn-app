@@ -129,6 +129,7 @@ class SelectLocationScreenTest {
                                     hierarchy = Hierarchy.Parent,
                                 )
                             },
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -165,6 +166,7 @@ class SelectLocationScreenTest {
                     SelectLocationListUiState(
                         relayListItems = listOf(RelayListItem.CustomListFooter(false)),
                         relayListType = RelayListType.Single,
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -197,6 +199,7 @@ class SelectLocationScreenTest {
                     SelectLocationListUiState(
                         relayListItems = listOf(RelayListItem.CustomListItem(customList)),
                         relayListType = RelayListType.Single,
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -234,6 +237,7 @@ class SelectLocationScreenTest {
                     SelectLocationListUiState(
                         relayListItems = listOf(RelayListItem.RecentListItem(item = recent)),
                         relayListType = RelayListType.Single,
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -271,6 +275,7 @@ class SelectLocationScreenTest {
                     SelectLocationListUiState(
                         relayListItems = listOf(RelayListItem.CustomListItem(item = customList)),
                         relayListType = RelayListType.Single,
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -323,6 +328,7 @@ class SelectLocationScreenTest {
                                 )
                             ),
                         relayListType = RelayListType.Single,
+                        recentsEnabled = false,
                     )
                 )
             )
@@ -376,6 +382,7 @@ class SelectLocationScreenTest {
                                     selectedItem = selectableItem.id,
                                 ),
                             relayListType = RelayListType.Single,
+                            recentsEnabled = false,
                         )
                     )
                 )
@@ -420,6 +427,7 @@ class SelectLocationScreenTest {
                                     selectedItem = selectableItem.id,
                                 ),
                             relayListType = RelayListType.Single,
+                            recentsEnabled = false,
                         )
                     )
                 )
@@ -463,6 +471,7 @@ class SelectLocationScreenTest {
                                 locationItems = emptyList(),
                                 selectedItem = null,
                             ),
+                        recentsEnabled = false,
                     )
                 )
             )

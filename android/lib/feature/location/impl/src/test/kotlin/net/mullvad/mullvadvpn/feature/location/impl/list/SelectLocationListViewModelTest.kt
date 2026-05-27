@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -206,6 +207,7 @@ class SelectLocationListViewModelTest {
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
         every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 
         // Act, Assert
@@ -227,6 +229,7 @@ class SelectLocationListViewModelTest {
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
         every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 
         // Act, Assert
