@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import java.net.Inet6Address
 import java.net.InetAddress
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -138,7 +139,8 @@ class DnsSettingsViewModel(
 
     fun onCustomDnsDialogSuccess() = viewModelScope.launch {
         // This is to fix an ui issue where the switch gets stuck due to animations starting at the
-        // same time
+        // same time. This is likely to be fixed in the next stable version of material 3.
+        // Reverting this hack is tracked here: DROID-2734
         delay(SHORT_DELAY)
         settingsRepository.setDnsState(DnsState.Custom).onLeft { showGenericErrorToast() }
     }
@@ -162,6 +164,6 @@ class DnsSettingsViewModel(
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 
     companion object {
-        private const val SHORT_DELAY = 5L
+        private val SHORT_DELAY = 5.milliseconds
     }
 }
