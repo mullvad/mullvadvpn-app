@@ -62,7 +62,7 @@ class TunnelViewController: UIViewController, RootContainment {
         false
     }
 
-    init(interactor: TunnelViewControllerInteractor) {
+    init(interactor: TunnelViewControllerInteractor, settingsStore: SettingsStore) {
         self.interactor = interactor
 
         tunnelState = interactor.tunnelStatus.state
@@ -70,7 +70,7 @@ class TunnelViewController: UIViewController, RootContainment {
             tunnelStatus: interactor.tunnelStatus,
             relayConstraints: interactor.tunnelSettings.relayConstraints,
             relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
-            customListRepository: CustomListRepository()
+            customListRepository: CustomListRepository(settingsStore: settingsStore)
         )
         indicatorsViewViewModel = FeatureIndicatorsViewModel(
             tunnelSettings: interactor.tunnelSettings,

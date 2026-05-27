@@ -76,6 +76,8 @@ final class TunnelManager: @unchecked Sendable {
 
     private var observer: TunnelObserver?
 
+    private let settingsManager: SettingsManager
+
     // MARK: - Initialization
 
     init(
@@ -85,7 +87,8 @@ final class TunnelManager: @unchecked Sendable {
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
         apiProxy: APIQuerying,
-        relaySelector: RelaySelectorProtocol
+        relaySelector: RelaySelectorProtocol,
+        settingsManager: SettingsManager
     ) {
         self.backgroundTaskProvider = backgroundTaskProvider
         self.tunnelStore = tunnelStore
@@ -96,6 +99,7 @@ final class TunnelManager: @unchecked Sendable {
         self.operationQueue.name = "TunnelManager.operationQueue"
         self.operationQueue.underlyingQueue = internalQueue
         self.relaySelector = relaySelector
+        self.settingsManager = settingsManager
 
         NotificationCenter.default.addObserver(
             self,
@@ -186,7 +190,8 @@ final class TunnelManager: @unchecked Sendable {
     func loadConfiguration(completionHandler: @escaping @Sendable () -> Void) {
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
-            interactor: TunnelInteractorProxy(self)
+            interactor: TunnelInteractorProxy(self),
+            settingsManager: settingsManager
         )
         loadTunnelOperation.completionQueue = .main
         loadTunnelOperation.completionHandler = { [weak self] completion in
@@ -384,7 +389,8 @@ final class TunnelManager: @unchecked Sendable {
             interactor: TunnelInteractorProxy(self),
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
-            action: action
+            action: action,
+            setLastUsedAccount: settingsManager.setLastUsedAccount
         )
 
         operation.completionQueue = .main
@@ -726,7 +732,7 @@ final class TunnelManager: @unchecked Sendable {
 
         if persist {
             do {
-                try SettingsManager.writeSettings(settings)
+                try settingsManager.writeSettings(settings)
             } catch {
                 logger.error(
                     error: error,
@@ -755,7 +761,7 @@ final class TunnelManager: @unchecked Sendable {
 
         if persist {
             do {
-                try SettingsManager.writeDeviceState(deviceState)
+                try settingsManager.writeDeviceState(deviceState)
             } catch {
                 logger.error(
                     error: error,
@@ -911,9 +917,9 @@ final class TunnelManager: @unchecked Sendable {
     /// Refresh device state from settings and update the in-memory value.
     /// Used to refresh device state when it's modified by packet tunnel during key rotation.
     private func refreshDeviceState() {
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
+        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { [settingsManager] in
             do {
-                let newDeviceState = try SettingsManager.readDeviceState()
+                let newDeviceState = try settingsManager.readDeviceState()
 
                 self.setDeviceState(newDeviceState, persist: false)
             } catch {
@@ -1229,7 +1235,7 @@ final class TunnelManager: @unchecked Sendable {
 
     fileprivate func removeLastUsedAccount() {
         do {
-            try SettingsManager.setLastUsedAccount(nil)
+            try settingsManager.setLastUsedAccount(nil)
         } catch {
             logger.error(
                 error: error,

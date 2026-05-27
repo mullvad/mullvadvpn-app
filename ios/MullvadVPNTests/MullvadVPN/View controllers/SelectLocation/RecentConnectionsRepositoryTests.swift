@@ -192,6 +192,6 @@ final class RecentConnectionsRepositoryTests {
     }
 
     private func makeRepository(max: UInt = 50) -> RecentConnectionsRepository {
-        return RecentConnectionsRepository(store: InMemorySettingsStore<SettingNotFound>(), maxLimit: max)
+        return RecentConnectionsRepository(settingsStore: InMemorySettingsStore<SettingNotFound>(), maxLimit: max)
     }
 }

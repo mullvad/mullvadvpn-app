@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import Operations
 import PacketTunnelCore
@@ -18,10 +19,12 @@ final class DeviceChecker {
 
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
+    private let settingsManager: SettingsManager
 
-    init(accountsProxy: RESTAccountHandling, devicesProxy: DeviceHandling) {
+    init(accountsProxy: RESTAccountHandling, devicesProxy: DeviceHandling, settingsManager: SettingsManager) {
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
+        self.settingsManager = settingsManager
     }
 
     /**
@@ -39,7 +42,7 @@ final class DeviceChecker {
         let checkOperation = DeviceCheckOperation(
             dispatchQueue: dispatchQueue,
             remoteSevice: DeviceCheckRemoteService(accountsProxy: accountsProxy, devicesProxy: devicesProxy),
-            deviceStateAccessor: DeviceStateAccessor(),
+            deviceStateAccessor: DeviceStateAccessor(settingsManager: settingsManager),
             rotateImmediatelyOnKeyMismatch: rotateKeyOnMismatch
         )
 

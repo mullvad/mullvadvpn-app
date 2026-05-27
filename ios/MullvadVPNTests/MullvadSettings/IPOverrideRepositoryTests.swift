@@ -12,16 +12,8 @@ import XCTest
 @testable import MullvadSettings
 
 final class IPOverrideRepositoryTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
-    let repository = IPOverrideRepository()
-
-    override static func setUp() {
-        SettingsManager.unitTestStore = store
-    }
-
-    override static func tearDown() {
-        store.reset()
-    }
+    let store = InMemorySettingsStore<SettingNotFound>()
+    lazy var repository = IPOverrideRepository(settingsStore: store)
 
     override func tearDownWithError() throws {
         repository.deleteAll()
