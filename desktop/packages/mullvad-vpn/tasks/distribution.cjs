@@ -41,9 +41,7 @@ function newConfig() {
 
     extraMetadata: {
       name: 'mullvad-vpn',
-      // We have to stick to semver on Windows for now due to:
-      // https://github.com/electron-userland/electron-builder/issues/7173
-      version: productVersion(process.platform === 'win32' ? ['semver'] : []),
+      version: productVersion(),
     },
 
     files: [
@@ -297,25 +295,6 @@ async function packWin() {
         }
         return true;
       },
-      afterAllArtifactBuild: (buildResult) => {
-        // All of this is a hack to work around the limitation in:
-        // https://github.com/electron-userland/electron-builder/issues/7173
-        const productSemverVersion = productVersion(['semver']);
-        const productTargetVersion = productVersion([]);
-
-        // Rename the artifacts so that they don't have the .0 (semver format)
-        for (const artifactPath of buildResult.artifactPaths) {
-          const artifactDir = path.dirname(artifactPath);
-          const artifactSemverFilename = path.basename(artifactPath);
-          const artifactDesiredFilename = artifactSemverFilename.replace(
-            productSemverVersion,
-            productTargetVersion,
-          );
-          const targetArtifactPath = path.join(artifactDir, artifactDesiredFilename);
-          console.log('Moving', artifactSemverFilename, '=>', artifactDesiredFilename);
-          fs.renameSync(artifactPath, targetArtifactPath);
-        }
-      },
     };
   }
 
@@ -494,7 +473,7 @@ function getMacArch() {
 // than a non-tilde version component
 // https://docs.fedoraproject.org/en-US/packaging-guidelines/Versioning/#_complex_versioning
 function getLinuxVersion() {
-  const [version, ...prereleaseParts] = productVersion([]).split('-');
+  const [version, ...prereleaseParts] = productVersion().split('-');
   const [major, minor] = version.split('.');
   const prerelease = prereleaseParts.join('-');
   if (prerelease) {
@@ -506,10 +485,9 @@ function getLinuxVersion() {
   return `${major}.${minor}`;
 }
 
-// Returns the product version. The `args` argument is optional. Set it to `'semver'`
-// to get the version in semver format.
-function productVersion(extraArgs) {
-  const args = ['run', '-q', '--bin', 'mullvad-version', ...extraArgs];
+// Returns the product version.
+function productVersion() {
+  const args = ['run', '-q', '--bin', 'mullvad-version'];
   return execFileSync('cargo', args, { encoding: 'utf-8' }).trim();
 }
 
