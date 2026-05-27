@@ -10,6 +10,7 @@ import SwiftUI
 
 protocol RelayFilterSettingsViewModelProtocol {
     var filters: [SelectLocationFilter] { get }
+    var automaticLocationIsActive: Bool { get }
     func onFilterTapped(_ filterr: SelectLocationFilter)
 }
 
@@ -22,20 +23,21 @@ extension RelayFilterSelection {
                 if !viewModel.filters.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.filters,
-                        automaticLocationIsActive: false
+                        automaticLocationIsActive: viewModel.automaticLocationIsActive
                     ) { filter in
                         viewModel.onFilterTapped(filter)
                     } onRemove: { _ in
                     }
-                    HStack {
-                        Image.mullvadIconInfo.resizable().frame(width: 14, height: 14).opacity(0.6)
-                        // Should this be "Filters are overridden when using the automatic location", which is an existing localised text already used elsewhere in the UI?
-                        Text("Filters are overridden when using an automatic location").font(.mullvadMini)
-                            .foregroundStyle(
-                                Color.mullvadTextSecondary)
-                        Spacer()
+                    if viewModel.automaticLocationIsActive {
+                        HStack {
+                            Image.mullvadIconInfo.resizable().frame(width: 14, height: 14).opacity(0.6)
+                            Text("Filters are overridden when using an automatic location").font(.mullvadMini)
+                                .foregroundStyle(
+                                    Color.mullvadTextSecondary)
+                            Spacer()
+                        }
+                        .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
                     }
-                    .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
                 }
 
             }
@@ -47,9 +49,11 @@ extension RelayFilterSelection {
 
 private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol, ObservableObject {
     var filters: [SelectLocationFilter]
+    var automaticLocationIsActive: Bool
 
-    init(filters: [SelectLocationFilter]) {
+    init(filters: [SelectLocationFilter], automaticLocationIsActive: Bool) {
         self.filters = filters
+        self.automaticLocationIsActive = automaticLocationIsActive
     }
 
     func onFilterTapped(_ filterr: SelectLocationFilter) {}
@@ -58,6 +62,7 @@ private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol,
 #Preview {
     RelayFilterSelection.SettingsView<MockSettingsViewModel>(
         viewModel: MockSettingsViewModel(
-            filters: [.daita, .obfuscation]
+            filters: [.daita, .obfuscation],
+            automaticLocationIsActive: true
         ))
 }

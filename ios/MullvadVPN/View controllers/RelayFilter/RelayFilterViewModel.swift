@@ -27,10 +27,12 @@ extension RelayFilterSelection {
         private var settings: LatestTunnelSettings {
             didSet {
                 updateFeatureChips()
+                updateAutomaticLocationStatus()
                 objectWillChange.send()
             }
         }
         @Published var filters: [SelectLocationFilter] = []
+        var automaticLocationIsActive: Bool = false
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
@@ -87,6 +89,7 @@ extension RelayFilterSelection {
             tunnelManager.addObserver(tunnelObserver)
             self.tunnelObserver = tunnelObserver
             updateFeatureChips()
+            updateAutomaticLocationStatus()
         }
 
         deinit {
@@ -99,6 +102,10 @@ extension RelayFilterSelection {
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
             ].compactMap { $0 }
+        }
+
+        private func updateAutomaticLocationStatus() {
+            automaticLocationIsActive = multihopContext == .entry && settings.automaticMultihopIsEnabled
         }
 
         func onFilterTapped(_ filter: SelectLocationFilter) {
