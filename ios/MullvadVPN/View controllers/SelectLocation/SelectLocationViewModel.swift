@@ -171,14 +171,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 didUpdateTunnelSettings: { [weak self] _, settings in
                     guard let self else { return }
 
+                    updateMultihopState()
                     reloadAllDataSources()
                     updateSelections()
-                    updateMultihopState()
                     updateConnectedLocations(tunnelManager.tunnelStatus)
-
-                    if !isMultihopActive {
-                        multihopContext = .exit
-                    }
 
                     if !searchText.isEmpty {
                         search(searchText: searchText)
@@ -189,6 +185,10 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                     )
                     entryContext.filter = activeEntryFilter
                     exitContext.filter = activeExitFilter
+
+                    if !multihopState.isAlways {
+                        multihopContext = .exit
+                    }
                 }
             )
 
@@ -207,9 +207,9 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
 
+        updateMultihopState()
         reloadAllDataSources()
         updateSelections()
-        updateMultihopState()
         updateConnectedLocations(tunnelManager.tunnelStatus)
     }
 
