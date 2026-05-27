@@ -6,13 +6,31 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import SwiftUI
 
 struct RecentItemView: View {
     let node: LocationNode
+    let multihopContext: MultihopContext
 
-    var isDisabled: Bool {
-        !node.isActive || node.isExcluded
+    var title: String {
+        if node.isExcluded {
+            switch multihopContext {
+            case .entry:
+                return """
+                    \(node.name) (\(String(localized:
+                    String
+                    .LocalizationValue(MultihopContext.exit.description))))
+                    """
+            case .exit:
+                return """
+                    \(node.name) (\(String(localized:
+                    String
+                    .LocalizationValue(MultihopContext.entry.description))))
+                    """
+            }
+        }
+        return "\(node.name)"
     }
 
     var subtitle: String? {
@@ -41,13 +59,13 @@ struct RecentItemView: View {
 
     var body: some View {
         ListItem(
-            title: node.name,
+            title: title,
             subtitle: subtitle,
             level: 0,
             selected: node.isSelected,
             statusIndicator: { statusIndicator }
         )
-        .disabled(isDisabled)
+        .disabled(node.isExcluded)
     }
 }
 
@@ -57,6 +75,7 @@ struct RecentItemView: View {
             name: "A great location",
             code: "a-great-location",
             isSelected: true
-        )
+        ),
+        multihopContext: .exit
     )
 }

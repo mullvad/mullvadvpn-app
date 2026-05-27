@@ -228,7 +228,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocation() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("se", "sto", "se2-wireguard")])
-        dataSource.setExcludedNode(constraint: .only(excludedRelays))
+        dataSource.setExcludedNode(hostname: "se2-wireguard")
         let excludedNode = dataSource.node(by: .only(excludedRelays))!
 
         XCTAssertTrue(excludedNode.isExcluded)
@@ -251,13 +251,13 @@ class AllLocationsDataSourceTests: XCTestCase {
         let entryRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
 
         // Simulate multihop: exclusion is applied, Japan is excluded.
-        dataSource.setExcludedNode(constraint: .only(entryRelays))
+        dataSource.setExcludedNode(hostname: "jp1-wireguard")
         let jpNode = dataSource.node(by: .only(entryRelays))!
         XCTAssertTrue(jpNode.isExcluded)
 
         // Simulate switching to singlehop: the view model should pass nil
         // to clear exclusions rather than passing the entry relay.
-        dataSource.setExcludedNode(constraint: nil)
+        dataSource.setExcludedNode(hostname: nil)
 
         // In singlehop, Japan should NOT be excluded
         XCTAssertFalse(jpNode.isExcluded)
@@ -268,7 +268,7 @@ class AllLocationsDataSourceTests: XCTestCase {
 
     func testExcludeLocationIncludesAncestors() throws {
         let excludedRelays = UserSelectedRelays(locations: [.hostname("jp", "tyo", "jp1-wireguard")])
-        dataSource.setExcludedNode(constraint: .only(excludedRelays))
+        dataSource.setExcludedNode(hostname: "jp1-wireguard")
         let excludedNode = dataSource.node(by: .only(excludedRelays))!
 
         XCTAssertTrue(excludedNode.isExcluded)
