@@ -54,9 +54,6 @@ import {
   ensureExists,
 } from './grpc-type-convertions';
 
-const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
-
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
   // @internal
@@ -88,7 +85,7 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
   > = new Map();
 
   public constructor(connectionObserver?: ConnectionObserver) {
-    super(DAEMON_RPC_PATH, connectionObserver);
+    super(connectionObserver);
   }
 
   createClient(): ManagementServiceClient {

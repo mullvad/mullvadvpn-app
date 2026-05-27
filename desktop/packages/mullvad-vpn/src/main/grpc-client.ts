@@ -44,6 +44,9 @@ export class ConnectionObserver {
   };
 }
 
+export const GRPC_CLIENT_PATH =
+  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+
 export abstract class GrpcClient<Client extends ManagementServiceClient> {
   protected client: Client;
   private isConnectedValue = false;
@@ -51,8 +54,8 @@ export abstract class GrpcClient<Client extends ManagementServiceClient> {
   private reconnectionTimeout?: NodeJS.Timeout;
 
   constructor(
-    private rpcPath: string,
     private connectionObserver?: ConnectionObserver,
+    private rpcPath: string = GRPC_CLIENT_PATH,
   ) {
     this.client = this.createClient();
   }
