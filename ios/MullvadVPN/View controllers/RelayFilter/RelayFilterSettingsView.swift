@@ -8,12 +8,6 @@
 
 import SwiftUI
 
-protocol RelayFilterSettingsViewModelProtocol {
-    var filters: [SelectLocationFilter] { get }
-    var automaticLocationIsActive: Bool { get }
-    func onFilterTapped(_ filterr: SelectLocationFilter)
-}
-
 extension RelayFilterSelection {
     struct SettingsView<SettingsViewModel: RelayFilterSettingsViewModelProtocol & ObservableObject>: View {
         @ObservedObject var viewModel: SettingsViewModel

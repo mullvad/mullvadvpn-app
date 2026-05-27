@@ -11,6 +11,12 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
+protocol RelayFilterSettingsViewModelProtocol {
+    var filters: [SelectLocationFilter] { get }
+    var automaticLocationIsActive: Bool { get }
+    func onFilterTapped(_ filterr: SelectLocationFilter)
+}
+
 protocol RelayFilterViewModelSettingsProviding {
     var settings: LatestTunnelSettings { get }
     func addObserver(_ observer: TunnelObserver)
