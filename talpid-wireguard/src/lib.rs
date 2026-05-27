@@ -1013,7 +1013,7 @@ pub enum TunnelError {
     /// tunnel again will likely fail with the same error. An error was encountered during tunnel
     /// configuration which can't be dealt with gracefully.
     #[error("Failed to start wireguard tunnel")]
-    FatalStartWireguardError(#[source] Box<dyn std::error::Error + Send>),
+    FatalStartWireguardError(#[source] Box<dyn std::error::Error + Send + Sync>),
 
     /// Failed to tear down wireguard tunnel.
     #[error("Failed to tear down wireguard tunnel")]
@@ -1077,10 +1077,6 @@ pub enum TunnelError {
     /// GotaTun device error
     #[error("GotaTun: {0:?}")]
     GotaTunDevice(::gotatun::device::Error),
-
-    /// Failed to configure GotaTun device.
-    #[error("Failed to configure the GotaTun device")]
-    ConfigureGotaTunDevice(#[source] gotatun::ConfigureGotaTunDeviceError),
 }
 
 #[cfg(target_os = "linux")]
