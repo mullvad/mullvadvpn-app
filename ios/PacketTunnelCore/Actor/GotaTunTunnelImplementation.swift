@@ -8,18 +8,34 @@
 
 import MullvadLogging
 import MullvadREST
+import MullvadTypes
 @preconcurrency import NetworkExtension
 
 /// GotaTun tunnel implementation.
 /// Unlike WireGuardGo, this implementation does NOT use an external state observer.
 /// State transitions are handled internally by the GotaTun actor.
+///
+/// Concrete dependencies that require the `PacketTunnel` target (tunnel FD,
+/// network settings, path observer) are injected via `GotaTunProviderDelegate`.
 public final class GotaTunTunnelImplementation: TunnelImplementation, @unchecked Sendable {
     private let logger = Logger(label: "GotaTunTunnelImplementation")
 
-    private let _actor = GotaTunActor()
+    private var _actor: GotaTunActor!
     public var actor: any PacketTunnelActorProtocol { _actor }
 
-    public init() {}
+    private let providerDelegate: GotaTunProviderDelegate
+    private let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
+    private let adapterFactory: GotaTunAdapterFactory
+
+    public init(
+        providerDelegate: GotaTunProviderDelegate,
+        blockedStateErrorMapper: BlockedStateErrorMapperProtocol,
+        adapterFactory: GotaTunAdapterFactory
+    ) {
+        self.providerDelegate = providerDelegate
+        self.blockedStateErrorMapper = blockedStateErrorMapper
+        self.adapterFactory = adapterFactory
+    }
 
     public func setUp(
         provider: NEPacketTunnelProvider,
@@ -28,14 +44,23 @@ public final class GotaTunTunnelImplementation: TunnelImplementation, @unchecked
         settingsReader: sending TunnelSettingsManager,
         apiTransportProvider: APITransportProvider
     ) {
-        // GotaTun-specific setup will go here when the actor is no longer a stub.
-        // The actor will internally manage state transitions, path observation,
-        // and system API calls through its own mechanisms.
+        let defaultPathObserver = providerDelegate.makeDefaultPathObserver(eventQueue: internalQueue)
+        let relaySelector = RelaySelectorWrapper(relayCache: ipOverrideWrapper)
+
+        _actor = GotaTunActor(
+            tunnelFd: { [providerDelegate] in providerDelegate.tunnelFileDescriptor },
+            applyNetworkSettings: { [providerDelegate] settings in
+                try await providerDelegate.applyNetworkSettings(settings)
+            },
+            settingsReader: settingsReader,
+            relaySelector: relaySelector,
+            defaultPathObserver: defaultPathObserver,
+            blockedStateErrorMapper: blockedStateErrorMapper,
+            adapterFactory: adapterFactory
+        )
     }
 
     public func startTunnel(options: StartOptions) async {
-        // NO startObservingActorState() - this is the key architectural difference.
-        // The GotaTun actor handles state internally.
         actor.start(options: options)
     }
 
