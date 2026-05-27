@@ -19,6 +19,8 @@ import {
   ErrorStateCause,
   IRelayListWithEndpointData,
   ISettings,
+  ObfuscationType,
+  Ownership,
   type ShadowsocksCipher,
   TunnelState,
 } from '../shared/daemon-rpc-types';
@@ -32,7 +34,9 @@ import {
   SystemNotification,
   SystemNotificationCategory,
 } from '../shared/notifications/notification';
+import { RelaySelectorPartitions } from '../shared/relay-selector-rpc-types';
 import { RoutePath } from '../shared/routes';
+import { capitalize } from '../shared/string-helpers';
 import Account, { AccountDelegate, LocaleProvider } from './account';
 import AppUpgrade from './app-upgrade';
 import { getOpenAtLogin } from './autostart';
@@ -709,6 +713,602 @@ class ApplicationMain
     if (!this.account.isLoggedIn()) {
       this.userInterface?.showWindow();
     }
+
+    const writePartitionResult = (filename: string, result: RelaySelectorPartitions) => {
+      const formattedDiscards = result.discards.map((discard) => {
+        const hostname = discard.relay.hostname;
+
+        const formattedReasons = Object.entries(discard.why).reduce((allReasons, [key, value]) => {
+          if (value) {
+            if (key === 'antiCensorship') {
+              key = 'obfuscation';
+            }
+
+            const keyCapitalized = capitalize(key);
+
+            return [...allReasons, keyCapitalized];
+          }
+
+          return allReasons;
+        }, [] as string[]);
+
+        const formattedReasonString = formattedReasons.sort((a, b) => a.localeCompare(b)).join(' ');
+        const label = `${hostname}: Discarded(${formattedReasonString})`;
+
+        return {
+          hostname,
+          label,
+        };
+      });
+
+      const formattedMatches = result.matches.map((match) => {
+        return {
+          hostname: match.hostname,
+          label: `${match.hostname}: Match`,
+        };
+      });
+
+      const joinedListLabels = [...formattedMatches, ...formattedDiscards]
+        .sort((a, b) => a.hostname.localeCompare(b.hostname))
+        .map(({ label }) => label);
+
+      const filepath = `${import.meta.dirname}/../${filename}`;
+      console.log('writing file to: ', filepath);
+      const content = [...joinedListLabels, ''].join('\n');
+
+      fs.writeFileSync(filepath, content);
+    };
+
+    const writeSinglehopShadowsocksAnyportSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.shadowsocks,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename =
+        'relay_selector__partition_relays__snapshots__singlehop_shadowsocks_any_port.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopQuicSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.quic,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_quic.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopMullvadOwnedSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.mullvadOwned,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_mullvad_owned.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopLwoSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.lwo,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_lwo.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopIpv6Snapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: {
+            only: 'ipv6',
+          },
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_ipv6.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopDefaultSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_default.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeSinglehopDaitaSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        singlehop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: true,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__singlehop_daita.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeMultihopExitMullvadOwnedSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        exit: {
+          entry: {
+            generalConstraints: {
+              location: 'any',
+              ownership: Ownership.any,
+              providers: [],
+            },
+            daitaSettings: {
+              directOnly: false,
+              enabled: false,
+            },
+            ipVersion: 'any',
+            antiCensorship: {
+              selectedObfuscation: ObfuscationType.auto,
+              lwoSettings: {
+                port: 'any',
+              },
+              udp2tcpSettings: {
+                port: 'any',
+              },
+              shadowsocksSettings: {
+                port: 'any',
+              },
+              wireGuardPortSettings: {
+                port: 'any',
+              },
+            },
+          },
+          exit: {
+            location: 'any',
+            ownership: Ownership.mullvadOwned,
+            providers: [],
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__exit_mullvad_owned_exit.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeMultihopExitDefaultSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        exit: {
+          entry: {
+            generalConstraints: {
+              location: 'any',
+              ownership: Ownership.any,
+              providers: [],
+            },
+            daitaSettings: {
+              directOnly: false,
+              enabled: false,
+            },
+            ipVersion: 'any',
+            antiCensorship: {
+              selectedObfuscation: ObfuscationType.auto,
+              lwoSettings: {
+                port: 'any',
+              },
+              udp2tcpSettings: {
+                port: 'any',
+              },
+              shadowsocksSettings: {
+                port: 'any',
+              },
+              wireGuardPortSettings: {
+                port: 'any',
+              },
+            },
+          },
+          exit: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__exit_default.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeMultihopEntryMullvadOwnedSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        entry: {
+          entry: {
+            generalConstraints: {
+              location: 'any',
+              ownership: Ownership.mullvadOwned,
+              providers: [],
+            },
+            daitaSettings: {
+              directOnly: false,
+              enabled: false,
+            },
+            ipVersion: 'any',
+            antiCensorship: {
+              selectedObfuscation: ObfuscationType.auto,
+              lwoSettings: {
+                port: 'any',
+              },
+              udp2tcpSettings: {
+                port: 'any',
+              },
+              shadowsocksSettings: {
+                port: 'any',
+              },
+              wireGuardPortSettings: {
+                port: 'any',
+              },
+            },
+          },
+          exit: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+        },
+      });
+
+      const filename =
+        'relay_selector__partition_relays__snapshots__entry_mullvad_owned_entry.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeMultihopEntryDefaultSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        entry: {
+          entry: {
+            generalConstraints: {
+              location: 'any',
+              ownership: Ownership.any,
+              providers: [],
+            },
+            daitaSettings: {
+              directOnly: false,
+              enabled: false,
+            },
+            ipVersion: 'any',
+            antiCensorship: {
+              selectedObfuscation: ObfuscationType.auto,
+              lwoSettings: {
+                port: 'any',
+              },
+              udp2tcpSettings: {
+                port: 'any',
+              },
+              shadowsocksSettings: {
+                port: 'any',
+              },
+              wireGuardPortSettings: {
+                port: 'any',
+              },
+            },
+          },
+          exit: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__entry_default.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeMultihopEntryDaitaSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        entry: {
+          entry: {
+            generalConstraints: {
+              location: 'any',
+              ownership: Ownership.any,
+              providers: [],
+            },
+            daitaSettings: {
+              directOnly: false,
+              enabled: true,
+            },
+            ipVersion: 'any',
+            antiCensorship: {
+              selectedObfuscation: ObfuscationType.auto,
+              lwoSettings: {
+                port: 'any',
+              },
+              udp2tcpSettings: {
+                port: 'any',
+              },
+              shadowsocksSettings: {
+                port: 'any',
+              },
+              wireGuardPortSettings: {
+                port: 'any',
+              },
+            },
+          },
+          exit: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__entry_daita_entry.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeAutohopDefaultSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        autohop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: false,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__autohop_default.snap';
+      writePartitionResult(filename, result);
+    };
+
+    const writeAutohopDaitaSnapshot = async () => {
+      const result = await this.relaySelectorRpc.getRelayPartitions({
+        autohop: {
+          generalConstraints: {
+            location: 'any',
+            ownership: Ownership.any,
+            providers: [],
+          },
+          daitaSettings: {
+            directOnly: false,
+            enabled: true,
+          },
+          ipVersion: 'any',
+          antiCensorship: {
+            selectedObfuscation: ObfuscationType.auto,
+            lwoSettings: {
+              port: 'any',
+            },
+            udp2tcpSettings: {
+              port: 'any',
+            },
+            shadowsocksSettings: {
+              port: 'any',
+            },
+            wireGuardPortSettings: {
+              port: 'any',
+            },
+          },
+        },
+      });
+
+      const filename = 'relay_selector__partition_relays__snapshots__autohop_daita.snap';
+      writePartitionResult(filename, result);
+    };
+
+    // Singlehop
+    await writeSinglehopShadowsocksAnyportSnapshot();
+    await writeSinglehopQuicSnapshot();
+    await writeSinglehopMullvadOwnedSnapshot();
+    await writeSinglehopLwoSnapshot();
+    await writeSinglehopIpv6Snapshot();
+    await writeSinglehopDefaultSnapshot();
+    await writeSinglehopDaitaSnapshot();
+
+    // Multihop exit
+    await writeMultihopExitMullvadOwnedSnapshot();
+    await writeMultihopExitDefaultSnapshot();
+
+    // Multihop entry
+    await writeMultihopEntryMullvadOwnedSnapshot();
+    await writeMultihopEntryDefaultSnapshot();
+    await writeMultihopEntryDaitaSnapshot();
+
+    // Autohop
+    await writeAutohopDefaultSnapshot();
+    await writeAutohopDaitaSnapshot();
   };
 
   private onDaemonDisconnected = (wasConnected: boolean, error?: Error, planned?: boolean) => {
