@@ -69,10 +69,15 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
             .transpose()?
             .unwrap_or_default();
 
-        let ip_version: Constraint<_> = IpVersion::try_from(ip_version)
-            .map_err(|_| FromProtobufTypeError::invalid_argument("invalid IP protocol version"))
-            .map(talpid_types::net::IpVersion::from)?
-            .into();
+        let ip_version = Constraint::from(
+            ip_version
+                .map(IpVersion::try_from)
+                .transpose()
+                .map_err(|_| {
+                    FromProtobufTypeError::invalid_argument("invalid IP protocol version")
+                })?
+                .map(talpid_types::net::IpVersion::from),
+        );
 
         let obfuscation_settings = obfuscation_settings
             .map(mullvad_types::relay_constraints::ObfuscationSettings::try_from)
