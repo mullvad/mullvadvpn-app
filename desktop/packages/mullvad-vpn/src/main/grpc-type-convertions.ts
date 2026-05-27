@@ -26,6 +26,7 @@ import {
   FirewallPolicyErrorType,
   IAppVersionInfo,
   ICustomList,
+  IDaitaSettings,
   IDevice,
   IObfuscationEndpoint,
   IpVersion,
@@ -837,6 +838,14 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   } else {
     return 'any';
   }
+}
+
+export function convertToDaitaSettings(daitaSettings: IDaitaSettings) {
+  const grpcDaitaSettings = new grpcTypes.DaitaSettings();
+  grpcDaitaSettings.setEnabled(daitaSettings.enabled);
+  grpcDaitaSettings.setDirectOnly(daitaSettings.directOnly);
+
+  return grpcDaitaSettings;
 }
 
 export function convertToRelayConstraints(
