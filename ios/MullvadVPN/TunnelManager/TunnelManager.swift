@@ -35,6 +35,7 @@ final class TunnelManager: @unchecked Sendable {
     // MARK: - Internal variables
 
     let backgroundTaskProvider: BackgroundTaskProviding
+    let relaySelector: RelaySelectorProtocol
     fileprivate let tunnelStore: any TunnelStoreProtocol
     private let relayCacheTracker: RelayCacheTrackerProtocol
     private let accountsProxy: RESTAccountHandling
@@ -49,7 +50,6 @@ final class TunnelManager: @unchecked Sendable {
     private var statusObserver: TunnelStatusBlockObserver?
     private let observerList = ObserverList<TunnelObserver>()
     private var networkMonitor: NWPathMonitor?
-    private let relaySelector: RelaySelectorProtocol
 
     private var pendingNetworkPathUpdate: DispatchWorkItem?
     private static let networkPathUpdateDelay: DispatchTimeInterval = .seconds(

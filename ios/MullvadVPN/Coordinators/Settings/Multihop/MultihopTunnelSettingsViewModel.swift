@@ -7,12 +7,18 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 
 class MultihopTunnelSettingsViewModel: ObservableObject {
+    enum ValidationError {
+        case filters(state: MultihopState)
+        case settings(state: MultihopState)
+    }
+
     let tunnelManager: TunnelManager
     var tunnelObserver: TunnelObserver!
 
-    var didFailValidation: ((MultihopState) -> Void)?
+    var didFailValidation: ((ValidationError) -> Void)?
 
     @Published var automaticRoutingIsActive: Bool = false
     @Published var multihopState: MultihopState {
@@ -40,30 +46,37 @@ class MultihopTunnelSettingsViewModel: ObservableObject {
         updateAutomaticRoutingStatus()
     }
 
-    private func updateAutomaticRoutingStatus() {
-        automaticRoutingIsActive =
-            tunnelManager.settings.automaticMultihopIsEnabled
-            && tunnelManager.tunnelStatus.state.isMultihop
-    }
-
     func evaluate(setting: MultihopState) {
-        if stateIsIncompatible(setting) {
-            didFailValidation?((setting))
+        if filtersWillBeOverridden(setting) {
+            didFailValidation?(.filters(state: setting))
+            return
+        } else if stateIsIncompatible(setting) {
+            didFailValidation?(.settings(state: setting))
             return
         }
 
         multihopState = setting
     }
 
+    func filtersWillBeOverridden(_ state: MultihopState) -> Bool {
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateWillOverrideFilters(state)
+    }
+
     func stateIsIncompatible(_ state: MultihopState) -> Bool {
-        var tunnelSettings = tunnelManager.settings
-        tunnelSettings.tunnelMultihopState = state
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateIsIncompatible(state)
+    }
 
-        if !tunnelSettings.automaticMultihopIsEnabled {
-            let relays = try? tunnelManager.selectRelays(tunnelSettings: tunnelSettings)
-            return relays == nil
-        }
-
-        return false
+    private func updateAutomaticRoutingStatus() {
+        automaticRoutingIsActive =
+            tunnelManager.settings.automaticMultihopIsEnabled
+            && tunnelManager.tunnelStatus.state.isMultihop
     }
 }

@@ -39,16 +39,27 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
     func start(animated: Bool) {
         let view = SettingsMultihopView(viewModel: self.viewModel)
 
-        viewModel.didFailValidation = { [weak self] multihopState in
+        viewModel.didFailValidation = { [weak self] error in
             guard let self else { return }
 
-            showPrompt(
-                for: multihopState,
-                onSave: {
-                    self.viewModel.multihopState = multihopState
-                },
-                onDiscard: {}
-            )
+            switch error {
+            case .filters(let state):
+                showFilterPrompt(
+                    for: state,
+                    onSave: {
+                        self.viewModel.multihopState = state
+                    },
+                    onDiscard: {}
+                )
+            case .settings(let state):
+                showBlockedStatePrompt(
+                    for: state,
+                    onSave: {
+                        self.viewModel.multihopState = state
+                    },
+                    onDiscard: {}
+                )
+            }
         }
 
         let host = UIHostingController(rootView: view)
@@ -75,14 +86,49 @@ class MultihopSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presen
         }
     }
 
-    private func showPrompt(
+    private func showFilterPrompt(
         for multihopState: MultihopState,
         onSave: @escaping () -> Void,
         onDiscard: @escaping () -> Void
     ) {
         let presentation = AlertPresentation(
             id: "settings-multihop-prompt",
-            accessibilityIdentifier: .daitaPromptAlert,
+            accessibilityIdentifier: .multihopPromptAlert,
+            icon: .warning,
+            message: String(
+                format: NSLocalizedString(
+                    "You currently have entry filters applied. Switching to “%@“, the app will ignore filter "
+                        + "settings for the entry server that is being automatically selected.",
+                    comment: "Variable refers to multihop mode"
+                ),
+                multihopState.description
+            ),
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString("Continue", comment: ""),
+                    style: .default,
+                    accessibilityId: .multihopConfirmAlertEnableButton,
+                    handler: { onSave() }
+                ),
+                AlertAction(
+                    title: NSLocalizedString("Cancel", comment: ""),
+                    style: .default,
+                    handler: { onDiscard() }
+                ),
+            ]
+        )
+
+        alertPresenter?.showAlert(presentation: presentation, animated: true)
+    }
+
+    private func showBlockedStatePrompt(
+        for multihopState: MultihopState,
+        onSave: @escaping () -> Void,
+        onDiscard: @escaping () -> Void
+    ) {
+        let presentation = AlertPresentation(
+            id: "settings-multihop-prompt",
+            accessibilityIdentifier: .multihopPromptAlert,
             icon: .warning,
             message: BlockedStateString.Message.multihop.description,
             buttons: [

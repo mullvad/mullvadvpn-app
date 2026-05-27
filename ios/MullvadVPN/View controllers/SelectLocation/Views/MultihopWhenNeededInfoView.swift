@@ -1,8 +1,9 @@
+import MullvadSettings
 import SwiftUI
 
 struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
     @ObservedObject var viewModel: ViewModel
-    @State private var multihopBlockedStateWarningAlert: MullvadAlert?
+    @State private var multihopWarningAlert: MullvadAlert?
 
     var body: some View {
         VStack(spacing: 16) {
@@ -28,15 +29,53 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
             Spacer()
 
             MainButton(text: "Set multihop to “\("Always")“", style: .default) {
-                if viewModel.multihopStateIsIncompatible(.always) {
-                    multihopBlockedStateWarningAlert = getMultihopBlockedStateWarningAlert()
+                if viewModel.filtersWillBeOverridden(.always) {
+                    multihopWarningAlert = getMultihopFilterOverrideWarningAlert()
+                } else if viewModel.multihopStateIsIncompatible(.always) {
+                    multihopWarningAlert = getMultihopBlockedStateWarningAlert()
                 } else {
                     viewModel.multihopState = .always
                 }
             }
         }
         .padding()
-        .mullvadAlert(item: $multihopBlockedStateWarningAlert)
+        .mullvadAlert(item: $multihopWarningAlert)
+    }
+
+    private func getMultihopFilterOverrideWarningAlert() -> MullvadAlert? {
+        MullvadAlert(
+            type: .warning,
+            messages: [
+                LocalizedStringKey(
+                    String(
+                        format: NSLocalizedString(
+                            "You currently have entry filters applied. Switching to “%@“, the app will ignore filter "
+                                + "settings for the entry server that is being automatically selected.",
+                            comment: "Variable refers to multihop mode"
+                        ),
+                        MultihopState.always.description
+                    )
+                )
+            ],
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Continue",
+                    identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
+                    handler: {
+                        viewModel.multihopState = .always
+                        multihopWarningAlert = nil
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        multihopWarningAlert = nil
+                    }
+                ),
+            ]
+        )
     }
 
     private func getMultihopBlockedStateWarningAlert() -> MullvadAlert? {
@@ -50,14 +89,14 @@ struct MultihopWhenNeededInfoView<ViewModel: SelectLocationViewModel>: View {
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
                         viewModel.multihopState = .always
-                        multihopBlockedStateWarningAlert = nil
+                        multihopWarningAlert = nil
                     }
                 ),
                 MullvadAlert.Action(
                     type: .default,
                     title: "Cancel",
                     handler: {
-                        multihopBlockedStateWarningAlert = nil
+                        multihopWarningAlert = nil
                     }
                 ),
             ]

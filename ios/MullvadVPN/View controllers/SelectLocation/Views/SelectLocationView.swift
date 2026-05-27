@@ -7,7 +7,7 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
     @State private var headerIsExpandedForEntry: Bool = false
     @State private var headerIsExpandedForExit: Bool = false
     @State private var disablingRecentConnectionsAlert: MullvadAlert?
-    @State private var multihopBlockedStateWarningAlert: MullvadAlert?
+    @State private var multihopWarningAlert: MullvadAlert?
     @FocusState private var focusSearchField: Bool
     @State private var isSearchExpanded: Bool = false
     @State private var headerHeight: CGFloat = 0
@@ -172,8 +172,12 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                             selection: Binding(
                                 get: { viewModel.multihopState },
                                 set: { newValue in
-                                    if viewModel.multihopStateIsIncompatible(newValue) {
-                                        multihopBlockedStateWarningAlert = getMultihopBlockedStateWarningAlert(
+                                    if viewModel.filtersWillBeOverridden(newValue) {
+                                        multihopWarningAlert = getMultihopFilterOverrideWarningAlert(
+                                            newMultihopState: newValue
+                                        )
+                                    } else if viewModel.multihopStateIsIncompatible(newValue) {
+                                        multihopWarningAlert = getMultihopBlockedStateWarningAlert(
                                             newMultihopState: newValue
                                         )
                                     } else {
@@ -232,7 +236,43 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
             )
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
-        .mullvadAlert(item: $multihopBlockedStateWarningAlert)
+        .mullvadAlert(item: $multihopWarningAlert)
+    }
+
+    private func getMultihopFilterOverrideWarningAlert(newMultihopState: MultihopState) -> MullvadAlert? {
+        MullvadAlert(
+            type: .warning,
+            messages: [
+                LocalizedStringKey(
+                    String(
+                        format: NSLocalizedString(
+                            "You currently have entry filters applied. Switching to “%@“, the app will ignore filter "
+                                + "settings for the entry server that is being automatically selected.",
+                            comment: "Variable refers to multihop mode"
+                        ),
+                        newMultihopState.description
+                    )
+                )
+            ],
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Continue",
+                    identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
+                    handler: {
+                        viewModel.multihopState = newMultihopState
+                        multihopWarningAlert = nil
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        multihopWarningAlert = nil
+                    }
+                ),
+            ]
+        )
     }
 
     private func getMultihopBlockedStateWarningAlert(newMultihopState: MultihopState) -> MullvadAlert? {
@@ -246,14 +286,14 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                     identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
                     handler: {
                         viewModel.multihopState = newMultihopState
-                        multihopBlockedStateWarningAlert = nil
+                        multihopWarningAlert = nil
                     }
                 ),
                 MullvadAlert.Action(
                     type: .default,
                     title: "Cancel",
                     handler: {
-                        multihopBlockedStateWarningAlert = nil
+                        multihopWarningAlert = nil
                     }
                 ),
             ]

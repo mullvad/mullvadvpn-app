@@ -27,6 +27,8 @@ protocol SelectLocationViewModel: ObservableObject {
     func showEditCustomListView(locations: [LocationNode])
     func showAddCustomListView(locations: [LocationNode])
     func showFilterView(context: MultihopContext)
+    func filtersWillBeOverridden(_ state: MultihopState) -> Bool
+    func filtersWillBeOverridden(_ node: LocationNode) -> Bool
     func multihopStateIsIncompatible(_ state: MultihopState) -> Bool
     func toggleRecents()
     func manuallyFetchRelayList()
@@ -216,8 +218,28 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
         tunnelManager.removeObserver(tunnelObserver)
     }
 
+    func filtersWillBeOverridden(_ state: MultihopState) -> Bool {
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateWillOverrideFilters(state)
+    }
+
+    func filtersWillBeOverridden(_ node: LocationNode) -> Bool {
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.locationWillOverrideFilters(node, context: multihopContext)
+    }
+
     func multihopStateIsIncompatible(_ state: MultihopState) -> Bool {
-        MultihopTunnelSettingsViewModel(tunnelManager: tunnelManager).stateIsIncompatible(state)
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateIsIncompatible(state)
     }
 
     func onFilterTapped(_ filter: SelectLocationFilter) {
