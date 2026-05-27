@@ -621,9 +621,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                 self?.router.dismiss(.selectLocation, animated: true)
             }
         }
-        locationCoordinator.showFeatureSetting = { [weak self] route in
-            self?.router.present(route, animated: true)
-        }
 
         return locationCoordinator
     }

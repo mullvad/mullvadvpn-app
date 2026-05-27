@@ -29,7 +29,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     var selectLocationViewModel: (any SelectLocationViewModel)!
 
     var didFinish: ((LocationCoordinator) -> Void)?
-    var showFeatureSetting: ((AppRoute) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -191,8 +190,8 @@ extension LocationCoordinator {
         }
         relayFilterCoordinator.onFeatureChipTapped = { [weak self] feature in
             switch feature {
-            case .daita: self?.showFeatureSetting?(.daita)
-            case .obfuscation: self?.showFeatureSetting?(.vpnSettings(.obfuscation))
+            case .daita: self?.navigateToDaitaSettings()
+            case .obfuscation: self?.navigateToObfuscationSettings()
             default: break
             }
         }
