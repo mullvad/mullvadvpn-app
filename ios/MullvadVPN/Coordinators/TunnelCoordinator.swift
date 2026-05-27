@@ -68,6 +68,10 @@ class TunnelCoordinator: Coordinator, Presenting {
                 self?.showFeatureSetting?(.includeAllNetworks)
             case .ipVersion:
                 self?.showFeatureSetting?(.vpnSettings(.ipVersion))
+            #if DEBUG
+                case .gotaTun:
+                    break
+            #endif
             }
         }
     }
