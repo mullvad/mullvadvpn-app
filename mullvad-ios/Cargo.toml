@@ -14,6 +14,7 @@ crate-type = ["staticlib"]
 bytes = { workspace = true }
 futures = { workspace = true }
 byteorder = "1"
+gotatun = { workspace = true, features = ["daita", "device", "tun"] }
 hyper = { version = "1.4.1", features = ["client", "http1"] }
 internet-checksum = "0.2"
 ipnetwork = { workspace = true }

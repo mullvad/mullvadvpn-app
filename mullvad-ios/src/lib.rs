@@ -12,7 +12,9 @@ mod ephemeral_peer_proxy;
 mod log_redactor;
 #[cfg(target_os = "ios")]
 mod logging;
-pub mod tunnel_obfuscator_proxy;
+#[cfg(target_os = "ios")]
+mod tunnel_obfuscator_proxy;
+#[cfg(target_os = "ios")]
 mod wireguard_key;
 
 // --- iOS FFI glue (Swift interop) ---

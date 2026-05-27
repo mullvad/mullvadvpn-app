@@ -3227,6 +3227,7 @@ dependencies = [
  "bytes",
  "cbindgen",
  "futures",
+ "gotatun",
  "hyper",
  "hyper-util",
  "internet-checksum",
