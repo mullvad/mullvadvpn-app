@@ -12,7 +12,6 @@ import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.ApiAccessMethod
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessFormData
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMethodScreen
 import net.mullvad.mullvadvpn.feature.apiaccess.impl.screen.edit.EditApiAccessMethodUiState
-import net.mullvad.mullvadvpn.feature.apiaccess.impl.util.DisableSoftKeyboard
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.InvalidDataError
 import net.mullvad.mullvadvpn.lib.model.ParsePortError
@@ -39,25 +38,22 @@ class EditApiAccessMethodScreenTest {
         onTestMethod: () -> Unit = {},
         onAddMethod: () -> Unit = {},
         onNavigateBack: () -> Unit = {},
-        disableKeyboard: Boolean = false,
     ) {
         setContentWithTheme {
-            DisableSoftKeyboard(disable = disableKeyboard) {
-                EditApiAccessMethodScreen(
-                    state = state,
-                    onNameChanged = onNameChanged,
-                    onTypeSelected = onTypeSelected,
-                    onIpChanged = onIpChanged,
-                    onPortChanged = onPortChanged,
-                    onPasswordChanged = onPasswordChanged,
-                    onCipherChange = onCipherChange,
-                    onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
-                    onUsernameChanged = onUsernameChanged,
-                    onTestMethod = onTestMethod,
-                    onAddMethod = onAddMethod,
-                    onNavigateBack = onNavigateBack,
-                )
-            }
+            EditApiAccessMethodScreen(
+                state = state,
+                onNameChanged = onNameChanged,
+                onTypeSelected = onTypeSelected,
+                onIpChanged = onIpChanged,
+                onPortChanged = onPortChanged,
+                onPasswordChanged = onPasswordChanged,
+                onCipherChange = onCipherChange,
+                onToggleAuthenticationEnabled = onToggleAuthenticationEnabled,
+                onUsernameChanged = onUsernameChanged,
+                onTestMethod = onTestMethod,
+                onAddMethod = onAddMethod,
+                onNavigateBack = onNavigateBack,
+            )
         }
     }
 
@@ -193,13 +189,11 @@ class EditApiAccessMethodScreenTest {
                     shadowSocksCiphers = emptyList(),
                 ),
             onNameChanged = onNameChanged,
-            // This is required to avoid a crash due to the keyboard trying to open at the same
-            // time as the test makes input
-            disableKeyboard = true,
         )
 
         // Act
         onNodeWithTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG).performTextInput(mockInput)
+        waitForIdle()
 
         // Assert
         verify(exactly = 1) { onNameChanged(mockInput) }

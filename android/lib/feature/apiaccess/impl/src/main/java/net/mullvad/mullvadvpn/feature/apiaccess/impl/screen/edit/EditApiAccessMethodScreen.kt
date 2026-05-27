@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.byValue
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -306,8 +308,13 @@ private fun NameInputField(
         onValueChanged = onNameChanged,
         labelText = stringResource(id = R.string.name),
         isValidValue = nameError == null,
-        isDigitsOnlyAllowed = false,
-        maxCharLength = ApiAccessMethodName.MAX_LENGTH,
+        inputTransformation =
+            InputTransformation.byValue { current, proposed ->
+                when {
+                    proposed.length > ApiAccessMethodName.MAX_LENGTH -> return@byValue current
+                    else -> proposed
+                }
+            },
         errorText = nameError?.let { stringResource(id = R.string.this_field_is_required) },
         capitalization = KeyboardCapitalization.Words,
         modifier = Modifier.animateContentSize().testTag(EDIT_API_ACCESS_NAME_INPUT_TEST_TAG),
@@ -430,7 +437,6 @@ private fun ServerIpInput(
         onValueChanged = onIpChanged,
         labelText = stringResource(id = R.string.server),
         isValidValue = serverIpError == null,
-        isDigitsOnlyAllowed = false,
         errorText =
             serverIpError?.let {
                 stringResource(
@@ -461,7 +467,6 @@ private fun PortInput(
         onValueChanged = onPortChanged,
         labelText = stringResource(id = R.string.port),
         isValidValue = portError == null,
-        isDigitsOnlyAllowed = false,
         errorText =
             portError?.let {
                 stringResource(
@@ -646,7 +651,6 @@ private fun UsernameInput(
         onValueChanged = onUsernameChanged,
         labelText = stringResource(id = R.string.username),
         isValidValue = usernameError == null,
-        isDigitsOnlyAllowed = false,
         errorText = usernameError?.let { stringResource(id = R.string.this_field_is_required) },
         modifier = Modifier.animateContentSize(),
         textStyle = MaterialTheme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),

@@ -46,6 +46,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.CheckableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SAVE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
@@ -137,6 +138,7 @@ fun CustomListLocationsScreen(
                 modifier =
                     Modifier.fillMaxWidth()
                         .height(Dimens.searchFieldHeight)
+                        .testTag(CUSTOM_LIST_LOCATIONS_SEARCH_INPUT_TEST_TAG)
                         .padding(horizontal = Dimens.mediumPadding),
                 backgroundColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 textColor = MaterialTheme.colorScheme.onSurfaceVariant,
