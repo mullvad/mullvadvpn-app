@@ -65,7 +65,7 @@ export class ResponseParseError extends Error {
   }
 }
 
-function unwrapConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
+export function unwrapConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
   if (constraint !== undefined && constraint !== 'any') {
     return constraint.only;
   }
@@ -789,7 +789,7 @@ function convertFromOwnership(ownership: grpcTypes.Ownership): Ownership {
   }
 }
 
-function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
+export function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
   switch (ownership) {
     case Ownership.any:
       return grpcTypes.Ownership.ANY;
@@ -853,7 +853,7 @@ export function convertToRelayConstraints(
   return relayConstraints;
 }
 
-function convertToLocation(
+export function convertToLocation(
   constraint: RelayLocation | undefined,
 ): grpcTypes.LocationConstraint | undefined {
   const locationConstraint = new grpcTypes.LocationConstraint();
