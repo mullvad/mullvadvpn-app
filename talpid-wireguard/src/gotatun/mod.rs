@@ -434,6 +434,24 @@ impl Tunnel for GotaTun {
                     .await
                     .map_err(TunnelError::GotaTunDevice)?
                 }
+                // FIXME: When re-configuring a device with a new `psk`, `gotatun` seemingly
+                // borks out. A known workaround is to tear down the old device and set up a new
+                // one.
+                Some(Devices::Singlehop(device))
+                    if let Some(_psk) = self.config.entry_peer.psk.as_ref() =>
+                {
+                    // Tear down old device and recreate new multihop devices.
+                    device.stop().await;
+                    create_devices(
+                        &self.config,
+                        daita.as_ref(),
+                        self.tun_dev.clone(),
+                        #[cfg(target_os = "android")]
+                        self.android_tun.clone(),
+                    )
+                    .await
+                    .map_err(TunnelError::GotaTunDevice)?
+                }
                 // Simply reconfigure the singlehop device.
                 Some(Devices::Singlehop(mut device)) => {
                     device
