@@ -90,6 +90,8 @@
 		44695DD72FBF5F72006D5453 /* ChipModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D02D01B55C00299F09 /* ChipModel.swift */; };
 		44695DD82FBF606A006D5453 /* ChipFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeature.swift */; };
 		44695DD92FBF60F2006D5453 /* Image+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = F97C38E42DEEDFD2006DCB08 /* Image+Assets.swift */; };
+		44695DDA2FC73F03006D5453 /* SelectLocationFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95A28322E8BBB7400C3F75D /* SelectLocationFilter.swift */; };
+		44695DDB2FC73F54006D5453 /* AccessbilityIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0B311D2B303A0D004B12E0 /* AccessbilityIdentifier.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
 		4491AC7B2ECF5FE4005789DF /* MullvadAddressCacheKeychainStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4491AC7A2ECF5FC8005789DF /* MullvadAddressCacheKeychainStore.swift */; };
@@ -6322,6 +6324,7 @@
 				A9A5F9FD2ACB05160083449F /* NotificationResponse.swift in Sources */,
 				7AFB81D32F31E23B0086147C /* VersionCheck.swift in Sources */,
 				7A7636092FBF24370075DC0E /* MultihopValidatorTests.swift in Sources */,
+				44695DDA2FC73F03006D5453 /* SelectLocationFilter.swift in Sources */,
 				F0FA16142D7F3ABF007E2546 /* RelayFilterDataSourceItem.swift in Sources */,
 				F0AC643C2F3B50860024427C /* NotificationSettingsObserver.swift in Sources */,
 				A9A5F9FE2ACB05160083449F /* NotificationManager.swift in Sources */,
@@ -6388,6 +6391,7 @@
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
 				F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */,
+				44695DDB2FC73F54006D5453 /* AccessbilityIdentifier.swift in Sources */,
 				F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,

@@ -11,6 +11,12 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
+protocol RelayFilterSettingsViewModelProtocol {
+    var filters: [SelectLocationFilter] { get }
+    var automaticLocationIsActive: Bool { get }
+    func onFilterTapped(_ filterr: SelectLocationFilter)
+}
+
 protocol RelayFilterViewModelSettingsProviding {
     var settings: LatestTunnelSettings { get }
     func addObserver(_ observer: TunnelObserver)
@@ -27,11 +33,12 @@ extension RelayFilterSelection {
         private var settings: LatestTunnelSettings {
             didSet {
                 updateFeatureChips()
+                updateAutomaticLocationStatus()
                 objectWillChange.send()
             }
         }
-        @Published var chips: [ChipModel] = []
-        var filters: [SelectLocationFilter] = []
+        @Published var filters: [SelectLocationFilter] = []
+        var automaticLocationIsActive: Bool = false
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
@@ -91,6 +98,7 @@ extension RelayFilterSelection {
             tunnelManager.addObserver(tunnelObserver)
             self.tunnelObserver = tunnelObserver
             updateFeatureChips()
+            updateAutomaticLocationStatus()
         }
 
         deinit {
@@ -99,18 +107,14 @@ extension RelayFilterSelection {
         }
 
         private func updateFeatureChips() {
-            chips = [
-                settings.daita.isEnabled ? .init(id: .daita, name: "Setting: DAITA") : nil,
-                settings.wireGuardObfuscation.state.isEnabled
-                    ? .init(id: .obfuscation, name: "Setting: \(settings.wireGuardObfuscation.state.description)")
-                    : nil,
-
-            ].compactMap { $0 }
             filters = [
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
             ].compactMap { $0 }
+        }
 
+        private func updateAutomaticLocationStatus() {
+            automaticLocationIsActive = multihopContext == .entry && settings.automaticMultihopIsEnabled
         }
 
         func onFilterTapped(_ filter: SelectLocationFilter) {

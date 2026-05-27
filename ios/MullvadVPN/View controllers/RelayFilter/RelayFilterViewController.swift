@@ -24,6 +24,9 @@ extension RelayFilterSelection {
         private let buttonContainerView = UIStackView(
             axis: .vertical, isLayoutMarginsRelativeArrangement: true, spacing: 16)
         private let descriptionContainer = UIStackView(axis: .vertical, spacing: 16)
+        private var filterSettingsTopConstraint: NSLayoutConstraint!
+        private var filterSettingsTableViewConstraint: NSLayoutConstraint!
+        private var tableViewTopConstraint: NSLayoutConstraint!
 
         private let applyButton: AppButton = {
             let button = AppButton(style: .success)
@@ -79,29 +82,32 @@ extension RelayFilterSelection {
 
             filterSettingsView.backgroundColor = .secondaryColor
 
-            let viewOrder =
-                (viewModel.multihopContext == .entry ? [filterSettingsView] : []) + [tableView, buttonContainerView]
-
-            view.addConstrainedSubviews(viewOrder) {
-                if viewModel.multihopContext == .entry {
-                    viewOrder[0].pinEdgesToSuperview(.all().excluding([.top, .bottom]))
-                    tableView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
-                    filterSettingsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
-                    tableView.topAnchor.constraint(
-                        equalTo: filterSettingsView.bottomAnchor,
-                        constant: UIMetrics.contentLayoutMargins.top
-                    )
-                } else {
-                    tableView.pinEdgesToSuperview(.all().excluding(.bottom))
-                }
+            view.addConstrainedSubviews([filterSettingsView, tableView, buttonContainerView]) {
+                filterSettingsView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
+                tableView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
                 buttonContainerView.pinEdgesToSuperviewMargins(.all().excluding(.top))
                 buttonContainerView.topAnchor.constraint(
                     equalTo: tableView.bottomAnchor,
                     constant: UIMetrics.contentLayoutMargins.top
                 )
             }
-
+            filterSettingsTopConstraint = filterSettingsView.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor)
+            filterSettingsTableViewConstraint = tableView.topAnchor.constraint(
+                equalTo: filterSettingsView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
+            tableViewTopConstraint = tableView.topAnchor.constraint(equalTo: view.topAnchor)
+            adjustFilterSettingsVisibility(
+                filtersActive: viewModel.multihopContext == .entry && !viewModel.filters.isEmpty)
             setupDataSource()
+        }
+
+        private func adjustFilterSettingsVisibility(filtersActive: Bool) {
+            let filterSettingsIsVisible = viewModel.multihopContext == .entry && filtersActive
+            filterSettingsTopConstraint.isActive = filterSettingsIsVisible
+            filterSettingsTableViewConstraint.isActive = filterSettingsIsVisible
+            tableViewTopConstraint.isActive = !filterSettingsIsVisible
         }
 
         private func setupDataSource() {
@@ -133,6 +139,12 @@ extension RelayFilterSelection {
                             descriptionContainer.addArrangedSubview(label)
                         }
                     }
+                }
+                .store(in: &disposeBag)
+            viewModel
+                .$filters
+                .sink { [weak self] filters in
+                    self?.adjustFilterSettingsVisibility(filtersActive: !filters.isEmpty)
                 }
                 .store(in: &disposeBag)
             dataSource = DataSource(tableView: tableView, viewModel: viewModel)
