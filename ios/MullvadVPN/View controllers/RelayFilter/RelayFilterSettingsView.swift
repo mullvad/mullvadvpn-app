@@ -35,11 +35,11 @@ extension RelayFilterSelection {
                                 Color.mullvadTextSecondary)
                         Spacer()
                     }
-                    .padding(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 0))
+                    .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
                 }
 
             }
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 16, trailing: 16))
+            .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 16))
             .background(Color.mullvadBackground)
         }
     }
