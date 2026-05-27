@@ -30,8 +30,7 @@ extension RelayFilterSelection {
                 objectWillChange.send()
             }
         }
-        @Published var chips: [ChipModel] = []
-        var filters: [SelectLocationFilter] = []
+        @Published var filters: [SelectLocationFilter] = []
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
@@ -96,18 +95,10 @@ extension RelayFilterSelection {
         }
 
         private func updateFeatureChips() {
-            chips = [
-                settings.daita.isEnabled ? .init(id: .daita, name: "Setting: DAITA") : nil,
-                settings.wireGuardObfuscation.state.isEnabled
-                    ? .init(id: .obfuscation, name: "Setting: \(settings.wireGuardObfuscation.state.description)")
-                    : nil,
-
-            ].compactMap { $0 }
             filters = [
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
             ].compactMap { $0 }
-
         }
 
         func onFilterTapped(_ filter: SelectLocationFilter) {
