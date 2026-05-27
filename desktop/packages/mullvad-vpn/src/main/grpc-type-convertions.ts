@@ -28,6 +28,7 @@ import {
   ICustomList,
   IDevice,
   IObfuscationEndpoint,
+  IpVersion,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
@@ -885,6 +886,17 @@ function convertToGeographicConstraint(
   return relayLocation;
 }
 
+export function convertToIpVersion(ipVersion: IpVersion): grpcTypes.IpVersion {
+  switch (ipVersion) {
+    case 'ipv4':
+      return grpcTypes.IpVersion.V4;
+    case 'ipv6':
+      return grpcTypes.IpVersion.V6;
+    default:
+      return ipVersion satisfies never;
+  }
+}
+
 function convertToWireguardConstraints(
   constraint: Partial<IWireguardConstraints> | undefined,
 ): grpcTypes.WireguardConstraints | undefined {
@@ -893,8 +905,7 @@ function convertToWireguardConstraints(
 
     const ipVersion = unwrapConstraint(constraint.ipVersion);
     if (ipVersion) {
-      const ipVersionProtocol =
-        ipVersion === 'ipv4' ? grpcTypes.IpVersion.V4 : grpcTypes.IpVersion.V6;
+      const ipVersionProtocol = convertToIpVersion(ipVersion);
       wireguardConstraints.setIpVersion(ipVersionProtocol);
     }
 
