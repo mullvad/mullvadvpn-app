@@ -103,13 +103,17 @@ fun SharedTransitionScope.DnsSettings(
     navArgs: DnsSettingsNavKey,
     animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
-    val resultStore = LocalResultStore.current
     val vm = koinViewModel<DnsSettingsViewModel> { parametersOf(navArgs.isModal) }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    resultStore.consumeResult<CustomDnsNavResult> { result ->
-        if (result == CustomDnsNavResult.Error) {
-            vm.showGenericErrorToast()
+    LocalResultStore.current.consumeResult<CustomDnsNavResult> { result ->
+        when (result) {
+            is CustomDnsNavResult.Success -> {
+                if (!result.isDnsListEmpty) {
+                    vm.onCustomDnsDialogSuccess()
+                }
+            }
+            CustomDnsNavResult.Error -> vm.showGenericErrorToast()
         }
     }
 

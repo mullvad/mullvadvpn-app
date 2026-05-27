@@ -7,8 +7,9 @@ import net.mullvad.mullvadvpn.core.NavResult
 @Parcelize
 data class CustomDnsNavKey(val index: Int? = null, val initialValue: String? = null) : NavKey2
 
+@Parcelize
 sealed interface CustomDnsNavResult : NavResult {
-    @Parcelize data class Success(val isDnsListEmpty: Boolean) : CustomDnsNavResult
+    data class Success(val isDnsListEmpty: Boolean) : CustomDnsNavResult
 
-    @Parcelize data object Error : CustomDnsNavResult
+    data object Error : CustomDnsNavResult
 }
