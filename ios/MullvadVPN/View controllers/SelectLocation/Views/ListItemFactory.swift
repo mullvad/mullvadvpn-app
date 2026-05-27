@@ -12,7 +12,7 @@ import SwiftUI
 struct ListItemFactory {
     enum Label {
         case location(node: LocationNode, context: MultihopContext, level: Int)
-        case recent(node: LocationNode)
+        case recent(node: LocationNode, context: MultihopContext)
         case setting(title: String, subtitle: String? = nil, level: Int = 0, selected: Bool = false)
     }
 
@@ -34,8 +34,8 @@ struct ListItemFactory {
         switch label {
         case .location(let node, let context, let level):
             LocationItemView(node: node, multihopContext: context, level: level)
-        case .recent(let node):
-            RecentItemView(node: node)
+        case .recent(let node, let context):
+            RecentItemView(node: node, multihopContext: context)
         case .setting(let title, let subtitle, let level, let selected):
             ListItem(
                 title: title,

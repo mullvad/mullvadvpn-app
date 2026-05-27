@@ -146,33 +146,19 @@ extension LocationDataSourceProtocol {
         }
     }
 
-    /// Excludeds nodes from being selectable. A node gets excluded if the selection only allows for one possible relay.
-    /// This is used in multihop to make sure that the during relay selection entry and exit can different.
+    /// Excludes nodes from being selectable. A node gets excluded if the selection only allows for one possible relay.
+    /// This is used in multihop to make sure that during relay selection entry and exit can be different.
     /// It prevent the user from making a selection that would lead to the blocked state.
     /// - Parameters:
-    ///   - constraint: The selection that should be checked for exclusion.
-    func setExcludedNode(constraint: RelayConstraint<UserSelectedRelays>?) {
+    ///   - hostname: The selection that should be checked for exclusion.
+    func setExcludedNode(hostname: String?) {
+        guard let hostname else { return }
+
         nodes.forEachNode { node in
-            node.isExcluded = false
+            let nodeHosts = node.activeRelayNodes
 
-            guard let selectedRelayLocations = constraint?.value?.locations else {
-                return
-            }
-
-            guard selectedRelayLocations.count == 1,
-                let selectedRelayLocation = selectedRelayLocations.first
-            else {
-                return
-            }
-
-            let locations = Set((node.flattened + [node]).flatMap { $0.locations })
-            if locations
-                .contains(selectedRelayLocation) && node.activeRelayNodes.count == 1
-            {
+            if (nodeHosts.count == 1) && (nodeHosts.first?.name == hostname) {
                 node.isExcluded = true
-                node.forEachDescendant { child in
-                    child.isExcluded = true
-                }
             }
         }
     }
