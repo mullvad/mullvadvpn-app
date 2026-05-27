@@ -698,8 +698,8 @@ proto.mullvad_daemon.relay_selector.EntryConstraints.serializeBinaryToWriter = f
       management_interface_pb.DaitaSettings.serializeBinaryToWriter
     );
   }
-  f = message.getIpVersion();
-  if (f !== 0.0) {
+  f = /** @type {!proto.mullvad_daemon.management_interface.IpVersion} */ (jspb.Message.getField(message, 4));
+  if (f != null) {
     writer.writeEnum(
       4,
       f
@@ -833,7 +833,25 @@ proto.mullvad_daemon.relay_selector.EntryConstraints.prototype.getIpVersion = fu
  * @return {!proto.mullvad_daemon.relay_selector.EntryConstraints} returns this
  */
 proto.mullvad_daemon.relay_selector.EntryConstraints.prototype.setIpVersion = function(value) {
-  return jspb.Message.setProto3EnumField(this, 4, value);
+  return jspb.Message.setField(this, 4, value);
+};
+
+
+/**
+ * Clears the field making it undefined.
+ * @return {!proto.mullvad_daemon.relay_selector.EntryConstraints} returns this
+ */
+proto.mullvad_daemon.relay_selector.EntryConstraints.prototype.clearIpVersion = function() {
+  return jspb.Message.setField(this, 4, undefined);
+};
+
+
+/**
+ * Returns whether this field is set.
+ * @return {boolean}
+ */
+proto.mullvad_daemon.relay_selector.EntryConstraints.prototype.hasIpVersion = function() {
+  return jspb.Message.getField(this, 4) != null;
 };
 
 
