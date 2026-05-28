@@ -40,6 +40,7 @@ import {
   IWindowShapeParameters,
 } from './ipc-types';
 import { LogLevel } from './logging-types';
+import { RelaySelectorPartitions, RelaySelectorPredicate } from './relay-selector-rpc-types';
 import { RoutePath } from './routes';
 
 interface ILogEntry {
@@ -154,6 +155,7 @@ export const ipcSchema = {
   },
   relays: {
     '': notifyRenderer<IRelayListWithEndpointData>(),
+    partitionRelays: invoke<RelaySelectorPredicate, RelaySelectorPartitions>(),
   },
   customLists: {
     createCustomList: invoke<NewCustomList, void | CustomListError>(),
