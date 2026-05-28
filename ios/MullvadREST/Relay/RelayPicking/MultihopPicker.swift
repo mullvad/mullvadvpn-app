@@ -53,7 +53,7 @@ public struct MultihopPicker: RelayPicking {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
             in: relays,
-            filterConstraint: tunnelSettings.automaticMultihopIsEnabled ? .any : constraints.exitFilter,
+            filterConstraint: constraints.exitFilter,
             daitaEnabled: false,
             obfuscation: nil
         )

@@ -69,7 +69,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 entryRelays: try findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
-                    .any,
+                    tunnelSettings.relayConstraints.entryFilter,
                     obfuscation
                 ),
                 exitRelays: try findCandidates(
