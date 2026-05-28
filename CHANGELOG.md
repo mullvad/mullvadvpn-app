@@ -22,9 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### **Changed**
 #### Windows
 - Fix race condition where daemon applies WFP blocking rules before physical network adapters are
-  ready on boot, leaving the machine fully blocked until Mullvad processes are manually restarted
+  ready on boot, leaving the machine fully blocked until Mullvad processes are manually restarted.
 
 ### Changed
 #### Windows
