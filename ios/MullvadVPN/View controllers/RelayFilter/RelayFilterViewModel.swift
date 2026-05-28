@@ -14,7 +14,7 @@ import MullvadTypes
 protocol RelayFilterSettingsViewModelProtocol {
     var filters: [SelectLocationFilter] { get }
     var automaticLocationIsActive: Bool { get }
-    func onFilterTapped(_ filterr: SelectLocationFilter)
+    func onFilterTapped(_ filter: SelectLocationFilter)
 }
 
 protocol RelayFilterViewModelSettingsProviding {
