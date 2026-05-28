@@ -97,7 +97,7 @@ extension RelayFilterSelection {
                 equalTo: filterSettingsView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
             )
-            tableViewTopConstraint = tableView.topAnchor.constraint(equalTo: view.topAnchor)
+            tableViewTopConstraint = tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
             adjustFilterSettingsVisibility(
                 filtersActive: viewModel.multihopContext == .entry && !viewModel.filters.isEmpty)
             setupDataSource()
