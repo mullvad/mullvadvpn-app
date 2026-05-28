@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
 
+#### macOS
+- Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
+
 ### Fixed
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
