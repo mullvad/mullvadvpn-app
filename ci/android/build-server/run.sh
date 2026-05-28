@@ -48,7 +48,7 @@ if [[ "$ENABLE_SIGNING" == "true" && -z ${YUBIKEY_PIN-} ]]; then
 fi
 
 # Move files for CDN upload by: buildserver-upload.sh
-function prepare_release_cdn_inbox {
+function prepare_cdn_publish_job {
     version=$1
 
     # Only include files. Skip subdirectories.
@@ -62,32 +62,32 @@ function prepare_release_cdn_inbox {
     cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 }
 
-function prepare_fdroid_inbox {
+function prepare_fdroid_publish_job {
     version=$1
     artifact_dir=$2
     version_code="$(cat dist-assets/android-version-code.txt)"
-    inbox_version="$FDROID_INBOX_DIR/$version"
-    mkdir -p "$inbox_version"
-    cp "$artifact_dir/MullvadVPN-$version.apk" "$inbox_version/"
+    publish_job_dir="$FDROID_PUBLISH_JOBS_DIR/$version"
+    mkdir -p "$publish_job_dir"
+    cp "$artifact_dir/MullvadVPN-$version.apk" "$publish_job_dir/"
     cp "android/src/main/play/release-notes/en-US/default.txt" \
-        "$inbox_version/$version_code.txt"
+        "$publish_job_dir/$version_code.txt"
 }
 
-function prepare_publishing_inboxes {
+function prepare_publish_jobs {
     version=$1
     artifact_dir=$2
 
-    (cd "$artifact_dir" && prepare_release_cdn_inbox "$version") || return 1
+    (cd "$artifact_dir" && prepare_cdn_publish_job "$version") || return 1
 
     if [[ $version != *"-dev-"* ]]; then
-        prepare_fdroid_inbox "$version" "$artifact_dir"
+        prepare_fdroid_publish_job "$version" "$artifact_dir"
     fi
 }
 
 function publish_fdroid_repos {
     local version=$1
     YUBIKEY_PIN=$YUBIKEY_PIN \
-    "$SCRIPT_DIR/fdroid.sh" publish "$FDROID_INBOX_DIR/$version" \
+    "$SCRIPT_DIR/fdroid.sh" publish "$FDROID_PUBLISH_JOBS_DIR/$version" \
         || echo "Failed to publish F-Droid repos for $version"
 }
 
@@ -193,11 +193,11 @@ function build_sign_and_publish_ref {
         echo "WARNING: Signing skipped for $version"
     fi
 
-    prepare_publishing_inboxes "$version" "$artifact_dir" || return 1
+    prepare_publish_jobs "$version" "$artifact_dir" || return 1
 
     touch "$LAST_BUILT_DIR/$current_hash"
 
-    # TODO: Should be migrated to our prepare_publishing_inboxes approach (DROID-2714).
+    # TODO: Should be migrated to our prepare_publish_jobs approach (DROID-2714).
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
