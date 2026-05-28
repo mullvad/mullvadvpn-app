@@ -19,10 +19,8 @@ function main {
             ;;
         publish)
             shift
-            local version_dir=${1-}
-            [[ -n "$version_dir" ]] && { for_each_repo stage "$version_dir" || return 1; }
-            for_each_repo update_and_deploy || return 1
-            [[ -n "$version_dir" ]] && rm -rf "$version_dir"
+            local repo_env=${1:?Usage: publish <repo-env>}
+            publish_pending_jobs "$repo_env" || return 1
             ;;
         "")
             usage >&2
@@ -41,7 +39,7 @@ function usage {
     echo
     echo "Subcommands:"
     echo "  setup-repo <repo-env>  bootstrap a single repo dir"
-    echo "  publish [version-dir]  stage first if version provided, then update and deploy all repos"
+    echo "  publish <repo-env>     stage pending jobs for repo-env, then update+deploy"
 }
 
 function setup-repo {
@@ -69,18 +67,6 @@ function setup-repo {
         cp "$BUILD_DIR/ci/android/build-server/fdroid/net.mullvad.mullvadvpn.yml" \
             "$metadata_dest"
     fi
-}
-
-function for_each_repo {
-    local command=$1; shift
-    local repo_dirs=( "$FDROID_REPOS_DIR"/*/ )
-    if (( ${#repo_dirs[@]} == 0 )); then
-        echo "No repos set up. Run setup-repo first." >&2
-        return 1
-    fi
-    for repo_dir in "${repo_dirs[@]}"; do
-        "$command" "$repo_dir" "$@" || return 1
-    done
 }
 
 function stage {
@@ -116,6 +102,21 @@ function update_and_deploy {
     local repo_dir=$1
     local java_opts='--add-opens=jdk.crypto.cryptoki/sun.security.pkcs11=ALL-UNNAMED'
     run_in_sign_container "$repo_dir" "JAVA_TOOL_OPTIONS='$java_opts' fdroid update && fdroid deploy"
+}
+
+function publish_pending_jobs {
+    local repo_env=$1
+    local repo_dir="$FDROID_REPOS_DIR/$repo_env"
+    [[ -d "$repo_dir" ]] || { echo "Unknown repo-env: $repo_env" >&2; return 1; }
+    local job_dirs=( "$FDROID_PUBLISH_JOBS_DIR/$repo_env"/*/ )
+
+    for job_dir in "${job_dirs[@]}"; do
+        stage "$repo_dir" "$job_dir" || return 1
+    done
+    update_and_deploy "$repo_dir" || return 1
+    for job_dir in "${job_dirs[@]}"; do
+        rm -rf "$job_dir"
+    done
 }
 
 function run_in_sign_container {

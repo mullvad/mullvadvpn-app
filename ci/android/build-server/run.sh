@@ -62,11 +62,12 @@ function prepare_cdn_publish_job {
     cp "${files[@]}" "$checksums_path" "$UPLOAD_DIR/"
 }
 
-function prepare_fdroid_publish_job {
-    version=$1
-    artifact_dir=$2
+function prepare_fdroid_publish_jobs {
+    repo_env=$1
+    version=$2
+    artifact_dir=$3
     version_code="$(cat dist-assets/android-version-code.txt)"
-    publish_job_dir="$FDROID_PUBLISH_JOBS_DIR/$version"
+    publish_job_dir="$FDROID_PUBLISH_JOBS_DIR/$repo_env/$version"
     mkdir -p "$publish_job_dir"
     cp "$artifact_dir/MullvadVPN-$version.apk" "$publish_job_dir/"
     cp "android/src/main/play/release-notes/en-US/default.txt" \
@@ -80,15 +81,15 @@ function prepare_publish_jobs {
     (cd "$artifact_dir" && prepare_cdn_publish_job "$version") || return 1
 
     if [[ $version != *"-dev-"* ]]; then
-        prepare_fdroid_publish_job "$version" "$artifact_dir"
+        prepare_fdroid_publish_jobs development "$version" "$artifact_dir"
     fi
 }
 
-function publish_fdroid_repos {
-    local version=$1
+function publish_fdroid_repo {
+    local repo_env=$1
     YUBIKEY_PIN=$YUBIKEY_PIN \
-    "$SCRIPT_DIR/fdroid.sh" publish "$FDROID_PUBLISH_JOBS_DIR/$version" \
-        || echo "Failed to publish F-Droid repos for $version"
+    "$SCRIPT_DIR/fdroid.sh" publish "$repo_env" \
+        || echo "Failed to publish F-Droid repo for $repo_env"
 }
 
 function run_in_linux_container {
@@ -202,7 +203,7 @@ function build_sign_and_publish_ref {
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
     if [[ $version != *"-dev-"* ]]; then
-        publish_fdroid_repos "$version"
+        publish_fdroid_repo development
     fi
 
     # shellcheck disable=SC2216
