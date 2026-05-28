@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">مرحبًا، يُسمَّى هذا الجهاز الآن <b>%1$s</b>.</string>
     <string name="new_device_notification_title">تم إنشاء جهاز جديد</string>
     <string name="new_list">قائمة جديدة</string>
+    <string name="next">التالي</string>
     <string name="no_custom_lists_available">لا توجد قوائم مُخصَّصة متاحة</string>
     <string name="no_email_app_available">لا يتوفَّر تطبيق بريد إلكتروني على الجهاز</string>
     <string name="no_internet_connection">لا يتوفَّر اتصال بالإنترنت</string>

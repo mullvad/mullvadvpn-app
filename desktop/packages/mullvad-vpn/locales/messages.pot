@@ -3118,6 +3118,9 @@ msgstr ""
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr ""
 
+msgid "Always"
+msgstr ""
+
 msgid "Always-on VPN assigned to %s"
 msgstr ""
 
@@ -3146,6 +3149,12 @@ msgid "At least one method needs to be enabled"
 msgstr ""
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr ""
+
+msgid "Attention: In this mode, filters are ignored for the additional server."
+msgstr ""
+
+msgid "Attention: With the “Automatic” location, filters are ignored for the entry server."
 msgstr ""
 
 msgid "Auto-connect & Lockdown mode"
@@ -3178,7 +3187,13 @@ msgstr ""
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr ""
 
+msgid "Change to “When needed”"
+msgstr ""
+
 msgid "Clear input"
+msgstr ""
+
+msgid "Click here to read more"
 msgstr ""
 
 msgid "Collapse"
@@ -3334,6 +3349,9 @@ msgstr ""
 msgid "File"
 msgstr ""
 
+msgid "Filters can now be set separately for entry and exit locations."
+msgstr ""
+
 msgid "For details, please see our %s."
 msgstr ""
 
@@ -3451,7 +3469,16 @@ msgstr ""
 msgid "Multihop is disabled"
 msgstr ""
 
+msgid "Multihop is disabled. Your selected location must support all active settings in order to establish a connection."
+msgstr ""
+
 msgid "Multihop is enabled"
+msgstr ""
+
+msgid "Multihop is enabled. Your connection is routed through an entry server before exiting through the selected location."
+msgstr ""
+
+msgid "Multihop is now split into three modes: When needed, Always, and Never.\\nThis gives you more flexibility with your connection preferences."
 msgstr ""
 
 msgid "Name is already taken."
@@ -3461,6 +3488,12 @@ msgid "Name was changed to %s"
 msgstr ""
 
 msgid "Navigate"
+msgstr ""
+
+msgid "Never"
+msgstr ""
+
+msgid "New multihop modes"
 msgstr ""
 
 msgid "No Android app store installed, could not open link"
@@ -3601,6 +3634,9 @@ msgstr ""
 msgid "Reset to default"
 msgstr ""
 
+msgid "Resolve connection issues"
+msgstr ""
+
 msgid "Restart your device"
 msgstr ""
 
@@ -3610,13 +3646,22 @@ msgstr ""
 msgid "Send email"
 msgstr ""
 
+msgid "Separate filters"
+msgstr ""
+
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
 msgstr ""
 
 msgid "Set as multihop exit (incompatible)"
 msgstr ""
 
+msgid "Set entry to “Automatic”"
+msgstr ""
+
 msgid "Set port"
+msgstr ""
+
+msgid "Settings Migrated"
 msgstr ""
 
 msgid "Share…"
@@ -3634,10 +3679,22 @@ msgstr ""
 msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
+msgid "Some of your settings have been migrated, please review the changes and resolve any issues."
+msgstr ""
+
+msgid "Some of your settings have been migrated, please review the changes."
+msgstr ""
+
 msgid "Something went wrong while verifying your purchase. Please contact support."
 msgstr ""
 
 msgid "Submit"
+msgstr ""
+
+msgid "Suggested action"
+msgstr ""
+
+msgid "Suggested multihop entry"
 msgstr ""
 
 msgid "TCP"
@@ -3656,6 +3713,9 @@ msgid "Thanks for being part of our community.\\nPrivacy is for the people!"
 msgstr ""
 
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
+msgstr ""
+
+msgid "The DAITA sub-setting “Direct only” has been removed and simplified to avoid blocking connections. Instead, with DAITA enabled, you make this option with the multihop setting."
 msgstr ""
 
 msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
@@ -3703,16 +3763,28 @@ msgstr ""
 msgid "This might be due to censorship or network issues. Please try to:"
 msgstr ""
 
+msgid "This mode allows the app to automatically multihop through an additional server if needed to ensure your current settings work with your selected location."
+msgstr ""
+
 msgid "Time added"
 msgstr ""
 
 msgid "To add locations to a list, press the pen or long press on a country, city, or server."
 msgstr ""
 
+msgid "To avoid getting blocked, we recommend that you set your multihop mode to “When needed”."
+msgstr ""
+
+msgid "To avoid having to change the entry server manually, we recommend you set the multihop entry server to “Automatic”."
+msgstr ""
+
 msgid "To create a custom list press the \"+\""
 msgstr ""
 
 msgid "To delete your Mullvad VPN account, please enter your account number below."
+msgstr ""
+
+msgid "To ensure your current settings work with your selected location, and to avoid blocking your connection, the app might automatically multihop via a different entry server.\\nThis will be indicated by the X symbol."
 msgstr ""
 
 msgid "To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you."
@@ -3838,6 +3910,18 @@ msgstr ""
 msgid "Welcome, this device is now called <b>%s</b>."
 msgstr ""
 
+msgid "When multihop is set to “Always” or “Never” you must manually select a DAITA server."
+msgstr ""
+
+msgid "When multihop is set to “When needed” the app might use an additional server to make sure you connect to your selected location using DAITA."
+msgstr ""
+
+msgid "When needed"
+msgstr ""
+
+msgid "When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance."
+msgstr ""
+
 msgid "WireGuard port"
 msgstr ""
 
@@ -3862,10 +3946,25 @@ msgstr ""
 msgid "You will lose your remaining"
 msgstr ""
 
+msgid "Your current filters were applied to both entry and exit locations."
+msgstr ""
+
 msgid "Your device"
 msgstr ""
 
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
+msgstr ""
+
+msgid "Your multihop setting was migrated from “Off” to “Always”"
+msgstr ""
+
+msgid "Your multihop setting was migrated from “Off” to “Never”"
+msgstr ""
+
+msgid "Your multihop setting was migrated from “Off” to “When needed”"
+msgstr ""
+
+msgid "Your multihop setting was migrated from “On” to Always”"
 msgstr ""
 
 msgid "\"%s\" was created"
@@ -3887,6 +3986,9 @@ msgid "privacy policy"
 msgstr ""
 
 msgid "read more here"
+msgstr ""
+
+msgid "“Direct Only” removed"
 msgstr ""
 
 msgid "%d day"
