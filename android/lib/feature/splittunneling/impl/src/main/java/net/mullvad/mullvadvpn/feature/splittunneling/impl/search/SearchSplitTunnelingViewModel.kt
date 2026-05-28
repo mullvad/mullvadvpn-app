@@ -54,6 +54,8 @@ class SearchSplitTunnelingViewModel(
                 HighlightedString.findHighlights(appData.name, searchTerm)?.let {
                     SearchAppItem.Match(it, packageName = appData.packageName)
                 }
+            }.sortedBy {
+                it.appName.highlights.first().first
             }
         }
 
