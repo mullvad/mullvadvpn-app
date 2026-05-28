@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -18,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.ACCOUNT_EXPIRY_POLL_INTERVAL
+import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.payment.util.hasPendingPayment
@@ -30,7 +32,7 @@ import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 
 class OutOfTimeViewModel(
     private val accountRepository: AccountRepository,
-    deviceRepository: DeviceRepository,
+    private val deviceRepository: DeviceRepository,
     private val paymentUseCase: PaymentLogic,
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val connectionProxy: ConnectionProxy,
@@ -39,7 +41,8 @@ class OutOfTimeViewModel(
 ) : ViewModel() {
 
     private val _uiSideEffect = Channel<UiSideEffect>()
-    val uiSideEffect = merge(_uiSideEffect.receiveAsFlow(), notOutOfTimeEffect())
+    val uiSideEffect =
+        merge(_uiSideEffect.receiveAsFlow(), notOutOfTimeEffect(), revokedDeviceEffect())
 
     val uiState: StateFlow<Lc<Unit, OutOfTimeUiState>> =
         combine(
@@ -108,10 +111,17 @@ class OutOfTimeViewModel(
                 UiSideEffect.OpenConnectScreen
             }
 
+    private fun revokedDeviceEffect() =
+        deviceRepository.deviceState.filterIsInstance<DeviceState.Revoked>().map {
+            UiSideEffect.DeviceRevoked
+        }
+
     sealed interface UiSideEffect {
         data class OpenAccountView(val token: WebsiteAuthToken?) : UiSideEffect
 
         data object OpenConnectScreen : UiSideEffect
+
+        data object DeviceRevoked : UiSideEffect
 
         data object GenericError : UiSideEffect
     }
