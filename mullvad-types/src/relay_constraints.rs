@@ -556,16 +556,17 @@ pub struct WireguardConstraintsFormatter<'a> {
 
 impl fmt::Display for WireguardConstraintsFormatter<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // FIXME: What is going on with this formatting ??
         if let Constraint::Only(ip_version) = self.constraints.ip_version {
             write!(f, ", {ip_version},")?;
         }
-        if self.constraints.is_multihop() {
-            let location = self.constraints.entry_location.as_ref().map(|location| {
-                LocationConstraintFormatter {
-                    constraint: location,
-                    custom_lists: self.custom_lists,
-                }
-            });
+        if self.constraints.is_multihop()
+            && let Some(entry) = self.constraints.entry_location.as_ref().option()
+        {
+            let location = LocationConstraintFormatter {
+                constraint: entry,
+                custom_lists: self.custom_lists,
+            };
             write!(f, ", multihop entry {location}")?;
         }
         Ok(())

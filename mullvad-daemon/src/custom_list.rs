@@ -1,5 +1,5 @@
 use crate::{Daemon, Error};
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::relay_constraints::{GeographicLocationConstraint, Multihop};
 use mullvad_types::{
     constraints::Constraint,
     custom_list::{CustomList, Id},
@@ -125,7 +125,7 @@ impl Daemon {
         }
 
         if self.tunnel_state.endpoint().is_some()
-            && relay_settings.wireguard_constraints.is_multihop()
+            && let Multihop::Always = relay_settings.wireguard_constraints.multihop
             && let Constraint::Only(LocationConstraint::CustomList { list_id }) =
                 &relay_settings.wireguard_constraints.entry_location
         {
