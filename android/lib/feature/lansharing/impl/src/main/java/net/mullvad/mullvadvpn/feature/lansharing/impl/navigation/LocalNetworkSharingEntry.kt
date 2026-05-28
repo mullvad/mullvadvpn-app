@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.feature.lansharing.impl.navigation
 
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
-import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.core.animation.slideInHorizontalTransition
