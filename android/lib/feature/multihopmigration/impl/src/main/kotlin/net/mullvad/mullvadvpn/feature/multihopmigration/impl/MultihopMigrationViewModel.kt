@@ -15,11 +15,11 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNavKey
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
@@ -31,7 +31,7 @@ class MultihopMigrationViewModel(
     private val _uiSideEffect = Channel<MultihopMigrationScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
-    private val pages = generatePages(navArgs.errorFallback, navArgs.migration)
+    private val pages = generatePages(navArgs.multihopMigrationData)
     private val currentPage = MutableStateFlow(0)
 
     val uiState: StateFlow<MultihopMigrationUiState> =
@@ -49,22 +49,30 @@ class MultihopMigrationViewModel(
         MultihopMigrationUiState(multihopMigrationPages = pages, currentPageIndex = page)
 
     private fun generatePages(
-        errorFallback: Boolean,
-        splitFilterMigration: SplitFilterMigration,
+        multihopMigrationData: MultihopMigrationData
     ): List<MultihopMigrationPage> = buildList {
         // Order is important!
-        add(MultihopMigrationPage.NewMultihopMode(splitFilterMigration.multihopMigrationState))
-        if (splitFilterMigration.daitaMigration == PreviousDaitaState.DIRECT_ONLY) {
+        add(
+            MultihopMigrationPage.NewMultihopMode(
+                multihopMigrationData.splitFilterMigration.multihopMigrationState
+            )
+        )
+        if (
+            multihopMigrationData.splitFilterMigration.daitaMigration ==
+                PreviousDaitaState.DIRECT_ONLY
+        ) {
             add(MultihopMigrationPage.DirectOnlyRemoved)
         }
-        if (!splitFilterMigration.filtersSet) {
+        if (multihopMigrationData.splitFilterMigration.filtersSet) {
             add(MultihopMigrationPage.SeparateFilters)
         }
         // If migrating to multihop always we want to suggest setting the multihop entry to
         // automatic
         if (
-            splitFilterMigration.multihopMigrationState == MultihopMigrationState.ON_TO_ALWAYS ||
-                splitFilterMigration.multihopMigrationState == MultihopMigrationState.OFF_TO_ALWAYS
+            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+                MultihopMigrationState.ON_TO_ALWAYS ||
+                multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+                    MultihopMigrationState.OFF_TO_ALWAYS
         ) {
             add(MultihopMigrationPage.SuggestedMultihopEntry)
         }
@@ -75,9 +83,11 @@ class MultihopMigrationViewModel(
         // - If the user is migrating to multihop never and have filters set we want to suggest when
         // needed multihop setting to prevent the user from being blocked in the future.
         when {
-            errorFallback -> add(MultihopMigrationPage.SuggestedAction)
-            splitFilterMigration.multihopMigrationState == MultihopMigrationState.OFF_TO_NEVER &&
-                splitFilterMigration.filtersSet -> add(MultihopMigrationPage.SuggestedAction)
+            multihopMigrationData.userBlocked -> add(MultihopMigrationPage.SuggestedAction)
+            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+                MultihopMigrationState.OFF_TO_NEVER &&
+                multihopMigrationData.splitFilterMigration.filtersSet ->
+                add(MultihopMigrationPage.SuggestedAction)
         }
     }
 

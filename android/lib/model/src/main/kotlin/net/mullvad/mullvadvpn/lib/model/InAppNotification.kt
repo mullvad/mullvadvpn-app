@@ -13,6 +13,12 @@ sealed class InAppNotification {
     abstract val statusLevel: StatusLevel
     abstract val priority: Long
 
+    data class MultihopMigrationBlocked(val splitFilterMigration: SplitFilterMigration) :
+        InAppNotification() {
+        override val statusLevel = StatusLevel.Error
+        override val priority: Long = 1007
+    }
+
     data class TunnelStateError(val error: ErrorState) : InAppNotification() {
         override val statusLevel =
             if (error.cause is ErrorStateCause.IsOffline) {
@@ -38,7 +44,8 @@ sealed class InAppNotification {
         override val priority: Long = 1002
     }
 
-    data class MultihopMigration(val splitFilterMigration: SplitFilterMigration) : InAppNotification() {
+    data class MultihopMigration(val splitFilterMigration: SplitFilterMigration) :
+        InAppNotification() {
         override val statusLevel = StatusLevel.Warning
         override val priority: Long = 1002
     }

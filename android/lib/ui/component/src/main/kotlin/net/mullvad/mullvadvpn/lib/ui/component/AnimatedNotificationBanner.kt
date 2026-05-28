@@ -32,6 +32,7 @@ import androidx.compose.ui.text.toUpperCase
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
@@ -56,7 +57,7 @@ fun AnimatedNotificationBanner(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
-    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     // Fix for animating to invisible state
