@@ -239,14 +239,7 @@ impl Relay {
 
                 print_option!("IP protocol", constraints.wireguard_constraints.ip_version,);
 
-                print_option!(
-                    "Multihop state",
-                    if constraints.wireguard_constraints.is_multihop() {
-                        "enabled"
-                    } else {
-                        "disabled"
-                    },
-                );
+                print_option!("Multihop state", constraints.wireguard_constraints.multihop);
                 print_option!(
                     "Multihop entry",
                     constraints

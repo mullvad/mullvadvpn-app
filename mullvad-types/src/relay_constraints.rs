@@ -393,6 +393,16 @@ pub enum Multihop {
     Never,
 }
 
+impl fmt::Display for Multihop {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match self {
+            Multihop::Always => "Always".fmt(f),
+            Multihop::Auto => "Auto".fmt(f),
+            Multihop::Never => "Never".fmt(f),
+        }
+    }
+}
+
 pub use allowed_ip::AllowedIps;
 pub mod allowed_ip {
     use std::net::{Ipv4Addr, Ipv6Addr};
