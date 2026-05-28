@@ -545,7 +545,4 @@ private fun Lc<Boolean, VpnSettingsUiState>.isModal() =
 
 // A list of feature indicators on this screen
 private fun featureIndicators() =
-    listOf(
-        FeatureIndicator.QUANTUM_RESISTANCE,
-        FeatureIndicator.CUSTOM_MTU,
-    )
+    listOf(FeatureIndicator.QUANTUM_RESISTANCE, FeatureIndicator.CUSTOM_MTU)
