@@ -274,9 +274,6 @@
     <string name="loading_products">製品を読み込み中</string>
     <string name="loading_verifying">購入を確認中...</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
-    <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
-    <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
-    <string name="local_network_sharing_info_block_connections_warning">注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。</string>
     <string name="location_added">%1$s (追加済み)</string>
     <string name="location_was_added_to_list">%1$sが「%2$s」に追加されました</string>
     <string name="location_was_removed_from_list">%1$sが「%2$s」から削除されました</string>

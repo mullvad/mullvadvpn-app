@@ -274,9 +274,6 @@
     <string name="loading_products">Ladataan tuotteita</string>
     <string name="loading_verifying">Ostosta vahvistetaan...</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
-    <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
-    <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
-    <string name="local_network_sharing_info_block_connections_warning">Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi.</string>
     <string name="location_added">%1$s (lisätty)</string>
     <string name="location_was_added_to_list">%1$s lisättiin luetteloon \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s poistettiin luettelosta \"%2$s\"</string>

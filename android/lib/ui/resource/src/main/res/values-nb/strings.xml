@@ -274,9 +274,6 @@
     <string name="loading_products">Laster inn produkter</string>
     <string name="loading_verifying">Bekrefter kjøp ...</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
-    <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
-    <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
-    <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>
     <string name="location_added">%1$s (lagt til)</string>
     <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
     <string name="location_was_removed_from_list">%1$s ble fjernet fra «%2$s»</string>

@@ -2996,6 +2996,9 @@ msgstr ""
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr ""
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr ""
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr ""
 
@@ -3008,7 +3011,13 @@ msgstr ""
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
+msgid "<b>Private IP ranges</b>"
+msgstr ""
+
 msgid "<b>This action cannot be undone.</b>"
+msgstr ""
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
 msgstr ""
 
 msgid "<b>Warning:</b>"
@@ -3099,9 +3108,6 @@ msgid "Are you sure you want to log <b>%s</b> out?"
 msgstr ""
 
 msgid "At least one method needs to be enabled"
-msgstr ""
-
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr ""
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
@@ -3251,6 +3257,9 @@ msgstr ""
 msgid "Enable multihop"
 msgstr ""
 
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr ""
+
 msgid "Enter MTU"
 msgstr ""
 
@@ -3317,6 +3326,9 @@ msgstr ""
 msgid "Google Play unavailable"
 msgstr ""
 
+msgid "How it works"
+msgstr ""
+
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr ""
 
@@ -3348,6 +3360,9 @@ msgid "In-app products unavailable, please make sure you have the latest version
 msgstr ""
 
 msgid "Include my account token for faster help with payment or account related issues"
+msgstr ""
+
+msgid "Info"
 msgstr ""
 
 msgid "Internet"
@@ -3621,6 +3636,9 @@ msgid "The Lockdown mode is called \"Block connections without VPN\" in the Andr
 msgstr ""
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr ""
+
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
 msgstr ""
 
 msgid "The app is blocking internet, please disconnect first"

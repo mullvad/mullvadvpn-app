@@ -274,9 +274,6 @@
     <string name="loading_products">正在加载商品</string>
     <string name="loading_verifying">正在验证购买…</string>
     <string name="local_network_sharing">本地网络共享</string>
-    <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
-    <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
-    <string name="local_network_sharing_info_block_connections_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，将无法使用“本地网络共享”功能。</string>
     <string name="location_added">%1$s（已添加）</string>
     <string name="location_was_added_to_list">%1$s已添加到“%2$s”中</string>
     <string name="location_was_removed_from_list">%1$s已从“%2$s”中移除</string>

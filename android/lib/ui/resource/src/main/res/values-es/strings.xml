@@ -274,9 +274,6 @@
     <string name="loading_products">Cargando productos</string>
     <string name="loading_verifying">Verificando la compra…</string>
     <string name="local_network_sharing">Uso compartido de la red local</string>
-    <string name="local_network_sharing_additional_info">Lo realiza permitiendo la comnunicación de red fuera del túnel hacia rangos de emisión y multidifusión locales y también hacia y desde estos rangos de IP privados:</string>
-    <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
-    <string name="local_network_sharing_info_block_connections_warning">Atención: si «Bloquear conexiones sin VPN» está activado, «Uso compartido de la red local» no funcionará.</string>
     <string name="location_added">%1$s (añadido)</string>
     <string name="location_was_added_to_list">%1$s se ha añadido a «%2$s»</string>
     <string name="location_was_removed_from_list">%1$s se ha eliminado de «%2$s»</string>

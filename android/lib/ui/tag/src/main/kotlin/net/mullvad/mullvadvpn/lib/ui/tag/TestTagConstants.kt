@@ -50,6 +50,9 @@ const val LAZY_LIST_DNS_SETTINGS_TEST_TAG = "lazy_list_dns_settings_test_tag"
 const val CUSTOM_DNS_ITEM_X_TEST_TAG = "custom_dns_item_%d_test_tag"
 const val CUSTOM_DNS_ADD_ITEM_TEST_TAG = "custom_dns_add_item_%d_test_tag"
 
+// LocalNetworkSharingScreen
+const val LOCAL_NETWORK_SHARING_SCREEN_TEST_TAG = "local_network_sharing_screen_test_tag"
+
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
 const val SELECT_LOCATION_MENU_BUTTON_TEST_TAG = "select_location_screen_test_tag"
