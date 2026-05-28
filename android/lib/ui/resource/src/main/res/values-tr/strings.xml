@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın yeni adı artık <b>%1$s</b>.</string>
     <string name="new_device_notification_title">YENİ CİHAZ OLUŞTURULDU</string>
     <string name="new_list">Yeni liste</string>
+    <string name="next">Sonraki</string>
     <string name="no_custom_lists_available">Özel listeler mevcut değil</string>
     <string name="no_email_app_available">Cihazda e-posta uygulaması yok</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>

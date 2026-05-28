@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">欢迎，此设备现已命名为 <b>%1$s</b>。</string>
     <string name="new_device_notification_title">已创建新设备</string>
     <string name="new_list">新建列表</string>
+    <string name="next">下一步</string>
     <string name="no_custom_lists_available">有可用的自定义列表</string>
     <string name="no_email_app_available">设备上没有可用的电子邮件应用</string>
     <string name="no_internet_connection">没有互联网连接</string>

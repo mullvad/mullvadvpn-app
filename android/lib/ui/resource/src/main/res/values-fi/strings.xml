@@ -334,6 +334,7 @@
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt <b>%1$s</b>.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
+    <string name="next">Seuraava</string>
     <string name="no_custom_lists_available">Mukautettuja luetteloita ei löytynyt</string>
     <string name="no_email_app_available">Laitteella ei ole saatavilla sähköpostisovellusta</string>
     <string name="no_internet_connection">Ei verkkoyhteyttä</string>
