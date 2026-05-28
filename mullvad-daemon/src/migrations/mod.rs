@@ -47,6 +47,7 @@ use crate::{DaemonEventSender, InternalDaemonEvent};
 
 mod account_history;
 mod device;
+mod multihop;
 mod v1;
 mod v10;
 mod v11;
@@ -226,6 +227,7 @@ async fn migrate_settings(
     v14::migrate(settings)?;
     v15::migrate(settings)?;
     v16::migrate(settings)?;
+    multihop::migrate(settings)?;
 
     Ok(migration_data)
 }
