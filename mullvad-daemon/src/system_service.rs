@@ -375,6 +375,10 @@ fn get_service_info() -> ServiceInfo {
             // Network Store Interface Service
             // This service delivers network notifications (e.g. interface addition/deleting etc).
             ServiceDependency::Service(OsString::from("NSI")),
+            // Network Location Awareness
+            // Defers startup until Windows has assigned a network profile to at least one
+            // interface, so the daemon never writes WFP blocking rules against an empty stack.
+            ServiceDependency::Service(OsString::from("NlaSvc")),
         ],
         account_name: None, // run as System
         account_password: None,
