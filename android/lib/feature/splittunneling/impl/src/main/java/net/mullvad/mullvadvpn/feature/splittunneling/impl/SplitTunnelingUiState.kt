@@ -12,8 +12,4 @@ data class SplitTunnelingUiState(
     val isModal: Boolean = false,
 )
 
-data class AppItem(
-    val title: String,
-    val packageName: PackageName,
-    val highlights: List<String> = emptyList(),
-)
+data class AppItem(val appName: String, val packageName: PackageName)

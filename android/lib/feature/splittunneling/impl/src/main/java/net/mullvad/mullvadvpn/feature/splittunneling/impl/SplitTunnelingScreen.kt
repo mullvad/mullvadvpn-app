@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,6 +56,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SwitchListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ScreenDescription
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
@@ -287,7 +289,7 @@ internal fun LazyListScope.appItems(
             }
         }
         SplitTunnelingListItem(
-            title = HighlightedString.fromString(listItem.title),
+            title = AnnotatedString(listItem.appName),
             iconState = icon,
             isSelected = excluded,
             isEnabled = enabled,

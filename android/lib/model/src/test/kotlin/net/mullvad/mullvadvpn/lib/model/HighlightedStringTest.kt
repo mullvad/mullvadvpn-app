@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
 import kotlin.test.assertEquals
-import net.mullvad.mullvadvpn.lib.model.HighlightedString.Companion.partialMatch
+import net.mullvad.mullvadvpn.lib.model.HighlightedString.Companion.findHighlights
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -12,7 +12,7 @@ class HighlightedStringTest {
         val text = "Text with CASE"
 
         // Act
-        val result = partialMatch(text = text, query = "WITH", ignoreCase = false)
+        val result = findHighlights(text = text, query = "WITH", ignoreCase = false)
 
         // Assert
         assertEquals(HighlightedString(emptyList(), "Text with CASE"), result)
@@ -24,7 +24,7 @@ class HighlightedStringTest {
         val text = "Text"
 
         // Act
-        val result = partialMatch(text = text, query = "xyz", ignoreCase = false)
+        val result = findHighlights(text = text, query = "xyz", ignoreCase = false)
 
         // Assert
         assertEquals(HighlightedString(emptyList(), text), result)
@@ -36,7 +36,7 @@ class HighlightedStringTest {
         val text = "Text with delimiter"
 
         // Act
-        val result = partialMatch(text = text, query = "with", ignoreCase = false)
+        val result = findHighlights(text = text, query = "with", ignoreCase = false)
 
         // Assert
         assertEquals(HighlightedString(5..8, text), result)
@@ -48,7 +48,7 @@ class HighlightedStringTest {
         val text = "Text with multiple delimiters"
 
         // Act
-        val result = partialMatch(text = text, "it", ignoreCase = false)
+        val result = findHighlights(text = text, "it", ignoreCase = false)
 
         // Assert
         assertEquals(HighlightedString(listOf(6..7, 24..25), text), result)
@@ -60,7 +60,7 @@ class HighlightedStringTest {
         val text = "Text ignore case"
 
         // Act
-        val result = partialMatch(text = text, query = "TEXT", ignoreCase = true)
+        val result = findHighlights(text = text, query = "TEXT", ignoreCase = true)
 
         // Assert
         assertEquals(HighlightedString(listOf(0..3), text), result)
@@ -72,7 +72,7 @@ class HighlightedStringTest {
         val text = "one two one two one"
 
         // Act
-        val result = partialMatch(text = text, query = "two", ignoreCase = false, limit = 0)
+        val result = findHighlights(text = text, query = "two", ignoreCase = false, limit = 0)
 
         // Assert
         assertEquals(HighlightedString(listOf(4..6, 12..14), text), result)
@@ -84,7 +84,7 @@ class HighlightedStringTest {
         val text = "one two one two one"
 
         // Act
-        val result = partialMatch(text = text, query = "two", ignoreCase = false, limit = 1)
+        val result = findHighlights(text = text, query = "two", ignoreCase = false, limit = 1)
 
         // Assert
         assertEquals(HighlightedString(listOf(4..6), text), result)
@@ -96,7 +96,7 @@ class HighlightedStringTest {
         val text = "one two one three one"
 
         // Act
-        val result = partialMatch(text = text, query = "two three", ignoreCase = false, limit = 0)
+        val result = findHighlights(text = text, query = "two three", ignoreCase = false, limit = 0)
 
         // Assert
         assertEquals(HighlightedString(listOf(4..6, 12..16), text), result)
@@ -108,7 +108,7 @@ class HighlightedStringTest {
         val text = "one two one three one"
 
         // Act
-        val result = partialMatch(text = text, query = "two four", ignoreCase = false, limit = 0)
+        val result = findHighlights(text = text, query = "two four", ignoreCase = false, limit = 0)
 
         // Assert
         assertEquals(HighlightedString(listOf(4..6), text), result)
@@ -120,7 +120,7 @@ class HighlightedStringTest {
         val text = "one two one two three one"
 
         // Act
-        val result = partialMatch(text = text, query = "two three", ignoreCase = false, limit = 2)
+        val result = findHighlights(text = text, query = "two three", ignoreCase = false, limit = 2)
 
         // Assert
         assertEquals(HighlightedString(listOf(4..6, 12..14), text), result)

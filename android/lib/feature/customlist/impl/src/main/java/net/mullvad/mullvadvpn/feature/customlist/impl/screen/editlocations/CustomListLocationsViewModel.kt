@@ -264,8 +264,7 @@ class CustomListLocationsViewModel(
         add(
             CheckableRelayListItem(
                 location = this@toRelayItems,
-                highlightedTitle =
-                    HighlightedString.partialMatch(this@toRelayItems.name, searchTerm),
+                highlightedTitle = HighlightedString.findHighlights(this@toRelayItems.name, searchTerm)!!,
                 hierarchy = hierarchy,
                 checked = isSelected(this@toRelayItems),
                 expanded = expanded,

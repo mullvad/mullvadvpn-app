@@ -248,7 +248,7 @@ private fun createCustomListRelayItems(
         add(
             RelayListItem.CustomListItem(
                 item = customList,
-                highlightedTitle = HighlightedString.partialMatch(customList.name, searchTerm),
+                highlightedTitle = HighlightedString.findHighlights(customList.name, searchTerm)!!,
                 isSelected = selectedByThisEntryExitList == customList.id,
                 state =
                     customList.createState(
@@ -413,7 +413,7 @@ private fun createGeoLocationEntry(
     add(
         RelayListItem.GeoLocationItem(
             item = item,
-            highlightedTitle = HighlightedString.partialMatch(item.name, searchTerm),
+            highlightedTitle = HighlightedString.findHighlights(item.name, searchTerm)!!,
             isSelected = selectedByThisEntryExitList == item.id,
             state =
                 item.createState(

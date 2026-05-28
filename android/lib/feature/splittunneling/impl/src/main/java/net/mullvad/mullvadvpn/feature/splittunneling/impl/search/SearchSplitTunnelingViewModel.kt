@@ -11,9 +11,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.AppItem
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.SplitTunnelingUseCase
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
+import net.mullvad.mullvadvpn.lib.model.HighlightedString
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 
@@ -31,24 +33,10 @@ class SearchSplitTunnelingViewModel(
                         searchTerm = searchTerm,
                         excludedApps =
                             splitApps.excludedApps
-                                .filter { it.name.contains(searchTerm, ignoreCase = true) }
-                                .map {
-                                    AppItem(
-                                        title = it.name,
-                                        packageName = it.packageName,
-                                        highlights = searchTerm.toHighlights(),
-                                    )
-                                },
+                                .search(searchTerm),
                         includedApps =
                             splitApps.includedApps
-                                .filter { it.name.contains(searchTerm, ignoreCase = true) }
-                                .map {
-                                    AppItem(
-                                        title = it.name,
-                                        packageName = it.packageName,
-                                        highlights = searchTerm.toHighlights(),
-                                    )
-                                },
+                                .search(searchTerm),
                     )
                 )
             }
@@ -57,6 +45,17 @@ class SearchSplitTunnelingViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(Unit),
             )
+
+    fun List<AppData>.search(searchTerm: String): List<SearchAppItem> =
+        if (searchTerm.isEmpty()) {
+            map { SearchAppItem.Default(appName = it.name, packageName = it.packageName) }
+        } else {
+            mapNotNull { appData ->
+                HighlightedString.findHighlights(appData.name, searchTerm)?.let {
+                    SearchAppItem.Match(it, packageName = appData.packageName)
+                }
+            }
+        }
 
     fun onSearchInputChanged(searchTerm: String) {
         viewModelScope.launch { _searchTerm.emit(searchTerm) }

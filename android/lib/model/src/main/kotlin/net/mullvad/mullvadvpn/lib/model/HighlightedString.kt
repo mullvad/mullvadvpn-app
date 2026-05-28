@@ -1,46 +1,44 @@
 package net.mullvad.mullvadvpn.lib.model
 
-import android.os.Parcelable
-import kotlin.text.findAnyOf
-import kotlin.text.isNotEmpty
-import kotlin.text.substring
-import kotlinx.parcelize.Parcelize
+import arrow.core.NonEmptyList
+import kotlin.collections.emptyList
 
-@Parcelize
-data class HighlightedString(val highlights: List<IntRange>, val text: String) : Parcelable {
+data class HighlightedString(val highlights: NonEmptyList<IntRange>, val text: String) {
     init {
         require(highlights.all { it.first >= 0 && it.last < text.length }) {
             "Highlights must be within the bounds of the text"
         }
     }
 
-    constructor(highlight: IntRange, text: String) : this(listOf(highlight), text)
-
     companion object {
-        fun partialMatch(
-            text: String,
-            query: String,
-            ignoreCase: Boolean = true,
-            limit: Int = 0,
-        ): HighlightedString {
-            if (query.isEmpty()) return HighlightedString(emptyList(), text)
-            val words = query.split(" ").filter { it.isNotBlank() }
-            val highlights = mutableListOf<IntRange>()
-            var remaining = text
-            var offset = 0
-            while (remaining.isNotEmpty()) {
-                val (matchIndex, matchString) =
-                    remaining.findAnyOf(words, ignoreCase = ignoreCase) ?: (-1 to "")
-                if (matchIndex == -1 || (limit > 0 && highlights.size >= limit)) {
-                    break
-                }
-                highlights.add(offset + matchIndex..<matchIndex + offset + matchString.length)
-                remaining = remaining.substring(matchIndex + matchString.length)
-                offset += matchIndex + matchString.length
-            }
-            return HighlightedString(highlights, text)
+        fun findHighlights(text: String, query: String): HighlightedString? {
+            if (query.isEmpty()) return null
+
+            val matchedRanges = findMatchRanges(text, query)
+            return if (matchedRanges.isEmpty()) null
+            else HighlightedString(NonEmptyList.of(matchedRanges), text)
         }
 
-        fun fromString(text: String): HighlightedString = HighlightedString(emptyList(), text)
+        private fun findMatchRanges(
+            text: String,
+            term: String,
+            ignoreCase: Boolean = true,
+        ): List<IntRange> {
+            val ranges = mutableListOf<IntRange>()
+            var startIndex = 0
+
+            while (startIndex <= text.length - term.length) {
+                val index = text.indexOf(term, startIndex = startIndex, ignoreCase = ignoreCase)
+                if (index == -1) break
+
+                ranges += index..<index + term.length
+                startIndex = index + 1 // use + term.length if you want non-overlapping matches only
+            }
+
+            return ranges
+        }
+
+        fun fromString(text: String): HighlightedString =
+            HighlightedString(NonEmptyList(IntRange(0, 0), emptyList()), text)
     }
 }
