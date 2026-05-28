@@ -66,13 +66,13 @@ class MultihopMigrationViewModel(
         if (multihopMigrationData.splitFilterMigration.filtersSet) {
             add(MultihopMigrationPage.SeparateFilters)
         }
-        // If migrating to multihop always we want to suggest setting the multihop entry to
-        // automatic
+        // If migrating to multihop always and filters are set we want to suggest setting the
+        // multihop entry to automatic
         if (
-            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+            (multihopMigrationData.splitFilterMigration.multihopMigrationState ==
                 MultihopMigrationState.ON_TO_ALWAYS ||
                 multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                    MultihopMigrationState.OFF_TO_ALWAYS
+                    MultihopMigrationState.OFF_TO_ALWAYS) && multihopMigrationData.splitFilterMigration.filtersSet
         ) {
             add(MultihopMigrationPage.SuggestedMultihopEntry)
         }
