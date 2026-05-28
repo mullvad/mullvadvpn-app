@@ -23,8 +23,8 @@ import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.ClickableText
 import net.mullvad.mullvadvpn.lib.ui.component.NotificationMessage.Text
@@ -85,7 +85,7 @@ fun InAppNotification.toNotificationData(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
-    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) =
     when (this) {
@@ -227,7 +227,11 @@ fun InAppNotification.toNotificationData(
                                     append(stringResource(R.string.click_here_to_read_more))
                                 }
                             },
-                        onClick = { onClickShowMultihopMigrationWizard(splitFilterMigration) },
+                        onClick = {
+                            onClickShowMultihopMigrationWizard(
+                                MultihopMigrationData(splitFilterMigration, false)
+                            )
+                        },
                         contentDescription = stringResource(id = R.string.click_here_to_read_more),
                     ),
                 statusLevel = statusLevel,
@@ -237,6 +241,40 @@ fun InAppNotification.toNotificationData(
                         onClick = onClickDismissMigrateMultihopWarning,
                         contentDescription = stringResource(id = R.string.dismiss),
                     ),
+            )
+        }
+        is InAppNotification.MultihopMigrationBlocked -> {
+            NotificationData(
+                title =
+                    stringResource(id = R.string.multihop_migration_blocked_in_app_message_title),
+                message =
+                    ClickableText(
+                        text =
+                            buildAnnotatedString {
+                                appendLine(
+                                    stringResource(
+                                        id =
+                                            R.string
+                                                .multihop_migration_blocked_in_app_message_description
+                                    )
+                                )
+                                withStyle(
+                                    SpanStyle(
+                                        textDecoration = TextDecoration.Underline,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                ) {
+                                    append(stringResource(R.string.click_here_to_read_more))
+                                }
+                            },
+                        onClick = {
+                            onClickShowMultihopMigrationWizard(
+                                MultihopMigrationData(splitFilterMigration, true)
+                            )
+                        },
+                        contentDescription = stringResource(id = R.string.click_here_to_read_more),
+                    ),
+                statusLevel = statusLevel,
             )
         }
     }

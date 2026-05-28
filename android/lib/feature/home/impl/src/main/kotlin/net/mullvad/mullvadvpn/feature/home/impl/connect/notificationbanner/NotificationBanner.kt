@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.isTv
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.tv.NotificationBannerTv
@@ -83,7 +84,7 @@ fun NotificationBanner(
     onClickDismissNewDevice: () -> Unit,
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
-    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     if (isTv()) {

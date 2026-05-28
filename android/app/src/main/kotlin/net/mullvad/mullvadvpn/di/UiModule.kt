@@ -196,8 +196,12 @@ val uiModule = module {
     if (Build.VERSION.SDK_INT == Build.VERSION_CODES.BAKLAVA) {
         single { Android16UpdateWarningUseCase(get(), get()) } bind InAppNotificationUseCase::class
     }
-    single { MultihopMigrationNotificationUseCase(multihopMigrationRepository = get()) } bind
-        InAppNotificationUseCase::class
+    single {
+        MultihopMigrationNotificationUseCase(
+            multihopMigrationRepository = get(),
+            connectionProxy = get(),
+        )
+    } bind InAppNotificationUseCase::class
 
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { InternetAvailableUseCase(get()) }

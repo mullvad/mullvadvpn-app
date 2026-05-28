@@ -113,8 +113,8 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
 import net.mullvad.mullvadvpn.lib.model.PrepareError
-import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
 import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
@@ -310,9 +310,9 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
             onClickShowAndroid16UpgradeInfo =
                 dropUnlessResumed { navigator.navigate(Android16UpgradeInfoNavKey) },
             onClickShowMultihopMigrationWizard =
-                dropUnlessResumed { migration: SplitFilterMigration ->
+                dropUnlessResumed { multihopMigrationData: MultihopMigrationData ->
                     navigator.navigate(
-                        MultihopMigrationNavKey(errorFallback = false, migration = migration)
+                        MultihopMigrationNavKey(multihopMigrationData = multihopMigrationData)
                     )
                 },
             onClickDismissMigrateMultihopWarning = connectViewModel::dismissMultihopMigrationWarning,
@@ -342,7 +342,7 @@ fun ConnectScreen(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
-    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val contentFocusRequester = remember { FocusRequester() }
@@ -426,7 +426,7 @@ private fun Content(
     onClickShowWireguardPortSettings: () -> Unit,
     onClickDismissAndroid16UpgradeWarning: () -> Unit,
     onClickShowAndroid16UpgradeInfo: () -> Unit,
-    onClickShowMultihopMigrationWizard: (SplitFilterMigration) -> Unit,
+    onClickShowMultihopMigrationWizard: (MultihopMigrationData) -> Unit,
     onClickDismissMigrateMultihopWarning: () -> Unit,
 ) {
     val screenHeight =
