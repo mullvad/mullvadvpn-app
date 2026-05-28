@@ -274,7 +274,6 @@
     <string name="loading_products">Chargement des produits</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
     <string name="local_network_sharing">Partage réseau local</string>
-    <string name="local_network_sharing_info_block_connections_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, l\'option « Partage réseau local » ne fonctionne pas.</string>
     <string name="location_added">%1$s (ajouté)</string>
     <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
     <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>

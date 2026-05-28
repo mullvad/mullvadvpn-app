@@ -274,7 +274,6 @@
     <string name="loading_products">جارٍ تحميل المنتجات</string>
     <string name="loading_verifying">جارٍ التحقُّق من عملية الشراء...</string>
     <string name="local_network_sharing">مشاركة الشبكة المحلية</string>
-    <string name="local_network_sharing_info_block_connections_warning">انتبه: إذا تم تفعيل \"حظر الاتصالات دون VPN\"، فلن تعمل \"مشاركة الشبكة المحلية\".</string>
     <string name="location_added">%1$s (تمت إضافته)</string>
     <string name="location_was_added_to_list">تمت إضافة %1$s إلى \"%2$s\"</string>
     <string name="location_was_removed_from_list">تمت إزالة %1$s من \"%2$s\"</string>

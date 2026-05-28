@@ -274,7 +274,6 @@
     <string name="loading_products">กำลังโหลดผลิตภัณฑ์</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
-    <string name="local_network_sharing_info_block_connections_warning">โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน</string>
     <string name="location_added">%1$s (เพิ่มแล้ว)</string>
     <string name="location_was_added_to_list">เพิ่ม %1$s ลงใน \"%2$s\" แล้ว</string>
     <string name="location_was_removed_from_list">%1$s ถูกลบออกจาก \"%2$s” แล้ว</string>

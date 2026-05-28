@@ -274,7 +274,6 @@
     <string name="loading_products">Läser in produkter</string>
     <string name="loading_verifying">Verifierar köp ...</string>
     <string name="local_network_sharing">Lokal nätverksdelning</string>
-    <string name="local_network_sharing_info_block_connections_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat fungerar inte \"Lokal nätverksdelning\".</string>
     <string name="location_added">%1$s (har lagts till)</string>
     <string name="location_was_added_to_list">%1$s har lagts till i \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s har tagits bort från \"%2$s\"</string>

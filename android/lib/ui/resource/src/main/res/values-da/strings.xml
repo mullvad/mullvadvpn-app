@@ -274,7 +274,6 @@
     <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
-    <string name="local_network_sharing_info_block_connections_warning">Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere.</string>
     <string name="location_added">%1$s (tilføjet)</string>
     <string name="location_was_added_to_list">%1$s blev tilføjet til \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s blev fjernet fra \"%2$s\"</string>

@@ -274,7 +274,6 @@
     <string name="loading_products">Producten worden geladen</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
-    <string name="local_network_sharing_info_block_connections_warning">Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet.</string>
     <string name="location_added">%1$s (toegevoegd)</string>
     <string name="location_was_added_to_list">%1$s is toegevoegd aan \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s is verwijderd uit \"%2$s\"</string>

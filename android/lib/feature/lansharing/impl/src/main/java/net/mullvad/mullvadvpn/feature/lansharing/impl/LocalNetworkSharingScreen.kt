@@ -151,6 +151,12 @@ private fun LocalNetworkSharingContent(
             text =
                 buildAnnotatedString {
                     appendLine(annotatedStringResource(R.string.local_network_sharing_info))
+                    append(
+                        annotatedStringResource(
+                            R.string.local_network_sharing_info_block_connections_warning
+                        )
+                    )
+                    appendLine()
                     appendLine()
                     append(annotatedStringResource(R.string.local_network_sharing_info2))
                 },
@@ -165,6 +171,8 @@ private fun LocalNetworkSharingContent(
                     appendLine(annotatedStringResource(R.string.local_network_sharing_info3))
                     appendLine()
                     append(annotatedStringResource(R.string.local_network_sharing_info4))
+                    appendLine()
+                    append(annotatedStringResource(R.string.local_network_sharing_ip_ranges))
                 },
             icon = Icons.Rounded.Info,
             iconContentDescription = stringResource(R.string.info),

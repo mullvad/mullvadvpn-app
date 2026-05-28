@@ -274,7 +274,6 @@
     <string name="loading_products">제품을 로드하는 중</string>
     <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing">로컬 네트워크 공유</string>
-    <string name="local_network_sharing_info_block_connections_warning">주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다.</string>
     <string name="location_added">%1$s(추가됨)</string>
     <string name="location_was_added_to_list">%1$s이(가) \"%2$s\"에 추가되었습니다</string>
     <string name="location_was_removed_from_list">%1$s이(가) \"%2$s\"에서 제거되었습니다</string>
