@@ -250,6 +250,7 @@ function build {
     if [[ "$GOTATUN" == "false" ]]; then
         cargo_features+=(--features wireguard-go)
     fi
+    local cargo_env=()
 
     local cargo_crates_to_build=(
         -p mullvad-daemon --bin mullvad-daemon
@@ -270,9 +271,19 @@ function build {
              log_warn "Libraries not found at ${clib_dir}/*"
              log_warn "Check \"dist-assets/binaries\" for build details!"
         fi
+
+        # Tell jemalloc to use 64KiB page size on ARM Linux.
+        #
+        # Jemalloc needs to be compiled with a page size that is >= to the page size of the
+        # system it's running on. Page size is 4KiB, except on ARM where it's configurable.
+        # 64KiB seems like a good upper limit.
+        case $current_target in
+            aarch64-unknown-linux-gnu) cargo_env+=(JEMALLOC_SYS_WITH_LG_PAGE="16");; # 2^16 == 64KiB
+        esac
+
     fi
 
-    cargo build "${cargo_target_arg[@]}" "${cargo_features[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
+    env "${cargo_env[@]}" cargo build "${cargo_target_arg[@]}" "${cargo_features[@]}" "${CARGO_ARGS[@]}" "${cargo_crates_to_build[@]}"
 
     ################################################################################
     # Move binaries to correct locations in dist-assets
