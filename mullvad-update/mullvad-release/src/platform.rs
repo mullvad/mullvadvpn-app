@@ -95,8 +95,10 @@ impl Platform {
                 arm64_artifacts: vec![],
             },
             Platform::Macos => Artifacts {
-                x86_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}.pkg"))],
-                arm64_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}.pkg"))],
+                x86_artifacts: vec![artifacts_dir.join(format!("MullvadVPN-{version}_x86_64.pkg"))],
+                arm64_artifacts: vec![
+                    artifacts_dir.join(format!("MullvadVPN-{version}_arm64.pkg")),
+                ],
             },
         }
     }
