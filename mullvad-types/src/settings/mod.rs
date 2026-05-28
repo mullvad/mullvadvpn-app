@@ -181,7 +181,6 @@ impl TryFrom<&RelaySettings> for Recent {
                             exit: location,
                         }
                     }
-                    // TODO: Check if this is correct
                     Multihop::Never | Multihop::Auto => Recent::Singlehop(location),
                 };
 
