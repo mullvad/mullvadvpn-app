@@ -169,7 +169,7 @@ jobs:
 
   notify-on-failure:
     if: failure() && github.event_name == 'pull_request'
-    name: Notify team on failure(if PR related)
+    name: Notify team on failure (if PR related)
     runs-on: [self-hosted, macOS, ios-test]
     needs: test
     timeout-minutes: 5
