@@ -75,7 +75,13 @@ function build {
     CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
     ./building/containerized-build.sh android "$task" || return 1
 
-    mv dist/*.{aab,apk} "$artifact_dir" || return 1
+    # Merge the per-flavor JVM SBOMs (produced by the build above) with the
+    # native Rust SBOM into reproducible release SBOMs in dist/.
+    CARGO_TARGET_VOLUME_NAME="cargo-target-android" \
+    CARGO_REGISTRY_VOLUME_NAME="cargo-registry-android" \
+    ./building/container-run.sh android bash android/scripts/generate-sbom.sh || return 1
+
+    mv dist/*.{aab,apk,sbom.cdx.json} "$artifact_dir" || return 1
 }
 
 # Checks out the passed git reference passed to the working directory.
