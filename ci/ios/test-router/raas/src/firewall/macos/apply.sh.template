@@ -1,0 +1,21 @@
+set -eu
+
+# Load the anchor rules first, as pfctl does not support
+# adding new anchors and rules in one go
+
+echo Applying anchors
+pfctl -D anchor_name="$ANCHOR_NAME" -f - <<'EOF'
+{{ANCHORS}}
+EOF
+
+# Load the rules under the anchor
+pfctl -a "$ANCHOR_NAME" \
+  -D sink_utun="$SINK_UTUN" \
+  -D source_utun="$SOURCE_UTUN" \
+  -D wan_if="$WAN_IF" \
+  -f - <<'EOF'
+{{RULES}}
+EOF
+
+pfctl -e || true
+
