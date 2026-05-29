@@ -40,17 +40,17 @@ async fn delete_old_captures_inner(dir: &Path) -> std::io::Result<()> {
 //
 async fn should_delete_capture_file(path: &Path) -> bool {
     // Check if the file name is a valid UUID
-    if let Some(file_name) = path.file_name().and_then(|name| name.to_str()) {
-        if Uuid::parse_str(file_name).is_ok() {
-            // Check the file's metadata
-            let Some(metadata) = fs::metadata(&path).await.ok() else {
-                return false;
-            };
-            if let Ok(modified_time) = metadata.modified() {
-                // Calculate the elapsed time since the file was modified
-                if let Ok(duration) = modified_time.elapsed() {
-                    return duration > ONE_DAY;
-                }
+    if let Some(file_name) = path.file_name().and_then(|name| name.to_str())
+        && Uuid::parse_str(file_name).is_ok()
+    {
+        // Check the file's metadata
+        let Some(metadata) = fs::metadata(&path).await.ok() else {
+            return false;
+        };
+        if let Ok(modified_time) = metadata.modified() {
+            // Calculate the elapsed time since the file was modified
+            if let Ok(duration) = modified_time.elapsed() {
+                return duration > ONE_DAY;
             }
         }
     }
