@@ -25,20 +25,20 @@ class CustomListsDataSourceTests: XCTestCase {
         let nodes = dataSource.nodes
 
         let netflixNode = try XCTUnwrap(nodes.first(where: { $0.name == "Netflix" }))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["Netflix", "es1-wireguard"]))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["Netflix", "se"]))
-        XCTAssertNotNil(netflixNode.descendantNodeFor(codes: ["Netflix", "us", "dal"]))
+        XCTAssertNotNil(netflixNode.descendantNode(for: ["Netflix", "es1-wireguard"]))
+        XCTAssertNotNil(netflixNode.descendantNode(for: ["Netflix", "se"]))
+        XCTAssertNotNil(netflixNode.descendantNode(for: ["Netflix", "us", "dal"]))
 
         let youtubeNode = try XCTUnwrap(nodes.first(where: { $0.name == "Youtube" }))
-        XCTAssertNotNil(youtubeNode.descendantNodeFor(codes: ["Youtube", "se2-wireguard"]))
-        XCTAssertNotNil(youtubeNode.descendantNodeFor(codes: ["Youtube", "us", "dal"]))
+        XCTAssertNotNil(youtubeNode.descendantNode(for: ["Youtube", "se2-wireguard"]))
+        XCTAssertNotNil(youtubeNode.descendantNode(for: ["Youtube", "us", "dal"]))
     }
 
     func testParents() throws {
         let listNode = try XCTUnwrap(dataSource.nodes.first(where: { $0.name == "Netflix" }))
-        let countryNode = try XCTUnwrap(listNode.descendantNodeFor(codes: ["Netflix", "se"]))
-        let cityNode = try XCTUnwrap(listNode.descendantNodeFor(codes: ["Netflix", "se", "got"]))
-        let hostNode = try XCTUnwrap(listNode.descendantNodeFor(codes: ["Netflix-se10-wireguard"]))
+        let countryNode = try XCTUnwrap(listNode.descendantNode(for: ["Netflix", "se"]))
+        let cityNode = try XCTUnwrap(listNode.descendantNode(for: ["Netflix", "se", "got"]))
+        let hostNode = try XCTUnwrap(listNode.descendantNode(for: ["Netflix-se10-wireguard"]))
 
         XCTAssertNil(listNode.parent)
         XCTAssertEqual(countryNode.parent, listNode)
@@ -49,7 +49,7 @@ class CustomListsDataSourceTests: XCTestCase {
     func testSearch() throws {
         let result = dataSource.search(by: "got")
         let rootNode = RootLocationNode(children: result)
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["Netflix", "se", "got"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["Netflix", "se", "got"]))
     }
 
     func testSearchWithEmptyText() throws {
@@ -74,7 +74,7 @@ class CustomListsDataSourceTests: XCTestCase {
         )
 
         let nodeByLocations = dataSource.node(by: .only(relays))
-        let nodeByCode = dataSource.nodes.first?.descendantNodeFor(codes: ["Netflix", "es1-wireguard"])
+        let nodeByCode = dataSource.nodes.first?.descendantNode(for: ["Netflix", "es1-wireguard"])
 
         XCTAssertEqual(nodeByLocations, nodeByCode)
     }

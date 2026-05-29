@@ -14,15 +14,8 @@ protocol SearchableLocationDataSource: LocationDataSourceProtocol {}
 
 protocol LocationDataSourceProtocol {
     var nodes: [LocationNode] { get }
-    var selectedNode: LocationNode? { get }
+    var selectedNode: LocationNode? { get set }
     func node(by selectedConstraint: RelayConstraint<UserSelectedRelays>) -> LocationNode?
-}
-extension LocationDataSourceProtocol {
-    var selectedNode: LocationNode? {
-        nodes
-            .flatMap { $0.flattened + [$0] }
-            .first { $0.isSelected }
-    }
 }
 
 extension SearchableLocationDataSource {
@@ -155,75 +148,92 @@ extension LocationDataSourceProtocol {
         nodes.forEachNode { node in
             node.isExcluded = false
 
-            let nodeHosts = node.activeRelayNodes
-            if (nodeHosts.count == 1) && (nodeHosts.first?.name == hostname) {
-                node.isExcluded = true
+            guard node.isActive else {
+                return
             }
+
+            let rootNode =
+                if node is CustomListLocationNode {
+                    // Since custom list nodes contain a copy of the node tree, remove self to avoid
+                    // duplicates in the result.
+                    RootLocationNode(children: node.children)
+                } else {
+                    node
+                }
+
+            let nodeHosts = rootNode.flattened.filter {
+                return if case .hostname = $0.locations.first, $0.isActive {
+                    true
+                } else {
+                    false
+                }
+            }
+
+            node.isExcluded = (nodeHosts.count == 1) && (nodeHosts.first?.name == hostname)
         }
     }
 
-    func setSelectedNode(constraint: RelayConstraint<UserSelectedRelays>) {
-        nodes.forEachNode { node in
-            node.isSelected = false
-        }
+    func setSelectedNode(constraint: RelayConstraint<UserSelectedRelays>) -> LocationNode? {
+        // Although multiple equivalent nodes can be selected at the same time, we only need
+        // the reference of one. Thus, the last one to be selected in the loop below will suffice.
+        var selectedNode: LocationNode?
 
-        let selectedNode = node(by: constraint)
-        selectedNode?.isSelected = true
-    }
-
-    func expandSelection() {
         nodes.forEachNode { node in
+            // To determine if locations match.
+            let nodeLocations = node.userSelectedRelays.locations
+            let constraintLocations = constraint.value?.locations
+
+            // To determine if custom lists match.
+            let nodeCustomListSelection = node.userSelectedRelays.customListSelection
+            let constraintCustomListSelection = constraint.value?.customListSelection
+
+            let locationsMatch = nodeLocations == constraintLocations
+            node.isSelected =
+                if constraintLocations?.count == 0 {
+                    // Empty constraint locations can happen when a custom list is removed.
+                    false
+                } else if constraint == .any {
+                    // If using an automatic location we should check for a corresponding node.
+                    node is AutomaticLocationNode
+                } else if let nodeCustomListSelection {
+                    // If the selection is a custom list, or in one, we should check for matching locations there.
+                    locationsMatch && (nodeCustomListSelection == constraintCustomListSelection)
+                } else {
+                    // Otherwise we simply check for generally matching locations not part of any custom list.
+                    locationsMatch && (constraintCustomListSelection == nil)
+                }
+
             if node.isSelected {
                 node.forEachAncestor { $0.showsChildren = true }
+                selectedNode = node
             }
         }
-    }
 
-    func descendantNode(
-        in rootNode: LocationNode,
-        for location: RelayLocation,
-        baseCodes: [String]
-    ) -> LocationNode? {
-        let descendantNodeFor: ([String]) -> LocationNode? = { codes in
-            return switch location {
-            case let .country(countryCode):
-                rootNode.descendantNodeFor(codes: codes + [countryCode])
-            case let .city(countryCode, cityCode):
-                rootNode.descendantNodeFor(codes: codes + [countryCode, cityCode])
-            case let .hostname(_, _, hostCode):
-                rootNode.descendantNodeFor(codes: codes + [hostCode])
-            }
-        }
-        return descendantNodeFor(baseCodes)
+        return selectedNode
     }
 
     /// Efficiently collects codes of all nodes that have showsChildren = true.
     func collectExpandedCodes() -> Set<String> {
         var codes = Set<String>()
 
-        for node in self.nodes {
-            if node.showsChildren {
-                codes.insert(node.code)
-                node.forEachDescendant { child in
-                    if child.showsChildren {
-                        codes.insert(child.code)
-                    }
+        for node in nodes where node.showsChildren {
+            codes.insert(node.code)
+
+            node.forEachDescendant { child in
+                if child.showsChildren {
+                    codes.insert(child.code)
                 }
             }
         }
+
         return codes
     }
 }
+
 private struct NodeResult {
     let node: LocationNode
     let score: SearchScore
     let matchedSelf: Bool
     let bestMatchIsSelf: Bool
     let matchedChildren: [NodeResult]
-}
-
-extension Array where Element == LocationDataSourceProtocol {
-    var firstSelectedNode: LocationNode? {
-        return compactMap(\.selectedNode).first
-    }
 }

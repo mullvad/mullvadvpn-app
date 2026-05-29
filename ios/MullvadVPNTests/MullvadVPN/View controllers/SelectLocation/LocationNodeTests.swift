@@ -89,7 +89,7 @@ class LocationNodeTests: XCTestCase {
     }
 
     func testFindDescendantByNodeCode() {
-        XCTAssertTrue(listNode.descendantNodeFor(codes: [hostNode.code]) == hostNode)
+        XCTAssertTrue(listNode.descendantNode(for: [hostNode.code]) == hostNode)
     }
 }
 
