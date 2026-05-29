@@ -22,6 +22,7 @@ use mullvad_types::{
     relay_constraints::{AllowedIps, ObfuscationSettings, RelayOverride, RelaySettings},
     relay_list::BridgeList,
     settings::DnsOptions,
+    version::AppUpgradeEvent,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 use std::net::IpAddr;
@@ -671,6 +672,31 @@ impl MullvadProxyClient {
         let listener = self.0.log_listen(()).await?.into_inner();
 
         Ok(listener.map(|item| Ok(item?.message)))
+    }
+
+    pub async fn app_upgrade(&mut self) -> Result<()> {
+        self.0.app_upgrade(()).await?;
+        Ok(())
+    }
+
+    pub async fn app_upgrade_abort(&mut self) -> Result<()> {
+        self.0.app_upgrade_abort(()).await?;
+        Ok(())
+    }
+
+    pub async fn app_upgrade_events_listen<'a>(
+        &mut self,
+    ) -> Result<impl Stream<Item = Result<AppUpgradeEvent>> + 'a> {
+        let listener = self.0.app_upgrade_events_listen(()).await?.into_inner();
+        Ok(
+            listener
+                .map(|evt| Ok(AppUpgradeEvent::try_from(evt?).map_err(Error::InvalidResponse)?)),
+        )
+    }
+
+    pub async fn get_app_upgrade_cache_dir(&mut self) -> Result<String> {
+        let dir = self.0.get_app_upgrade_cache_dir(()).await?.into_inner();
+        Ok(dir)
     }
 }
 
