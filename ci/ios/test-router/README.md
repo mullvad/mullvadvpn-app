@@ -1,5 +1,59 @@
 # Router setup
-## Installing on a new router/computer
+## How to use `RAAS` on a developer machine
+
+> **Attention**: For safety, the binary must be built, moved to folder and marked as owned by `root`.
+> Executing `cargo` with `sudo` directly is **not** considered safe.
+
+### Installing
+If you have `nix` installed, execute `nix profile install .#raas`.
+
+Otherwise:
+
+1. Build raas
+2. Install it into `.local/bin` and `chown`/`chmod` to the root user
+
+    - You can substitute `.local/bin` with another folder that is on your path
+
+3. Mark the binary as immutable by the user
+
+    > User immutable: file cannot be changed, renamed, or deleted, even by the owner. Can be removed by the owner.
+
+```sh
+export INSTALL_PATH="$HOME/.local/bin"
+cd raas
+cargo build
+sudo install -o root -g wheel -m 755 target/debug/raas "$INSTALL_PATH"
+sudo chflags uchg "$INSTALL_PATH/raas"
+sudo -k
+```
+
+> **Attention**: If you later want to update `raass`, use `sudo chflags nouchg "$INSTALL_PATH"` prior to the `install` step to unmark it
+    as such.
+
+### Executing
+
+#### MacOS
+Both the machine running `raas` and the device under test are expected to be on the same network.
+On MacOS, `raas` takes 1 parameter: the address on which to listen. This includes IP and port, meaning something like:
+
+```sh
+# Use the IP reachable by your mobile device
+sudo raas 192.168.0.2:80
+```
+
+On the device under test, use the IP you used in the above command as the device's gateway.
+After that, you are ready to execute the end-to-end tests locally 🎉.
+
+#### On iPhone:
+- Go to `Settings > Wi-Fi`
+- Tap the network information icon
+  - Observe your current configuration
+- Navigate to `Configure IP` and choose `Manual`
+  1. Enter the correct information for your network
+  2. Enter your laptop's IP into the `Router` field
+- Save and apply
+
+## How-to to configure `RAAS` on a new router/computer
 - Obtain an x86 computer with 2 ethernet interfaces.
 - Install NixOS on the hardware following the [NixOS installation guide]
 - Copy the generated `/etc/nixos/hardware-config.nix` file to the flake repo, add it to git.
