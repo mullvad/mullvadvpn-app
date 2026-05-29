@@ -4,6 +4,7 @@ import { messages } from '../../../../../../shared/gettext';
 import { RoutePath } from '../../../../../../shared/routes';
 import { DisableRecentsDialog } from '../../../../../features/locations/components';
 import { useRecents } from '../../../../../features/locations/hooks';
+import { useMultihop } from '../../../../../features/multihop/hooks';
 import { Menu, type MenuProps } from '../../../../../lib/components/menu';
 import { useHistory } from '../../../../../lib/history';
 
@@ -12,6 +13,7 @@ export type HeaderMenuProps = MenuProps;
 export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   const history = useHistory();
   const { hasRecents, setEnabledRecents } = useRecents();
+  const { multihop, setMultihop } = useMultihop();
   const navigateToFilter = React.useCallback(() => history.push(RoutePath.filter), [history]);
 
   const [disableRecentsDialogOpen, setDisableRecentsDialogOpen] = React.useState(false);
@@ -26,6 +28,11 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
     onOpenChange?.(false);
   }, [onOpenChange, setEnabledRecents]);
 
+  const toggleMultihop = React.useCallback(async () => {
+    await setMultihop(!multihop);
+    onOpenChange?.(false);
+  }, [multihop, onOpenChange, setMultihop]);
+
   return (
     <>
       <Menu onOpenChange={onOpenChange} {...props}>
@@ -35,6 +42,20 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
               <Menu.Option.Item>
                 <Menu.Option.Item.Icon icon="filter" />
                 <Menu.Option.Item.Label>{messages.gettext('Filters')}</Menu.Option.Item.Label>
+              </Menu.Option.Item>
+            </Menu.Option.Trigger>
+          </Menu.Option>
+          <Menu.Option>
+            <Menu.Option.Trigger onClick={toggleMultihop}>
+              <Menu.Option.Item>
+                <Menu.Option.Item.Icon icon="location-add" />
+                <Menu.Option.Item.Label>
+                  {multihop
+                    ? // TRANSLATORS: Used in button to disable multihop.
+                      messages.pgettext('select-location-view', 'Disable multihop')
+                    : // TRANSLATORS: Used in button to enable multihop.
+                      messages.pgettext('select-location-view', 'Enable multihop')}
+                </Menu.Option.Item.Label>
               </Menu.Option.Item>
             </Menu.Option.Trigger>
           </Menu.Option>
