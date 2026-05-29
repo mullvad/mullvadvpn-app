@@ -83,6 +83,7 @@ ${JAVA_HOME}/bin\
 RUN apt-get update -y && apt-get install -y \
     file \
     gpg \
+    jq \
     make \
     python \
     software-properties-common \
@@ -129,6 +130,16 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
 
 # Add rust targets
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
+
+ARG CARGO_CYCLONEDX_VERSION=0.5.9
+RUN cargo install --locked cargo-cyclonedx --version ${CARGO_CYCLONEDX_VERSION}
+
+ARG CYCLONEDX_CLI_VERSION=0.32.0
+ARG CYCLONEDX_CLI_SHA256=454879e6a4a405c8a13bff49b8982adcb0596f3019b26b0811c66e4d7f0783e1
+RUN curl -sfLo /usr/local/bin/cyclonedx \
+        "https://github.com/CycloneDX/cyclonedx-cli/releases/download/v${CYCLONEDX_CLI_VERSION}/cyclonedx-linux-x64" && \
+    echo "${CYCLONEDX_CLI_SHA256}  /usr/local/bin/cyclonedx" | sha256sum -c && \
+    chmod +x /usr/local/bin/cyclonedx
 
 # Install yubico-piv-tool (by building from source)
 #
