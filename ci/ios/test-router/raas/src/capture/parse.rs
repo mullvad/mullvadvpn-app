@@ -251,3 +251,38 @@ fn packet_ports(payload: &[u8], transport_protocol: TransportProtocol) -> Option
         _ => Some((0, 0)),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::net::Ipv4Addr;
+
+    use super::*;
+
+    #[test]
+    fn test_peer_ip_check_matches_with_one_peer() {
+        let target = IpAddr::V4(Ipv4Addr::new(192, 0, 0, 1));
+        let instance = ParsedConnections::new(BTreeSet::<IpAddr>::from([target]));
+
+        assert!(instance.ip_matches_peer(target));
+    }
+
+    #[test]
+    fn test_peer_ip_check_matches_with_multiple_peers() {
+        let target = IpAddr::V4(Ipv4Addr::new(192, 0, 0, 1));
+        let instance = ParsedConnections::new(BTreeSet::<IpAddr>::from([
+            IpAddr::V4(Ipv4Addr::new(192, 168, 0, 1)),
+            target,
+            IpAddr::V4(Ipv4Addr::new(172, 0, 0, 1)),
+        ]));
+
+        assert!(instance.ip_matches_peer(target));
+    }
+
+    #[test]
+    fn test_ip_check_fails_when_not_in_peer_list() {
+        let target = IpAddr::V4(Ipv4Addr::new(192, 0, 0, 1));
+        let instance = ParsedConnections::new(BTreeSet::<IpAddr>::new());
+
+        assert!(instance.ip_matches_peer(target) == false);
+    }
+}
