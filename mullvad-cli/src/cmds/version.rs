@@ -28,6 +28,7 @@ pub async fn print() -> Result<()> {
 
     if let Some(suggested_upgrade) = version_info.suggested_upgrade {
         println!("{:22}: {}", "Suggested upgrade", suggested_upgrade.version);
+        println!("Update available!");
     } else {
         println!("{:22}: none", "Suggested upgrade");
     }

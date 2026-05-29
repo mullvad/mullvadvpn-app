@@ -21,6 +21,8 @@ pub mod split_tunnel;
 pub mod status;
 pub mod tunnel;
 pub mod tunnel_state;
+#[cfg(any(target_os = "macos", target_os = "windows"))]
+pub mod update;
 pub mod version;
 
 /// A value parser that parses "on" or "off" into a boolean

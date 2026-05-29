@@ -105,6 +105,10 @@ enum Cli {
     #[clap(subcommand)]
     Tunnel(tunnel::Tunnel),
 
+    /// Update to the latest version.
+    // TODO: Arguments. download only. install
+    Update,
+
     /// Show information about the current Mullvad version
     /// and available versions
     Version,
@@ -177,6 +181,8 @@ async fn main() -> Result<()> {
         Cli::Lan(cmd) => cmd.handle().await,
         Cli::AntiCensorship(cmd) => cmd.handle().await,
         Cli::ApiAccess(cmd) => cmd.handle().await,
+        #[cfg(any(target_os = "macos", target_os = "windows"))]
+        Cli::Update => update::update().await,
         Cli::Version => version::print().await,
         Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
         Cli::ResetSettings { assume_yes } => reset::handle_settings_reset(assume_yes).await,

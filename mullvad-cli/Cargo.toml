@@ -22,6 +22,7 @@ anyhow = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 futures = { workspace = true }
+indicatif = "0.18.4"
 itertools = { workspace = true }
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
@@ -31,7 +32,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
-tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread"] }
+tokio = { workspace = true, features = ["fs", "macros", "rt-multi-thread", "process"] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
 clap_complete = { version = "4.4.8" }
