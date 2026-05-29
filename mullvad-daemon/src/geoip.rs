@@ -13,7 +13,7 @@ use crate::DaemonEventSender;
 // Define the Mullvad connection checking api endpoint.
 //
 // In a development build the host name for the connection checking endpoint can
-// be overriden by defining the env variable `MULLVAD_CONNCHECK_HOST`.
+// be overridden by defining the env variable `MULLVAD_CONNCHECK_HOST`.
 //
 // If `MULLVAD_CONNCHECK_HOST` is set when running `mullvad-daemon` in a
 // production build, a warning will be logged and the env variable *won´t* have
