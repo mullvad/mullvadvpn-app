@@ -60,5 +60,4 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
             viewController.navigationItem.rightBarButtonItem = doneButton
         }
     }
-
 }
