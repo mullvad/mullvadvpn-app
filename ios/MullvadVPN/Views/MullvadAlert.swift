@@ -143,10 +143,12 @@ struct AlertModifier: ViewModifier {
                     }
                 }
                 customView
-            }.sizeOfView { size in
+            }
+            .sizeOfView { size in
                 scrollViewHeight = size.height
             }
         }
+        .contentMargins(0, for: .scrollContent)
         .frame(maxHeight: scrollViewHeight)
     }
 

@@ -274,9 +274,6 @@
     <string name="loading_products">Laster inn produkter</string>
     <string name="loading_verifying">Bekrefter kjøp ...</string>
     <string name="local_network_sharing">Deling over lokalt nettverk</string>
-    <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
-    <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
-    <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>
     <string name="location_added">%1$s (lagt til)</string>
     <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
     <string name="location_was_removed_from_list">%1$s ble fjernet fra «%2$s»</string>
@@ -423,7 +420,6 @@
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-tilgang</string>
-    <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
     <string name="settings_notifications">Meldinger</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ugyldig eller mangler verdien «%1$s»</string>

@@ -7,6 +7,7 @@ import mullvad_daemon.relay_selector.RelaySelector
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
+import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
@@ -216,10 +217,6 @@ internal fun ApiAccessMethod.fromDomain(): ManagementInterface.AccessMethod =
                     it.setEncryptedDnsProxy(
                         ManagementInterface.AccessMethod.EncryptedDnsProxy.getDefaultInstance()
                     )
-                is ApiAccessMethod.DomainFronting ->
-                    it.setDomainFronting(
-                        ManagementInterface.AccessMethod.DomainFronting.getDefaultInstance()
-                    )
             }
         }
         .build()
@@ -247,7 +244,7 @@ internal fun SocksAuth.fromDomain(): ManagementInterface.SocksAuth =
 internal fun ApiAccessMethod.CustomProxy.Shadowsocks.fromDomain(): ManagementInterface.Shadowsocks =
     ManagementInterface.Shadowsocks.newBuilder()
         .setIp(ip)
-        .setCipher(cipher.label)
+        .setCipher(cipher.fromDomain())
         .setPort(port.value)
         .let {
             if (password != null) {
@@ -363,3 +360,6 @@ internal fun RelayItemId.fromDomain(): ManagementInterface.LocationConstraint =
             }
         }
         .build()
+
+internal fun Cipher.fromDomain(): ManagementInterface.Shadowsocks.Cipher =
+    ManagementInterface.Shadowsocks.Cipher.newBuilder().setName(value).build()

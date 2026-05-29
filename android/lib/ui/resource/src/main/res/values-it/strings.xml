@@ -274,9 +274,6 @@
     <string name="loading_products">Caricamento prodotti</string>
     <string name="loading_verifying">Verifica dell\'acquisto...</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
-    <string name="local_network_sharing_additional_info">Lo fa consentendo la comunicazione di rete al di fuori del tunnel verso intervalli multicast e broadcast locali, nonché da e verso questi intervalli IP privati:</string>
-    <string name="local_network_sharing_info">Questa funzione consente l\'accesso ad altri dispositivi sulla rete locale, ad esempio per la condivisione, la stampa, lo streaming, ecc.</string>
-    <string name="local_network_sharing_info_block_connections_warning">Attenzione: se è abilitato \"Blocca connessioni senza VPN\", \"Condivisione rete locale\" non funzionerà.</string>
     <string name="location_added">%1$s (aggiunto)</string>
     <string name="location_was_added_to_list">Aggiunta di %1$s a \"%2$s\"</string>
     <string name="location_was_removed_from_list">Rimozione di %1$s da \"%2$s\"</string>
@@ -423,7 +420,6 @@
     <string name="settings">Impostazioni</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">Accesso API</string>
-    <string name="settings_changes_effect_warning_short">Le impostazioni DNS potrebbero non avere effetto immediato</string>
     <string name="settings_notifications">Notifiche</string>
     <string name="settings_patch_error_failed_to_apply_patch">Impossibile applicare la patch</string>
     <string name="settings_patch_error_invalid_or_missing_value">Valore \"%1$s\" non valido o mancante</string>

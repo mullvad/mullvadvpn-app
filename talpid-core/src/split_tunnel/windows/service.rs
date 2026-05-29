@@ -17,7 +17,10 @@ const SPLIT_TUNNEL_SERVICE: &str = "mullvad-split-tunnel";
 const SPLIT_TUNNEL_DISPLAY_NAME: &str = "Mullvad Split Tunnel Service";
 const DRIVER_FILENAME: &str = "mullvad-split-tunnel.sys";
 
-const WAIT_STATUS_TIMEOUT: Duration = Duration::from_secs(8);
+// TODO: Starting 'mullvad-split-tunnel' can take some time during boot. So we need a very
+// generous timeout here. It might make sense to redesign split tunneling to not block the rest
+// of the tunnel state machine from starting up, especially if split tunneling is disabled.
+pub const WAIT_STATUS_TIMEOUT: Duration = Duration::from_mins(2);
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -156,16 +159,26 @@ fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
 fn start_and_wait_for_service(service: &Service) -> Result<(), Error> {
     log::debug!("Starting split tunnel service");
 
-    if let Err(error) = service.start::<&OsStr>(&[]) {
-        if let windows_service::Error::Winapi(error) = &error
-            && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32)
-        {
-            return Ok(());
+    match service.start::<&OsStr>(&[]) {
+        Ok(()) => {
+            log::debug!("Split tunnel service start pending");
         }
-        return Err(Error::StartService(error));
+        Err(error)
+            if let windows_service::Error::Winapi(error) = &error
+                && error.raw_os_error() == Some(ERROR_SERVICE_ALREADY_RUNNING as i32) =>
+        {
+            // Service started, but we don't know if its state is yet "running"
+            // (never mind what the error is called).
+            log::debug!("Split tunnel service already started. Checking state");
+        }
+        Err(error) => return Err(Error::StartService(error)),
     }
 
-    wait_for_status(service, ServiceState::Running)
+    wait_for_status(service, ServiceState::Running)?;
+
+    log::debug!("Split tunnel service started");
+
+    Ok(())
 }
 
 fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), Error> {
@@ -181,7 +194,7 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
             return Err(Error::StartTimeout);
         }
 
-        std::thread::sleep(std::time::Duration::from_secs(1));
+        std::thread::sleep(std::time::Duration::from_millis(250));
     }
 
     Ok(())

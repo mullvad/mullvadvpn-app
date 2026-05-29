@@ -33,8 +33,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.cancel
-import net.mullvad.mullvadvpn.common.compose.LocalSharedTransitionScope
-import net.mullvad.mullvadvpn.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -59,6 +57,7 @@ import net.mullvad.mullvadvpn.feature.dns.impl.navigation.dnsSettingsEntry
 import net.mullvad.mullvadvpn.feature.filter.impl.navigation.filterEntry
 import net.mullvad.mullvadvpn.feature.home.impl.navigation.homeEntry
 import net.mullvad.mullvadvpn.feature.language.impl.navigation.languageEntry
+import net.mullvad.mullvadvpn.feature.lansharing.impl.navigation.localNetworkSharingEntry
 import net.mullvad.mullvadvpn.feature.location.impl.navigation.selectLocationEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.deviceListEntry
 import net.mullvad.mullvadvpn.feature.login.impl.devicelist.navigation.removeDeviceConfirmationDialogEntry
@@ -72,6 +71,8 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.impl.navigation.serverIpO
 import net.mullvad.mullvadvpn.feature.settings.impl.navigation.settingsEntry
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.navigation.splitTunnelingEntry
 import net.mullvad.mullvadvpn.feature.vpnsettings.impl.navigation.vpnSettingsEntry
+import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
+import net.mullvad.mullvadvpn.lib.common.compose.accessibilityDataSensitive
 import net.mullvad.mullvadvpn.screen.navigation.NoDaemonNavKey
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.navigation.noDaemonEntry
@@ -135,6 +136,7 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
         deviceListEntry(nav3)
         filterEntry(nav3)
         homeEntry(nav3)
+        localNetworkSharingEntry(nav3)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             languageEntry(nav3)
         }

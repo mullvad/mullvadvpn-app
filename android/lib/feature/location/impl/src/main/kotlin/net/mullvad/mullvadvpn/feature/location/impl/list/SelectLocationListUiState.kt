@@ -6,4 +6,5 @@ import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 data class SelectLocationListUiState(
     val relayListType: RelayListType,
     val relayListItems: List<RelayListItem>,
+    val recentsEnabled: Boolean,
 )

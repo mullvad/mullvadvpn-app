@@ -687,7 +687,6 @@ internal fun ManagementInterface.ApiAccessMethodSettings.toDomain(): List<ApiAcc
         add(direct.toDomain())
         add(mullvadBridges.toDomain())
         add(encryptedDnsProxy.toDomain())
-        add(domainFronting.toDomain())
         addAll(customList.map { it.toDomain() })
     }
 
@@ -705,7 +704,6 @@ internal fun ManagementInterface.AccessMethod.toDomain(): ApiAccessMethod =
         hasBridges() -> ApiAccessMethod.Bridges
         hasEncryptedDnsProxy() -> ApiAccessMethod.EncryptedDns
         hasCustom() -> custom.toDomain()
-        hasDomainFronting() -> ApiAccessMethod.DomainFronting
         else -> error("Type not found")
     }
 
@@ -722,7 +720,7 @@ internal fun ManagementInterface.Shadowsocks.toDomain(): ApiAccessMethod.CustomP
         ip = ip,
         port = Port(port),
         password = password,
-        cipher = Cipher.fromString(cipher),
+        cipher = Cipher(cipher.name),
     )
 
 internal fun ManagementInterface.Socks5Remote.toDomain(): ApiAccessMethod.CustomProxy.Socks5Remote =
@@ -743,7 +741,7 @@ internal fun ManagementInterface.SocksAuth.toDomain(): SocksAuth =
 internal fun ManagementInterface.FeatureIndicators.toDomain(): List<FeatureIndicator> =
     activeFeaturesList.map { it.toDomain() }.sorted()
 
-@Suppress("ComplexMethod")
+@Suppress("CyclomaticComplexMethod")
 internal fun ManagementInterface.FeatureIndicator.toDomain() =
     when (this) {
         ManagementInterface.FeatureIndicator.QUANTUM_RESISTANCE ->
@@ -818,3 +816,7 @@ internal fun RelaySelector.IncompatibleConstraints.toDomain() =
         port = port,
         conflictWithOtherHop = conflictWithOtherHop,
     )
+
+internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.map {
+    Cipher(it.name)
+}

@@ -1,3 +1,5 @@
+use std::net::SocketAddr;
+
 use super::{Error, Result};
 use mullvad_types::{
     constraints::Constraint,
@@ -235,18 +237,23 @@ fn migrate_bridge_settings(settings: &mut serde_json::Value) -> Result<()> {
         .and_then(|bridge_settings| bridge_settings.get_mut("custom"))
         .and_then(|bridge_settings_custom| bridge_settings_custom.get_mut("shadowsocks"))
     {
+        let shadowsocks = {
+            let endpoint = extract_str(custom_bridge_shadowsocks.get("peer"))?
+                .parse::<SocketAddr>()
+                .map_err(|_| Error::InvalidSettingsContent)?;
+            let cipher =
+                extract_str(custom_bridge_shadowsocks.get("cipher")).and_then(|cipher| {
+                    ShadowsocksCipher::new(cipher).or(Err(Error::InvalidSettingsContent))
+                })?;
+            let password = extract_str(custom_bridge_shadowsocks.get("password"))?.to_string();
+
+            Shadowsocks::new(endpoint, cipher, password)
+        };
+
         NewBridgeSettings {
             bridge_type: BridgeType::Custom,
             normal: BridgeConstraints::default(),
-            custom: Some(CustomProxy::Shadowsocks(Shadowsocks {
-                endpoint: extract_str(custom_bridge_shadowsocks.get("peer"))?
-                    .parse()
-                    .map_err(|_| Error::InvalidSettingsContent)?,
-                password: extract_str(custom_bridge_shadowsocks.get("password"))?.to_string(),
-                cipher: extract_str(custom_bridge_shadowsocks.get("cipher")).and_then(
-                    |cipher| ShadowsocksCipher::new(cipher).or(Err(Error::InvalidSettingsContent)),
-                )?,
-            })),
+            custom: Some(CustomProxy::Shadowsocks(shadowsocks)),
         }
     } else if let Some(normal_bridge) = settings
         .get_mut("bridge_settings")

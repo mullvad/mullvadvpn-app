@@ -18,8 +18,17 @@ fun ZonedDateTime.toExpiryDateString(): String =
         // where this exception is thrown, so fall back to ISO_LOCAL_DATE_TIME.
         // See: droid-2142
         Logger.e("Error formatting date with default locale: $e")
-        DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(this)
+        fallbackDateFormat()
+    } catch (e: IllegalArgumentException) {
+        // Fix date crash on android 9-11 using burmese locale.
+        // See: https://bugs.openjdk.org/browse/JDK-8209047
+        // We will fall back to ISO_LOCAL_DATE_TIME.
+        Logger.e("Error formatting date with default locale: $e")
+        fallbackDateFormat()
     }
+
+private fun ZonedDateTime.fallbackDateFormat(): String =
+    DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(this)
 
 fun ZonedDateTime.millisFromNow(): Long = Duration.between(ZonedDateTime.now(), this).toMillis()
 

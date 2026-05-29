@@ -35,14 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.common.compose.goBack
-import net.mullvad.mullvadvpn.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.goBack
+import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
@@ -167,8 +167,6 @@ fun AddTimeBottomSheetContent(
             closeBottomSheet(false)
         },
         shouldDismissOnClickOutside =
-            state is Lc.Content && state.value.purchaseState != PurchaseState.VerificationStarted,
-        shouldDismissOnBackPress =
             state is Lc.Content && state.value.purchaseState != PurchaseState.VerificationStarted,
     ) {
         when (state) {

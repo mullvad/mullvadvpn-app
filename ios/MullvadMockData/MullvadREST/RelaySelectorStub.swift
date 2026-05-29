@@ -36,7 +36,8 @@ public final class RelaySelectorStub: @unchecked Sendable, RelaySelectorProtocol
     }
 
     public func findCandidates(
-        tunnelSettings: LatestTunnelSettings
+        tunnelSettings: LatestTunnelSettings,
+        includeInactive: Bool
     ) throws -> RelayCandidates {
         return try candidatesResult?() ?? RelayCandidates(entryRelays: [], exitRelays: [])
     }

@@ -1,4 +1,5 @@
 use crate::net::Endpoint;
+use safelog::Sensitive;
 use serde::{Deserialize, Serialize};
 use std::{fmt, net::SocketAddr, str::FromStr};
 
@@ -86,7 +87,7 @@ impl From<Shadowsocks> for CustomProxy {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct Shadowsocks {
     pub endpoint: SocketAddr,
-    pub password: String,
+    password: Sensitive<String>,
     pub cipher: ShadowsocksCipher,
 }
 
@@ -95,7 +96,7 @@ pub struct Shadowsocks {
 /// A [ShadowsocksCipher] constructed via [ShadowsocksCipher::new] is guaranteed to:
 /// - Hnfallibly convert into a [shadowsocks_crypto::CipherKind].
 /// - Have the same string representation as [shadowsocks_crypto::CipherKind].
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, PartialEq, Eq, Hash)]
 pub struct ShadowsocksCipher(String);
 
 impl ShadowsocksCipher {
@@ -113,6 +114,46 @@ impl ShadowsocksCipher {
 
     pub fn list() -> &'static [&'static str] {
         shadowsocks_crypto::available_ciphers()
+    }
+
+    /// Return all unique Shadowsocks ciphers.
+    ///
+    /// Some ciphers from [`ShadowsocksCipher::list`] share the same internal representation, which
+    /// means that parsing the list of strings may yield duplicate elements.
+    pub fn enumerate() -> Vec<Self> {
+        use itertools::Itertools;
+        ShadowsocksCipher::list()
+            .iter()
+            .map(|cipher| ShadowsocksCipher::new(cipher).unwrap())
+            .unique()
+            .collect()
+    }
+}
+
+impl<'de> Deserialize<'de> for ShadowsocksCipher {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct CipherVisitor(std::marker::PhantomData<Self>);
+        impl serde::de::Visitor<'_> for CipherVisitor {
+            type Value = ShadowsocksCipher;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(formatter, "a cipher string")
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                value
+                    .parse::<Self::Value>()
+                    .map_err(serde::de::Error::custom)
+            }
+        }
+
+        deserializer.deserialize_str(CipherVisitor(std::marker::PhantomData))
     }
 }
 
@@ -157,8 +198,8 @@ pub struct Socks5Remote {
 /// RFC 1929: <https://datatracker.ietf.org/doc/html/rfc1929>.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct SocksAuth {
-    username: String,
-    password: String,
+    username: Sensitive<String>,
+    password: Sensitive<String>,
 }
 
 impl SocksAuth {
@@ -218,7 +259,10 @@ impl SocksAuth {
             ));
         }
 
-        Ok(SocksAuth { username, password })
+        Ok(SocksAuth {
+            username: username.into(),
+            password: password.into(),
+        })
     }
 
     /// Read the username.
@@ -240,9 +284,16 @@ impl Shadowsocks {
     ) -> Self {
         Shadowsocks {
             endpoint: endpoint.into(),
-            password,
+            password: password.into(),
             cipher,
         }
+    }
+
+    /// Get a reference to the password in plaintext.
+    ///
+    /// Caution: DO NOT LOG THIS ANYWHERE.
+    pub fn plaintext_password(&self) -> &str {
+        self.password.as_inner()
     }
 }
 
@@ -298,5 +349,13 @@ mod test {
             // It *must be* infallible to convert a ShadowsocksCipher back to the CipherKind type.
             let _kind = cipher.kind();
         }
+    }
+
+    #[test]
+    /// Snapshot all Shadowsocks ciphers. They might change between versions of shadowsocks-rs, and
+    /// we consider a removal of any cipher a breaking change.
+    fn shadowsocks_ciphers() {
+        insta::assert_debug_snapshot!(ShadowsocksCipher::list());
+        insta::assert_debug_snapshot!(ShadowsocksCipher::enumerate());
     }
 }

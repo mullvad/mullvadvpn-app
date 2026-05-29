@@ -1,6 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import dev.detekt.gradle.Detekt
+import dev.detekt.gradle.DetektCreateBaselineTask
 import utilities.PreBuildTask
 import utilities.appVersionProvider
 import utilities.isNonStableVersion
@@ -92,11 +92,7 @@ detekt {
 }
 
 val detektExcludedPaths =
-    listOf(
-        "**/build/**",
-        "**/mullvad_daemon/management_interface/**",
-        "rust-android-gradle-plugin/**",
-    )
+    listOf("**/build/**", "**/mullvad_daemon/management_interface/**", ".gradle/**")
 
 tasks.withType<Detekt>().configureEach {
     dependsOn(":test:detekt:assemble")

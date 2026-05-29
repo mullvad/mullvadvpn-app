@@ -1420,8 +1420,11 @@ export class Shadowsocks extends jspb.Message {
     setPort(value: number): Shadowsocks;
     getPassword(): string;
     setPassword(value: string): Shadowsocks;
-    getCipher(): string;
-    setCipher(value: string): Shadowsocks;
+
+    hasCipher(): boolean;
+    clearCipher(): void;
+    getCipher(): Shadowsocks.Cipher | undefined;
+    setCipher(value?: Shadowsocks.Cipher): Shadowsocks;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): Shadowsocks.AsObject;
@@ -1438,8 +1441,52 @@ export namespace Shadowsocks {
         ip: string,
         port: number,
         password: string,
-        cipher: string,
+        cipher?: Shadowsocks.Cipher.AsObject,
     }
+
+
+    export class Cipher extends jspb.Message { 
+        getName(): string;
+        setName(value: string): Cipher;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): Cipher.AsObject;
+        static toObject(includeInstance: boolean, msg: Cipher): Cipher.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: Cipher, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): Cipher;
+        static deserializeBinaryFromReader(message: Cipher, reader: jspb.BinaryReader): Cipher;
+    }
+
+    export namespace Cipher {
+        export type AsObject = {
+            name: string,
+        }
+    }
+
+    export class Ciphers extends jspb.Message { 
+        clearCiphersList(): void;
+        getCiphersList(): Array<Shadowsocks.Cipher>;
+        setCiphersList(value: Array<Shadowsocks.Cipher>): Ciphers;
+        addCiphers(value?: Shadowsocks.Cipher, index?: number): Shadowsocks.Cipher;
+
+        serializeBinary(): Uint8Array;
+        toObject(includeInstance?: boolean): Ciphers.AsObject;
+        static toObject(includeInstance: boolean, msg: Ciphers): Ciphers.AsObject;
+        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+        static serializeBinaryToWriter(message: Ciphers, writer: jspb.BinaryWriter): void;
+        static deserializeBinary(bytes: Uint8Array): Ciphers;
+        static deserializeBinaryFromReader(message: Ciphers, reader: jspb.BinaryReader): Ciphers;
+    }
+
+    export namespace Ciphers {
+        export type AsObject = {
+            ciphersList: Array<Shadowsocks.Cipher.AsObject>,
+        }
+    }
+
 }
 
 export class CustomProxy extends jspb.Message { 
@@ -1509,11 +1556,6 @@ export class AccessMethod extends jspb.Message {
     getCustom(): CustomProxy | undefined;
     setCustom(value?: CustomProxy): AccessMethod;
 
-    hasDomainFronting(): boolean;
-    clearDomainFronting(): void;
-    getDomainFronting(): AccessMethod.DomainFronting | undefined;
-    setDomainFronting(value?: AccessMethod.DomainFronting): AccessMethod;
-
     getAccessMethodCase(): AccessMethod.AccessMethodCase;
 
     serializeBinary(): Uint8Array;
@@ -1532,7 +1574,6 @@ export namespace AccessMethod {
         bridges?: AccessMethod.Bridges.AsObject,
         encryptedDnsProxy?: AccessMethod.EncryptedDnsProxy.AsObject,
         custom?: CustomProxy.AsObject,
-        domainFronting?: AccessMethod.DomainFronting.AsObject,
     }
 
 
@@ -1587,23 +1628,6 @@ export namespace AccessMethod {
         }
     }
 
-    export class DomainFronting extends jspb.Message { 
-
-        serializeBinary(): Uint8Array;
-        toObject(includeInstance?: boolean): DomainFronting.AsObject;
-        static toObject(includeInstance: boolean, msg: DomainFronting): DomainFronting.AsObject;
-        static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
-        static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
-        static serializeBinaryToWriter(message: DomainFronting, writer: jspb.BinaryWriter): void;
-        static deserializeBinary(bytes: Uint8Array): DomainFronting;
-        static deserializeBinaryFromReader(message: DomainFronting, reader: jspb.BinaryReader): DomainFronting;
-    }
-
-    export namespace DomainFronting {
-        export type AsObject = {
-        }
-    }
-
 
     export enum AccessMethodCase {
         ACCESS_METHOD_NOT_SET = 0,
@@ -1611,7 +1635,6 @@ export namespace AccessMethod {
         BRIDGES = 2,
         ENCRYPTED_DNS_PROXY = 3,
         CUSTOM = 4,
-        DOMAIN_FRONTING = 5,
     }
 
 }
@@ -1701,11 +1724,6 @@ export class ApiAccessMethodSettings extends jspb.Message {
     setCustomList(value: Array<AccessMethodSetting>): ApiAccessMethodSettings;
     addCustom(value?: AccessMethodSetting, index?: number): AccessMethodSetting;
 
-    hasDomainFronting(): boolean;
-    clearDomainFronting(): void;
-    getDomainFronting(): AccessMethodSetting | undefined;
-    setDomainFronting(value?: AccessMethodSetting): ApiAccessMethodSettings;
-
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): ApiAccessMethodSettings.AsObject;
     static toObject(includeInstance: boolean, msg: ApiAccessMethodSettings): ApiAccessMethodSettings.AsObject;
@@ -1722,7 +1740,6 @@ export namespace ApiAccessMethodSettings {
         mullvadBridges?: AccessMethodSetting.AsObject,
         encryptedDnsProxy?: AccessMethodSetting.AsObject,
         customList: Array<AccessMethodSetting.AsObject>,
-        domainFronting?: AccessMethodSetting.AsObject,
     }
 }
 

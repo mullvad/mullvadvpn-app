@@ -139,7 +139,7 @@ pub async fn test_disconnected_state(
         .expect("failed to obtain non-tun interface");
 
     let detected_probes =
-        send_guest_probes(rpc.clone(), non_tunnel_interface, inet_destination).await;
+        send_guest_probes(rpc.clone(), non_tunnel_interface, inet_destination).await?;
     assert!(
         detected_probes.all(),
         "did not see (all) outgoing packets to destination: {detected_probes:?}",
@@ -216,25 +216,25 @@ pub async fn test_connecting_state(
 
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_destination)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), lan_destination)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface.clone(), inet_dns)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), non_tunnel_interface, lan_dns)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
@@ -293,25 +293,25 @@ pub async fn test_error_state(
 
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), inet_destination)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), lan_destination)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (lan)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface.clone(), inet_dns)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (DNS, inet)"
     );
     assert!(
         send_guest_probes(rpc.clone(), default_interface, lan_dns)
-            .await
+            .await?
             .none(),
         "observed unexpected outgoing packets (DNS, lan)"
     );
@@ -374,7 +374,7 @@ pub async fn test_connected_state(
         .await
         .expect("failed to find non-tun interface");
 
-    let detected_probes = send_guest_probes(rpc.clone(), nontun_iface, inet_destination).await;
+    let detected_probes = send_guest_probes(rpc.clone(), nontun_iface, inet_destination).await?;
     assert!(
         detected_probes.none(),
         "observed unexpected outgoing packets: {detected_probes:?}"

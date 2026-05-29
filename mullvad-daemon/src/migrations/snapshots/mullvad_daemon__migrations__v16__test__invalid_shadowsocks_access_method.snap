@@ -1,0 +1,21 @@
+---
+source: mullvad-daemon/src/migrations/v16.rs
+expression: "serde_json::to_string_pretty(&old_settings).unwrap()"
+---
+{
+  "api_access_methods": {
+    "custom": [
+      {
+        "access_method": {
+          "custom": {
+            "shadowsocks": {
+              "cipher": "finnish-tango",
+              "endpoint": "[2001:ac8:40:22::bb01]:443",
+              "password": "mullvad"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,13 +1,10 @@
 package net.mullvad.mullvadvpn.feature.problemreport.impl
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,20 +42,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.common.compose.clickableAnnotatedString
-import net.mullvad.mullvadvpn.common.compose.createUriHook
-import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailConfirmedNavResult
 import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNoEmailNavKey
 import net.mullvad.mullvadvpn.feature.problemreport.api.ViewLogsNavKey
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.lib.common.compose.clickableAnnotatedString
+import net.mullvad.mullvadvpn.lib.common.compose.createUriHook
+import net.mullvad.mullvadvpn.lib.common.compose.isTv
+import net.mullvad.mullvadvpn.lib.common.compose.unlessIsDetail
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.lib.ui.component.Accordion
 import net.mullvad.mullvadvpn.lib.ui.component.CheckboxConfirmation
-import net.mullvad.mullvadvpn.lib.ui.component.ExpandChevron
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -70,7 +67,6 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.VariantButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
-import net.mullvad.mullvadvpn.lib.ui.theme.color.Alpha40
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.ui.theme.color.positive
 import net.mullvad.mullvadvpn.lib.ui.theme.color.warning
@@ -298,81 +294,37 @@ private fun AccountInformationWarning(
     toggleShowIncludeAccountInformationWarningMessage: (Boolean) -> Unit,
     openPrivacyPolicy: () -> Unit,
 ) {
-    Column(
-        modifier =
-            Modifier.padding(horizontal = Dimens.tinyPadding)
-                .background(
-                    color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = Alpha40),
-                    shape = MaterialTheme.shapes.medium,
-                )
-                .animateContentSize()
-    ) {
-        Row(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .clickable(
-                        onClick = {
-                            toggleShowIncludeAccountInformationWarningMessage(
-                                !showIncludeAccountInformationWarningMessage
-                            )
-                        }
-                    )
-                    .padding(
-                        top = Dimens.smallPadding,
-                        start = Dimens.smallPadding,
-                        end = Dimens.smallPadding,
-                        bottom =
-                            if (showIncludeAccountInformationWarningMessage) Dimens.tinyPadding
-                            else Dimens.smallPadding,
-                    )
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.ErrorOutline,
-                contentDescription = stringResource(R.string.include_account_token_warning_title),
-                tint = MaterialTheme.colorScheme.warning,
-            )
-            Text(
-                modifier =
-                    Modifier.padding(horizontal = Dimens.smallPadding)
-                        .weight(1f)
-                        .align(Alignment.CenterVertically),
-                style = MaterialTheme.typography.labelLarge,
-                text = stringResource(R.string.include_account_token_warning_title),
-            )
-            ExpandChevron(isExpanded = showIncludeAccountInformationWarningMessage)
-        }
-        if (showIncludeAccountInformationWarningMessage) {
-            Text(
-                modifier =
-                    Modifier.padding(horizontal = Dimens.smallPadding)
-                        .padding(bottom = Dimens.smallPadding),
-                style = MaterialTheme.typography.bodySmall,
+    Accordion(
+        title = stringResource(R.string.include_account_token_warning_title),
+        expandedText =
+            clickableAnnotatedString(
                 text =
-                    clickableAnnotatedString(
-                        text =
-                            buildString {
-                                appendLine(
-                                    stringResource(
-                                        R.string.include_account_token_warning_message_first
-                                    )
-                                )
-                                append(
-                                    stringResource(
-                                        R.string.include_account_token_warning_message_second
-                                    )
-                                )
-                            },
-                        argument = stringResource(R.string.privacy_policy_lower_case),
-                        linkStyle =
-                            SpanStyle(
-                                color = MaterialTheme.colorScheme.onSurface,
-                                textDecoration = TextDecoration.Underline,
-                            ),
-                        onClick = { openPrivacyPolicy() },
+                    buildString {
+                        appendLine(
+                            stringResource(R.string.include_account_token_warning_message_first)
+                        )
+                        append(
+                            stringResource(R.string.include_account_token_warning_message_second)
+                        )
+                    },
+                argument = stringResource(R.string.privacy_policy_lower_case),
+                linkStyle =
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textDecoration = TextDecoration.Underline,
                     ),
+                onClick = { openPrivacyPolicy() },
+            ),
+        isExpanded = showIncludeAccountInformationWarningMessage,
+        icon = Icons.Outlined.ErrorOutline,
+        iconTint = MaterialTheme.colorScheme.warning,
+        iconContentDescription = stringResource(R.string.warning),
+        onClick = {
+            toggleShowIncludeAccountInformationWarningMessage(
+                !showIncludeAccountInformationWarningMessage
             )
-        }
-    }
+        },
+    )
 }
 
 @Composable

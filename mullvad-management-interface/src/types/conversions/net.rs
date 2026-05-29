@@ -306,18 +306,49 @@ mod proxy {
                 )
             })?;
 
-            let cipher = ShadowsocksCipher::new(&value.cipher).map_err(|_| {
-                FromProtobufTypeError::invalid_argument(format!(
-                    "invalid shadowsocks cipher: {cipher}",
-                    cipher = value.cipher,
-                ))
-            })?;
+            let cipher = value.cipher.map(ShadowsocksCipher::try_from).ok_or(
+                FromProtobufTypeError::invalid_argument(
+                    "Could not parse Shadowsocks message from protobuf",
+                ),
+            )??;
 
             Ok(Shadowsocks::new(
                 (ip, value.port as u16),
                 cipher,
                 value.password,
             ))
+        }
+    }
+
+    impl TryFrom<proto::shadowsocks::Cipher> for ShadowsocksCipher {
+        type Error = FromProtobufTypeError;
+
+        fn try_from(cipher: proto::shadowsocks::Cipher) -> Result<Self, Self::Error> {
+            ShadowsocksCipher::new(&cipher.name).map_err(|_| {
+                FromProtobufTypeError::invalid_argument(format!(
+                    "invalid shadowsocks cipher: {cipher}",
+                    cipher = cipher.name
+                ))
+            })
+        }
+    }
+
+    impl From<ShadowsocksCipher> for proto::shadowsocks::Cipher {
+        fn from(cipher: ShadowsocksCipher) -> Self {
+            proto::shadowsocks::Cipher {
+                name: cipher.to_string(),
+            }
+        }
+    }
+
+    impl From<Vec<ShadowsocksCipher>> for proto::shadowsocks::Ciphers {
+        fn from(ciphers: Vec<ShadowsocksCipher>) -> Self {
+            proto::shadowsocks::Ciphers {
+                ciphers: ciphers
+                    .into_iter()
+                    .map(proto::shadowsocks::Cipher::from)
+                    .collect(),
+            }
         }
     }
 
@@ -347,11 +378,14 @@ mod proxy {
 
     impl From<Shadowsocks> for proto::Shadowsocks {
         fn from(value: Shadowsocks) -> Self {
+            let cipher = proto::shadowsocks::Cipher {
+                name: value.cipher.to_string(),
+            };
             proto::Shadowsocks {
                 ip: value.endpoint.ip().to_string(),
                 port: value.endpoint.port() as u32,
-                password: value.password,
-                cipher: value.cipher.to_string(),
+                password: value.plaintext_password().to_string(),
+                cipher: Some(cipher),
             }
         }
     }

@@ -14,6 +14,7 @@ import PacketTunnelCore
 import SwiftUI
 
 struct ConnectionViewComponentPreview<Content: View>: View {
+    let settingsManager = SettingsManager()
     let showIndicators: Bool
     let connectedTunnelStatus = TunnelStatus(
         observedState: .connected(
@@ -66,7 +67,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
             tunnelStatus: connectedTunnelStatus,
             relayConstraints: RelayConstraints(),
             relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
-            customListRepository: CustomListRepository()
+            customListRepository: CustomListRepository(settingsStore: settingsManager.store)
         )
         viewModel.outgoingConnectionInfo = OutgoingConnectionInfo(
             ipv4: .init(ip: .allHostsGroup, exitIP: true),

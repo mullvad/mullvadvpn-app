@@ -110,7 +110,7 @@ use talpid_types::android::AndroidContext;
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
     ErrorExt,
-    net::IpVersion,
+    net::{IpVersion, proxy::ShadowsocksCipher},
     tunnel::{ErrorStateCause, TunnelStateTransition},
 };
 use tokio::io;
@@ -365,6 +365,8 @@ pub enum DaemonCommand {
         ResponseTx<bool, Error>,
         talpid_types::net::proxy::CustomProxy,
     ),
+    /// Retrieve all supported Shadowsocks ciphers.
+    ShadowsocksCiphers(oneshot::Sender<Vec<ShadowsocksCipher>>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Result<AppVersionInfo, Error>>),
     /// Return whether the daemon is performing post-upgrade tasks
@@ -903,10 +905,10 @@ impl Daemon {
         });
 
         let param_gen_relay_settings = parameters_generator.clone();
-        settings.register_change_listener(move |settings| {
+        settings.register_change_listener_async(move |settings| {
             let settings = settings.clone();
             let param_gen = param_gen_relay_settings.clone();
-            tokio::spawn(async move { param_gen.set_settings(settings).await });
+            async move { param_gen.set_settings(settings).await }
         });
 
         // Register a listener for generic settings changes.
@@ -991,13 +993,13 @@ impl Daemon {
 
         // Notify the relay list updater when new relay IP overrides are available.
         let relay_list_updater_handle = relay_list_updater.clone();
-        settings.register_change_listener(move |settings| {
+        settings.register_change_listener_async(move |settings| {
             // Notify relay selector of changes to the settings/selector config
             let mut relay_list_updater = relay_list_updater_handle.clone();
             let overrides = settings.relay_overrides.clone();
-            tokio::spawn(async move {
+            async move {
                 relay_list_updater.update_overrides(overrides).await;
-            });
+            }
         });
 
         #[cfg(not(target_os = "android"))]
@@ -1581,6 +1583,7 @@ impl Daemon {
             SetApiAccessMethod(tx, method) => self.on_set_api_access_method(tx, method).await,
             TestApiAccessMethodById(tx, method) => self.on_test_api_access_method(tx, method).await,
             TestCustomApiAccessMethod(tx, proxy) => self.on_test_proxy_as_access_method(tx, proxy),
+            ShadowsocksCiphers(tx) => self.on_shadowsocks_ciphers(tx),
             IsPerformingPostUpgrade(tx) => self.on_is_performing_post_upgrade(tx),
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -3128,6 +3131,14 @@ impl Daemon {
                 .map_err(Error::ApiConnectionModeError);
             Self::oneshot_send(tx, result, "get_current_api_access_method response");
         });
+    }
+
+    fn on_shadowsocks_ciphers(&mut self, tx: oneshot::Sender<Vec<ShadowsocksCipher>>) {
+        Self::oneshot_send(
+            tx,
+            ShadowsocksCipher::enumerate(),
+            "shadowsocks_ciphers response",
+        );
     }
 
     fn on_test_proxy_as_access_method(

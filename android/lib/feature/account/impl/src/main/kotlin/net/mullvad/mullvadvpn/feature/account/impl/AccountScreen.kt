@@ -44,11 +44,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.SecureScreenWhileInView
-import net.mullvad.mullvadvpn.common.compose.createCopyToClipboardHandle
-import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
@@ -56,6 +51,11 @@ import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountNavKey
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.feature.managedevices.api.ManageDevicesNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.SecureScreenWhileInView
+import net.mullvad.mullvadvpn.lib.common.compose.createCopyToClipboardHandle
+import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.toExpiryDateString
 import net.mullvad.mullvadvpn.lib.ui.component.CopyableObfuscationView
 import net.mullvad.mullvadvpn.lib.ui.component.InformationView

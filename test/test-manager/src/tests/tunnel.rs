@@ -172,7 +172,7 @@ pub async fn test_udp2tcp_tunnel(
         },
         MonitorOptions::default(),
     )
-    .await;
+    .await?;
 
     // Verify that we can reach stuff
     //
@@ -339,7 +339,7 @@ pub async fn test_multihop(
         move |packet| packet.destination.ip() == entry.address.ip(),
         MonitorOptions::default(),
     )
-    .await;
+    .await?;
 
     // Verify exit IP
     //

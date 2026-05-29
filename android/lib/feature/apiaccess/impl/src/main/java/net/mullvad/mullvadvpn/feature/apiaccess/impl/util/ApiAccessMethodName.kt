@@ -13,7 +13,6 @@ fun ApiAccessMethodSetting?.toDisplayName() =
         ApiAccessMethod.Direct -> stringResource(R.string.direct)
         ApiAccessMethod.Bridges,
         ApiAccessMethod.EncryptedDns,
-        ApiAccessMethod.DomainFronting,
         is ApiAccessMethod.CustomProxy -> this.name.toString()
         null -> "-"
     }
@@ -23,6 +22,5 @@ fun ApiAccessMethodSetting.toDisplayName(resources: Resources) =
         ApiAccessMethod.Direct -> resources.getString(R.string.direct)
         ApiAccessMethod.Bridges,
         ApiAccessMethod.EncryptedDns,
-        ApiAccessMethod.DomainFronting,
         is ApiAccessMethod.CustomProxy -> this.name.toString()
     }

@@ -9,6 +9,7 @@ use std::{
     fmt::{self, Display},
     ops::Deref,
     path::{Path, PathBuf},
+    pin::Pin,
 };
 use talpid_core::firewall::is_local_address;
 use talpid_types::ErrorExt;
@@ -112,11 +113,13 @@ fn handle_custom_list_error(
     }
 }
 
+type ChangeListener =
+    Box<dyn FnMut(&Settings) -> Pin<Box<dyn Future<Output = ()> + Send + Sync>> + Send + Sync>;
+
 pub struct SettingsPersister {
     settings: Settings,
     path: PathBuf,
-    #[expect(clippy::type_complexity)]
-    on_change_listeners: Vec<Box<dyn FnMut(&Settings) + Send + Sync>>,
+    on_change_listeners: Vec<ChangeListener>,
 }
 
 pub type MadeChanges = bool;
@@ -167,7 +170,7 @@ impl SettingsPersister {
     async fn load_inner<F, R>(load_settings: F) -> LoadSettingsResult
     where
         F: FnOnce() -> R,
-        R: std::future::Future<Output = Result<Settings, Error>>,
+        R: Future<Output = Result<Settings, Error>>,
     {
         let mut result = match load_settings().await {
             Ok(settings) => LoadSettingsResult {
@@ -274,7 +277,7 @@ impl SettingsPersister {
             })
             .await?;
 
-        self.notify_listeners();
+        self.notify_listeners().await;
 
         Ok(())
     }
@@ -383,7 +386,7 @@ impl SettingsPersister {
         Self::save_inner(&self.path, &new_settings).await?;
         self.settings = new_settings;
 
-        self.notify_listeners();
+        self.notify_listeners().await;
 
         Ok(true)
     }
@@ -397,14 +400,30 @@ impl SettingsPersister {
 
     pub fn register_change_listener(
         &mut self,
-        change_listener: impl Fn(&Settings) + Send + Sync + 'static,
+        mut change_listener: impl FnMut(&Settings) + Send + Sync + 'static,
     ) {
-        self.on_change_listeners.push(Box::new(change_listener));
+        self.on_change_listeners.push(Box::new(move |settings| {
+            change_listener(settings);
+            // lord forgive me
+            Box::pin(async move {})
+        }));
     }
 
-    fn notify_listeners(&mut self) {
+    pub fn register_change_listener_async<
+        F: FnMut(&Settings) -> Fut + Send + Sync + 'static,
+        Fut: Future<Output = ()> + Send + Sync + 'static,
+    >(
+        &mut self,
+        mut change_listener: F,
+    ) {
+        self.on_change_listeners.push(Box::new(move |settings| {
+            Box::pin(change_listener(settings))
+        }));
+    }
+
+    async fn notify_listeners(&mut self) {
         for listener in &mut self.on_change_listeners {
-            listener(&self.settings);
+            listener(&self.settings).await;
         }
     }
 }

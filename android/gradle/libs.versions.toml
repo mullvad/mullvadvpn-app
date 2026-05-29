@@ -14,10 +14,10 @@ ndk = "27.3.13750724"
 # https://github.com/gradle/gradle/issues/19228
 # Find the relevant AAPT version here:
 # https://mvnrepository.com/artifact/com.android.tools.build/aapt2
-android-gradle-aapt = "14792394"
-android-gradle-plugin = "9.1.1"
+android-gradle-aapt = "15009934"
+android-gradle-plugin = "9.2.1"
 # Other
-android-billingclient = "8.3.0"
+android-billingclient = "9.0.0"
 androidx-activitycompose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-coresplashscreen = "1.2.0"
@@ -26,28 +26,28 @@ androidx-datastore = "1.2.1"
 androidx-espresso = "3.7.0"
 androidx-ktx = "1.18.0"
 androidx-lifecycle = "2.10.0"
-androidx-nav3 = "1.1.1"
+androidx-nav3 = "1.1.2"
 androidx-adaptive = "1.2.0"
 androidx-test = "1.7.0"
 androidx-testmonitor = "1.8.0"
 androidx-testorchestrator = "1.6.1"
 androidx-testrunner = "1.7.0"
-androidx-tv = "1.0.1"
+androidx-tv = "1.1.0"
 androidx-uiautomator = "2.4.0-beta02"
 androidx-work = "2.11.2"
 arrow = "2.2.2.1"
-baselineprofile = "1.5.0-alpha04"
-benchmark-macro-junit4 = "1.4.1"
+baselineprofile = "1.5.0-alpha06"
+benchmark-macro-junit4 = "1.5.0-alpha06"
 commonsvalidator = "1.10.1"
-compose = "1.11.0"
+compose = "1.11.2"
 compose-constraintlayout = "1.1.1"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
-dependency-versions = "0.53.0"
-detekt = "1.23.8"
+dependency-versions = "0.54.0"
+detekt = "2.0.0-alpha.3"
 accompanist = "0.37.3"
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.80.0"
+grpc = "1.81.0"
 grpc-kotlin = "1.5.0"
 junit = "5.13.4"
 junit4 = "1.3.0"
@@ -60,17 +60,17 @@ konsist = "0.17.3"
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
 kotlin = "2.3.21"
-kotlin-ksp = "2.3.7"
-kotlinx = "1.10.2"
+kotlin-ksp = "2.3.8"
+kotlinx = "1.11.0"
 kotlinx-serialization-json = "1.11.0"
 ktfmt = "0.26.0"
-ktor = "3.4.3"
+ktor = "3.5.0"
 leakcanary = "2.14"
 mockk = "1.14.9"
 play-publisher = "4.0.0"
 play-services-location = "21.3.0"
 profileinstaller = "1.4.1"
-protobuf = "4.34.1"
+protobuf = "4.35.0"
 protobuf-gradle-plugin = "0.10.0"
 turbine = "1.2.1"
 annotation-jvm = "1.10.0"
@@ -131,8 +131,8 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
-detekt-api = { module = "io.gitlab.arturbosch.detekt:detekt-api", version.ref = "detekt" }
-detekt-test = { module = "io.gitlab.arturbosch.detekt:detekt-test", version.ref = "detekt" }
+detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
+detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
@@ -188,7 +188,7 @@ android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" 
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
-detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 # noinspection SimilarGradleDependency
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
 # noinspection SimilarGradleDependency

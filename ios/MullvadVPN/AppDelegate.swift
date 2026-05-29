@@ -42,12 +42,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
 
-    nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository(
-        shadowsocksCiphers: ShadowsocksCipherService().getCiphers()
-    )
+    let settingsManager = SettingsManager()
+    nonisolated(unsafe) private(set) var accessMethodRepository: AccessMethodRepository!
+
     nonisolated(unsafe) private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoader!
-    private(set) var ipOverrideRepository = IPOverrideRepository()
+    private(set) lazy var ipOverrideRepository = IPOverrideRepository(settingsStore: settingsManager.store)
     private(set) var relaySelector: RelaySelectorWrapper!
     private(set) var launchArguments = LaunchArguments()
     var apiContext: MullvadApiContext!
@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         let containerURL = ApplicationConfiguration.containerURL
-        migrationManager = MigrationManager(cacheDirectory: containerURL)
+        migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
         configureLogging()
 
         let ipOverrideWrapper = IPOverrideWrapper(
@@ -90,7 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             relayCache: ipOverrideWrapper
         )
 
-        let tunnelSettings = (try? SettingsManager.readSettings()) ?? LatestTunnelSettings()
+        let tunnelSettings = (try? settingsManager.readSettings()) ?? LatestTunnelSettings()
 
         shadowsocksLoader = ShadowsocksLoader(
             cache: shadowsocksCache,
@@ -101,6 +101,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         shadowsocksCacheCleaner = ShadowsocksCacheCleaner(cache: shadowsocksCache)
 
+        accessMethodRepository = AccessMethodRepository(
+            shadowsocksCiphers: ShadowsocksCipherService().getCiphers(),
+            settingsStore: settingsManager.store
+        )
         let opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
             methods: accessMethodRepository.fetchAll()
         )
@@ -109,9 +113,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         apiContext = try! MullvadApiContext(
             host: REST.defaultAPIHostname,
             address: REST.defaultAPIEndpoint.description,
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: REST.domainFrontingFront,
-            domainFrontingProxyHost: REST.domainFrontingProxyHost,
+            domain: REST.encryptedDNSHostname,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: opaqueAccessMethodSettingsWrapper,
             accessMethodChangeListeners: [accessMethodRepository, shadowsocksCacheCleaner]
@@ -215,7 +217,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             devicesProxy: devicesProxy,
             apiProxy: apiProxy,
-            relaySelector: relaySelector
+            relaySelector: relaySelector,
+            settingsManager: settingsManager
         )
     }
 
@@ -246,7 +249,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             // Configure mock tunnel provider on simulator
             simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
                 relaySelector: relaySelector,
-                apiTransportProvider: apiTransportProvider
+                apiTransportProvider: apiTransportProvider,
+                settingsManager: settingsManager
             )
             SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
@@ -545,7 +549,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
                 MainActor.assumeIsolated {
                     migrationManager
-                        .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
+                        .migrateSettings(store: settingsManager.store) { [self] migrationResult in
                             switch migrationResult {
                             case .success:
                                 // Tell the tunnel to re-read tunnel configuration after migration.
@@ -612,16 +616,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     /// If (1) is `false` and (2) is `true`, we know that the app has been freshly installed/reinstalled and is
     /// compatible, thus triggering a settings wipe.
     private func getWipeSettingsOperation() -> AsyncBlockOperation {
-        AsyncBlockOperation {
+        AsyncBlockOperation { [settingsManager] in
             let appHasNeverBeenLaunched =
-                !self.appPreferences.hasDoneFirstTimeLaunch && !SettingsManager.getShouldWipeSettings()
+                !self.appPreferences.hasDoneFirstTimeLaunch && !settingsManager.getShouldWipeSettings()
             let appWasLaunchedAfterReinstall =
-                !self.appPreferences.hasDoneFirstTimeLaunch && SettingsManager.getShouldWipeSettings()
+                !self.appPreferences.hasDoneFirstTimeLaunch && settingsManager.getShouldWipeSettings()
 
             if appHasNeverBeenLaunched {
-                try? SettingsManager.writeSettings(LatestTunnelSettings())
+                try? settingsManager.writeSettings(LatestTunnelSettings())
             } else if appWasLaunchedAfterReinstall {
-                if let deviceState = try? SettingsManager.readDeviceState(),
+                if let deviceState = try? settingsManager.readDeviceState(),
                     let accountData = deviceState.accountData,
                     let deviceData = deviceState.deviceData
                 {
@@ -634,8 +638,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
 
-                SettingsManager.resetStore(policy: .all)
-                try? SettingsManager.writeSettings(LatestTunnelSettings())
+                settingsManager.resetStore(policy: .all)
+                try? settingsManager.writeSettings(LatestTunnelSettings())
 
                 // Default access methods need to be repopulated again after settings wipe.
                 self.accessMethodRepository.addDefaultsMethods()
@@ -644,7 +648,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 try? self.relayCacheTracker.refreshCachedRelays()
             }
 
-            SettingsManager.setShouldWipeSettings()
+            settingsManager.setShouldWipeSettings()
         }
     }
 

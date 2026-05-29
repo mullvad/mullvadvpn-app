@@ -13,25 +13,17 @@ import XCTest
 @testable import MullvadTypes
 
 final class APIAccessMethodsTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
-
-    override static func setUp() {
-        SettingsManager.unitTestStore = store
-    }
-
-    override static func tearDown() {
-        store.reset()
-    }
+    let store = InMemorySettingsStore<SettingNotFound>()
 
     override func tearDownWithError() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
         repository.fetchAll().forEach {
             repository.delete(id: $0.id)
         }
     }
 
     func testDefaultAccessMethodsExist() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
         let storedMethods = repository.fetchAll()
 
         let hasDirectMethod = storedMethods.contains { method in
@@ -46,18 +38,12 @@ final class APIAccessMethodsTests: XCTestCase {
             method.kind == .encryptedDNS
         }
 
-        let hasDomainFronting = storedMethods.contains { method in
-            method.kind == .domainFronting
-        }
-
-        XCTAssertEqual(storedMethods.count, 4)
-        XCTAssertTrue(
-            hasDirectMethod && hasBridgesMethod && hasEncryptedDNS && hasDomainFronting
-        )
+        XCTAssertEqual(storedMethods.count, 3)
+        XCTAssertTrue(hasDirectMethod && hasBridgesMethod && hasEncryptedDNS)
     }
 
     func testAddingSocks5AccessMethod() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
 
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
@@ -69,7 +55,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingShadowSocksAccessMethod() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
 
         let uuid = UUID()
         let methodToStore = shadowsocksAccessMethod(with: uuid)
@@ -81,7 +67,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testAddingDuplicateAccessMethodDoesNothing() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
 
         let methodToStore = socks5AccessMethod(with: UUID())
 
@@ -91,11 +77,11 @@ final class APIAccessMethodsTests: XCTestCase {
         let storedMethods = repository.fetchAll()
 
         // Account for .direct, .bridges and .encryptedDNS that are always added by default.
-        XCTAssertEqual(storedMethods.count, 5)
+        XCTAssertEqual(storedMethods.count, 4)
     }
 
     func testUpdatingAccessMethod() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
 
         let uuid = UUID()
         var methodToStore = socks5AccessMethod(with: uuid)
@@ -112,7 +98,7 @@ final class APIAccessMethodsTests: XCTestCase {
     }
 
     func testDeletingAccessMethod() throws {
-        let repository = AccessMethodRepository(shadowsocksCiphers: [])
+        let repository = AccessMethodRepository(shadowsocksCiphers: [], settingsStore: store)
         let uuid = UUID()
         let methodToStore = socks5AccessMethod(with: uuid)
 

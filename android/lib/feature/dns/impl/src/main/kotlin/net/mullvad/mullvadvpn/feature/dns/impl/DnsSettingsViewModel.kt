@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
 import java.net.Inet6Address
 import java.net.InetAddress
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
@@ -41,8 +43,6 @@ sealed interface DnsSettingsSideEffect {
     data object NavigateToDnsDialog : DnsSettingsSideEffect
 
     sealed interface ShowToast : DnsSettingsSideEffect {
-        data object ApplySettingWarning : ShowToast
-
         data object GenericError : ShowToast
     }
 }
@@ -125,7 +125,7 @@ class DnsSettingsViewModel(
         if (hasDnsEntries) {
             settingsRepository
                 .setDnsState(if (enable) DnsState.Custom else DnsState.Default)
-                .fold({ showGenericErrorToast() }, { showApplySettingChangesWarningToast() })
+                .onLeft { showGenericErrorToast() }
         } else {
             // If they enable custom DNS and has no current entries we show the dialog
             // to add one.
@@ -133,25 +133,24 @@ class DnsSettingsViewModel(
         }
     }
 
-    fun showApplySettingChangesWarningToast() = viewModelScope.launch {
-        _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.ApplySettingWarning)
-    }
-
     fun showGenericErrorToast() = viewModelScope.launch {
         _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
     }
 
+    fun onCustomDnsDialogSuccess() = viewModelScope.launch {
+        // This is to fix an ui issue where the switch gets stuck due to animations starting at the
+        // same time. This is likely to be fixed in the next stable version of material 3.
+        // Reverting this hack is tracked here: DROID-2734
+        delay(SHORT_DELAY)
+        settingsRepository.setDnsState(DnsState.Custom).onLeft { showGenericErrorToast() }
+    }
+
     private fun updateContentBlockersAndNotify(update: (DefaultDnsOptions) -> DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
-            settingsRepository
-                .updateContentBlockers(update)
-                .fold(
-                    {
-                        Logger.e("Failed to update content blockers")
-                        _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
-                    },
-                    { showApplySettingChangesWarningToast() },
-                )
+            settingsRepository.updateContentBlockers(update).onLeft {
+                Logger.e("Failed to update content blockers")
+                _uiSideEffect.send(DnsSettingsSideEffect.ShowToast.GenericError)
+            }
         }
 
     private fun List<InetAddress>.asStringAddressList(): List<CustomDnsEntry> = map {
@@ -163,4 +162,8 @@ class DnsSettingsViewModel(
     }
 
     private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
+
+    companion object {
+        private val SHORT_DELAY = 5.milliseconds
+    }
 }

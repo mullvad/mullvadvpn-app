@@ -44,7 +44,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -65,17 +64,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.common.compose.LocalNavAnimatedVisibilityScope
-import net.mullvad.mullvadvpn.common.compose.SECURE_ZOOM
-import net.mullvad.mullvadvpn.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
-import net.mullvad.mullvadvpn.common.compose.UNSECURE_ZOOM
-import net.mullvad.mullvadvpn.common.compose.createOpenAccountPageHook
-import net.mullvad.mullvadvpn.common.compose.dropUnlessResumed
-import net.mullvad.mullvadvpn.common.compose.fallbackLatLong
-import net.mullvad.mullvadvpn.common.compose.isTv
-import net.mullvad.mullvadvpn.common.compose.safeOpenUri
-import net.mullvad.mullvadvpn.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
 import net.mullvad.mullvadvpn.core.Navigator
@@ -93,6 +81,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.Connectio
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.FeatureIndicatorsPanel
 import net.mullvad.mullvadvpn.feature.home.impl.connect.connectioninfo.toInAddress
 import net.mullvad.mullvadvpn.feature.home.impl.connect.notificationbanner.NotificationBanner
+import net.mullvad.mullvadvpn.feature.lansharing.api.LocalNetworkSharingNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavKey
 import net.mullvad.mullvadvpn.feature.location.api.SelectLocationNavResult
 import net.mullvad.mullvadvpn.feature.multihop.api.MultihopNavKey
@@ -100,6 +89,17 @@ import net.mullvad.mullvadvpn.feature.serveripoverride.api.ServerIpOverrideNavKe
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.feature.splittunneling.api.SplitTunnelingNavKey
 import net.mullvad.mullvadvpn.feature.vpnsettings.api.VpnSettingsNavKey
+import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
+import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM
+import net.mullvad.mullvadvpn.lib.common.compose.SECURE_ZOOM_ANIMATION_MILLIS
+import net.mullvad.mullvadvpn.lib.common.compose.UNSECURE_ZOOM
+import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
+import net.mullvad.mullvadvpn.lib.common.compose.fallbackLatLong
+import net.mullvad.mullvadvpn.lib.common.compose.isTv
+import net.mullvad.mullvadvpn.lib.common.compose.safeOpenUri
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
@@ -806,10 +806,11 @@ private fun FeatureIndicator.navKey(): NavKey2 =
         FeatureIndicator.SHADOWSOCKS,
         FeatureIndicator.LWO -> AntiCensorshipNavKey(selectedFeature = this, isModal = true)
 
+        FeatureIndicator.LAN_SHARING -> LocalNetworkSharingNavKey(isModal = true)
+
         FeatureIndicator.DNS_CONTENT_BLOCKERS,
         FeatureIndicator.CUSTOM_DNS -> DnsSettingsNavKey(selectedFeature = this, isModal = true)
 
         FeatureIndicator.QUANTUM_RESISTANCE,
-        FeatureIndicator.LAN_SHARING,
         FeatureIndicator.CUSTOM_MTU -> VpnSettingsNavKey(scrollToFeature = this, isModal = true)
     }

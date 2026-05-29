@@ -847,6 +847,17 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
+    async fn shadowsocks_ciphers(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<types::shadowsocks::Ciphers> {
+        log::debug!("shadowsocks_ciphers");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ShadowsocksCiphers(tx))?;
+        let ciphers = types::shadowsocks::Ciphers::from(self.wait_for_result(rx).await?);
+        Ok(Response::new(ciphers))
+    }
+
     // Split tunneling
     //
 
@@ -1284,7 +1295,6 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<Self::AppUpgradeEventsListenStream> {
         log::debug!("app_upgrade_events_listen");
         let rx = self.app_upgrade_broadcast.subscribe();
-        #[expect(clippy::result_large_err)]
         let upgrade_event_stream =
             tokio_stream::wrappers::BroadcastStream::new(rx).map(|result| match result {
                 Ok(event) => Ok(event.into()),
@@ -1293,9 +1303,7 @@ impl ManagementService for ManagementServiceImpl {
                 ))),
             });
 
-        Ok(Response::new(
-            Box::new(upgrade_event_stream) as Self::AppUpgradeEventsListenStream
-        ))
+        Ok(Response::new(Box::new(upgrade_event_stream)))
     }
 
     async fn get_app_upgrade_cache_dir(&self, _: Request<()>) -> ServiceResult<String> {
@@ -1340,7 +1348,6 @@ impl ManagementService for ManagementServiceImpl {
     }
 }
 
-#[expect(clippy::result_large_err)]
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
     fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {

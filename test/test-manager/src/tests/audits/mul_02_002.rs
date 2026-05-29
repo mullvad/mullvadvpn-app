@@ -57,7 +57,7 @@ pub async fn test_mul_02_002(
             .any(|window| window == unique_identifier.as_bytes())
     };
     let rogue_packet_monitor =
-        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
+        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await?;
 
     // Step 3 - Start the rogue program which will try to leak the unique identifier payload
     // to the chosen relay endpoint
@@ -79,7 +79,7 @@ pub async fn test_mul_02_002(
     // payload in plain text.
     connect_and_wait(&mut mullvad_client).await?;
     let rogue_packet_monitor =
-        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await;
+        start_packet_monitor(identify_rogue_packet, MonitorOptions::default()).await?;
     conn_artist.check_connection().await?;
     let monitor_result = rogue_packet_monitor.into_result().await?;
 

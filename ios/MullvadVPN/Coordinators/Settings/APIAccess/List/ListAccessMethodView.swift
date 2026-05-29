@@ -62,8 +62,6 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
                             AccessibilityIdentifier.accessMethodBridgesCell
                         case AccessMethodRepository.encryptedDNSId:
                             AccessibilityIdentifier.accessMethodEncryptedDNSCell
-                        case AccessMethodRepository.domainFrontingId:
-                            AccessibilityIdentifier.accessMethodDomainFrontingCell
                         default:
                             nil
                         }
@@ -109,7 +107,8 @@ struct ListAccessMethodView<ViewModel>: View where ViewModel: ListAccessViewMode
             viewModel: ListAccessViewModelBridge(
                 interactor: ListAccessMethodInteractor(
                     repository: AccessMethodRepository(
-                        shadowsocksCiphers: []
+                        shadowsocksCiphers: [],
+                        settingsStore: SettingsManager().store
                     )
                 ),
                 delegate: nil

@@ -41,6 +41,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
     private let action: SetAccountAction
+    private let setLastUsedAccount: @Sendable (String) throws -> Void
 
     private let logger = Logger(label: "SetAccountOperation")
     private var tasks: [Cancellable] = []
@@ -50,12 +51,14 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         interactor: TunnelInteractor,
         accountsProxy: RESTAccountHandling,
         devicesProxy: DeviceHandling,
-        action: SetAccountAction
+        action: SetAccountAction,
+        setLastUsedAccount: @escaping @Sendable (String) throws -> Void
     ) {
         self.interactor = interactor
         self.accountsProxy = accountsProxy
         self.devicesProxy = devicesProxy
         self.action = action
+        self.setLastUsedAccount = setLastUsedAccount
 
         super.init(dispatchQueue: dispatchQueue)
     }
@@ -208,7 +211,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Senda
         logger.debug("Store last used account.")
 
         do {
-            try SettingsManager.setLastUsedAccount(accountNumber)
+            try setLastUsedAccount(accountNumber)
         } catch {
             logger.error(error: error, message: "Failed to store last used account number.")
         }

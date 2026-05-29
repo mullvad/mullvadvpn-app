@@ -27,8 +27,16 @@ pub fn is_shutdown_user_initiated() -> bool {
 }
 
 /// Currently returns false all of the time to ensure that no leaks occur during shutdown.
-// FIXME: implement shutdown detection - the current implementation will always block network
-// traffic when the daemon is shut down.
+// !!! Read before you think of implementing shutdown detection.
+//
+// I've tried using the IOKit API for this, but the launch daemon seemingly only receives a SIGTERM
+// during shutdown/reboot.
+//
+// If you're thinking, "Ah, then I will attempt to use the undocumented BSD notification
+// `com.apple.system.loginwindow.shutdownInitiated`": No. Same issue.
+//
+// It might be that I'm missing something, but neither of these two methods appears to work. You
+// have been warned.
 #[cfg(target_os = "macos")]
 pub fn is_shutdown_user_initiated() -> bool {
     false

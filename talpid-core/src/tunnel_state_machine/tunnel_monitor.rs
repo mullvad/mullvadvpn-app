@@ -172,15 +172,15 @@ impl TunnelMonitor {
 
 #[cfg(target_os = "windows")]
 fn is_ipv6_enabled_in_os() -> bool {
-    use winreg::{RegKey, enums::*};
+    use windows_registry::LOCAL_MACHINE;
 
     const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
 
     // Check registry if IPv6 is disabled on tunnel interfaces, as documented in
     // https://support.microsoft.com/en-us/help/929852/guidance-for-configuring-ipv6-in-windows-for-advanced-users
-    let globally_enabled = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .open_subkey(r"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")
-        .and_then(|ipv6_config| ipv6_config.get_value("DisabledComponents"))
+    let globally_enabled = LOCAL_MACHINE
+        .open(r"SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters")
+        .and_then(|ipv6_config| ipv6_config.get_u32("DisabledComponents"))
         .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0)
         .unwrap_or(true);
 

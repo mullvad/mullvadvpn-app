@@ -728,26 +728,12 @@ msgctxt "api-access-methods-view"
 msgid "The API could not be reached using the %(name)s method."
 msgstr ""
 
-#. Part of a description of the 'Domain fronting' API access method
-#. which the app uses to reach Mullvad's API servers
-#. Available placeholders:
-#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
-msgctxt "api-access-methods-view"
-msgid "The app communicates with a Mullvad API server via %(domainFronting)s."
-msgstr ""
-
 msgctxt "api-access-methods-view"
 msgid "The app needs the remote server details, where your local SOCKS5 server will forward your traffic."
 msgstr ""
 
 msgctxt "api-access-methods-view"
 msgid "The app needs to communicate with a Mullvad API server to log you in, fetch server lists, and other critical operations."
-msgstr ""
-
-#. Part of a description of the 'Domain fronting' API access method
-#. which the app uses to reach Mullvad's API servers
-msgctxt "api-access-methods-view"
-msgid "The CDN used is Datapacket’s CDN77. The CDN can only observe the proxied TLS traffic, not the contents."
 msgstr ""
 
 msgctxt "api-access-methods-view"
@@ -760,12 +746,6 @@ msgstr ""
 
 msgctxt "api-access-methods-view"
 msgid "This can be useful if the API is censored but Mullvad’s bridge servers are not."
-msgstr ""
-
-#. Part of a description of the 'Domain fronting' API access method
-#. which the app uses to reach Mullvad's API servers
-msgctxt "api-access-methods-view"
-msgid "This can be useful when direct access and other methods are blocked by censorship."
 msgstr ""
 
 msgctxt "api-access-methods-view"
@@ -794,14 +774,6 @@ msgstr ""
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
-msgstr ""
-
-#. Part of a description of the 'Domain fronting' API access method
-#. which the app uses to reach Mullvad's API servers
-#. Available placeholders:
-#. %(domainFronting)s - Will be replaced with: 'Domain fronting'
-msgctxt "api-access-methods-view"
-msgid "With the %(domainFronting)s access method, the app reaches the Mullvad API via a CDN, mixing the traffic with a lot of other internet traffic, making it more difficult to censor."
 msgstr ""
 
 #. Title of the app info view.
@@ -3024,6 +2996,9 @@ msgstr ""
 msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
 msgstr ""
 
+msgid "<b>Attention:</b> Local network sharing is not compatible with “Block connections without VPN”."
+msgstr ""
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr ""
 
@@ -3036,7 +3011,13 @@ msgstr ""
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr ""
 
+msgid "<b>Private IP ranges</b>"
+msgstr ""
+
 msgid "<b>This action cannot be undone.</b>"
+msgstr ""
+
+msgid "<b>This can impact your anonymity.</b> Avoid enabling this on public or untrusted networks, as your device may become visible to others."
 msgstr ""
 
 msgid "<b>Warning:</b>"
@@ -3129,9 +3110,6 @@ msgstr ""
 msgid "At least one method needs to be enabled"
 msgstr ""
 
-msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
-msgstr ""
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
@@ -3210,9 +3188,6 @@ msgstr ""
 msgid "DNS settings"
 msgstr ""
 
-msgid "DNS settings might not go into effect immediately"
-msgstr ""
-
 msgid "Delete \"%s\"?"
 msgstr ""
 
@@ -3282,6 +3257,9 @@ msgstr ""
 msgid "Enable multihop"
 msgstr ""
 
+msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
+msgstr ""
+
 msgid "Enter MTU"
 msgstr ""
 
@@ -3348,6 +3326,9 @@ msgstr ""
 msgid "Google Play unavailable"
 msgstr ""
 
+msgid "How it works"
+msgstr ""
+
 msgid "IPv4 is not available, please try changing \"Device IP version\" setting."
 msgstr ""
 
@@ -3379,6 +3360,12 @@ msgid "In-app products unavailable, please make sure you have the latest version
 msgstr ""
 
 msgid "Include my account token for faster help with payment or account related issues"
+msgstr ""
+
+msgid "Info"
+msgstr ""
+
+msgid "Internet"
 msgstr ""
 
 msgid "Invalid IP address"
@@ -3651,6 +3638,9 @@ msgstr ""
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr ""
 
+msgid "The app allows local multicast and broadcast network traffic, as well as traffic to and from private IP ranges, to bypass the VPN tunnel."
+msgstr ""
+
 msgid "The app is blocking internet, please disconnect first"
 msgstr ""
 
@@ -3829,6 +3819,9 @@ msgid "You will lose access to this account on all devices."
 msgstr ""
 
 msgid "You will lose your remaining"
+msgstr ""
+
+msgid "Your device"
 msgstr ""
 
 msgid "\"%s\" was created"

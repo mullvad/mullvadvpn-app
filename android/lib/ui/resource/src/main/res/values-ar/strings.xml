@@ -274,9 +274,6 @@
     <string name="loading_products">جارٍ تحميل المنتجات</string>
     <string name="loading_verifying">جارٍ التحقُّق من عملية الشراء...</string>
     <string name="local_network_sharing">مشاركة الشبكة المحلية</string>
-    <string name="local_network_sharing_additional_info">ويفعل ذلك من خلال السماح لاتصال الشبكة خارج النفق بالوصول إلى نطاقات الإرسال المتعدد والبث المحلية، وكذلك بإرسال واستقبال حركة البيانات من نطاقات عناوين IP الخاصة التالية:</string>
-    <string name="local_network_sharing_info">تتيح هذه الميزة الوصول إلى أجهزة أخرى على الشبكة المحلية، مثل المشاركة والطباعة والبث وما إلى ذلك.</string>
-    <string name="local_network_sharing_info_block_connections_warning">انتبه: إذا تم تفعيل \"حظر الاتصالات دون VPN\"، فلن تعمل \"مشاركة الشبكة المحلية\".</string>
     <string name="location_added">%1$s (تمت إضافته)</string>
     <string name="location_was_added_to_list">تمت إضافة %1$s إلى \"%2$s\"</string>
     <string name="location_was_removed_from_list">تمت إزالة %1$s من \"%2$s\"</string>
@@ -423,7 +420,6 @@
     <string name="settings">الإعدادات</string>
     <string name="settings_account">الحساب</string>
     <string name="settings_api_access">الوصول إلى واجهة API</string>
-    <string name="settings_changes_effect_warning_short">قد لا يتم تطبيق إعدادات DNS على الفور</string>
     <string name="settings_notifications">الإشعارات</string>
     <string name="settings_patch_error_failed_to_apply_patch">فشل تطبيق التصحيح</string>
     <string name="settings_patch_error_invalid_or_missing_value">القيمة \"%1$s\" غير صالحة أو مفقودة</string>

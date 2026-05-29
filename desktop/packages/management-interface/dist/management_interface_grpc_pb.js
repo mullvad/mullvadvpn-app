@@ -426,6 +426,17 @@ function deserialize_mullvad_daemon_management_interface_Settings(buffer_arg) {
   return management_interface_pb.Settings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_Shadowsocks_Ciphers(arg) {
+  if (!(arg instanceof management_interface_pb.Shadowsocks.Ciphers)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.Shadowsocks.Ciphers');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_Shadowsocks_Ciphers(buffer_arg) {
+  return management_interface_pb.Shadowsocks.Ciphers.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_SplitFilterMigration(arg) {
   if (!(arg instanceof management_interface_pb.SplitFilterMigration)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.SplitFilterMigration');
@@ -1168,6 +1179,18 @@ addApiAccessMethod: {
     requestDeserialize: deserialize_mullvad_daemon_management_interface_UUID,
     responseSerialize: serialize_google_protobuf_BoolValue,
     responseDeserialize: deserialize_google_protobuf_BoolValue,
+  },
+  // Enumerate all supported Shadowsocks ciphers.
+shadowsocksCiphers: {
+    path: '/mullvad_daemon.management_interface.ManagementService/ShadowsocksCiphers',
+    requestStream: false,
+    responseStream: false,
+    requestType: google_protobuf_empty_pb.Empty,
+    responseType: management_interface_pb.Shadowsocks.Ciphers,
+    requestSerialize: serialize_google_protobuf_Empty,
+    requestDeserialize: deserialize_google_protobuf_Empty,
+    responseSerialize: serialize_mullvad_daemon_management_interface_Shadowsocks_Ciphers,
+    responseDeserialize: deserialize_mullvad_daemon_management_interface_Shadowsocks_Ciphers,
   },
   // Bridges (Used for reaching the API)
 getBridges: {

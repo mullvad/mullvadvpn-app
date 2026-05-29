@@ -13,9 +13,7 @@
     <string name="shadowsocks" translatable="false">Shadowsocks</string>
     <string name="quic" translatable="false">QUIC</string>
     <string name="lwo" translatable="false">LWO</string>
-    <string name="local_network_sharing_ip_ranges" translatable="false">
-        <![CDATA[<ul><li>10.0.0.0/8</li><li>172.16.0.0/12</li><li>192.168.0.0/16</li><li>169.254.0.0/16</li><li>fe80::/10</li><li>fc00::/7</li></ul>]]>
-    </string>
+    <string name="local_network_sharing_ip_ranges" translatable="false">10.0.0.0/8\n172.16.0.0/12\n192.168.0.0/16\n169.254.0.0/16\nfe80::/10\nfc00::/7</string>
     <string name="daita" translatable="false">DAITA</string>
     <string name="daita_full" translatable="false">Defence against AI-guided Traffic Analysis</string>
     <string name="support_email" translatable="false">support@mullvadvpn.net</string>

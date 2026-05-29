@@ -39,9 +39,9 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         }
     }
 
-    /// This function is expected to be used by the UI to list all available servers, even the inactive ones.
+    /// This function is expected to be used by the UI to query available servers.
     /// For the purposes of creating a relay connection, we should use `selectRelays` instead.
-    public func findCandidates(tunnelSettings: LatestTunnelSettings) throws -> RelayCandidates {
+    public func findCandidates(tunnelSettings: LatestTunnelSettings, includeInactive: Bool) throws -> RelayCandidates {
         let relays = try relayCache.read().relays
 
         let obfuscation = try RelayObfuscator(
@@ -52,15 +52,15 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
         ).obfuscate()
 
         let findCandidates:
-            (REST.ServerRelaysResponse, Bool, RelayConstraint, RelayObfuscation?) throws
-                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, filter, obfuscation in
+            (REST.ServerRelaysResponse, Bool, RelayConstraint, RelayConstraint, RelayObfuscation?) throws
+                -> [RelayWithLocation<REST.ServerRelay>] = { relays, daitaEnabled, locations, filter, obfuscation in
                     try RelaySelector.WireGuard.findCandidates(
-                        by: .any,
+                        by: locations,
                         in: relays,
                         filterConstraint: filter,
                         daitaEnabled: daitaEnabled,
                         obfuscation: obfuscation,
-                        includeInactive: true
+                        includeInactive: includeInactive
                     )
                 }
 
@@ -69,12 +69,14 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 entryRelays: try findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
-                    .any,
+                    tunnelSettings.relayConstraints.entryLocations,
+                    tunnelSettings.relayConstraints.entryFilter,
                     obfuscation
                 ),
                 exitRelays: try findCandidates(
                     relays,
                     false,
+                    tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     nil
                 )
@@ -84,12 +86,14 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 entryRelays: try findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
+                    tunnelSettings.relayConstraints.entryLocations,
                     tunnelSettings.relayConstraints.entryFilter,
                     obfuscation
                 ),
                 exitRelays: try findCandidates(
                     relays,
                     false,
+                    tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     nil
                 )
@@ -100,6 +104,7 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
                 exitRelays: try findCandidates(
                     relays,
                     tunnelSettings.daita.isEnabled,
+                    tunnelSettings.relayConstraints.exitLocations,
                     tunnelSettings.relayConstraints.exitFilter,
                     obfuscation
                 )

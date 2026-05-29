@@ -7,10 +7,18 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 
 class MultihopTunnelSettingsViewModel: ObservableObject {
+    enum ValidationError {
+        case filters(state: MultihopState)
+        case settings(state: MultihopState)
+    }
+
     let tunnelManager: TunnelManager
     var tunnelObserver: TunnelObserver!
+
+    var didFailValidation: ((ValidationError) -> Void)?
 
     @Published var automaticRoutingIsActive: Bool = false
     @Published var multihopState: MultihopState {
@@ -36,6 +44,34 @@ class MultihopTunnelSettingsViewModel: ObservableObject {
 
         self.tunnelManager.addObserver(tunnelObserver)
         updateAutomaticRoutingStatus()
+    }
+
+    func evaluate(setting: MultihopState) {
+        if filtersWillBeOverridden(setting) {
+            didFailValidation?(.filters(state: setting))
+            return
+        } else if stateIsIncompatible(setting) {
+            didFailValidation?(.settings(state: setting))
+            return
+        }
+
+        multihopState = setting
+    }
+
+    func filtersWillBeOverridden(_ state: MultihopState) -> Bool {
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateWillOverrideFilters(state)
+    }
+
+    func stateIsIncompatible(_ state: MultihopState) -> Bool {
+        let validator = MultihopValidator(
+            tunnelSettings: tunnelManager.settings,
+            relaySelector: tunnelManager.relaySelector
+        )
+        return validator.stateIsIncompatible(state)
     }
 
     private func updateAutomaticRoutingStatus() {

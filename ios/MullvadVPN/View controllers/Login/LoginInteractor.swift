@@ -13,6 +13,7 @@ final class LoginInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let logger = Logger(label: "LoginInteractor")
     private var tunnelObserver: TunnelObserver?
+    private let settingsManager: SettingsManager
 
     var didCreateAccount: (@MainActor @Sendable () -> Void)?
     var suggestPreferredAccountNumber: (@Sendable (String) -> Void)?
@@ -21,8 +22,9 @@ final class LoginInteractor: @unchecked Sendable {
         getLastUsedAccount() != nil
     }
 
-    init(tunnelManager: TunnelManager) {
+    init(tunnelManager: TunnelManager, settingsManager: SettingsManager) {
         self.tunnelManager = tunnelManager
+        self.settingsManager = settingsManager
     }
 
     func setAccount(accountNumber: String) async throws {
@@ -38,7 +40,7 @@ final class LoginInteractor: @unchecked Sendable {
 
     func getLastUsedAccount() -> String? {
         do {
-            return try SettingsManager.getLastUsedAccount()
+            return try settingsManager.getLastUsedAccount()
         } catch {
             logger.error(
                 error: error,
@@ -50,7 +52,7 @@ final class LoginInteractor: @unchecked Sendable {
 
     func removeLastUsedAccount() {
         do {
-            try SettingsManager.setLastUsedAccount(nil)
+            try settingsManager.setLastUsedAccount(nil)
         } catch {
             logger.error(
                 error: error,

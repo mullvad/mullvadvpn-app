@@ -95,6 +95,10 @@ service ManagementService {
   rpc GetCurrentApiAccessMethod(google.protobuf.Empty) returns (AccessMethodSetting) {}
   rpc TestCustomApiAccessMethod(CustomProxy) returns (google.protobuf.BoolValue) {}
   rpc TestApiAccessMethodById(UUID) returns (google.protobuf.BoolValue) {}
+  // Shadowsocks
+
+  // Enumerate all supported Shadowsocks ciphers.
+  rpc ShadowsocksCiphers(google.protobuf.Empty) returns (Shadowsocks.Ciphers);
 
   // Bridges (Used for reaching the API)
   rpc GetBridges(google.protobuf.Empty) returns (BridgeList) {}
@@ -479,10 +483,15 @@ message Socks5Remote {
   SocksAuth auth = 3;
 }
 message Shadowsocks {
+  // A Shadowsocks cipher.
+  message Cipher { string name = 1; }
   string ip = 1;
   uint32 port = 2;
   string password = 3;
-  string cipher = 4;
+  Cipher cipher = 4;
+
+  // All supported Shadowsocks ciphers.
+  message Ciphers { repeated Cipher ciphers = 1; }
 }
 
 message CustomProxy {
@@ -497,13 +506,13 @@ message AccessMethod {
   message Direct {}
   message Bridges {}
   message EncryptedDnsProxy {}
-  message DomainFronting {}
+  // message DomainFronting {}
   oneof access_method {
     Direct direct = 1;
     Bridges bridges = 2;
     EncryptedDnsProxy encrypted_dns_proxy = 3;
     CustomProxy custom = 4;
-    DomainFronting domain_fronting = 5;
+    // DomainFronting domain_fronting = 5;
   }
 }
 
@@ -525,7 +534,7 @@ message ApiAccessMethodSettings {
   AccessMethodSetting mullvad_bridges = 2;
   AccessMethodSetting encrypted_dns_proxy = 3;
   repeated AccessMethodSetting custom = 4;
-  AccessMethodSetting domain_fronting = 5;
+  // AccessMethodSetting domain_fronting = 5;
 }
 
 message Settings {

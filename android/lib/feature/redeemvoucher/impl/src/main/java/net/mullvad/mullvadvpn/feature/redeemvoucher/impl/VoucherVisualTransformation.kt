@@ -5,7 +5,7 @@ import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import java.lang.Integer.min
-import net.mullvad.mullvadvpn.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
+import net.mullvad.mullvadvpn.lib.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 
 const val VOUCHER_SEPARATOR = "-"
 const val VOUCHER_CHUNK_SIZE = 4

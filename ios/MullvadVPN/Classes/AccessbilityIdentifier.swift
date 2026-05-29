@@ -86,7 +86,6 @@ public enum AccessibilityIdentifier: Equatable {
     case accessMethodDirectCell
     case accessMethodBridgesCell
     case accessMethodEncryptedDNSCell
-    case accessMethodDomainFrontingCell
     case accessMethodProtocolSelectionCell
     case vpnSettingsCell
     case dnsSettingsAddServerCell
@@ -115,6 +114,8 @@ public enum AccessibilityIdentifier: Equatable {
     case customListLocationCell
     case daitaConfirmAlertBackButton
     case daitaConfirmAlertEnableButton
+    case obfuscationConfirmAlertEnableButton
+    case multihopConfirmAlertEnableButton
     case includeAllNetworksNotificationsAlertEnableButton
     case includeAllNetworksNotificationsAlertDismissButton
     case includeAllNetworksNotificationsAlertSystemSettingsButton
@@ -272,11 +273,13 @@ public enum AccessibilityIdentifier: Equatable {
     // Multihop
     case multihopState(String)
     case multihopMenuPicker
+    case multihopPromptAlert
 
     // WireGuard obfuscation settings
     case wireGuardObfuscationUdpOverTcpTable
     case wireGuardObfuscationShadowsocksTable
     case wireGuardObfuscationLwoTable
+    case wireGuardObfuscationIncompatibilityAlert
 
     // Error
     case unknown

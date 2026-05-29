@@ -15,7 +15,6 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
     public static let directId = UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!
     public static let bridgeId = UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!
     public static let encryptedDNSId = UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!
-    public static let domainFrontingId = UUID(uuidString: "E4BC6B6B-18E7-4E6F-9E53-95E3426B1796")!
 
     public let shadowsocksCiphers: [String]
     private let logger = Logger(label: "AccessMethodRepository")
@@ -43,13 +42,6 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         proxyConfiguration: .encryptedDNS
     )
 
-    private let domainFronting = PersistentAccessMethod(
-        id: AccessMethodRepository.domainFrontingId,
-        name: "Domain fronting",
-        isEnabled: true,
-        proxyConfiguration: .domainFronting
-    )
-
     private let accessMethodsSubject: CurrentValueSubject<[PersistentAccessMethod], Never>
     public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {
         accessMethodsSubject.eraseToAnyPublisher()
@@ -69,12 +61,15 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         direct
     }
 
-    private lazy var defaultConnectionMethods = [direct, bridge, encryptedDNS, domainFronting]
+    private lazy var defaultConnectionMethods = [direct, bridge, encryptedDNS]
 
     private var cancellables: Set<Combine.AnyCancellable> = []
 
-    public init(shadowsocksCiphers: [String]) {
+    private let settingsStore: SettingsStore
+
+    public init(shadowsocksCiphers: [String], settingsStore: SettingsStore) {
         self.shadowsocksCiphers = shadowsocksCiphers
+        self.settingsStore = settingsStore
 
         accessMethodsSubject = CurrentValueSubject([])
         requestAccessMethodSubject = PassthroughSubject()
@@ -187,7 +182,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         let parser = makeParser()
 
         do {
-            let data = try SettingsManager.store.read(key: .apiAccessMethods)
+            let data = try settingsStore.read(key: .apiAccessMethods)
             return try parser.parseUnversionedPayload(as: PersistentAccessMethodStore.self, from: data)
         } catch {
             logger.error("Could not load access method store: \(error)")
@@ -201,7 +196,7 @@ public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked 
         let parser = makeParser()
         let data = try parser.produceUnversionedPayload(store)
 
-        try SettingsManager.store.write(data, for: .apiAccessMethods)
+        try settingsStore.write(data, for: .apiAccessMethods)
     }
 
     private func makeParser() -> SettingsParser {

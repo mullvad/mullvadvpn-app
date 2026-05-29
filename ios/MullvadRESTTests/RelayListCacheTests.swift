@@ -21,11 +21,11 @@ import XCTest
 /// This test would fail on main where `StoredRelays` encoded a deserialized `relays`
 /// property via Codable, losing any fields not declared in `ServerRelaysResponse`.
 class RelayListCacheTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
+    let settingsManager = SettingsManager(store: InMemorySettingsStore<SettingNotFound>())
+    lazy var settingsStore = settingsManager.store
 
     override func setUp() {
         super.setUp()
-        SettingsManager.unitTestStore = Self.store
         RustLogging.initialize(logger: Logger(label: "RelayListCacheTests"))
     }
 
@@ -107,9 +107,7 @@ class RelayListCacheTests: XCTestCase {
         let context = try MullvadApiContext(
             host: "localhost",
             address: "\(IPv4Address.loopback.debugDescription):\(port)",
-            encryptedDnsDomain: REST.encryptedDNSHostname,
-            domainFrontingFront: "",
-            domainFrontingProxyHost: "",
+            domain: REST.encryptedDNSHostname,
             disableTls: true,
             shadowsocksProvider: shadowsocksLoader,
             accessMethodWrapper: initAccessMethodSettingsWrapper(methods: accessMethodsRepository.fetchAll()),

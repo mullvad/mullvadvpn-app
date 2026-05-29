@@ -23,7 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## UNRELEASED
 ### Add
-- Add support for connecting over IPv6
+- Add support for connecting over IPv6.
+
+### Fixed
+- Stop logging access method credentials in logs.
 
 ## [2026.2 - 2026-04-21]
 ### Add

@@ -33,8 +33,8 @@ final public class RecentConnectionsRepository: RecentConnectionsRepositoryProto
         recentConnectionsSubject.eraseToAnyPublisher()
     }
 
-    public init(store: SettingsStore, maxLimit: UInt = 50) {
-        self.store = store
+    public init(settingsStore: SettingsStore, maxLimit: UInt = 50) {
+        self.store = settingsStore
         self.maxLimit = maxLimit
     }
 

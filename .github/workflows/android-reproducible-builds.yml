@@ -7,7 +7,7 @@ on:
     # syntax in the workflow file. If you update this you must have notifications for
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
-    - cron: '20 6 * * 1'
+    - cron: '20 4 * * 1'
   workflow_dispatch:
     inputs:
       commit_hash:

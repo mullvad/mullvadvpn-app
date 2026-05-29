@@ -17,7 +17,6 @@ import {
   DeviceEvent,
   DeviceState,
   DirectMethod,
-  DomainFronting,
   EncryptedDnsProxy,
   EndpointObfuscationType,
   ErrorStateCause,
@@ -52,6 +51,7 @@ import {
   RelayLocationGeographical,
   RelayProtocol,
   RelaySettings,
+  type ShadowsocksCipher,
   SocksAuth,
   TunnelParameterError,
   TunnelState,
@@ -1042,11 +1042,11 @@ function fillApiAccessMethodSetting<T extends grpcTypes.NewAccessMethodSetting>(
       accessMethod.setEncryptedDnsProxy(encryptedDnsProxy);
       break;
     }
-    case 'domain-fronting': {
-      const domainFronting = new grpcTypes.AccessMethod.DomainFronting();
-      accessMethod.setDomainFronting(domainFronting);
-      break;
-    }
+    // case 'domain-fronting': {
+    //   const domainFronting = new grpcTypes.AccessMethod.DomainFronting();
+    //   accessMethod.setDomainFronting(domainFronting);
+    //   break;
+    // }
     default:
       accessMethod.setCustom(convertToCustomProxy(method));
   }
@@ -1085,13 +1085,40 @@ export function convertToCustomProxy(proxy: CustomProxy): grpcTypes.CustomProxy 
       shadowsocks.setIp(proxy.ip);
       shadowsocks.setPort(proxy.port);
       shadowsocks.setPassword(proxy.password);
-      shadowsocks.setCipher(proxy.cipher);
+      shadowsocks.setCipher(convertToGrpcShadowsocksCipher(proxy.cipher));
       customProxy.setShadowsocks(shadowsocks);
       break;
     }
   }
 
   return customProxy;
+}
+
+export function convertFromGrpcShadowsocksCiphers(
+  ciphers: grpcTypes.Shadowsocks.Cipher[],
+): ShadowsocksCipher[] {
+  return ciphers.map((cipher) => {
+    const name = cipher.getName();
+    return {
+      name,
+    };
+  });
+}
+
+export function convertFromGrpcShadowsocksCipher(
+  cipher: grpcTypes.Shadowsocks.Cipher,
+): ShadowsocksCipher {
+  return {
+    name: cipher.getName(),
+  };
+}
+
+export function convertToGrpcShadowsocksCipher(
+  cipher: ShadowsocksCipher,
+): grpcTypes.Shadowsocks.Cipher {
+  const grpcCipher = new grpcTypes.Shadowsocks.Cipher();
+  grpcCipher.setName(cipher.name);
+  return grpcCipher;
 }
 
 function convertToSocksAuth(authentication: SocksAuth): grpcTypes.SocksAuth {
@@ -1116,9 +1143,9 @@ function convertFromApiAccessMethodSettings(
       "no 'Encrypted DNS proxy' access method was found",
     ),
   ) as AccessMethodSetting<EncryptedDnsProxy>;
-  const domainFronting = convertFromApiAccessMethodSetting(
-    ensureExists(accessMethods.getDomainFronting(), "no 'Domain fronting' access method was found"),
-  ) as AccessMethodSetting<DomainFronting>;
+  // const domainFronting = convertFromApiAccessMethodSetting(
+  //   ensureExists(accessMethods.getDomainFronting(), "no 'Domain fronting' access method was found"),
+  // ) as AccessMethodSetting<DomainFronting>;
   const custom = accessMethods
     .getCustomList()
     .filter((setting) => setting.hasId() && setting.hasAccessMethod())
@@ -1130,7 +1157,7 @@ function convertFromApiAccessMethodSettings(
     direct,
     mullvadBridges: bridges,
     encryptedDnsProxy,
-    domainFronting,
+    // domainFronting,
     custom,
   };
 }
@@ -1167,8 +1194,8 @@ function convertFromAccessMethod(method: grpcTypes.AccessMethod): AccessMethod {
       return { type: 'bridges' };
     case grpcTypes.AccessMethod.AccessMethodCase.ENCRYPTED_DNS_PROXY:
       return { type: 'encrypted-dns-proxy' };
-    case grpcTypes.AccessMethod.AccessMethodCase.DOMAIN_FRONTING:
-      return { type: 'domain-fronting' };
+    // case grpcTypes.AccessMethod.AccessMethodCase.DOMAIN_FRONTING:
+    //   return { type: 'domain-fronting' };
     case grpcTypes.AccessMethod.AccessMethodCase.CUSTOM: {
       return convertFromCustomProxy(method.getCustom()!);
     }
@@ -1208,7 +1235,7 @@ function convertFromCustomProxy(proxy: grpcTypes.CustomProxy): CustomProxy {
         ip: shadowsocks.getIp(),
         port: shadowsocks.getPort(),
         password: shadowsocks.getPassword(),
-        cipher: shadowsocks.getCipher(),
+        cipher: convertFromGrpcShadowsocksCipher(shadowsocks.getCipher()!),
       };
     }
     case grpcTypes.CustomProxy.ProxyMethodCase.PROXY_METHOD_NOT_SET:

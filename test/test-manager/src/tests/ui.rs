@@ -195,7 +195,7 @@ async fn test_custom_access_methods_gui(
             ),
             (
                 "SHADOWSOCKS_SERVER_PASSWORD",
-                access_method.password.as_ref(),
+                access_method.plaintext_password(),
             ),
         ],
     )

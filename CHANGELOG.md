@@ -22,12 +22,26 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Windows
+- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
+  <https://github.com/mullvad/wireguard-nt>.
+
+### Fixed
+- Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
+  existing, invalid access method is removed with a settings migration.
+
+#### Windows
+- Fix timeout when loading split tunnel driver during boot.
+- Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.
+
+
+## [2026.3-beta1] - 2026-05-19
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
 - GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, not just
   macOS. It replaces wireguard-go.
-- Add support for API access method based on domain fronting.
 
 ### Changed
 - Optimize LWO performance. This gives a 1.5 to 3 times speedup in our benchmarks.
@@ -47,8 +61,7 @@ Line wrap the file at 100 chars.                                              Th
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
 
 #### Windows
-- Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
-  <https://github.com/mullvad/wireguard-nt>.
+- Switch winreg out for windows_registry.
 
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending

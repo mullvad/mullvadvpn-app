@@ -4,6 +4,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     @ObservedObject var viewModel: ViewModel
     @Binding var context: LocationContext
     @State var newCustomListAlert: MullvadInputAlert?
+    @State var multihopWarningAlert: MullvadAlert?
     @State var alert: MullvadAlert?
     private let topAnchor = "topAnchor"
     let onScrollVisibilityChange: (Bool) -> Void
@@ -103,6 +104,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
         }
         .mullvadInputAlert(item: $newCustomListAlert)
         .mullvadAlert(item: $alert)
+        .mullvadAlert(item: $multihopWarningAlert)
     }
 
     @ViewBuilder
@@ -123,7 +125,11 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             locations: $context.locations,
             multihopContext: viewModel.multihopContext,
         ) { location in
-            context.selectLocation(location)
+            if viewModel.filtersWillBeOverridden(location) {
+                multihopWarningAlert = getMultihopFilterOverrideWarningAlert(node: location)
+            } else {
+                context.selectLocation(location)
+            }
         } contextMenu: { location in
             locationContextMenu(location)
         }
@@ -136,8 +142,13 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             if !$context.recents.isEmpty {
                 RecentLocationsListView(
                     locations: $context.recents,
+                    multihopContext: viewModel.multihopContext,
                     onSelectLocation: { location in
-                        context.selectLocation(location)
+                        if viewModel.filtersWillBeOverridden(location) {
+                            multihopWarningAlert = getMultihopFilterOverrideWarningAlert(node: location)
+                        } else {
+                            context.selectLocation(location)
+                        }
                     },
                     contextMenu: { location in
                         recentLocationContextMenu(location)
@@ -205,6 +216,36 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .padding(.horizontal, context.customLists.isEmpty ? 0 : 16)
             .padding(.top, context.customLists.isEmpty ? 0 : 4)
             .accessibilityHidden(true)
+    }
+
+    private func getMultihopFilterOverrideWarningAlert(node: LocationNode) -> MullvadAlert? {
+        MullvadAlert(
+            type: .warning,
+            messages: [
+                LocalizedStringKey(
+                    "You currently have entry filters applied. Selecting the “Automatic” location, the app will "
+                        + "ignore filter settings for the entry server."
+                )
+            ],
+            actions: [
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Continue",
+                    identifier: AccessibilityIdentifier.multihopConfirmAlertEnableButton,
+                    handler: {
+                        context.selectLocation(node)
+                        multihopWarningAlert = nil
+                    }
+                ),
+                MullvadAlert.Action(
+                    type: .default,
+                    title: "Cancel",
+                    handler: {
+                        multihopWarningAlert = nil
+                    }
+                ),
+            ]
+        )
     }
 
     private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {

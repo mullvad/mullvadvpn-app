@@ -274,9 +274,6 @@
     <string name="loading_products">Producten worden geladen</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
-    <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
-    <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
-    <string name="local_network_sharing_info_block_connections_warning">Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet.</string>
     <string name="location_added">%1$s (toegevoegd)</string>
     <string name="location_was_added_to_list">%1$s is toegevoegd aan \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s is verwijderd uit \"%2$s\"</string>
@@ -423,7 +420,6 @@
     <string name="settings">Instellingen</string>
     <string name="settings_account">Account</string>
     <string name="settings_api_access">API-toegang</string>
-    <string name="settings_changes_effect_warning_short">DNS-instellingen worden mogelijk niet onmiddellijk van kracht</string>
     <string name="settings_notifications">Notificaties</string>
     <string name="settings_patch_error_failed_to_apply_patch">Patch toepassen mislukt</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ongeldige of ontbrekende waarde \"%1$s\"</string>

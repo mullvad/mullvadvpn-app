@@ -152,6 +152,18 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
         }
     }
 
+    func filtersWillBeOverridden(_ state: MultihopState) -> Bool {
+        false
+    }
+
+    func filtersWillBeOverridden(_ node: LocationNode) -> Bool {
+        false
+    }
+
+    func multihopStateIsIncompatible(_ state: MultihopState) -> Bool {
+        false
+    }
+
     func onFilterTapped(_ filter: SelectLocationFilter) {
         print("show filter: \(filter)")
     }

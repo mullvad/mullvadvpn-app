@@ -274,9 +274,6 @@
     <string name="loading_products">Indlæser produkter</string>
     <string name="loading_verifying">Bekræfter køb...</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
-    <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
-    <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
-    <string name="local_network_sharing_info_block_connections_warning">Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere.</string>
     <string name="location_added">%1$s (tilføjet)</string>
     <string name="location_was_added_to_list">%1$s blev tilføjet til \"%2$s\"</string>
     <string name="location_was_removed_from_list">%1$s blev fjernet fra \"%2$s\"</string>
@@ -423,7 +420,6 @@
     <string name="settings">Indstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-adgang</string>
-    <string name="settings_changes_effect_warning_short">DNS-indstillinger træder muligvis ikke i kraft med det samme</string>
     <string name="settings_notifications">Meddelelser</string>
     <string name="settings_patch_error_failed_to_apply_patch">Det lykkedes ikke at anvende patch</string>
     <string name="settings_patch_error_invalid_or_missing_value">Ugyldig eller manglende værdi \"%1$s\"</string>
