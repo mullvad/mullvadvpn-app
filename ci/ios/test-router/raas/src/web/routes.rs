@@ -4,12 +4,11 @@ use axum::{
     response::IntoResponse,
 };
 use ipnetwork::IpNetwork;
-use mnl::mnl_sys::libc;
 use std::collections::{BTreeMap, BTreeSet};
 use uuid::Uuid;
 
 use crate::{
-    block_list::{BlockList, BlockRule, Endpoints},
+    firewall::{BlockList, BlockRule, Endpoints},
     web,
 };
 
@@ -54,6 +53,7 @@ pub enum TransportProtocol {
 }
 
 impl TransportProtocol {
+    #[cfg(target_os = "linux")]
     pub fn as_ipproto(&self) -> u8 {
         match self {
             TransportProtocol::Udp => libc::IPPROTO_UDP as u8,

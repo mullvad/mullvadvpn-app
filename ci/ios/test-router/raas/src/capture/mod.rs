@@ -33,9 +33,18 @@ pub enum Error {
 // Maximum capture size should be 100mb
 const MAX_CAPTURE_SIZE: u32 = 1024 * 1024 * 100;
 
-#[derive(Default)]
 pub struct Capture {
+    interface: String,
     captures: BTreeMap<uuid::Uuid, Context>,
+}
+
+impl Capture {
+    pub fn new(interface: String) -> Self {
+        Self {
+            interface,
+            captures: BTreeMap::new(),
+        }
+    }
 }
 
 struct Context {
@@ -69,10 +78,8 @@ impl Capture {
             return Err(Error::CaptureInProgress);
         }
 
-        // Use the magic any device.
-        // This will remove the ethernet frames from the packets.
         let device = Device {
-            name: "any".into(),
+            name: self.interface.clone(),
             desc: None,
             addresses: vec![],
             flags: pcap::DeviceFlags::empty(),
