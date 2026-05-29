@@ -468,7 +468,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 MultihopContext
             ) -> Void = { dataSources, selected, context in
                 dataSources.forEach {
-                    $0.setSelectedNode(constraint: selected)
+                    if let selectedNode = $0.setSelectedNode(constraint: selected) {
+                        switch context {
+                        case .entry:
+                            self.entryContext.selectedLocation = selectedNode
+                        case .exit:
+                            self.exitContext.selectedLocation = selectedNode
+                        }
+                    }
                     $0.expandSelection()
 
                     // When multihopping, the UI should show what servers cannot be selected based on what was
@@ -496,21 +503,19 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
                 }
             }
 
+        entryContext.selectedLocation = nil
+        exitContext.selectedLocation = nil
+
         updateLocationsDataSources(
-            [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource],
+            [entryRecentsDataSource, entryLocationsDataSource, entryCustomListsDataSource],
             tunnelManager.settings.relayConstraints.entryLocations,
             .entry
         )
         updateLocationsDataSources(
-            [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource],
+            [exitRecentsDataSource, exitLocationsDataSource, exitCustomListsDataSource],
             tunnelManager.settings.relayConstraints.exitLocations,
             .exit
         )
-
-        exitContext.selectedLocation =
-            [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode
-        entryContext.selectedLocation =
-            [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource].firstSelectedNode
     }
 
     private func updateMultihopState() {
