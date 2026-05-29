@@ -14,6 +14,7 @@ import MullvadTypes
 class CustomListsDataSource: SearchableLocationDataSource {
     private(set) var nodes = [LocationNode]()
     private(set) var repository: CustomListRepositoryProtocol
+    var selectedNode: LocationNode?
 
     init(repository: CustomListRepositoryProtocol) {
         self.repository = repository
@@ -57,11 +58,7 @@ class CustomListsDataSource: SearchableLocationDataSource {
         }
 
         if let location = selectedRelays?.locations.first {
-            return descendantNode(
-                in: rootNode,
-                for: location,
-                baseCodes: [selectedNode.code]
-            )
+            return rootNode.descendantNode(for: [selectedNode.code, location.stringRepresentation])
         }
 
         return nil

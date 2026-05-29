@@ -120,9 +120,9 @@ extension LocationNode {
         self.code == code ? self : children.first(where: { $0.code == code })
     }
 
-    func descendantNodeFor(codes: [String]) -> LocationNode? {
+    func descendantNode(for codes: [String]) -> LocationNode? {
         let combinedCode = Self.combineNodeCodes(codes)
-        return self.code == combinedCode ? self : children.compactMap { $0.descendantNodeFor(codes: codes) }.first
+        return self.code == combinedCode ? self : children.compactMap { $0.descendantNode(for: codes) }.first
     }
 
     func forEachDescendant(do callback: (LocationNode) -> Void) {
@@ -144,20 +144,11 @@ extension LocationNode {
     }
 
     var flattened: [LocationNode] {
-        children + children.flatMap { $0.flattened }
+        [self] + children.flatMap { $0.flattened }
     }
 
-    var activeRelayNodes: [LocationNode] {
-        ([self] + flattened).filter { !($0 is CustomListLocationNode) }
-            .filter(\.self.isActive)
-            .filter {
-                switch $0.locations.first {
-                case .hostname:
-                    return true
-                default:
-                    return false
-                }
-            }
+    var descendants: [LocationNode] {
+        children.flatMap { $0.flattened }
     }
 
     func pathToRoot() -> [String] {
@@ -172,6 +163,7 @@ extension LocationNode {
         children.map { $0.copy(withParent: parent) }
     }
 }
+
 extension LocationNode: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(code)
