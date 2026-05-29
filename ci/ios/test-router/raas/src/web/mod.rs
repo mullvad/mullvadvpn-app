@@ -7,26 +7,26 @@ use axum::{
 use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
-use crate::{block_list::BlockList, capture::Capture};
+use crate::{capture::Capture, firewall::BlockList};
 
-mod firewall;
+mod capture;
 mod ip;
 pub mod routes;
 
-pub fn router(block_list: BlockList) -> Router {
+pub fn router(block_list: BlockList, interface: String) -> Router {
     Router::new()
         .route("/own-ip", get(ip::host_ip))
         .route("/rules", get(routes::list_all_rules))
         .route("/rule", post(routes::add_rule))
         .route("/remove-rules/:label", delete(routes::delete_rules))
-        .route("/capture", post(firewall::start))
-        .route("/stop-capture/:label", post(firewall::stop))
-        .route("/last-capture/:label", get(firewall::get))
-        .route("/parse-capture/:label", put(firewall::parse))
+        .route("/capture", post(capture::start))
+        .route("/stop-capture/:label", post(capture::stop))
+        .route("/last-capture/:label", get(capture::get))
+        .route("/parse-capture/:label", put(capture::parse))
         .layer(ServiceBuilder::new().layer(TraceLayer::new_for_http()))
         .with_state(State {
             block_list: Arc::new(Mutex::new(block_list)),
-            capture: Arc::new(tokio::sync::Mutex::new(Capture::default())),
+            capture: Arc::new(tokio::sync::Mutex::new(Capture::new(interface))),
         })
 }
 
