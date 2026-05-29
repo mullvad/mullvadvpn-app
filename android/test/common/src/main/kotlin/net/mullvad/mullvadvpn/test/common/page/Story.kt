@@ -63,8 +63,9 @@ fun ConnectPage.enableMultihopStory() {
 fun ConnectPage.enableLocalNetworkSharingStory() {
     clickSettings()
     on<SettingsPage> { clickVpnSettings() }
-    on<VpnSettingsPage> { clickLocalNetworkSharingSwitch() }
-    uiDevice.pressBackTwice()
+    on<VpnSettingsPage> { clickLocalNetworkSharing() }
+    on<LocalNetworkSharingPage> { toggleSwitch() }
+    repeat(3) { uiDevice.pressBack() }
 }
 
 fun ConnectPage.toggleInTunnelIpv6Story() {

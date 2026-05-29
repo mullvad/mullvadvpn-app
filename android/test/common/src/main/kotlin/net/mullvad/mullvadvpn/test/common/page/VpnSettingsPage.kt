@@ -6,16 +6,10 @@ import androidx.test.uiautomator.Until
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_QUANTUM_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_VPN_SETTINGS_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG
-import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickObjectAwaitIsChecked
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
@@ -36,13 +30,11 @@ class VpnSettingsPage internal constructor() : Page() {
         assert(postQuantumSwitch.isChecked == enabled)
     }
 
-    fun clickLocalNetworkSharingSwitch() {
+    fun clickLocalNetworkSharing() {
         val localNetworkSharingCell =
             uiDevice.findObjectWithTimeout(localNetworkSharingSelector).parent
-        val localNetworkSharingSwitch =
-            localNetworkSharingCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
 
-        localNetworkSharingSwitch.click()
+        localNetworkSharingCell.click()
     }
 
     fun clickInTunnelIpv6Switch() {
@@ -52,32 +44,8 @@ class VpnSettingsPage internal constructor() : Page() {
         inTunnelIpv6Switch.click()
     }
 
-    fun scrollUntilWireGuardObfuscationUdpOverTcpCell() {
-        scrollUntilCell(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)
-    }
-
-    fun scrollUntilWireGuardObfuscationQuicCell() {
-        scrollUntilCell(WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG)
-    }
-
-    fun scrollUntilWireGuardObfuscationLwoCell() {
-        scrollUntilCell(WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG)
-    }
-
-    fun scrollUntilWireGuardObfuscationOffCell() {
-        scrollUntilCell(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)
-    }
-
     fun scrollUntilPostQuantumCell() {
         scrollUntilCell(LAZY_LIST_QUANTUM_ITEM_TEST_TAG)
-    }
-
-    fun scrollUntilWireGuardObfuscationShadowsocksCell() {
-        scrollUntilCell(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG)
-    }
-
-    fun scrollUntilWireGuardCustomPort() {
-        scrollUntilCell(LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG)
     }
 
     fun scrollUntilServerIpOverride() {
@@ -86,22 +54,6 @@ class VpnSettingsPage internal constructor() : Page() {
 
     fun scrollUntilDeviceIpVersionCell() {
         scrollUntilCell(WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG)
-    }
-
-    fun clickWireguardObfuscationUdpOverTcpCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
-    }
-
-    fun clickWireguardObfuscationQuicCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_QUIC_CELL_TEST_TAG))
-    }
-
-    fun clickWireguardObfuscationLwoCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG))
-    }
-
-    fun clickWireGuardObfuscationOffCell() {
-        uiDevice.clickObjectAwaitIsChecked(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG))
     }
 
     fun scrollUntilAntiCensorshipCell() {
