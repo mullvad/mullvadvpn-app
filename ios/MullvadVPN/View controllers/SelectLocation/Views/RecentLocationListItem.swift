@@ -14,6 +14,7 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
     private let itemFactory = ListItemFactory()
 
     @Binding var location: LocationNode
+    let multihopContext: MultihopContext
     let onSelect: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
@@ -28,10 +29,11 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
     @ViewBuilder
     var recentLocationListItem: some View {
         SegmentedListItem(
+            isDisabled: location.isExcluded,
             accessibilityIdentifier: .recentListItem(location.name),
             accessibilityLabel: location.name,
             label: {
-                itemFactory.label(for: .recent(node: location))
+                itemFactory.label(for: .recent(node: location, context: multihopContext))
             },
             segment: {},
             groupedContent: {},

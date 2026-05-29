@@ -26,7 +26,7 @@ final class RelayFilterViewModel {
         multihopContext: MultihopContext
     ) {
         self.settings = settings
-        var settingsCopy = settings
+        var settingsCopy = settings.withAnyLocation
 
         self.relaySelectorWrapper = relaySelectorWrapper
         self.multihopContext = multihopContext
@@ -44,7 +44,10 @@ final class RelayFilterViewModel {
         // This constraint ensures that the selected relays are associated with the current tunnel settings
         // and serve as the primary source of truth for subsequent filtering operations.
         // Further filtering will be applied based on specific criteria such as `ownership` or `provider`.
-        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: settingsCopy) {
+        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(
+            tunnelSettings: settingsCopy,
+            includeInactive: false
+        ) {
             self.relayCandidatesForAny = relayCandidatesForAny
         } else {
             relayCandidatesForAny = RelayCandidates(entryRelays: nil, exitRelays: [])

@@ -101,8 +101,8 @@ public enum RelayLocation: Codable, Hashable, CustomDebugStringConvertible, Send
             return country
         case let .city(country, city):
             return "\(country)-\(city)"
-        case let .hostname(country, city, host):
-            return "\(country)-\(city)-\(host)"
+        case let .hostname(_, _, host):
+            return host
         }
     }
 }

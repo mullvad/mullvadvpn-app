@@ -382,12 +382,14 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
 
     private func fetchLocations() {
         relaysCandidates = try? relaySelectorWrapper.findCandidates(
-            tunnelSettings: tunnelManager.settings
+            tunnelSettings: tunnelManager.settings.withAnyLocation,
+            includeInactive: true
         )
         if let allRelaysCandidates = try? relaySelectorWrapper.findCandidates(
             tunnelSettings: .init(
                 tunnelMultihopState: tunnelManager.settings.tunnelMultihopState
-            )
+            ),
+            includeInactive: true
         ) {
             entryContext.totalRelayCount = allRelaysCandidates.entryRelays?.count ?? 0
             exitContext.totalRelayCount = allRelaysCandidates.exitRelays.count
@@ -454,40 +456,56 @@ class SelectLocationViewModelImpl: SelectLocationViewModel {
     }
 
     private func updateSelections() {
-        let selectedEntryConstraint = tunnelManager.settings.relayConstraints.entryLocations
-        let selectedExitConstraint = tunnelManager.settings.relayConstraints.exitLocations
-
-        let updateRecentsDataSources:
-            (
-                LocationDataSourceProtocol,
-                RelayConstraint<UserSelectedRelays>
-            ) -> Void = { dataSource, selected in
-                dataSource.setSelectedNode(constraint: selected)
-            }
+        let exclusionCandidates = try? relaySelectorWrapper.findCandidates(
+            tunnelSettings: tunnelManager.settings,
+            includeInactive: false
+        )
 
         let updateLocationsDataSources:
             (
                 [LocationDataSourceProtocol],
                 RelayConstraint<UserSelectedRelays>,
-                RelayConstraint<UserSelectedRelays>
-            ) -> Void = { dataSources, selected, excluded in
+                MultihopContext
+            ) -> Void = { dataSources, selected, context in
                 dataSources.forEach {
                     $0.setSelectedNode(constraint: selected)
                     $0.expandSelection()
 
-                    if self.isMultihopActive {
-                        $0.setExcludedNode(constraint: excluded)
+                    // When multihopping, the UI should show what servers cannot be selected based on what was
+                    // selected in the "other" hop. For each hop, either entry or exit, do:
+                    // 1. Get the other hop's relays that match the current hop.
+                    // 2. If there's only one match, that means - by deduction - that this is the same relay
+                    //    that was selected in the current hop.
+                    // 3. Update the matching node to be excluded in its data source.
+                    if self.multihopState.isAlways {
+                        switch context {
+                        case .entry:
+                            if let candidates = exclusionCandidates?.exitRelays, candidates.count == 1,
+                                let relay = candidates.first?.relay
+                            {
+                                $0.setExcludedNode(hostname: relay.hostname)
+                            }
+                        case .exit:
+                            if let candidates = exclusionCandidates?.entryRelays, candidates.count == 1,
+                                let relay = candidates.first?.relay
+                            {
+                                $0.setExcludedNode(hostname: relay.hostname)
+                            }
+                        }
                     }
                 }
             }
 
         updateLocationsDataSources(
-            [entryCustomListsDataSource, entryLocationsDataSource], selectedEntryConstraint, selectedExitConstraint)
+            [entryRecentsDataSource, entryCustomListsDataSource, entryLocationsDataSource],
+            tunnelManager.settings.relayConstraints.entryLocations,
+            .entry
+        )
         updateLocationsDataSources(
-            [exitCustomListsDataSource, exitLocationsDataSource], selectedExitConstraint, selectedEntryConstraint)
-
-        updateRecentsDataSources(entryRecentsDataSource, selectedEntryConstraint)
-        updateRecentsDataSources(exitRecentsDataSource, selectedExitConstraint)
+            [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource],
+            tunnelManager.settings.relayConstraints.exitLocations,
+            .exit
+        )
 
         exitContext.selectedLocation =
             [exitRecentsDataSource, exitCustomListsDataSource, exitLocationsDataSource].firstSelectedNode

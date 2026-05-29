@@ -10,6 +10,7 @@ import SwiftUI
 
 struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
     @Binding var locations: [LocationNode]
+    let multihopContext: MultihopContext
     let onSelectLocation: (LocationNode) -> Void
     let contextMenu: (LocationNode) -> ContextMenu
 
@@ -17,6 +18,7 @@ struct RecentLocationsListView<ContextMenu>: View where ContextMenu: View {
         ForEach($locations, id: \.self) { location in
             RecentLocationListItem(
                 location: location,
+                multihopContext: multihopContext,
                 onSelect: onSelectLocation,
                 contextMenu: { location in contextMenu(location) },
             )
