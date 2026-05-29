@@ -513,14 +513,17 @@ fi
 
 # notarize installer on macOS
 if [[ "$NOTARIZE" == "true" && "$(uname -s)" == "Darwin" ]]; then
-    log_info "Notarizing pkg"
-    xcrun notarytool submit dist/*"$PRODUCT_VERSION"*.pkg \
-        --keychain "$NOTARIZE_KEYCHAIN" \
-        --keychain-profile "$NOTARIZE_KEYCHAIN_PROFILE" \
-        --wait
+    for pkg in dist/*"$PRODUCT_VERSION"*.pkg; do
+        log_info "Notarizing $pkg"
 
-    log_info "Stapling pkg"
-    xcrun stapler staple dist/*"$PRODUCT_VERSION"*.pkg
+        xcrun notarytool submit "$pkg" \
+            --keychain "$NOTARIZE_KEYCHAIN" \
+            --keychain-profile "$NOTARIZE_KEYCHAIN_PROFILE" \
+            --wait
+
+        log_info "Stapling $pkg"
+        xcrun stapler staple "$pkg"
+    done
 fi
 
 log_success "**********************************"
