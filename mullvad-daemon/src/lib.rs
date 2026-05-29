@@ -482,6 +482,8 @@ pub(crate) enum InternalDaemonEvent {
     TriggerShutdown(bool),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
+    /// The relay list was updated.
+    NewRelayList,
     /// Sent when a device is updated in any way (key rotation, login, logout, etc.).
     DeviceEvent(AccountEvent),
     /// Sent when access methods are changed in any way (new active access method).
@@ -980,6 +982,7 @@ impl Daemon {
             let _ = internal_event_tx_clone.send(InternalDaemonEvent::Command(
                 DaemonCommand::UpdateDefaultLocationCountry(tx),
             ));
+            let _ = internal_event_tx_clone.send(InternalDaemonEvent::NewRelayList);
         };
 
         let mut relay_list_updater = RelayListUpdater::spawn(
@@ -1213,6 +1216,17 @@ impl Daemon {
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info);
             }
+            NewRelayList => match &self.tunnel_state {
+                TunnelState::Error(err)
+                    if let ErrorStateCause::TunnelParameterError(_) = err.cause() =>
+                {
+                    log::debug!(
+                        "Reconnecting due to receiving new relay list when blocked by tunnel parameters"
+                    );
+                    self.reconnect_tunnel();
+                }
+                _ => (),
+            },
             DeviceEvent(event) => self.handle_device_event(event).await,
             AccessMethodEvent {
                 event,
