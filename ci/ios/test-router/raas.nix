@@ -9,9 +9,12 @@
   ...
 }:
 
+let
+  manifest = (lib.importTOML ./raas/Cargo.toml).package;
+in
 rustPlatform.buildRustPackage rec {
-  pname = "raas";
-  version = "0.0.1";
+  pname = manifest.name;
+  version = manifest.version;
 
   src = ./raas;
   cargoLock.lockFile = ./raas/Cargo.lock;
