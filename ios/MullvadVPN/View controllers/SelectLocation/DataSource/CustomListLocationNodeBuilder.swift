@@ -48,7 +48,7 @@ struct CustomListLocationNodeBuilder {
             }
         }
 
-        listNode.isActive = !listNode.children.isEmpty
+        listNode.isActive = listNode.children.contains { $0.isActive }
         listNode.sort()
 
         return listNode

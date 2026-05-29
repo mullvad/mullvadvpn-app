@@ -229,43 +229,4 @@ extension LocationCoordinator {
             self.tunnelManager.startTunnel()
         }
     }
-
-    func navigateToCustomLists(nodes: [LocationNode]) {
-        let actionSheet = UIAlertController(
-            title: NSLocalizedString("Custom lists", comment: ""),
-            message: nil,
-            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
-        )
-        actionSheet.overrideUserInterfaceStyle = .dark
-        actionSheet.view.tintColor = .AlertController.tintColor
-
-        let addCustomListAction = UIAlertAction(
-            title: NSLocalizedString("Create new list", comment: ""),
-            style: .default,
-            handler: { [weak self] _ in
-                self?.showAddCustomList(nodes: nodes)
-            }
-        )
-        addCustomListAction.setAccessibilityIdentifier(.addNewCustomListButton)
-        actionSheet.addAction(addCustomListAction)
-
-        let editAction = UIAlertAction(
-            title: NSLocalizedString("Edit custom lists", comment: ""),
-            style: .default,
-            handler: { [weak self] _ in
-                self?.showEditCustomLists(nodes: nodes)
-            }
-        )
-        editAction.isEnabled = !customListRepository.fetchAll().isEmpty
-        editAction.setAccessibilityIdentifier(.editCustomListButton)
-        actionSheet.addAction(editAction)
-
-        actionSheet.addAction(
-            UIAlertAction(
-                title: NSLocalizedString("Cancel", comment: ""),
-                style: .cancel
-            ))
-
-        presentationContext.present(actionSheet, animated: true)
-    }
 }
