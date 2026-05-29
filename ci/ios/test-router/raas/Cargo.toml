@@ -19,8 +19,8 @@ pcap-file-tokio = "0.1"
 pnet_packet = "0.34"
 serde = { version = "1.0.138", features = ["derive"] }
 thiserror = "1"
-tokio = { version = "1.0", features = ["full"] }
-tokio-util = { version = "0.7", features = ["io"] }
+tokio = { version = "1", features = ["full", "io-util"] }
+tokio-util = { version = "0.7", features = ["io", "rt"] }
 tower = "0.4"
 tower-http = { version = "0.5", features = ["trace"] }
 uuid = { version = "1", features = ["serde"] }
@@ -28,3 +28,10 @@ uuid = { version = "1", features = ["serde"] }
 [target.'cfg(target_os = "linux")'.dependencies]
 mnl = { version = "0.3.1", features = ["mnl-1-0-4"] }
 nftnl = { version = "0.9", features = ["nftnl-1-1-0"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+arc-swap = "1"
+netdev = "0.46.0"
+smoltcp = { version = "0.13", features = ["std"] }
+sysctl = "0.7.1"
+tun-rs = { version = "2", features = ["async"] }
