@@ -14,6 +14,15 @@ pub enum BlockRule {
     },
 }
 
+impl BlockRule {
+    /// The source and destination this rule applies to.
+    pub fn endpoints(&self) -> &Endpoints {
+        match self {
+            BlockRule::Host { endpoints, .. } | BlockRule::WireGuard { endpoints } => endpoints,
+        }
+    }
+}
+
 #[derive(Clone, Copy, serde::Serialize)]
 pub struct Endpoints {
     pub src: IpNetwork,
