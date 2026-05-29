@@ -20,7 +20,7 @@ protocol LocationDataSourceProtocol {
 extension LocationDataSourceProtocol {
     var selectedNode: LocationNode? {
         nodes
-            .flatMap { $0.flattened + [$0] }
+            .flatMap { $0.flattened }
             .first { $0.isSelected }
     }
 }
@@ -153,22 +153,29 @@ extension LocationDataSourceProtocol {
     ///   - hostname: The selection that should be checked for exclusion.
     func setExcludedNode(hostname: String?) {
         nodes.forEachNode { node in
-            node.isExcluded = false
-
             let nodeHosts = node.activeRelayNodes
-            if (nodeHosts.count == 1) && (nodeHosts.first?.name == hostname) {
-                node.isExcluded = true
-            }
+            node.isExcluded = (nodeHosts.count == 1) && (nodeHosts.first?.name == hostname)
         }
     }
 
     func setSelectedNode(constraint: RelayConstraint<UserSelectedRelays>) {
         nodes.forEachNode { node in
-            node.isSelected = false
-        }
+            if (node is AutomaticLocationNode) && (constraint == .any) {
+                node.isSelected = true
+                return
+            }
 
-        let selectedNode = node(by: constraint)
-        selectedNode?.isSelected = true
+            let nodeLocations = node.userSelectedRelays.locations
+            let nodeCustomListSelection = node.userSelectedRelays.customListSelection
+
+            let constraintLocations = constraint.value?.locations
+            let constraintCustomListSelection = constraint.value?.customListSelection
+
+            node.isSelected = nodeLocations == constraintLocations
+            if let nodeCustomListSelection {
+                node.isSelected = node.isSelected && (nodeCustomListSelection == constraintCustomListSelection)
+            }
+        }
     }
 
     func expandSelection() {
@@ -179,38 +186,20 @@ extension LocationDataSourceProtocol {
         }
     }
 
-    func descendantNode(
-        in rootNode: LocationNode,
-        for location: RelayLocation,
-        baseCodes: [String]
-    ) -> LocationNode? {
-        let descendantNodeFor: ([String]) -> LocationNode? = { codes in
-            return switch location {
-            case let .country(countryCode):
-                rootNode.descendantNodeFor(codes: codes + [countryCode])
-            case let .city(countryCode, cityCode):
-                rootNode.descendantNodeFor(codes: codes + [countryCode, cityCode])
-            case let .hostname(_, _, hostCode):
-                rootNode.descendantNodeFor(codes: codes + [hostCode])
-            }
-        }
-        return descendantNodeFor(baseCodes)
-    }
-
     /// Efficiently collects codes of all nodes that have showsChildren = true.
     func collectExpandedCodes() -> Set<String> {
         var codes = Set<String>()
 
-        for node in self.nodes {
-            if node.showsChildren {
-                codes.insert(node.code)
-                node.forEachDescendant { child in
-                    if child.showsChildren {
-                        codes.insert(child.code)
-                    }
+        for node in nodes where node.showsChildren {
+            codes.insert(node.code)
+
+            node.forEachDescendant { child in
+                if child.showsChildren {
+                    codes.insert(child.code)
                 }
             }
         }
+
         return codes
     }
 }

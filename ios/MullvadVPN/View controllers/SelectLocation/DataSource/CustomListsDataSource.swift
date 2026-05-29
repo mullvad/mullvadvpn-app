@@ -57,11 +57,7 @@ class CustomListsDataSource: SearchableLocationDataSource {
         }
 
         if let location = selectedRelays?.locations.first {
-            return descendantNode(
-                in: rootNode,
-                for: location,
-                baseCodes: [selectedNode.code]
-            )
+            return rootNode.descendantNode(for: [selectedNode.code, location.stringRepresentation])
         }
 
         return nil

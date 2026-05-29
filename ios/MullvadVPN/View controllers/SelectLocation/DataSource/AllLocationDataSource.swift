@@ -123,7 +123,7 @@ class AllLocationDataSource: SearchableLocationDataSource {
             guard let location = relays.locations.first else {
                 return nil
             }
-            return descendantNode(in: rootNode, for: location, baseCodes: [])
+            return rootNode.descendantNode(for: [location.stringRepresentation])
         }
     }
 
