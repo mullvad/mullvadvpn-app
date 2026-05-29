@@ -36,13 +36,11 @@ class VpnSettingsPage internal constructor() : Page() {
         assert(postQuantumSwitch.isChecked == enabled)
     }
 
-    fun clickLocalNetworkSharingSwitch() {
+    fun clickLocalNetworkSharing() {
         val localNetworkSharingCell =
             uiDevice.findObjectWithTimeout(localNetworkSharingSelector).parent
-        val localNetworkSharingSwitch =
-            localNetworkSharingCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
 
-        localNetworkSharingSwitch.click()
+        localNetworkSharingCell.click()
     }
 
     fun clickInTunnelIpv6Switch() {
