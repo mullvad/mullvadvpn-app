@@ -1,5 +1,40 @@
 # Router setup
-## Installing on a new router/computer
+## How to use `RAAS` on a developer machine
+
+> **Attention**: The binary **should really** be build and moved to your special folder, e.g. `$HOME/bin`.
+> If you do this manually, take care to `chmod 755` the binary so that it cannot be overwritten by anyone but `root`.
+> Executing `cargo` with `sudo` directly is **not** considered safe.
+
+### Installing
+If you have `nix` installed, execute `nix profile install .#raas`.
+
+If you don't:
+
+1. `cd raas`
+2. `cargo install`
+
+### Running
+Both the machine running `raas` and the device under test are expected to be on the same network.
+On MacOS, `raas` takes 1 parameter: the address on which to listen. This includes IP and port, meaning something like:
+
+```sh
+# Use the IP reachable by your mobile device
+sudo raas 192.168.0.2:80
+```
+
+On the device under test, use the IP you used in the above command as the device's gateway.
+After that, you are ready to execute the end-to-end tests locally 🎉.
+
+#### On iPhone:
+- Go to `Settings > Wi-Fi`
+- Tap the network information icon
+  - Observe your current configuration
+- Navigate to `Configure IP` and choose `Manual`
+  1. Enter the correct information for your network
+  2. Enter your laptop's IP into the `Router` field
+- Save and apply
+
+## How-to to configure `RAAS` on a new router/computer
 - Obtain an x86 computer with 2 ethernet interfaces.
 - Install NixOS on the hardware following the [NixOS installation guide]
 - Copy the generated `/etc/nixos/hardware-config.nix` file to the flake repo, add it to git.
