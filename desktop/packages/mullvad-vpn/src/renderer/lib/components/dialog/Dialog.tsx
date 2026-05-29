@@ -18,22 +18,8 @@ export type DialogProps = React.PropsWithChildren<{
 }>;
 
 function Dialog({ open, onOpenChange, children }: DialogProps) {
-  const [mounted, setMounted] = React.useState(open);
-
-  React.useEffect(() => {
-    if (open) {
-      setMounted(true);
-    }
-  }, [open]);
-
-  if (!mounted) return null;
-
   return (
-    <DialogProvider
-      open={open}
-      onOpenChange={onOpenChange}
-      mounted={mounted}
-      setMounted={setMounted}>
+    <DialogProvider open={open} onOpenChange={onOpenChange}>
       {children}
     </DialogProvider>
   );
