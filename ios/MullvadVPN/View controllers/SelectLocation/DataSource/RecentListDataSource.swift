@@ -15,6 +15,7 @@ class RecentListDataSource: LocationDataSourceProtocol {
     private(set) var nodes = [LocationNode]()
     let allLocationDataSource: AllLocationDataSource
     let customListsDataSource: CustomListsDataSource
+    var selectedNode: LocationNode?
 
     init(_ allLocationDataSource: AllLocationDataSource, customListsDataSource: CustomListsDataSource) {
         self.allLocationDataSource = allLocationDataSource

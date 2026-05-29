@@ -25,10 +25,10 @@ class AllLocationsDataSourceTests: XCTestCase {
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
         // Testing a selection.
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["us", "dal"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["es1-wireguard"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["us", "dal"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["es1-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se2-wireguard"]))
     }
 
     func testAddAutomaticLocation() throws {
@@ -43,26 +43,26 @@ class AllLocationsDataSourceTests: XCTestCase {
     func testSearchCity() throws {
         let result = dataSource.search(by: "got")
         let rootNode = RootLocationNode(children: result)
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "got"]))
-        XCTAssertNil(rootNode.descendantNodeFor(codes: ["se", "sto"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se", "got"]))
+        XCTAssertNil(rootNode.descendantNode(for: ["se", "sto"]))
     }
 
     func testSearchShowsParentsAndChildrenIfBothMatch() throws {
         let result = dataSource.search(by: "se")
         let rootNode = RootLocationNode(children: result)
 
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "got"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se10-wireguard"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se", "sto"]))
-        XCTAssertNotNil(rootNode.descendantNodeFor(codes: ["se2-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se", "got"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se10-wireguard"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se", "sto"]))
+        XCTAssertNotNil(rootNode.descendantNode(for: ["se2-wireguard"]))
     }
 
     func testShowsParentIfChildrenMatchSearch() throws {
         let result = dataSource.search(by: "se")
         let rootNode = RootLocationNode(children: result)
-        let node = rootNode.descendantNodeFor(codes: ["se"])!
-        let subNode = rootNode.descendantNodeFor(codes: ["se-"])
+        let node = rootNode.descendantNode(for: ["se"])!
+        let subNode = rootNode.descendantNode(for: ["se-"])
         XCTAssertNil(subNode)
         XCTAssertFalse(node.showsChildren)
     }
@@ -102,15 +102,15 @@ class AllLocationsDataSourceTests: XCTestCase {
         let rootNode = RootLocationNode(children: dataSource.nodes)
 
         var nodeByLocation = dataSource.node(by: .only(.init(locations: [.country("es")])))
-        var nodeByCode = rootNode.descendantNodeFor(codes: ["es"])
+        var nodeByCode = rootNode.descendantNode(for: ["es"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .only(.init(locations: [.city("es", "mad")])))
-        nodeByCode = rootNode.descendantNodeFor(codes: ["es", "mad"])
+        nodeByCode = rootNode.descendantNode(for: ["es", "mad"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
 
         nodeByLocation = dataSource.node(by: .only(.init(locations: [.hostname("es", "mad", "es1-wireguard")])))
-        nodeByCode = rootNode.descendantNodeFor(codes: ["es1-wireguard"])
+        nodeByCode = rootNode.descendantNode(for: ["es1-wireguard"])
         XCTAssertEqual(nodeByLocation, nodeByCode)
     }
 
