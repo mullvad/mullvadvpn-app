@@ -37,5 +37,9 @@ pkgs.devshell.mkShell {
       name = "buildRelease";
       command = "$ANDROID_ROOT/gradlew -p $ANDROID_ROOT assembleOssProdRelease";
     }
+    {
+      name = "sbom";
+      command = "$ANDROID_ROOT/gradlew -p $ANDROID_ROOT generateOssProdReleaseSbom generatePlayProdReleaseSbom && $ANDROID_ROOT/scripts/generate-sbom.sh";
+    }
   ];
 }

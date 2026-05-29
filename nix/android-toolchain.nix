@@ -67,6 +67,10 @@ in
       pkgs.protoc-gen-grpc-java
       jdk
       pkgs.python314
+      # SBOM tooling (android/scripts/generate-sbom.sh)
+      pkgs.cargo-cyclonedx
+      pkgs.cyclonedx-cli
+      pkgs.jq
     ]
     ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.libiconv ];
 }
