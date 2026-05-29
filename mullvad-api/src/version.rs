@@ -84,6 +84,33 @@ impl AppVersionProxy {
         let path = format!("app/releases/{platform}.json");
         let request = self.handle.factory.get(&path);
 
+        return async move {
+            use mullvad_update::version::Metadata;
+
+            Ok(Some(AppVersionResponse {
+                version_info: VersionInfo {
+                    stable: Metadata {
+                        version: "2030.1".parse().unwrap(),
+                        urls: vec![
+                            "https://releases.mullvad.net/desktop/builds/2026.3-beta1-dev-af66ab/MullvadVPN-2026.3-beta1-dev-af66ab.pkg".to_string(),
+
+                        ],
+                        // curl --head https://releases.mullvad.net/desktop/builds/2026.3-beta1-dev-af66ab/MullvadVPN-2026.3-beta1-dev-af66ab.pkg
+                        size: 242349689,
+                        changelog: "test".to_string(),
+                        // sha256sum mypkg.pkg
+                        // bytetool: [185, 185, 75, 70, 99, 233, 169, 222, 16, 90, 93, 229, 14, 50, 215, 96, 89, 1, 161, 81, 167, 211, 52, 200, 185, 66, 51, 79, 244, 103, 38, 247]
+                        sha256: [185, 185, 75, 70, 99, 233, 169, 222, 16, 90, 93, 229, 14, 50, 215, 96, 89, 1, 161, 81, 167, 211, 52, 200, 185, 66, 51, 79, 244, 103, 38, 247],
+                    },
+                    beta: None,
+                },
+                metadata_version: 1000,
+                current_version_supported: true,
+                etag,
+            }))
+        };
+
+        /*
         async move {
             let mut request = request?.expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
             if let Some(platform_version) = platform_version {
@@ -132,7 +159,7 @@ impl AppVersionProxy {
                 current_version_supported,
                 etag,
             }))
-        }
+        } */
     }
 
     #[cfg(target_os = "android")]
