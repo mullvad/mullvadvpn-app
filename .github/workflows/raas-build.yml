@@ -16,9 +16,12 @@ permissions: {}
 
 jobs:
   build:
-    name: Build raas
-    runs-on: ubuntu-latest
+    name: Build raas (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-15]
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
