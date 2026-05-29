@@ -16,11 +16,22 @@ const SPIN_INTERVAL: Duration = Duration::from_millis(50);
 
 pub async fn update(assume_yes: bool) -> anyhow::Result<()> {
     // TODO: show the time estimate?
-    // TODO: ctrl-c -> abort
 
     let mut rpc = MullvadProxyClient::new()
         .await
         .context("Failed to connect to mullvad-daemon")?;
+
+    let mut rpc2 = rpc.clone();
+    tokio::spawn(async move {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to register ctrlc handler");
+        if let Err(err) = rpc2.app_upgrade_abort().await {
+            eprintln!("Failed to abort update: {err}");
+        }
+
+        std::process::exit(1);
+    });
 
     let info = rpc
         .get_version_info()
