@@ -283,6 +283,18 @@ msgstr ""
 msgid "SECURE CONNECTION"
 msgstr ""
 
+#. Text for button that sets a location as entry relay when button is disabled.
+msgid "Set as multihop entry"
+msgstr ""
+
+#. Text for button that sets a location as entry relay
+msgid "Set as multihop entry (incompatible)"
+msgstr ""
+
+#. Text for button that sets a location as exit relay
+msgid "Set as multihop exit"
+msgstr ""
+
 msgid "Settings"
 msgstr ""
 
@@ -1142,7 +1154,7 @@ msgctxt "custom-list-feature"
 msgid "%(customList)s (Added)"
 msgstr ""
 
-#. This is a label shown above a list of options.
+#. This is a label shown above a list of options related to custom lists.
 #. Available placeholder:
 #. %(locationName)s - The name of the location being added to the list.
 msgctxt "custom-list-feature"
@@ -2070,12 +2082,20 @@ msgid "Custom lists"
 msgstr ""
 
 msgctxt "select-location-view"
+msgid "Disable multihop"
+msgstr ""
+
+msgctxt "select-location-view"
 msgid "Disable recents"
 msgstr ""
 
 #. Label for custom lists that don't have any locations added to them yet.
 msgctxt "select-location-view"
 msgid "Empty"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Enable multihop"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -3207,9 +3227,6 @@ msgstr ""
 msgid "Disable all \"%s\" above to activate this setting."
 msgstr ""
 
-msgid "Disable multihop"
-msgstr ""
-
 msgid "Discard"
 msgstr ""
 
@@ -3247,9 +3264,6 @@ msgid "Enable all access methods in the app"
 msgstr ""
 
 msgid "Enable method"
-msgstr ""
-
-msgid "Enable multihop"
 msgstr ""
 
 msgid "Enable this for services such as file sharing, printing, media streaming, and device discovery to work while connected to the VPN."
@@ -3571,15 +3585,6 @@ msgid "Send email"
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %1$d - %2$d."
-msgstr ""
-
-msgid "Set as multihop entry"
-msgstr ""
-
-msgid "Set as multihop entry (incompatible)"
-msgstr ""
-
-msgid "Set as multihop exit"
 msgstr ""
 
 msgid "Set as multihop exit (incompatible)"
