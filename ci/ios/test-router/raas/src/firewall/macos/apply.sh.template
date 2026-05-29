@@ -1,0 +1,17 @@
+set -eu
+
+# Load the anchor rules first, as pfctl does not support
+# adding new anchors and rules in one go
+
+echo Applying anchors
+pfctl -f - <<'EOF'
+{{ANCHORS}}
+EOF
+
+# Load the rules under the anchor
+pfctl -a "{{ANCHOR_NAME}}" -f - <<'EOF'
+{{RULES}}
+EOF
+
+pfctl -e || true
+
