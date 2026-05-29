@@ -75,5 +75,13 @@
       packages.x86_64-linux.raas =
         with import nixpkgs { system = "x86_64-linux"; };
         pkgs.callPackage ./raas.nix { };
+
+      packages.aarch64-darwin.raas =
+        with import nixpkgs { system = "aarch64-darwin"; };
+        pkgs.callPackage ./raas.nix { };
+
+      packages.x86_64-darwin.raas =
+        with import nixpkgs { system = "x86_64-darwin"; };
+        pkgs.callPackage ./raas.nix { };
     };
 }
