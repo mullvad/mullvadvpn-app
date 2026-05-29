@@ -81,7 +81,6 @@ fileprivate extension [LocationNode] {
     func copy() -> Self {
         map {
             let copy = $0.copy()
-            copy.showsChildren = false
             copy.flattened.forEach { $0.showsChildren = false }
             return copy
         }
