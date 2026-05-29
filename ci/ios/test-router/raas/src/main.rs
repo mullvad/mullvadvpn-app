@@ -1,20 +1,46 @@
 use std::{fs, io, net::SocketAddr, path::Path, time::Duration};
 
-mod block_list;
+use smoltcp::wire::Ipv4Packet;
+
 mod capture;
+mod firewall;
 mod web;
+
+use firewall::BlockList;
 
 #[tokio::main]
 async fn main() {
     init_logging();
     create_temp_dir();
 
-    let mut args = std::env::args().skip(1);
-    let bind_address = args.next().expect("First arg must be listening address");
+    let args = parse_args();
 
-    let router =
-        web::router(Default::default()).into_make_service_with_connect_info::<SocketAddr>();
-    let listener = tokio::net::TcpListener::bind(bind_address)
+    #[cfg(target_os = "macos")]
+    let tunnel_device =
+        firewall::setup_utun(args.client_ip).expect("Failed to create a tunnel device");
+
+    let interface = {
+        #[cfg(target_os = "linux")]
+        {
+            args.interface.clone()
+        }
+        #[cfg(target_os = "macos")]
+        {
+            // TODO: do pcap directly from utun
+            "moot".to_string()
+        }
+    };
+
+    let router = web::router(
+        create_block_list(
+            #[cfg(target_os = "macos")]
+            tunnel_device,
+        ),
+        interface,
+    )
+    .into_make_service_with_connect_info::<SocketAddr>();
+
+    let listener = tokio::net::TcpListener::bind(&args.bind_address)
         .await
         .expect("Failed to bind to listening socket");
     log::info!(
@@ -37,12 +63,61 @@ async fn main() {
     axum::serve(listener, router).await.unwrap();
 }
 
+struct Args {
+    bind_address: String,
+    interface: Option<String>,
+    #[cfg(target_os = "macos")]
+    client_ip: std::net::Ipv4Addr,
+}
+
+fn parse_args() -> Args {
+    // TODO: use clap for parsing args instead
+    let mut args_iter = std::env::args().skip(1);
+    let bind_address = args_iter
+        .next()
+        .expect("First arg must be listening address");
+
+    let mut interface = None;
+    #[cfg(target_os = "macos")]
+    let mut client_ip = None;
+
+    while let Some(arg) = args_iter.next() {
+        match arg.as_str() {
+            "--interface" => {
+                interface = Some(args_iter.next().expect("--interface requires an argument"));
+            }
+            #[cfg(target_os = "macos")]
+            "--client-ip" => {
+                client_ip = Some(
+                    args_iter
+                        .next()
+                        .expect("--client-ip requires an argument")
+                        .parse()
+                        .expect("--client-ip must be a valid IPv4 address"),
+                );
+            }
+            other => {
+                panic!("Unknown argument: {other}");
+            }
+        }
+    }
+
+    Args {
+        bind_address,
+        interface,
+        #[cfg(target_os = "macos")]
+        client_ip: client_ip.unwrap(),
+    }
+}
+
 fn init_logging() {
-    let mut builder = env_logger::Builder::from_env(env_logger::DEFAULT_FILTER_ENV);
+    // Defaulting through the filter rather than overriding it keeps `RUST_LOG` working, which is
+    // what turns on the per-packet logs.
+    let mut builder =
+        env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"));
     builder
-        .filter(None, log::LevelFilter::Info)
         .write_style(env_logger::WriteStyle::Always)
-        .format_timestamp(None)
+        .format_timestamp_millis()
         .init();
 }
 
@@ -64,4 +139,14 @@ fn create_dir_if_not_exist<P: AsRef<Path>>(path: P) -> io::Result<()> {
 
     fs::create_dir(path)?;
     Ok(())
+}
+
+#[cfg(target_os = "linux")]
+fn create_block_list() -> BlockList {
+    Default::default()
+}
+
+#[cfg(target_os = "macos")]
+fn create_block_list(tunnel_device: crate::firewall::macos::TunnelDevices) -> BlockList {
+    BlockList::new(tunnel_device)
 }
