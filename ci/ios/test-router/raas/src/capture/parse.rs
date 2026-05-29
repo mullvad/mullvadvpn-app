@@ -1,16 +1,16 @@
 // use packet::ip::{v4, v6, Packet};
 use pcap_file_tokio::{
-    pcap::{PcapPacket, PcapReader},
     PcapError,
+    pcap::{PcapPacket, PcapReader},
 };
 use pnet_packet::{
+    Packet,
     ethernet::EthernetPacket,
     ip::{IpNextHeaderProtocol, IpNextHeaderProtocols},
     ipv4::Ipv4Packet,
     ipv6::Ipv6Packet,
     tcp::TcpPacket,
     udp::UdpPacket,
-    Packet,
 };
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -82,11 +82,21 @@ impl ParsedConnections {
 
     fn parse_pcap_packet(&mut self, packet: &PcapPacket<'_>) {
         let timestamp = packet.timestamp.as_micros() as u64;
-        if packet.data.len() < 3 {
-            return;
-        }
-        // Parse the ethernet packet and truncate the pcap header.
-        let Some(eth_packet) = EthernetPacket::new(&packet.data[2..]) else {
+
+        // On Linux with the "any" device, there's a 2-byte cooked capture header before the
+        // ethernet frame. On macOS with a standard interface, the data starts directly with
+        // the ethernet frame.
+        #[cfg(target_os = "linux")]
+        let eth_data = {
+            if packet.data.len() < 3 {
+                return;
+            }
+            &packet.data[2..]
+        };
+        #[cfg(target_os = "macos")]
+        let eth_data = &packet.data[..];
+
+        let Some(eth_packet) = EthernetPacket::new(eth_data) else {
             return;
         };
         if let Some(ipv4_packet) = Ipv4Packet::new(eth_packet.payload()) {
@@ -112,7 +122,7 @@ impl ParsedConnections {
         let payload = packet.payload();
         let Some((source_port, destination_port)) = packet_ports(payload, transport_protocol)
         else {
-            log::debug!("Failed to parse an IP packet from {source} to {destination}");
+            log::info!("Failed to parse an IP packet from {source} to {destination}");
             return;
         };
 
