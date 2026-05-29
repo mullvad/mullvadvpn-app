@@ -10,9 +10,11 @@ use mullvad_types::version::AppUpgradeEvent;
 #[cfg(target_os = "macos")]
 use tokio::process::Command;
 
+use crate::cmds::receive_confirmation;
+
 const SPIN_INTERVAL: Duration = Duration::from_millis(50);
 
-pub async fn update() -> anyhow::Result<()> {
+pub async fn update(assume_yes: bool) -> anyhow::Result<()> {
     // TODO: show the time estimate?
     // TODO: ctrl-c -> abort
 
@@ -48,6 +50,10 @@ pub async fn update() -> anyhow::Result<()> {
     }
     println!("---");
 
+    if !assume_yes && !receive_confirmation("Download and install update?", true).await {
+        return Ok(());
+    }
+
     let mut update_events = rpc.app_upgrade_events_listen().await?;
 
     // FIXME
@@ -61,21 +67,16 @@ pub async fn update() -> anyhow::Result<()> {
 
     while let Some(evt) = update_events.next().await {
         match evt.context("Update event error")? {
-            AppUpgradeEvent::DownloadStarting => {
-                //println!("Downloading {}...", update_version.);
-            }
+            AppUpgradeEvent::DownloadStarting => {}
             AppUpgradeEvent::DownloadProgress(progress) => {
                 // TODO: Estimated time left
 
                 let bar = download_progress.get_or_insert_with(|| {
                     indicatif::ProgressBar::new(100)
-                        .with_message(format!(
-                            "Downloading version {} from {}",
-                            update_version.version, progress.server
-                        ))
+                        .with_message(format!("Downloading from {}", progress.server))
                         .with_style(
                             ProgressStyle::with_template(
-                                "  {msg}:\n  {bar:40} {percent:>4}% | {elapsed_precise}",
+                                "  {msg}: {bar:40} {percent:>4}% | {elapsed_precise}",
                             )
                             .unwrap()
                             .progress_chars("##-"),
@@ -106,7 +107,9 @@ pub async fn update() -> anyhow::Result<()> {
                 }
 
                 let bar = indicatif::ProgressBar::new_spinner().with_message("Installing");
-                bar.enable_steady_tick(SPIN_INTERVAL);
+                bar.force_draw();
+                // Animation breaks sudo
+                //bar.enable_steady_tick(SPIN_INTERVAL);
                 install_package(path).await?;
 
                 bar.finish_with_message("Update complete");
@@ -114,7 +117,7 @@ pub async fn update() -> anyhow::Result<()> {
                 break;
             }
             AppUpgradeEvent::Aborted => {
-                println!("Update aborted.");
+                eprintln!("Update aborted.");
                 break;
             }
             AppUpgradeEvent::Error(err) => {
@@ -148,3 +151,5 @@ pub async fn install_package(path: impl AsRef<Path>) -> anyhow::Result<()> {
     }
     Ok(())
 }
+
+// TODO: Windows. ShellExecuteW with "runas". restart CLI itself with install only

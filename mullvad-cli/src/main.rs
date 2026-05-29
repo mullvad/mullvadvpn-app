@@ -107,7 +107,11 @@ enum Cli {
 
     /// Update to the latest version.
     // TODO: Arguments. download only. install
-    Update,
+    Update {
+        /// Download and install without asking, if update is available
+        #[clap(long, short = 'y', default_value_t = false)]
+        assume_yes: bool,
+    },
 
     /// Show information about the current Mullvad version
     /// and available versions
@@ -182,7 +186,7 @@ async fn main() -> Result<()> {
         Cli::AntiCensorship(cmd) => cmd.handle().await,
         Cli::ApiAccess(cmd) => cmd.handle().await,
         #[cfg(any(target_os = "macos", target_os = "windows"))]
-        Cli::Update => update::update().await,
+        Cli::Update { assume_yes } => update::update(assume_yes).await,
         Cli::Version => version::print().await,
         Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
         Cli::ResetSettings { assume_yes } => reset::handle_settings_reset(assume_yes).await,
