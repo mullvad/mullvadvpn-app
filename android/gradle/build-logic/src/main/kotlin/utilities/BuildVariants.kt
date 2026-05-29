@@ -62,4 +62,7 @@ fun fullReleaseTasks(appVersion: AppVersion) =
             add("createPlayDevmoleReleaseDistBundle")
             add("createPlayStagemoleReleaseDistBundle")
         }
+        // Per-flavor JVM SBOMs; merged with the Rust SBOM by generate-sbom.sh.
+        add("generateOssProdReleaseSbom")
+        add("generatePlayProdReleaseSbom")
     }

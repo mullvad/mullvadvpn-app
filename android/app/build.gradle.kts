@@ -19,6 +19,7 @@ import utilities.matchesAny
 import utilities.ossProdAnyBuildType
 import utilities.playImplementation
 import utilities.registerReleaseTask
+import utilities.registerSbomTasks
 
 plugins {
     alias(libs.plugins.mullvad.utilities)
@@ -30,6 +31,7 @@ plugins {
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.mullvad.unit.test)
     alias(libs.plugins.rust.android)
+    alias(libs.plugins.cyclonedx.bom)
     id("de.mannodermaus.android-junit5")
 }
 
@@ -381,6 +383,8 @@ registerReleaseTask(
 )
 
 registerReleaseTask("fullRelease", appVersion, fullReleaseTasks(appVersion))
+
+registerSbomTasks(appVersion.name)
 
 play {
     System.getenv("PLAY_CREDENTIALS_PATH")?.let { serviceAccountCredentials.set(file(it)) }

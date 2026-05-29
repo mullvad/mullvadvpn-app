@@ -43,6 +43,7 @@ compose = "1.11.2"
 compose-constraintlayout = "1.1.1"
 compose-material-icons-extended = "1.7.8"
 compose-material3 = "1.4.0"
+cyclonedx-bom = "3.2.4"
 dependency-versions = "0.54.0"
 detekt = "2.0.0-alpha.3"
 accompanist = "0.37.3"
@@ -131,6 +132,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+cyclonedx-gradle-plugin = { module = "org.cyclonedx:cyclonedx-gradle-plugin", version.ref = "cyclonedx-bom" }
 detekt-api = { module = "dev.detekt:detekt-api", version.ref = "detekt" }
 detekt-test = { module = "dev.detekt:detekt-test", version.ref = "detekt" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
@@ -187,6 +189,7 @@ android-library = { id = "com.android.library", version.ref = "android-gradle-pl
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
 baselineprofile = { id = "androidx.baselineprofile", version.ref = "baselineprofile" }
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+cyclonedx-bom = { id = "org.cyclonedx.bom", version.ref = "cyclonedx-bom" }
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
 # noinspection SimilarGradleDependency
