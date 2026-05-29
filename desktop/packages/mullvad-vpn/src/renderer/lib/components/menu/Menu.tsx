@@ -3,7 +3,7 @@ import React from 'react';
 import { MenuOption } from '../menu-option';
 import { MenuDivider, MenuPopup, MenuTitle } from './components';
 import { useEffectSetTriggerAttributes } from './hooks';
-import { MenuProvider, useMenuContext } from './MenuContext';
+import { MenuProvider } from './MenuContext';
 
 export type MenuProps = React.PropsWithChildren<{
   triggerRef: React.RefObject<HTMLButtonElement | null>;
@@ -13,29 +13,13 @@ export type MenuProps = React.PropsWithChildren<{
 
 function MenuImpl({ children }: Omit<MenuProps, 'triggerRef' | 'open' | 'onOpenChange'>) {
   useEffectSetTriggerAttributes();
-  const { mounted } = useMenuContext();
-
-  if (!mounted) return null;
 
   return <>{children}</>;
 }
 
 function Menu({ triggerRef, open, onOpenChange, ...props }: MenuProps) {
-  const [mounted, setMounted] = React.useState(open);
-
-  React.useEffect(() => {
-    if (open) {
-      setMounted(true);
-    }
-  }, [open]);
-
   return (
-    <MenuProvider
-      triggerRef={triggerRef}
-      open={open}
-      onOpenChange={onOpenChange}
-      mounted={mounted}
-      setMounted={setMounted}>
+    <MenuProvider triggerRef={triggerRef} open={open} onOpenChange={onOpenChange}>
       <MenuImpl {...props} />
     </MenuProvider>
   );

@@ -3,8 +3,7 @@ import React from 'react';
 import type { MenuProps } from './Menu';
 
 type MenuContextProps = Omit<MenuProviderProps, 'children'> & {
-  popoverRef: React.RefObject<HTMLDivElement | null>;
-  popoverId: string;
+  popupId: string;
 };
 
 const MenuContext = React.createContext<MenuContextProps | undefined>(undefined);
@@ -20,16 +19,13 @@ export const useMenuContext = (): MenuContextProps => {
 type MenuProviderProps = React.PropsWithChildren<{
   open: MenuProps['open'];
   onOpenChange?: MenuProps['onOpenChange'];
-  mounted?: boolean;
-  setMounted: React.Dispatch<React.SetStateAction<boolean | undefined>>;
   triggerRef: MenuProps['triggerRef'];
 }>;
 
 export function MenuProvider({ children, ...props }: MenuProviderProps) {
-  const popoverRef = React.useRef<HTMLDivElement>(null);
-  const popoverId = React.useId();
+  const popupId = React.useId();
 
-  const value = React.useMemo(() => ({ popoverRef, popoverId, ...props }), [props, popoverId]);
+  const value = React.useMemo(() => ({ popupId, ...props }), [props, popupId]);
 
   return <MenuContext.Provider value={value}>{children}</MenuContext.Provider>;
 }

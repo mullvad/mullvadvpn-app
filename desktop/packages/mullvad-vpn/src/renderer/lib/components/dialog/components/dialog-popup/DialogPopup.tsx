@@ -2,22 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
+import { Popup } from '../../../popup';
 import { useDialogContext } from '../../DialogContext';
-import { useEffectSyncOpen, useHandleAnimationEnd, useHandleClick, useHandleClose } from './hooks';
 
 export type DialogPopupProps = React.ComponentPropsWithoutRef<'dialog'>;
 
-export const StyledDialogPopup = styled.dialog`
+export const StyledDialogPopup = styled(Popup)`
   --transition-duration: 0.25s;
   --initial-opacity: 0;
   --initial-scale: 0.9;
-
-  // Reset default dialog styles
-  margin: 0;
-  border: 0;
-  background: transparent;
-  max-width: none;
-  user-select: none;
 
   display: none;
   top: 50%;
@@ -71,21 +64,12 @@ export const StyledDialogPopup = styled.dialog`
 `;
 
 export function DialogPopup({ children, ...props }: DialogPopupProps) {
-  const { titleId, dialogRef } = useDialogContext();
-
-  useEffectSyncOpen();
-
-  const handleClick = useHandleClick();
-  const handleClose = useHandleClose();
-
-  const handleAnimationEnd = useHandleAnimationEnd();
+  const { titleId, open, onOpenChange } = useDialogContext();
 
   return (
     <StyledDialogPopup
-      ref={dialogRef}
-      onClick={handleClick}
-      onClose={handleClose}
-      onTransitionEnd={handleAnimationEnd}
+      open={open}
+      onOpenChange={onOpenChange}
       aria-modal="true"
       aria-labelledby={titleId}
       {...props}>

@@ -10,7 +10,7 @@ Parameters:
 
 Subcomponents:
 
-- `Popup`: The popover that contains the menu options.
+- `Popup`: The popup that contains the menu options.
 - `Title`: A title for the menu, usually displayed at the top of the popup.
 - `Divider`: A divider that separates menu options.
 - `Option`: A menu option, see menu option components for more details.
