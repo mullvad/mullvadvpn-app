@@ -90,7 +90,7 @@ pub async fn test_split_tunnel(
 /// The property we're testing for here is that toggling ST respects the list of split apps, and
 /// vice-versa.
 ///
-/// NOTE: This will not work with Linux split tunneling, since there is no persistant list of split
+/// NOTE: This will not work with Linux split tunneling, since there is no persistent list of split
 /// apps(yet!).
 #[test_function(target_os = "macos", target_os = "windows")]
 pub async fn test_split_tunnel_toggle(

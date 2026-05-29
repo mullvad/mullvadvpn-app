@@ -71,13 +71,13 @@ use mullvad_api_constants::*;
 /// A hostname and socketaddr to reach the Mullvad REST API over.
 #[derive(Debug, Clone)]
 pub struct ApiEndpoint {
-    /// An overriden API hostname. Initialized with the value of the environment
+    /// An overridden API hostname. Initialized with the value of the environment
     /// variable `MULLVAD_API_HOST` if it has been set.
     ///
     /// Use the associated function [`Self::host`] to read this value with a
     /// default fallback if `MULLVAD_API_HOST` was not set.
     pub host: Option<String>,
-    /// An overriden API address. Initialized with the value of the environment
+    /// An overridden API address. Initialized with the value of the environment
     /// variable `MULLVAD_API_ADDR` if it has been set.
     ///
     /// Use the associated function [`Self::address`] to read this value with
