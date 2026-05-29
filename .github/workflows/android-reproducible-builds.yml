@@ -172,6 +172,10 @@ jobs:
           GRADLE_OPTS: '-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
         run: nix develop .#android -c buildRelease
 
+      - name: Generate SBOMs
+        if: matrix.runs-on == 'ubuntu-latest'
+        run: nix develop .#android -c sbom
+
       - name: Upload apks
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
@@ -179,6 +183,15 @@ jobs:
           path: android/app/build/outputs/apk/ossProd/release/app-oss-prod-release-unsigned.apk
           if-no-files-found: error
           retention-days: 7
+
+      - name: Upload SBOMs
+        if: matrix.runs-on == 'ubuntu-latest'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: sbom-nix
+          path: dist/*.sbom.cdx.json
+          if-no-files-found: error
+          retention-days: 30
 
   compare-builds:
     name: Check builds
