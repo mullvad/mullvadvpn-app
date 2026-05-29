@@ -12,6 +12,7 @@ import MullvadTypes
 
 class AllLocationDataSource: SearchableLocationDataSource {
     private(set) var nodes = [LocationNode]()
+    var selectedNode: LocationNode?
 
     /// Constructs a collection of node trees from relays fetched from the API.
     /// ``RelayLocation.city`` is of special import since we use it to get country
