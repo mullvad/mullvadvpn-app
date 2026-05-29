@@ -2,17 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
+import { Popup } from '../../../popup';
 import { useMenuContext } from '../../MenuContext';
-import {
-  useEffectHideOnOutsideClick,
-  useEffectSyncOpen,
-  useHideOnEscapeDown,
-  useUnmount,
-} from './hooks';
 
-export type MenuPopupProps = React.ComponentPropsWithoutRef<'div'>;
+export type MenuPopupProps = React.ComponentPropsWithoutRef<'dialog'>;
 
-export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupId }) => ({
+export const StyledMenuPopup = styled(Popup).attrs<{ $popupId: string }>(({ $popupId }) => ({
   // Set via attrs function to avoid generating a class for each instance of the popup
   style: {
     positionAnchor: `--${$popupId}`,
@@ -24,12 +19,7 @@ export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupI
   --initial-opacity: 0;
   --initial-scale: 0.9;
 
-  // Display block allow transition end events to fire when popover is closed,
-  // visibility is controlled by opacity and mounted state
-  display: block;
   inset: auto;
-  margin: 0;
-  z-index: 10;
 
   position-try-fallbacks: flip-block, flip-inline;
   top: calc(anchor(bottom) + ${spacings.tiny});
@@ -39,7 +29,7 @@ export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupI
   scale: var(--initial-scale);
 
   box-sizing: border-box;
-  background-color: ${colors.blue40};
+  background: ${colors.blue40};
   border-radius: ${Radius.radius4};
   border: 2px solid ${colors.darkBlue};
   padding: 6px ${spacings.tiny};
@@ -61,7 +51,7 @@ export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupI
   transition-duration: var(--transition-duration);
   transition-behavior: allow-discrete;
 
-  &:popover-open {
+  &:open {
     opacity: 1;
     scale: 1;
 
@@ -70,32 +60,22 @@ export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupI
       scale: var(--initial-scale);
     }
   }
+
+  &::backdrop {
+    background: transparent;
+  }
 `;
 
 export function MenuPopup({ children, ...props }: MenuPopupProps) {
-  const { open, popoverRef, popoverId } = useMenuContext();
-  useEffectSyncOpen();
-  useEffectHideOnOutsideClick();
-
-  const handleKeydown = useHideOnEscapeDown();
-  const handleTransitionEnd = useUnmount();
-
-  React.useEffect(() => {
-    if (open) {
-      popoverRef.current?.focus();
-    }
-  }, [open, popoverRef]);
+  const { open, onOpenChange, popupId } = useMenuContext();
 
   return (
     <StyledMenuPopup
-      $popupId={popoverId}
-      ref={popoverRef}
-      id={popoverId}
-      popover="manual"
-      role="menu"
+      $popupId={popupId}
+      id={popupId}
       tabIndex={-1}
-      onKeyDown={handleKeydown}
-      onTransitionEnd={handleTransitionEnd}
+      open={open}
+      onOpenChange={onOpenChange}
       {...props}>
       {children}
     </StyledMenuPopup>
