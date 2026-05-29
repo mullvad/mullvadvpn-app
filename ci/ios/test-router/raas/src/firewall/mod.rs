@@ -1,8 +1,15 @@
 #[cfg(target_os = "linux")]
 mod linux;
+#[cfg(target_os = "macos")]
+pub mod macos;
 
 mod rule;
 pub use rule::{BlockRule, Endpoints};
 
 #[cfg(target_os = "linux")]
 pub use linux::BlockList;
+#[cfg(target_os = "macos")]
+pub use macos::BlockList;
+
+#[cfg(target_os = "macos")]
+pub use macos::setup_utun;
