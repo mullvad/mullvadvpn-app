@@ -5,8 +5,8 @@ plugins {
 
 spotless {
     kotlin {
-        target("app/**/*.kt", "lib/**/*.kt", "test/**/*.kt", "buildSrc/**/*.kt")
-        ktfmt().kotlinlangStyle().configure {
+        target("**/*.kt")
+        ktfmt(libs.versions.ktfmt.get()).kotlinlangStyle().configure {
             it.setMaxWidth(100)
             it.setRemoveUnusedImports(true)
         }
