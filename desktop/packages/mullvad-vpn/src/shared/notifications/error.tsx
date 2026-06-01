@@ -38,26 +38,18 @@ export class ErrorNotificationProvider
   public getSystemNotification(): SystemNotification | undefined {
     if (this.context.tunnelState.state === 'error') {
       let message = this.getMessage(this.context.tunnelState.details);
-      if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
-        if (!this.context.splitTunnelingSupported) {
-          message = sprintf(
-            // TRANSLATORS: Label for the system notification when the app encountered an error
-            // TRANSLATORS: and will block network traffic until the error is resolved.
-            messages.pgettext(
-              'notifications',
-              'Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s.',
-            ),
-            { splitTunneling: strings.splitTunneling.toLowerCase() },
-          );
-        } else {
-          message = `${message} ${sprintf(
-            messages.pgettext(
-              'notifications',
-              'The apps excluded with %(splitTunneling)s might not work properly right now.',
-            ),
-            { splitTunneling: strings.splitTunneling.toLowerCase() },
-          )}`;
-        }
+      if (
+        !this.context.tunnelState.details.blockingError &&
+        this.context.hasExcludedApps &&
+        this.context.splitTunnelingSupported
+      ) {
+        message = `${message} ${sprintf(
+          messages.pgettext(
+            'notifications',
+            'The apps excluded with %(splitTunneling)s might not work properly right now.',
+          ),
+          { splitTunneling: strings.splitTunneling.toLowerCase() },
+        )}`;
       }
 
       return {
@@ -76,36 +68,18 @@ export class ErrorNotificationProvider
   public getInAppNotification(): InAppNotification | undefined {
     if (this.context.tunnelState.state === 'error') {
       let subtitle = this.getMessage(this.context.tunnelState.details);
-      if (!this.context.tunnelState.details.blockingError && this.context.hasExcludedApps) {
-        if (!this.context.splitTunnelingSupported) {
-          return {
-            indicator: 'error',
-            title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
-            subtitle: [
-              {
-                key: 'split-tunneling-failed-subtitle',
-                content: sprintf(
-                  // TRANSLATORS: Label for the in-app banner when the app encountered an error
-                  // TRANSLATORS: and will block network traffic until the error is resolved.
-                  messages.pgettext(
-                    'notifications',
-                    'Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s.',
-                  ),
-                  { splitTunneling: strings.splitTunneling.toLowerCase() },
-                ),
-              },
-            ],
-            action: this.getActions(this.context.tunnelState.details) ?? undefined,
-          };
-        } else {
-          subtitle = `${subtitle} ${sprintf(
-            messages.pgettext(
-              'notifications',
-              'The apps excluded with %(splitTunneling)s might not work properly right now.',
-            ),
-            { splitTunneling: strings.splitTunneling.toLowerCase() },
-          )}`;
-        }
+      if (
+        !this.context.tunnelState.details.blockingError &&
+        this.context.hasExcludedApps &&
+        this.context.splitTunnelingSupported
+      ) {
+        subtitle = `${subtitle} ${sprintf(
+          messages.pgettext(
+            'notifications',
+            'The apps excluded with %(splitTunneling)s might not work properly right now.',
+          ),
+          { splitTunneling: strings.splitTunneling.toLowerCase() },
+        )}`;
       }
 
       return {
@@ -230,9 +204,14 @@ export class ErrorNotificationProvider
                 'Failed to enable split tunneling. Please try reconnecting or disable split tunneling.',
               );
             default:
-              return messages.pgettext(
-                'notifications',
-                'Unable to communicate with Mullvad kernel driver. Try reconnecting or send a problem report.',
+              return sprintf(
+                // TRANSLATORS: Label for the system notification when the app encountered an error
+                // TRANSLATORS: and will block network traffic until the error is resolved.
+                messages.pgettext(
+                  'notifications',
+                  'Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s.',
+                ),
+                { splitTunneling: strings.splitTunneling.toLowerCase() },
               );
           }
       }
