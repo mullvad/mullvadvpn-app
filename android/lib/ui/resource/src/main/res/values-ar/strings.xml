@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">بعد تحديث تطبيق VPN على نظام التشغيل Android 16، قد تصل الأجهزة إلى حالة تفقد فيها تطبيقات VPN قدرتها على الوصول إلى الإنترنت.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">يُرجى إعادة تشغيل جهازك ومحاولة الاتصال مرة أخرى. إذا لم ينجح ذلك، يُرجى إرسال رسالة بريد إلكتروني إلى %1$s باللغة السويدية أو الإنجليزية.</string>
     <string name="android_16_upgrade_warning_message">هناك مشكلة معروفة في نظام Android 16. يُرجى إعادة تشغيل جهازك وإعادة المحاولة. لمعرفة المزيد،</string>
+    <string name="android_16_upgrade_warning_title">هل يتعذَّر الاتصال؟</string>
     <string name="anti_censorship">مكافحة الرقابة</string>
     <string name="anti_censorship_info_first_paragraph">قد تكون هذه الطرق مفيدة في حال تم حظر وصولك إلى Mullvad. عند اختيار \"تلقائي\"، سيحاول التطبيق استخدام جميع الطرق حتى تنجح إحداها.</string>
     <string name="anti_censorship_info_second_paragraph"><b>يُرجى ملاحظة أن هذه الطرق لا تعمل على تحسين الأداء، وقد تؤدي إلى زيادة استخدام النظام واستنزاف البطارية.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">إيقاف كل \"%1$s\" أعلاه لتنشيط هذا الإعداد.</string>
     <string name="custom_dns_hint">أدخل IP</string>
     <string name="custom_list_error_list_exists">الاسم مُستخدَم بالفعل.</string>
+    <string name="custom_list_error_list_is_empty">الرجاء إدخال اسم</string>
     <string name="custom_lists">قوائم مُخصَّصة</string>
     <string name="custom_port_dialog_placeholder">أدخل المنفذ</string>
     <string name="custom_port_dialog_remove">إزالة المنفذ المُخصَّص</string>
     <string name="custom_port_dialog_submit">تعيين المنفذ</string>
     <string name="custom_port_dialog_valid_ranges">النطاقات الصالحة: %1$s</string>
+    <string name="custom_port_input_error_blank">الرجاء إدخال منفذ</string>
+    <string name="custom_port_input_error_out_of_range">المنفذ خارج النطاق</string>
     <string name="custom_port_recommended_range_first"><b>تنبيه:</b> تدعم بعض الخوادم فقط نطاق المنفذ الكامل.</string>
     <string name="custom_port_recommended_range_second">النطاق الصالح لجميع الخوادم: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">يتعذَّر حل مشكلة مضيف النفق المُخصَّص. جرِّب تغيير إعداداتك.</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">أو</string>
     <string name="dns_content_blockers">أدوات حظر محتوى DNS</string>
     <string name="dns_content_blockers_subtitle">أوقف \"%1$s\" أدناه لتنشيط هذه الإعدادات.</string>
+    <string name="dns_settings">إعدادات DNS</string>
+    <string name="dns_settings_description_first_item">تمنع الجهاز من الاتصال بمجالات أو مواقع إلكترونية مُعيَّنة معروفة بتوزيع الإعلانات والبرامج الضارة وأدوات التتبُّع وغيرها.</string>
+    <string name="dns_settings_description_second_item">يمكنك استخدام أدوات حظر المحتوى المدمجة لدينا أو استخدام خادم DNS مخصص. قد يتسبب ذلك في حدوث مشكلات في بعض المواقع الإلكترونية والخدمات والتطبيقات.</string>
+    <string name="dns_settings_description_title"><b>أدوات حظر محتوى DNS</b></string>
+    <string name="dns_settings_description_warning"><b>تنبيه: قد لا يتم تطبيق إعدادات DNS على الفور.</b></string>
     <string name="duplicate_address_warning">لقد تم إدخال هذا العنوان بالفعل.</string>
     <string name="edit_custom_lists">تعديل القوائم المُخصَّصة</string>
     <string name="edit_list">تعديل القائمة</string>
@@ -239,6 +248,7 @@
     <string name="filter">التصفية</string>
     <string name="foreground_notification_channel_description">يظهر حالة نفق VPN الحالية</string>
     <string name="foreground_notification_channel_name">حالة نفق شبكة VPN</string>
+    <string name="generating_account_number">يجري الإنشاء...</string>
     <string name="go_to_login">الانتقال إلى تسجيل الدخول</string>
     <string name="go_to_vpn_settings">الانتقال إلى إعدادات VPN</string>
     <string name="got_it">حسنًا!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">الرمز والعنوان</string>
     <string name="import_override_textfield_placeholder">الصق أو اكتب التجاوزات المراد استيرادها</string>
     <string name="import_overrides_bottom_sheet_override_warning">قد يحل استيراد التجاوزات الجديدة محل بعض التجاوزات التي تم استيرادها سابقًا.</string>
+    <string name="import_overrides_empty_text_error">الرجاء إدخال نص تجاوز عنوان IP</string>
     <string name="import_overrides_import">استيراد</string>
     <string name="import_overrides_text_title">الاستيراد عبر النص</string>
     <string name="in_app_products_unavailable">المنتجات داخل التطبيق غير متاحة، يُرجى التأكد من تثبيت أحدث إصدار من Google Play.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">من خلال ربط رمز حسابك، يتم ربط هذا البلاغ بحسابك، مما يساعدنا على حل مشكلتك بشكلٍ أسرع. يتم حذف جميع البلاغات تلقائيًا بعد فترة زمنية مُحدَّدة.</string>
     <string name="include_account_token_warning_message_second">للحصول على التفاصيل، يُرجى الاطلاع على %1$s لدينا.</string>
     <string name="include_account_token_warning_title">يؤثر ذلك على إخفاء هويتك</string>
+    <string name="internet">الإنترنت</string>
+    <string name="invalid_address_blank_warning">الرجاء إدخال عنوان IP</string>
+    <string name="invalid_address_invalid_warning">عنوان IP غير صالح</string>
     <string name="invalid_dns_servers">عناوين خادم DNS المُخصَّصة %1$s غير صالحة</string>
     <string name="invalid_ipv6_config">تكوين IPv6 غير صالح، يرجى تجربة تغيير إعدادات VPN.</string>
     <string name="invalid_voucher">رمز القسيمة غير صالح.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">يتعذَّر الوصول إلى واجهة API، %1$s</string>
     <string name="login_error_too_many_attempts">تم إجراء عدد كبير جدًا من المحاولات، يُرجى إعادة المحاولة لاحقًا</string>
     <string name="login_fail_description">رقم الحساب غير صالح</string>
+    <string name="login_fail_empty">أدخل رقم حساب</string>
     <string name="login_fail_title">فشل تسجيل الدخول</string>
     <string name="malware_info">تحذير: أداة حظر البرامج الضارة ليست برنامجًا مضادًا للفيروسات ولا ينبغي التعامل معها على هذا النحو، فهي مجرد طبقة حماية إضافية.</string>
     <string name="manage_devices">إدارة الأجهزة</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">إجراءات إضافية</string>
     <string name="more_information">المزيد من المعلومات</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">الرجاء إدخال قيمة</string>
+    <string name="mtu_input_error_invalid">قيمة MTU غير صالحة</string>
     <string name="mtu_x">القيمة: %1$s</string>
     <string name="mullvad_owned_only">مملوك لـ Mullvad فقط</string>
     <string name="multihop">القفز المتعدد</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">تجعل هذه الميزة نفق WireGuard مقاومًا للهجمات المحتملة من الحواسيب الكمّية.</string>
     <string name="quantum_resistant_info_second_paragaph">وتفعل ذلك من خلال إجراء تبادل مفتاح إضافي باستخدام خوارزمية آمنة ضد هجمات الحواسيب الكميّة، ودمج النتيجة في تشفير WireGuard الاعتيادي. تستهلك هذه الخطوة الإضافية حوالي 500 كيلو بايت من حركة البيانات في كل مرة يتم فيها إنشاء نفق جديد.</string>
     <string name="quantum_resistant_title">النفق المقاوم لهجمات الحواسيب الكمّية</string>
+    <string name="read_more">قراءة المزيد</string>
     <string name="read_more_here">أقرأ المزيد هنا</string>
     <string name="recents">المواقع الحديثة</string>
     <string name="recents_disabled">تم إيقاف المواقع الحديثة ومسح السجل</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">تم بالفعل تحديد %1$s كخادم دخول وسيط</string>
     <string name="relay_item_already_selected_as_exit">تم بالفعل تحديد %1$s كخادم خروج وسيط</string>
     <string name="relayitem_is_inactive">%1$s غير متاح</string>
+    <string name="remove_a_device_before_logging_in">يرجى إزالة الجهاز قبل متابعة تسجيل الدخول</string>
     <string name="remove_button">إزالة</string>
     <string name="remove_location_from_list">إزالة %1$s من %2$s</string>
     <string name="removed_provider">%1$s (تمت إزالته)</string>
     <string name="rented">مؤجر</string>
     <string name="rented_only">مؤجر فقط</string>
     <string name="report_a_problem">الإبلاغ عن مشكلة</string>
+    <string name="report_problem_message_is_empty">الرجاء إدخال رسالة</string>
     <string name="reset_to_default_button">إعادة التعيين إلى الإعدادات الافتراضية</string>
     <string name="retry">إعادة المحاولة</string>
     <string name="save">حفظ</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">تم استخدام رمز القسيمة بالفعل.</string>
     <string name="voucher_is_account_number">يبدو أنك أدخلت رقم حساب بدلًا من رمز قسيمة. لتغيير الحساب النشط، يُرجى تسجيل الخروج أولًا.</string>
     <string name="voucher_success_title">تم استرداد القسيمة بنجاح.</string>
+    <string name="voucher_too_short">رمز القسيمة قصير جدًا</string>
     <string name="vpn_permission_denied_error">تم رفض إذن شبكة VPN أو يوجد تطبيق آخر تم تفعيل خيار \"تشغيل VPN دائمًا\" عليه</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">تم رفض إذن شبكة VPN</string>
     <string name="vpn_permission_error_notification_message">يُرجى الضغط على \"اتصال\" لطلب إذن VPN</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">إعدادات %1$s.</string>
     <string name="x_entry">%1$s (دخول)</string>
     <string name="x_exit">%1$s (خروج)</string>
+    <string name="x_out_of_y">%1$d من %2$d</string>
     <string name="x_via_x">%1$s عبر %2$s</string>
     <string name="you_can_add_more_time_oss">يمكنك إضافة المزيد من الوقت من خلال طريقة عرض الحساب أو موقع الويب لمتابعة استخدام VPN.</string>
     <string name="you_can_add_more_time_play">يمكنك إضافة المزيد من الوقت من خلال طريقة عرض الحساب لمتابعة استخدام VPN.</string>
+    <string name="your_device">جهازك</string>
 </resources>
