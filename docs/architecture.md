@@ -38,12 +38,12 @@ provide essential behavior can be hard to trace.
 ## Mullvad part of daemon
 
 ### Frontend <-> system service communication
-This is done via GRPC ([here's](../mullvad-management-interface/proto/management_interface.proto)
-the relevant proto file) over a Unix domain socket on desktop platforms and via a JNI on Android. In
-both cases, the frontends end up sending a message to the daemon that it then services. The
-servicing of any message must never block any other message. Frontends can also subscribe to
-messages from the daemon, to receive updates about the tunnel state, new settings, new relay lists,
-version information and device events.
+This is done via GRPC ([here's](../mullvad-management-interface/proto) the relevant proto files)
+over a Unix domain socket on desktop platforms and via a JNI on Android. In both cases, the
+frontends end up sending a message to the daemon that it then services. The servicing of any
+message must never block any other message. Frontends can also subscribe to messages from the
+daemon, to receive updates about the tunnel state, new settings, new relay lists, version
+information and device events.
 
 
 ### Talking to api.mullvad.net.
