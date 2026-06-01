@@ -906,10 +906,9 @@ message SplitFilterMigration {
   // false: No previous filters were set, no filters are set for either entry or exit.
   bool filters_set = 2;
   // "Daita: Directy only" does not exist anymore, but it is relevant to know if it was enabled.
-  //
-  // true: "Daita: direct only" was previoiusly enabled.
-  // false: "Daita: direct only" was previoiusly disabled.
-  bool removed_daita_direct_only = 3;
+  // If Daita was turned off, it is still off. Otherwise Daita is enabled.
+  PreviousDaitaState daita_migration = 3;
+
   // This enum value defines all valid transitions from the previous state to the new tri-state,
   // which necessarily depend on additional settings beyond Multihop.
   enum MultihopMigrationState {
@@ -921,5 +920,16 @@ message SplitFilterMigration {
     off_to_when_needed = 2;
     // "Magic multihop" - one leaf node in the giga-migration tree.
     off_to_always = 3;
+  }
+
+  // This enum value defines all previous Daita states (tri-state) which is mapped to either on or
+  // off post-migration.
+  enum PreviousDaitaState {
+    // Daita was previoiusly enabled without "direct only"
+    on = 0;
+    // Daita was previoiusly enabled with "direct only"
+    direct_only = 1;
+    // Daita was previously off.
+    off = 2;
   }
 }

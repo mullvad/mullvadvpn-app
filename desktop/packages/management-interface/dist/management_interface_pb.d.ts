@@ -3437,8 +3437,8 @@ export class SplitFilterMigration extends jspb.Message {
     setMultihopMigration(value: SplitFilterMigration.MultihopMigrationState): SplitFilterMigration;
     getFiltersSet(): boolean;
     setFiltersSet(value: boolean): SplitFilterMigration;
-    getRemovedDaitaDirectOnly(): boolean;
-    setRemovedDaitaDirectOnly(value: boolean): SplitFilterMigration;
+    getDaitaMigration(): SplitFilterMigration.PreviousDaitaState;
+    setDaitaMigration(value: SplitFilterMigration.PreviousDaitaState): SplitFilterMigration;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): SplitFilterMigration.AsObject;
@@ -3454,7 +3454,7 @@ export namespace SplitFilterMigration {
     export type AsObject = {
         multihopMigration: SplitFilterMigration.MultihopMigrationState,
         filtersSet: boolean,
-        removedDaitaDirectOnly: boolean,
+        daitaMigration: SplitFilterMigration.PreviousDaitaState,
     }
 
     export enum MultihopMigrationState {
@@ -3462,6 +3462,12 @@ export namespace SplitFilterMigration {
     OFF_TO_NEVER = 1,
     OFF_TO_WHEN_NEEDED = 2,
     OFF_TO_ALWAYS = 3,
+    }
+
+    export enum PreviousDaitaState {
+    ON = 0,
+    DIRECT_ONLY = 1,
+    OFF = 2,
     }
 
 }
