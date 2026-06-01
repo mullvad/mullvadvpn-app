@@ -91,5 +91,5 @@ struct HopView: View {
         onFilterTapped: { _ in },
         onIconPositionChange: { _ in }
     )
-    .background(Color.MullvadList.Item.child3)
+    .background(Color.MullvadList.Item.level3)
 }

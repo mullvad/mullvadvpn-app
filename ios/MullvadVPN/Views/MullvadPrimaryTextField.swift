@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MullvadPrimaryTextField: View {
-    private let label: LocalizedStringKey
+    private let label: LocalizedStringKey?
     private let placeholder: LocalizedStringKey
     @Binding private var text: String
     @Binding private var suggestion: String?
@@ -10,7 +10,7 @@ struct MullvadPrimaryTextField: View {
     @Binding private var isFocused: Bool
 
     init(
-        label: LocalizedStringKey,
+        label: LocalizedStringKey?,
         placeholder: LocalizedStringKey,
         text: Binding<String>,
         isFocused: Binding<Bool>? = nil,
@@ -83,8 +83,10 @@ struct MullvadPrimaryTextField: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text(label)
-                .foregroundColor(.MullvadTextField.label)
+            if let label {
+                Text(label)
+                    .foregroundColor(.MullvadTextField.label)
+            }
             VStack(spacing: 0) {
                 HStack(spacing: 4) {
                     if let keyboardType {
@@ -210,7 +212,6 @@ private struct RoundedCorner: Shape {
     }
 }
 
-@available(iOS 17.0, *)
 #Preview {
     @Previewable @State var suggestion: String? = "1234"
     @Previewable @State var text = ""

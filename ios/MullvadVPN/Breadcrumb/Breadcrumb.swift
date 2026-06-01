@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
 enum Breadcrumb: Hashable {
@@ -28,6 +29,17 @@ enum Breadcrumb: Hashable {
             .stateIssue
         case .error:
             .stateOffline
+        }
+    }
+
+    var image: Image {
+        switch self {
+        case .info:
+            .mullvadIconStateOnline
+        case .warning:
+            .mullvadIconStateIssue
+        case .error:
+            .mullvadIconStateOffline
         }
     }
 }

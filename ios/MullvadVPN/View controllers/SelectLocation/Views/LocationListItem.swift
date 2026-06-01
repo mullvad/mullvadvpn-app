@@ -4,7 +4,7 @@ import SwiftUI
 struct LocationListItem<ContextMenu>: View where ContextMenu: View {
     @State private var alert: MullvadAlert?
     @Environment(\.dismissSearchFocus) private var dismissSearchFocus
-    private let itemFactory = ListItemFactory()
+    private let itemFactory = SegmentedListItemFactory()
 
     @Binding var location: LocationNode
     var isLastInList: Bool = true
@@ -39,8 +39,8 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
             isDisabled: isDisabled,
             accessibilityIdentifier: .locationListItem(location.name),
             accessibilityLabel: location.name,
-            label: {
-                itemFactory.label(for: .location(node: location, context: multihopContext, level: level))
+            leading: {
+                itemFactory.leading(for: .location(node: location, context: multihopContext, level: level))
             },
             segment: {
                 if hasChildren {

@@ -103,7 +103,7 @@ struct MultihopSelectionView: View {
                                             ZStack {
                                                 if isSelected {
                                                     RoundedRectangle(cornerRadius: 12)
-                                                        .fill(Color.MullvadList.Item.child3)
+                                                        .fill(Color.MullvadList.Item.level3)
                                                         .matchedGeometryEffect(id: animationIdSelection, in: animation)
                                                         .background {
                                                             if hops.count == 1 {
