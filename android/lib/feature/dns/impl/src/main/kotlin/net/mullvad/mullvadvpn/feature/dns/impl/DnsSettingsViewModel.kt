@@ -138,8 +138,8 @@ class DnsSettingsViewModel(
     }
 
     fun onCustomDnsDialogSuccess() = viewModelScope.launch {
-        // This is to fix an ui issue where the switch gets stuck due to animations starting at the
-        // same time. This is likely to be fixed in the next stable version of material 3.
+        // This is to fix an ui issue where the switch gets stuck due to animations starting at
+        // the same time. This is likely to be fixed in the next stable version of material 3.
         // Reverting this hack is tracked here: DROID-2734
         delay(SHORT_DELAY)
         settingsRepository.setDnsState(DnsState.Custom).onLeft { showGenericErrorToast() }
