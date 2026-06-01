@@ -50,6 +50,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix timeout when loading split tunnel driver during boot.
 - Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.
+- Fix misleading "split tunneling" error when offline.
 
 ### Security
 - Linux and macOS: Fix management interface socket being create with less restrictive permissions
