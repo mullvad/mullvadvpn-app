@@ -10,18 +10,19 @@ import {
   TextFieldIconButton,
   TextFieldInput,
   TextFieldLabel,
+  TextFieldSupportingText,
 } from './components';
 import { TextFieldProvider } from './TextFieldContext';
 
 export type TextFieldVariant = 'primary' | 'secondary';
 
-export type TextFieldProps = React.PropsWithChildren<{
+export type TextFieldProps = React.ComponentPropsWithRef<'div'> & {
   invalid?: boolean;
   value?: string;
   onValueChange?: (value: string) => void;
   disabled?: boolean;
   variant?: TextFieldVariant;
-}>;
+};
 
 export const StyledTextField = styled.div`
   position: relative;
@@ -45,10 +46,23 @@ export const StyledTextField = styled.div`
   }
 `;
 
-function TextField({ children, ...props }: TextFieldProps) {
+function TextField({
+  invalid,
+  value,
+  onValueChange,
+  disabled,
+  variant,
+  children,
+  ...props
+}: TextFieldProps) {
   return (
-    <TextFieldProvider {...props}>
-      <StyledTextField>{children}</StyledTextField>
+    <TextFieldProvider
+      invalid={invalid}
+      value={value}
+      onValueChange={onValueChange}
+      disabled={disabled}
+      variant={variant}>
+      <StyledTextField {...props}>{children}</StyledTextField>
     </TextFieldProvider>
   );
 }
@@ -58,6 +72,7 @@ const TextFieldNamespace = Object.assign(TextField, {
   Label: TextFieldLabel,
   Icon: TextFieldIcon,
   IconButton: TextFieldIconButton,
+  SupportingText: TextFieldSupportingText,
 });
 
 export { TextFieldNamespace as TextField };

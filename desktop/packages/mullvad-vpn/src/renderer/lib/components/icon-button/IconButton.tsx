@@ -36,7 +36,7 @@ const variants: Record<
   },
 } as const;
 
-const StyledButton = styled.button<{
+export const StyledIconButton = styled.button<{
   $size: IconButtonProps['size'];
   $variant: IconButtonVariant;
 }>`
@@ -89,7 +89,7 @@ const StyledButton = styled.button<{
 function IconButton({ variant = 'primary', size = 'medium', disabled, ...props }: IconButtonProps) {
   return (
     <IconButtonProvider size={size} variant={variant} disabled={disabled}>
-      <StyledButton disabled={disabled} $variant={variant} $size={size} {...props} />
+      <StyledIconButton disabled={disabled} $variant={variant} $size={size} {...props} />
     </IconButtonProvider>
   );
 }
