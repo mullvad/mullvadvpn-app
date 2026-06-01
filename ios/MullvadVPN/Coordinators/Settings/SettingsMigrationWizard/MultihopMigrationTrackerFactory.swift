@@ -1,83 +1,35 @@
 //
-//  MultihopMigrationTracker.swift
+//  MultihopMigrationTrackerFactory.swift
 //  MullvadVPN
 //
-//  Created by Mojgan on 2026-04-01.
+//  Created by Mojgan on 2026-05-08.
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
 import MullvadREST
 import MullvadSettings
-import MullvadTypes
 
-struct MultihopRule<Output>: Sendable {
-    let name: String
-    let condition: @Sendable (LatestTunnelSettings) -> Bool
-    let transform: @Sendable (inout LatestTunnelSettings) -> MigrationOutput<Output>
-}
-
-enum SettingsUpdate {
-    case none
-    case updatedMultiHop
-    case uniqueFilter
-    case directOnlyRemoved
-    case automatic
-}
-
-struct Change {
-    let path: SettingsUpdate
-    let before: Any?
-    let after: Any?
-}
-
-struct UniqueFilter: Sendable {
-    let entry: RelayConstraint<RelayFilter>
-    let exit: RelayConstraint<RelayFilter>
-}
-
-struct MultihopActionSuggestion: Sendable {
-    let name: String
-    let action: (@Sendable (inout LatestTunnelSettings) -> ()?)?
-}
-
-struct MigrationOutput<T> {
-    let value: T
-    let changes: [Change]
-    var action: MultihopActionSuggestion? = nil
-}
-
-enum MigrationError: Error {
-    case noMatchingRule
-}
-
-struct MultihopMigrationTracker<Output> {
-    let rules: [MultihopRule<Output>]
-
-    func run(input: inout LatestTunnelSettings) throws -> MigrationOutput<Output> {
-        for rule in rules {
-            if rule.condition(input) {
-                return rule.transform(&input)
-            }
-        }
-
-        throw MigrationError.noMatchingRule
-    }
+enum MultihopSuggestedAction: Sendable {
+    case multihopWhenNeeded
+    case automaticEntry
 }
 
 enum MultihopMigrationTrackerFactory {
-    static func make(_ relaySelector: RelaySelectorProtocol) -> MultihopMigrationTracker<MultihopStateV2> {
+    static func make(_ relaySelector: RelaySelectorProtocol) -> SettingsMigrationTracker<
+        MultihopStateV2, MultihopSuggestedAction
+    > {
 
-        let scenario1A = MultihopRule<MultihopStateV2>(
+        let scenario1A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario1 A"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.daitaState == .off
+            input.tunnelMultihopState == .never && !input.daita.isEnabled
                 && input.relayConstraints.exitFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .whenNeeded
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: input.tunnelMultihopState, after: newValue)
@@ -85,42 +37,40 @@ enum MultihopMigrationTrackerFactory {
             )
         }
 
-        let scenario1B = MultihopRule<MultihopStateV2>(
+        let scenario1B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario1 B"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.daitaState == .off
+            input.tunnelMultihopState == .never && !input.daita.isEnabled
                 && input.relayConstraints.exitFilter != .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .never
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
                     Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.exitFilter),
                 ],
-                action: MultihopActionSuggestion(
-                    name: String(
-                        format: NSLocalizedString("Change to “%@”", comment: ""),
-                        arguments: [NSLocalizedString(MultihopStateV2.whenNeeded.description, comment: "")]),
+                action: SuggestedAction(
+                    kind: MultihopSuggestedAction.multihopWhenNeeded,
                     action: { latestTunnelSettings in
                         latestTunnelSettings.tunnelMultihopState = .whenNeeded
                     })
             )
         }
 
-        let scenario2 = MultihopRule<MultihopStateV2>(
+        let scenario2 = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario2"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.daitaState == .on && input.daita.directOnlyState == .off
+            input.tunnelMultihopState == .never && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .whenNeeded
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue)
@@ -128,7 +78,7 @@ enum MultihopMigrationTrackerFactory {
             )
         }
 
-        let scenario3A = MultihopRule<MultihopStateV2>(
+        let scenario3A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 3A"
         ) { input in
             var isMultihopNeeded = false
@@ -140,27 +90,25 @@ enum MultihopMigrationTrackerFactory {
             } catch {
                 isMultihopNeeded = true
             }
-            return input.tunnelMultihopState == .never && input.daita.daitaState == .on
-                && input.daita.directOnlyState == .off
+            return input.tunnelMultihopState == .never && input.daita.isEnabled
+                && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter != .any && !isMultihopNeeded
         } transform: { input in
             input.tunnelMultihopState = .never
-            return MigrationOutput(
+            return MigrationResult(
                 value: .never,
                 changes: [
-                    Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: MultihopStateV2.never),
+                    Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
                 ],
-                action: MultihopActionSuggestion(
-                    name: String(
-                        format: NSLocalizedString("Change to ”%@”", comment: ""),
-                        arguments: [MultihopStateV2.whenNeeded.description]),
+                action: SuggestedAction(
+                    kind: MultihopSuggestedAction.multihopWhenNeeded,
                     action: { latestTunnelSettings in
                         latestTunnelSettings.tunnelMultihopState = .whenNeeded
                     }))
         }
 
-        let scenario3B = MultihopRule<MultihopStateV2>(
+        let scenario3B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 3B"
         ) { input in
 
@@ -173,74 +121,73 @@ enum MultihopMigrationTrackerFactory {
             } catch {
                 isMultihopNeeded = true
             }
-            return input.tunnelMultihopState == .never && input.daita.daitaState == .on
-                && input.daita.directOnlyState == .off
+            return input.tunnelMultihopState == .never && input.daita.isEnabled
+                && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter != .any && isMultihopNeeded
         } transform: { input in
             input.tunnelMultihopState = .always
-            return MigrationOutput(
+            return MigrationResult(
                 value: .always,
                 changes: [
-                    Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: MultihopStateV2.always),
+                    Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
                 ],
-                action: MultihopActionSuggestion(
-                    name: String(
-                        format: NSLocalizedString("Set entry to “%@”", comment: ""),
-                        arguments: [NSLocalizedString("Automatic", comment: "")]),
+                action: SuggestedAction(
+                    kind: MultihopSuggestedAction.automaticEntry,
                     action: { latestTunnelSettings in
                         latestTunnelSettings.relayConstraints.entryLocations = .any
                     }))
         }
 
-        let scenario4A = MultihopRule<MultihopStateV2>(
+        let scenario4A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 4A"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.daitaState == .on && input.daita.directOnlyState == .on
+            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .never
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
-                    Change(path: .directOnlyRemoved, before: nil, after: nil),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
+                    Change(path: .directOnlyRemoved),
                 ]
             )
         }
 
-        let scenario4B = MultihopRule<MultihopStateV2>(
+        let scenario4B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 4B"
         ) { input in
-            input.tunnelMultihopState == .never && input.daita.daitaState == .on && input.daita.directOnlyState == .on
+            input.tunnelMultihopState == .never && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter != .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .never
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
-                    Change(path: .directOnlyRemoved, before: nil, after: nil),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
+                    Change(path: .directOnlyRemoved),
+                    Change(path: .uniqueFilter),
                 ]
             )
         }
 
-        let scenario5A = MultihopRule<MultihopStateV2>(
+        let scenario5A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 5A"
         ) { input in
-            input.tunnelMultihopState == .always && input.daita.daitaState == .off
+            input.tunnelMultihopState == .always && !input.daita.isEnabled
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue)
@@ -248,39 +195,36 @@ enum MultihopMigrationTrackerFactory {
             )
         }
 
-        let scenario5B = MultihopRule<MultihopStateV2>(
+        let scenario5B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 5B"
         ) { input in
-            input.tunnelMultihopState == .always && input.daita.daitaState == .off
+            input.tunnelMultihopState == .always && !input.daita.isEnabled
                 && input.relayConstraints.entryFilter != .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .uniqueFilter),
                 ]
             )
         }
 
-        let scenario6A = MultihopRule<MultihopStateV2>(
+        let scenario6A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 6A"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.daitaState == .on && input.daita.directOnlyState == .off
+            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue)
@@ -288,84 +232,74 @@ enum MultihopMigrationTrackerFactory {
             )
         }
 
-        let scenario6B = MultihopRule<MultihopStateV2>(
+        let scenario6B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 6B"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.daitaState == .on && input.daita.directOnlyState == .off
+            input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.entryFilter != .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .uniqueFilter),
                 ],
-                action: MultihopActionSuggestion(
-                    name: String(
-                        format: NSLocalizedString("Set entry to “%@”", comment: ""),
-                        arguments: [NSLocalizedString("Automatic", comment: "")]),
+                action: SuggestedAction(
+                    kind: MultihopSuggestedAction.automaticEntry,
                     action: { latestTunnelSettings in
                         latestTunnelSettings.relayConstraints.entryLocations = .any
                     }))
         }
-        let scenario7A = MultihopRule<MultihopStateV2>(
+        let scenario7A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 7A"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.daitaState == .on && input.daita.directOnlyState == .on
+            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
-                    Change(path: .directOnlyRemoved, before: nil, after: nil),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
+                    Change(path: .directOnlyRemoved),
                 ])
         }
 
-        let scenario7B = MultihopRule<MultihopStateV2>(
+        let scenario7B = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 7B"
         ) { input in
 
-            input.tunnelMultihopState == .always && input.daita.daitaState == .on && input.daita.directOnlyState == .on
+            input.tunnelMultihopState == .always && input.daita.isEnabled && input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.entryFilter != .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
             input.tunnelMultihopState = newValue
 
-            return MigrationOutput(
+            return MigrationResult(
                 value: newValue,
                 changes: [
-                    Change(path: .directOnlyRemoved, before: nil, after: nil),
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
-                    Change(
-                        path: .uniqueFilter, before: input.relayConstraints.filter,
-                        after: UniqueFilter(
-                            entry: input.relayConstraints.entryFilter, exit: input.relayConstraints.exitFilter)),
+                    Change(path: .directOnlyRemoved),
+                    Change(path: .uniqueFilter),
                 ],
-                action: MultihopActionSuggestion(
-                    name: String(
-                        format: NSLocalizedString("Set entry to “%@”", comment: ""),
-                        arguments: [NSLocalizedString("Automatic", comment: "")]),
+                action: SuggestedAction(
+                    kind: MultihopSuggestedAction.automaticEntry,
                     action: { latestTunnelSettings in
                         latestTunnelSettings.relayConstraints.entryLocations = .any
                     }))
         }
 
-        return MultihopMigrationTracker(rules: [
+        return SettingsMigrationTracker(rules: [
             scenario1A, scenario1B,
             scenario2,
             scenario3A, scenario3B,

@@ -35,9 +35,9 @@ public enum MultihopStateV2: CustomStringConvertible, CaseIterable, Codable, Sen
 
     public var description: String {
         switch self {
-        case .always: NSLocalizedString("Always", comment: "")
-        case .whenNeeded: NSLocalizedString("When needed", comment: "")
-        case .never: NSLocalizedString("Never", comment: "")
+        case .always: NSLocalizedString("Always", comment: "").localizedCapitalized
+        case .whenNeeded: NSLocalizedString("When needed", comment: "").localizedCapitalized
+        case .never: NSLocalizedString("Never", comment: "").localizedCapitalized
         }
     }
 }
@@ -50,9 +50,16 @@ extension MultihopStateV2: MultihopStateMigrating {
 
 /// #MARK: versions of MultihopState used in previous versions of the settings
 
-public enum MultihopStateV1: Codable, Sendable {
+public enum MultihopStateV1: Codable, Sendable, CustomStringConvertible {
     case on
     case off
+
+    public var description: String {
+        switch self {
+        case .on: NSLocalizedString("On", comment: "").localizedCapitalized
+        case .off: NSLocalizedString("Off", comment: "").localizedCapitalized
+        }
+    }
 }
 
 extension MultihopStateV1: MultihopStateMigrating {

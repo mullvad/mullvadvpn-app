@@ -7,6 +7,7 @@
 //
 
 import MullvadLogging
+import MullvadREST
 import MullvadSettings
 import Operations
 import Routing
@@ -23,6 +24,8 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     nonisolated(unsafe) private var modalRoute: SettingsNavigationRoute?
     private let interactorFactory: SettingsInteractorFactory
     private let accessMethodRepository: AccessMethodRepositoryProtocol
+    private let appPreferences: AppPreferencesDataSource
+    private let relaySelectorWrapper: RelaySelectorWrapper
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var viewControllerFactory: SettingsViewControllerFactory?
     private var alertPresenter: AlertPresenter?
@@ -32,6 +35,15 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             viewControllerFactory?.didUpdateNotificationSettings = { [weak self] newValue in
                 guard let self else { return }
                 didUpdateNotificationSettings?(newValue)
+            }
+        }
+    }
+
+    var didCompleteMigrationWizard: ((Bool) -> Void)? {
+        didSet {
+            viewControllerFactory?.didCompleteMigrationWizard = { [weak self] hasCompletedMigrationWizard in
+                guard let self else { return }
+                didCompleteMigrationWizard?(hasCompletedMigrationWizard)
             }
         }
     }
@@ -66,11 +78,14 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         proxyConfigurationTester: ProxyConfigurationTesterProtocol,
         ipOverrideRepository: IPOverrideRepository,
         appPreferences: AppPreferencesDataSource,
+        relaySelectorWrapper: RelaySelectorWrapper,
         breadcrumbsProvider: BreadcrumbsProvider
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
         self.accessMethodRepository = accessMethodRepository
+        self.relaySelectorWrapper = relaySelectorWrapper
+        self.appPreferences = appPreferences
         self.breadcrumbsProvider = breadcrumbsProvider
 
         super.init()
@@ -85,6 +100,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             ipOverrideRepository: ipOverrideRepository,
             navigationController: navigationController,
             alertPresenter: AlertPresenter(context: self),
+            relaySelectorWrapper: relaySelectorWrapper,
             appPreferences: appPreferences
         )
     }
@@ -286,6 +302,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         if route == .root {
             let controller = SettingsViewController(
                 interactor: interactorFactory.makeSettingsInteractor(),
+                appPreferences: appPreferences,
                 breadcrumbsProvider: breadcrumbsProvider
             )
             controller.delegate = self
