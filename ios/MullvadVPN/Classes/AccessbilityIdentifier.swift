@@ -121,6 +121,7 @@ public enum AccessibilityIdentifier: Equatable {
     case includeAllNetworksNotificationsAlertSystemSettingsButton
     case includeAllNetworksFeatureAlertEnableButton
     case includeAllNetworksCell
+    case migratedSettingsCell
     case multihopCell
     case daitaCell
     case daitaFilterPill
@@ -191,6 +192,7 @@ public enum AccessibilityIdentifier: Equatable {
     case notificationPromptSkipButton
     case notificationPromptEnableButton
     case includeAllNetworksView
+    case settingsMigrationCompleteView
 
     // Other UI elements
     case accessMethodEnableSwitch

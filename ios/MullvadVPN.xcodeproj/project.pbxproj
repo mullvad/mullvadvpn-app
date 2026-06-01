@@ -839,7 +839,6 @@
 		A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114028F841390037AF9A /* AddressCacheUpdateScheduler.swift */; };
 		A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C76A0A2A338E4300100D75 /* BackgroundTask.swift */; };
 		A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587988C628A2A01F00E3DF54 /* AccountDataThrottling.swift */; };
-		A9A5F9E42ACB05160083449F /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04FBE602A8379EE009278D7 /* AppPreferences.swift */; };
 		A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		A9A5F9E62ACB05160083449F /* DeviceDataThrottling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58138E60294871C600684F0C /* DeviceDataThrottling.swift */; };
 		A9A5F9EB2ACB05160083449F /* CharacterSet+IPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */; };
@@ -963,6 +962,8 @@
 		E79BD7E565693BF2BDA5D9E6 /* GotaTunTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F678736F5403E23B77CA9990 /* GotaTunTunnelImplementation.swift */; };
 		F006CCFC2B99CC8400C6C2AC /* EditLocationsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */; };
 		F0077EEE2C52844800DAB2AA /* KeyExchangingResultStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */; };
+		F00C8C4B2FC7264A00B760BB /* MigratedVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00C8C4A2FC7264A00B760BB /* MigratedVersion.swift */; };
+		F00C8C4D2FC9DBAD00B760BB /* MullvadStateView+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */; };
 		F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01528BA2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift */; };
 		F0164EBC2B482E430020268D /* AppStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBB2B482E430020268D /* AppStorage.swift */; };
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
@@ -987,6 +988,9 @@
 		F04413622BA45CE30018A6EE /* CustomListLocationNodeBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */; };
 		F04789ED2E3A4FEB0011E3A5 /* ApplicationLanguage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */; };
 		F048BFA22D31843000251CB9 /* ChangeLogModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */; };
+		F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087C2F9275F800DEB09C /* MullvadStateView.swift */; };
+		F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F049087D2F9275F800DEB09C /* ResizableImageView.swift */; };
+		F04908892F97AA3800DEB09C /* PaginationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04908882F97AA3400DEB09C /* PaginationView.swift */; };
 		F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */; };
 		F050AE4E2B70D7F8003F4EDB /* LocationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE4D2B70D7F8003F4EDB /* LocationCellViewModel.swift */; };
 		F050AE572B7376C6003F4EDB /* CustomListRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE552B7376C5003F4EDB /* CustomListRepositoryProtocol.swift */; };
@@ -996,6 +1000,14 @@
 		F050AE5E2B739A73003F4EDB /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
 		F050AE602B73A41E003F4EDB /* AllLocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */; };
 		F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */; };
+		F051789E2FBB61B600F7AD98 /* MultihopActionDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F051789C2FBB619C00F7AD98 /* MultihopActionDescriptor.swift */; };
+		F05178A02FBB622C00F7AD98 /* SettingsMigrationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F051789F2FBB621C00F7AD98 /* SettingsMigrationPresentable.swift */; };
+		F052964D2FAE1A2D00B1C5BE /* MultihopMigrationTrackerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */; };
+		F05296522FB1C10E00B1C5BE /* SettingsMigrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F052964E2FB1C10E00B1C5BE /* SettingsMigrationTracker.swift */; };
+		F05296532FB1C10E00B1C5BE /* SettingsMigrationWizardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F052964F2FB1C10E00B1C5BE /* SettingsMigrationWizardView.swift */; };
+		F05296542FB1C10E00B1C5BE /* SettingsMigrationWizardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05296502FB1C10E00B1C5BE /* SettingsMigrationWizardViewModel.swift */; };
+		F05296552FB1C10E00B1C5BE /* SettingsUpdateDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05296512FB1C10E00B1C5BE /* SettingsUpdateDescriptor.swift */; };
+		F05296562FB1C10E00B1C5BE /* SettingsMigrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F052964E2FB1C10E00B1C5BE /* SettingsMigrationTracker.swift */; };
 		F053601D2EA03D8A00D6EDFF /* RecentConnectionsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00FEA192E9FC0A600F7EC6C /* RecentConnectionsRepository.swift */; };
 		F053601E2EA03D8A00D6EDFF /* RecentConnections.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00FEA1D2E9FCF2D00F7EC6C /* RecentConnections.swift */; };
 		F053601F2EA03D8A00D6EDFF /* RecentConnectionsRepositoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F00FEA1F2E9FCF7C00F7EC6C /* RecentConnectionsRepositoryProtocol.swift */; };
@@ -1036,6 +1048,10 @@
 		F09084682C6E88ED001CD36E /* DaitaPromptAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */; };
 		F09444132ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
 		F09444142ECCA4B30059606A /* RecentListDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09444122ECCA4990059606A /* RecentListDataSource.swift */; };
+		F09580982FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */; };
+		F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */; };
+		F095809C2FADEEC200A55BD4 /* SettingsMigrationWizardCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */; };
+		F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */; };
 		F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */; };
 		F09A297C2A9F8A9B00EA3B6F /* VoucherTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */; };
 		F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */; };
@@ -1120,9 +1136,7 @@
 		F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4282B220A15006B57A7 /* RelaySelector.swift */; };
 		F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0DDE4292B220A15006B57A7 /* Midpoint.swift */; };
 		F0E3618B2A4ADD2F00AEEF2B /* WelcomeContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */; };
-		F0E560DA2F7EB0A70027B900 /* MultihopMigrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */; };
 		F0E560DC2F864F600027B900 /* MultihopMigrationTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E560DB2F864F5A0027B900 /* MultihopMigrationTrackerTests.swift */; };
-		F0E560DD2F865F280027B900 /* MultihopMigrationTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */; };
 		F0E61CAA2BF2911D000C4A95 /* TunnelSettingsV5.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */; };
 		F0E61CAB2BF2911D000C4A95 /* MultihopState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E61CA92BF2911D000C4A95 /* MultihopState.swift */; };
 		F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */; };
@@ -2538,6 +2552,8 @@
 		E158B35F285381C60002F069 /* String+AccountFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AccountFormatting.swift"; sourceTree = "<group>"; };
 		E1FD0DF428AA7CE400299DB4 /* StatusActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusActivityView.swift; sourceTree = "<group>"; };
 		F006CCFB2B99CC8400C6C2AC /* EditLocationsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditLocationsCoordinator.swift; sourceTree = "<group>"; };
+		F00C8C4A2FC7264A00B760BB /* MigratedVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigratedVersion.swift; sourceTree = "<group>"; };
+		F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadStateView+Preview.swift"; sourceTree = "<group>"; };
 		F00FEA192E9FC0A600F7EC6C /* RecentConnectionsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepository.swift; sourceTree = "<group>"; };
 		F00FEA1D2E9FCF2D00F7EC6C /* RecentConnections.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnections.swift; sourceTree = "<group>"; };
 		F00FEA1F2E9FCF7C00F7EC6C /* RecentConnectionsRepositoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentConnectionsRepositoryProtocol.swift; sourceTree = "<group>"; };
@@ -2569,6 +2585,9 @@
 		F04413602BA45CD70018A6EE /* CustomListLocationNodeBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomListLocationNodeBuilder.swift; sourceTree = "<group>"; };
 		F04789EB2E3A4FEB0011E3A5 /* ApplicationLanguage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationLanguage.swift; sourceTree = "<group>"; };
 		F048BFA12D31842B00251CB9 /* ChangeLogModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeLogModel.swift; sourceTree = "<group>"; };
+		F049087C2F9275F800DEB09C /* MullvadStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadStateView.swift; sourceTree = "<group>"; };
+		F049087D2F9275F800DEB09C /* ResizableImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableImageView.swift; sourceTree = "<group>"; };
+		F04908882F97AA3400DEB09C /* PaginationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaginationView.swift; sourceTree = "<group>"; };
 		F04AF92C2C466013004A8314 /* EphemeralPeerNegotiationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerNegotiationState.swift; sourceTree = "<group>"; };
 		F04DD3D72C130DF600E03E28 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		F04FBE602A8379EE009278D7 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
@@ -2581,6 +2600,12 @@
 		F050AE5F2B73A41E003F4EDB /* AllLocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationDataSource.swift; sourceTree = "<group>"; };
 		F050AE612B74DBAC003F4EDB /* CustomListsDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSource.swift; sourceTree = "<group>"; };
 		F050CF8D2E4A360F00AE9924 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		F051789C2FBB619C00F7AD98 /* MultihopActionDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopActionDescriptor.swift; sourceTree = "<group>"; };
+		F051789F2FBB621C00F7AD98 /* SettingsMigrationPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationPresentable.swift; sourceTree = "<group>"; };
+		F052964E2FB1C10E00B1C5BE /* SettingsMigrationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationTracker.swift; sourceTree = "<group>"; };
+		F052964F2FB1C10E00B1C5BE /* SettingsMigrationWizardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationWizardView.swift; sourceTree = "<group>"; };
+		F05296502FB1C10E00B1C5BE /* SettingsMigrationWizardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationWizardViewModel.swift; sourceTree = "<group>"; };
+		F05296512FB1C10E00B1C5BE /* SettingsUpdateDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdateDescriptor.swift; sourceTree = "<group>"; };
 		F053F4B92C4A94D300FBD937 /* EphemeralPeerExchangingPipelineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangingPipelineTests.swift; sourceTree = "<group>"; };
 		F05769B82C6656E400D9778B /* TunnelSettingsPropagator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsPropagator.swift; sourceTree = "<group>"; };
 		F05769BA2C6661EE00D9778B /* TunnelSettingsStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsStrategy.swift; sourceTree = "<group>"; };
@@ -2610,6 +2635,9 @@
 		F09035B42FAB724C004635A3 /* LogRedactorComparisonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRedactorComparisonTests.swift; sourceTree = "<group>"; };
 		F09084672C6E88ED001CD36E /* DaitaPromptAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaPromptAlert.swift; sourceTree = "<group>"; };
 		F09444122ECCA4990059606A /* RecentListDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentListDataSource.swift; sourceTree = "<group>"; };
+		F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationInAppNotificationProvider.swift; sourceTree = "<group>"; };
+		F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMigrationWizardCoordinator.swift; sourceTree = "<group>"; };
+		F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationTrackerFactory.swift; sourceTree = "<group>"; };
 		F09A29782A9F8A9B00EA3B6F /* LogoutDialogueView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutDialogueView.swift; sourceTree = "<group>"; };
 		F09A29792A9F8A9B00EA3B6F /* VoucherTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoucherTextField.swift; sourceTree = "<group>"; };
 		F09A297A2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherContentView.swift; sourceTree = "<group>"; };
@@ -2684,7 +2712,6 @@
 		F0DDE4292B220A15006B57A7 /* Midpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Midpoint.swift; sourceTree = "<group>"; };
 		F0DEA1FB2E4A326F002275F7 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E3618A2A4ADD2F00AEEF2B /* WelcomeContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeContentView.swift; sourceTree = "<group>"; };
-		F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationTracker.swift; sourceTree = "<group>"; };
 		F0E560DB2F864F5A0027B900 /* MultihopMigrationTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopMigrationTrackerTests.swift; sourceTree = "<group>"; };
 		F0E576BB2E4A324A0079FA27 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV5.swift; sourceTree = "<group>"; };
@@ -3542,7 +3569,8 @@
 		583FE01F29C197ED006E85F9 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				F9394EF12DC21D7B009595EA /* List */,
+				F00C8C4E2FC9DBBA00B760BB /* Previews */,
+				F04908882F97AA3400DEB09C /* PaginationView.swift */,
 				7ABBE01B2F1E263100AD8176 /* ActionBox.swift */,
 				7A5869962B32EA4500640D27 /* AppButton.swift */,
 				7A0EAEA12D033D5A00D3EB8B /* BlurView.swift */,
@@ -3560,6 +3588,7 @@
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
 				7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */,
 				7A5869942B32E9C700640D27 /* LinkButton.swift */,
+				F9394EF12DC21D7B009595EA /* List */,
 				7AA1309A2D0048D800640DF9 /* MainButton.swift */,
 				7A0EAE992D01B41500D3EB8B /* MainButtonStyle.swift */,
 				F97C38E72DF025D9006DCB08 /* MullvadAlert.swift */,
@@ -3569,7 +3598,9 @@
 				F90A988B2E1268510020F64F /* MullvadPrimaryTextField.swift */,
 				F91CCBFB2DFAF5E1007F1925 /* MullvadProgressViewStyle.swift */,
 				F90A988D2E13C5490020F64F /* MullvadSecondaryTextField.swift */,
+				F049087C2F9275F800DEB09C /* MullvadStateView.swift */,
 				F95CDDA72EE07F7F000E9D97 /* PressedExposingButton.swift */,
+				F049087D2F9275F800DEB09C /* ResizableImageView.swift */,
 				7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */,
 				58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */,
 				7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */,
@@ -3854,6 +3885,7 @@
 				587B75402668FD7700DEF7E9 /* AccountExpirySystemNotificationProvider.swift */,
 				7AFF5B9D2F60079B0088028F /* InvalidShadowsocksCipherInAppNotificationProvider.swift */,
 				F0D5591D2D3805050072B63F /* LatestChangesNotificationProvider.swift */,
+				F09580972FACB37A00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift */,
 				7A460F9E2F35D04C005A265D /* NewAppVersionInAppNotificationProvider.swift */,
 				F07CFF1F29F2720E008C0343 /* NewDeviceNotificationProvider.swift */,
 				58C8191729FAA2C400DEB1B4 /* NotificationConfiguration.swift */,
@@ -3981,6 +4013,7 @@
 				7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */,
 				01FFF9562F0469FC00BDAF45 /* IPVersionSettings.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
+				F00C8C4A2FC7264A00B760BB /* MigratedVersion.swift */,
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
 				4483EC352E2693D5007E5473 /* MullvadAccessMethodChangeListening.swift */,
@@ -4165,7 +4198,6 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
-				F0E560D92F7EAF580027B900 /* MultihopMigration */,
 				01C981E72F43C3410002D284 /* Accessibility */,
 				5827B0A22B0E068800CCBBA1 /* AccessMethodRepository */,
 				58D7E3D629C78A130044B058 /* AddressCacheUpdateScheduler */,
@@ -4385,6 +4417,7 @@
 				7A9CCCAD2A96302800DD6A34 /* SettingsCoordinator.swift */,
 				7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */,
 				7A6389EA2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift */,
+				F095809A2FADEE6D00A55BD4 /* SettingsMigrationWizard */,
 				7A2917F92F606F48001E5DB6 /* SettingsNavigationRoute.swift */,
 				7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */,
 				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
@@ -4854,6 +4887,14 @@
 			path = MullvadRustRuntimeTests;
 			sourceTree = "<group>";
 		};
+		F00C8C4E2FC9DBBA00B760BB /* Previews */ = {
+			isa = PBXGroup;
+			children = (
+				F00C8C4C2FC9DBA200B760BB /* MullvadStateView+Preview.swift */,
+			);
+			path = Previews;
+			sourceTree = "<group>";
+		};
 		F028A5472A336E1900C0CAA3 /* RedeemVoucher */ = {
 			isa = PBXGroup;
 			children = (
@@ -4908,6 +4949,21 @@
 				F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */,
 			);
 			path = Shadowsocks;
+			sourceTree = "<group>";
+		};
+		F095809A2FADEE6D00A55BD4 /* SettingsMigrationWizard */ = {
+			isa = PBXGroup;
+			children = (
+				F051789C2FBB619C00F7AD98 /* MultihopActionDescriptor.swift */,
+				F09580A52FADF1B700A55BD4 /* MultihopMigrationTrackerFactory.swift */,
+				F051789F2FBB621C00F7AD98 /* SettingsMigrationPresentable.swift */,
+				F052964E2FB1C10E00B1C5BE /* SettingsMigrationTracker.swift */,
+				F095809B2FADEE8F00A55BD4 /* SettingsMigrationWizardCoordinator.swift */,
+				F052964F2FB1C10E00B1C5BE /* SettingsMigrationWizardView.swift */,
+				F05296502FB1C10E00B1C5BE /* SettingsMigrationWizardViewModel.swift */,
+				F05296512FB1C10E00B1C5BE /* SettingsUpdateDescriptor.swift */,
+			);
+			path = SettingsMigrationWizard;
 			sourceTree = "<group>";
 		};
 		F09D04B82AE94F27003D4F89 /* GeneralAPIs */ = {
@@ -5057,14 +5113,6 @@
 				F0E8CC022A4C753B007ED3B4 /* WelcomeViewController.swift */,
 			);
 			path = Welcome;
-			sourceTree = "<group>";
-		};
-		F0E560D92F7EAF580027B900 /* MultihopMigration */ = {
-			isa = PBXGroup;
-			children = (
-				F0E560D72F7D43D20027B900 /* MultihopMigrationTracker.swift */,
-			);
-			path = MultihopMigration;
 			sourceTree = "<group>";
 		};
 		F0E8CC082A4EE0DC007ED3B4 /* Completed */ = {
@@ -6229,7 +6277,6 @@
 				A9A5F9E12ACB05160083449F /* AddressCacheUpdateScheduler.swift in Sources */,
 				A9A5F9E22ACB05160083449F /* BackgroundTask.swift in Sources */,
 				A9A5F9E32ACB05160083449F /* AccountDataThrottling.swift in Sources */,
-				A9A5F9E42ACB05160083449F /* AppPreferences.swift in Sources */,
 				A9A5F9E52ACB05160083449F /* CustomDateComponentsFormatting.swift in Sources */,
 				A9A5F9E62ACB05160083449F /* DeviceDataThrottling.swift in Sources */,
 				7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */,
@@ -6246,7 +6293,6 @@
 				A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */,
 				F9EDB26C2EC4C0480015DE36 /* CustomListInteractorTests.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+Search.swift in Sources */,
-				F0E560DD2F865F280027B900 /* MultihopMigrationTracker.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
 				7A460FA02F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,
 				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
@@ -6318,6 +6364,7 @@
 				7ACE19152C1C429A00260BB6 /* MultihopDecisionFlowTests.swift in Sources */,
 				7A2F410A2EC38FD20013D3C5 /* StoreSubscription.swift in Sources */,
 				7A4080AE2F5B1F7F00C02173 /* Breadcrumb.swift in Sources */,
+				F09580992FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				A9A5FA1A2ACB05160083449F /* StopTunnelOperation.swift in Sources */,
 				7A9BE5A52B90760C00E2A7D0 /* CustomListsDataSourceTests.swift in Sources */,
 				A9A5FA1B2ACB05160083449F /* Tunnel.swift in Sources */,
@@ -6339,6 +6386,7 @@
 				F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */,
 				F9EDB26D2EC4C0CD0015DE36 /* CustomListInteractor.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
+				F052964D2FAE1A2D00B1C5BE /* MultihopMigrationTrackerFactory.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
 				A9A5FA262ACB05160083449F /* UpdateDeviceDataOperation.swift in Sources */,
@@ -6348,6 +6396,7 @@
 				449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */,
 				F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */,
 				F09035B52FAB724C004635A3 /* LogRedactorComparisonTests.swift in Sources */,
+				F05296562FB1C10E00B1C5BE /* SettingsMigrationTracker.swift in Sources */,
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
@@ -6394,6 +6443,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F05769B92C6656E400D9778B /* TunnelSettingsPropagator.swift in Sources */,
+				F00C8C4B2FC7264A00B760BB /* MigratedVersion.swift in Sources */,
 				7A460FA22F363023005A265D /* VersionCheck.swift in Sources */,
 				F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */,
 				F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */,
@@ -6570,6 +6620,8 @@
 				7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */,
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				7AD03E1F2E8EB49700270EAE /* RevokedDeviceViewModel.swift in Sources */,
+				F049087E2F9275F800DEB09C /* MullvadStateView.swift in Sources */,
+				F049087F2F9275F800DEB09C /* ResizableImageView.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
 				F0F266692EB3B71A00AAD7DA /* RelayLocationList.swift in Sources */,
@@ -6590,6 +6642,7 @@
 				587EB672271451E300123C75 /* VPNSettingsViewModel.swift in Sources */,
 				586A950C290125EE007BAF2B /* AlertPresenter.swift in Sources */,
 				7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */,
+				F09580A62FADF1BA00A55BD4 /* MultihopMigrationTrackerFactory.swift in Sources */,
 				F062000A2CB7EB42002E6DB9 /* CGSize+Helpers.swift in Sources */,
 				586C0D892B03D5E000E7CDD7 /* TextCellContentConfiguration+Extensions.swift in Sources */,
 				58C3F4F92964B08300D72515 /* MapViewController.swift in Sources */,
@@ -6661,6 +6714,7 @@
 				7A8A190E2CEB77C1000BCB5B /* SettingsRowViewFooter.swift in Sources */,
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
+				F00C8C4D2FC9DBAD00B760BB /* MullvadStateView+Preview.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
 				7A460F9F2F35D05A005A265D /* NewAppVersionInAppNotificationProvider.swift in Sources */,
 				58ACF6492655365700ACE4B7 /* VPNSettingsViewController.swift in Sources */,
@@ -6678,6 +6732,10 @@
 				F0AC64492F3B52380024427C /* NotificationSettingsView.swift in Sources */,
 				F0AC644A2F3B52380024427C /* NotificationSettingsViewModel.swift in Sources */,
 				F0AC644B2F3B52380024427C /* NotificationPromptView.swift in Sources */,
+				F05296522FB1C10E00B1C5BE /* SettingsMigrationTracker.swift in Sources */,
+				F05296532FB1C10E00B1C5BE /* SettingsMigrationWizardView.swift in Sources */,
+				F05296542FB1C10E00B1C5BE /* SettingsMigrationWizardViewModel.swift in Sources */,
+				F05296552FB1C10E00B1C5BE /* SettingsUpdateDescriptor.swift in Sources */,
 				F0AC644C2F3B52380024427C /* NotificationPromptViewModel.swift in Sources */,
 				58CEB30C2AFD586600E6E088 /* DynamicBackgroundConfiguration.swift in Sources */,
 				F9C579C22E8FB55600C90C50 /* LocationSection.swift in Sources */,
@@ -6739,6 +6797,7 @@
 				7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */,
 				F97C38E82DF025D9006DCB08 /* MullvadAlert.swift in Sources */,
 				7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */,
+				F04908892F97AA3800DEB09C /* PaginationView.swift in Sources */,
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */,
@@ -6747,6 +6806,7 @@
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */,
 				588527B4276B4F2F00BAA373 /* SetAccountOperation.swift in Sources */,
+				F09580982FACB37D00A55BD4 /* SettingsMigrationInAppNotificationProvider.swift in Sources */,
 				58FF9FE02B075ABC00E4C97D /* EditAccessMethodViewController.swift in Sources */,
 				F050AE622B74DBAC003F4EDB /* CustomListsDataSource.swift in Sources */,
 				F0DA87472A9CB9A2006044F1 /* AccountExpiryRow.swift in Sources */,
@@ -6802,6 +6862,7 @@
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				F95CDDA02EE02B39000E9D97 /* CoordinateSpace+Names.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
+				F051789E2FBB61B600F7AD98 /* MultihopActionDescriptor.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
 				F95CDDA42EE03072000E9D97 /* LineOverlayView.swift in Sources */,
 				7A81C3F42F6C1F0B008D7ADC /* SettingsNavigationRoute.swift in Sources */,
@@ -6830,6 +6891,7 @@
 				7A6389E52B7E4247008E77E1 /* EditCustomListCoordinator.swift in Sources */,
 				F90A988C2E1268570020F64F /* MullvadPrimaryTextField.swift in Sources */,
 				58677712290976FB006F721F /* SettingsInteractor.swift in Sources */,
+				F095809C2FADEEC200A55BD4 /* SettingsMigrationWizardCoordinator.swift in Sources */,
 				58EF875D2B1638BF00C098B2 /* ProxyConfigurationTesterProtocol.swift in Sources */,
 				58CE5E66224146200008646E /* LoginViewController.swift in Sources */,
 				F96D04EB2EC317EC004A4D48 /* MullvadListSectionHeader.swift in Sources */,
@@ -6853,6 +6915,7 @@
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */,
+				F05178A02FBB622C00F7AD98 /* SettingsMigrationPresentable.swift in Sources */,
 				C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */,
 				F90052522E6B06AD0085C80E /* SelectLocationView.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
@@ -6955,7 +7018,6 @@
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
-				F0E560DA2F7EB0A70027B900 /* MultihopMigrationTracker.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
 				F0EF2B7B2F4C802000C7ECA7 /* AppResetManager.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
