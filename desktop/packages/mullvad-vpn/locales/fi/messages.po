@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2026-04-27 09:12\n"
+"PO-Revision-Date: 2026-06-01 13:05\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -1909,8 +1909,8 @@ msgstr "Sovelluskohtaisen yhdistämisen käyttöönotto epäonnistui. Yritä muo
 #. and will block network traffic until the error is resolved.
 #. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
-msgstr "%(splitTunneling)s ei onnistunut käynnistymään. Voit poistaa verkkoliikenteen eston poistamalla sovelluskohtaisen yhdistämisen käytöstä."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
+msgstr "%(splitTunneling)s ei onnistunut käynnistymään. Poista %(splitTunneling)s käytöstä, jotta voit poistaa verkkoliikenteen eston."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2940,6 +2940,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys."
 
+msgid "%1$d out of %2$d"
+msgstr "%1$d/%2$d"
+
 msgid "%1$s more..."
 msgstr "%1$s lisää..."
 
@@ -3000,11 +3003,17 @@ msgstr "Tilillesi lisättiin 90 päivää käyttöaikaa."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Tilin palauttaminen ei ole mahdollista.</b>"
 
+msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
+msgstr "<b>Huomio: uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä."
 
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
 msgstr "<b>Huomio:</b> Sovellus sulkeutuu automaattisesti uuden kuvakkeen ja otsikon valitsemisen jälkeen, ja se täytyy avata uudelleen manuaalisesti. Tämä ei vaikuta VPN-yhteyteesi."
+
+msgid "<b>DNS content blockers</b>"
+msgstr "<b>DNS-sisällönestotoiminnot</b>"
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b>"
@@ -3029,9 +3038,6 @@ msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
 
 msgid "Account deleted"
 msgstr "Tili poistettiin"
-
-msgid "Account number is too long, please enter a valid number"
-msgstr "Tilin numero on liian pitkä. Anna kelvollinen numero."
 
 msgid "Account number must match"
 msgstr "Tilin numeron täytyy täsmätä"
@@ -3111,9 +3117,6 @@ msgstr "Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallise
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä, sovelluskohtaisesti yhdistettävillä sovelluksilla ei ole pääsyä internetiin. Muista aina, että sovelluskohtainen yhdistäminen on tietosuojariski."
 
-msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
-msgstr "Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa."
-
 msgid "Auto-connect & Lockdown mode"
 msgstr "Automaattinen yhdistäminen ja lukitustila"
 
@@ -3138,14 +3141,11 @@ msgstr "Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr "Valitsemalla tämän ruudun hyväksyn tilini poistamiseen liittyvät riskit"
 
-msgid "Can't connect?"
+msgid "Can’t connect?"
 msgstr "Eikö yhteyden muodostaminen onnistu?"
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "Vaihda Mullvad VPN -sovelluksen otsikko ja kuvake Android-laitteellasi. Mullvad VPN:ään liittyvien ilmoitusten kuvake ei muutu."
-
-msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
-msgstr "DNS-asetuksiin tehdyt muutokset eivät välttämättä astu voimaan välittömästi välimuistissa olevien tulosten vuoksi."
 
 msgid "Clear input"
 msgstr "Tyhjennä syöte"
@@ -3180,9 +3180,6 @@ msgstr "Jäljellä olevia päiviä ei voida näyttää."
 msgid "Create new list"
 msgstr "Luo uusi luettelo"
 
-msgid "Creating account failed"
-msgstr "Tilin luominen epäonnistui"
-
 msgid "Critical error (your attention is required)"
 msgstr "Vakava virhe (vaatii huomiotasi)"
 
@@ -3191,6 +3188,9 @@ msgstr "Nykyinen: %s"
 
 msgid "Custom DNS server addresses %1$s are invalid"
 msgstr "Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä"
+
+msgid "DNS settings"
+msgstr "DNS-asetukset"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "Uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi"
@@ -3237,9 +3237,6 @@ msgstr "Katkaistaan yhteyttä..."
 msgid "Dismiss"
 msgstr "Jätä huomiotta"
 
-msgid "Don’t have an account number?"
-msgstr "Eikö sinulla ole tilin numeroa?"
-
 msgid "Edit custom lists"
 msgstr "Muokkaa mukautettuja luetteloita"
 
@@ -3272,6 +3269,9 @@ msgstr "Syötä MTU"
 
 msgid "Enter account number digits"
 msgstr "Anna tilin numero"
+
+msgid "Enter an account number"
+msgstr "Syötä tilin numero"
 
 msgid "Entry relay is the same as exit relay"
 msgstr "Tulovälityspalvelin on sama kuin lähtövälityspalvelin"
@@ -3311,6 +3311,9 @@ msgstr "Lisätietoja antaa %s."
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "Jotta VPN voi muodostaa yhteyden automaattisesti kun laite käynnistetään, sovelluksella täytyy olla VPN-oikeudet. Voit antaa ne napsauttamalla \"Yhdistä\" karttanäkymässä ja valitsemalla OK kysyttäessä. Varmista lisäksi, että sovellus on asennettu sisäiseen tallennustilaan, tarkistamalla tallennustilatiedot sovelluksen tiedoista järjestelmäasetuksista."
+
+msgid "Generating..."
+msgstr "Luodaan..."
 
 msgid "Go to VPN settings"
 msgstr "Siirry VPN-asetuksiin"
@@ -3360,8 +3363,17 @@ msgstr "Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, et
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Lisää tilitunnukseni, jotta saan nopeampaa apua maksuihin tai tiliin liittyvissä ongelmissa"
 
+msgid "Internet"
+msgstr "Internet"
+
+msgid "Invalid IP address"
+msgstr "Virheellinen IP-osoite"
+
 msgid "Invalid IPv6 config, please try to change the VPN settings."
 msgstr "Virheellinen IPv6-määritys, kokeile muuttaa VPN-asetuksia."
+
+msgid "Invalid MTU value"
+msgstr "Virheellinen MTU-arvo"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Arvo \"%1$s\" puuttuu tai on virheellinen"
@@ -3474,14 +3486,35 @@ msgstr "Liitä tai kirjoita ohitukset, jotka haluat tuoda"
 msgid "Patch not matching specification"
 msgstr "Muutostiedosto ei vastaa määritelmää"
 
+msgid "Please enter a message"
+msgstr "Syötä viesti"
+
+msgid "Please enter a name"
+msgstr "Syötä nimi"
+
+msgid "Please enter a port"
+msgstr "Syötä portti"
+
 msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr "Anna kelvollinen IPv4- tai IPv6-osoite"
 
 msgid "Please enter a valid remote server port"
 msgstr "Anna kelvollinen etäpalvelimen portti"
 
+msgid "Please enter a value"
+msgstr "Syötä arvo"
+
+msgid "Please enter an IP address"
+msgstr "Syötä IP-osoite"
+
+msgid "Please enter an IP override text"
+msgstr "Syötä IP:n korvausteksti"
+
 msgid "Please press connect to request VPN permission"
 msgstr "Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla"
+
+msgid "Please remove a device before continuing logging in"
+msgstr "Poista laite ennen kuin jatkat sisäänkirjautumista"
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %s ruotsiksi tai englanniksi."
@@ -3489,11 +3522,20 @@ msgstr "Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jo
 msgid "Please try changing your filters."
 msgstr "Kokeile muuttaa suodattimiasi."
 
+msgid "Port is out of range"
+msgstr "Portti on alueen ulkopuolella"
+
+msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin ja sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina."
+
 msgid "Privacy"
 msgstr "Tietosuoja"
 
 msgid "Privacy policy"
 msgstr "Tietosuojakäytäntö"
+
+msgid "Read more"
+msgstr "Lue lisää"
 
 msgid "Recents disabled and history cleared"
 msgstr "Viimeisimmät on poistettu käytöstä ja historia on tyhjennetty"
@@ -3729,6 +3771,9 @@ msgstr "Ostosta vahvistetaan..."
 msgid "Verifying voucher…"
 msgstr "Kuponkia vahvistetaan…"
 
+msgid "Voucher code is too short"
+msgstr "Kuponkikoodi on liian lyhyt"
+
 msgid "Warning"
 msgstr "Varoitus"
 
@@ -3762,11 +3807,17 @@ msgstr "Voit lisätä aikaa tilinäkymän tai verkkosivuston kautta, jotta voit 
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Voit jatkaa VPN:n käyttöä lisäämällä aikaa tilinäkymän kautta."
 
+msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
+msgstr "Voit käyttää sisäänrakennettuja sisällönestotoimintojamme tai mukautettua DNS-palvelinta. Tämä saattaa aiheuttaa ongelmia tietyillä verkkosivustoilla sekä tietyissä palveluissa ja sovelluksissa."
+
 msgid "You will lose access to this account on all devices."
 msgstr "Menetät pääsyn tälle tilille kaikilla laitteilla."
 
 msgid "You will lose your remaining"
 msgstr "Menetät jäljellä olevat"
+
+msgid "Your device"
+msgstr "Laitteesi"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" luotiin"

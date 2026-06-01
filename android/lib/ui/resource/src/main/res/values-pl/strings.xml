@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Po zaktualizowaniu aplikacji VPN w systemie Android 16 urządzenia mogą znaleźć się w stanie, w którym aplikacje VPN nie będą już miały dostępu do Internetu.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Ponownie uruchom urządzenie i ponów próbę połączenia. Jeśli to nie zadziała, wyślij wiadomość e-mail na adres %1$s w języku szwedzkim lub angielskim.</string>
     <string name="android_16_upgrade_warning_message">System Android 16 ma znany nam problem. Uruchom ponownie urządzenie i spróbuj jeszcze raz. Aby dowiedzieć się więcej,</string>
+    <string name="android_16_upgrade_warning_title">Nie możesz się połączyć?</string>
     <string name="anti_censorship">Przeciwdziałanie cenzurze</string>
     <string name="anti_censorship_info_first_paragraph">Metody te mogą być przydatne w sytuacjach, gdy masz zablokowany dostęp do Mullvad. Po wybraniu opcji „Automatycznie” aplikacja będzie próbować wszystkich metod, dopóki jedna z nich nie zadziała.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Pamiętaj, że metody te nie poprawiają wydajności i mogą zwiększyć obciążenie systemu oraz zużycie baterii.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">Aby aktywować to ustawienie, wyłącz powyżej wszystkie „%1$s”.</string>
     <string name="custom_dns_hint">Wprowadź adres IP</string>
     <string name="custom_list_error_list_exists">Nazwa jest już zajęta.</string>
+    <string name="custom_list_error_list_is_empty">Wprowadź nazwę</string>
     <string name="custom_lists">Listy niestandardowe</string>
     <string name="custom_port_dialog_placeholder">Wprowadź port</string>
     <string name="custom_port_dialog_remove">Usuń port niestandardowy</string>
     <string name="custom_port_dialog_submit">Ustaw port</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
+    <string name="custom_port_input_error_blank">Wprowadź port</string>
+    <string name="custom_port_input_error_out_of_range">Port spoza zakresu</string>
     <string name="custom_port_recommended_range_first"><b>Uwaga:</b> tylko niektóre serwery obsługują pełen zakres portów.</string>
     <string name="custom_port_recommended_range_second">Prawidłowy zakres dla wszystkich serwerów: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">Lub</string>
     <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_subtitle">Wyłącz poniżej funkcję „%1$s”, aby aktywować te ustawienia.</string>
+    <string name="dns_settings">Ustawienia DNS</string>
+    <string name="dns_settings_description_first_item">Uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
+    <string name="dns_settings_description_second_item">Możesz skorzystać z naszych wbudowanych funkcji blokowania treści albo użyć niestandardowego serwera DNS. Może to powodować problemy podczas korzystania z niektórych witryn internetowych, usług i aplikacji.</string>
+    <string name="dns_settings_description_title"><b>Funkcje blokowania treści DNS</b></string>
+    <string name="dns_settings_description_warning"><b>Uwaga: ustawienia usługi DNS mogą nie zostać zastosowane natychmiast.</b></string>
     <string name="duplicate_address_warning">Ten adres został już wprowadzony.</string>
     <string name="edit_custom_lists">Edytuj listy niestandardowe</string>
     <string name="edit_list">Edytuj listę</string>
@@ -239,6 +248,7 @@
     <string name="filter">Filtr</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
+    <string name="generating_account_number">Generowanie...</string>
     <string name="go_to_login">Przejdź do logowania</string>
     <string name="go_to_vpn_settings">Przejdź do ustawień VPN</string>
     <string name="got_it">Jasne!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">Ikona i tytuł</string>
     <string name="import_override_textfield_placeholder">Wklej lub wpisz zastąpienia do zaimportowania</string>
     <string name="import_overrides_bottom_sheet_override_warning">Wskutek importu nowych zastąpień zastąpione mogą zostać niektóre wcześniej zaimportowane zastąpienia.</string>
+    <string name="import_overrides_empty_text_error">Wprowadź tekst zastępujący adres IP</string>
     <string name="import_overrides_import">Importuj</string>
     <string name="import_overrides_text_title">Import tekstowy</string>
     <string name="in_app_products_unavailable">Produkty w aplikacji są niedostępne. Upewnij się, że masz najnowszą wersję Google Play.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">Dołączenie tokena konta powoduje połączenie raportu z kontem, co pomaga nam szybciej rozwiązać problem. Wszystkie raporty są automatycznie usuwane po pewnym czasie.</string>
     <string name="include_account_token_warning_message_second">Szczegółowe informacje znajdziesz w naszej %1$s.</string>
     <string name="include_account_token_warning_title">Ma to wpływ na anonimowość</string>
+    <string name="internet">Internet</string>
+    <string name="invalid_address_blank_warning">Wprowadź adres IP</string>
+    <string name="invalid_address_invalid_warning">Nieprawidłowy adres IP</string>
     <string name="invalid_dns_servers">Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe</string>
     <string name="invalid_ipv6_config">Nieprawidłowa konfiguracja protokołu IPv6, spróbuj zmienić ustawienia VPN.</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">Nie można osiągnąć interfejsu API, %1$s</string>
     <string name="login_error_too_many_attempts">Zbyt wiele prób, spróbuj ponownie później</string>
     <string name="login_fail_description">Nieprawidłowy numer konta</string>
+    <string name="login_fail_empty">Wprowadź numer konta</string>
     <string name="login_fail_title">Błąd logowania</string>
     <string name="malware_info">Ostrzeżenie: funkcja blokowania złośliwego oprogramowania nie jest programem antywirusowym i nie należy jej tak traktować. To jedynie dodatkowa warstwa zabezpieczeń.</string>
     <string name="manage_devices">Zarządzaj urządzeniami</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">Więcej działań</string>
     <string name="more_information">Więcej informacji</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Wprowadź wartość</string>
+    <string name="mtu_input_error_invalid">Nieprawidłowa wartość MTU</string>
     <string name="mtu_x">Wartość: %1$s</string>
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Ta funkcja sprawia, że tunel WireGuard jest odporny na potencjalne ataki ze strony komputerów kwantowych.</string>
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
+    <string name="read_more">Dowiedz się więcej</string>
     <string name="read_more_here">przeczytaj więcej tutaj</string>
     <string name="recents">Ostatnie</string>
     <string name="recents_disabled">Ostatnie: wyłączono i wyczyszczono historię</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s: wybrano już jako przekaźnik wejściowy</string>
     <string name="relay_item_already_selected_as_exit">%1$s już wybrano jako przekaźnik wyjściowy</string>
     <string name="relayitem_is_inactive">%1$s: niedostępne</string>
+    <string name="remove_a_device_before_logging_in">Przed przejściem do logowania usuń urządzenie</string>
     <string name="remove_button">Usuń</string>
     <string name="remove_location_from_list">Usuń %1$s z %2$s</string>
     <string name="removed_provider">%1$s (usunięto)</string>
     <string name="rented">Wynajmowane</string>
     <string name="rented_only">Wyłącznie wynajmowane</string>
     <string name="report_a_problem">Zgłoś problem</string>
+    <string name="report_problem_message_is_empty">Wprowadź wiadomość</string>
     <string name="reset_to_default_button">Przywróć domyślne</string>
     <string name="retry">Ponów próbę</string>
     <string name="save">Zapisz</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
     <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
+    <string name="voucher_too_short">Kod kuponu jest zbyt krótki</string>
     <string name="vpn_permission_denied_error">Odmówiono uprawnienia VPN lub inna aplikacja ma włączoną funkcję „Zawsze włączony VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Odmowa uprawnienia do VPN</string>
     <string name="vpn_permission_error_notification_message">Naciśnij przycisk Połącz, aby zażądać uprawnienia VPN</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">Ustawienia %1$s.</string>
     <string name="x_entry">%1$s (wejście)</string>
     <string name="x_exit">%1$s (wyjście)</string>
+    <string name="x_out_of_y">%1$d z %2$d</string>
     <string name="x_via_x">%1$s przez %2$s</string>
     <string name="you_can_add_more_time_oss">Aby kontynuować korzystanie z VPN, można dodać więcej czasu w widoku konta lub na stronie internetowej.</string>
     <string name="you_can_add_more_time_play">Aby kontynuować korzystanie z VPN, w widoku konta można dodać więcej czasu.</string>
+    <string name="your_device">Twoje urządzenie</string>
 </resources>

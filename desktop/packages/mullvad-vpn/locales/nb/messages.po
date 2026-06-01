@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2026-04-27 09:12\n"
+"PO-Revision-Date: 2026-06-01 13:05\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -1909,8 +1909,8 @@ msgstr "Kunne ikke aktivere delt tunnelering. Prøv å koble til på nytt eller 
 #. and will block network traffic until the error is resolved.
 #. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
-msgstr "Kunne ikke starte %(splitTunneling)s. For å blokkere nettverkstrafikk må du deaktivere split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
+msgstr "Kunne ikke starte %(splitTunneling)s. For å blokkere nettverkstrafikk må du deaktivere %(splitTunneling)s."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2940,6 +2940,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren."
 
+msgid "%1$d out of %2$d"
+msgstr "%1$d av %2$d"
+
 msgid "%1$s more..."
 msgstr "%1$s til …"
 
@@ -3000,11 +3003,17 @@ msgstr "90 dager ble lagt til kontoen din."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Kontogjenoppretting vil ikke være mulig.</b>"
 
+msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
+msgstr "<b>Merk: DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Merk:</b> Det er bare enkelte servere som støtter alle porter."
 
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
 msgstr "<b>Merk:</b> Appen lukkes automatisk og må åpnes manuelt igjen etter at du har valgt et nytt ikon og en ny tittel. Dette vil ikke ha innvirkning VPN-tilkoblingen din."
+
+msgid "<b>DNS content blockers</b>"
+msgstr "<b>DNS-innholdsblokkering</b>"
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Vær oppmerksom på at disse metodene ikke forbedrer ytelsen og kan øke systemutnyttelsen og batteriforbruket.</b>"
@@ -3029,9 +3038,6 @@ msgstr "Kontokreditt utløper om noen få minutter"
 
 msgid "Account deleted"
 msgstr "Konto slettet"
-
-msgid "Account number is too long, please enter a valid number"
-msgstr "Kontonummeret er for langt. Skriv inn et gyldig nummer"
 
 msgid "Account number must match"
 msgstr "Kontonummeret må stemme overens"
@@ -3111,9 +3117,6 @@ msgstr "OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Merk: Hvis «Blokker tilkoblinger uten VPN» er aktivert, har ikke splittede apper internettilgang. Ha i bakhodet at «split tunneling» er en personvernrisiko."
 
-msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
-msgstr "OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server»."
-
 msgid "Auto-connect & Lockdown mode"
 msgstr "Automatisk tilkobling og låsemodus"
 
@@ -3138,14 +3141,11 @@ msgstr "Når du legger ved kontotokenet ditt, kobles denne rapporten til kontoen
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr "Ved å merke av i denne boksen godtar jeg risikoene involvert med å slette kontoen min"
 
-msgid "Can't connect?"
-msgstr "Kan du ikke koble til?"
+msgid "Can’t connect?"
+msgstr "Får du ikke koblet til?"
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "Endre tittelen og ikonet for Mullvad VPN-appen på Android-enheten din. Dette vil ikke endre ikonet for varsler knyttet til Mullvad VPN."
-
-msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
-msgstr "Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater."
 
 msgid "Clear input"
 msgstr "Fjern inndata"
@@ -3180,9 +3180,6 @@ msgstr "Kunne ikke vise gjenværende dager."
 msgid "Create new list"
 msgstr "Opprett ny liste"
 
-msgid "Creating account failed"
-msgstr "Opprettelse av konto mislyktes"
-
 msgid "Critical error (your attention is required)"
 msgstr "Kritisk feil (krever din oppmerksomhet)"
 
@@ -3191,6 +3188,9 @@ msgstr "Gjeldende: %s"
 
 msgid "Custom DNS server addresses %1$s are invalid"
 msgstr "De egendefinerte DNS-serveradressene %1$s er ugyldige"
+
+msgid "DNS settings"
+msgstr "DNS-innstillinger"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart"
@@ -3237,9 +3237,6 @@ msgstr "Kobler fra …"
 msgid "Dismiss"
 msgstr "Ignorer"
 
-msgid "Don’t have an account number?"
-msgstr "Har du ikke et kontonummer?"
-
 msgid "Edit custom lists"
 msgstr "Endre egendefinerte lister"
 
@@ -3272,6 +3269,9 @@ msgstr "Angi MTU"
 
 msgid "Enter account number digits"
 msgstr "Skriv inn sifrene i kontonummeret ditt"
+
+msgid "Enter an account number"
+msgstr "Skriv inn et kontonummer"
 
 msgid "Entry relay is the same as exit relay"
 msgstr "Inngangsrelé er det samme som utgangsrelé"
@@ -3311,6 +3311,9 @@ msgstr "Du finner mer informasjon i %s."
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "For at VPN skal kobles automatisk til ved oppstart av enheten, må appen ha VPN-tillatelser. Du kan gi disse ved å klikke på «Koble til» i kartvisningen og velge «OK» hvis du blir bedt om det. I tillegg må du sørge for at appen er installert på det interne lagringsmediet ved å sjekke lagringsinformasjonen i appdetaljene i systeminnstillingene."
+
+msgid "Generating..."
+msgstr "Genererer …"
 
 msgid "Go to VPN settings"
 msgstr "Gå til VPN-innstillinger"
@@ -3360,8 +3363,17 @@ msgstr "Produkter i appen er ikke tilgjengelige. Sørg for at du har den nyeste 
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Inkluder kontotokenet mitt for raskere hjelp med betaling eller problemer knyttet til kontoen"
 
+msgid "Internet"
+msgstr "Internett"
+
+msgid "Invalid IP address"
+msgstr "Ugyldig IP-adresse"
+
 msgid "Invalid IPv6 config, please try to change the VPN settings."
 msgstr "Ugyldig IPv6-konfiruasjon. Prøv å endre VPN-innstillingene."
+
+msgid "Invalid MTU value"
+msgstr "Ugyldig MTU-verdi"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Ugyldig eller mangler verdien «%1$s»"
@@ -3474,14 +3486,35 @@ msgstr "Lim eller skriv inn overstyringer som skal importeres"
 msgid "Patch not matching specification"
 msgstr "Oppdateringen samsvarer ikke med spesifikasjon"
 
+msgid "Please enter a message"
+msgstr "Skriv inn en melding"
+
+msgid "Please enter a name"
+msgstr "Skriv inn et navn"
+
+msgid "Please enter a port"
+msgstr "Skriv inn en port"
+
 msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr "Skriv inn en gyldig IPv4- eller IPv6-adresse"
 
 msgid "Please enter a valid remote server port"
 msgstr "Skriv inn en gyldig ekstern server-port"
 
+msgid "Please enter a value"
+msgstr "Skriv inn en verdi"
+
+msgid "Please enter an IP address"
+msgstr "Skriv inn en IP-adresse"
+
+msgid "Please enter an IP override text"
+msgstr "Skriv inn en tekst for IP-overstyring"
+
 msgid "Please press connect to request VPN permission"
 msgstr "Trykk på koble til for å be om VPN-tillatelse"
+
+msgid "Please remove a device before continuing logging in"
+msgstr "Fjern en enhet før du fortsetter med innloggingen"
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fungerer, kan du skrive en e-post til %s på svensk eller engelsk."
@@ -3489,11 +3522,20 @@ msgstr "Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fung
 msgid "Please try changing your filters."
 msgstr "Prøv å endre filtrene."
 
+msgid "Port is out of range"
+msgstr "Porten er utenfor rekkevidde"
+
+msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Forhindrer enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer."
+
 msgid "Privacy"
 msgstr "Personvern"
 
 msgid "Privacy policy"
 msgstr "Retningslinjer for personvern"
+
+msgid "Read more"
+msgstr "Les mer"
 
 msgid "Recents disabled and history cleared"
 msgstr "Nylige er deaktivert og historikken er slettet"
@@ -3729,6 +3771,9 @@ msgstr "Bekrefter kjøp ..."
 msgid "Verifying voucher…"
 msgstr "Bekrefter kupong …"
 
+msgid "Voucher code is too short"
+msgstr "Kupongkoden er for kort"
+
 msgid "Warning"
 msgstr "Advarsel"
 
@@ -3762,11 +3807,17 @@ msgstr "Du kan legge til mer tid via kontooversikten eller nettstedet for å for
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Du kan legge til mer tid via kontooversikten for å fortsette å bruke VPN."
 
+msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
+msgstr "Du kan enten bruke våre innebygde innholdsblokkere eller en tilpasset DNS-server. Det kan føre til problemer på enkelte nettsteder, tjenester og apper."
+
 msgid "You will lose access to this account on all devices."
 msgstr "Du vil miste tilgang til denne kontoen på alle enheter."
 
 msgid "You will lose your remaining"
 msgstr "Du vil miste gjenværende"
+
+msgid "Your device"
+msgstr "Din enhet"
 
 msgid "\"%s\" was created"
 msgstr "«%s» ble opprettet"

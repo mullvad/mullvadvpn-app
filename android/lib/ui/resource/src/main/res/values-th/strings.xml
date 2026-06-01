@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">หลังจากอัปเดตแอป VPN บน Android 16 อุปกรณ์อาจอยู่ในสถานะที่แอป VPN ไม่สามารถเข้าถึงอินเทอร์เน็ตได้อีกต่อไป</string>
     <string name="android_16_upgrade_warning_dialog_second_message">โปรดรีสตาร์ทอุปกรณ์ของคุณและลองเชื่อมต่ออีกครั้ง หากวิธีนี้ไม่ได้ผล โปรดเขียนอีเมลถึง %1$s เป็นภาษาสวีเดนหรืออังกฤษ</string>
     <string name="android_16_upgrade_warning_message">Android 16 มีปัญหาที่ทราบแล้ว โปรดรีสตาร์ทอุปกรณ์ของคุณแล้วลองอีกครั้ง หากต้องการเรียนรู้เพิ่มเติม</string>
+    <string name="android_16_upgrade_warning_title">เชื่อมต่อไม่ได้ใช่ไหม</string>
     <string name="anti_censorship">การป้องกันการเซ็นเซอร์</string>
     <string name="anti_censorship_info_first_paragraph">วิธีการเหล่านี้อาจมีประโยชน์ในสถานการณ์ที่คุณถูกบล็อกไม่ให้เข้าถึง Mullvad เมื่อเลือก \"อัตโนมัติ\" แอปจะพยายามใช้ทุกวิธีจนกว่าจะมีวิธีใดวิธีหนึ่งที่ใช้งานได้</string>
     <string name="anti_censorship_info_second_paragraph"><b>โปรดทราบว่าวิธีการเหล่านี้ไม่ได้ช่วยปรับปรุงประสิทธิภาพ แต่อาจเพิ่มการใช้งานระบบและการใช้แบตเตอรี่</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">ปิดใช้งาน \"%1$s\" ด้านบนทั้งหมด เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="custom_dns_hint">ป้อน IP</string>
     <string name="custom_list_error_list_exists">ชื่อนี้ถูกใช้ไปแล้ว</string>
+    <string name="custom_list_error_list_is_empty">โปรดป้อนชื่อ</string>
     <string name="custom_lists">รายการกำหนดเอง</string>
     <string name="custom_port_dialog_placeholder">ป้อนพอร์ต</string>
     <string name="custom_port_dialog_remove">นำพอร์ตแบบกำหนดเองออก</string>
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
+    <string name="custom_port_input_error_blank">โปรดป้อนหมายเลขพอร์ต</string>
+    <string name="custom_port_input_error_out_of_range">พอร์ตอยู่นอกระยะ</string>
     <string name="custom_port_recommended_range_first"><b>ข้อควรระวัง:</b> มีเพียงบางเซิร์ฟเวอร์เท่านั้นที่รองรับช่วงพอร์ตได้ทั้งหมด</string>
     <string name="custom_port_recommended_range_second">ช่วงที่ใช้ได้สำหรับทุกเซิร์ฟเวอร์: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">หรือ</string>
     <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่างเพื่อเปิดใช้งานการตั้งค่าเหล่านี้</string>
+    <string name="dns_settings">การตั้งค่า DNS</string>
+    <string name="dns_settings_description_first_item">ป้องกันไม่ให้อุปกรณ์ติดต่อกับโดเมนหรือเว็บไซต์บางแห่งที่ขึ้นชื่อเรื่องการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
+    <string name="dns_settings_description_second_item">คุณสามารถใช้ตัวบล็อกเนื้อหาในตัวของเรา หรือใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองก็ได้ ซึ่งอาจทำให้เกิดปัญหาในเว็บไซต์ บริการ และแอปพลิเคชันบางรายการ</string>
+    <string name="dns_settings_description_title"><b>ตัวบล็อกเนื้อหา DNS</b></string>
+    <string name="dns_settings_description_warning"><b>โปรดทราบ: การตั้งค่า DNS อาจไม่ได้มีผลทันที</b></string>
     <string name="duplicate_address_warning">ที่อยู่นี้ได้รับการป้อนไปแล้ว</string>
     <string name="edit_custom_lists">แก้ไขรายการแบบกำหนดเอง</string>
     <string name="edit_list">แก้ไขรายการ</string>
@@ -239,6 +248,7 @@
     <string name="filter">กรอง</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะอุโมงค์ VPN</string>
+    <string name="generating_account_number">กำลังสร้าง...</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>
     <string name="go_to_vpn_settings">ไปที่การตั้งค่า VPN</string>
     <string name="got_it">รับทราบ!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">ไอคอนและชื่อ</string>
     <string name="import_override_textfield_placeholder">วางหรือพิมพ์โอเวอร์ไรด์เพื่อนำเข้า</string>
     <string name="import_overrides_bottom_sheet_override_warning">การนำเข้าโอเวอร์ไรด์ใหม่ อาจแทนที่โอเวอร์ไรด์ที่นำเข้าก่อนหน้านี้</string>
+    <string name="import_overrides_empty_text_error">โปรดป้อนข้อความสำหรับแก้ไขที่อยู่ IP</string>
     <string name="import_overrides_import">นำเข้า</string>
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
     <string name="in_app_products_unavailable">ผลิตภัณฑ์ในแอปไม่พร้อมใช้งาน โปรดตรวจสอบให้แน่ใจว่าคุณมี Google Play เวอร์ชันล่าสุด</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">การแนบโทเค็นบัญชีของคุณจะเชื่อมโยงรายงานนี้เข้ากับบัญชีของคุณ ซึ่งจะช่วยให้เราแก้ไขปัญหาของคุณได้เร็วขึ้น รายงานทั้งหมดจะถูกลบโดยอัตโนมัติหลังจากผ่านไประยะเวลาหนึ่ง</string>
     <string name="include_account_token_warning_message_second">สำหรับรายละเอียดเพิ่มเติม โปรดดูที่ %1$s ของเรา</string>
     <string name="include_account_token_warning_title">สิ่งนี้ส่งผลต่อความไม่เปิดเผยตัวตนของคุณ</string>
+    <string name="internet">อินเทอร์เน็ต</string>
+    <string name="invalid_address_blank_warning">โปรดป้อนที่อยู่ IP</string>
+    <string name="invalid_address_invalid_warning">ที่อยู่ IP ไม่ถูกต้อง</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS ที่กำหนดเอง %1$s ไม่ถูกต้อง</string>
     <string name="invalid_ipv6_config">การตั้งค่า IPv6 ไม่ถูกต้อง โปรดลองเปลี่ยนการตั้งค่า VPN</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">ไม่สามารถเข้าถึง API %1$s</string>
     <string name="login_error_too_many_attempts">พยายามหลายครั้งเกินไป โปรดลองอีกครั้งในภายหลัง</string>
     <string name="login_fail_description">หมายเลขบัญชีไม่ถูกต้อง</string>
+    <string name="login_fail_empty">ป้อนหมายเลขบัญชี</string>
     <string name="login_fail_title">การเข้าสู่ระบบล้มเหลว</string>
     <string name="malware_info">คำเตือน: ตัวบล็อกมัลแวร์ไม่ใช่แอนตี้ไวรัส และไม่ควรนำมาใช้ในรูปแบบดังกล่าว นี่เป็นเพียงชั้นการป้องกันเพิ่มเติมเท่านั้น</string>
     <string name="manage_devices">จัดการอุปกรณ์</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">การดำเนินการเพิ่มเติม</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">โปรดป้อนค่า</string>
+    <string name="mtu_input_error_invalid">ค่า MTU ไม่ถูกต้อง</string>
     <string name="mtu_x">ค่า: %1$s</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">คุณลักษณะนี้จะช่วยให้ช่องทาง WireGuard สามารถสกัดกั้นการโจมตีที่อาจมาจากคอมพิวเตอร์ควอนตัมได้</string>
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
     <string name="quantum_resistant_title">ช่องทางการสกัดกั้นควอนตัม</string>
+    <string name="read_more">อ่านเพิ่มเติม</string>
     <string name="read_more_here">อ่านเพิ่มเติมที่นี่</string>
     <string name="recents">ล่าสุด</string>
     <string name="recents_disabled">ปิดใช้งานล่าสุดและล้างประวัติแล้ว</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s ถูกเลือกเป็น Entry Relay อยู่แล้ว</string>
     <string name="relay_item_already_selected_as_exit">%1$s ถูกเลือกเป็น Exit Relay อยู่แล้ว</string>
     <string name="relayitem_is_inactive">%1$s ไม่พร้อมใช้งาน</string>
+    <string name="remove_a_device_before_logging_in">โปรดนำอุปกรณ์ออกก่อนดำเนินการเข้าสู่ระบบต่อ</string>
     <string name="remove_button">ลบ</string>
     <string name="remove_location_from_list">ลบ %1$s จาก %2$s</string>
     <string name="removed_provider">%1$s (ลบแล้ว)</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
+    <string name="report_problem_message_is_empty">โปรดป้อนข้อความ</string>
     <string name="reset_to_default_button">รีเซ็ตเป็นค่าเริ่มต้น</string>
     <string name="retry">ลองอีกครั้ง</string>
     <string name="save">บันทึก</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
+    <string name="voucher_too_short">รหัสบัตรกำนัลสั้นเกินไป</string>
     <string name="vpn_permission_denied_error">สิทธิ์ VPN ถูกปฏิเสธ หรือไม่ก็แอปอื่นเปิดใช้งาน \"เปิด VPN เสมอ\"</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">การอนุญาต VPN ถูกปฏิเสธ</string>
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">การตั้งค่า %1$s.</string>
     <string name="x_entry">%1$s (ขาเข้า)</string>
     <string name="x_exit">%1$s (ขาออก)</string>
+    <string name="x_out_of_y">%1$d จาก %2$d</string>
     <string name="x_via_x">%1$s ผ่าน %2$s</string>
     <string name="you_can_add_more_time_oss">คุณสามารถเพิ่มเวลาเพิ่มเติมได้โดยการดูบัญชีหรือเว็บไซต์เพื่อใช้งาน VPN ต่อไป</string>
     <string name="you_can_add_more_time_play">คุณสามารถเพิ่มเวลาผ่านทางหน้าบัญชีเพื่อใช้งาน VPN ต่อได้</string>
+    <string name="your_device">อุปกรณ์ของคุณ</string>
 </resources>

@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Kun VPN-sovellus päivitetään Android 16:ssa, laitteen saattavat päätyä tilaan, jossa VPN-sovellukset eivät voi enää muodostaa yhteyttä internetiin.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Käynnistä laitteesi uudelleen ja yritä muodostaa yhteys uudelleen. Jos tämä ei toimi, lähetä sähköpostiviesti osoitteeseen %1$s ruotsiksi tai englanniksi.</string>
     <string name="android_16_upgrade_warning_message">Android 16:ssa on tunnettu ongelma. Käynnistä laitteesi uudelleen ja yritä uudelleen. Saat lisätietoja</string>
+    <string name="android_16_upgrade_warning_title">Eikö yhteyden muodostaminen onnistu?</string>
     <string name="anti_censorship">Sensuurinesto</string>
     <string name="anti_censorship_info_first_paragraph">Nämä tavat voivat olla hyödyllisiä tilanteissa, joissa sinua on estetty pääsemästä Mullvadiin. Kun \"automaattinen\" valitaan, sovellus kokeilee kaikkia tapoja, kunnes jokin niistä toimii.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Huomioithan, että nämä tavat eivät paranna suorituskykyä ja voivat lisätä järjestelmän käyttöastetta ja akun käyttöä.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">Ota tämä asetus käyttöön poistamalla kaikki %1$s käytöstä yllä.</string>
     <string name="custom_dns_hint">Anna IP-osoite</string>
     <string name="custom_list_error_list_exists">Nimi on jo olemassa.</string>
+    <string name="custom_list_error_list_is_empty">Syötä nimi</string>
     <string name="custom_lists">Mukautetut luettelot</string>
     <string name="custom_port_dialog_placeholder">Anna portti</string>
     <string name="custom_port_dialog_remove">Poista mukautettu portti</string>
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
+    <string name="custom_port_input_error_blank">Syötä portti</string>
+    <string name="custom_port_input_error_out_of_range">Portti on alueen ulkopuolella</string>
     <string name="custom_port_recommended_range_first"><b>Huomio:</b> vain tietyt palvelimet tukevat koko porttiväliä.</string>
     <string name="custom_port_recommended_range_second">Kelvollinen väli kaikille palvelimille: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">tai</string>
     <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_subtitle">Poista \"%1$s\" käytöstä alla näiden asetusten aktivoimiseksi.</string>
+    <string name="dns_settings">DNS-asetukset</string>
+    <string name="dns_settings_description_first_item">Estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin ja sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
+    <string name="dns_settings_description_second_item">Voit käyttää sisäänrakennettuja sisällönestotoimintojamme tai mukautettua DNS-palvelinta. Tämä saattaa aiheuttaa ongelmia tietyillä verkkosivustoilla sekä tietyissä palveluissa ja sovelluksissa.</string>
+    <string name="dns_settings_description_title"><b>DNS-sisällönestotoiminnot</b></string>
+    <string name="dns_settings_description_warning"><b>Huomio: uudet DNS-asetukset eivät välttämättä astu voimaan välittömästi.</b></string>
     <string name="duplicate_address_warning">Tämä osoite on annettu jo.</string>
     <string name="edit_custom_lists">Muokkaa mukautettuja luetteloita</string>
     <string name="edit_list">Muokkaa luetteloa</string>
@@ -239,6 +248,7 @@
     <string name="filter">Suodata</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
+    <string name="generating_account_number">Luodaan...</string>
     <string name="go_to_login">Siirry kirjautumiseen</string>
     <string name="go_to_vpn_settings">Siirry VPN-asetuksiin</string>
     <string name="got_it">Selvä!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">Kuvake ja otsikko</string>
     <string name="import_override_textfield_placeholder">Liitä tai kirjoita ohitukset, jotka haluat tuoda</string>
     <string name="import_overrides_bottom_sheet_override_warning">Uusien ohitusten tuonti saattaa korvata joitain aiemmin tuotuja ohituksia.</string>
+    <string name="import_overrides_empty_text_error">Syötä IP:n korvausteksti</string>
     <string name="import_overrides_import">Tuo</string>
     <string name="import_overrides_text_title">Tuo tekstinä</string>
     <string name="in_app_products_unavailable">Sovelluksen sisäiset tuotteet eivät ole käytettävissä. Varmista, että sinulla on Google Playn uusin versio.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">Tilin tunnisteen liittäminen yhdistää tämän raportin tiliisi, mikä auttaa meitä ratkaisemaan ongelmasi nopeammin. Kaikki raportit poistetaan automaattisesti tietyn ajan kuluttua.</string>
     <string name="include_account_token_warning_message_second">Lisätietoja antaa %1$s.</string>
     <string name="include_account_token_warning_title">Tämä vaikuttaa anonymiteettiisi</string>
+    <string name="internet">Internet</string>
+    <string name="invalid_address_blank_warning">Syötä IP-osoite</string>
+    <string name="invalid_address_invalid_warning">Virheellinen IP-osoite</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_ipv6_config">Virheellinen IPv6-määritys, kokeile muuttaa VPN-asetuksia.</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">Yhteyden muodostaminen API:hin ei onnistu. %1$s.</string>
     <string name="login_error_too_many_attempts">Liian monta yritystä. Yritä myöhemmin uudelleen.</string>
     <string name="login_fail_description">Virheellinen tilin numero</string>
+    <string name="login_fail_empty">Syötä tilin numero</string>
     <string name="login_fail_title">Sisäänkirjautuminen epäonnistui</string>
     <string name="malware_info">Varoitus: haittaohjelmien estotoiminto ei ole virustorjuntaohjelma, eikä sitä pidä käyttää sellaisena – kyseessä on vain ylimääräinen suojauskerros.</string>
     <string name="manage_devices">Hallitse laitteita</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">Lisää toimintoja</string>
     <string name="more_information">Lisätietoja</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Syötä arvo</string>
+    <string name="mtu_input_error_invalid">Virheellinen MTU-arvo</string>
     <string name="mtu_x">Arvo: %1$s</string>
     <string name="mullvad_owned_only">Vain Mullvadin omistamat</string>
     <string name="multihop">Multihop</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Tämä ominaisuus tekee WireGuard-tunnelista kestävän kvanttitietokoneiden mahdollisia hyökkäyksiä vastaan.</string>
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
+    <string name="read_more">Lue lisää</string>
     <string name="read_more_here">lue lisää täällä</string>
     <string name="recents">Viimeisimmät</string>
     <string name="recents_disabled">Viimeisimmät on poistettu käytöstä ja historia on tyhjennetty</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s on jo valittu tulovälityspalvelimeksi</string>
     <string name="relay_item_already_selected_as_exit">%1$s on jo valittu lähtövälityspalvelimeksi</string>
     <string name="relayitem_is_inactive">%1$s ei ole käytettävissä</string>
+    <string name="remove_a_device_before_logging_in">Poista laite ennen kuin jatkat sisäänkirjautumista</string>
     <string name="remove_button">Poista</string>
     <string name="remove_location_from_list">Poista %1$s luettelosta %2$s</string>
     <string name="removed_provider">%1$s (poistettu)</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Ilmoita ongelmasta</string>
+    <string name="report_problem_message_is_empty">Syötä viesti</string>
     <string name="reset_to_default_button">Palauta oletusarvo</string>
     <string name="retry">Yritä uudelleen</string>
     <string name="save">Tallenna</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
+    <string name="voucher_too_short">Kuponkikoodi on liian lyhyt</string>
     <string name="vpn_permission_denied_error">VPN:n käyttöoikeus evättiin tai toisella sovelluksella on aina päällä oleva VPN käytössä</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN:n käyttöoikeus evättiin</string>
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">%1$s-asetukset.</string>
     <string name="x_entry">%1$s (tulo)</string>
     <string name="x_exit">%1$s (lähtö)</string>
+    <string name="x_out_of_y">%1$d/%2$d</string>
     <string name="x_via_x">%1$s, yhteys: %2$s</string>
     <string name="you_can_add_more_time_oss">Voit lisätä aikaa tilinäkymän tai verkkosivuston kautta, jotta voit jatkaa VPN:n käyttöä.</string>
     <string name="you_can_add_more_time_play">Voit jatkaa VPN:n käyttöä lisäämällä aikaa tilinäkymän kautta.</string>
+    <string name="your_device">Laitteesi</string>
 </resources>

@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16\'da bir VPN uygulaması güncellendikten sonra, cihazlar VPN uygulamalarının artık internete erişemediği bir duruma geçebilir.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Lütfen cihazınızı yeniden başlatın ve tekrar bağlanmayı deneyin. Bu işe yaramazsa lütfen %1$s adresine İsveççe veya İngilizce bir e-posta yazın.</string>
     <string name="android_16_upgrade_warning_message">Android 16\'da bilinen bir sorun mevcut. Lütfen cihazınızı yeniden başlatıp tekrar deneyin. Daha fazla bilgi için</string>
+    <string name="android_16_upgrade_warning_title">Bağlanamıyor musunuz?</string>
     <string name="anti_censorship">Sansürü önleme</string>
     <string name="anti_censorship_info_first_paragraph">Bu yöntemler, Mullvad erişiminin engellendiği durumlarda faydalı olabilir. \"Otomatik\" seçeneği ayarlandığında uygulama yöntemlerden biri çalışana kadar tüm yöntemleri dener.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Bu yöntemlerin performansı iyileştirmediğini ve sistem kullanımı ile pil tüketimini artırabileceğini lütfen göz önünde bulundurun.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">Bu ayarı etkinleştirmek için yukarıdaki \"%1$s\" seçeneklerinin tümünü devre dışı bırakın.</string>
     <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_list_error_list_exists">İsim zaten kullanılıyor.</string>
+    <string name="custom_list_error_list_is_empty">Lütfen bir ad girin</string>
     <string name="custom_lists">Özel listeler</string>
     <string name="custom_port_dialog_placeholder">Portu girin</string>
     <string name="custom_port_dialog_remove">Özel portu kaldır</string>
     <string name="custom_port_dialog_submit">Portu ayarla</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
+    <string name="custom_port_input_error_blank">Lütfen bir port girin</string>
+    <string name="custom_port_input_error_out_of_range">Port aralık dışında</string>
     <string name="custom_port_recommended_range_first"><b>Dikkat:</b> Sadece bazı sunucular tam bağlantı noktası aralığını destekler.</string>
     <string name="custom_port_recommended_range_second">Tüm sunucular için geçerli aralık: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">Ya da</string>
     <string name="dns_content_blockers">DNS içerik engelleyiciler</string>
     <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki \"%1$s\" seçeneğini devre dışı bırakın.</string>
+    <string name="dns_settings">DNS ayarları</string>
+    <string name="dns_settings_description_first_item">Cihazın, reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adları veya web siteleriyle iletişim kurmasını engeller.</string>
+    <string name="dns_settings_description_second_item">Yerleşik içerik engelleyicilerimizi veya özel bir DNS sunucusu kullanabilirsiniz. Bu durum bazı web sitelerinde, hizmetlerde ve uygulamalarda sorunlara neden olabilir.</string>
+    <string name="dns_settings_description_title"><b>DNS içerik engelleyiciler</b></string>
+    <string name="dns_settings_description_warning"><b>Dikkat: DNS ayarları hemen geçerli olmayabilir.</b></string>
     <string name="duplicate_address_warning">Bu adres zaten girilmiş.</string>
     <string name="edit_custom_lists">Özel listeleri düzenle</string>
     <string name="edit_list">Listeyi düzenle</string>
@@ -239,6 +248,7 @@
     <string name="filter">Filtrele</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
+    <string name="generating_account_number">Oluşturuluyor...</string>
     <string name="go_to_login">Giriş sayfasına git</string>
     <string name="go_to_vpn_settings">VPN ayarlarına git</string>
     <string name="got_it">Anladım!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">Simge ve başlık</string>
     <string name="import_override_textfield_placeholder">İçe aktarılacak geçersiz kılmaları yapıştırın veya yazın</string>
     <string name="import_overrides_bottom_sheet_override_warning">Yeni geçersiz kılmaların içe aktarılması, önceden içe aktarılan bazı geçersiz kılmaların yerine geçebilir.</string>
+    <string name="import_overrides_empty_text_error">Lütfen bir IP geçersiz kılma metni girin</string>
     <string name="import_overrides_import">İçe aktar</string>
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="in_app_products_unavailable">Uygulama içi ürünler kullanılamıyor. Lütfen Google Play\'in en yeni sürümüne sahip olduğunuzdan emin olun.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">Hesap token’ınızı eklediğinizde, bu rapor hesabınızla ilişkilendirilir ve sorununuzun daha kısa sürede çözülmesine yardımcı olur. Tüm raporlar belirli bir süre sonra otomatik olarak silinir.</string>
     <string name="include_account_token_warning_message_second">Ayrıntılar için lütfen %1$s sayfamıza göz atın.</string>
     <string name="include_account_token_warning_title">Bu, anonimliğinizi etkileyebilir</string>
+    <string name="internet">İnternet</string>
+    <string name="invalid_address_blank_warning">Lütfen bir IP adresi girin</string>
+    <string name="invalid_address_invalid_warning">Geçersiz IP adresi</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_ipv6_config">Geçersiz IPv6 yapılandırması, lütfen VPN ayarlarını değiştirmeyi deneyin.</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">API\'ye erişilemiyor, %1$s</string>
     <string name="login_error_too_many_attempts">Çok fazla deneme yapıldı. Lütfen daha sonra tekrar deneyin.</string>
     <string name="login_fail_description">Geçersiz hesap numarası</string>
+    <string name="login_fail_empty">Bir hesap numarası girin</string>
     <string name="login_fail_title">Oturum açma başarısız</string>
     <string name="malware_info">Uyarı: Kötü amaçlı yazılım engelleyici, virüsten koruma yazılımı değildir ve bu şekilde değerlendirilmemelidir. Sadece ek bir koruma seviyesi sağlamaktadır.</string>
     <string name="manage_devices">Cihazları yönet</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">Diğer işlemler</string>
     <string name="more_information">Daha fazla bilgi</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Lütfen bir değer girin</string>
+    <string name="mtu_input_error_invalid">Geçersiz MTU değeri</string>
     <string name="mtu_x">Değer: %1$s</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Bu özellik, WireGuard tünelini kuantum bilgisayarlardan gelebilecek potansiyel saldırılara karşı dayanıklı hale getirir.</string>
     <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
     <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
+    <string name="read_more">Devamını oku</string>
     <string name="read_more_here">buradan daha fazla bilgi edinin</string>
     <string name="recents">Son kullanılanlar</string>
     <string name="recents_disabled">Son kullanılanlar devre dışı bırakıldı ve geçmiş temizlendi</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s zaten giriş aktarıcısı olarak seçildi</string>
     <string name="relay_item_already_selected_as_exit">%1$s zaten çıkış aktarıcısı olarak seçildi</string>
     <string name="relayitem_is_inactive">%1$s kullanılamıyor</string>
+    <string name="remove_a_device_before_logging_in">Lütfen giriş yapmaya devam etmeden önce bir cihazı kaldırın</string>
     <string name="remove_button">Kaldır</string>
     <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırılsın</string>
     <string name="removed_provider">%1$s (kaldırıldı)</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
+    <string name="report_problem_message_is_empty">Lütfen bir mesaj girin</string>
     <string name="reset_to_default_button">Varsayılana sıfırla</string>
     <string name="retry">Tekrar dene</string>
     <string name="save">Kaydet</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
+    <string name="voucher_too_short">Kupon kodu çok kısa</string>
     <string name="vpn_permission_denied_error">VPN izni reddedildi veya başka bir uygulamada \"VPN her zaman açık\" seçeneği etkinleştirildi</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN izni reddedildi</string>
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">%1$s ayarları.</string>
     <string name="x_entry">%1$s (Giriş)</string>
     <string name="x_exit">%1$s (Çıkış)</string>
+    <string name="x_out_of_y">%1$d / %2$d</string>
     <string name="x_via_x">%2$s aracılığıyla %1$s</string>
     <string name="you_can_add_more_time_oss">VPN kullanmaya devam etmek için hesap görünümünden ya da web sitesinden daha fazla süre ekleyebilirsiniz.</string>
     <string name="you_can_add_more_time_play">VPN kullanmaya devam etmek için hesap görünümünden daha fazla süre ekleyebilirsiniz.</string>
+    <string name="your_device">Cihazınız</string>
 </resources>
