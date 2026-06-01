@@ -545,8 +545,10 @@ impl WireguardConstraints {
 
     /// Check if multihop may be in effect.
     pub fn multihop_entry(&self) -> Option<&LocationConstraint> {
-        debug_assert!(matches!(self.multihop, Multihop::Always | Multihop::Auto));
-        self.entry_location.as_ref().option()
+        match self.multihop {
+            Multihop::Always | Multihop::Auto => self.entry_location.as_ref().option(),
+            Multihop::Never => None,
+        }
     }
 }
 
