@@ -3242,6 +3242,18 @@ impl Daemon {
             self.send_tunnel_command(TunnelCommand::SetExcludedApps(tx, vec![]));
         }
 
+        #[cfg(target_os = "macos")]
+        {
+            use objc2_foundation::{NSOperatingSystemVersion, NSProcessInfo, NSURL, ns_string};
+            use objc2_service_management::{SMAppService, SMAppServiceStatus};
+            unsafe {
+                let service = SMAppService::mainAppService();
+                if let Err(error) = service.unregisterAndReturnError() {
+                    log::error!("Failed to unregister login item {error:#?}");
+                }
+            }
+        }
+
         #[cfg(not(target_os = "android"))]
         {
             let (tx, _rx) = oneshot::channel();
