@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">پس از به‌روزرسانی یک اپلیکیشن VPN در اندروید 16، ممکن است دستگاه‌ها به حالتی برسند که اپلیکیشن‌های VPN دیگر نتوانند به اینترنت دسترسی پیدا کنند.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">لطفاً دستگاه‌تان را دوباره راه‌اندازی کنید و دوباره تلاش کنید وصل شوید. اگر مشکل برطرف نشد، لطفاً یک ایمیل به %1$s به زبان سوئدی یا انگلیسی بنویسید.</string>
     <string name="android_16_upgrade_warning_message">‏اندروید 16 یک مشکل شناخته‌شده دارد. لطفاً دستگاه‌تان را مجدد راه‌اندازی کرده و دوباره امتحان کنید. برای کسب اطلاعات بیشتر،</string>
+    <string name="android_16_upgrade_warning_title">اتصال برقرار نمی‌شود؟</string>
     <string name="anti_censorship">ضد سانسور</string>
     <string name="anti_censorship_info_first_paragraph">این روش‌ها ممکن است زمانی مفید باشند که دسترسی شما به Mullvad مسدود شده باشد. وقتی «خودکار» انتخاب شود، اپلیکیشن همهٔ روش‌ها را امتحان می‌کند تا یکی از آن‌ها کار کند.</string>
     <string name="anti_censorship_info_second_paragraph"><b>لطفاً توجه داشته باشید که این روش‌ها کارایی را بهبود نمی‌بخشند و ممکن است مصرف سیستم و باتری را افزایش دهند.</b></string>
@@ -126,11 +127,14 @@
     <string name="custom_dns_footer">برای افزودن حداقل یک سرور DNS، این گزینه را فعال کنید.</string>
     <string name="custom_dns_hint">IP را وارد کنید</string>
     <string name="custom_list_error_list_exists">این نام قبلاً استفاده شده است.</string>
+    <string name="custom_list_error_list_is_empty">لطفاً یک نام را وارد کنید</string>
     <string name="custom_lists">فهرست‌های سفارشی</string>
     <string name="custom_port_dialog_placeholder">پورت را وارد کنید</string>
     <string name="custom_port_dialog_remove">حذف پورت سفارشی</string>
     <string name="custom_port_dialog_submit">تنظیم پورت</string>
     <string name="custom_port_dialog_valid_ranges">دامنه‌های معتبر: %1$s</string>
+    <string name="custom_port_input_error_blank">لطفاً یک پورت را وارد کنید</string>
+    <string name="custom_port_input_error_out_of_range">پورت خارج از محدوده است</string>
     <string name="custom_port_recommended_range_first"><b>توجه:</b> تنها بعضی سرورها از محدوده کامل پورت پشتیبانی می‌کنند.</string>
     <string name="custom_port_recommended_range_second">محدوده معتبر برای همه سرورها: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">قادر به شناسایی میزبان تونل سفارشی نیست. لطفاً تنظیمات خود را تغییر دهید و دوباره تلاش کنید.</string>
@@ -193,7 +197,6 @@
     <string name="dismiss">رد کردن</string>
     <string name="divier_or">یا</string>
     <string name="dns_content_blockers">مسدودکننده‌های محتوای DNS</string>
-    <string name="dns_content_blockers_custom_dns_warning">توجه: این تنظیم نمی‌تواند همراه با «استفاده از سرور DNS سفارشی» به‌کار برود.</string>
     <string name="dns_content_blockers_info">وقتی این ویژگی فعال باشد، دستگاه از تماس با برخی دامنه‌ها یا وب‌سایت‌هایی که به توزیع تبلیغات، بدافزار، ردیاب‌ها و موارد دیگر شناخته می‌شوند جلوگیری می‌کند.</string>
     <string name="dns_content_blockers_subtitle">برای فعال کردن این تنظیمات، «%1$s» را در بخش زیر غیرفعال کنید.</string>
     <string name="dns_content_blockers_warning">این ممکن است باعث بروز مشکل در برخی وب‌سایت‌ها، سرویس‌ها و اپلیکیشن‌ها شود.</string>
@@ -243,6 +246,7 @@
     <string name="filter">فیلتر</string>
     <string name="foreground_notification_channel_description">وضعیت فعلی تونل VPN را نمایش می‌دهد</string>
     <string name="foreground_notification_channel_name">وضعیت تونل VPN</string>
+    <string name="generating_account_number">تولید...</string>
     <string name="go_to_login">رفتن به صفحهٔ ورود</string>
     <string name="go_to_vpn_settings">رفتن به تنظیمات VPN</string>
     <string name="got_it">فهمیدم!</string>
@@ -252,6 +256,7 @@
     <string name="icon_and_title">آیکون و عنوان</string>
     <string name="import_override_textfield_placeholder">جایگزینی‌هایی را که می‌خواهید وارد کنید، جایگذاری کنید یا بنویسید</string>
     <string name="import_overrides_bottom_sheet_override_warning">وارد کردن جایگزین‌های جدید ممکن است جایگزین برخی از جایگزین‌های قبلاً وارد شده شود.</string>
+    <string name="import_overrides_empty_text_error">لطفاً متن جایگزین IP را وارد کنید</string>
     <string name="import_overrides_import">وارد کردن</string>
     <string name="import_overrides_text_title">وارد کردن از طریق متن</string>
     <string name="in_app_products_unavailable">محصولات درون‌اپلیکیشنی در دسترس نیستند، لطفاً مطمئن شوید آخرین نسخهٔ Google Play را نصب کرده‌اید.</string>
@@ -259,6 +264,8 @@
     <string name="include_account_token_warning_message_first">با پیوست کردن توکن حساب‌تان، این گزارش به حساب شما متصل می‌شود و به ما کمک می‌کند مشکل‌تان را سریع‌تر حل کنیم. همهٔ گزارش‌ها پس از مدتی به‌صورت خودکار حذف می‌شوند.</string>
     <string name="include_account_token_warning_message_second">برای بررسی جزئیات، لطفاً %1$s ما را ببینید.</string>
     <string name="include_account_token_warning_title">این مورد بر ناشناس‌ماندن شما تأثیر می‌گذارد</string>
+    <string name="invalid_address_blank_warning">لطفاً یک آدرس IP معتبر را وارد کنید</string>
+    <string name="invalid_address_invalid_warning">آدرس IP نامعتبر است</string>
     <string name="invalid_dns_servers">آدرس‌های سرور DNS سفارشی %1$s نامعتبر هستند</string>
     <string name="invalid_ipv6_config">پیکربندی IPv6 نامعتبر است، لطفاً سعی کنید تنظیمات VPN را تغییر دهید.</string>
     <string name="invalid_voucher">کد ووچر نامعتبر است.</string>
@@ -294,6 +301,7 @@
     <string name="login_error_api_unreachable">امکان دسترسی به API وجود ندارد، %1$s</string>
     <string name="login_error_too_many_attempts">تعداد تلاش‌ها زیاد بود؛ لطفاً بعداً دوباره امتحان کنید</string>
     <string name="login_fail_description">شمارهٔ حساب نامعتبر است</string>
+    <string name="login_fail_empty">یک شمارهٔ حساب را وارد کنید</string>
     <string name="login_fail_title">ورود ناموفق بود</string>
     <string name="malware_info">هشدار: مسدودکنندهٔ بدافزار، یک آنتی‌ویروس نیست و نباید به‌عنوان آنتی‌ویروس از آن استفاده شود؛ این فقط یک لایهٔ حفاظتی اضافی است.</string>
     <string name="manage_devices">مدیریت دستگاه‌ها</string>
@@ -309,6 +317,8 @@
     <string name="more_actions">اقدامات بیشتر</string>
     <string name="more_information">اطلاعات بیشتر</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">لطفاً یک مقدار را وارد کنید</string>
+    <string name="mtu_input_error_invalid">مقدار MTU نامعتبر است</string>
     <string name="mtu_x">مقدار: %1$s</string>
     <string name="mullvad_owned_only">فقط متعلق به Mullvad</string>
     <string name="multihop">مولتی‌هاپ</string>
@@ -373,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">ویژگی زیر، تونل WireGuard را در برابر حملات احتمالی رایانه‌های کوانتومی مقاوم می‌کند.</string>
     <string name="quantum_resistant_info_second_paragaph">این کار را با انجام یک تبادل کلیدِ اضافه با استفاده از یک الگوریتم امنِ کوانتومی انجام می‌دهد و نتیجه را در رمزگذاری معمولی WireGuard ترکیب می‌کند. این مرحلهٔ اضافی، هر بار که یک تونل جدید برقرار می‌شود، حدود 500 کیلوبایت ترافیک مصرف می‌کند.</string>
     <string name="quantum_resistant_title">تونل مقاوم در برابر کوانتوم</string>
+    <string name="read_more">بیشتر بخوانید</string>
     <string name="read_more_here">بیشتر در اینجا بخوانید</string>
     <string name="recents">اخیراً استفاده شده</string>
     <string name="recents_disabled">آیتم‌های اخیر غیرفعال شد و تاریخچه پاک شد</string>
@@ -383,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s از قبل به‌عنوان رلهٔ ورود انتخاب شده است</string>
     <string name="relay_item_already_selected_as_exit">%1$s از قبل به‌عنوان رلهٔ خروج انتخاب شده است</string>
     <string name="relayitem_is_inactive">%1$s در دسترس نیست</string>
+    <string name="remove_a_device_before_logging_in">لطفاً قبل از ادامه ورود، یک دستگاه را حذف کنید</string>
     <string name="remove_button">حذف</string>
     <string name="remove_location_from_list">%1$s را از %2$s حذف کنید</string>
     <string name="removed_provider">%1$s (حذف شد)</string>
     <string name="rented">اجاره‌ای</string>
     <string name="rented_only">فقط اجاره‌ای</string>
     <string name="report_a_problem">گزارش مشکل</string>
+    <string name="report_problem_message_is_empty">لطفاً یک پیغام را وارد کنید</string>
     <string name="reset_to_default_button">بازنشانی به حالت پیش‌فرض</string>
     <string name="retry">تلاش دوباره</string>
     <string name="save">ذخیره</string>
@@ -427,7 +440,6 @@
     <string name="settings">تنظیمات</string>
     <string name="settings_account">حساب</string>
     <string name="settings_api_access">دسترسی به API</string>
-    <string name="settings_changes_effect_warning_content_blocker">تغییرات مربوط به تنظیمات DNS ممکن است به‌دلیل نتایج ذخیره‌شده (cache) بلافاصله اعمال نشوند.</string>
     <string name="settings_changes_effect_warning_short">تنظیمات DNS ممکن است بلافاصله اعمال نشوند</string>
     <string name="settings_notifications">اعلان‌ها</string>
     <string name="settings_patch_error_failed_to_apply_patch">اعمالِ متنِ تغییرات انجام نشد</string>
@@ -491,6 +503,7 @@
     <string name="voucher_already_used">کد ووچر قبلاً استفاده شده است.</string>
     <string name="voucher_is_account_number">به نظر می‌رسد که به جای کد ووچر، شمارهٔ حساب وارد کرده‌اید. اگر می‌خواهید حساب فعال را تغییر دهید، لطفاً ابتدا خارج شوید.</string>
     <string name="voucher_success_title">ووچر با موفقیت فعال شد.</string>
+    <string name="voucher_too_short">کد ووچر بیش از حد کوتاه است</string>
     <string name="vpn_permission_denied_error">اجازهٔ VPN رد شده است یا یک اپلیکیشن دیگر گزینهٔ «VPN همیشه‌فعال» را فعال کرده است</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">اجازهٔ VPN رد شد</string>
     <string name="vpn_permission_error_notification_message">لطفاً برای درخواست اجازهٔ VPN دکمهٔ اتصال را فشار دهید</string>
@@ -505,6 +518,7 @@
     <string name="wireguard_settings">تنظیمات %1$s.</string>
     <string name="x_entry">%1$s (ورود)</string>
     <string name="x_exit">%1$s (خروج)</string>
+    <string name="x_out_of_y">%1$d از %2$d</string>
     <string name="x_via_x">%1$s از طریق %2$s</string>
     <string name="you_can_add_more_time_oss">می‌توانید از طریق نمای حساب یا وب‌سایت، زمان بیشتری را برای ادامه استفاده از VPN اضافه کنید.</string>
     <string name="you_can_add_more_time_play">می‌توانید از طریق نمای حساب زمان بیشتری را برای ادامه استفاده از VPN اضافه کنید.</string>

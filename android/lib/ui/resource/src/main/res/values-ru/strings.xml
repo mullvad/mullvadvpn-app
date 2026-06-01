@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">После обновления VPN-приложения на Android 16 VPN-приложения иногда теряют доступ к Интернету.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Перезагрузите устройство и снова попробуйте подключиться. Если это не поможет, отправьте письмо на %1$s на английском или шведском.</string>
     <string name="android_16_upgrade_warning_message">В Android 16 есть известная проблема. Перезагрузите устройство и попробуйте снова. Чтобы узнать больше,</string>
+    <string name="android_16_upgrade_warning_title">Проблемы с подключением?</string>
     <string name="anti_censorship">Обход цензуры</string>
     <string name="anti_censorship_info_first_paragraph">Эти методы могут помочь, если вам заблокировали доступ в Mullvad. Когда выбран вариант «Автоматически», приложение будет перебирать все методы, пока не найдет подходящий.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Обратите внимание: эти методы не улучшают производительность, а наоборот, могут увеличить энергопотребление и нагрузку на систему.</b></string>
@@ -126,11 +127,14 @@
     <string name="custom_dns_footer">Чтобы добавить как минимум один DNS-сервер, включите этот параметр.</string>
     <string name="custom_dns_hint">Введите IP-адрес</string>
     <string name="custom_list_error_list_exists">Такое название уже используется.</string>
+    <string name="custom_list_error_list_is_empty">Введите имя</string>
     <string name="custom_lists">Свои списки</string>
     <string name="custom_port_dialog_placeholder">Введите порт</string>
     <string name="custom_port_dialog_remove">Удалить пользовательский порт</string>
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
+    <string name="custom_port_input_error_blank">Введите порт</string>
+    <string name="custom_port_input_error_out_of_range">Порт вне допустимого диапазона</string>
     <string name="custom_port_recommended_range_first"><b>Внимание:</b> не все серверы поддерживают полный диапазон портов.</string>
     <string name="custom_port_recommended_range_second">Допустимый диапазон для всех серверов: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
@@ -193,7 +197,6 @@
     <string name="dismiss">Закрыть</string>
     <string name="divier_or">или</string>
     <string name="dns_content_blockers">DNS-блокировщики контента</string>
-    <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти настройки, отключите параметр «%1$s».</string>
     <string name="dns_content_blockers_warning">Это может привести к проблемам при использовании некоторых сайтов, служб и приложений.</string>
@@ -243,6 +246,7 @@
     <string name="filter">Фильтр</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
+    <string name="generating_account_number">Генерация...</string>
     <string name="go_to_login">Войти</string>
     <string name="go_to_vpn_settings">Перейти к настройкам VPN</string>
     <string name="got_it">Понятно!</string>
@@ -252,6 +256,7 @@
     <string name="icon_and_title">Значок и название</string>
     <string name="import_override_textfield_placeholder">Вставьте или напишите переопределения для импорта</string>
     <string name="import_overrides_bottom_sheet_override_warning">Импорт новых переопределений может заменить некоторые ранее импортированные переопределения.</string>
+    <string name="import_overrides_empty_text_error">Введите текст для переопределения IP-адреса</string>
     <string name="import_overrides_import">Импортировать</string>
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="in_app_products_unavailable">Встроенные покупки недоступны — убедитесь, что у вас установлена последняя версия Google Play.</string>
@@ -259,6 +264,8 @@
     <string name="include_account_token_warning_message_first">Прикрепляя токен своей учетной записи, вы привяжете это сообщение к своей учетной записи, что поможет нам быстрее решить вашу проблему. Все сообщения автоматически удаляются через определенный период времени.</string>
     <string name="include_account_token_warning_message_second">Подробнее смотрите здесь: %1$s.</string>
     <string name="include_account_token_warning_title">Это влияет на вашу анонимность</string>
+    <string name="invalid_address_blank_warning">Введите IP-адрес</string>
+    <string name="invalid_address_invalid_warning">Недопустимый IP-адрес</string>
     <string name="invalid_dns_servers">Недопустимые пользовательские адреса DNS-серверов %1$s</string>
     <string name="invalid_ipv6_config">Недействительная конфигурация IPv6. Попробуйте изменить настройки VPN.</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
@@ -294,6 +301,7 @@
     <string name="login_error_api_unreachable">Невозможно подключиться к API, %1$s</string>
     <string name="login_error_too_many_attempts">Слишком много попыток, пожалуйста, попробуйте позже</string>
     <string name="login_fail_description">Недействительный номер учетной записи</string>
+    <string name="login_fail_empty">Введите номер учетной записи</string>
     <string name="login_fail_title">Ошибка входа</string>
     <string name="malware_info">Внимание! Блокировщик вредоносного ПО — это просто дополнительный уровень защиты, а не антивирус.</string>
     <string name="manage_devices">Управление устройствами</string>
@@ -309,6 +317,8 @@
     <string name="more_actions">Дополнительные действия</string>
     <string name="more_information">Подробнее</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Введите значение</string>
+    <string name="mtu_input_error_invalid">Недопустимое значение MTU</string>
     <string name="mtu_x">Значение: %1$s</string>
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="multihop">Многократный переход</string>
@@ -373,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Эта функция делает туннель WireGuard устойчивым к потенциальным атакам с использованием квантовых компьютеров.</string>
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
     <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
+    <string name="read_more">Подробнее</string>
     <string name="read_more_here">читать дальше здесь</string>
     <string name="recents">Недавние</string>
     <string name="recents_disabled">Недавние отключены, история очищена</string>
@@ -383,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s уже используется как входной сервер ретрансляции</string>
     <string name="relay_item_already_selected_as_exit">%1$s уже используется как выходной сервер ретрансляции</string>
     <string name="relayitem_is_inactive">%1$s недоступно</string>
+    <string name="remove_a_device_before_logging_in">Чтобы продолжить вход, удалите одно из устройств</string>
     <string name="remove_button">Удалить</string>
     <string name="remove_location_from_list">Удалить местоположение %1$s из списка %2$s</string>
     <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщить о проблеме</string>
+    <string name="report_problem_message_is_empty">Введите сообщение</string>
     <string name="reset_to_default_button">Восстановить значение по умолчанию</string>
     <string name="retry">Повторить</string>
     <string name="save">Сохранить</string>
@@ -427,7 +440,6 @@
     <string name="settings">Настройки</string>
     <string name="settings_account">Учетная запись</string>
     <string name="settings_api_access">Доступ к API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Изменения в настройках, связанные с DNS, могут не сразу вступить в силу из-за кешированных результатов.</string>
     <string name="settings_changes_effect_warning_short">Настройки DNS могут не сразу вступить в силу</string>
     <string name="settings_notifications">Уведомления</string>
     <string name="settings_patch_error_failed_to_apply_patch">Не удалось применить патч</string>
@@ -491,6 +503,7 @@
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
     <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
+    <string name="voucher_too_short">Код ваучера слишком короткий</string>
     <string name="vpn_permission_denied_error">Нет разрешения на использование VPN или другое приложение работает в режиме «Постоянная VPN»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Нет разрешения на использование VPN</string>
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
@@ -505,6 +518,7 @@
     <string name="wireguard_settings">Настройки %1$s.</string>
     <string name="x_entry">%1$s (вход)</string>
     <string name="x_exit">%1$s (выход)</string>
+    <string name="x_out_of_y">%1$d из %2$d</string>
     <string name="x_via_x">%1$s через %2$s</string>
     <string name="you_can_add_more_time_oss">Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи или сайт.</string>
     <string name="you_can_add_more_time_play">Чтобы продолжить пользоваться VPN, добавьте время через раздел учетной записи.</string>

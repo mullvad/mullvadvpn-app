@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Після оновлення VPN-застосунку на Android 16 на деяких пристроях VPN-застосунки можуть перестати отримувати доступ до Інтернету.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Перезавантажте пристрій і спробуйте підключитися ще раз. Якщо це не допоможе, напишіть листа шведською або англійською на адресу %1$s.</string>
     <string name="android_16_upgrade_warning_message">В Android 16 є відома проблема. Перезапустіть пристрій і спробуйте ще раз. Щоб дізнатися більше,</string>
+    <string name="android_16_upgrade_warning_title">Не можете підключитися?</string>
     <string name="anti_censorship">Обхід цензури</string>
     <string name="anti_censorship_info_first_paragraph">Ці методи можуть бути корисними в ситуаціях, коли у вас заблоковано доступ до Mullvad. Якщо вибрано «Автоматично», застосунок намагатиметься використовувати всі методи, доки один із них не спрацює.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Зауважте, що ці методи не покращують продуктивності й можуть збільшити навантаження на систему та споживання заряду батареї.</b></string>
@@ -126,11 +127,14 @@
     <string name="custom_dns_footer">Щоб додати хоча б один DNS-сервер, увімкніть цей параметр.</string>
     <string name="custom_dns_hint">Введіть IP-адресу</string>
     <string name="custom_list_error_list_exists">Ім’я вже використовується.</string>
+    <string name="custom_list_error_list_is_empty">Введіть ім’я</string>
     <string name="custom_lists">Користувацькі списки</string>
     <string name="custom_port_dialog_placeholder">Введіть порт</string>
     <string name="custom_port_dialog_remove">Вилучити користувацький порт</string>
     <string name="custom_port_dialog_submit">Установити порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимі діапазони: %1$s</string>
+    <string name="custom_port_input_error_blank">Введіть порт</string>
+    <string name="custom_port_input_error_out_of_range">Значення порту за межами допустимого діапазону</string>
     <string name="custom_port_recommended_range_first"><b>Увага:</b> повний діапазон портів підтримують лише деякі сервери.</string>
     <string name="custom_port_recommended_range_second">Допустимий діапазон для всіх серверів: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не вдається перетворити адресу хоста користувацького тунелю на IP. Змініть налаштування та спробуйте знову.</string>
@@ -193,7 +197,6 @@
     <string name="dismiss">Закрити</string>
     <string name="divier_or">Або</string>
     <string name="dns_content_blockers">DNS-блокувальники контенту</string>
-    <string name="dns_content_blockers_custom_dns_warning">Увага: цей параметр не можна використовувати з опцією «Використовувати користувацький DNS-сервер».</string>
     <string name="dns_content_blockers_info">Коли ця функція ввімкнена, пристрій припиняє зв’язок із певними доменами або вебсайтами, які поширюють рекламу, шкідливі програми, трекери тощо.</string>
     <string name="dns_content_blockers_subtitle">Вимкніть параметр «%1$s», щоб активувати ці налаштування.</string>
     <string name="dns_content_blockers_warning">Це може викликати проблеми під час використання певних вебсайтів, сервісів або застосунків.</string>
@@ -243,6 +246,7 @@
     <string name="filter">Фільтр</string>
     <string name="foreground_notification_channel_description">Показує поточний стан VPN-тунелю</string>
     <string name="foreground_notification_channel_name">Стан VPN-тунелю</string>
+    <string name="generating_account_number">Генерування...</string>
     <string name="go_to_login">Увійти</string>
     <string name="go_to_vpn_settings">До налаштувань VPN</string>
     <string name="got_it">Зрозуміло!</string>
@@ -252,6 +256,7 @@
     <string name="icon_and_title">Значок і назва</string>
     <string name="import_override_textfield_placeholder">Вставте або напишіть перевизначення для імпорту</string>
     <string name="import_overrides_bottom_sheet_override_warning">Імпорт нових перевизначень може замінити перевизначення, які імпортувалися раніше.</string>
+    <string name="import_overrides_empty_text_error">Введіть текст перевизначення IP</string>
     <string name="import_overrides_import">Імпортувати</string>
     <string name="import_overrides_text_title">Імпортувати через текст</string>
     <string name="in_app_products_unavailable">Покупки в застосунку недоступні. Перевірте, чи встановлено останню версію Google Play.</string>
@@ -259,6 +264,8 @@
     <string name="include_account_token_warning_message_first">Якщо ви прикріпите токен свого облікового запису, цей звіт буде прив’язано до вашого облікового запису і ми зможемо швидше розв’язати вашу проблему. Усі звіти автоматично видаляються через деякий час.</string>
     <string name="include_account_token_warning_message_second">Більше інформації тут: %1$s.</string>
     <string name="include_account_token_warning_title">Це впливає на вашу анонімність</string>
+    <string name="invalid_address_blank_warning">Введіть IP-адресу</string>
+    <string name="invalid_address_invalid_warning">Недійсна IP-адреса</string>
     <string name="invalid_dns_servers">Недійсні адреси користувацького DNS-сервера %1$s</string>
     <string name="invalid_ipv6_config">Помилка конфігурації IPv6, спробуйте змінити налаштування VPN.</string>
     <string name="invalid_voucher">Недійсний код ваучера.</string>
@@ -294,6 +301,7 @@
     <string name="login_error_api_unreachable">Не вдалося підключитися до API, %1$s</string>
     <string name="login_error_too_many_attempts">Забагато спроб, спробуйте ще раз пізніше</string>
     <string name="login_fail_description">Недійсний номер облікового запису</string>
+    <string name="login_fail_empty">Введіть номер облікового запису</string>
     <string name="login_fail_title">Помилка входу</string>
     <string name="malware_info">Увага: блокувальник шкідливого ПЗ не є антивірусом і не повинен сприйматися як такий — це лише додатковий рівень захисту.</string>
     <string name="manage_devices">Керування пристроями</string>
@@ -309,6 +317,8 @@
     <string name="more_actions">Додаткові дії</string>
     <string name="more_information">Докладніше</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Введіть значення</string>
+    <string name="mtu_input_error_invalid">Недійсне значення MTU</string>
     <string name="mtu_x">Значення: %1$s</string>
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
@@ -373,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Ця функція робить тунель WireGuard стійким до потенційних атак із використанням квантових комп’ютерів.</string>
     <string name="quantum_resistant_info_second_paragaph">Це досягається шляхом виконання додаткового обміну ключами з використанням квантово-стійкого алгоритму й інтеграції його результату в стандартне шифрування WireGuard. Цей додатковий крок використовує приблизно 500 КіБ трафіку щоразу, коли створюється новий тунель.</string>
     <string name="quantum_resistant_title">Квантово-стійкий тунель</string>
+    <string name="read_more">Докладніше</string>
     <string name="read_more_here">докладніше тут</string>
     <string name="recents">Нещодавні</string>
     <string name="recents_disabled">Нещодавні вимкнено, історію очищено</string>
@@ -383,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s уже вибрано як вхідний ретранслятор</string>
     <string name="relay_item_already_selected_as_exit">%1$s уже вибрано як вихідний ретранслятор</string>
     <string name="relayitem_is_inactive">%1$s недоступно</string>
+    <string name="remove_a_device_before_logging_in">Вилучіть пристрій, перш ніж продовжити вхід</string>
     <string name="remove_button">Вилучити</string>
     <string name="remove_location_from_list">Вилучити розташування %1$s зі списку «%2$s»</string>
     <string name="removed_provider">%1$s (вилучено)</string>
     <string name="rented">Орендовані</string>
     <string name="rented_only">Лише орендовані</string>
     <string name="report_a_problem">Повідомити про проблему</string>
+    <string name="report_problem_message_is_empty">Введіть повідомлення</string>
     <string name="reset_to_default_button">Скинути до значень за замовчуванням</string>
     <string name="retry">Повторити</string>
     <string name="save">Зберегти</string>
@@ -427,7 +440,6 @@
     <string name="settings">Налаштування</string>
     <string name="settings_account">Обліковий запис</string>
     <string name="settings_api_access">Доступ до API</string>
-    <string name="settings_changes_effect_warning_content_blocker">Зміни в налаштуваннях, пов’язаних із DNS, можуть не набрати чинності одразу через кешовані результати.</string>
     <string name="settings_changes_effect_warning_short">Налаштування DNS можуть не зразу набути чинності</string>
     <string name="settings_notifications">Сповіщення</string>
     <string name="settings_patch_error_failed_to_apply_patch">Не вдалося застосувати патч</string>
@@ -491,6 +503,7 @@
     <string name="voucher_already_used">Код ваучера вже використано.</string>
     <string name="voucher_is_account_number">Схоже, ви ввели номер облікового запису замість коду ваучера. Якщо хочете змінити активний обліковий запис, спочатку вийдіть з облікового запису.</string>
     <string name="voucher_success_title">Ваучер використано.</string>
+    <string name="voucher_too_short">Код ваучера закороткий</string>
     <string name="vpn_permission_denied_error">Дозвіл на VPN відхилено або в іншому застосунку увімкнено опцію «Завжди увімкнений VPN»</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">Дозвіл на VPN відхилено</string>
     <string name="vpn_permission_error_notification_message">Щоб запросити дозвіл для VPN, натисніть «Підключити»</string>
@@ -505,6 +518,7 @@
     <string name="wireguard_settings">Налаштування %1$s.</string>
     <string name="x_entry">%1$s (вхід)</string>
     <string name="x_exit">%1$s (вихід)</string>
+    <string name="x_out_of_y">%1$d з %2$d</string>
     <string name="x_via_x">%1$s через %2$s</string>
     <string name="you_can_add_more_time_oss">Щоб продовжити використовувати VPN, додайте час у розділі «Обліковий запис» або на вебсайті.</string>
     <string name="you_can_add_more_time_play">Щоб продовжити використовувати VPN, додайте час у розділі «Обліковий запис».</string>
