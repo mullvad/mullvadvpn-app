@@ -1,3 +1,4 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import dev.detekt.gradle.Detekt
 import dev.detekt.gradle.DetektCreateBaselineTask
@@ -11,7 +12,7 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.test) apply false
-    alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.spotless) apply false
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.play.publisher) apply false
     alias(libs.plugins.kotlin.ksp) apply false
@@ -106,13 +107,17 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 allprojects {
-    apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
+    apply(plugin = rootProject.libs.plugins.spotless.get().pluginId)
 
     // Should be the same as ktfmt config in buildSrc/build.gradle.kts
-    configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
-        kotlinLangStyle()
-        maxWidth.set(100)
-        removeUnusedImports.set(true)
+    configure<SpotlessExtension> {
+        kotlin {
+            target("**/*.kt")
+            ktfmt("0.62").kotlinlangStyle().configure {
+                it.setMaxWidth(100)
+                it.setRemoveUnusedImports(true)
+            }
+        }
     }
 }
 
@@ -121,7 +126,7 @@ tasks.withType<DependencyUpdatesTask> {
     rejectVersionIf { candidate.version.isNonStableVersion() }
 }
 
-tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
+//tasks.register("clean", Delete::class) { delete(rootProject.layout.buildDirectory) }
 
 // The preflight configuration is done at the project root level to ensure
 // it runs before any other build tasks. This is a known limitation:

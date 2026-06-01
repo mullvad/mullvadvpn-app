@@ -1,12 +1,16 @@
 plugins {
     `kotlin-dsl`
-    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.spotless)
 }
 
-ktfmt {
-    kotlinLangStyle()
-    maxWidth.set(100)
-    removeUnusedImports.set(true)
+spotless {
+    kotlin {
+        target("app/**/*.kt", "lib/**/*.kt", "test/**/*.kt", "buildSrc/**/*.kt")
+        ktfmt().kotlinlangStyle().configure {
+            it.setMaxWidth(100)
+            it.setRemoveUnusedImports(true)
+        }
+    }
 }
 
 dependencies {
