@@ -144,6 +144,7 @@ goog.exportSymbol('proto.mullvad_daemon.management_interface.Socks5Remote', null
 goog.exportSymbol('proto.mullvad_daemon.management_interface.SocksAuth', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.SplitFilterMigration', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.SplitFilterMigration.MultihopMigrationState', null, global);
+goog.exportSymbol('proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.SplitTunnelSettings', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.SuggestedUpgrade', null, global);
 goog.exportSymbol('proto.mullvad_daemon.management_interface.TransportPort', null, global);
@@ -26412,7 +26413,7 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.toObject = functi
   var f, obj = {
     multihopMigration: jspb.Message.getFieldWithDefault(msg, 1, 0),
     filtersSet: jspb.Message.getBooleanFieldWithDefault(msg, 2, false),
-    removedDaitaDirectOnly: jspb.Message.getBooleanFieldWithDefault(msg, 3, false)
+    daitaMigration: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -26458,8 +26459,8 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.deserializeBinary
       msg.setFiltersSet(value);
       break;
     case 3:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setRemovedDaitaDirectOnly(value);
+      var value = /** @type {!proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState} */ (reader.readEnum());
+      msg.setDaitaMigration(value);
       break;
     default:
       reader.skipField();
@@ -26504,9 +26505,9 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.serializeBinaryTo
       f
     );
   }
-  f = message.getRemovedDaitaDirectOnly();
-  if (f) {
-    writer.writeBool(
+  f = message.getDaitaMigration();
+  if (f !== 0.0) {
+    writer.writeEnum(
       3,
       f
     );
@@ -26522,6 +26523,15 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.MultihopMigration
   OFF_TO_NEVER: 1,
   OFF_TO_WHEN_NEEDED: 2,
   OFF_TO_ALWAYS: 3
+};
+
+/**
+ * @enum {number}
+ */
+proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState = {
+  ON: 0,
+  DIRECT_ONLY: 1,
+  OFF: 2
 };
 
 /**
@@ -26561,20 +26571,20 @@ proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.setFilt
 
 
 /**
- * optional bool removed_daita_direct_only = 3;
- * @return {boolean}
+ * optional PreviousDaitaState daita_migration = 3;
+ * @return {!proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState}
  */
-proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.getRemovedDaitaDirectOnly = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 3, false));
+proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.getDaitaMigration = function() {
+  return /** @type {!proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
 /**
- * @param {boolean} value
+ * @param {!proto.mullvad_daemon.management_interface.SplitFilterMigration.PreviousDaitaState} value
  * @return {!proto.mullvad_daemon.management_interface.SplitFilterMigration} returns this
  */
-proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.setRemovedDaitaDirectOnly = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 3, value);
+proto.mullvad_daemon.management_interface.SplitFilterMigration.prototype.setDaitaMigration = function(value) {
+  return jspb.Message.setProto3EnumField(this, 3, value);
 };
 
 
