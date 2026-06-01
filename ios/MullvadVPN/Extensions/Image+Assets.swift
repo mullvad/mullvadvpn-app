@@ -37,4 +37,6 @@ extension Image {
     static let mullvadIconFilterCutout = Image("IconFilterCutout")
     static let mullvadIconFilterCutoutDisabled = Image("IconFilterCutoutDisabled")
     static let mullvadIconReload = Image("IconReload")
+    static let mullvadAutomaticMultihopBanner = Image("AutomaticMultihopBanner")
+    static let mullvadUniqueFilterBanner = Image("UniqueFilterBanner")
 }

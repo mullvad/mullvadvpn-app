@@ -276,20 +276,41 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                 }
             )
         )
-
-        #if DEBUG
-            let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
-            sheetController.addAction(
-                UIAlertAction(
-                    title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
-                    style: .default,
-                    handler: { [weak self] _ in
-                        PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
-                        self?.interactor.tunnelManager.reapplyTunnelConfiguration()
-                    }
-                )
+        let gotaTunEnabled = PacketTunnelDebugSettings.useGotaTun
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Use GotaTun: \(gotaTunEnabled ? "ON" : "OFF")",
+                style: .default,
+                handler: { [weak self] _ in
+                    PacketTunnelDebugSettings.useGotaTun = !gotaTunEnabled
+                    self?.interactor.tunnelManager.reapplyTunnelConfiguration()
+                }
             )
-        #endif
+        )
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Trigger migrated settings flow", style: .destructive,
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    let appPreferences = AppPreferences()
+                    // Reset migration-related settings to simulate an app update during testing.
+                    appPreferences.preMigrationSettings = nil
+                    appPreferences.lastMigratedVersion = MigratedVersion.v1.rawValue
+                    appPreferences.hasCompletedMigrationWizard = true
+                    appPreferences.lastInstalledVersion = "0"  // Forces update detection
+                    interactor.tunnelManager.updateSettings([.reset])
+                }))
+
+        sheetController.addAction(
+            UIAlertAction(
+                title: "Factory Reset", style: .destructive,
+                handler: { [weak self] _ in
+                    guard let self else { return }
+                    interactor.tunnelManager.updateSettings([.reset])
+                    UserDefaults.standard.removePersistentDomain(forName: Bundle.main.bundleIdentifier!)
+                    logOut()
+                }))
 
         sheetController.addAction(
             UIAlertAction(
