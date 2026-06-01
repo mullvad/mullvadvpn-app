@@ -128,12 +128,10 @@ pub async fn update(assume_yes: bool) -> anyhow::Result<()> {
                 break;
             }
             AppUpgradeEvent::Aborted => {
-                eprintln!("Update aborted.");
-                break;
+                bail!("Update aborted.");
             }
             AppUpgradeEvent::Error(err) => {
-                // TODO: improved err message
-                eprintln!("Update failed: {err:?}");
+                bail!("Update failed: {err:?}");
             }
         }
     }

@@ -92,19 +92,19 @@ impl AppVersionProxy {
                     stable: Metadata {
                         version: "2030.1".parse().unwrap(),
                         urls: vec![
-                            "https://releases.mullvad.net/desktop/builds/2026.3-beta1-dev-af66ab/MullvadVPN-2026.3-beta1-dev-af66ab.pkg".to_string(),
-
+                            "https://releases.mullvad.net/desktop/builds/2026.3-beta1-dev-e958bb%2Btest-pack-arch-specific-pkgs/MullvadVPN-2026.3-beta1-dev-e958bb%2Btest-pack-arch-specific-pkgs.pkg".to_string(),
                         ],
                         // curl --head https://releases.mullvad.net/desktop/builds/2026.3-beta1-dev-af66ab/MullvadVPN-2026.3-beta1-dev-af66ab.pkg
-                        size: 242349689,
+                        size: 242348915,
                         changelog: "test".to_string(),
                         // sha256sum mypkg.pkg
                         // bytetool: [185, 185, 75, 70, 99, 233, 169, 222, 16, 90, 93, 229, 14, 50, 215, 96, 89, 1, 161, 81, 167, 211, 52, 200, 185, 66, 51, 79, 244, 103, 38, 247]
-                        sha256: [185, 185, 75, 70, 99, 233, 169, 222, 16, 90, 93, 229, 14, 50, 215, 96, 89, 1, 161, 81, 167, 211, 52, 200, 185, 66, 51, 79, 244, 103, 38, 247],
+                        //sha256: [185, 185, 75, 70, 99, 233, 169, 222, 16, 90, 93, 229, 14, 50, 215, 96, 89, 1, 161, 81, 167, 211, 52, 200, 185, 66, 51, 79, 244, 103, 38, 247],
+                        sha256: [230, 91, 225, 238, 236, 181, 193, 253, 22, 124, 233, 43, 91, 129, 2, 195, 82, 187, 76, 190, 200, 200, 115, 53, 142, 60, 227, 192, 48, 73, 86, 240],
                     },
                     beta: None,
                 },
-                metadata_version: 1000,
+                metadata_version: 1001,
                 current_version_supported: true,
                 etag,
             }))
