@@ -30,7 +30,7 @@ mkdir -p "$ARTIFACT_DIR"
 fingerprint_in_file=$(sq keyring list "$MULLVAD_CODE_SIGNING_KEY_PATH" | awk '{print $2}')
 test "$fingerprint_in_file" = "$MULLVAD_CODE_SIGNING_KEY_FINGERPRINT"
 
-for ext in .exe _arm64.exe _x64.exe _amd64.deb _arm64.deb _x86_64.rpm _aarch64.rpm .pkg; do
+for ext in .exe _arm64.exe _x64.exe _amd64.deb _arm64.deb _x86_64.rpm _aarch64.rpm .pkg _x86_64.pkg _arm64.pkg; do
     pkg_filename="MullvadVPN-${PRODUCT_VERSION}${ext}"
     pkg_path="$ARTIFACT_DIR/$pkg_filename"
     url="$URL_BASE/$PRODUCT_VERSION/$pkg_filename"

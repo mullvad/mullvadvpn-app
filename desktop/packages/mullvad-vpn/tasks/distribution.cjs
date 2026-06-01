@@ -313,28 +313,47 @@ async function packWin() {
   });
 }
 
-function packMac() {
+async function packMac() {
   const appOutDirs = [];
-  const config = newConfig();
 
-  return builder.build({
-    targets: builder.Platform.MAC.createTarget(),
-    config: {
+  function prepareMacConfig(arch, artifactName) {
+    const config = newConfig();
+    // For a universal build, electron-builder packs an x64 and an arm64 sub-app and then merges
+    // them with @electron/universal. Both sub-packs run beforeBuild/beforePack with a concrete
+    // arch (x64/arm64).
+    const isUniversal = arch === 'universal';
+    return {
       ...config,
+      mac: {
+        ...config.mac,
+        target: {
+          target: 'pkg',
+          arch,
+        },
+        artifactName,
+      },
       asarUnpack: ['**/*.node'],
       beforeBuild: async (options) => {
         switch (options.arch) {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-apple-darwin';
-            execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-x86']);
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-apple-darwin';
-            execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-arm']);
             break;
           default:
             delete process.env.TARGET_TRIPLE;
             break;
+        }
+
+        // For a universal build, @electron/universal requires the module for *both* architectures
+        // to be present in *both* sub-packs (it leaves them un-merged via mac.x64ArchFiles), so
+        // build both here. A single-arch build only needs its own.
+        if (isUniversal || options.arch === 'x64') {
+          execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-x86']);
+        }
+        if (isUniversal || options.arch === 'arm64') {
+          execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-arm']);
         }
 
         process.env.BINARIES_PATH =
@@ -343,7 +362,7 @@ function packMac() {
         return true;
       },
       beforePack: async (context) => {
-        if (!universal) {
+        if (!isUniversal) {
           // Ensure we don't pack native modules for other architectures.
           // These will exist if the app has been built for other architectures before.
           await removeNseventforwarderNativeModules();
@@ -375,7 +394,25 @@ function packMac() {
         const appOutDir = context.appOutDir;
         appOutDirs.push(appOutDir);
       },
-    },
+    };
+  }
+
+  if (universal) {
+    // In addition to the universal installer, produce single-architecture pkgs. The binaries
+    // for both architectures have already been built by build.sh.
+    await builder.build({
+      targets: builder.Platform.MAC.createTarget(),
+      config: prepareMacConfig('x64', 'MullvadVPN-${version}_x86_64.${ext}'),
+    });
+    await builder.build({
+      targets: builder.Platform.MAC.createTarget(),
+      config: prepareMacConfig('arm64', 'MullvadVPN-${version}_arm64.${ext}'),
+    });
+  }
+
+  return builder.build({
+    targets: builder.Platform.MAC.createTarget(),
+    config: prepareMacConfig(getMacArch(), 'MullvadVPN-${version}.${ext}'),
   });
 }
 
