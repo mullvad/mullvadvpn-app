@@ -11,7 +11,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
-import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.ui.component.AnimatedNotificationBanner
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens

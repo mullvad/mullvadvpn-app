@@ -72,7 +72,8 @@ class MultihopMigrationViewModel(
             (multihopMigrationData.splitFilterMigration.multihopMigrationState ==
                 MultihopMigrationState.ON_TO_ALWAYS ||
                 multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                    MultihopMigrationState.OFF_TO_ALWAYS) && multihopMigrationData.splitFilterMigration.filtersSet
+                    MultihopMigrationState.OFF_TO_ALWAYS) &&
+                multihopMigrationData.splitFilterMigration.filtersSet
         ) {
             add(MultihopMigrationPage.SuggestedMultihopEntry)
         }

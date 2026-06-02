@@ -273,11 +273,7 @@ fun ColoredOutlinedButton(
                 disabledContentColor = textColor.copy(alpha = Alpha20),
             ),
         enabled = !isLoading && isEnabled,
-        border =
-            BorderStroke(
-                width = Dimens.outLineButtonBorderWidth,
-                color = outlineColor,
-            ),
+        border = BorderStroke(width = Dimens.outLineButtonBorderWidth, color = outlineColor),
         contentPadding =
             if (hasIcon) {
                 PaddingValues(vertical = Dimens.buttonSpacing)
@@ -349,8 +345,8 @@ private fun RowScope.BaseButtonContent(
     text: String,
     isLoading: Boolean,
     textDecoration: TextDecoration = TextDecoration.None,
-    leadingIcon: @Composable() (() -> Unit)?,
-    trailingIcon: @Composable() (() -> Unit)?,
+    leadingIcon: @Composable (() -> Unit)?,
+    trailingIcon: @Composable (() -> Unit)?,
 ) {
     when {
         leadingIcon != null ->

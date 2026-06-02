@@ -85,8 +85,8 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountDataError
 import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
-import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetMigrationEventError
+import net.mullvad.mullvadvpn.lib.model.GetShadowsocksCiphersError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
