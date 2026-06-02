@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.3-beta2] - 2026-06-01
 ### Fixed
 #### Linux
 - Fix page size issue in `2026.3-beta1` on some ARM64 systems.
