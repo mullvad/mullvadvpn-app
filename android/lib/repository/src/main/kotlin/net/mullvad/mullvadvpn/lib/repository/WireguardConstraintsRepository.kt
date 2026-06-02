@@ -37,6 +37,8 @@ class WireguardConstraintsRepository(
         entryRelayItemId: RelayItemId,
     ) = managementService.setMultihopAndEntryLocation(multihopEnabled, entryRelayItemId)
 
+    @Suppress("UNUSED_PARAMETER")
+    // TODO Remove and replace with actual implementation
     suspend fun setMultihopMode(
         multihopMode: MultihopMode
     ): Either<SetWireguardConstraintsError, Unit> {
