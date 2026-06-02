@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add Ukrainian as a new language in the app.
+
 ### Changed
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
