@@ -211,6 +211,15 @@ pub fn spawn_rpc_server(
 fn create_endpoint(rpc_socket_path: PathBuf) -> Result<IpcEndpoint, Error> {
     let endpoint = IpcEndpoint::new(rpc_socket_path, tipsy::OnConflict::Error)
         .map_err(Error::StartServerError)?;
+    #[cfg(unix)]
+    if MULLVAD_MANAGEMENT_SOCKET_GROUP.is_some() {
+        // Explicitly start with strict permissions (`0o600`, root) before applying less restrictive
+        // permissions.
+        let attr = tipsy::SecurityAttributes::empty()
+            .mode(0o600)
+            .map_err(Error::PermissionsError)?;
+        return Ok(endpoint.security_attributes(attr));
+    }
     let endpoint = endpoint.security_attributes(
         tipsy::SecurityAttributes::allow_everyone_create()
             .map_err(Error::SecurityAttributes)?
