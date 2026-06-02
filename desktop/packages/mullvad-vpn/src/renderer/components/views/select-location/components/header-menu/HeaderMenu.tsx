@@ -29,7 +29,7 @@ export function HeaderMenu({ onOpenChange, ...props }: HeaderMenuProps) {
   }, [onOpenChange, setEnabledRecents]);
 
   const toggleMultihop = React.useCallback(async () => {
-    await setMultihop(!multihop);
+    await setMultihop({ enabled: !multihop });
     onOpenChange?.(false);
   }, [multihop, onOpenChange, setMultihop]);
 
