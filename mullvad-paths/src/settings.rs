@@ -16,13 +16,12 @@ fn get_settings_dir() -> Result<PathBuf> {
 
 #[cfg(windows)]
 pub fn get_default_settings_dir() -> Result<PathBuf> {
-    let dir = crate::windows::get_system_service_appdata()
-        .map_err(|error| {
+    Ok(crate::windows::get_system_service_appdata()
+        .inspect_err(|error| {
             log::error!("Failed to obtain system app data path: {error}");
-            crate::Error::FindDirError
-        })?
-        .join(crate::PRODUCT_NAME);
-    Ok(dir)
+        })
+        .map_err(crate::Error::FindDirError)?
+        .join(crate::PRODUCT_NAME))
 }
 
 #[cfg(unix)]
