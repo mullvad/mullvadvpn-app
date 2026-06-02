@@ -97,6 +97,7 @@ const SUPPORTED_LOCALE_LIST = [
   { name: 'Türkçe', code: 'tr' },
   { name: '简体中文', code: 'zh-CN' },
   { name: '繁體中文', code: 'zh-TW' },
+  { name: 'Українська', code: 'uk' },
 ];
 
 if (window.env.development) {
