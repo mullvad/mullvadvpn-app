@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">在 Android 16 上更新 VPN 应用后，设备可能会出现 VPN 应用无法连接互联网的情况。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">请重新启动您的设备，然后再次尝试连接。如果仍然无法连接，请用瑞典语或英语发送电子邮件至 %1$s。</string>
     <string name="android_16_upgrade_warning_message">Android 16 存在已知问题。请重启您的设备并重试。如需了解详情，</string>
+    <string name="android_16_upgrade_warning_title">无法连接？</string>
     <string name="anti_censorship">反审查</string>
     <string name="anti_censorship_info_first_paragraph">这些方法在您无法连接到 Mullvad 时可能会有所帮助。选择“自动”时，应用将尝试所有方法，直到其中一种方法生效。</string>
     <string name="anti_censorship_info_second_paragraph"><b>请注意，这些方法并不能提高性能，反而可能会增加系统资源占用率和电量消耗。</b></string>
@@ -126,11 +127,14 @@
     <string name="custom_dns_footer">启用以添加至少一个 DNS 服务器。</string>
     <string name="custom_dns_hint">输入 IP</string>
     <string name="custom_list_error_list_exists">名称已被占用。</string>
+    <string name="custom_list_error_list_is_empty">请输入名称</string>
     <string name="custom_lists">自定义列表</string>
     <string name="custom_port_dialog_placeholder">输入端口</string>
     <string name="custom_port_dialog_remove">移除自定义端口</string>
     <string name="custom_port_dialog_submit">设置端口</string>
     <string name="custom_port_dialog_valid_ranges">有效范围：%1$s</string>
+    <string name="custom_port_input_error_blank">请输入端口</string>
+    <string name="custom_port_input_error_out_of_range">端口超出范围</string>
     <string name="custom_port_recommended_range_first"><b>注意</b>：只有部分服务器支持完整的端口范围。</string>
     <string name="custom_port_recommended_range_second">所有服务器的有效范围：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">无法解析自定义隧道的主机。请尝试更改您的设置。</string>
@@ -193,7 +197,6 @@
     <string name="dismiss">关闭</string>
     <string name="divier_or">或者</string>
     <string name="dns_content_blockers">DNS 内容阻止程序</string>
-    <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与“使用自定义 DNS 服务器”结合使用。</string>
     <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
     <string name="dns_content_blockers_subtitle">停用下方的“%1$s”以激活这些设置。</string>
     <string name="dns_content_blockers_warning">这可能会导致某些网站、服务和应用出现问题。</string>
@@ -243,6 +246,7 @@
     <string name="filter">筛选</string>
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
+    <string name="generating_account_number">正在生成…</string>
     <string name="go_to_login">前往登录</string>
     <string name="go_to_vpn_settings">前往“VPN 设置”</string>
     <string name="got_it">知道了！</string>
@@ -252,6 +256,7 @@
     <string name="icon_and_title">图标和标题</string>
     <string name="import_override_textfield_placeholder">粘贴或编写要导入的覆盖设置</string>
     <string name="import_overrides_bottom_sheet_override_warning">导入新覆盖设置可能会替换一些先前导入的覆盖设置。</string>
+    <string name="import_overrides_empty_text_error">请输入 IP 覆盖文本</string>
     <string name="import_overrides_import">导入</string>
     <string name="import_overrides_text_title">通过文本导入</string>
     <string name="in_app_products_unavailable">应用内商品不可用，请确保您的 Google Play 是最新版本。</string>
@@ -259,6 +264,8 @@
     <string name="include_account_token_warning_message_first">通过附加您的帐户令牌，此报告将与您的帐户关联，这有助于我们更快地解决您的问题。所有报告会在一段时间后自动删除。</string>
     <string name="include_account_token_warning_message_second">有关详情，请参阅我们的%1$s。</string>
     <string name="include_account_token_warning_title">这会影响您的匿名性</string>
+    <string name="invalid_address_blank_warning">请输入 IP 地址</string>
+    <string name="invalid_address_invalid_warning">IP 地址无效</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
     <string name="invalid_ipv6_config">IPv6 配置无效，请尝试更改 VPN 设置。</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
@@ -294,6 +301,7 @@
     <string name="login_error_api_unreachable">无法访问 API，%1$s</string>
     <string name="login_error_too_many_attempts">尝试次数过多，请稍后再试</string>
     <string name="login_fail_description">帐号无效</string>
+    <string name="login_fail_empty">输入帐号</string>
     <string name="login_fail_title">登录失败</string>
     <string name="malware_info">警告：恶意软件阻止程序不是防病毒软件，也不应被视为防病毒软件，这只是提供了一层额外的保护。</string>
     <string name="manage_devices">管理设备</string>
@@ -309,6 +317,8 @@
     <string name="more_actions">更多操作</string>
     <string name="more_information">更多信息</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">请输入值</string>
+    <string name="mtu_input_error_invalid">MTU 值无效</string>
     <string name="mtu_x">值：%1$s</string>
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
     <string name="multihop">多跳</string>
@@ -373,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">借助此功能，WireGuard 隧道能够抵抗可能通过量子计算机发起的攻击。</string>
     <string name="quantum_resistant_info_second_paragaph">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</string>
     <string name="quantum_resistant_title">抗量子隧道</string>
+    <string name="read_more">阅读更多内容</string>
     <string name="read_more_here">点击此处了解详情</string>
     <string name="recents">最近使用</string>
     <string name="recents_disabled">最近使用已停用，历史记录已清除</string>
@@ -383,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s 已被选为入口中继</string>
     <string name="relay_item_already_selected_as_exit">%1$s 已被选为出口中继</string>
     <string name="relayitem_is_inactive">%1$s 不可用</string>
+    <string name="remove_a_device_before_logging_in">请先移除一个设备，然后继续登录</string>
     <string name="remove_button">移除</string>
     <string name="remove_location_from_list">将%1$s从“%2$s”中移除</string>
     <string name="removed_provider">%1$s（已移除）</string>
     <string name="rented">租用</string>
     <string name="rented_only">仅租用</string>
     <string name="report_a_problem">报告问题</string>
+    <string name="report_problem_message_is_empty">请输入消息</string>
     <string name="reset_to_default_button">重置为默认值</string>
     <string name="retry">重试</string>
     <string name="save">保存</string>
@@ -427,7 +440,6 @@
     <string name="settings">设置</string>
     <string name="settings_account">帐户</string>
     <string name="settings_api_access">API 访问</string>
-    <string name="settings_changes_effect_warning_content_blocker">由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。</string>
     <string name="settings_changes_effect_warning_short">DNS 设置可能不会立即生效</string>
     <string name="settings_notifications">通知</string>
     <string name="settings_patch_error_failed_to_apply_patch">无法应用补丁</string>
@@ -491,6 +503,7 @@
     <string name="voucher_already_used">该优惠券码已被使用。</string>
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券代码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
+    <string name="voucher_too_short">代金券代码过短</string>
     <string name="vpn_permission_denied_error">VPN 权限被拒绝，或其他应用已启用“始终开启 VPN”</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN 权限被拒绝</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>
@@ -505,6 +518,7 @@
     <string name="wireguard_settings">%1$s 设置.</string>
     <string name="x_entry">%1$s（入口）</string>
     <string name="x_exit">%1$s（出口）</string>
+    <string name="x_out_of_y">%1$d / %2$d</string>
     <string name="x_via_x">%1$s，经由 %2$s</string>
     <string name="you_can_add_more_time_oss">您可以通过帐户视图或网站添加更多时间，以继续使用 VPN。</string>
     <string name="you_can_add_more_time_play">您可以通过帐户视图添加更多时间，以继续使用 VPN。</string>

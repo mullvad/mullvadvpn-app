@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Etter å ha oppdatert en VPN-app på Android 16, kan enhetene havne i en tilstand der VPN-appene ikke lenger får tilgang til internett.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Start enheten på nytt og prøv å koble til igjen. Hvis dette ikke fungerer, kan du skrive en e-post til %1$s på svensk eller engelsk.</string>
     <string name="android_16_upgrade_warning_message">Android 16 har en kjent feil. Start enheten på nytt og prøv igjen. For å finne ut mer,</string>
+    <string name="android_16_upgrade_warning_title">Får du ikke koblet til?</string>
     <string name="anti_censorship">Antisensur</string>
     <string name="anti_censorship_info_first_paragraph">Disse metodene kan være nyttige i situasjoner der du er blokkert fra å nå Mullvad. Når «Automatisk» er valgt, vil appen prøve alle metodene helt til en av dem fungerer.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Vær oppmerksom på at disse metodene ikke forbedrer ytelsen og kan øke systemutnyttelsen og batteriforbruket.</b></string>
@@ -126,11 +127,14 @@
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
     <string name="custom_dns_hint">Skriv inn IP</string>
     <string name="custom_list_error_list_exists">Navn allerede i bruk.</string>
+    <string name="custom_list_error_list_is_empty">Skriv inn et navn</string>
     <string name="custom_lists">Tilpassede lister</string>
     <string name="custom_port_dialog_placeholder">Skriv inn port</string>
     <string name="custom_port_dialog_remove">Fjern tilpasset port</string>
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
+    <string name="custom_port_input_error_blank">Skriv inn en port</string>
+    <string name="custom_port_input_error_out_of_range">Porten er utenfor rekkevidde</string>
     <string name="custom_port_recommended_range_first"><b>Merk:</b> Det er bare enkelte servere som støtter alle porter.</string>
     <string name="custom_port_recommended_range_second">Gyldig intervall for alle servere: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
@@ -193,7 +197,6 @@
     <string name="dismiss">Ignorer</string>
     <string name="divier_or">Eller</string>
     <string name="dns_content_blockers">DNS-innholdsblokkering</string>
-    <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server».</string>
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver «%1$s» nedenfor for å aktivere innstillingene.</string>
     <string name="dns_content_blockers_warning">Dette kan føre til problemer på enkelte nettsteder, tjenester og apper.</string>
@@ -243,6 +246,7 @@
     <string name="filter">Filtrer</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
+    <string name="generating_account_number">Genererer …</string>
     <string name="go_to_login">Gå til pålogging</string>
     <string name="go_to_vpn_settings">Gå til VPN-innstillinger</string>
     <string name="got_it">Forstått!</string>
@@ -252,6 +256,7 @@
     <string name="icon_and_title">Ikon og tittel</string>
     <string name="import_override_textfield_placeholder">Lim eller skriv inn overstyringer som skal importeres</string>
     <string name="import_overrides_bottom_sheet_override_warning">Importering av nye overstyringer kan erstatte tidligere importerte overstyringer.</string>
+    <string name="import_overrides_empty_text_error">Skriv inn en tekst for IP-overstyring</string>
     <string name="import_overrides_import">Importer</string>
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="in_app_products_unavailable">Produkter i appen er ikke tilgjengelige. Sørg for at du har den nyeste versjonen av Google Play.</string>
@@ -259,6 +264,8 @@
     <string name="include_account_token_warning_message_first">Når du legger ved kontotokenet ditt, kobles denne rapporten til kontoen din. Det hjelper oss med å løse problemet ditt raskere. Alle rapporter slettes automatisk etter en bestemt tid.</string>
     <string name="include_account_token_warning_message_second">Du finner mer informasjon i %1$s.</string>
     <string name="include_account_token_warning_title">Dette påvirker din anonymitet</string>
+    <string name="invalid_address_blank_warning">Skriv inn en IP-adresse</string>
+    <string name="invalid_address_invalid_warning">Ugyldig IP-adresse</string>
     <string name="invalid_dns_servers">De egendefinerte DNS-serveradressene %1$s er ugyldige</string>
     <string name="invalid_ipv6_config">Ugyldig IPv6-konfiruasjon. Prøv å endre VPN-innstillingene.</string>
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
@@ -294,6 +301,7 @@
     <string name="login_error_api_unreachable">Kunne ikke nå API-en, %1$s</string>
     <string name="login_error_too_many_attempts">For mange forsøk. Prøv igjen senere</string>
     <string name="login_fail_description">Ugyldig kontonummer</string>
+    <string name="login_fail_empty">Skriv inn et kontonummer</string>
     <string name="login_fail_title">Kunne ikke logge inn</string>
     <string name="malware_info">Advarsel: Blokkeringen av skadelig programvare er ikke et antivirusprogram og skal ikke brukes som dette. Det er bare et ekstra lag med beskyttelse.</string>
     <string name="manage_devices">Behandle enheter</string>
@@ -309,6 +317,8 @@
     <string name="more_actions">Flere handlinger</string>
     <string name="more_information">Mer informasjon</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Skriv inn en verdi</string>
+    <string name="mtu_input_error_invalid">Ugyldig MTU-verdi</string>
     <string name="mtu_x">Verdi: %1$s</string>
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="multihop">Multihopp</string>
@@ -373,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Denne funksjonen gjør WireGuard-tunnelen motstandsdyktig mot potensielle angrep fra kvantemaskiner.</string>
     <string name="quantum_resistant_info_second_paragaph">Det gjøres ved at å utføre en ekstra nøkkelutveksling med en kvantesikker algoritme og kombinere resultatet med WireGuard sin vanlige kryptering. Dette ekstratrinnet bruker omtrent 500 kiB trafikk hver gang det opprettes en ny tunnel.</string>
     <string name="quantum_resistant_title">Kvantebestandig tunnel</string>
+    <string name="read_more">Les mer</string>
     <string name="read_more_here">les mer her</string>
     <string name="recents">Nylige</string>
     <string name="recents_disabled">Nylige er deaktivert og historikken er slettet</string>
@@ -383,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s er allerede valgt som inngangsrelé</string>
     <string name="relay_item_already_selected_as_exit">%1$s er allerede valgt som utgangsrelé</string>
     <string name="relayitem_is_inactive">%1$s er utilgjengelig</string>
+    <string name="remove_a_device_before_logging_in">Fjern en enhet før du fortsetter med innloggingen</string>
     <string name="remove_button">Fjern</string>
     <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>
     <string name="removed_provider">%1$s (fjernet)</string>
     <string name="rented">Leid</string>
     <string name="rented_only">Kun leid</string>
     <string name="report_a_problem">Rapporter et problem</string>
+    <string name="report_problem_message_is_empty">Skriv inn en melding</string>
     <string name="reset_to_default_button">Tilbakestill til standard</string>
     <string name="retry">Prøv på nytt</string>
     <string name="save">Lagre</string>
@@ -427,7 +440,6 @@
     <string name="settings">Innstillinger</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-tilgang</string>
-    <string name="settings_changes_effect_warning_content_blocker">Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater.</string>
     <string name="settings_changes_effect_warning_short">DNS-innstillinger vil kanskje ikke tre i kraft umiddelbart</string>
     <string name="settings_notifications">Meldinger</string>
     <string name="settings_patch_error_failed_to_apply_patch">Kunne ikke bruke oppdatering</string>
@@ -491,6 +503,7 @@
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="voucher_is_account_number">Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
+    <string name="voucher_too_short">Kupongkoden er for kort</string>
     <string name="vpn_permission_denied_error">VPN-tillatelsen ble avslått, eller en annen app har «VPN alltid på» aktivert</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-tillatelse avvist</string>
     <string name="vpn_permission_error_notification_message">Trykk på koble til for å be om VPN-tillatelse</string>
@@ -505,6 +518,7 @@
     <string name="wireguard_settings">%1$s-innstillinger.</string>
     <string name="x_entry">%1$s (inngang)</string>
     <string name="x_exit">%1$s (utgang)</string>
+    <string name="x_out_of_y">%1$d av %2$d</string>
     <string name="x_via_x">%1$s via %2$s</string>
     <string name="you_can_add_more_time_oss">Du kan legge til mer tid via kontooversikten eller nettstedet for å fortsette å bruke VPN.</string>
     <string name="you_can_add_more_time_play">Du kan legge til mer tid via kontooversikten for å fortsette å bruke VPN.</string>
