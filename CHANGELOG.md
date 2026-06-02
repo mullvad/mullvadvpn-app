@@ -34,6 +34,15 @@ Line wrap the file at 100 chars.                                              Th
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
 
+
+## [2026.3-beta2] - 2026-06-01
+### Fixed
+#### Linux
+- Fix page size issue in `2026.3-beta1` on some ARM64 systems.
+
+#### macOS
+- Fix socket option error in `2026.beta1` that could cause tunnel setup to fail.
+
 #### Windows
 - Fix timeout when loading split tunnel driver during boot.
 - Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.
