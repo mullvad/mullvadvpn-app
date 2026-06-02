@@ -1258,7 +1258,7 @@ dependencies = [
  "ipnetwork 0.21.1",
  "libc",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "parking_lot",
  "rand 0.9.4",
  "rand_chacha 0.9.0",
@@ -2067,9 +2067,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.29"
+version = "0.4.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
+checksum = "113b30b4cd05f7c06868fdb2854f66a7b9fece9a48425351cd532e810d74024f"
 
 [[package]]
 name = "lru-slab"
@@ -2237,7 +2237,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.31.2",
+ "nix 0.31.3",
  "prost",
  "prost-types",
  "talpid-types",
@@ -2371,9 +2371,9 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.31.2"
+version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d6d0705320c1e6ba1d912b5e37cf18071b6c2e9b7fa8215a1e8a7651966f5d3"
+checksum = "cf20d2fde8ff38632c426f1165ed7436270b44f199fc55284c38276f9db47c3d"
 dependencies = [
  "bitflags 2.11.1",
  "cfg-if",
@@ -3678,7 +3678,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "nix 0.31.2",
+ "nix 0.31.3",
  "tokio",
 ]
 
@@ -4302,9 +4302,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "tun"
-version = "0.8.8"
+version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7d07399f01137a3754b66fd571f6ad283b99acc86ccc9a5c11a4445253598aac"
+checksum = "e487da0cdd4a7ec9abe31c560fe53ec71275501fdc1e6aa6fccb781779686278"
 dependencies = [
  "bytes",
  "cfg-if",
@@ -4313,7 +4313,7 @@ dependencies = [
  "ipnet",
  "libc",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "thiserror 2.0.18",
  "tokio",
  "tokio-util",
@@ -5014,9 +5014,9 @@ checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
 name = "wintun-bindings"
-version = "0.7.37"
+version = "0.7.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "817bbbda0f277e495dc95ef41591576224808ea75d21d75d1ad94169c66f7003"
+checksum = "4d94caf41ce60c37c9215c68f124835c401d2ec4f9b3b6431b491c79b3cdd335"
 dependencies = [
  "blocking",
  "futures",

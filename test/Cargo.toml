@@ -48,7 +48,7 @@ tokio = { version = "1.44", default-features = false }
 tokio-serial = "5.4.1"
 tonic = "0.14.6"
 tower = "0.5.1"
-tun = "0.8.8"
+tun = "0.8.10"
 windows-registry = "0.6.1"
 windows-sys = "0.52.0"
 
