@@ -66,27 +66,39 @@ class MultihopMigrationViewModel(
         if (multihopMigrationData.splitFilterMigration.filtersSet) {
             add(MultihopMigrationPage.SeparateFilters)
         }
-        // If migrating to multihop always and filters are set we want to suggest setting the
-        // multihop entry to automatic
-        if (
-            (multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                MultihopMigrationState.ON_TO_ALWAYS ||
-                multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                    MultihopMigrationState.OFF_TO_ALWAYS) &&
-                multihopMigrationData.splitFilterMigration.filtersSet
-        ) {
-            add(MultihopMigrationPage.SuggestedMultihopEntry)
+        // If the user had multihop turned on, DAITA enabled and filters set
+        // --or--
+        // If the user was using magic multihop with daita and filters were set
+        // we want to suggest setting automatic location as entry
+        when {
+            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+                MultihopMigrationState.ON_TO_ALWAYS &&
+                multihopMigrationData.splitFilterMigration.daitaMigration !=
+                    PreviousDaitaState.OFF &&
+                multihopMigrationData.splitFilterMigration.filtersSet ->
+                add(MultihopMigrationPage.SuggestedMultihopEntry)
+            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
+                MultihopMigrationState.OFF_TO_ALWAYS &&
+                multihopMigrationData.splitFilterMigration.filtersSet ->
+                add(MultihopMigrationPage.SuggestedMultihopEntry)
         }
-        // There are two scenarios where we want to show the page to suggest a change to multihop
+
+        // There are three scenarios where we want to show the page to suggest a change to multihop
         // mode when needed:
         // - If we are on the generic error fallback flow we want to suggest setting the multihop
         // mode to when needed to unblock the user.
-        // - If the user is migrating to multihop never and have filters set we want to suggest when
-        // needed multihop setting to prevent the user from being blocked in the future.
+        // - If the user had neither multihop nor daita enabled and have filters set we want to
+        // suggest when needed multihop setting to prevent the user from being blocked in the
+        // future.
+        // - If the user was using daita without direct only but had selected a serer with daita
+        // support and had filters enabled we want to suggest when needed multihop to prevent being
+        // blocked in the future.
         when {
             multihopMigrationData.userBlocked -> add(MultihopMigrationPage.SuggestedAction)
             multihopMigrationData.splitFilterMigration.multihopMigrationState ==
                 MultihopMigrationState.OFF_TO_NEVER &&
+                multihopMigrationData.splitFilterMigration.daitaMigration !=
+                    PreviousDaitaState.DIRECT_ONLY &&
                 multihopMigrationData.splitFilterMigration.filtersSet ->
                 add(MultihopMigrationPage.SuggestedAction)
         }
