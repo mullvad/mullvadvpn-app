@@ -99,15 +99,14 @@ extension RelayFilterSelection {
             )
             tableViewTopConstraint = tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
             adjustFilterSettingsVisibility(
-                filtersActive: viewModel.multihopContext == .entry && !viewModel.filters.isEmpty)
+                filtersVisible: viewModel.multihopContext == .entry && !viewModel.filters.isEmpty)
             setupDataSource()
         }
 
-        private func adjustFilterSettingsVisibility(filtersActive: Bool) {
-            let filterSettingsIsVisible = viewModel.multihopContext == .entry && filtersActive
-            filterSettingsTopConstraint.isActive = filterSettingsIsVisible
-            filterSettingsTableViewConstraint.isActive = filterSettingsIsVisible
-            tableViewTopConstraint.isActive = !filterSettingsIsVisible
+        private func adjustFilterSettingsVisibility(filtersVisible: Bool) {
+            filterSettingsTopConstraint.isActive = filtersVisible
+            filterSettingsTableViewConstraint.isActive = filtersVisible
+            tableViewTopConstraint.isActive = !filtersVisible
         }
 
         private func setupDataSource() {
@@ -141,12 +140,14 @@ extension RelayFilterSelection {
                     }
                 }
                 .store(in: &disposeBag)
-            viewModel
-                .$filters
-                .sink { [weak self] filters in
-                    self?.adjustFilterSettingsVisibility(filtersActive: !filters.isEmpty)
-                }
-                .store(in: &disposeBag)
+            if viewModel.multihopContext == .entry {
+                viewModel
+                    .$filters
+                    .sink { [weak self] filters in
+                        self?.adjustFilterSettingsVisibility(filtersVisible: !filters.isEmpty)
+                    }
+                    .store(in: &disposeBag)
+            }
             dataSource = DataSource(tableView: tableView, viewModel: viewModel)
         }
 
