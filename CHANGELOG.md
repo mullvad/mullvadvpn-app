@@ -35,6 +35,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix timeout when loading split tunnel driver during boot.
 - Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.
 
+### Security
+- Linux and macOS: Fix management interface socket being create with less restrictive permissions
+  when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
+
 
 ## [2026.3-beta1] - 2026-05-19
 ### Added
