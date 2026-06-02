@@ -1779,7 +1779,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-util 0.7.18",
- "tun 0.8.10",
+ "tun 0.8.11",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
  "x25519-dalek",
@@ -5734,7 +5734,7 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.18",
  "tokio",
- "tun 0.8.10",
+ "tun 0.8.11",
  "windows-sys 0.61.2",
 ]
 
@@ -5827,7 +5827,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tokio-stream",
- "tun 0.8.10",
+ "tun 0.8.11",
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.61.2",
@@ -6461,9 +6461,9 @@ dependencies = [
 
 [[package]]
 name = "tun"
-version = "0.8.10"
+version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e487da0cdd4a7ec9abe31c560fe53ec71275501fdc1e6aa6fccb781779686278"
+checksum = "dd9b35e3ba2b50284437061a8a30097f56473f287f48b3fe7660712cc03e9047"
 dependencies = [
  "bytes",
  "cfg-if",
