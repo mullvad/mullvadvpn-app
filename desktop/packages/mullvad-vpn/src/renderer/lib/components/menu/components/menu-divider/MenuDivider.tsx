@@ -11,5 +11,5 @@ export const StyledMenuDivider = styled(Flex)<MenuDividerProps>`
 `;
 
 export function MenuDivider(props: MenuDividerProps) {
-  return <StyledMenuDivider margin={{ top: 'tiny' }} {...props} />;
+  return <StyledMenuDivider margin={{ vertical: 'tiny' }} {...props} />;
 }
