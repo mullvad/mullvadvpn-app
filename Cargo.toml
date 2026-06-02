@@ -131,7 +131,7 @@ tonic-prost-build = { version = "0.14.6", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 tracing-appender = "0.2.4"
 tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
-tun = { version = "0.8.5", default-features = false, features = ["async"] }
+tun = { version = "0.8.10", default-features = false, features = ["async"] }
 tun05 = { package = "tun", version = "0.5.5", features = ["async"] }
 vec1 = "1.12"
 webpki-roots = "1.0.4"
@@ -187,13 +187,6 @@ unused_macro_rules = "warn"
 # The way prost is only used by generated code makes it really hard for dependency
 # usage checkers to see that it's not unused
 ignored = ["prost"]
-
-[patch.crates-io]
-# TODO: Update to latest version on crates.io when this fix has been released:
-# https://github.com/meh/rust-tun/pull/160
-# The current version when writing this (0.8.9) is problematic because it misreports the MTU.
-# Branch: backport-fix-wintun-mtu
-tun = { git = "https://github.com/mullvad/rust-tun", rev = "b1b36d383d94148cbb6e33dcc7d37406bc56a3f4" }
 
 [profile.release]
 opt-level = "s"

@@ -1002,7 +1002,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0b1fab2ae45819af2d0731d60f2afe17227ebb1a1538a236da84c93e9a60162"
 dependencies = [
  "dispatch2",
- "nix 0.31.2",
+ "nix 0.31.3",
  "windows-sys 0.61.2",
 ]
 
@@ -1768,7 +1768,7 @@ dependencies = [
  "libc",
  "log",
  "maybenot",
- "nix 0.31.2",
+ "nix 0.31.3",
  "parking_lot",
  "pcap-file",
  "rand 0.9.4",
@@ -1779,7 +1779,7 @@ dependencies = [
  "thiserror 1.0.69",
  "tokio",
  "tokio-util 0.7.18",
- "tun 0.8.7",
+ "tun 0.8.10",
  "typed-builder 0.21.2",
  "windows-sys 0.61.2",
  "x25519-dalek",
@@ -2800,9 +2800,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.29"
+version = "0.4.31"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
+checksum = "113b30b4cd05f7c06868fdb2854f66a7b9fece9a48425351cd532e810d74024f"
 
 [[package]]
 name = "log-panics"
@@ -3052,7 +3052,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
- "nix 0.31.2",
+ "nix 0.31.3",
  "serde",
  "serde_json",
  "talpid-types",
@@ -3090,7 +3090,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-update",
  "mullvad-version",
- "nix 0.31.2",
+ "nix 0.31.3",
  "notify",
  "objc2-foundation 0.3.2",
  "objc2-service-management",
@@ -3138,7 +3138,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "0.0.0"
 dependencies = [
- "nix 0.31.2",
+ "nix 0.31.3",
  "talpid-cgroup",
  "thiserror 2.0.18",
 ]
@@ -3205,7 +3205,7 @@ dependencies = [
  "clap",
  "futures",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "pnet_packet 0.35.0",
  "socket2 0.5.10",
  "talpid-windows",
@@ -3230,7 +3230,7 @@ dependencies = [
  "log",
  "mullvad-paths",
  "mullvad-types",
- "nix 0.31.2",
+ "nix 0.31.3",
  "prost",
  "prost-types",
  "talpid-types",
@@ -3574,7 +3574,7 @@ dependencies = [
  "bitflags 2.11.1",
  "log",
  "nftnl-sys",
- "nix 0.31.2",
+ "nix 0.31.3",
 ]
 
 [[package]]
@@ -3603,9 +3603,9 @@ dependencies = [
 
 [[package]]
 name = "nix"
-version = "0.31.2"
+version = "0.31.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d6d0705320c1e6ba1d912b5e37cf18071b6c2e9b7fa8215a1e8a7651966f5d3"
+checksum = "cf20d2fde8ff38632c426f1165ed7436270b44f199fc55284c38276f9db47c3d"
 dependencies = [
  "bitflags 2.11.1",
  "cfg-if",
@@ -5546,7 +5546,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "thiserror 2.0.18",
 ]
 
@@ -5572,7 +5572,7 @@ dependencies = [
  "memoffset 0.6.5",
  "mnl",
  "nftnl",
- "nix 0.31.2",
+ "nix 0.31.3",
  "parking_lot",
  "pcap",
  "pfctl",
@@ -5626,7 +5626,7 @@ dependencies = [
  "futures",
  "inotify 0.10.2",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "once_cell",
  "parking_lot",
  "resolv-conf",
@@ -5670,7 +5670,7 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "socket2 0.5.10",
  "talpid-types",
  "thiserror 2.0.18",
@@ -5699,7 +5699,7 @@ dependencies = [
  "netlink-packet-core",
  "netlink-packet-route",
  "netlink-sys",
- "nix 0.31.2",
+ "nix 0.31.3",
  "rtnetlink",
  "system-configuration",
  "talpid-types",
@@ -5714,7 +5714,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "nix 0.31.2",
+ "nix 0.31.3",
  "tokio",
 ]
 
@@ -5732,7 +5732,7 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.18",
  "tokio",
- "tun 0.8.7",
+ "tun 0.8.10",
  "windows-sys 0.61.2",
 ]
 
@@ -5744,7 +5744,7 @@ dependencies = [
  "hyper-util",
  "log",
  "ml-kem",
- "nix 0.31.2",
+ "nix 0.31.3",
  "pqcrypto-hqc",
  "pqcrypto-traits",
  "prost",
@@ -5806,7 +5806,7 @@ dependencies = [
  "netlink-packet-core",
  "netlink-packet-route",
  "netlink-proto",
- "nix 0.31.2",
+ "nix 0.31.3",
  "once_cell",
  "parking_lot",
  "proptest",
@@ -5824,7 +5824,7 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "tokio-stream",
- "tun 0.8.7",
+ "tun 0.8.10",
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.61.2",
@@ -6027,9 +6027,9 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "1.52.1"
+version = "1.52.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b67dee974fe86fd92cc45b7a95fdd2f99a36a6d7b0d431a231178d3d670bbcc6"
+checksum = "8fc7f01b389ac15039e4dc9531aa973a135d7a4135281b12d7c1bc79fd57fffe"
 dependencies = [
  "bytes",
  "libc",
@@ -6458,8 +6458,9 @@ dependencies = [
 
 [[package]]
 name = "tun"
-version = "0.8.7"
-source = "git+https://github.com/mullvad/rust-tun?rev=b1b36d383d94148cbb6e33dcc7d37406bc56a3f4#b1b36d383d94148cbb6e33dcc7d37406bc56a3f4"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e487da0cdd4a7ec9abe31c560fe53ec71275501fdc1e6aa6fccb781779686278"
 dependencies = [
  "bytes",
  "cfg-if",
@@ -6468,7 +6469,7 @@ dependencies = [
  "ipnet",
  "libc",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "thiserror 2.0.18",
  "tokio",
  "tokio-util 0.7.18",
@@ -6485,7 +6486,7 @@ dependencies = [
  "futures",
  "log",
  "mullvad-masque-proxy",
- "nix 0.31.2",
+ "nix 0.31.3",
  "rand 0.9.4",
  "shadowsocks",
  "talpid-types",
@@ -6549,7 +6550,7 @@ dependencies = [
  "err-context",
  "futures",
  "log",
- "nix 0.31.2",
+ "nix 0.31.3",
  "tokio",
 ]
 
