@@ -18,6 +18,11 @@ public protocol AppPreferencesDataSource {
     var isNotificationPermissionAsked: Bool { get set }
     var notificationSettings: NotificationSettings { get set }
     var includeAllNetworksConsent: Bool { get set }
+    var preMigrationSettings: LatestTunnelSettings? { get set }
+    var lastInstalledVersion: String { get set }
+    var lastMigratedVersion: Int { get set }
+    var hasCompletedMigrationWizard: Bool { get set }
+    var shouldShowMigratedSettingsMenuItem: Bool { get set }
 }
 
 enum AppStorageKey: String {
@@ -30,11 +35,14 @@ enum AppStorageKey: String {
     case isNotificationPermissionAsked
     case notificationSettings
     case includeAllNetworksConsent
+    case lastInstalledVersion
+    case preMigrationSettings
+    case lastMigratedVersion
+    case hasCompletedMigrationWizard
+    case shouldShowMigratedSettingsMenuItem
 }
 
 public final class AppPreferences: AppPreferencesDataSource {
-    public init() {}
-
     @PrimitiveStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
     public var hasDoneFirstTimeLaunch: Bool = false
 
@@ -61,4 +69,23 @@ public final class AppPreferences: AppPreferencesDataSource {
 
     @PrimitiveStorage(key: AppStorageKey.includeAllNetworksConsent.rawValue, container: .standard)
     public var includeAllNetworksConsent = false
+
+    @PrimitiveStorage(key: AppStorageKey.lastInstalledVersion.rawValue, container: .standard)
+    public var lastInstalledVersion: String = ""
+
+    @PrimitiveStorage(key: AppStorageKey.lastMigratedVersion.rawValue, container: .standard)
+    public var lastMigratedVersion: Int = MigratedVersion.v1.rawValue
+
+    @PrimitiveStorage(key: AppStorageKey.hasCompletedMigrationWizard.rawValue, container: .standard)
+    public var hasCompletedMigrationWizard: Bool = true
+
+    @PrimitiveStorage(key: AppStorageKey.shouldShowMigratedSettingsMenuItem.rawValue, container: .standard)
+    public var shouldShowMigratedSettingsMenuItem: Bool = false
+
+    @CompositeStorage(key: AppStorageKey.preMigrationSettings.rawValue, container: .standard)
+    public var preMigrationSettings: LatestTunnelSettings? = nil
+
+    public init() {
+        lastInstalledVersion = lastInstalledVersion.isEmpty ? lastSeenChangeLogVersion : lastInstalledVersion
+    }
 }
