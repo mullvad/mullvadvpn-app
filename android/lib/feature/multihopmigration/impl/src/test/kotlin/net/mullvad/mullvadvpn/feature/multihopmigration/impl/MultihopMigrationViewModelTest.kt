@@ -309,7 +309,7 @@ class MultihopMigrationViewModelTest {
                         SplitFilterMigration(
                             multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
                             daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = false,
+                            filtersSet = true,
                         ),
                     userBlocked = false,
                 )
@@ -318,9 +318,10 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assertEquals(2, state.multihopMigrationPages.size)
+                assertEquals(3, state.multihopMigrationPages.size)
                 assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
                 assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
+                assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[2])
             }
         }
 
