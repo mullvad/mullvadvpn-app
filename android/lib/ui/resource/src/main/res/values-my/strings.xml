@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16 တွင် VPN အက်ပ်ကို အပ်ဒိတ်လုပ်ပြီးနောက် စက်များတွင် VPN အက်ပ်များက အင်တာနက်ချိတ်မပေးနိုင်တော့သည့် အခြေအနေမျိုး ကြုံရတတ်သည်။</string>
     <string name="android_16_upgrade_warning_dialog_second_message">စက်ကို ရီစတက်ချပြီး ထပ်မံချိတ်ဆက်ကြည့်ပါ။ ချိတ်၍မရသေးလျှင် %1$s သို့ ဆွီဒင် သို့မဟုတ် အင်္ဂလိပ်ဘာသာစကားဖြင့် အီးမေးလ်ပို့ပါ။</string>
     <string name="android_16_upgrade_warning_message">Android 16 တွင် သိထားပြီးသား ပြဿနာရှိသည်။ သင့်စက်ကို ရီစတက်ချပြီး ထပ်မံကြိုးစားပါ။ ပိုမိုလေ့လာရန်၊ </string>
+    <string name="android_16_upgrade_warning_title">ချိတ်မရဘူးလား။</string>
     <string name="anti_censorship">ဆင်ဆာဖြတ်တောက်မှု ကျော်လွှားရေး</string>
     <string name="anti_censorship_info_first_paragraph">Mullvad နှင့် ချိတ်ဆက်၍ မရအောင် ပိတ်ပင်ခံရသည့် အခြေအနေများတွင် ဤနည်းလမ်းများက အသုံးဝင်နိုင်ပါသည်။ “အော်တိုမက်တစ်” ကို ရွေးချယ်ထားချိန်တွင် အက်ပ်က အလုပ်ဖြစ်သည့် နည်းလမ်းတစ်ခုခုကို မတွေ့မချင်း နည်းလမ်းအားလုံးကို ကြိုးပမ်းသွားပါမည်။</string>
     <string name="anti_censorship_info_second_paragraph"><b>ဤနည်းလမ်းများသည် စွမ်းဆောင်ရည်ကို မတိုးတက်စေဘဲ စနစ်ကို ပိုသုံးစွဲ၍ ဘက်ထရီ အားပိုကုန်စေနိုင်ကြောင်း သတိပြုပါ။</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">ဤဆက်တင်ကိုဖွင့်ရန် အထက်ရှိ \"%1$s\" အားလုံးကို ပိတ်ပါ။</string>
     <string name="custom_dns_hint">IP ရိုက်ထည့်ရန်</string>
     <string name="custom_list_error_list_exists">အမည်သည် ရှိနှင့်ပြီး ဖြစ်သည်။</string>
+    <string name="custom_list_error_list_is_empty">အမည် တစ်ခု ထည့်ပေးပါ</string>
     <string name="custom_lists">စိတ်ကြိုက်စာရင်းများ</string>
     <string name="custom_port_dialog_placeholder">ပေါ့တ် ရိုက်ထည့်ရန်</string>
     <string name="custom_port_dialog_remove">စိတ်ကြိုက် ပေါ့တ်ကို ဖယ်ရှားရန်</string>
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
+    <string name="custom_port_input_error_blank">ပေါ့တ် တစ်ခု ထည့်ပေးပါ</string>
+    <string name="custom_port_input_error_out_of_range">ပေါ့တ် သတ်မှတ်ချက်ထက် ကျော်လွန်နေသည်</string>
     <string name="custom_port_recommended_range_first"><b>သတိပြုရန်-</b> ဆာဗာအချို့သာ ပေါ့တ်အပိုင်းအခြား အပြည့် ပံ့ပိုးပေးပါသည်။</string>
     <string name="custom_port_recommended_range_second">ဆာဗာအားလုံးအတွက် အကျုံးဝင်သော အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">သို့မဟုတ်</string>
     <string name="dns_content_blockers">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%1$s\" ကို ပိတ်ပါ။</string>
+    <string name="dns_settings">DNS ဆက်တင်များ</string>
+    <string name="dns_settings_description_first_item">အနှောင့်အယှက်ပေးသော ကြော်ငြာများ၊ မဲလ်ဝဲရ်များ၊ ခြေရာခံစနစ်များ၊ အခြားဆက်စပ်သည်များနှင့် စပ်လျဉ်း၍ သတိပေးဖော်ပြထားသော ဝက်ဘ်ဆိုက် သို့မဟုတ် ဒိုမိန်းများသို့ စက်မှ မဆက်သွယ်မိစေရန် ကာကွယ်ပေးပါသည်။</string>
+    <string name="dns_settings_description_second_item">ကျွန်ုပ်တို့၏ မူလပါရှိသော အကြောင်းအရာ ပိတ်ဆို့ရေးစနစ်များ သို့မဟုတ် စိတ်ကြိုက် DNS ဆာဗာတစ်ခုကို အသုံးပြုနိုင်ပါသည်။ ဤလုပ်ဆောင်ချက်ကြောင့် အချို့သော ဝက်ဘ်ဆိုက်၊ ဝန်ဆောင်မှုနှင့် အက်ပ်များတွင် အသုံးပြုရခက်ခဲခြင်း သို့မဟုတ် ပြဿနာအချို့ ရှိလာနိုင်ပါသည်။</string>
+    <string name="dns_settings_description_title"><b>DNS အကြောင်းအရာ ပိတ်ဆို့ရေးစနစ်များ</b></string>
+    <string name="dns_settings_description_warning"><b>သတိ-DNS ဆက်တင်ကို ချက်ချင်း အကျိုးမရောက်နိုင်ပါ။ </b></string>
     <string name="duplicate_address_warning">ဤလိပ်စာကို ရိုက်ထည့်ထားပြီး ဖြစ်ပါသည်။</string>
     <string name="edit_custom_lists">စိတ်ကြိုက် စာရင်းများ ဖန်တီးရန်</string>
     <string name="edit_list">စာရင်းကို တည်းဖြတ်ရန်</string>
@@ -239,6 +248,7 @@
     <string name="filter">စစ်ထုတ်မှု</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
+    <string name="generating_account_number">ထုတ်နေပါသည်....</string>
     <string name="go_to_login">ဝင်ရောက်ရန် သွားပါ</string>
     <string name="go_to_vpn_settings">VPN ဆက်တင်များသို့ သွားရန်</string>
     <string name="got_it">ရပါပြီ။</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">အိုင်ကွန်နှင့် ခေါင်းစဉ်</string>
     <string name="import_override_textfield_placeholder">ကျော်လွန် ပယ်ဖျက်မှုများကို ထည့်သွင်းရန် ကူးထည့်ပါ သို့မဟုတ် ရေးပါ</string>
     <string name="import_overrides_bottom_sheet_override_warning">ကျော်လွန် ပယ်ဖျက်မှု အသစ်များကို ထည့်သွင်းခြင်းသည် ယခင်ထည့်သွင်းထားသော ကျော်လွန် ပယ်ဖျက်မှု အချို့ကို အစားထိုးနိုင်ပါသည်။</string>
+    <string name="import_overrides_empty_text_error">IP ပြောင်းလဲသော စာသား တစ်ခု ထည့်ပေးပါ</string>
     <string name="import_overrides_import">ထည့်ရန်</string>
     <string name="import_overrides_text_title">စာသားမှတစ်ဆင့် ထည့်သွင်းရန်</string>
     <string name="in_app_products_unavailable">အက်ပ်တွင်း ထုတ်ကုန်များကို မရရှိနိုင်ပါ၊ Google Play ၏ နောက်ဆုံးထွက်ဗာရှင်းကို ထည့်ပေးပါ။</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">သင့်အကောင့် တိုကင်ကို တွဲချိတ်ခြင်းဖြင့် ဤရီပို့တ်ကို သင့်အကောင့်နှင့် ချိတ်ဆက်လိုက်ပြီး ဤကဲ့သို့ တွဲချိတ်ပေးခြင်းအားဖြင့် သင်ကြုံတွေ့နေရသော ပြဿနာကို ပို၍ မြန်မြန်ဆန်ဆန် ဖြေရှင်းနိုင်ရန် အထောက်အကူပြုပါသည်။ ရီပို့တ်အားလုံးကို အချိန်ကာလတစ်ခုကြာပြီးနောက် အော်တို ဖျက်ပါသည်။</string>
     <string name="include_account_token_warning_message_second">အသေးစိတ်အချက်အလက်များအတွက် ကျွန်ုပ်တို့၏ %1$s ကို ကြည့်ပါ။</string>
     <string name="include_account_token_warning_title">ဤအရာကို ရွေးချယ်ပါက သင်၏ အမည်ဝှက်မှုကို သက်ရောက်မှု ရှိပါမည်</string>
+    <string name="internet">အင်တာနက်</string>
+    <string name="invalid_address_blank_warning">IP လိပ်စာ တစ်ခု ထည့်ပေးပါ</string>
+    <string name="invalid_address_invalid_warning">IP လိပ်စာ မမှန်ကန်ပါ</string>
     <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာ လိပ်စာများ %1$s သည် မမှန်ကန်ပါ</string>
     <string name="invalid_ipv6_config">IPv6 သတ်မှတ်မှု မမှန်ကန်ပါ၊ VPN ဆက်တင်များကို ပြောင်းကြည့်ပါ။</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
@@ -290,6 +304,7 @@
     <string name="login_error_api_unreachable">API %1$s ကို ချိတ်ဆက်၍ မရပါ</string>
     <string name="login_error_too_many_attempts">ကြိုးစားမှု အကြိမ်ရေများသွားသဖြင့် နောက်မှ ထပ်ကြိုးစားပါ</string>
     <string name="login_fail_description">အကောင့်နံပါတ် မမှန်ကန်ပါ</string>
+    <string name="login_fail_empty">အကောင့်နံပါတ်တစ်ခုကို ဖြည့်သွင်းပါ</string>
     <string name="login_fail_title">ဝင်ရောက်မှု မအောင်မြင်ပါ</string>
     <string name="malware_info">သတိပေးချက်- မဲလ်ဝဲရ် ပိတ်ဆို့မှုသည် အပိုအကာအကွယ်လွှာ တစ်ခုသာဖြစ်ပြီး ဗိုင်းရပ်စ် ကာကွယ်ရေး (anti-virus) မဟုတ်၍ ၎င်းအဖြစ် မမှတ်ယူသင့်ပါ။</string>
     <string name="manage_devices">စက်များကို စီမံရန်</string>
@@ -305,6 +320,8 @@
     <string name="more_actions">နောက်ထပ်လုပ်ဆောင်ချက်များ</string>
     <string name="more_information">နောက်ထပ်အချက်အလက်</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">တန်ဖိုး တစ်ခု ထည့်ပေးပါ</string>
+    <string name="mtu_input_error_invalid">MTU တန်ဖိုး မမှန်ကန်ပါ</string>
     <string name="mtu_x">တန်ဖိုး- %1$s</string>
     <string name="mullvad_owned_only">Mullvad ပိုင်ဆိုင်သည်များသာ</string>
     <string name="multihop">မာလ်တီဟော့ပ်</string>
@@ -369,6 +386,7 @@
     <string name="quantum_resistant_info_first_paragaph">ဤလုပ်ဆောင်ချက်သည် Quantum ကွန်ပျူတာများမှ ဖြစ်လာနိုင်ခြေရှိသော တိုက်ခိုက်မှုများကို ခုခံနိုင်သည့် WireGuard Tunnel ကို ပြုလုပ်သည်။</string>
     <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
     <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
+    <string name="read_more">ပိုမိုဖတ်ရှုရန်</string>
     <string name="read_more_here">ဤနေရာတွင် နောက်ထပ် ဖတ်ရန်</string>
     <string name="recents">လတ်တလောအရာများ</string>
     <string name="recents_disabled">လတ်တလောအရာများကို ပိတ်ထားပြီး မှတ်တမ်းကို ရှင်းထားသည်</string>
@@ -379,12 +397,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s ကို ထပ်ဆင့်ဝင်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relay_item_already_selected_as_exit">%1$s ကို ထပ်ဆင့်ထွက်ပေါက်အဖြစ် ရွေးထားပြီးဖြစ်သည်</string>
     <string name="relayitem_is_inactive">%1$s ကို မရရှိနိုင်ပါ</string>
+    <string name="remove_a_device_before_logging_in">အကောင့်ထဲ ဆက်လက်မဝင်ရောက်မီ ကိရိယာတစ်ခုကို အရင်ဖယ်ရှားပေးပါ</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
     <string name="remove_location_from_list">%2$s မှ %1$s ကို ဖယ်ရှားရန်</string>
     <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာကို ရီပို့(တ်)လုပ်ရန်</string>
+    <string name="report_problem_message_is_empty">မက်ဆေ့ချ် တစ်ခု ထည့်ပေးပါ</string>
     <string name="reset_to_default_button">ပုံသေသို့ ပြန်လည်သတ်မှတ်ရန်</string>
     <string name="retry">ပြန်ကြိုးစားကြည့်ရန်</string>
     <string name="save">သိမ်းမည်</string>
@@ -485,6 +505,7 @@
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
     <string name="voucher_is_account_number">ဘောက်ချာကုဒ်မဟုတ်ဘဲ အကောင့်နံပါတ်ကို ထည့်သွင်းထားပုံရသည်။ အသုံးပြုနေသောအကောင့်ကို ပြောင်းလဲလိုပါက ဦးစွာ အကောင့်မှထွက်ပါ။</string>
     <string name="voucher_success_title">ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။</string>
+    <string name="voucher_too_short">ဘောက်ချာကုဒ်တိုလွန်းသည်</string>
     <string name="vpn_permission_denied_error">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည် သို့မဟုတ် အခြားအက်ပ်တွင် \"အမြဲဖွင့် VPN\" ဖွင့်ထားသည်</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN ခွင့်ပြုချက်ကို ငြင်းပယ်ထားသည်</string>
     <string name="vpn_permission_error_notification_message">VPN ခွင့်ပြုချက်တောင်းရန် ချိတ်ဆက်ရန်ကို နှိပ်ပေးပါ</string>
@@ -499,7 +520,9 @@
     <string name="wireguard_settings">%1$s ဆက်တင်များ</string>
     <string name="x_entry">%1$s (အဝင်)</string>
     <string name="x_exit">%1$s (အထွက်)</string>
+    <string name="x_out_of_y">%1$d ခုအနက် %2$d</string>
     <string name="x_via_x">%2$s မှတစ်ဆင့် %1$s</string>
     <string name="you_can_add_more_time_oss">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှု သို့မဟုတ် ဝက်ဘ်ဆိုက်မှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</string>
     <string name="you_can_add_more_time_play">VPN ကို ဆက်လက်အသုံးပြုရန် အကောင့် ပြသမှုမှတစ်ဆင့် အချိန်ထပ်တိုးနိုင်ပါသည်။</string>
+    <string name="your_device">သင့်စက်</string>
 </resources>
