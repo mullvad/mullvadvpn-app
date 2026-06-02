@@ -70,6 +70,10 @@ ENV JAVA_HOME=/opt/jdk-21
 
 ARG JDK_SHA256_CHECKSUM=a2def047a73941e01a73739f92755f86b895811afb1f91243db214cff5bdac3f
 
+ENV MAESTRO_CLI_NO_ANALYTICS=1
+ARG MAESTRO_VERSION=2.5.1 \
+    MAESTRO_SHA256_CHECKSUM=2d924bfd37cccabca438a727213648cbfe4f8bb711559ec8e9d199dc09a5ce52
+
 # Make adb,apk signer, apk analyzer and other tools accessible
 ENV PATH="\
 ${JAVA_HOME}/bin\
@@ -129,6 +133,13 @@ RUN mkdir -p ${ANDROID_SDK_ROOT}/ndk && \
 
 # Add rust targets
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
+
+# Install maestro
+RUN curl -sfLo /tmp/maestro.zip https://github.com/mobile-dev-inc/Maestro/releases/download/cli-${MAESTRO_VERSION}/maestro.zip && \
+    echo "$MAESTRO_SHA256_CHECKSUM /tmp/maestro.zip" | sha256sum -c && \
+    unzip -q /tmp/maestro.zip -d /tmp/ && \
+    mv /tmp/maestro /opt/maestro && \
+    rm /tmp/maestro.zip
 
 # Install yubico-piv-tool (by building from source)
 #

@@ -1,0 +1,41 @@
+# screenshot-flow.yaml
+appId: net.mullvad.mullvadvpn
+---
+- launchApp
+
+### Privacy
+- tapOn: "Agree and continue"
+
+### Login
+- tapOn:
+    text: "Allow"
+    optional: true
+- tapOn: "Enter your account number"
+- inputText: "${ACCOUNT_NUMBER}"
+- pressKey: Enter
+
+### Too many devices
+#- takeScreenshot:
+#    path: TooManyDevices
+#- tapOn:
+#    text: "Remove"
+#    index: 0
+#- takeScreenshot:
+#    path: LogOutDevice
+#- back
+#- tapOn:
+#    text: "Remove"
+#    index: 4
+#- tapOn: "Yes, log out device"
+#- takeScreenshot:
+#    path: TooManyDevices2
+#- tapOn:
+#    text: "Remove"
+#    index: 3
+#- tapOn: "Yes, log out device"
+#- tapOn: "Continue with login"
+
+### Connect
+- tapOn: "Connect"
+- tapOn: "OK"
+
