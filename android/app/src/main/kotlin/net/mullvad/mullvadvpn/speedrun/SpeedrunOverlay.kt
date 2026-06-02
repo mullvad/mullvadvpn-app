@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.speedrun
 
+import android.os.SystemClock
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -72,14 +73,17 @@ private fun StartPill(modifier: Modifier, onStart: () -> Unit) {
 
 @Composable
 private fun RunningPill(modifier: Modifier, state: SpeedrunUiState) {
-    var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var nowWall by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var nowElapsed by remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
     LaunchedEffect(Unit) {
         while (true) {
-            nowMillis = System.currentTimeMillis()
+            nowWall = System.currentTimeMillis()
+            nowElapsed = SystemClock.elapsedRealtime()
             delay(TICK_MILLIS)
         }
     }
-    val elapsed = (nowMillis - state.startTimeMillis).coerceAtLeast(0L)
+    val elapsed =
+        tamperResistantElapsed(state.startWallMillis, state.startElapsedMillis, nowWall, nowElapsed)
 
     HudPill(modifier = modifier) {
         PillText(

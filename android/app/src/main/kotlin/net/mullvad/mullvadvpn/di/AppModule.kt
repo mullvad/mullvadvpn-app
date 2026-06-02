@@ -12,6 +12,7 @@ import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.feature.appicon.impl.obfuscation.AppObfuscationRepository
 import net.mullvad.mullvadvpn.feature.language.impl.LanguageRepository
+import net.mullvad.mullvadvpn.lib.common.compose.SpeedrunGate
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
@@ -65,7 +66,7 @@ val appModule = module {
     single { UserPreferencesRepository(get(), get()) }
     single { ConnectionProxy(androidContext(), get(), get()) }
     // TEMPORARY: team speed-run competition engine (see net.mullvad.mullvadvpn.speedrun).
-    single { SpeedrunController(get(), get(), get(), androidContext()) }
+    single { SpeedrunController(get(), get(), get(), androidContext()) } bind SpeedrunGate::class
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }

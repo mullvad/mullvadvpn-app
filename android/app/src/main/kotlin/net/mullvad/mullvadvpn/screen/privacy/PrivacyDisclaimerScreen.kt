@@ -16,9 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +42,8 @@ import net.mullvad.mullvadvpn.app.MainActivity
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.login.api.LoginNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.SpeedrunGate
+import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -50,6 +55,10 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.screen.navigation.SplashNavKey
 import net.mullvad.mullvadvpn.screen.splash.DAEMON_READY_TIMEOUT_MS
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
+
+// TEMPORARY (speed-run): privacy can only be accepted after the timer has started.
+private const val SPEEDRUN_GATE_PRIVACY = true
 
 @Preview
 @Composable
@@ -68,6 +77,9 @@ fun PrivacyDisclaimer(navigator: Navigator) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    val speedrunRunning by koinInject<SpeedrunGate>().isRunning.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             PrivacyDisclaimerUiSideEffect.NavigateToLogin ->
@@ -89,14 +101,32 @@ fun PrivacyDisclaimer(navigator: Navigator) {
     }
     PrivacyDisclaimerScreen(
         state = state,
-        onAcceptClicked = viewModel::setPrivacyDisclosureAccepted,
+        snackbarHostState = snackbarHostState,
+        onAcceptClicked = {
+            if (SPEEDRUN_GATE_PRIVACY && !speedrunRunning) {
+                scope.launch {
+                    snackbarHostState.showSnackbarImmediately("Start the timer first 🏁")
+                }
+            } else {
+                viewModel.setPrivacyDisclosureAccepted()
+            }
+        },
     )
 }
 
 @Composable
-fun PrivacyDisclaimerScreen(state: PrivacyDisclaimerViewState, onAcceptClicked: () -> Unit) {
+fun PrivacyDisclaimerScreen(
+    state: PrivacyDisclaimerViewState,
+    onAcceptClicked: () -> Unit,
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
+) {
     val topColor = MaterialTheme.colorScheme.primary
-    ScaffoldWithTopBar(topBarColor = topColor, onAccountClicked = null, onSettingsClicked = null) {
+    ScaffoldWithTopBar(
+        topBarColor = topColor,
+        onAccountClicked = null,
+        onSettingsClicked = null,
+        snackbarHostState = snackbarHostState,
+    ) {
         val scrollState = rememberScrollState()
         Column(
             Modifier.padding(it)

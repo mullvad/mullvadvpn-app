@@ -20,8 +20,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.byValue
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.foundation.verticalScroll
@@ -96,6 +99,7 @@ import net.mullvad.mullvadvpn.feature.login.api.LoginAction
 import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.compose.ACCOUNT_NUMBER_CHUNK_SIZE
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.common.compose.SpeedrunGate
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberKeyboardType
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberOutputTransformation
 import net.mullvad.mullvadvpn.lib.common.compose.accountNumberVisualTransformation
@@ -116,6 +120,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Preview("Default|Loading.LoggingIn|Loading.CreatingAccount|LoginError|Success")
 @Composable
@@ -321,6 +326,14 @@ fun OrDivier() {
     }
 }
 
+// TEMPORARY (speed-run competition): force the account number to be typed during a started run.
+private const val SPEEDRUN_LOCK_LOGIN = true
+
+// Rejects multi-character insertions (paste/autofill) so the account must be typed, not pasted.
+private val speedrunNoPasteTransformation = InputTransformation.byValue { current, proposed ->
+    if (proposed.length - current.length > 1) current else proposed
+}
+
 @Composable
 @Suppress("LongMethod")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -334,6 +347,8 @@ private fun ColumnScope.LoginInput(
 
     var showPassword by remember { mutableStateOf(false) }
     var showLastChar by remember { mutableStateOf(false) }
+    val speedrunRunning by koinInject<SpeedrunGate>().isRunning.collectAsStateWithLifecycle()
+    val speedrunLockField = SPEEDRUN_LOCK_LOGIN && !speedrunRunning
     LaunchedEffect(state.accountNumberInput) {
         showLastChar = true
         delay(LAST_CHAR_VISIBILITY_TIMEOUT)
@@ -350,6 +365,7 @@ private fun ColumnScope.LoginInput(
         snapshotFlow { accountState.text.toString() }.collectLatest { onAccountNumberChange(it) }
     }
     LaunchedEffect(accountState) {}
+    LaunchedEffect(speedrunLockField) { if (speedrunLockField) accountState.clearText() }
     TextField(
         modifier =
             // Fix for DPad navigation
@@ -413,7 +429,9 @@ private fun ColumnScope.LoginInput(
                 imeAction = if (state.loginButtonEnabled) ImeAction.Done else ImeAction.None,
                 keyboardType = KeyboardType.accountNumberKeyboardType(LocalContext.current),
             ),
+        inputTransformation = if (SPEEDRUN_LOCK_LOGIN) speedrunNoPasteTransformation else null,
         outputTransformation = outputTransformation,
+        readOnly = speedrunLockField,
         enabled = state.loginState is LoginState.Idle,
         textStyle =
             MaterialTheme.typography.bodyLarge.copy(

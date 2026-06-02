@@ -13,7 +13,7 @@ import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
-import utilities.getStringProperty
+import utilities.getStringPropertyOrNull
 import utilities.isReleaseBuild
 import utilities.leakCanaryImplementation
 import utilities.matchesAny
@@ -219,13 +219,17 @@ androidComponents {
                 "Whether to require a bundled relay list or not.",
             ),
         )
-        // TEMPORARY (speed-run competition): the account players must log in to. Override with the
-        // Gradle property mullvad.app.config.speedrun.accountNumber; never commit the real number.
+        // TEMPORARY (speed-run competition): the account players must log in to. Set it in your
+        // ~/.gradle/gradle.properties or with -P; never commit a real number. Falls back to a
+        // placeholder so a plain checkout still builds.
+        val speedrunAccount =
+            getStringPropertyOrNull("mullvad.app.config.speedrun.accountNumber")
+                ?: "1337 1337 1337 1337"
         it.buildConfigFields!!.put(
             "SPEEDRUN_ACCOUNT_NUMBER",
             BuildConfigField(
                 "String",
-                "\"${getStringProperty("mullvad.app.config.speedrun.accountNumber")}\"",
+                "\"$speedrunAccount\"",
                 "Speed-run competition account number (override via Gradle property).",
             ),
         )
