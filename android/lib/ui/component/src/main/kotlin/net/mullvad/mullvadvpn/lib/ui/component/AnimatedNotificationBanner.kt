@@ -33,7 +33,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
-import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_ACTION_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.NOTIFICATION_BANNER_TEST_TAG
