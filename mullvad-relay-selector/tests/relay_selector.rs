@@ -1597,8 +1597,7 @@ mod partition_relays {
         }
     }
 
-    /// "Daita + No Direct only + Provider. Providers (currently) affects both entry and exit
-    /// relays, while DAITA only affects entry relays.
+    /// "Daita + Autohop + Provider. Providers only affects exit relays, while DAITA only affects entry relays.
     #[test]
     fn daita_no_direct_only_provider() {
         // "100TB" does not have any DAITA relays, and because filters should apply for both entry
@@ -1608,7 +1607,7 @@ mod partition_relays {
         let constraints = EntryConstraints::default().providers(providers).daita(true);
 
         let query = relay_selector().partition_relays(Predicate::Autohop(constraints));
-        assert_eq!(query.matches.len(), 0);
+        assert!(!query.matches.is_empty());
 
         // Assert that a relay was discarded because we could not select an entry because of
         // DAITA and provider constraints not making sense.
@@ -1619,7 +1618,6 @@ mod partition_relays {
         assert!(
             reasons.is_subset(&HashSet::from([
                 Reason::Providers,
-                Reason::Daita,
                 Reason::Inactive,
                 Reason::IncludeInCountry,
             ])),
