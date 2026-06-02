@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Polish\n"
 "Language: pl_PL\n"
-"PO-Revision-Date: 2026-04-27 09:12\n"
+"PO-Revision-Date: 2026-06-01 13:05\n"
 
 msgid "%(amount)d more..."
 msgstr "Jeszcze %(amount)d"
@@ -1921,8 +1921,8 @@ msgstr "Nie udało się włączyć dzielonego tunelowania. Spróbuj połączyć 
 #. and will block network traffic until the error is resolved.
 #. Label for the in-app banner when the app encountered an error
 msgctxt "notifications"
-msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable split tunneling."
-msgstr "Nie udało się uruchomić funkcji %(splitTunneling)s. Aby przywrócić przepływ danych, wyłącz funkcję Split tunneling."
+msgid "Failed to start %(splitTunneling)s. To unblock network traffic, disable %(splitTunneling)s."
+msgstr "Nie udało się uruchomić funkcji %(splitTunneling)s. Aby przywrócić przepływ danych, wyłącz funkcję %(splitTunneling)s."
 
 #. Label for notification when IPv4 is not available.
 msgctxt "notifications"
@@ -2952,6 +2952,9 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Port TCP, z którym powinien łączyć się protokół zaciemniania UDP-przez-TCP na serwerze VPN."
 
+msgid "%1$d out of %2$d"
+msgstr "%1$d z %2$d"
+
 msgid "%1$s more..."
 msgstr "Jeszcze %1$s..."
 
@@ -3012,11 +3015,17 @@ msgstr "Do konta dodano 90 dni."
 msgid "<b>Account recovery will not be possible.</b>"
 msgstr "<b>Przywrócenie konta nie będzie możliwe.</b>"
 
+msgid "<b>Attention: DNS settings might not go into effect immediately.</b>"
+msgstr "<b>Uwaga: ustawienia usługi DNS mogą nie zostać zastosowane natychmiast.</b>"
+
 msgid "<b>Attention:</b> Only some servers support the full port range."
 msgstr "<b>Uwaga:</b> tylko niektóre serwery obsługują pełen zakres portów."
 
 msgid "<b>Attention:</b> The app will close automatically and needs to be manually opened again after selecting a new icon and title. This will not impact your VPN connection."
 msgstr "<b>Uwaga:</b> aplikacja zostanie zamknięta automatycznie i trzeba będzie ręcznie otworzyć ją ponownie po wybraniu nowej ikony i tytułu. Nie wpłynie to na połączenie VPN."
+
+msgid "<b>DNS content blockers</b>"
+msgstr "<b>Funkcje blokowania treści DNS</b>"
 
 msgid "<b>Please note that these methods do not improve performance, and may increase system utilization and battery consumption.</b>"
 msgstr "<b>Pamiętaj, że metody te nie poprawiają wydajności i mogą zwiększyć obciążenie systemu oraz zużycie baterii.</b>"
@@ -3041,9 +3050,6 @@ msgstr "Doładowanie konta wygasa za kilka minut"
 
 msgid "Account deleted"
 msgstr "Usunięto konto"
-
-msgid "Account number is too long, please enter a valid number"
-msgstr "Numer konta jest zbyt długi, wprowadź prawidłowy numer"
 
 msgid "Account number must match"
 msgstr "Numer konta musi być zgodny"
@@ -3123,9 +3129,6 @@ msgstr "Uwaga: Jeśli opcja „Blokuj połączenia bez VPN” jest włączona, f
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Uwaga: jeśli opcja „Blokuj połączenia bez pośrednictwa sieci VPN” jest włączona, wówczas aplikacje dzielące nie będą miały dostępu do Internetu. Należy pamiętać, że dzielone tunelowanie stanowi zagrożenie dla prywatności."
 
-msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
-msgstr "Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”."
-
 msgid "Auto-connect & Lockdown mode"
 msgstr "Automatyczne łączenie i tryb Lockdown"
 
@@ -3150,14 +3153,11 @@ msgstr "Dołączenie tokena konta powoduje połączenie raportu z kontem, co pom
 msgid "By checking this box I agree to the risks involved with deleting my account"
 msgstr "Zaznaczając to pole, akceptuję ryzyko związane z usunięciem mojego konta"
 
-msgid "Can't connect?"
+msgid "Can’t connect?"
 msgstr "Nie możesz się połączyć?"
 
 msgid "Change the title and icon of the Mullvad VPN app on your Android device. This will not change the icon for any Mullvad VPN related notifications."
 msgstr "Zmień tytuł i ikonę aplikacji Mullvad VPN na urządzeniu z systemem Android. Nie spowoduje to zmiany ikony żadnych powiadomień związanych z Mullvad VPN."
-
-msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
-msgstr "Zmiany w ustawieniach związanych z usługą DNS mogą nie zostać wprowadzone natychmiast ze względu na zbuforowane wyniki."
 
 msgid "Clear input"
 msgstr "Wyczyść dane wejściowe"
@@ -3192,9 +3192,6 @@ msgstr "Nie można wyświetlić pozostałej liczby dni."
 msgid "Create new list"
 msgstr "Utwórz nową listę"
 
-msgid "Creating account failed"
-msgstr "Nie udało się utworzyć konta"
-
 msgid "Critical error (your attention is required)"
 msgstr "Błąd krytyczny (wymagana uwaga)"
 
@@ -3203,6 +3200,9 @@ msgstr "Bieżąca: %s"
 
 msgid "Custom DNS server addresses %1$s are invalid"
 msgstr "Niestandardowe adresy serwerów DNS %1$s są nieprawidłowe"
+
+msgid "DNS settings"
+msgstr "Ustawienia DNS"
 
 msgid "DNS settings might not go into effect immediately"
 msgstr "Ustawienia usługi DNS mogą nie zostać zastosowane natychmiast"
@@ -3249,9 +3249,6 @@ msgstr "Rozłączanie..."
 msgid "Dismiss"
 msgstr "Odrzuć"
 
-msgid "Don’t have an account number?"
-msgstr "Nie masz numeru konta?"
-
 msgid "Edit custom lists"
 msgstr "Edytuj listy niestandardowe"
 
@@ -3284,6 +3281,9 @@ msgstr "Wprowadź MTU"
 
 msgid "Enter account number digits"
 msgstr "Wprowadź cyfry numeru konta"
+
+msgid "Enter an account number"
+msgstr "Wprowadź numer konta"
 
 msgid "Entry relay is the same as exit relay"
 msgstr "Przekaźnik wejściowy jest taki sam jak przekaźnik wyjściowy"
@@ -3323,6 +3323,9 @@ msgstr "Szczegółowe informacje znajdziesz w naszej %s."
 
 msgid "For the VPN to connect automatically on device startup, the app must have VPN permissions. You can grant these by clicking “Connect” in the map view and selecting “OK” if prompted. Additionally, ensure the app is installed on the internal storage by checking the storage information in the app details in system settings."
 msgstr "Aby łączyć automatycznie sieć VPN po uruchomieniu urządzenia, aplikacja musi mieć uprawnienia do sieci VPN. Możesz je przyznać, klikając opcję „Połącz” w widoku mapy i wybierając przycisk „OK”, jeśli wyświetlony zostanie monit. Dodatkowo upewnij się, że aplikacja jest zainstalowana w wewnętrznej pamięci masowej, sprawdzając informacje o pamięci masowej w szczegółach aplikacji, w ustawieniach systemowych."
+
+msgid "Generating..."
+msgstr "Generowanie..."
 
 msgid "Go to VPN settings"
 msgstr "Przejdź do ustawień VPN"
@@ -3372,8 +3375,17 @@ msgstr "Produkty w aplikacji są niedostępne. Upewnij się, że masz najnowszą
 msgid "Include my account token for faster help with payment or account related issues"
 msgstr "Dodaj token mojego konta, aby przyspieszyć pomoc w kwestiach związanych z płatnościami lub kontem"
 
+msgid "Internet"
+msgstr "Internet"
+
+msgid "Invalid IP address"
+msgstr "Nieprawidłowy adres IP"
+
 msgid "Invalid IPv6 config, please try to change the VPN settings."
 msgstr "Nieprawidłowa konfiguracja protokołu IPv6, spróbuj zmienić ustawienia VPN."
+
+msgid "Invalid MTU value"
+msgstr "Nieprawidłowa wartość MTU"
 
 msgid "Invalid or missing value \"%1$s\""
 msgstr "Nieprawidłowa lub brakująca wartość „%1$s”"
@@ -3486,14 +3498,35 @@ msgstr "Wklej lub wpisz zastąpienia do zaimportowania"
 msgid "Patch not matching specification"
 msgstr "Poprawka niezgodna ze specyfikacją"
 
+msgid "Please enter a message"
+msgstr "Wprowadź wiadomość"
+
+msgid "Please enter a name"
+msgstr "Wprowadź nazwę"
+
+msgid "Please enter a port"
+msgstr "Wprowadź port"
+
 msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr "Wprowadź prawidłowy adres IPv4 lub IPv6"
 
 msgid "Please enter a valid remote server port"
 msgstr "Wprowadź prawidłowy port serwera zdalnego"
 
+msgid "Please enter a value"
+msgstr "Wprowadź wartość"
+
+msgid "Please enter an IP address"
+msgstr "Wprowadź adres IP"
+
+msgid "Please enter an IP override text"
+msgstr "Wprowadź tekst zastępujący adres IP"
+
 msgid "Please press connect to request VPN permission"
 msgstr "Naciśnij przycisk Połącz, aby zażądać uprawnienia VPN"
+
+msgid "Please remove a device before continuing logging in"
+msgstr "Przed przejściem do logowania usuń urządzenie"
 
 msgid "Please restart your device and try connecting again. If this does not work, please write an email to %s in Swedish or English."
 msgstr "Ponownie uruchom urządzenie i ponów próbę połączenia. Jeśli to nie zadziała, wyślij wiadomość e-mail na adres %s w języku szwedzkim lub angielskim."
@@ -3501,11 +3534,20 @@ msgstr "Ponownie uruchom urządzenie i ponów próbę połączenia. Jeśli to ni
 msgid "Please try changing your filters."
 msgstr "Spróbuj zmienić filtry."
 
+msgid "Port is out of range"
+msgstr "Port spoza zakresu"
+
+msgid "Prevents the device from contacting certain domains or websites known for distributing ads, malware, trackers and more."
+msgstr "Uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd."
+
 msgid "Privacy"
 msgstr "Prywatność"
 
 msgid "Privacy policy"
 msgstr "Polityka prywatności"
+
+msgid "Read more"
+msgstr "Dowiedz się więcej"
 
 msgid "Recents disabled and history cleared"
 msgstr "Ostatnie: wyłączono i wyczyszczono historię"
@@ -3741,6 +3783,9 @@ msgstr "Weryfikowanie zakupu..."
 msgid "Verifying voucher…"
 msgstr "Weryfikowanie kuponu…"
 
+msgid "Voucher code is too short"
+msgstr "Kod kuponu jest zbyt krótki"
+
 msgid "Warning"
 msgstr "Ostrzeżenie"
 
@@ -3774,11 +3819,17 @@ msgstr "Aby kontynuować korzystanie z VPN, można dodać więcej czasu w widoku
 msgid "You can add more time via the account view to continue using the VPN."
 msgstr "Aby kontynuować korzystanie z VPN, w widoku konta można dodać więcej czasu."
 
+msgid "You can either use our built-in content blockers or use a custom DNS server. This might cause issues on certain websites, services, and apps."
+msgstr "Możesz skorzystać z naszych wbudowanych funkcji blokowania treści albo użyć niestandardowego serwera DNS. Może to powodować problemy podczas korzystania z niektórych witryn internetowych, usług i aplikacji."
+
 msgid "You will lose access to this account on all devices."
 msgstr "Utracisz dostęp do tego konta na wszystkich urządzeniach."
 
 msgid "You will lose your remaining"
 msgstr "Utracisz pozostałe"
+
+msgid "Your device"
+msgstr "Twoje urządzenie"
 
 msgid "\"%s\" was created"
 msgstr "Utworzono „%s”"

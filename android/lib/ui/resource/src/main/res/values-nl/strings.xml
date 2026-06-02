@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Na het bijwerken van een VPN-app in Android 16 kan het apparaat in een toestand raken waarin de VPN-apps het internet niet meer kunnen bereiken.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Start uw apparaat opnieuw op en probeer het opnieuw. Als dat niet werkt, kun u een e-mail schrijven naar %1$s (in het Zweeds of in het Engels).</string>
     <string name="android_16_upgrade_warning_message">Er is een bekend probleem met Android 16. Start uw apparaat opnieuw op en probeer het opnieuw. Voor meer informatie:</string>
+    <string name="android_16_upgrade_warning_title">Krijgt u geen verbinding?</string>
     <string name="anti_censorship">Anti-censuur</string>
     <string name="anti_censorship_info_first_paragraph">Deze methoden kunnen nuttig zijn in situaties waarin de toegang tot Mullvad is geblokkeerd. Als \"Automatisch\" is geselecteerd, probeert de app alle methoden totdat er een werkt.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Houd er rekening mee dat deze methoden niet de prestaties verbeteren en mogelijk zorgen voor een hogere belasting van systeembronnen en meer energieverbruik.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">Schakel alle \"%1$s\" hierboven uit om deze instelling te activeren.</string>
     <string name="custom_dns_hint">Voer IP-adres in</string>
     <string name="custom_list_error_list_exists">Naam wordt al gebruikt.</string>
+    <string name="custom_list_error_list_is_empty">Voer een naam in</string>
     <string name="custom_lists">Aangepaste lijsten</string>
     <string name="custom_port_dialog_placeholder">Voer poort in</string>
     <string name="custom_port_dialog_remove">Aangepaste poort verwijderen</string>
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
+    <string name="custom_port_input_error_blank">Voer een poort in</string>
+    <string name="custom_port_input_error_out_of_range">Poort is buiten bereik</string>
     <string name="custom_port_recommended_range_first"><b>Let op:</b> alleen sommige servers ondersteunen het volledige poortbereik.</string>
     <string name="custom_port_recommended_range_second">Geldig bereik voor alle servers: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">of</string>
     <string name="dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_subtitle">Schakel hieronder \"%1$s\" uit om deze instellingen te activeren.</string>
+    <string name="dns_settings">DNS-instellingen</string>
+    <string name="dns_settings_description_first_item">Hiermee wordt voorkomen dat het apparaat contact maakt met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
+    <string name="dns_settings_description_second_item">U kunt ofwel onze ingebouwde contentblokkeringen gebruiken of een aangepaste DNS-server. Dit kan problemen veroorzaken voor bepaalde websites, services en apps.</string>
+    <string name="dns_settings_description_title"><b>DNS-contentblokkeringen</b></string>
+    <string name="dns_settings_description_warning"><b>Let op: De DNS-instellingen worden mogelijk niet onmiddellijk van kracht.</b></string>
     <string name="duplicate_address_warning">Dit adres is al ingevoerd.</string>
     <string name="edit_custom_lists">Aangepaste lijsten bewerken</string>
     <string name="edit_list">Lijst bewerken</string>
@@ -239,6 +248,7 @@
     <string name="filter">Filter</string>
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
+    <string name="generating_account_number">Genereren...</string>
     <string name="go_to_login">Ga naar aanmelden</string>
     <string name="go_to_vpn_settings">Naar VPN-instellingen</string>
     <string name="got_it">Begrepen!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">Pictogram en titel</string>
     <string name="import_override_textfield_placeholder">Plak of schrijf overschrijvingen om te importeren</string>
     <string name="import_overrides_bottom_sheet_override_warning">Het importeren van nieuwe overschrijvingen kan sommige eerder geïmporteerde overschrijvingen vervangen.</string>
+    <string name="import_overrides_empty_text_error">Voer een tekst voor de IP-overschrijving in</string>
     <string name="import_overrides_import">Importeren</string>
     <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="in_app_products_unavailable">Producten in de app zijn niet beschikbaar. Controleer dat u de nieuwste versie van Google Play heeft.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">Als u uw accounttoken bijvoegt, wordt dit rapport gekoppeld aan uw account. We kunnen het probleem dan sneller oplossen. Alle rapporten worden automatisch na een bepaalde tijd verwijderd.</string>
     <string name="include_account_token_warning_message_second">Zie ons %1$s voor meer informatie.</string>
     <string name="include_account_token_warning_title">Dit heeft gevolgen voor uw anonimiteit</string>
+    <string name="internet">Internet</string>
+    <string name="invalid_address_blank_warning">Voer een IP-adres in</string>
+    <string name="invalid_address_invalid_warning">Ongeldig IP-adres</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_ipv6_config">Ongeldige IPv6-configuratie, probeer de VPN-instellingen te wijzigen.</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">Kan API niet bereiken, %1$s</string>
     <string name="login_error_too_many_attempts">Te veel pogingen. Probeer het later opnieuw</string>
     <string name="login_fail_description">Ongeldig accountnummer</string>
+    <string name="login_fail_empty">Voer een accountnummer in</string>
     <string name="login_fail_title">Aanmelden mislukt</string>
     <string name="malware_info">Waarschuwing: de malwareblocker is geen antivirus en mag niet als zodanig behandeld worden. Dit is slechts een extra beschermingslaag.</string>
     <string name="manage_devices">Apparaten beheren</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">Andere acties</string>
     <string name="more_information">Meer informatie</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Voer een waarde in</string>
+    <string name="mtu_input_error_invalid">Ongeldige MTU-waarde</string>
     <string name="mtu_x">Waarde: %1$s</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Deze eigenschap maakt de WireGuard-tunnel bestand tegen mogelijke aanvallen met kwantumcomputers.</string>
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
+    <string name="read_more">Meer lezen</string>
     <string name="read_more_here">lees hier meer</string>
     <string name="recents">Recente</string>
     <string name="recents_disabled">Recente uitgeschakeld en geschiedenis gewist</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s is al geselecteerd als ingangsrelais</string>
     <string name="relay_item_already_selected_as_exit">%1$s is al geselecteerd als uitgangsrelais</string>
     <string name="relayitem_is_inactive">%1$s is niet beschikbaar</string>
+    <string name="remove_a_device_before_logging_in">Verwijder een apparaat voordat u doorgaat met inloggen</string>
     <string name="remove_button">Verwijderen</string>
     <string name="remove_location_from_list">%1$s verwijderen uit %2$s</string>
     <string name="removed_provider">%1$s (verwijderd)</string>
     <string name="rented">Gehuurd</string>
     <string name="rented_only">Alleen gehuurde</string>
     <string name="report_a_problem">Een probleem melden</string>
+    <string name="report_problem_message_is_empty">Voer een bericht in</string>
     <string name="reset_to_default_button">Standaardwaarde herstellen</string>
     <string name="retry">Opnieuw proberen</string>
     <string name="save">Opslaan</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="voucher_is_account_number">Het lijkt erop dat u een rekeningnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
+    <string name="voucher_too_short">Vouchercode is te kort</string>
     <string name="vpn_permission_denied_error">VPN-toegang is geweigerd of \"VPN altijd aan\" is geactiveerd in een andere app</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN-toestemming is geweigerd</string>
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">%1$s-instellingen.</string>
     <string name="x_entry">%1$s (ingang)</string>
     <string name="x_exit">%1$s (uitgang)</string>
+    <string name="x_out_of_y">%1$d van %2$d</string>
     <string name="x_via_x">%1$s via %2$s</string>
     <string name="you_can_add_more_time_oss">U kunt meer tijd toevoegen via de accountweergave of via de website om de VPN te blijven gebruiken.</string>
     <string name="you_can_add_more_time_play">U kunt meer tijd toevoegen via de accountweergave om de VPN te blijven gebruiken.</string>
+    <string name="your_device">Uw apparaat</string>
 </resources>

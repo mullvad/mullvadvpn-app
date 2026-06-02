@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Android 16でVPNアプリを更新すると、デバイス上のVPNアプリがインターネットにアクセス不可能な状態になる可能性があります。</string>
     <string name="android_16_upgrade_warning_dialog_second_message">デバイスを再起動して再接続してください。それでも問題が解決しない場合は、%1$sにスウェーデン語か英語のメールでお問い合わせください。</string>
     <string name="android_16_upgrade_warning_message">Android 16には既知の問題があります。デバイスを再起動して再試行してください。詳細は、</string>
+    <string name="android_16_upgrade_warning_title">接続できませんか？</string>
     <string name="anti_censorship">検閲回避</string>
     <string name="anti_censorship_info_first_paragraph">これらの方式は、Mullvadへの接続がブロックされている状況で役立つ可能性があります。「自動」を選択すると、アプリは有効な方法が見つかるまですべての方式を試します。</string>
     <string name="anti_censorship_info_second_paragraph"><b>これらの方式はパフォーマンスを向上させるものではなく、システム使用率やバッテリー消費量を増加させる可能性がありますのでご注意ください。</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">この設定を有効にするには、上の [%1$s] をすべて無効にしてください。</string>
     <string name="custom_dns_hint">IPを入力</string>
     <string name="custom_list_error_list_exists">名前はすでに使用されています。</string>
+    <string name="custom_list_error_list_is_empty">名前を入力してください</string>
     <string name="custom_lists">カスタムリスト</string>
     <string name="custom_port_dialog_placeholder">ポートを入力</string>
     <string name="custom_port_dialog_remove">カスタムポートを削除</string>
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
+    <string name="custom_port_input_error_blank">ポートを入力してください</string>
+    <string name="custom_port_input_error_out_of_range">ポートが範囲外です</string>
     <string name="custom_port_recommended_range_first"><b>注意:</b> 全ポート範囲をサポートしているのは一部のサーバーのみです。</string>
     <string name="custom_port_recommended_range_second">全サーバーの有効範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
@@ -193,6 +197,11 @@
     <string name="divier_or">または</string>
     <string name="dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="dns_content_blockers_subtitle">これらの設定を有効にするには、下の [%1$s] を無効にしてください。</string>
+    <string name="dns_settings">DNS設定</string>
+    <string name="dns_settings_description_first_item">広告、マルウェア、トラッカーなどを配信する特定のドメインやウェブサイトへの接続を防ぎます。</string>
+    <string name="dns_settings_description_second_item">内蔵のコンテンツブロッカー、またはカスタムDNSサーバーを使用できます。これにより、一部のウェブサイトやサービス、アプリが正常に動作しない場合があります。</string>
+    <string name="dns_settings_description_title"><b>DNSコンテンツブロッカー</b></string>
+    <string name="dns_settings_description_warning"><b>注意：DNS設定はすぐに反映されない場合があります。</b></string>
     <string name="duplicate_address_warning">このアドレスは入力済みです。</string>
     <string name="edit_custom_lists">カスタムリストを編集する</string>
     <string name="edit_list">リストの編集</string>
@@ -239,6 +248,7 @@
     <string name="filter">絞り込み</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
+    <string name="generating_account_number">生成中…</string>
     <string name="go_to_login">ログインに進む</string>
     <string name="go_to_vpn_settings">VPN設定に移動</string>
     <string name="got_it">了解</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">アイコンとタイトル</string>
     <string name="import_override_textfield_placeholder">インポートするオーバーライドを貼り付けるか、または記入してください</string>
     <string name="import_overrides_bottom_sheet_override_warning">新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。</string>
+    <string name="import_overrides_empty_text_error">IPオーバーライドテキストを入力してください</string>
     <string name="import_overrides_import">インポート</string>
     <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="in_app_products_unavailable">アプリ内アイテムを利用できません。最新バージョンのGoogle Playを使用していることを確認してください。</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">アカウントトークンを添付するとこのレポートがアカウントに関連付けられ、より迅速に問題を解決することができます。すべてのレポートは一定期間が経過した後に自動で削除されます。</string>
     <string name="include_account_token_warning_message_second">詳細については、当社の%1$sをご覧ください。</string>
     <string name="include_account_token_warning_title">これはあなたの匿名性に影響を与えます</string>
+    <string name="internet">インターネット</string>
+    <string name="invalid_address_blank_warning">IPアドレスを入力してください</string>
+    <string name="invalid_address_invalid_warning">無効なIPアドレス</string>
     <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
     <string name="invalid_ipv6_config">IPv6の設定が無効です。VPNの設定を変更してください。</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">APIに接続できません。%1$s</string>
     <string name="login_error_too_many_attempts">試行回数が多すぎます。後でもう一度お試しください</string>
     <string name="login_fail_description">アカウント番号が無効です</string>
+    <string name="login_fail_empty">アカウント番号を入力</string>
     <string name="login_fail_title">ログインに失敗しました</string>
     <string name="malware_info">警告: マルウェアブロッカーはウィルス対策ではありませんので、そのような用途には使用しないでください。あくまで追加の保護レイヤーに過ぎません。</string>
     <string name="manage_devices">デバイスを管理</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">その他の操作</string>
     <string name="more_information">詳細情報</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">値を入力してください</string>
+    <string name="mtu_input_error_invalid">無効なMTU値</string>
     <string name="mtu_x">値: %1$s</string>
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。</string>
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
+    <string name="read_more">続きを読む</string>
     <string name="read_more_here">続きはこちら</string>
     <string name="recents">最近の項目</string>
     <string name="recents_disabled">最近の項目を無効化し、履歴を消去しました</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$sはすでに入口中継サーバーとして選択されています</string>
     <string name="relay_item_already_selected_as_exit">%1$sはすでに出口中継サーバーとして選択されています</string>
     <string name="relayitem_is_inactive">%1$sは使用できません</string>
+    <string name="remove_a_device_before_logging_in">ログインを続ける前にデバイスを削除してください</string>
     <string name="remove_button">削除</string>
     <string name="remove_location_from_list">%1$sを%2$sから削除する</string>
     <string name="removed_provider">%1$s (削除済み)</string>
     <string name="rented">レンタルサーバー</string>
     <string name="rented_only">レンタルサーバーのみ</string>
     <string name="report_a_problem">問題を報告</string>
+    <string name="report_problem_message_is_empty">メッセージを入力してください</string>
     <string name="reset_to_default_button">デフォルトにリセット</string>
     <string name="retry">再試行</string>
     <string name="save">保存</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
+    <string name="voucher_too_short">バウチャーコードが短すぎます</string>
     <string name="vpn_permission_denied_error">VPNへのアクセス許可が拒否されたか、別のアプリで「Always-on VPN」が有効になっています</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPNへアクセスする許可がありません</string>
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">%1$sの設定。</string>
     <string name="x_entry">%1$s (入口)</string>
     <string name="x_exit">%1$s (出口)</string>
+    <string name="x_out_of_y">%1$d / %2$d</string>
     <string name="x_via_x">%1$s (%2$s経由)</string>
     <string name="you_can_add_more_time_oss">アカウント画面かウェブサイトから時間を追加することで、VPNを引き続き使用できます。</string>
     <string name="you_can_add_more_time_play">アカウント画面から時間を追加することで、VPNを引き続き使用できます。</string>
+    <string name="your_device">お使いのデバイス</string>
 </resources>

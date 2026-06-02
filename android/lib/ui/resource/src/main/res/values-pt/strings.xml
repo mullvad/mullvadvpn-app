@@ -29,6 +29,7 @@
     <string name="android_16_upgrade_warning_dialog_first_message">Após atualizar uma aplicação de VPN no Android 16, os dispositivos podem ficar num estado em que as aplicações de VPN deixam de conseguir aceder à internet.</string>
     <string name="android_16_upgrade_warning_dialog_second_message">Reinicie o seu dispositivo e tente estabelecer a ligação novamente. Se isto não funcionar, escreva um e-mail para %1$s em sueco ou inglês.</string>
     <string name="android_16_upgrade_warning_message">O Android 16 tem um problema conhecido. Reinicie o seu dispositivo e tente novamente. Para saber mais,</string>
+    <string name="android_16_upgrade_warning_title">Não consegue ligar?</string>
     <string name="anti_censorship">Anti-censura</string>
     <string name="anti_censorship_info_first_paragraph">Estes métodos podem ser úteis em situações em que esteja impedido de aceder à Mullvad. Quando está selecionado \"Automático\", a aplicação tentará todos os métodos até que um funcione.</string>
     <string name="anti_censorship_info_second_paragraph"><b>Tenha em atenção que estes métodos não melhoram o desempenho e podem aumentar a utilização do sistema e o consumo da bateria.</b></string>
@@ -125,11 +126,14 @@
     <string name="custom_dns_disable_mode_subtitle">Desative todos os \"%1$s\" acima para ativar esta definição.</string>
     <string name="custom_dns_hint">Introduzir IP</string>
     <string name="custom_list_error_list_exists">O nome já está a ser utilizado.</string>
+    <string name="custom_list_error_list_is_empty">Introduza um nome</string>
     <string name="custom_lists">Listas personalizadas</string>
     <string name="custom_port_dialog_placeholder">Introduzir porta</string>
     <string name="custom_port_dialog_remove">Remover porta personalizada</string>
     <string name="custom_port_dialog_submit">Definir porta</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
+    <string name="custom_port_input_error_blank">Introduza uma porta</string>
+    <string name="custom_port_input_error_out_of_range">A porta está fora do intervalo</string>
     <string name="custom_port_recommended_range_first"><b>Atenção:</b> só alguns servidores suportam o intervalo completo de portas.</string>
     <string name="custom_port_recommended_range_second">Intervalo válido para todos os servidores: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
@@ -191,8 +195,13 @@
     <string name="disconnecting">A desligar...</string>
     <string name="dismiss">Dispensar</string>
     <string name="divier_or">Ou</string>
-    <string name="dns_content_blockers">Bloqueadores de conteúdo de DNS</string>
+    <string name="dns_content_blockers">Bloqueadores de conteúdo DNS</string>
     <string name="dns_content_blockers_subtitle">Desative \"%1$s\" abaixo para ativar estas definições.</string>
+    <string name="dns_settings">Definições de DNS</string>
+    <string name="dns_settings_description_first_item">Impede que o dispositivo aceda a determinados domínios ou sites conhecidos por distribuírem anúncios, malware, rastreadores e outros conteúdos semelhantes.</string>
+    <string name="dns_settings_description_second_item">Pode utilizar os nossos bloqueadores de conteúdo integrados ou um servidor DNS personalizado. Isto poderá causar problemas em determinados sites, serviços e aplicações.</string>
+    <string name="dns_settings_description_title"><b>Bloqueadores de conteúdo DNS</b></string>
+    <string name="dns_settings_description_warning"><b>Atenção: as definições de DNS podem não entrar em vigor imediatamente.</b></string>
     <string name="duplicate_address_warning">Este endereço já foi introduzido.</string>
     <string name="edit_custom_lists">Editar listas personalizadas</string>
     <string name="edit_list">Editar lista</string>
@@ -239,6 +248,7 @@
     <string name="filter">Filtrar</string>
     <string name="foreground_notification_channel_description">Indica o estado atual do túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado do túnel VPN</string>
+    <string name="generating_account_number">A gerar...</string>
     <string name="go_to_login">Ir para a ligação</string>
     <string name="go_to_vpn_settings">Ir para as definições de VPN</string>
     <string name="got_it">Entendido!</string>
@@ -248,6 +258,7 @@
     <string name="icon_and_title">Ícone e título</string>
     <string name="import_override_textfield_placeholder">Cole ou introduza substituições a importar</string>
     <string name="import_overrides_bottom_sheet_override_warning">A importação de novas substituições pode substituir algumas substituições importadas anteriormente.</string>
+    <string name="import_overrides_empty_text_error">Introduza um texto para substituir o IP</string>
     <string name="import_overrides_import">Importar</string>
     <string name="import_overrides_text_title">Importar através de texto</string>
     <string name="in_app_products_unavailable">Produtos na app indisponíveis. Confirme se tem a versão mais recente do Google Play.</string>
@@ -255,6 +266,9 @@
     <string name="include_account_token_warning_message_first">Ao anexar o token da sua conta, este relatório é associado à sua conta, o que nos ajuda a resolver o problema mais rapidamente. Todos os relatórios são automaticamente eliminados após um determinado período.</string>
     <string name="include_account_token_warning_message_second">Para mais detalhes, consulte a nossa %1$s.</string>
     <string name="include_account_token_warning_title">Esta ação afeta o seu anonimato</string>
+    <string name="internet">Internet</string>
+    <string name="invalid_address_blank_warning">Introduza um endereço IP</string>
+    <string name="invalid_address_invalid_warning">Endereço IP inválido</string>
     <string name="invalid_dns_servers">Os endereços do servidor DNS personalizado %1$s são inválidos</string>
     <string name="invalid_ipv6_config">Configuração IPv6 inválida. Tente alterar as definições de VPN.</string>
     <string name="invalid_voucher">Código do voucher inválido.</string>
@@ -287,6 +301,7 @@
     <string name="login_error_api_unreachable">Não é possível aceder à API, %1$s</string>
     <string name="login_error_too_many_attempts">Demasiadas tentativas. Tente novamente mais tarde</string>
     <string name="login_fail_description">Número de conta inválido</string>
+    <string name="login_fail_empty">Introduza um número de conta</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>
     <string name="malware_info">Aviso: o bloqueador de malware não é um antivírus e não deve ser tratado como tal, é apenas uma camada extra de proteção.</string>
     <string name="manage_devices">Gerir dispositivos</string>
@@ -302,6 +317,8 @@
     <string name="more_actions">Mais ações</string>
     <string name="more_information">Mais informações</string>
     <string name="mtu">MTU</string>
+    <string name="mtu_input_error_blank">Introduza um valor</string>
+    <string name="mtu_input_error_invalid">Valor MTU inválido</string>
     <string name="mtu_x">Valor: %1$s</string>
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="multihop">Multihop</string>
@@ -366,6 +383,7 @@
     <string name="quantum_resistant_info_first_paragaph">Esta funcionalidade torna o túnel do WireGuard resistente a potenciais ataques de computadores quânticos.</string>
     <string name="quantum_resistant_info_second_paragaph">Para isso, realiza uma troca de chaves adicional utilizando um algoritmo resistente à computação quântica, e misturando o resultado na encriptação regular do WireGuard. Este passo adicional utiliza aproximadamente 500 kiB de tráfego sempre que um novo túnel é estabelecido.</string>
     <string name="quantum_resistant_title">Túnel com resistência quântica</string>
+    <string name="read_more">Mais informações</string>
     <string name="read_more_here">leia mais aqui</string>
     <string name="recents">Recentes</string>
     <string name="recents_disabled">Recentes desativados e histórico eliminado</string>
@@ -376,12 +394,14 @@
     <string name="relay_item_already_selected_as_entry">%1$s já está selecionado como retransmissor de entrada</string>
     <string name="relay_item_already_selected_as_exit">%1$s já está selecionado como retransmissor de saída</string>
     <string name="relayitem_is_inactive">%1$s não está disponível</string>
+    <string name="remove_a_device_before_logging_in">Remova um dispositivo antes de prosseguir com o início de sessão</string>
     <string name="remove_button">Remover</string>
     <string name="remove_location_from_list">Remover %1$s de %2$s</string>
     <string name="removed_provider">%1$s (removido)</string>
     <string name="rented">Alugado</string>
     <string name="rented_only">Apenas alugado</string>
     <string name="report_a_problem">Reportar um problema</string>
+    <string name="report_problem_message_is_empty">Introduza uma mensagem</string>
     <string name="reset_to_default_button">Repor para as predefinições</string>
     <string name="retry">Tentar novamente</string>
     <string name="save">Guardar</string>
@@ -482,6 +502,7 @@
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
     <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
+    <string name="voucher_too_short">O código do voucher é demasiado curto</string>
     <string name="vpn_permission_denied_error">A permissão de VPN foi negada, ou outra aplicação tem a opção \"VPN sempre ligada\" ativada</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">A permissão de VPN foi negada</string>
     <string name="vpn_permission_error_notification_message">Prima \"ligar\" para solicitar a permissão de VPN</string>
@@ -496,7 +517,9 @@
     <string name="wireguard_settings">Definições do %1$s.</string>
     <string name="x_entry">%1$s (Entrada)</string>
     <string name="x_exit">%1$s (Saída)</string>
+    <string name="x_out_of_y">%1$d de %2$d</string>
     <string name="x_via_x">%1$s via %2$s</string>
     <string name="you_can_add_more_time_oss">Pode adicionar mais tempo através da vista da conta ou do site para continuar a usar a VPN.</string>
     <string name="you_can_add_more_time_play">Pode adicionar mais tempo através da vista de conta para continuar a utilizar a VPN.</string>
+    <string name="your_device">O seu dispositivo</string>
 </resources>
