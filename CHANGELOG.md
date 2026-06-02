@@ -24,6 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add Ukrainian as a new language in the app.
+- `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 
 ### Changed
 #### Windows
