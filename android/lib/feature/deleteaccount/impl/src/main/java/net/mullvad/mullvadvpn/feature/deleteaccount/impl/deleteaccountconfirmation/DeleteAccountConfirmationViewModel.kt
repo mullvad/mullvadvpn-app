@@ -25,6 +25,11 @@ import net.mullvad.mullvadvpn.lib.model.DeleteAccountError
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 
+// TEMPORARY (speed-run competition): block real account deletion. Set to false to restore it.
+// Kept as a (suppressed) non-const val so the always-true guard compiles cleanly under
+// allWarningsAsErrors.
+@Suppress("MayBeConstant") private val SPEEDRUN_BLOCK_DELETE = true
+
 class DeleteAccountConfirmationViewModel(
     private val deviceRepository: DeviceRepository,
     private val accountRepository: AccountRepository,
@@ -72,6 +77,12 @@ class DeleteAccountConfirmationViewModel(
     }
 
     fun deleteAccount() = viewModelScope.launch {
+        // TEMPORARY (speed-run competition): never actually delete the account — the run needs it.
+        if (SPEEDRUN_BLOCK_DELETE) {
+            _uiSideEffect.send(DeleteAccountConfirmationUiSideEffect.GoodTry)
+            return@launch
+        }
+
         isLoading.value = true
 
         val accountNumber = deviceRepository.deviceState.value?.accountNumber()
@@ -116,6 +127,9 @@ sealed interface DeleteAccountConfirmationUiSideEffect {
 
     data class DeleteAccountFailed(val deleteAccountError: DeleteAccountError) :
         DeleteAccountConfirmationUiSideEffect
+
+    // TEMPORARY (speed-run competition): shown instead of deleting the account.
+    data object GoodTry : DeleteAccountConfirmationUiSideEffect
 }
 
 sealed interface VerifyAccountError {

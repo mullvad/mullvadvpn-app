@@ -13,6 +13,7 @@ import utilities.fullReleaseTasks
 import utilities.generateRemapArguments
 import utilities.getBooleanProperty
 import utilities.getStringListProperty
+import utilities.getStringProperty
 import utilities.isReleaseBuild
 import utilities.leakCanaryImplementation
 import utilities.matchesAny
@@ -216,6 +217,16 @@ androidComponents {
                 "boolean",
                 shouldRequireBundleRelayFile.toString(),
                 "Whether to require a bundled relay list or not.",
+            ),
+        )
+        // TEMPORARY (speed-run competition): the account players must log in to. Override with the
+        // Gradle property mullvad.app.config.speedrun.accountNumber; never commit the real number.
+        it.buildConfigFields!!.put(
+            "SPEEDRUN_ACCOUNT_NUMBER",
+            BuildConfigField(
+                "String",
+                "\"${getStringProperty("mullvad.app.config.speedrun.accountNumber")}\"",
+                "Speed-run competition account number (override via Gradle property).",
             ),
         )
     }

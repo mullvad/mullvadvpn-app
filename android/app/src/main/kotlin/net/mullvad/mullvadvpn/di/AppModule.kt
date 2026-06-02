@@ -35,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.lib.usecase.AccountExpiryNotificationActionUseCase
 import net.mullvad.mullvadvpn.repository.UserPreferences
+import net.mullvad.mullvadvpn.speedrun.SpeedrunController
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions
@@ -63,6 +64,8 @@ val appModule = module {
     single { DeviceRepository(get()) }
     single { UserPreferencesRepository(get(), get()) }
     single { ConnectionProxy(androidContext(), get(), get()) }
+    // TEMPORARY: team speed-run competition engine (see net.mullvad.mullvadvpn.speedrun).
+    single { SpeedrunController(get(), get(), get(), androidContext()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }
     single { ScheduleNotificationAlarmUseCase(androidContext(), get()) }

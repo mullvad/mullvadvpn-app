@@ -12,11 +12,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
@@ -80,6 +82,7 @@ import net.mullvad.mullvadvpn.screen.navigation.privacyDisclaimerEntry
 import net.mullvad.mullvadvpn.screen.navigation.splashEntry
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.serviceconnection.ServiceConnectionState
+import net.mullvad.mullvadvpn.speedrun.SpeedrunOverlay
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(
@@ -161,25 +164,29 @@ fun MullvadApp(serviceConnectionManager: ServiceConnectionManager) {
     SharedTransitionLayout {
         CompositionLocalProvider(LocalSharedTransitionScope provides this@SharedTransitionLayout) {
             CompositionLocalProvider(LocalResultStore provides resultStore) {
-                NavDisplay(
-                    modifier =
-                        Modifier.semantics { testTagsAsResourceId = true }
-                            .fillMaxSize()
-                            .accessibilityDataSensitive(),
-                    sceneStrategies =
-                        listOf(
-                            listDetailStrategy,
-                            dialogStrategy,
-                            bottomSheetStrategy,
-                            singlePaneStrategy,
-                        ),
-                    entries = navigationState.toEntries(entryProvider),
-                    onBack = { nav3.goBack() },
-                    sharedTransitionScope = this@SharedTransitionLayout,
-                    transitionSpec = { defaultNavDisplayTransitionSpec() },
-                    popTransitionSpec = { defaultNavDisplayTransitionSpec() },
-                    predictivePopTransitionSpec = { defaultNavDisplayTransitionSpec() },
-                )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    NavDisplay(
+                        modifier =
+                            Modifier.semantics { testTagsAsResourceId = true }
+                                .fillMaxSize()
+                                .accessibilityDataSensitive(),
+                        sceneStrategies =
+                            listOf(
+                                listDetailStrategy,
+                                dialogStrategy,
+                                bottomSheetStrategy,
+                                singlePaneStrategy,
+                            ),
+                        entries = navigationState.toEntries(entryProvider),
+                        onBack = { nav3.goBack() },
+                        sharedTransitionScope = this@SharedTransitionLayout,
+                        transitionSpec = { defaultNavDisplayTransitionSpec() },
+                        popTransitionSpec = { defaultNavDisplayTransitionSpec() },
+                        predictivePopTransitionSpec = { defaultNavDisplayTransitionSpec() },
+                    )
+                    // TEMPORARY: global speed-run HUD drawn on top of every screen.
+                    SpeedrunOverlay(modifier = Modifier.align(Alignment.TopCenter))
+                }
             }
         }
     }
