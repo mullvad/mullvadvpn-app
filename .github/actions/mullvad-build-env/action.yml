@@ -59,6 +59,10 @@ runs:
 
     - name: Install Protoc
       uses: arduino/setup-protoc@v3
+      env:
+        # Workaround for arduino/setup-protoc#112
+        # TODO: Remove this once setup/protoc upstream ships node24.
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       with:
         repo-token: ${{ inputs.protoc-token }}
 
