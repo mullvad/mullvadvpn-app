@@ -429,6 +429,7 @@ private fun LazyItemScope.ContentBlockersHeader(
     )
 }
 
+@Suppress("LongMethod")
 private fun LazyListScope.contentBlockers(
     focusDnsBlockersRequester: FocusRequester,
     highlightBackgroundAlpha: @Composable (FeatureIndicator) -> Float,
