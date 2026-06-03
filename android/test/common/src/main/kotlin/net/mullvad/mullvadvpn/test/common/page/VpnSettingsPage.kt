@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickObjectAwaitIsChecked
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class VpnSettingsPage internal constructor() : Page() {
-    private val vpnSettingsSelector = By.text("VPN settings")
+    private val vpnSettingsSelector = By.res(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
     private val localNetworkSharingSelector = By.text("Local network sharing")
     private val inTunnelIpv6Selector = By.text("In-tunnel IPv6")
 

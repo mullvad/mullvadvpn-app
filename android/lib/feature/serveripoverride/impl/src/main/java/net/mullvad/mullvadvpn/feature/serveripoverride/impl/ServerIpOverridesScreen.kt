@@ -66,6 +66,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.ServerIpOverridesListIte
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_COLUMN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
@@ -210,6 +211,7 @@ fun ServerIpOverridesScreen(
                     )
                     .verticalScroll(state = scrollState)
                     .animateContentSize()
+                    .testTag(SERVER_IP_OVERRIDE_COLUMN_TEST_TAG)
                     .padding(horizontal = Dimens.sideMarginNew)
         ) {
             ServerIpOverridesListItem(active = state.contentOrNull()?.overridesActive)

@@ -44,6 +44,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_LWO_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG
@@ -88,7 +89,9 @@ fun SharedTransitionScope.AntiCensorshipSettings(
 
     AntiCensorshipSettingsScreen(
         modifier =
-            Modifier.applyIfNotNull(navArgs.selectedFeature) {
+            Modifier.testTag(ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG).applyIfNotNull(
+                navArgs.selectedFeature
+            ) {
                 sharedBounds(
                     rememberSharedContentState(key = it),
                     animatedVisibilityScope = animatedVisibilityScope,
