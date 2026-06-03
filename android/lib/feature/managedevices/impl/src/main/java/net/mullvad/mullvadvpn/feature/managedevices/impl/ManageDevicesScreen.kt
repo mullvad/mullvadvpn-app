@@ -18,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -43,6 +44,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.listitem.DeviceListItem
 import net.mullvad.mullvadvpn.lib.ui.component.positionForIndex
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorMedium
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
+import net.mullvad.mullvadvpn.lib.ui.tag.MANAGE_DEVICES_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
@@ -121,7 +123,11 @@ fun ManageDevicesScreen(
     ) { modifier ->
         when (state) {
             is Lce.Content ->
-                Content(modifier, state.value, navigateToRemoveDeviceConfirmationDialog)
+                Content(
+                    modifier.testTag(MANAGE_DEVICES_SCREEN_TEST_TAG),
+                    state.value,
+                    navigateToRemoveDeviceConfirmationDialog,
+                )
             is Lce.Error -> Error(modifier, onTryAgainClicked)
             is Lce.Loading -> Loading(modifier)
         }

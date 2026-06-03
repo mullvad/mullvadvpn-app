@@ -38,8 +38,12 @@ const val WIREGUARD_DEVICE_IP_AUTO_CELL_TEST_TAG = "wireguard_device_ip_auto_cel
 const val WIREGUARD_DEVICE_IP_IPV4_CELL_TEST_TAG = "wireguard_device_ip_ipv4_cell_test_tag"
 const val WIREGUARD_DEVICE_IP_IPV6_CELL_TEST_TAG = "wireguard_device_ip_ipv6_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG = "wireguard_obfuscation_wg_port_test_tag"
+
 // Account screen
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
+
+// Manage devices screen
+const val MANAGE_DEVICES_SCREEN_TEST_TAG = "manage_devices_screen_test_tag"
 
 // AntiCensorshipSettingsScreen
 const val ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG = "anti_censorship_settings_screen_test_tag"
