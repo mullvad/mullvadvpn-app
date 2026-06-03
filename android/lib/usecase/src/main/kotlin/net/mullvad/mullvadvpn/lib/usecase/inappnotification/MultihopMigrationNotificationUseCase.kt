@@ -15,7 +15,7 @@ class MultihopMigrationNotificationUseCase(
     private val connectionProxy: ConnectionProxy,
 ) : InAppNotificationUseCase {
 
-    override fun invoke(): Flow<InAppNotification?> =
+    override operator fun invoke(): Flow<InAppNotification?> =
         combine(connectionProxy.tunnelState, multihopMigrationRepository.multihopMigrationState) {
             tunnelState,
             splitFilterMigration ->
