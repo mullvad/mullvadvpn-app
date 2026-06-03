@@ -241,6 +241,7 @@ private fun Content(
 ) {
     val initialIndexFocus =
         when (selectedFeatureIndicator) {
+            FeatureIndicator.DNS_CONTENT_BLOCKERS -> CONTENT_BLOCKERS_INDEX
             FeatureIndicator.CUSTOM_DNS -> Int.MAX_VALUE // Scroll to bottom
             else -> 0
         }
@@ -575,3 +576,5 @@ private object ContentKey {
     const val CUSTOM_DNS_DISABLE_INFO = "custom_dns_disable_info"
     const val SPACER = "spacer"
 }
+
+private const val CONTENT_BLOCKERS_INDEX = 2
