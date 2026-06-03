@@ -223,7 +223,7 @@ fun DnsSettingsScreen(
     }
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 private fun Content(
     state: DnsSettingsUiState,
