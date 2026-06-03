@@ -18,7 +18,11 @@ mod ui;
 mod windows;
 
 use itertools::Itertools;
-use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
+use mullvad_types::{
+    relay_constraints::{GeographicLocationConstraint, LocationConstraint},
+    settings::SettingsKeyList,
+};
+
 pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
@@ -165,7 +169,7 @@ pub async fn prepare_daemon(
             .await
             .context("Failed to disconnect daemon after test")?;
         mullvad_client
-            .reset_settings()
+            .reset_settings(SettingsKeyList::default())
             .await
             .context("Failed to reset settings")?;
         helpers::ensure_logged_in(&mut mullvad_client).await?;

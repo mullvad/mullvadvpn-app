@@ -1822,6 +1822,28 @@ export namespace Settings {
     }
 }
 
+export class SettingsKeyList extends jspb.Message { 
+    clearKeysList(): void;
+    getKeysList(): Array<SettingsKey>;
+    setKeysList(value: Array<SettingsKey>): SettingsKeyList;
+    addKeys(value: SettingsKey, index?: number): SettingsKey;
+
+    serializeBinary(): Uint8Array;
+    toObject(includeInstance?: boolean): SettingsKeyList.AsObject;
+    static toObject(includeInstance: boolean, msg: SettingsKeyList): SettingsKeyList.AsObject;
+    static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+    static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+    static serializeBinaryToWriter(message: SettingsKeyList, writer: jspb.BinaryWriter): void;
+    static deserializeBinary(bytes: Uint8Array): SettingsKeyList;
+    static deserializeBinaryFromReader(message: SettingsKeyList, reader: jspb.BinaryReader): SettingsKeyList;
+}
+
+export namespace SettingsKeyList {
+    export type AsObject = {
+        keysList: Array<SettingsKey>,
+    }
+}
+
 export class RelayOverride extends jspb.Message { 
     getHostname(): string;
     setHostname(value: string): RelayOverride;
@@ -3501,6 +3523,22 @@ export enum Ownership {
     ANY = 0,
     MULLVAD_OWNED = 1,
     RENTED = 2,
+}
+
+export enum SettingsKey {
+    RELAY_SETTINGS = 0,
+    ALLOW_LAN = 1,
+    LOCKDOWN_MODE_KEY = 2,
+    AUTO_CONNECT = 3,
+    TUNNEL_OPTIONS = 4,
+    SHOW_BETA_RELEASES = 5,
+    SPLIT_TUNNEL = 6,
+    OBFUSCATION_SETTINGS = 7,
+    CUSTOM_LISTS = 8,
+    API_ACCESS_METHODS = 9,
+    RELAY_OVERRIDES = 10,
+    RECENTS = 11,
+    UPDATE_DEFAULT_LOCATION = 12,
 }
 
 export enum IpVersion {

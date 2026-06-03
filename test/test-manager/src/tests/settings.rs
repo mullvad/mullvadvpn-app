@@ -5,7 +5,7 @@ use super::{
 
 use anyhow::{Context, ensure};
 use mullvad_management_interface::MullvadProxyClient;
-use mullvad_types::settings::{DefaultDnsOptions, DnsOptions, Settings};
+use mullvad_types::settings::{DefaultDnsOptions, DnsOptions, Settings, SettingsKeyList};
 use std::net::SocketAddr;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
@@ -216,7 +216,7 @@ pub async fn test_reset_settings(
     // E2E tests to cover this.
     // Soft-reset settings by invoking the `reset-settings` rpc.
     mullvad_client
-        .reset_settings()
+        .reset_settings(SettingsKeyList::default())
         .await
         .context("Failed to reset settings")?;
     // Check that all changed settings have indeed been reset.

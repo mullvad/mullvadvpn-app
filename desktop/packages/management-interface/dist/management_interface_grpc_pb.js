@@ -426,6 +426,17 @@ function deserialize_mullvad_daemon_management_interface_Settings(buffer_arg) {
   return management_interface_pb.Settings.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_mullvad_daemon_management_interface_SettingsKeyList(arg) {
+  if (!(arg instanceof management_interface_pb.SettingsKeyList)) {
+    throw new Error('Expected argument of type mullvad_daemon.management_interface.SettingsKeyList');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_mullvad_daemon_management_interface_SettingsKeyList(buffer_arg) {
+  return management_interface_pb.SettingsKeyList.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_mullvad_daemon_management_interface_Shadowsocks_Ciphers(arg) {
   if (!(arg instanceof management_interface_pb.Shadowsocks.Ciphers)) {
     throw new Error('Expected argument of type mullvad_daemon.management_interface.Shadowsocks.Ciphers');
@@ -668,14 +679,15 @@ getSettings: {
     responseSerialize: serialize_mullvad_daemon_management_interface_Settings,
     responseDeserialize: deserialize_mullvad_daemon_management_interface_Settings,
   },
-  resetSettings: {
+  // SettingsKeyList contains a list of settings to preserve during reset.
+resetSettings: {
     path: '/mullvad_daemon.management_interface.ManagementService/ResetSettings',
     requestStream: false,
     responseStream: false,
-    requestType: google_protobuf_empty_pb.Empty,
+    requestType: management_interface_pb.SettingsKeyList,
     responseType: google_protobuf_empty_pb.Empty,
-    requestSerialize: serialize_google_protobuf_Empty,
-    requestDeserialize: deserialize_google_protobuf_Empty,
+    requestSerialize: serialize_mullvad_daemon_management_interface_SettingsKeyList,
+    requestDeserialize: deserialize_mullvad_daemon_management_interface_SettingsKeyList,
     responseSerialize: serialize_google_protobuf_Empty,
     responseDeserialize: deserialize_google_protobuf_Empty,
   },
