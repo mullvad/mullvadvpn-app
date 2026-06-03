@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.lib.ui.tag.ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.BUTTON_ARROW_RIGHT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.VPN_SETTINGS_CELL_TEST_TAG
@@ -14,7 +15,7 @@ import net.mullvad.mullvadvpn.test.common.extension.clickObjectAwaitIsChecked
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class AntiCensorshipSettingsPage internal constructor() : Page() {
-    private val settingsSelector = By.text("Anti-censorship")
+    private val settingsSelector = By.res(ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG)
     private val faqAndGuidesSelector = By.text("FAQs & Guides")
 
     override fun assertIsDisplayed() {

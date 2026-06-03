@@ -42,6 +42,7 @@ const val WIREGUARD_OBFUSCATION_WG_PORT_TEST_TAG = "wireguard_obfuscation_wg_por
 const val MANAGE_DEVICES_BUTTON_TEST_TAG = "manage_devices_button_test_tag"
 
 // AntiCensorshipSettingsScreen
+const val ANTI_CENSORSHIP_SETTINGS_SCREEN_TEST_TAG = "anti_censorship_settings_screen_test_tag"
 const val LAZY_LIST_ANTI_CENSORSHIP_SETTINGS_TEST_TAG =
     "lazy_list_anti_censorship_settings_test_tag"
 
