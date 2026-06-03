@@ -19,7 +19,7 @@ use mullvad_types::{
         ObfuscationSettings, RelayOverride, RelaySettings, allowed_ip::AllowedIps,
     },
     relay_list::RelayList,
-    settings::{DnsOptions, Settings},
+    settings::{DnsOptions, Settings, SettingsKeyList},
     states::{TargetState, TunnelState},
     version,
     wireguard::{RotationInterval, RotationIntervalError},
@@ -249,10 +249,11 @@ impl ManagementService for ManagementServiceImpl {
             .map(|settings| Response::new(types::Settings::from(&settings)))
     }
 
-    async fn reset_settings(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn reset_settings(&self, request: Request<types::SettingsKeyList>) -> ServiceResult<()> {
+        let preserved = SettingsKeyList::from(request.into_inner());
         log::debug!("reset_settings");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ResetSettings(tx))?;
+        self.send_command_to_daemon(DaemonCommand::ResetSettings(tx, preserved))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
     }

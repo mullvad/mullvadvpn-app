@@ -16,6 +16,28 @@ use talpid_types::net::GenericTunnelOptions;
 
 mod dns;
 
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, Hash)]
+pub enum SettingsKey {
+    RelaySettings,
+    ObfuscationSettings,
+    CustomLists,
+    ApiAccessMethods,
+    UpdateDefaultLocation,
+    AllowLan,
+    LockdownMode,
+    AutoConnect,
+    TunnelOptions,
+    RelayOverrides,
+    ShowBetaReleases,
+    SplitTunnel,
+    Recents,
+}
+
+#[derive(Default, Debug, Clone, Deserialize, Serialize)]
+pub struct SettingsKeyList {
+    pub keys: Vec<SettingsKey>,
+}
+
 /// The version used by the current version of the code. Should always be the
 /// latest version that exists in `SettingsVersion`.
 /// This should be bumped when a new version is introduced along with a migration

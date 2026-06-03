@@ -5,6 +5,8 @@ mod cmds;
 mod format;
 use cmds::*;
 
+use crate::cmds::reset::SettingsKey;
+
 pub const BIN_NAME: &str = env!("CARGO_BIN_NAME");
 
 #[derive(Debug, Parser)]
@@ -131,6 +133,9 @@ enum Cli {
     ResetSettings {
         #[clap(long, short = 'y', default_value_t = false)]
         assume_yes: bool,
+
+        #[arg(num_args = 0..)]
+        preserved: Vec<SettingsKey>,
     },
 
     /// Manage custom lists
@@ -179,7 +184,10 @@ async fn main() -> Result<()> {
         Cli::ApiAccess(cmd) => cmd.handle().await,
         Cli::Version => version::print().await,
         Cli::FactoryReset { assume_yes } => reset::handle_factory_reset(assume_yes).await,
-        Cli::ResetSettings { assume_yes } => reset::handle_settings_reset(assume_yes).await,
+        Cli::ResetSettings {
+            assume_yes,
+            preserved,
+        } => reset::handle_settings_reset(assume_yes, preserved).await,
         Cli::Relay(cmd) => cmd.handle().await,
         Cli::Tunnel(cmd) => cmd.handle().await,
         Cli::SplitTunnel(cmd) => cmd.handle().await,

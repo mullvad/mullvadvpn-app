@@ -13,6 +13,7 @@ pub mod relay_constraints;
 mod relay_list;
 mod relay_selector;
 mod settings;
+mod settings_key_list;
 #[cfg(target_os = "windows")]
 mod split_tunnel;
 mod states;
