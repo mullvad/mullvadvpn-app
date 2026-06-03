@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
+import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
@@ -72,6 +73,9 @@ class ConnectViewModelTest {
 
     // Payment use case
     private val mockPaymentUseCase: PaymentLogic = mockk(relaxed = true)
+
+    // Multihop Migration Repository
+    private val mockMultihopMigrationRepository: MultihopMigrationRepository = mockk(relaxed = true)
 
     // Flows
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
@@ -123,6 +127,7 @@ class ConnectViewModelTest {
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 systemVpnSettingsUseCase = mockSystemVpnSettingsUseCase,
+                multihopMigrationRepository = mockMultihopMigrationRepository,
                 isPlayBuild = false,
                 resolveAppListing = mockk(),
             )
