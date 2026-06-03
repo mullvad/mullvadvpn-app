@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -189,6 +190,15 @@ fun DnsSettingsScreen(
         },
     ) { modifier ->
         val lazyListState = rememberLazyListState()
+
+        if (state is Lc.Content) {
+            LaunchedEffect(state.value.customDnsEnabled) {
+                if (state.value.customDnsEnabled) {
+                    lazyListState.requestScrollToItem(lazyListState.layoutInfo.totalItemsCount - 1)
+                }
+            }
+        }
+
         LazyColumn(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier =
