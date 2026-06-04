@@ -12,6 +12,7 @@ pub fn init() -> Option<tracing_appender::non_blocking::WorkerGuard> {
 
     tracing_subscriber::fmt()
         .with_max_level(LevelFilter::DEBUG)
+        .with_ansi(false)
         .with_writer(non_blocking_file_appender)
         .with_timer(tracing_subscriber::fmt::time::ChronoUtc::new(
             DATE_TIME_FORMAT_STR.to_string(),
