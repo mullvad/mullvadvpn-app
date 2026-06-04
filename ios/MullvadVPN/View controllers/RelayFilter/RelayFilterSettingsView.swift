@@ -17,7 +17,7 @@ extension RelayFilterSelection {
                 if !viewModel.filters.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.filters,
-                        automaticLocationIsActive: viewModel.automaticLocationIsActive
+                        automaticLocationIsActive: false
                     ) { filter in
                         viewModel.onFilterTapped(filter)
                     } onRemove: { _ in

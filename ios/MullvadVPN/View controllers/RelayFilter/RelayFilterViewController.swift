@@ -142,9 +142,9 @@ extension RelayFilterSelection {
                 .store(in: &disposeBag)
             if viewModel.multihopContext == .entry {
                 viewModel
-                    .$filters
-                    .sink { [weak self] filters in
-                        self?.adjustFilterSettingsVisibility(filtersVisible: !filters.isEmpty)
+                    .$shouldShowFilterSettingsView
+                    .sink { [weak self] shouldShow in
+                        self?.adjustFilterSettingsVisibility(filtersVisible: shouldShow)
                     }
                     .store(in: &disposeBag)
             }
