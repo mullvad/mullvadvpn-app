@@ -7,7 +7,7 @@ use std::{
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
-    ptr,
+    ptr::NonNull,
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -17,12 +17,11 @@ use windows_sys::{
         Foundation::{ERROR_NOT_FOUND, HANDLE},
         NetworkManagement::{
             IpHelper::{
-                CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
+                ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
-                CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
-                GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
-                InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, NotifyIpInterfaceChange,
+                CreateUnicastIpAddressEntry, FreeMibTable, GetUnicastIpAddressEntry,
+                GetUnicastIpAddressTable, InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW,
+                MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE, MibAddInstance,
                 SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
@@ -146,56 +145,94 @@ impl AddressFamily {
     }
 }
 
+type InnerCallback = Box<Mutex<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>>;
+
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
-pub struct IpNotifierHandle<'a> {
-    #[expect(clippy::type_complexity)]
-    callback: Mutex<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>>,
-    handle: HANDLE,
+pub struct IpNotifierHandle {
+    callback: Option<NonNull<InnerCallback>>,
+    handle: Option<NonNull<core::ffi::c_void>>,
 }
 
-unsafe impl Send for IpNotifierHandle<'_> {}
+unsafe impl Send for IpNotifierHandle {}
 
-impl Drop for IpNotifierHandle<'_> {
+impl Drop for IpNotifierHandle {
     fn drop(&mut self) {
-        unsafe { CancelMibChangeNotify2(self.handle) };
+        #[cfg(not(test))]
+        use windows_sys::Win32::NetworkManagement::IpHelper::CancelMibChangeNotify2;
+
+        #[cfg(test)]
+        use tests::fake_cancel_mib_change_notify2 as CancelMibChangeNotify2;
+
+        if let Some(handle) = self.handle.take() {
+            // SAFETY: pointer is a valid notify handle that we own
+            unsafe { CancelMibChangeNotify2(handle.as_ptr()) };
+        }
+
+        let callback = self
+            .callback
+            .take()
+            .expect("callback is Some until drop is called");
+        let callback = callback.as_ptr();
+        // SAFETY:
+        // - Callback was constructed in `notify_ip_interface_change` using `Box::into_raw`.
+        // - `CancelMibChangeNotify2` ensures that the callback is removed, so we can safely take ownership.
+        let _inner_callback: Box<InnerCallback> = unsafe { Box::from_raw(callback) };
     }
 }
 
-unsafe extern "system" fn inner_callback(
+unsafe extern "system" fn outer_callback(
     context: *const std::ffi::c_void,
     row: *const MIB_IPINTERFACE_ROW,
     notify_type: i32,
 ) {
-    unsafe {
-        let context = &mut *(context as *mut IpNotifierHandle<'_>);
-        context
-            .callback
-            .lock()
-            .expect("NotifyIpInterfaceChange mutex poisoned")(&*row, notify_type);
-    }
+    // SAFETY: `context` is a valid pointer to an `InnerCallback` constructed in `notify_ip_interface_change`.
+    // `outer_callback` is never called after `CancelMibChangeNotify2` has completed, and `CancelMibChangeNotify2`
+    // blocks until the function returns if it is currently being called.
+    let cb = unsafe { &*context.cast::<InnerCallback>() };
+    // SAFETY: `row` is set when type is not `MibInitialNotification`, which we do not use.
+    let row = unsafe { &*row };
+    _ = std::panic::catch_unwind(|| {
+        cb.lock().expect("NotifyIpInterfaceChange mutex poisoned")(row, notify_type)
+    });
 }
 
 /// Registers a callback function that is invoked when an interface is added, removed,
 /// or changed.
-pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>(
+pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>(
     callback: T,
     family: Option<AddressFamily>,
-) -> io::Result<Box<IpNotifierHandle<'a>>> {
-    let mut context = Box::new(IpNotifierHandle {
-        callback: Mutex::new(Box::new(callback)),
-        handle: ptr::null_mut(),
-    });
+) -> io::Result<IpNotifierHandle> {
+    // Box mutex because fat pointer
+    let callback = Box::new(Mutex::new(callback)) as Box<Mutex<_>>;
+    let callback: Box<InnerCallback> = Box::new(callback);
+    let callback = NonNull::new(Box::into_raw(callback)).unwrap();
+
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::NotifyIpInterfaceChange;
+
+    #[cfg(test)]
+    use tests::fake_notify_ip_interface_change as NotifyIpInterfaceChange;
+
+    let mut handle = HANDLE::default();
 
     win32_err!(unsafe {
         NotifyIpInterfaceChange(
             af_family_from_family(family),
-            Some(inner_callback),
-            (&raw mut *context).cast(),
+            Some(outer_callback),
+            callback.as_ptr().cast(),
             false,
-            &raw mut context.handle,
+            &raw mut handle,
         )
     })?;
+
+    let context = IpNotifierHandle {
+        callback: Some(callback),
+        handle: Some(
+            NonNull::new(handle).expect("non-null because NotifyIpInterfaceChange succeeded"),
+        ),
+    };
+
     Ok(context)
 }
 
@@ -209,6 +246,12 @@ pub fn get_ip_interface_entry(
         InterfaceLuid: *luid,
         ..Default::default()
     };
+
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::GetIpInterfaceEntry;
+
+    #[cfg(test)]
+    use tests::fake_get_ip_interface_entry_fail as GetIpInterfaceEntry;
 
     win32_err!(unsafe { GetIpInterfaceEntry(&raw mut row) })?;
     Ok(row)
@@ -227,20 +270,20 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
     }
 }
 
-/// Waits until the specified IP interfaces have attached to a given network interface.
+/// Waits until the specified IP interfaces have appeared for a given network device.
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
-    // Need mutex as `FnMut` is not allowed here
-    let tx = Mutex::new(Some(tx));
 
-    start_wait_for_interfaces(luid, ipv4, ipv6, move || {
-        if let Some(tx) = tx.lock().unwrap().take() {
-            let _ = tx.send(());
+    let on_found = move || {
+        let _ = tx.send(());
+    };
+    match start_wait_for_interfaces(luid, ipv4, ipv6, on_found)? {
+        StartNotifyResult::AlreadyExist => Ok(()),
+        StartNotifyResult::Waiting(_handle) => {
+            let _ = rx.await;
+            Ok(())
         }
-    })?;
-
-    let _ = rx.await;
-    Ok(())
+    }
 }
 
 /// Waits until the specified IP interfaces have appeared for a given network device.
@@ -253,32 +296,50 @@ pub fn wait_for_interfaces_sync(
 ) -> Result<()> {
     let (tx, rx) = std::sync::mpsc::sync_channel(1);
 
-    start_wait_for_interfaces(luid, ipv4, ipv6, || {
+    let on_found = move || {
         let _ = tx.send(());
-    })
-    .map_err(Error::StartIpInterfaceNotify)?;
-
-    rx.recv_timeout(timeout)
-        .map_err(|_| Error::IpInterfaceTimeout)
+    };
+    match start_wait_for_interfaces(luid, ipv4, ipv6, on_found)
+        .map_err(Error::StartIpInterfaceNotify)?
+    {
+        StartNotifyResult::AlreadyExist => Ok(()),
+        StartNotifyResult::Waiting(_handle) => rx
+            .recv_timeout(timeout)
+            .map_err(|_| Error::IpInterfaceTimeout),
+    }
 }
 
+enum StartNotifyResult {
+    AlreadyExist,
+    Waiting(IpNotifierHandle),
+}
+
+/// Begins to wait until the specified IP interfaces have attached to a given network interface.
+///
+/// `StartNotifyResult::AlreadyExist` is returned if requested interfaces already exist.
+///
+/// Otherwise, on success, `on_found` is called when all requested interfaces have been added.
+/// The wait is cancelled if the returned handle is dropped.
 fn start_wait_for_interfaces(
     luid: NET_LUID_LH,
     ipv4: bool,
     ipv6: bool,
-    on_interfaces_up: impl Fn() + Sync,
-) -> io::Result<()> {
+    on_found: impl FnOnce() + Send + 'static,
+) -> io::Result<StartNotifyResult> {
     let mut found_ipv4 = !ipv4;
     let mut found_ipv6 = !ipv6;
 
-    let _handle = notify_ip_interface_change(
-        |row, notification_type| {
+    let mut on_found = Some(on_found);
+
+    let handle = notify_ip_interface_change(
+        move |row, notification_type| {
             if found_ipv4 && found_ipv6 {
                 return;
             }
             if notification_type != MibAddInstance {
                 return;
             }
+            // SAFETY: This is always valid as a `u64`.
             if unsafe { row.InterfaceLuid.Value != luid.Value } {
                 return;
             }
@@ -287,8 +348,11 @@ fn start_wait_for_interfaces(
                 AF_INET6 => found_ipv6 = true,
                 _ => (),
             }
-            if found_ipv4 && found_ipv6 {
-                on_interfaces_up();
+            if found_ipv4
+                && found_ipv6
+                && let Some(on_found) = on_found.take()
+            {
+                on_found();
             }
         },
         None,
@@ -298,11 +362,10 @@ fn start_wait_for_interfaces(
     if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
         && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
     {
-        on_interfaces_up();
-        return Ok(());
+        return Ok(StartNotifyResult::AlreadyExist);
     }
 
-    Ok(())
+    Ok(StartNotifyResult::Waiting(handle))
 }
 
 /// Wait for addresses to be usable on an network adapter.
@@ -539,6 +602,12 @@ impl fmt::Display for AddressFamily {
 
 #[cfg(test)]
 mod tests {
+    use std::sync::LazyLock;
+
+    use windows_sys::Win32::{
+        Foundation::WIN32_ERROR, NetworkManagement::IpHelper::PIPINTERFACE_CHANGE_CALLBACK,
+    };
+
     use super::*;
 
     #[test]
@@ -562,5 +631,141 @@ mod tests {
             addr_v6,
             try_socketaddr_from_inet_sockaddr(inet_sockaddr_from_socketaddr(addr_v6)).unwrap()
         );
+    }
+
+    struct NotifyHandle {
+        handle: std::thread::JoinHandle<()>,
+    }
+
+    struct NotifySettings {
+        expected_luid: NET_LUID_LH,
+        send_add_event_for_families: Vec<u16>,
+        sleep_duration: Option<Duration>,
+    }
+
+    impl Default for NotifySettings {
+        fn default() -> Self {
+            NotifySettings {
+                expected_luid: NET_LUID_LH { Value: 1 },
+                send_add_event_for_families: vec![AF_INET, AF_INET6],
+                sleep_duration: None,
+            }
+        }
+    }
+
+    static NOTIFY_SETTINGS: LazyLock<Mutex<NotifySettings>> =
+        LazyLock::new(|| Mutex::new(NotifySettings::default()));
+
+    pub unsafe fn fake_notify_ip_interface_change(
+        family: u16,
+        callback: PIPINTERFACE_CHANGE_CALLBACK,
+        callercontext: *const core::ffi::c_void,
+        initialnotification: bool,
+        notificationhandle: *mut HANDLE,
+    ) -> WIN32_ERROR {
+        assert_eq!(family, AF_UNSPEC);
+        assert!(!initialnotification);
+
+        struct Context {
+            callback: PIPINTERFACE_CHANGE_CALLBACK,
+            callercontext: *const core::ffi::c_void,
+        }
+        unsafe impl Send for Context {}
+        let ctx = Context {
+            callback,
+            callercontext,
+        };
+
+        let thread = std::thread::spawn(move || {
+            let ctx = ctx;
+
+            if let Some(duration) = NOTIFY_SETTINGS.lock().unwrap().sleep_duration {
+                std::thread::sleep(duration);
+            }
+
+            let cb = ctx.callback.unwrap();
+            let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+
+            for &family in &NOTIFY_SETTINGS.lock().unwrap().send_add_event_for_families {
+                let row = MIB_IPINTERFACE_ROW {
+                    InterfaceLuid: luid,
+                    Family: family,
+                    ..MIB_IPINTERFACE_ROW::default()
+                };
+                // SAFETY: Caller provided valid cb.
+                unsafe { cb(ctx.callercontext, &raw const row, MibAddInstance) };
+            }
+        });
+
+        let h = Box::into_raw(Box::new(NotifyHandle { handle: thread }));
+        // SAFETY: Valid receiver for a `c_void` pointer.
+        unsafe { *notificationhandle = h as *mut core::ffi::c_void };
+
+        0
+    }
+
+    pub unsafe fn fake_cancel_mib_change_notify2(notificationhandle: HANDLE) -> WIN32_ERROR {
+        // Block until thread exits.
+        // SAFETY: Constructed once using `Box::into_raw` above.
+        let h: Box<NotifyHandle> =
+            unsafe { Box::from_raw(notificationhandle as *mut NotifyHandle) };
+        h.handle.join().unwrap();
+        0
+    }
+
+    pub unsafe fn fake_get_ip_interface_entry_fail(_row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
+        ERROR_NOT_FOUND
+    }
+
+    // Serialize and reset `NOTIFY_SETTINGS` since it is globally shared between tests.
+    static NOTIFY_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
+
+    /// Test [`wait_for_interfaces`] using mocked notifications.
+    #[tokio::test]
+    async fn test_wait_for_interfaces() {
+        let _guard = NOTIFY_LOCK.lock().await;
+        *NOTIFY_SETTINGS.lock().unwrap() = NotifySettings::default();
+
+        // No delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = None;
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces(luid, true, false).await.unwrap();
+        wait_for_interfaces(luid, true, true).await.unwrap();
+
+        // Some delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(10));
+        wait_for_interfaces(luid, true, false).await.unwrap();
+        wait_for_interfaces(luid, true, true).await.unwrap();
+    }
+
+    /// Test [`wait_for_interfaces_sync`] using mocked notifications.
+    // This can be tested with miri:
+    //
+    // ```rust
+    // cargo +nightly miri test -p talpid-windows -- test_wait_for_interfaces_sync
+    // ```
+    #[test]
+    fn test_wait_for_interfaces_sync() {
+        let _guard = NOTIFY_LOCK.blocking_lock();
+        *NOTIFY_SETTINGS.lock().unwrap() = NotifySettings::default();
+
+        // No delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = None;
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Some delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(10));
+        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Missing IPv6
+        NOTIFY_SETTINGS.lock().unwrap().send_add_event_for_families = vec![AF_INET];
+        wait_for_interfaces_sync(luid, true, true, Duration::from_millis(15)).unwrap_err();
+
+        // Force timeout
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(100));
+        wait_for_interfaces_sync(luid, true, false, Duration::from_millis(1)).unwrap_err();
     }
 }

@@ -5717,6 +5717,7 @@ dependencies = [
  "socket2 0.5.10",
  "talpid-types",
  "thiserror 2.0.18",
+ "tokio",
  "windows-sys 0.61.2",
 ]
 
