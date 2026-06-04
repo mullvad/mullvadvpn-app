@@ -11,3 +11,12 @@ min_age:
   value: 7
   always: true
 separator: "  # "
+# Actions that intentionally aren't pinned to a verifiable version tag.
+ignore_actions:
+  # Ships per-tool branches (e.g. cargo-shear), not semver release tags.
+  - name: taiki-e/install-action
+    ref: cargo-shear
+  # Pinned to a master-branch commit SHA; there's no release tag to verify
+  # the version comment against. ref: .* so bumping the SHA needs no edit here.
+  - name: mristin/opinionated-commit-message
+    ref: .*
