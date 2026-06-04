@@ -156,8 +156,13 @@ impl ProblemReportCollector {
                 problem_report.add_error("Failed to list logs in daemon log directory", &error)
             }
         };
-        match frontend_log_dir().map(|dir| dir.and_then(list_logs)) {
-            Some(Ok(frontend_logs)) => {
+
+        #[cfg(not(target_os = "android"))]
+        match mullvad_paths::frontend_log_dir()
+            .map_err(LogError::GetLogDir)
+            .and_then(list_logs)
+        {
+            Ok(frontend_logs) => {
                 for log in frontend_logs {
                     match log {
                         Ok(path) => problem_report.add_log(&path),
@@ -165,10 +170,9 @@ impl ProblemReportCollector {
                     }
                 }
             }
-            Some(Err(error)) => {
+            Err(error) => {
                 problem_report.add_error("Failed to list logs in frontend log directory", &error)
             }
-            None => {}
         }
         #[cfg(target_os = "android")]
         {
@@ -276,38 +280,6 @@ fn list_logs(
                 })),
             })
         })
-}
-
-/// Returns the directory where the Mullvad GUI frontend stores its logs.
-/// If the current platform has a separate directory for frontend logs.
-fn frontend_log_dir() -> Option<Result<PathBuf, LogError>> {
-    #[cfg(target_os = "linux")]
-    {
-        Some(
-            dirs::home_dir()
-                .ok_or(LogError::NoHomeDir)
-                .map(|home_dir| home_dir.join(".config/Mullvad VPN/logs")),
-        )
-    }
-    #[cfg(target_os = "macos")]
-    {
-        Some(
-            dirs::home_dir()
-                .ok_or(LogError::NoHomeDir)
-                .map(|home_dir| home_dir.join("Library/Logs/Mullvad VPN")),
-        )
-    }
-    #[cfg(target_os = "windows")]
-    {
-        Some(match std::env::var_os("LOCALAPPDATA") {
-            Some(dir) => Ok(Path::new(&dir).join("Mullvad VPN/logs")),
-            None => Err(LogError::NoLocalAppDataDir),
-        })
-    }
-    #[cfg(target_os = "android")]
-    {
-        None
-    }
 }
 
 #[cfg(target_os = "android")]

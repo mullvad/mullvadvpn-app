@@ -433,6 +433,7 @@ pub async fn test_problem_report_collect(
     // at least once.
     // NOTE: Not looking for *.old.log files because they may not be present
     // NOTE: Not looking for early-boot-fw.log because we may not have rebooted
+    // NOTE: Not looking for mullvad-loader.log because it was not used to install the app
     let mut required_filenames = vec!["daemon.log", "frontend-renderer.log", "frontend-main.log"];
 
     if TEST_CONFIG.os == Os::Windows {

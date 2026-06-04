@@ -24,6 +24,7 @@ winres = "0.1"
 anyhow = { workspace = true }
 async-trait = "0.1"
 log = { workspace = true }
+mullvad-paths = { path = "../mullvad-paths" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 mullvad-version = { path = "../mullvad-version" }
 rand = { workspace = true }
@@ -43,7 +44,6 @@ cacao = "0.3.2"
 objc_id = "0.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-mullvad-paths = { path = "../mullvad-paths" }
 native-windows-gui = { version = "1.0.12", default-features = false, features = [
   "embed-resource",
   "frame",

@@ -20,6 +20,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Write logs to `mullvad_paths::logs::frontend_log_dir` instead of a temporary directory.
+
 
 ## [1.2.0] - 2025-09-30
 ### Changed

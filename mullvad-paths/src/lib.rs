@@ -30,9 +30,8 @@ pub enum Error {
     #[error("Failed to set directory permissions on {0}")]
     SetDirPermissionFailed(String, #[source] io::Error),
 
-    #[cfg(any(windows, target_os = "macos"))]
     #[error("Not able to find requested directory")]
-    FindDirError,
+    FindDirError(#[source] io::Error),
 
     #[cfg(windows)]
     #[error("Missing %ALLUSERSPROFILE% environment variable")]
@@ -77,7 +76,7 @@ mod cache;
 pub use crate::cache::{cache_dir, get_cache_dir, get_default_cache_dir};
 
 mod logs;
-pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};
+pub use crate::logs::{frontend_log_dir, get_default_log_dir, get_log_dir, log_dir};
 
 pub mod resources;
 pub use crate::resources::{get_default_resource_dir, get_resource_dir};
