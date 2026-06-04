@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlin.math.max
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.common.compose.RunOnKeyChange
@@ -270,7 +271,7 @@ private fun Content(
 
     LaunchedEffect(state.customDnsEnabled) {
         if (state.customDnsEnabled) {
-            lazyListState.requestScrollToItem(lazyListState.layoutInfo.totalItemsCount - 1)
+            lazyListState.requestScrollToItem(max(0, lazyListState.layoutInfo.totalItemsCount - 1))
         }
     }
 
