@@ -7,7 +7,7 @@ repository.workspace = true
 license.workspace = true
 
 [dependencies]
-async-trait = "0.1"
+async-trait = { workspace = true }
 byteorder = "1"
 futures = { workspace = true }
 gotatun = { workspace = true, features = ["daita", "device", "tun"] }

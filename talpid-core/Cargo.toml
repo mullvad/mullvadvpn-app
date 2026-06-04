@@ -40,7 +40,7 @@ talpid-cgroup = { path = "../talpid-cgroup" }
 talpid-dbus = { workspace = true }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-async-trait = "0.1"
+async-trait = { workspace = true }
 either = { version = "1.15.0", features = ["serde"] }
 hickory-proto = { workspace = true }
 hickory-server = { workspace = true, features = ["resolver"] }

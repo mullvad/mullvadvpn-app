@@ -12,7 +12,7 @@ crate-type = ["rlib", "staticlib"]
 
 [dependencies]
 anyhow = { workspace = true }
-async-trait = "0.1"
+async-trait = { workspace = true }
 chrono = { workspace = true }
 domain-fronting = "0.1"
 futures = { workspace = true }
