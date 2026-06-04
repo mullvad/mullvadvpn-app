@@ -57,10 +57,8 @@ kermit = "2.1.0"
 koin = "4.2.1"
 koin-compose = "4.2.1"
 konsist = "0.17.3"
-# Bump kotlin and kotlin-ksp together, find matching release here:
-# https://github.com/google/ksp/releases
 kotlin = "2.3.21"
-kotlin-ksp = "2.3.8"
+kotlin-ksp = "2.3.9"
 kotlinx = "1.11.0"
 kotlinx-serialization-json = "1.11.0"
 ktfmt = "0.26.0"
