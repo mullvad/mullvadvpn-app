@@ -16,13 +16,7 @@ class LoginTest : EndToEndTest() {
     fun testLoginWithValidCredentials() {
         val validTestAccountNumber = accountTestRule.validAccountNumber
 
-        app.launchAndEnsureOnLoginPage()
-
-        on<LoginPage> {
-            enterAccountNumber(validTestAccountNumber)
-            clickLoginButton()
-        }
-
+        app.launchAndLogIn(validTestAccountNumber)
         on<ConnectPage>()
     }
 

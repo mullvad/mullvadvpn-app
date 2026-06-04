@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
+import net.mullvad.mullvadvpn.lib.ui.tag.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -51,18 +52,19 @@ class AppInteractor(
         device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), LONG_TIMEOUT)
     }
 
-    fun launchAndEnsureOnLoginPage() {
+    fun launchAndEnsureOnLoginPage(scope: LoginPage.() -> Unit = {}) {
         launch()
         on<PrivacyPage> { clickAgreeOnPrivacyDisclaimer() }
         clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
-        on<LoginPage>()
+        on<LoginPage>(scope)
     }
 
     fun launchAndLogIn(accountNumber: String) {
-        launchAndEnsureOnLoginPage()
-        on<LoginPage> {
+        launchAndEnsureOnLoginPage {
             enterAccountNumber(accountNumber)
             clickLoginButton()
+            val isGone = uiDevice.wait(Until.gone(By.res(LOGIN_TITLE_TEST_TAG)), LONG_TIMEOUT)
+            assert(isGone)
         }
     }
 

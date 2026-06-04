@@ -25,7 +25,10 @@ class LoginMockApiTest : MockApiTest() {
         }
 
         // Act login with invalid credentials
-        app.launchAndLogIn(validAccountNumber)
+        app.launchAndEnsureOnLoginPage {
+            enterAccountNumber(validAccountNumber)
+            clickLoginButton()
+        }
 
         // Assert
         val result =

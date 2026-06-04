@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_ACCOUNT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.TOP_BAR_SETTINGS_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.test.common.constant.LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -23,7 +22,7 @@ class ConnectPage internal constructor() : Page() {
     private val blockedSelector = By.text("BLOCKED CONNECTION")
 
     override fun assertIsDisplayed() {
-        uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG), LONG_TIMEOUT)
+        uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG))
     }
 
     fun clickSettings() {
