@@ -159,6 +159,9 @@ class ApplicationMain
 
     if (process.platform === 'darwin') {
       app.commandLine.appendSwitch('disable-geolocation');
+      // This switch will disable the request to unlock the 'login' Keychain on macOS.
+      // This feature is used by Electron's SafeStorage API, which we do not use.
+      app.commandLine.appendSwitch('disable-features', 'UseKeychainKeyProvider');
     }
 
     if (process.platform === 'linux') {
