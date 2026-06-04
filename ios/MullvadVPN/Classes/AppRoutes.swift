@@ -123,6 +123,11 @@ enum AppRoute: AppRouteProtocol {
     case changelog
 
     /**
+     SettingsMigrationWizard standalone route (not subsetting).
+     */
+    case settingsMigrationWizard
+
+    /**
      API access methods standalone route (not subsetting).
      */
     case apiAccess
@@ -164,7 +169,7 @@ enum AppRoute: AppRouteProtocol {
         case .account:
             return .account
         case .settings, .daita, .changelog, .vpnSettings, .multihop, .dnsSettings, .ipOverrides,
-            .includeAllNetworks, .apiAccess:
+            .includeAllNetworks, .apiAccess, .settingsMigrationWizard:
             return .settings
         case let .alert(id):
             return .alert(id)
