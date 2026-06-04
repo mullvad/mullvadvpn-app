@@ -81,9 +81,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .listStyle(.plain)
             .coordinateSpace(.exitLocationScroll)
             .onAppear {
-                if viewModel.isRecentsEnabled {
-                    scrollProxy.scrollTo(topAnchor, anchor: .center)
-                } else {
+                if !viewModel.isRecentsEnabled {
                     scrollToCurrentSelection(scrollProxy)
                 }
             }
@@ -95,9 +93,7 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                 }
             }
             .onChange(of: viewModel.searchText) { oldValue, newValue in
-                if !newValue.isEmpty {
-                    scrollProxy.scrollTo(topAnchor, anchor: .center)
-                } else if newValue.isEmpty {
+                if newValue.isEmpty, !viewModel.isRecentsEnabled {
                     scrollToCurrentSelection(scrollProxy)
                 }
             }
