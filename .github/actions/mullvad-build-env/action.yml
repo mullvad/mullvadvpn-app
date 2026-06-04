@@ -47,7 +47,7 @@ runs:
         fi
 
     - name: Setup Rust cache
-      uses: Swatinem/rust-cache@v2
+      uses: Swatinem/rust-cache@e18b497796c12c097a38f9edb9d0641fb99eee32  # v2
       with:
         add-job-id-key: "false"  # Preserve cache across jobs
         cache-directories: >-
@@ -58,7 +58,7 @@ runs:
         cache-bin: false
 
     - name: Install Protoc
-      uses: arduino/setup-protoc@v3
+      uses: arduino/setup-protoc@c65c819552d16ad3c9b72d9dfd5ba5237b9c906b  # v3.0.0
       env:
         # Workaround for arduino/setup-protoc#112
         # TODO: Remove this once setup/protoc upstream ships node24.
@@ -103,7 +103,7 @@ runs:
 
     - name: Install msbuild
       if: runner.os == 'Windows'
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce  # v2.0.0
       with:
         vs-version: latest
 

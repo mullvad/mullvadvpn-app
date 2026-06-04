@@ -13,7 +13,7 @@ jobs:
     steps:
       # Make sure there are no whitespaces other than space, tab and newline in a commit message.
       - name: Check for unicode whitespaces
-        uses: gsactions/commit-message-checker@v2
+        uses: gsactions/commit-message-checker@16fa2d5de096ae0d35626443bcd24f1e756cafee  # v2.0.0
         with:
           # Pattern matches strings not containing weird unicode whitespace/separator characters
           # \P{Z} = All non-whitespace characters (the u-flag is needed to enable \P{Z})

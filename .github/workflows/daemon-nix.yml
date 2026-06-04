@@ -26,7 +26,7 @@ jobs:
         run: git submodule update --init --depth=1 dist-assets/binaries
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@main
+        uses: DeterminateSystems/nix-installer-action@ef8a148080ab6020fd15196c2084a2eea5ff2d25  # v22
 
       - name: Build desktop app
         run: nix develop -c build

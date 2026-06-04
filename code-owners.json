@@ -35,12 +35,12 @@
     "building/android-container-image.txt",
     "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
-    ".github/pinact.yml",
-    ".github/workflows/workflow-check.yml",
     "scripts/check-apostrophe-style",
     "mullvad-jni/**"
   ],
   "appteam-lead": [
+    ".github/pinact.yml",
+    ".github/workflows/workflow-check.yml",
     "audits/**",
     "ci/keys/**",
     "ci/verify-locked-down-signatures.sh",

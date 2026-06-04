@@ -22,10 +22,10 @@ jobs:
       # Required to write a custom commit status with createCommitStatus
       statuses: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd  # v5.0.1
 
       - name: Check code owner approvals
-        uses: actions/github-script@v8
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8.0.0
         with:
           # Requires a token with read access to the "Members" scope under organization,
           # and read access to the "Pull request" scope under the repository.
