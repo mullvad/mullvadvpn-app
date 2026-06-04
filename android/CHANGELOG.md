@@ -21,6 +21,15 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.6-beta2] - 2026-06-04
+### Fixed
+- If the device is revoked and their is not time left on the account it will now correctly show
+  as revoked instead of out of time.
+
+### Changed
+- Improved DNS settings screen UI.
+
+
 ## [android/2026.6-beta1] - 2026-05-27
 ### Changed
 - Optimize LWO performance, substantially reducing its performance overhead compared to
