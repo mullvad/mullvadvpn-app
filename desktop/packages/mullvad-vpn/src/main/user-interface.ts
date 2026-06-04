@@ -572,6 +572,10 @@ export default class UserInterface implements WindowControllerDelegate {
   private windowCloseHandler = (closeEvent: Electron.Event) => {
     closeEvent.preventDefault();
     this.windowController.hide();
+
+    if (process.platform === 'darwin') {
+      app.dock?.hide();
+    }
   };
 
   private installTrayClickHandlers() {
@@ -590,7 +594,10 @@ export default class UserInterface implements WindowControllerDelegate {
         }
         break;
       case 'darwin':
-        this.tray?.on('right-click', () => this.windowController.hide());
+        this.tray?.on('right-click', () => {
+          void app.dock?.hide();
+          this.windowController.hide();
+        });
         this.tray?.on('click', (event) => {
           if (event.metaKey) {
             setImmediate(() => this.windowController.updatePosition());
@@ -600,10 +607,19 @@ export default class UserInterface implements WindowControllerDelegate {
               // `this.windowController.toggle()` should do the trick on all platforms:
               // https://github.com/electron/electron/issues/28776
               const contextMenu = Menu.buildFromTemplate([]);
-              contextMenu.on('menu-will-show', () => this.windowController.show());
+              contextMenu.on('menu-will-show', () => {
+                void app.dock?.show();
+                this.windowController.show();
+              });
               this.tray?.popUpContextMenu(contextMenu);
             } else {
-              this.windowController.toggle();
+              if (!this.windowController.isVisible()) {
+                void app.dock?.show();
+                this.windowController.show();
+              } else {
+                void app.dock?.hide();
+                this.windowController.hide();
+              }
             }
           }
         });
