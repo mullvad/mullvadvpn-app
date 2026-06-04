@@ -14,7 +14,9 @@ mod inner {
     pub use installer_downloader::resource;
 
     pub fn run() {
-        log::init();
+        // Independently if log::init() succeed or fails, this value should be dropped last to
+        // ensure that every log statement is flushed.
+        let _log_flush_guard = log::init();
 
         ::log::debug!("Installer downloader version: {}", resource::VERSION);
 
