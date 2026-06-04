@@ -69,6 +69,11 @@ runs:
     - name: Recover unfinalised screen recordings from xcresult
       if: always()
       run: |
+        # This prints a summary of the tests and generates the sqlite3 database used to
+        # recover the screen recordings
+        [[ -d "${{ env.TEST_REPORT_BUNDLE_PATH }}" ]] \
+          && xcrun xcresulttool get test-results summary --path "${{ env.TEST_REPORT_BUNDLE_PATH }}" \
+          || echo "Skipping summary, report is not a directory"
         "${{ inputs.outputs_path }}/mullvadvpn-app/ci/ios/recover-screen-recordings.sh" \
           "${{ env.TEST_REPORT_BUNDLE_PATH }}"
       shell: bash
