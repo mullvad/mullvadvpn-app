@@ -245,8 +245,7 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
 /// Waits until the specified IP interfaces have attached to a given network interface.
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
-    // Need mutex as `FnMut` is not allowed here
-    let tx = Mutex::new(Some(tx));
+    let mut tx = Some(tx);
 
     let mut found_ipv4 = !ipv4;
     let mut found_ipv6 = !ipv6;
@@ -269,7 +268,7 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
             }
             if found_ipv4
                 && found_ipv6
-                && let Some(tx) = tx.lock().unwrap().take()
+                && let Some(tx) = tx.take()
             {
                 let _ = tx.send(());
             }
