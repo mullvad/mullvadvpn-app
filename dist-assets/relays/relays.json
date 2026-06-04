@@ -6405,7 +6405,7 @@
       },
       {
         "hostname": "ee-tll-wg-001",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "ee-tll",
         "provider": "xtom",
@@ -6666,7 +6666,7 @@
       },
       {
         "hostname": "fi-hel-wg-001",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6692,7 +6692,7 @@
       },
       {
         "hostname": "fi-hel-wg-002",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6748,7 +6748,7 @@
       },
       {
         "hostname": "fi-hel-wg-003",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -8121,7 +8121,7 @@
       },
       {
         "hostname": "gb-lon-wg-201",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "gb-lon",
         "provider": "xtom",
@@ -8140,7 +8140,7 @@
       },
       {
         "hostname": "gb-lon-wg-202",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "gb-lon",
         "provider": "xtom",
@@ -12542,7 +12542,7 @@
       },
       {
         "hostname": "us-atl-wg-301",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -12563,7 +12563,7 @@
       },
       {
         "hostname": "us-atl-wg-302",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -12584,7 +12584,7 @@
       },
       {
         "hostname": "us-atl-wg-303",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -12605,7 +12605,7 @@
       },
       {
         "hostname": "us-atl-wg-304",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -12626,7 +12626,7 @@
       },
       {
         "hostname": "us-atl-wg-305",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -12647,7 +12647,7 @@
       },
       {
         "hostname": "us-atl-wg-306",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-atl",
         "provider": "100TB",
@@ -19771,7 +19771,7 @@
       },
       {
         "hostname": "us-slc-wg-201",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-slc",
         "provider": "100TB",
@@ -19790,7 +19790,7 @@
       },
       {
         "hostname": "us-slc-wg-202",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-slc",
         "provider": "100TB",
@@ -19809,7 +19809,7 @@
       },
       {
         "hostname": "us-slc-wg-203",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-slc",
         "provider": "100TB",
@@ -19828,7 +19828,7 @@
       },
       {
         "hostname": "us-slc-wg-204",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "us-slc",
         "provider": "100TB",
@@ -20364,5 +20364,5 @@
       }
     ]
   },
-  "etag": "\"6a1524a8-5bf91\""
+  "etag": "\"6a1ed099-5bf9d\""
 }
