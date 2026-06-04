@@ -11,7 +11,7 @@ on:
 permissions: {}
 
 env:
-  PINACT_VERSION: v3.9.0
+  PINACT_VERSION: v4.0.0
   PINACT_BASE_URL: https://github.com/suzuki-shunsuke/pinact/releases/download
 
 jobs:
@@ -34,10 +34,12 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         run: pinact run --check
 
+      # --check (= -fix=false) makes this fail instead of auto-correcting,
+      # which is what v4's --verify-comment does in the default fix mode.
       - name: Verify tags against SHAs
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: pinact run --verify
+        run: pinact run --check --verify-comment
 
       # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
       - name: Check version comment format

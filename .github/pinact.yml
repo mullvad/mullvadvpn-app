@@ -1,7 +1,15 @@
 # pinact run           # pin any new unpinned actions
-# pinact run -u        # bump all pins to latest
+# pinact run -u        # bump all pins to latest (skips releases <7 days old)
 # pinact run -u <path> # bump one file only
+#
+# min_age below is a 7-day cooldown skipping action releases younger than 7
+# days. `value` filters new versions when bumping with -u. `always: true` makes
+# every run (incl. `pinact run --check` in workflow-check.yml) also verify that
+# already-pinned actions meet the cooldown, so CI enforces it too.
 version: 3
+min_age:
+  value: 7
+  always: true
 files:
   - pattern: .github/workflows/android-*.yml
 separator: "  # "
