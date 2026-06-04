@@ -1,3 +1,4 @@
 - Optimized the LWO anti-censorship method. It now performs significantly closer to plain WireGuard with no obfuscation.
 - Updated the login screen to a new design.
 - Moved DNS content blockers and custom DNS into a new screen called DNS settings.
+- Fixed an issue with the app being in a bad state if the device was revoked and the account was out of time.
