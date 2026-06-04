@@ -258,6 +258,7 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
             if notification_type != MibAddInstance {
                 return;
             }
+            // SAFETY: This is always valid as a `u64`.
             if unsafe { row.InterfaceLuid.Value != luid.Value } {
                 return;
             }
