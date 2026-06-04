@@ -37,7 +37,8 @@ extension RelayFilterSelection {
                 objectWillChange.send()
             }
         }
-        @Published var filters: [SelectLocationFilter] = []
+        var filters: [SelectLocationFilter] = []
+        @Published var shouldShowFilterSettingsView: Bool = false
         var automaticLocationIsActive: Bool = false
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
@@ -111,6 +112,7 @@ extension RelayFilterSelection {
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
             ].compactMap { $0 }
+            shouldShowFilterSettingsView = !filters.isEmpty
         }
 
         private func updateAutomaticLocationStatus() {
