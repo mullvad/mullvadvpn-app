@@ -6,6 +6,21 @@ description = "Nice abstractions for Windows"
 repository.workspace = true
 license.workspace = true
 
+[target.'cfg(windows)'.dev-dependencies]
+tokio = { workspace = true, features = [
+  "fs",
+  "io-util",
+  "macros",
+  "rt-multi-thread",
+  "signal",
+  "sync",
+  "time",
+] }
+
+[target.'cfg(windows)'.dev-dependencies.windows-sys]
+workspace = true
+features = ["Win32_Storage", "Win32_Storage_FileSystem"]
+
 [target.'cfg(windows)'.dependencies]
 futures = { workspace = true }
 socket2 = { workspace = true }
@@ -27,10 +42,6 @@ features = [
   "Win32_System_SystemInformation",
   "Win32_System_Threading",
 ]
-
-[target.'cfg(windows)'.dev-dependencies.windows-sys]
-workspace = true
-features = ["Win32_Storage", "Win32_Storage_FileSystem"]
 
 [lints]
 workspace = true
