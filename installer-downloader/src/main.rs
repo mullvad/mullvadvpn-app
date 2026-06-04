@@ -17,6 +17,12 @@ mod inner {
         // Independently if log::init() succeed or fails, this value should be dropped last to
         // ensure that every log statement is flushed.
         let _log_flush_guard = log::init();
+        // Allow logging of sensitive values in debug builds.
+        let _safelog_guard = if cfg!(debug_assertions) {
+            safelog::disable_safe_logging().ok()
+        } else {
+            None
+        };
 
         ::log::debug!("Installer downloader version: {}", resource::VERSION);
 
