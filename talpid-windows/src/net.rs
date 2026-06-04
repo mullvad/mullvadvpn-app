@@ -160,9 +160,14 @@ unsafe impl Send for IpNotifierHandle {}
 impl Drop for IpNotifierHandle {
     fn drop(&mut self) {
         unsafe { CancelMibChangeNotify2(self.handle) };
-        let callback = self.callback.take().unwrap();
+        let callback = self
+            .callback
+            .take()
+            .expect("callback is Some until drop is called");
         let callback = callback.as_ptr();
-        // SAFETY: Callback was constructed in `notify_ip_interface_change` using `Box::into_raw`.
+        // SAFETY:
+        // - Callback was constructed in `notify_ip_interface_change` using `Box::into_raw`.
+        // - `CancelMibChangeNotify2` ensures that the callback is removed, so we can safely take ownership.
         let _inner_callback: Box<InnerCallback> = unsafe { Box::from_raw(callback) };
     }
 }
@@ -174,8 +179,8 @@ unsafe extern "system" fn outer_callback(
 ) {
     // SAFETY: `context` is a valid pointer to an `InnerCallback` constructed in `notify_ip_interface_change`.
     // `outer_callback` is never called after `CancelMibChangeNotify2` has completed, and `CancelMibChangeNotify2`
-    // blocks until this function if it is currently being called.
-    let cb = unsafe { &*(context as *const InnerCallback) };
+    // blocks until the function returns if it is currently being called.
+    let cb = unsafe { &*context.cast::<InnerCallback>() };
     // SAFETY: `row` is set when type is not `MibInitialNotification`, which we do not use.
     let row = unsafe { &*row };
     cb.lock().expect("NotifyIpInterfaceChange mutex poisoned")(row, notify_type);
