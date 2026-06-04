@@ -201,7 +201,7 @@ export default class WindowController {
     if (this.window) {
       const position = this.windowPositioning.getPosition(this.window);
       const size = WindowController.getContentSize(this.delegate.isUnpinnedWindow());
-      this.window.setBounds({ ...position, ...size }, false);
+      this.window.setContentBounds({ ...position, ...size }, false);
     }
 
     this.notifyUpdateWindowShape();
@@ -217,7 +217,7 @@ export default class WindowController {
 
   public static getContentSize(unpinnedWindow: boolean): { width: number; height: number } {
     return {
-      width: 320,
+      width: WindowController.getContentWidth(unpinnedWindow),
       height: WindowController.getContentHeight(unpinnedWindow),
     };
   }
@@ -315,7 +315,25 @@ export default class WindowController {
     }
   }
 
-  // On both Linux and Windows the app height is applied incorrectly:
+  private static getContentWidth(unpinnedWindow: boolean): number {
+    // The width we want to achieve.
+    const contentWidth = 320;
+
+    switch (process.platform) {
+      case 'win32':
+        // On Windows when the window is pinned the window is 16px less in width than the bounds we set.
+        // Likely related to the following issue:
+        // https://github.com/electron/electron/issues/50783
+        // See also:
+        // https://github.com/electron/electron/pull/51179
+        // https://github.com/electron/electron/pull/50706
+        return unpinnedWindow ? contentWidth : contentWidth + 16;
+      default:
+        return contentWidth;
+    }
+  }
+
+  // On Windows the app height is applied incorrectly:
   // https://github.com/electron/electron/issues/28777
   private static getContentHeight(unpinnedWindow: boolean): number {
     // The height we want to achieve.
@@ -323,9 +341,13 @@ export default class WindowController {
 
     switch (process.platform) {
       case 'win32':
-        // On Windows the app height ends up slightly lower than we set it to if running in unpinned
-        // mode and the app becomes a tiny bit taller when pinned to task bar.
-        return unpinnedWindow ? contentHeight + 25 : contentHeight;
+        // On Windows when the window is pinned the window is 8px less in height than the bounds we set.
+        // Likely related to the following:
+        // https://github.com/electron/electron/issues/50783
+        // See also:
+        // https://github.com/electron/electron/pull/51179
+        // https://github.com/electron/electron/pull/50706
+        return unpinnedWindow ? contentHeight : contentHeight + 8;
       default:
         return contentHeight;
     }
