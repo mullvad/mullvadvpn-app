@@ -7,7 +7,7 @@ use std::{
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
-    ptr,
+    ptr::{self, NonNull},
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -146,52 +146,62 @@ impl AddressFamily {
     }
 }
 
+type InnerCallback = Box<Mutex<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>>;
+
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
-pub struct IpNotifierHandle<'a> {
-    #[expect(clippy::type_complexity)]
-    callback: Mutex<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>>,
+pub struct IpNotifierHandle {
+    callback: Option<NonNull<InnerCallback>>,
     handle: HANDLE,
 }
 
-unsafe impl Send for IpNotifierHandle<'_> {}
+unsafe impl Send for IpNotifierHandle {}
 
-impl Drop for IpNotifierHandle<'_> {
+impl Drop for IpNotifierHandle {
     fn drop(&mut self) {
         unsafe { CancelMibChangeNotify2(self.handle) };
+        let callback = self.callback.take().unwrap();
+        let callback = callback.as_ptr();
+        // SAFETY: Callback was constructed in `notify_ip_interface_change` using `Box::into_raw`.
+        let _inner_callback: Box<InnerCallback> = unsafe { Box::from_raw(callback) };
     }
 }
 
-unsafe extern "system" fn inner_callback(
+unsafe extern "system" fn outer_callback(
     context: *const std::ffi::c_void,
     row: *const MIB_IPINTERFACE_ROW,
     notify_type: i32,
 ) {
-    unsafe {
-        let context = &mut *(context as *mut IpNotifierHandle<'_>);
-        context
-            .callback
-            .lock()
-            .expect("NotifyIpInterfaceChange mutex poisoned")(&*row, notify_type);
-    }
+    // SAFETY: `context` is a valid pointer to an `InnerCallback` constructed in `notify_ip_interface_change`.
+    // `outer_callback` is never called after `CancelMibChangeNotify2` has completed, and `CancelMibChangeNotify2`
+    // blocks until this function if it is currently being called.
+    let cb = unsafe { &*(context as *const InnerCallback) };
+    // SAFETY: `row` is set when type is not `MibInitialNotification`, which we do not use.
+    let row = unsafe { &*row };
+    cb.lock().expect("NotifyIpInterfaceChange mutex poisoned")(row, notify_type);
 }
 
 /// Registers a callback function that is invoked when an interface is added, removed,
 /// or changed.
-pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'a>(
+pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'static>(
     callback: T,
     family: Option<AddressFamily>,
-) -> io::Result<Box<IpNotifierHandle<'a>>> {
-    let mut context = Box::new(IpNotifierHandle {
-        callback: Mutex::new(Box::new(callback)),
+) -> io::Result<IpNotifierHandle> {
+    // Box mutex because fat pointer
+    let callback = Box::new(Mutex::new(callback)) as Box<Mutex<_>>;
+    let callback: Box<InnerCallback> = Box::new(callback);
+    let callback = NonNull::new(Box::into_raw(callback)).unwrap();
+
+    let mut context = IpNotifierHandle {
+        callback: Some(callback),
         handle: ptr::null_mut(),
-    });
+    };
 
     win32_err!(unsafe {
         NotifyIpInterfaceChange(
             af_family_from_family(family),
-            Some(inner_callback),
-            (&raw mut *context).cast(),
+            Some(outer_callback),
+            callback.as_ptr().cast(),
             false,
             &raw mut context.handle,
         )
@@ -237,7 +247,7 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
     let mut found_ipv6 = !ipv6;
 
     let _handle = notify_ip_interface_change(
-        |row, notification_type| {
+        move |row, notification_type| {
             if found_ipv4 && found_ipv6 {
                 return;
             }
@@ -252,10 +262,11 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
                 AF_INET6 => found_ipv6 = true,
                 _ => (),
             }
-            if found_ipv4 && found_ipv6 {
-                if let Some(tx) = tx.lock().unwrap().take() {
-                    let _ = tx.send(());
-                }
+            if found_ipv4
+                && found_ipv6
+                && let Some(tx) = tx.lock().unwrap().take()
+            {
+                let _ = tx.send(());
             }
         },
         None,
@@ -286,7 +297,7 @@ pub fn wait_for_interfaces_sync(
     let mut found_ipv6 = !ipv6;
 
     let _handle = notify_ip_interface_change(
-        |row, notification_type| {
+        move |row, notification_type| {
             if found_ipv4 && found_ipv6 {
                 return;
             }
