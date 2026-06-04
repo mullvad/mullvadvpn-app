@@ -400,11 +400,16 @@ private fun ColumnScope.LoginInput(
                 }
             } else null,
         placeholder = {
-            if (state.loginState == LoginState.Loading.CreatingAccount) {
-                Text(stringResource(R.string.generating_account_number))
-            } else {
-                Text(stringResource(R.string.login_description))
-            }
+            Text(
+                text =
+                    if (state.loginState == LoginState.Loading.CreatingAccount) {
+                        stringResource(R.string.generating_account_number)
+                    } else {
+                        stringResource(R.string.login_description)
+                    },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         },
         onKeyboardAction = { onLoginClick(state.accountNumberInput) },
         keyboardOptions =
