@@ -233,41 +233,6 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
     // Need mutex as `FnMut` is not allowed here
     let tx = Mutex::new(Some(tx));
 
-    start_wait_for_interfaces(luid, ipv4, ipv6, move || {
-        if let Some(tx) = tx.lock().unwrap().take() {
-            let _ = tx.send(());
-        }
-    })?;
-
-    let _ = rx.await;
-    Ok(())
-}
-
-/// Waits until the specified IP interfaces have appeared for a given network device.
-/// This fails if the interfaces have not appeared after the specified `timeout`.
-pub fn wait_for_interfaces_sync(
-    luid: NET_LUID_LH,
-    ipv4: bool,
-    ipv6: bool,
-    timeout: Duration,
-) -> Result<()> {
-    let (tx, rx) = std::sync::mpsc::sync_channel(1);
-
-    start_wait_for_interfaces(luid, ipv4, ipv6, || {
-        let _ = tx.send(());
-    })
-    .map_err(Error::StartIpInterfaceNotify)?;
-
-    rx.recv_timeout(timeout)
-        .map_err(|_| Error::IpInterfaceTimeout)
-}
-
-fn start_wait_for_interfaces(
-    luid: NET_LUID_LH,
-    ipv4: bool,
-    ipv6: bool,
-    on_interfaces_up: impl Fn() + Sync,
-) -> io::Result<()> {
     let mut found_ipv4 = !ipv4;
     let mut found_ipv6 = !ipv6;
 
@@ -288,7 +253,9 @@ fn start_wait_for_interfaces(
                 _ => (),
             }
             if found_ipv4 && found_ipv6 {
-                on_interfaces_up();
+                if let Some(tx) = tx.lock().unwrap().take() {
+                    let _ = tx.send(());
+                }
             }
         },
         None,
@@ -298,11 +265,63 @@ fn start_wait_for_interfaces(
     if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
         && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
     {
-        on_interfaces_up();
         return Ok(());
     }
 
+    let _ = rx.await;
     Ok(())
+}
+
+/// Waits until the specified IP interfaces have appeared for a given network device.
+/// This fails if the interfaces have not appeared after the specified `timeout`.
+pub fn wait_for_interfaces_sync(
+    luid: NET_LUID_LH,
+    ipv4: bool,
+    ipv6: bool,
+    timeout: Duration,
+) -> Result<()> {
+    let (tx, rx) = std::sync::mpsc::sync_channel(1);
+
+    let mut found_ipv4 = !ipv4;
+    let mut found_ipv6 = !ipv6;
+
+    let _handle = notify_ip_interface_change(
+        |row, notification_type| {
+            if found_ipv4 && found_ipv6 {
+                return;
+            }
+            if notification_type != MibAddInstance {
+                return;
+            }
+            if unsafe { row.InterfaceLuid.Value != luid.Value } {
+                return;
+            }
+            match row.Family {
+                AF_INET => found_ipv4 = true,
+                AF_INET6 => found_ipv6 = true,
+                _ => (),
+            }
+            if found_ipv4 && found_ipv6 {
+                let _ = tx.send(());
+            }
+        },
+        None,
+    )
+    .map_err(Error::StartIpInterfaceNotify)?;
+
+    // Make sure the interfaces were not already up
+    if (!ipv4
+        || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)
+            .map_err(Error::StartIpInterfaceNotify)?)
+        && (!ipv6
+            || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)
+                .map_err(Error::StartIpInterfaceNotify)?)
+    {
+        return Ok(());
+    }
+
+    rx.recv_timeout(timeout)
+        .map_err(|_| Error::IpInterfaceTimeout)
 }
 
 /// Wait for addresses to be usable on an network adapter.
