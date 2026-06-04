@@ -74,6 +74,7 @@ class DnsSettingsScreenTest {
                 state = state,
                 modifier = Modifier,
                 snackbarHostState = SnackbarHostState(),
+                selectedFeatureIndicator = null,
                 navigateToDns = navigateToDns,
                 onToggleDnsClick = onToggleDnsClick,
                 onToggleBlockAds = onToggleBlockAds,
