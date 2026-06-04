@@ -35,6 +35,7 @@ runs:
 
         echo "TEST_OUTPUT_DIRECTORY=$test_output_directory" >> $GITHUB_ENV
         echo "TEST_NAME_SANITIZED=$test_name_sanitized" >> $GITHUB_ENV
+        echo "TEST_REPORT_BUNDLE_PATH=${test_output_directory}/xcode-test-report.xcresult" >> $GITHUB_ENV
       shell: bash
       env:
         TEST_NAME: ${{ inputs.test_name }}
@@ -53,7 +54,7 @@ runs:
           -project MullvadVPN.xcodeproj \
           -scheme MullvadVPNUITests \
           -testPlan MullvadVPNUITestsAll $TEST_NAME_ARGUMENT \
-          -resultBundlePath ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report \
+          -resultBundlePath ${{ env.TEST_REPORT_BUNDLE_PATH }} \
           -derivedDataPath derived-data \
           -allowProvisioningUpdates \
           -destination "platform=iOS,id=$TEST_DEVICE_UDID" \
@@ -69,7 +70,7 @@ runs:
       if: always()
       run: |
         "${{ inputs.outputs_path }}/mullvadvpn-app/ci/ios/recover-screen-recordings.sh" \
-          "${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult"
+          "${{ env.TEST_REPORT_BUNDLE_PATH }}"
       shell: bash
 
     - name: Set artifact name with branch and timestamp
@@ -90,6 +91,6 @@ runs:
         name: ${{ env.ARTIFACT_NAME }}
         path: |
           ${{ env.TEST_OUTPUT_DIRECTORY }}/junit-test-report/junit.xml
-          ${{ env.TEST_OUTPUT_DIRECTORY }}/xcode-test-report.xcresult
+          ${{ env.TEST_REPORT_BUNDLE_PATH }}
       env:
         TEST_NAME: ${{ inputs.test_name }}
