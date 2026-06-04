@@ -22,7 +22,7 @@ winres = "0.1"
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
-async-trait = "0.1"
+async-trait = { workspace = true }
 log = { workspace = true }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
