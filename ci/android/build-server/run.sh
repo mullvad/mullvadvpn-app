@@ -68,7 +68,8 @@ function stage_for_publishing {
 
     (cd "$artifact_dir" && stage_cdn_upload "$version") || return 1
 
-    if [[ $version != *"-dev-"* ]]; then
+    # Metadata file check for backwards compat.
+    if [[ -f "$BUILD_DIR/ci/android/build-server/fdroid/net.mullvad.mullvadvpn.yml" && $version != *"-dev-"* ]]; then
         "$SCRIPT_DIR/fdroid.sh" stage development "$version" "$artifact_dir" || return 1
     fi
 }
@@ -192,7 +193,8 @@ function build_sign_and_publish_ref {
     PLAY_CREDENTIALS_PATH="$PLAY_CREDENTIALS_PATH" \
     "$SCRIPT_DIR/upload-play.sh" "$artifact_dir" "$version" || echo "Failed to upload bundle $version"
 
-    if [[ $version != *"-dev-"* ]]; then
+    # Metadata file check for backwards compat.
+    if [[  -f "$BUILD_DIR/ci/android/build-server/fdroid/net.mullvad.mullvadvpn.yml" && $version != *"-dev-"* ]]; then
         publish_fdroid_repo development
     fi
 
