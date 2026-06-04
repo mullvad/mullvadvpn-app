@@ -16,7 +16,11 @@ use mullvad_update::{
     version_provider::VersionInfoProvider,
 };
 use rand::seq::IndexedRandom;
-use std::{cmp::Ordering, path::PathBuf};
+use safelog::{Sensitive, sensitive};
+use std::{
+    cmp::Ordering,
+    path::{Path, PathBuf},
+};
 use tokio::{
     sync::{mpsc, oneshot},
     task::JoinHandle,
@@ -33,14 +37,27 @@ enum TaskMessage {
 /// See the [module-level docs](self).
 pub struct AppController {}
 
+/// The directory where installer-downloader caches downloaded artifacts.
 struct WorkingDirectory {
-    pub directory: PathBuf,
+    directory: Sensitive<PathBuf>,
 }
 
 impl WorkingDirectory {
     pub async fn new<D: DirectoryProvider>() -> anyhow::Result<WorkingDirectory> {
         let directory = D::create_download_dir().await?;
+        let directory = Sensitive::new(directory);
         Ok(Self { directory })
+    }
+
+    /// Return a reference to the working directory.
+    pub fn directory(&self) -> &Path {
+        self.directory.as_path()
+    }
+}
+
+impl std::fmt::Display for WorkingDirectory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", sensitive(self.directory.display()))
     }
 }
 
@@ -238,7 +255,7 @@ where
 
         // Check if we've already downloaded an installer.
         // If so, the user will be given the option to run it.
-        let cache = Cache::new(working_directory.directory.clone(), version_params);
+        let cache = Cache::new(working_directory.directory().to_path_buf(), version_params);
         // Present the 'first' available installer. In this case, we will always present
         // the latest app version installer available, as we suspect that this is the app
         // version the user wants to install. This could be made more dynamic (i.e. a user
@@ -486,8 +503,8 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             });
         });
 
-        let download_dir = self.working_directory.directory.clone();
-        log::debug!("Download directory: {}", download_dir.display());
+        log::debug!("Download directory: {}", self.working_directory);
+        let download_dir = self.working_directory.directory().to_path_buf();
 
         // Begin download
         let (tx, rx) = oneshot::channel();
