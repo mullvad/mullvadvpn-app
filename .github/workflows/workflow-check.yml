@@ -3,9 +3,9 @@ name: Workflow check
 on:
   pull_request:
     paths:
-      - .github/workflows/workflow-check.yml
+      - .github/workflows/**
+      - .github/actions/**
       - .github/pinact.yml
-      - .github/workflows/android-*.yml
   workflow_dispatch:
 
 permissions: {}
@@ -42,5 +42,6 @@ jobs:
         run: pinact run --check --verify-comment
 
       # Reject "<sha> #vX.Y" (no space); pinact silently ignores that form.
+      # Scope matches pinact's: all workflows plus composite actions.
       - name: Check version comment format
-        run: '! grep -rnE "@[0-9a-f]{40} #[^ ]" .github/workflows/android-*.yml'
+        run: '! grep -rnE "@[0-9a-f]{40} #[^ ]" --include="*.yml" --include="*.yaml" .github/workflows .github/actions'

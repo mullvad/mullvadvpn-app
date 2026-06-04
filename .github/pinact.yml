@@ -10,6 +10,4 @@ version: 3
 min_age:
   value: 7
   always: true
-files:
-  - pattern: .github/workflows/android-*.yml
 separator: "  # "
