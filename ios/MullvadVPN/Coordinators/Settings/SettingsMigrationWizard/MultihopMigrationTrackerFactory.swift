@@ -31,9 +31,7 @@ enum MultihopMigrationTrackerFactory {
 
             return MigrationResult(
                 value: newValue,
-                changes: [
-                    Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue)
-                ]
+                changes: []
             )
         }
 

@@ -141,13 +141,20 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
         guard let migrationResult = try? tracker.run(input: &copy) else {
             return
         }
-        appPreferences.preMigrationSettings = preMigrationSettings
-        appPreferences.hasCompletedMigrationWizard = false
-        appPreferences.shouldShowMigratedSettingsMenuItem = true
-        migrationOutput = migrationResult
         tunnelManager.updateSettings([
             .multihop(migrationResult.value)
-        ])
+        ]) {
+            if !migrationResult.changes.isEmpty {
+                self.appPreferences.preMigrationSettings = preMigrationSettings
+                self.appPreferences.hasCompletedMigrationWizard = false
+                self.appPreferences.shouldShowMigratedSettingsMenuItem = true
+                self.migrationOutput = migrationResult
+            } else {
+                self.appPreferences.preMigrationSettings = nil
+                self.appPreferences.hasCompletedMigrationWizard = true
+                self.appPreferences.shouldShowMigratedSettingsMenuItem = false
+            }
+        }
     }
 
     private func createNotificationBody(_ string: String) -> NSAttributedString {

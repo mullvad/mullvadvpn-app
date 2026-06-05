@@ -25,8 +25,13 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
     private var actionDescriptor: MultihopActionDescriptor?
     private var tunnelObserver: TunnelBlockObserver?
 
-    private var isConnecting: Bool {
-        tunnelManager.tunnelStatus.state.isSecured && tunnelManager.tunnelStatus.state != .error(.offline)
+    private var isVpnConnectionActive: Bool {
+        switch tunnelManager.tunnelStatus.state {
+        case .connected, .connecting, .reconnecting, .negotiatingEphemeralPeer:
+            return true
+        default:
+            return false
+        }
     }
 
     init(
@@ -70,7 +75,7 @@ final class SettingsMigrationWizardViewModel: SettingsMigrationWizardViewModelPr
                         .multihop(settings.tunnelMultihopState),
                         .relayConstraints(settings.relayConstraints),
                     ])
-                    guard isConnecting else {
+                    guard isVpnConnectionActive else {
                         actionItem.state = descriptor.makeState(for: .success)
                         return
                     }
