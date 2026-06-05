@@ -62,7 +62,7 @@ struct SegmentedListItemFactory {
         case button(icon: Icon, onSelect: () -> Void, sizing: Sizing = .button)
         case icon(_ icon: Icon, sizing: Sizing? = nil)
         case input(placeholder: String, text: Binding<String>)
-        case padding(width: CGFloat)
+        case padding(width: CGFloat = 16)
         case string(_ string: String)
         case toggle(isOn: Binding<Bool>, isDisabled: Bool)
     }
@@ -121,7 +121,7 @@ struct SegmentedListItemFactory {
                     .string(title),
                     .padding(width: 8),
                     .input(placeholder: placeholder, text: text),
-                    .padding(width: 16),
+                    .padding(),
                 ]
             )
         case .text(let title, let breadcrumb):
@@ -129,14 +129,14 @@ struct SegmentedListItemFactory {
                 for: [
                     breadcrumb.flatMap { .breadcrumb($0) },
                     .string(title),
-                    .padding(width: 16),
+                    .padding(),
                 ].compactMap { $0 }
             )
         case .toggle(let isOn, let isDisabled):
             trailingItemViews(
                 for: [
                     .toggle(isOn: isOn, isDisabled: isDisabled),
-                    .padding(width: 16),
+                    .padding(),
                 ]
             )
         }
@@ -260,8 +260,8 @@ struct SegmentedListItemFactory {
                     Toggle("", isOn: isOn)
                         .toggleStyle(
                             CustomToggleStyle(
-                                disabled: false,
-                                accessibilityId: .customSwitch,
+                                disabled: isDisabled,
+                                accessibilityId: nil,
                                 infoButtonAction: nil
                             )
                         )
