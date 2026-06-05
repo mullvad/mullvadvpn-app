@@ -980,6 +980,9 @@ class ApplicationMain
     IpcMainEventChannel.daemon.handlePrepareRestart((shutdown) => {
       return this.daemonRpc.prepareRestart(shutdown);
     });
+    IpcMainEventChannel.relays.handlePartitionRelays((predicate) => {
+      return this.relaySelectorRpc.getRelayPartitions(predicate);
+    });
 
     problemReport.registerIpcListeners();
     this.userInterface!.registerIpcListeners();
