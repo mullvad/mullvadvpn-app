@@ -6,6 +6,7 @@ import androidx.test.uiautomator.Until
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.lib.ui.tag.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.GEOLOCATION_ITEM_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
@@ -58,12 +59,20 @@ class SelectLocationPage internal constructor() : Page() {
     fun expandAndClickRelay(testRelay: TestRelay) {
         clickLocationExpandButton(testRelay.country)
         uiDevice.waitForStableInActiveWindow()
+        scrollUntilCell(testRelay.city)
         clickLocationExpandButton(testRelay.city)
         uiDevice.waitForStableInActiveWindow()
+        scrollUntilCell(testRelay.relay)
         clickLocationCell(testRelay.relay)
     }
 
     fun assertDaitaChipVisible() {
         uiDevice.findObjectWithTimeout(By.text("Setting: DAITA"))
+    }
+
+    fun clickEntryHopSelector() {
+        val entry = uiDevice.findObjectWithTimeout(By.res(HOP_SELECTOR_ENTRY_TEST_TAG))
+
+        entry.click()
     }
 }
