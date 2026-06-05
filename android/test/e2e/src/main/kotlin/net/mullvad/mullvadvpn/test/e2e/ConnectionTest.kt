@@ -280,7 +280,7 @@ class ConnectionTest : EndToEndTest() {
             val quicRelay = relayProvider.getQuicRelay()
             clickLocationExpandButton(quicRelay.country)
             clickLocationExpandButton(quicRelay.city)
-            scrollUntilCell(quicRelay.relay)
+            scrollUntilText(quicRelay.relay)
             clickLocationCell(quicRelay.relay)
         }
 
@@ -321,7 +321,7 @@ class ConnectionTest : EndToEndTest() {
             val lwoRelay = relayProvider.getLwoRelay()
             clickLocationExpandButton(lwoRelay.country)
             clickLocationExpandButton(lwoRelay.city)
-            scrollUntilCell(lwoRelay.relay)
+            scrollUntilText(lwoRelay.relay)
             clickLocationCell(lwoRelay.relay)
         }
 

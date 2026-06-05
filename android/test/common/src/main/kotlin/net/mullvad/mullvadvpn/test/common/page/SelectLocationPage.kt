@@ -35,12 +35,7 @@ class SelectLocationPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(By.text(locationName)).click()
     }
 
-    fun scrollUntilCell(locationName: String) {
-        val scrollView2 = uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_LIST_TEST_TAG))
-        scrollView2.scrollUntil(Direction.DOWN, Until.hasObject(By.res(locationName)))
-    }
-
-    fun scrollUntilText(text: String, direction: Direction) {
+    fun scrollUntilText(text: String, direction: Direction = Direction.DOWN) {
         val scrollView2 = uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_LIST_TEST_TAG))
         scrollView2.scrollUntil(direction, Until.hasObject(By.text(text)))
     }
