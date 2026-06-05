@@ -19,6 +19,7 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<(), Self::Error> {
+        log::debug!("DnsMonitor::reset is a no-op");
         Ok(())
     }
 }
