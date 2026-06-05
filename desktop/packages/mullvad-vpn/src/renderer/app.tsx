@@ -66,6 +66,7 @@ import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
+import { convertSettingsToRelaySelectorQueries } from './utils';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -176,6 +177,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
       this.setSettings(newSettings);
       this.updateBlockedState(this.tunnelState);
+      void this.updatePartitionRelays();
     });
 
     IpcRendererEventChannel.settings.listenApiAccessMethodSettingChange((setting) => {
@@ -664,6 +666,42 @@ export default class AppRenderer {
     await IpcRendererEventChannel.app.showFullDiskAccessSettings();
   };
 
+  public updatePartitionRelays = async (ignoreCache: boolean = false) => {
+    const state = this.reduxStore.getState();
+    const queries = convertSettingsToRelaySelectorQueries(state.settings);
+    if (queries) {
+      const key = queries.map((predicate) => JSON.stringify(predicate)).join('-');
+      // Avoid doing unnecessary queries by saving a string representation of the predicates
+      // with the results, then next time before we query the Relay selector we can check if
+      // the key generated for the predicates matches the stored one, and if that is the case
+      // then we can skip doing the queries.
+      if (ignoreCache || key !== state.settings.relayPartitions.key) {
+        const relayPartitionResults = await Promise.all(
+          queries.map(async ({ predicate, context }) => {
+            const partitions = await IpcRendererEventChannel.relays.partitionRelays(predicate);
+
+            return {
+              context,
+              partitions,
+            };
+          }),
+        );
+        const partitions = relayPartitionResults.reduce(
+          (allPartitions, { context, partitions }) => ({
+            ...allPartitions,
+            [context]: partitions,
+          }),
+          state.settings.relayPartitions.partitions,
+        );
+
+        this.reduxActions.settings.updateRelayPartitions({
+          key,
+          partitions,
+        });
+      }
+    }
+  };
+
   public async sendProblemReport(
     email: string,
     message: string,
@@ -792,6 +830,7 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setConnectedToDaemon(true);
     this.reduxActions.userInterface.setDaemonAllowed(true);
     this.reduxActions.userInterface.setDaemonStatus('running');
+    void this.updatePartitionRelays();
   }
 
   private onDaemonDisconnected() {
@@ -860,6 +899,8 @@ export default class AppRenderer {
     reduxSettings.updateRecents(newSettings.recents);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
+
+    void this.updatePartitionRelays();
   }
 
   private setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean) {
@@ -946,6 +987,8 @@ export default class AppRenderer {
     if (this.relayList) {
       this.reduxActions.settings.updateRelayLocations(this.relayList.relayList.countries);
       this.reduxActions.settings.updateWireguardEndpointData(this.relayList.wireguardEndpointData);
+      // When the relay list changes the old queries are stale and the cache can be ignored
+      void this.updatePartitionRelays(true);
     }
   }
 
