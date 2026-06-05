@@ -21,12 +21,14 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
 class MultihopMigrationViewModel(
     navArgs: MultihopMigrationNavKey,
     private val multihopMigrationRepository: MultihopMigrationRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<MultihopMigrationScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
@@ -41,6 +43,10 @@ class MultihopMigrationViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 MultihopMigrationUiState(emptyList(), 0),
             )
+
+    init {
+        viewModelScope.launch { userPreferencesRepository.setHasSeenMultihopMigrationGuide() }
+    }
 
     private fun createState(
         pages: List<MultihopMigrationPage>,
@@ -124,14 +130,5 @@ class MultihopMigrationViewModel(
 
     fun setMultihopMode(multihopMode: MultihopMode) = viewModelScope.launch {
         wireguardConstraintsRepository.setMultihopMode(multihopMode)
-    }
-
-    fun finishMigration() = viewModelScope.launch {
-        multihopMigrationRepository
-            .clearMultihopMigrationState()
-            .fold(
-                { _uiSideEffect.send(MultihopMigrationScreenSideEffect.GenericError) },
-                { _uiSideEffect.send(MultihopMigrationScreenSideEffect.CloseScreen) },
-            )
     }
 }

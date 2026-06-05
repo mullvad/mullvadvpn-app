@@ -120,7 +120,7 @@ fun MultihopMigration(navKey: MultihopMigrationNavKey, navigator: Navigator) {
         onNextClick = viewModel::nextPage,
         onSetEntry = viewModel::setEntryLocation,
         onSetMultihopMode = viewModel::setMultihopMode,
-        onFinishMigration = viewModel::finishMigration,
+        onFinishMigration = dropUnlessResumed { navigator.goBack() },
     )
 }
 
