@@ -8,6 +8,7 @@
 
 import MullvadREST
 import MullvadSettings
+import MullvadTypes
 
 enum MultihopSuggestedAction: Sendable {
     case multihopWhenNeeded
@@ -30,7 +31,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: []
             )
         }
@@ -45,7 +45,6 @@ enum MultihopMigrationTrackerFactory {
             let newValue: MultihopStateV2 = .never
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
                     Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.exitFilter),
@@ -69,7 +68,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue)
                 ]
@@ -94,7 +92,6 @@ enum MultihopMigrationTrackerFactory {
         } transform: { input in
             input.tunnelMultihopState = .never
             return MigrationResult(
-                value: .never,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: MultihopStateV2.never),
                     Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
@@ -123,9 +120,14 @@ enum MultihopMigrationTrackerFactory {
                 && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.exitFilter != .any && isMultihopNeeded
         } transform: { input in
+            input.tunnelMultihopState = .whenNeeded
+            let suggestedLocations = try? relaySelector.selectRelays(tunnelSettings: input, connectionAttemptCount: 0)
             input.tunnelMultihopState = .always
+            if let suggestedEntry = suggestedLocations?.entry {
+                let entryConstraints = UserSelectedRelays(locations: [.country(suggestedEntry.location.countryCode)])
+                input.relayConstraints.entryLocations = .only(entryConstraints)
+            }
             return MigrationResult(
-                value: .always,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: MultihopStateV2.always),
                     Change(path: .uniqueFilter, before: nil, after: input.relayConstraints.entryFilter),
@@ -148,7 +150,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
                     Change(path: .directOnlyRemoved),
@@ -167,7 +168,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.off, after: newValue),
                     Change(path: .directOnlyRemoved),
@@ -186,7 +186,6 @@ enum MultihopMigrationTrackerFactory {
             let newValue: MultihopStateV2 = .always
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue)
                 ]
@@ -203,7 +202,6 @@ enum MultihopMigrationTrackerFactory {
             let newValue: MultihopStateV2 = .always
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
                     Change(path: .uniqueFilter),
@@ -223,7 +221,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue)
                 ]
@@ -242,7 +239,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
                     Change(path: .uniqueFilter),
@@ -265,7 +261,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
                     Change(path: .directOnlyRemoved),
@@ -284,7 +279,6 @@ enum MultihopMigrationTrackerFactory {
             input.tunnelMultihopState = newValue
 
             return MigrationResult(
-                value: newValue,
                 changes: [
                     Change(path: .updatedMultiHop, before: MultihopStateV1.on, after: newValue),
                     Change(path: .directOnlyRemoved),

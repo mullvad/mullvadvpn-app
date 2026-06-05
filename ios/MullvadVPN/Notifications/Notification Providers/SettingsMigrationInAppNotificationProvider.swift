@@ -142,7 +142,9 @@ final class SettingsMigrationInAppNotificationProvider: NotificationProvider, In
             return
         }
         tunnelManager.updateSettings([
-            .multihop(migrationResult.value)
+            .multihop(copy.tunnelMultihopState),
+            .relayConstraints(copy.relayConstraints),
+            .daita(DAITASettings(daitaState: copy.daita.daitaState, directOnlyState: .off))
         ]) {
             if !migrationResult.changes.isEmpty {
                 self.appPreferences.preMigrationSettings = preMigrationSettings

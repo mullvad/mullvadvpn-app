@@ -40,7 +40,6 @@ struct SuggestedAction<ActionKind: Sendable>: Sendable {
 }
 
 struct MigrationResult<Output: Sendable, ActionKind: Sendable>: Sendable {
-    let value: Output
     let changes: [Change]
     var action: SuggestedAction<ActionKind>? = nil
 }
