@@ -87,3 +87,25 @@ reason = """
 Paste unmaintained, but considered complete and trusted by the community.
 netlink-packet-core depends on it.
 """
+
+# pqcrypto-* crates are unmaintained, but there are no viable alternative for the HQC algorithm.
+
+# pqcrypto-hqc
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0168"
+ignoreUntil = 2027-06-05
+reason = """
+pqcrypto-hqc has been archived, but there are no viable alternative for the HQC algorithm.
+"""
+
+# pqcrypto-internals
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0163"
+ignoreUntil = 2027-06-05
+reason = "pqcrypto-internals has been archived."
+
+# pqcrypto-traits
+[[IgnoredVulns]]
+id = "RUSTSEC-2026-0162"
+ignoreUntil = 2027-06-05
+reason = "pqcrypto-traits has been archived."

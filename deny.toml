@@ -39,6 +39,11 @@ ignore = [
 
   # Paste unmaintained, but considered complete and trusted by the community.
   "RUSTSEC-2024-0436",
+
+  # pqcrypto-* crates are unmaintained, but there are no viable alternative for the HQC algorithm.
+  "RUSTSEC-2026-0162",  # pqcrypto-traits
+  "RUSTSEC-2026-0163",  # pqcrypto-internals
+  "RUSTSEC-2026-0168",  # pqcrypto-hqc
 ]
 
 # This section is considered when running `cargo deny check licenses`
