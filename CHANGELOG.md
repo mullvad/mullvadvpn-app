@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
 
+#### Linux
+- Plug hole in Custom DNS firewall rules for LAN resolvers.
+
 
 ## [2026.3-beta2] - 2026-06-01
 ### Fixed
