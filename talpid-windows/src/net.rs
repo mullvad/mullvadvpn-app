@@ -258,12 +258,65 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
 /// Waits until the specified IP interfaces have attached to a given network interface.
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
-    let mut tx = Some(tx);
 
+    let on_found = move || {
+        let _ = tx.send(());
+    };
+    match start_wait_for_interfaces(luid, ipv4, ipv6, on_found)? {
+        StartNotifyResult::AlreadyExist => Ok(()),
+        StartNotifyResult::Waiting(_handle) => {
+            let _ = rx.await;
+            Ok(())
+        }
+    }
+}
+
+/// Waits until the specified IP interfaces have appeared for a given network device.
+/// This fails if the interfaces have not appeared after the specified `timeout`.
+pub fn wait_for_interfaces_sync(
+    luid: NET_LUID_LH,
+    ipv4: bool,
+    ipv6: bool,
+    timeout: Duration,
+) -> Result<()> {
+    let (tx, rx) = std::sync::mpsc::sync_channel(1);
+
+    let on_found = move || {
+        let _ = tx.send(());
+    };
+    match start_wait_for_interfaces(luid, ipv4, ipv6, on_found)
+        .map_err(Error::StartIpInterfaceNotify)?
+    {
+        StartNotifyResult::AlreadyExist => Ok(()),
+        StartNotifyResult::Waiting(_handle) => rx
+            .recv_timeout(timeout)
+            .map_err(|_| Error::IpInterfaceTimeout),
+    }
+}
+
+enum StartNotifyResult {
+    AlreadyExist,
+    Waiting(IpNotifierHandle),
+}
+
+/// Begins to wait until the specified IP interfaces have attached to a given network interface.
+///
+/// `StartNotifyResult::AlreadyExist` is returned if requested interfaces already exist.
+///
+/// Otherwise, on success, `on_found` is called when all requested interfaces have been added.
+/// The wait is cancelled if the returned handle is dropped.
+fn start_wait_for_interfaces(
+    luid: NET_LUID_LH,
+    ipv4: bool,
+    ipv6: bool,
+    on_found: impl FnOnce() + Send + 'static,
+) -> io::Result<StartNotifyResult> {
     let mut found_ipv4 = !ipv4;
     let mut found_ipv6 = !ipv6;
 
-    let _handle = notify_ip_interface_change(
+    let mut on_found = Some(on_found);
+
+    let handle = notify_ip_interface_change(
         move |row, notification_type| {
             if found_ipv4 && found_ipv6 {
                 return;
@@ -282,9 +335,9 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
             }
             if found_ipv4
                 && found_ipv6
-                && let Some(tx) = tx.take()
+                && let Some(on_found) = on_found.take()
             {
-                let _ = tx.send(());
+                on_found();
             }
         },
         None,
@@ -294,63 +347,10 @@ pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> i
     if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
         && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
     {
-        return Ok(());
+        return Ok(StartNotifyResult::AlreadyExist);
     }
 
-    let _ = rx.await;
-    Ok(())
-}
-
-/// Waits until the specified IP interfaces have appeared for a given network device.
-/// This fails if the interfaces have not appeared after the specified `timeout`.
-pub fn wait_for_interfaces_sync(
-    luid: NET_LUID_LH,
-    ipv4: bool,
-    ipv6: bool,
-    timeout: Duration,
-) -> Result<()> {
-    let (tx, rx) = std::sync::mpsc::sync_channel(1);
-
-    let mut found_ipv4 = !ipv4;
-    let mut found_ipv6 = !ipv6;
-
-    let _handle = notify_ip_interface_change(
-        move |row, notification_type| {
-            if found_ipv4 && found_ipv6 {
-                return;
-            }
-            if notification_type != MibAddInstance {
-                return;
-            }
-            if unsafe { row.InterfaceLuid.Value != luid.Value } {
-                return;
-            }
-            match row.Family {
-                AF_INET => found_ipv4 = true,
-                AF_INET6 => found_ipv6 = true,
-                _ => (),
-            }
-            if found_ipv4 && found_ipv6 {
-                let _ = tx.send(());
-            }
-        },
-        None,
-    )
-    .map_err(Error::StartIpInterfaceNotify)?;
-
-    // Make sure the interfaces were not already up
-    if (!ipv4
-        || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)
-            .map_err(Error::StartIpInterfaceNotify)?)
-        && (!ipv6
-            || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)
-                .map_err(Error::StartIpInterfaceNotify)?)
-    {
-        return Ok(());
-    }
-
-    rx.recv_timeout(timeout)
-        .map_err(|_| Error::IpInterfaceTimeout)
+    Ok(StartNotifyResult::Waiting(handle))
 }
 
 /// Wait for addresses to be usable on an network adapter.
