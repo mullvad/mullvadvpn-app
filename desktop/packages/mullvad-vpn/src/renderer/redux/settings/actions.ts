@@ -12,7 +12,7 @@ import {
   type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
-import { IRelayLocationCountryRedux, RelaySettingsRedux } from './reducers';
+import { IRelayLocationCountryRedux, RelayPartitions, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
   type: 'UPDATE_GUI_SETTINGS';
@@ -27,6 +27,11 @@ export interface IUpdateRelayAction {
 export interface IUpdateRelayLocationsAction {
   type: 'UPDATE_RELAY_LOCATIONS';
   relayLocations: IRelayLocationCountryRedux[];
+}
+
+export interface IUpdateRelayPartitionsAction {
+  type: 'UPDATE_RELAY_PARTITIONS';
+  relayPartitions: RelayPartitions;
 }
 
 export interface IUpdateWireguardEndpointData {
@@ -133,6 +138,7 @@ export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
   | IUpdateRelayLocationsAction
+  | IUpdateRelayPartitionsAction
   | IUpdateWireguardEndpointData
   | IUpdateAllowLanAction
   | IUpdateEnableIpv6Action
@@ -174,6 +180,13 @@ function updateRelayLocations(
   return {
     type: 'UPDATE_RELAY_LOCATIONS',
     relayLocations,
+  };
+}
+
+function updateRelayPartitions(relayPartitions: RelayPartitions): IUpdateRelayPartitionsAction {
+  return {
+    type: 'UPDATE_RELAY_PARTITIONS',
+    relayPartitions,
   };
 }
 
@@ -329,6 +342,7 @@ export default {
   updateGuiSettings,
   updateRelay,
   updateRelayLocations,
+  updateRelayPartitions,
   updateWireguardEndpointData,
   updateAllowLan,
   updateEnableIpv6,
