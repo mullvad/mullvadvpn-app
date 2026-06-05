@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import android.net.InetAddresses.parseNumericAddress
+import androidx.test.uiautomator.waitForStableInActiveWindow
 import java.net.Inet6Address
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -450,37 +451,44 @@ class ConnectionTest : EndToEndTest() {
     }
 
     @Test
-    fun testConnectUsingMultihop() = runTest {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
+    fun testConnectUsingMultihop() =
+        runTest(timeout = 2.minutes) {
+            // Given
+            app.launchAndLogIn(accountTestRule.validAccountNumber)
 
-        // Enable multihop
-        on<ConnectPage> { enableMultihopStory() }
+            // Enable multihop
+            on<ConnectPage> { enableMultihopStory() }
 
-        // Select default relay as out relay
-        on<ConnectPage> { clickSelectLocation() }
-        val defaultRelay = relayProvider.getDefaultRelay()
-        on<SelectLocationPage> {
-            clickLocationExpandButton(defaultRelay.country)
-            clickLocationExpandButton(defaultRelay.city)
-            scrollUntilCell(defaultRelay.relay)
-            clickLocationCell(defaultRelay.relay)
+            // Select entry and exit relay
+            on<ConnectPage> { clickSelectLocation() }
+            val (entryRelay, exitRelay) = relayProvider.getMultihopRelays()
+            on<SelectLocationPage> {
+                // Select entry list
+                clickEntryHopSelector()
+
+                uiDevice.waitForStableInActiveWindow()
+
+                // Select entry relay
+                expandAndClickRelay(entryRelay)
+
+                // Select exit relay
+                expandAndClickRelay(exitRelay)
+            }
+
+            device.acceptVpnPermissionDialog()
+
+            var outIpv4Address = ""
+            on<ConnectPage> {
+                waitForConnectedLabel()
+                outIpv4Address = extractOutIpv4Address()
+            }
+
+            val result = connCheckClient.connectionCheck()
+
+            // Check IPs match and that the out server is default server
+            assertEquals(result.ip, outIpv4Address)
+            assertEquals(result.mullvadExitIpHostname, exitRelay.relay)
         }
-
-        device.acceptVpnPermissionDialog()
-
-        var outIpv4Address = ""
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            outIpv4Address = extractOutIpv4Address()
-        }
-
-        val result = connCheckClient.connectionCheck()
-
-        // Check IPs match and that the out server is default server
-        assertEquals(result.ip, outIpv4Address)
-        assertEquals(result.mullvadExitIpHostname, defaultRelay.relay)
-    }
 
     @Test
     @Disabled(

@@ -5,7 +5,6 @@ import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import java.time.ZonedDateTime
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.acceptVpnPermissionDialog
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
@@ -101,9 +100,9 @@ class RecentsMockApiTest : MockApiTest() {
             device.findObjectWithTimeout(By.text("Albania")).click()
         }
 
-        on<ConnectPage> {
-            clickSelectLocation()
+        on<ConnectPage> { clickSelectLocation() }
 
+        on<SelectLocationPage> {
             // Check that the exit recent lists contain Sweden and Albania
             device.findOneOrMoreObjectsWithTimeout(By.res(RECENT_CELL_TEST_TAG)).forEach {
                 assert(
@@ -112,9 +111,7 @@ class RecentsMockApiTest : MockApiTest() {
                 )
             }
 
-            val entry = device.findObjectWithTimeout(By.res(HOP_SELECTOR_ENTRY_TEST_TAG))
-
-            entry.click()
+            clickEntryHopSelector()
 
             device.waitForStableInActiveWindow()
 
