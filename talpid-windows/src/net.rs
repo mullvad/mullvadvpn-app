@@ -634,12 +634,18 @@ mod tests {
         sleep_duration: Option<Duration>,
     }
 
+    impl Default for NotifySettings {
+        fn default() -> Self {
+            NotifySettings {
+                expected_luid: NET_LUID_LH { Value: 1 },
+                send_add_event_for_families: vec![AF_INET, AF_INET6],
+                sleep_duration: None,
+            }
+        }
+    }
+
     static NOTIFY_SETTINGS: LazyLock<Mutex<NotifySettings>> = LazyLock::new(|| {
-        Mutex::new(NotifySettings {
-            expected_luid: NET_LUID_LH { Value: 1 },
-            send_add_event_for_families: vec![AF_INET, AF_INET6],
-            sleep_duration: None,
-        })
+        Mutex::new(NotifySettings::default())
     });
 
     pub unsafe fn fake_notify_ip_interface_change(
@@ -703,10 +709,17 @@ mod tests {
         ERROR_NOT_FOUND
     }
 
+    // Serialize and reset `NOTIFY_SETTINGS` since it is globally shared between tests.
+    static NOTIFY_LOCK: LazyLock<tokio::sync::Mutex<()>> = LazyLock::new(|| tokio::sync::Mutex::new(()));
+
     /// Test [`wait_for_interfaces`] using mocked notifications.
     #[tokio::test]
     async fn test_wait_for_interfaces() {
+        let _guard = NOTIFY_LOCK.lock().await;
+        *NOTIFY_SETTINGS.lock().unwrap() = NotifySettings::default();
+
         // No delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = None;
         let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
         wait_for_interfaces(luid, true, false).await.unwrap();
         wait_for_interfaces(luid, true, true).await.unwrap();
@@ -725,7 +738,11 @@ mod tests {
     // ```
     #[test]
     fn test_wait_for_interfaces_sync() {
+        let _guard = NOTIFY_LOCK.blocking_lock();
+        *NOTIFY_SETTINGS.lock().unwrap() = NotifySettings::default();
+
         // No delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = None;
         let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
         wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
         wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
