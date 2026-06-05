@@ -52,6 +52,14 @@ class RelayProvider(val currentFlavor: String) {
             else -> error("Invalid flavor: $currentFlavor")
         }
     }
+
+    fun getMultihopRelays(): Pair<TestRelay, TestRelay> {
+        return when (currentFlavor) {
+            "play" -> Stagemole.ENTRY_RELAY to Stagemole.DEFAULT_RELAY
+            "oss" -> Production.ENTRY_RELAY to Production.OVERRIDE_RELAY
+            else -> error("Invalid flavor: $currentFlavor")
+        }
+    }
 }
 
 data class TestRelay(val country: String, val city: String, val relay: String)

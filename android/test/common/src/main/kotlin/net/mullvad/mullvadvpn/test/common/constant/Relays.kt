@@ -8,6 +8,7 @@ object Stagemole {
     val NON_DAITA_RELAY = Relays.gotWg001
     val QUIC_RELAY = Relays.stoWg001
     val LWO_RELAY = Relays.stoWg001
+    val ENTRY_RELAY = Relays.stoWg001
 }
 
 object Production {
@@ -17,6 +18,7 @@ object Production {
     val QUIC_RELAY = Relays.stoWg204
     val LWO_RELAY = Relays.stoWg204
     val OVERRIDE_RELAY = Relays.tiaWg004
+    val ENTRY_RELAY = Relays.stoWg204
 }
 
 private object Relays {
