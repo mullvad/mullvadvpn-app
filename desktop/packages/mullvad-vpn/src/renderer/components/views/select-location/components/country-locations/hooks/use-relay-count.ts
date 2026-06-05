@@ -1,9 +1,9 @@
-import { useRelayLocations } from '../../../../../../features/locations/hooks';
 import { useSelectLocationViewContext } from '../../../SelectLocationViewContext';
+import { useRelayLocationsFilteredByLocationType } from './use-relay-locations-filtered-by-location-type';
 
 export function useRelayCount() {
   const { countryLocations } = useSelectLocationViewContext();
-  const { relayLocations } = useRelayLocations();
+  const relayLocationsFiltered = useRelayLocationsFilteredByLocationType();
 
   const visibleRelays = countryLocations.reduce(
     (countryAcc, country) =>
@@ -11,11 +11,10 @@ export function useRelayCount() {
     0,
   );
 
-  const totalRelays = relayLocations.reduce(
-    (countryAcc, country) =>
-      countryAcc + country.cities.reduce((cityAcc, city) => cityAcc + city.relays.length, 0),
-    0,
-  );
+  const matchedRelays = relayLocationsFiltered.matches.length;
+  const discardedRelays = relayLocationsFiltered.discards.length;
+
+  const totalRelays = matchedRelays + discardedRelays;
 
   return { visibleRelays, totalRelays };
 }
