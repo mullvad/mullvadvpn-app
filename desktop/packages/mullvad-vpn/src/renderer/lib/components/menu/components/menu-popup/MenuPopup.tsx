@@ -39,7 +39,15 @@ export const StyledMenuPopup = styled.div<{ $popoverId: string }>`
       border-radius: ${Radius.radius4};
       border: 2px solid ${colors.darkBlue};
       padding: 6px ${spacings.tiny};
-      max-width: 50%;
+      max-width: 65vw;
+      max-height: calc(50vh - ${spacings.medium});
+
+      // Make the popup scrollable if content exceeds max height
+      // but hide the scrollbar
+      overflow-y: scroll;
+      &::-webkit-scrollbar {
+        display: none;
+      }
 
       box-shadow:
         0 2px 8px rgba(0, 0, 0, 0.1),
