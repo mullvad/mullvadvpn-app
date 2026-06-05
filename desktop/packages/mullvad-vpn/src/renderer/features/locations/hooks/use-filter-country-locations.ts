@@ -1,31 +1,21 @@
+import { useSettingsRelayLocationsFiltered } from '../../../redux/hooks';
+import { RelayLocationsFilterContext } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
-import { useObfuscation } from '../../anti-censorship/hooks';
-import { useDaitaDirectOnly, useDaitaEnabled } from '../../daita/hooks';
 import { useMultihop } from '../../multihop/hooks';
-import { useIpVersion } from '../../tunnel/hooks';
-import { type LocationType } from '../types';
-import { filterLocations } from '../utils';
-import { useOwnership, useProviders } from '.';
+import { LocationType } from '../types';
+import { filterLocationsByRelayLocationsFiltered } from '../utils';
 
 export function useFilterCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
-  const { activeOwnership } = useOwnership();
-  const { activeProviders } = useProviders();
-  const { daitaEnabled } = useDaitaEnabled();
-  const { daitaDirectOnly } = useDaitaDirectOnly();
-  const { obfuscation } = useObfuscation();
+  const { relayLocationsFiltered } = useSettingsRelayLocationsFiltered();
   const { multihop } = useMultihop();
-  const { ipVersion } = useIpVersion();
+  const context: RelayLocationsFilterContext =
+    locationType === LocationType.entry ? 'entry' : 'exit';
 
-  return filterLocations({
+  return filterLocationsByRelayLocationsFiltered(
     locations,
-    ownership: activeOwnership,
-    providers: activeProviders,
-    daita: daitaEnabled,
-    directOnly: daitaDirectOnly,
-    locationType,
+    relayLocationsFiltered,
+    context,
     multihop,
-    obfuscation,
-    ipVersion,
-  });
+  );
 }
