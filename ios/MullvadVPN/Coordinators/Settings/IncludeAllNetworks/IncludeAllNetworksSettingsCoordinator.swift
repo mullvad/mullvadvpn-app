@@ -35,7 +35,8 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
     }
 
     func start(animated: Bool) {
-        let view = IncludeAllNetworksSettingsView(viewModel: self.viewModel)
+        var view = IncludeAllNetworksSettingsView(viewModel: self.viewModel)
+        view.showIssuesInfo = showIssuesInfo
 
         let host = UIHostingController(rootView: view)
         host.title = NSLocalizedString("Force all apps", comment: "")
@@ -61,4 +62,51 @@ class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinat
         }
     }
 
+    private func showIssuesInfo() {
+        let featuresString = NSLocalizedString(
+            "**AirDrop, AirPlay, CarPlay, Continuity Camera, Handoff, Handover, NameDrop, iMessage, Screen Mirroring** and **Personal Hotspot**.",
+            comment: "Feature names in **double asterisks** will be in semibold font."
+        )
+
+        var attributedFeaturesString =
+            (try? AttributedString(markdown: featuresString))
+            ?? AttributedString(featuresString.replacingOccurrences(of: "*", with: ""))
+        for run in attributedFeaturesString.runs
+        where run.inlinePresentationIntent?.contains(.stronglyEmphasized) == true {
+            attributedFeaturesString[run.range].font = .mullvadTinySemiBold
+        }
+
+        let aboutView = AboutView(
+            header: NSLocalizedString("Known issues", comment: ""),
+            preamble: nil,
+            paragraphs: [
+                AttributedString(NSLocalizedString("iOS features known to be affected:", comment: ""))
+                    + AttributedString("\n")
+                    + attributedFeaturesString,
+                AttributedString(
+                    String(
+                        format: NSLocalizedString(
+                            "Enabling %@ has shown to reduce the number of issues encountered when using %@, regardless if you are "
+                                + "using WiFi or a cellular network.",
+                            comment: "Variables are 'Local network sharing' and 'Force all apps', respectively"
+                        ),
+                        NSLocalizedString("Local network sharing", comment: ""),
+                        NSLocalizedString("Force all apps", comment: "")
+                    )
+                ),
+            ]
+        )
+
+        let host = UIHostingController(rootView: aboutView)
+        let customNavigationController = CustomNavigationController(rootViewController: host)
+
+        host.navigationItem.rightBarButtonItem = UIBarButtonItem(
+            systemItem: .done,
+            primaryAction: UIAction(handler: { _ in
+                customNavigationController.dismiss(animated: true)
+            })
+        )
+
+        navigationController.present(customNavigationController, animated: true)
+    }
 }

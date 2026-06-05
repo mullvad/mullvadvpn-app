@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct MullvadInfoHeaderView: View {
+struct MullvadInfoView: View {
     let bodyText: String
     let link: String
 
@@ -18,8 +18,9 @@ struct MullvadInfoHeaderView: View {
             onTapLink?()
         } label: {
             Text(headerText)
+                .font(.mullvadTiny)
                 .multilineTextAlignment(.leading)
-                .font(.mullvadTinySemiBold)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }

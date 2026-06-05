@@ -22,7 +22,7 @@ extension SegmentedListItem where Trailing == EmptyView {
         @ViewBuilder leading: @escaping () -> Leading?,
         @ViewBuilder segment: @escaping () -> Segment?,
         @ViewBuilder groupedContent: @escaping () -> GroupedContent?,
-        footer: String? = nil,
+        footer: MullvadInfoView? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -48,7 +48,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView {
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
         @ViewBuilder groupedContent: @escaping () -> GroupedContent?,
-        footer: String? = nil,
+        footer: MullvadInfoView? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -74,7 +74,7 @@ extension SegmentedListItem where Trailing == EmptyView, GroupedContent == Empty
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
         @ViewBuilder segment: @escaping () -> Segment?,
-        footer: String? = nil,
+        footer: MullvadInfoView? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -99,7 +99,7 @@ extension SegmentedListItem where Trailing == EmptyView, Segment == EmptyView, G
         accessibilityIdentifier: AccessibilityIdentifier? = nil,
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
-        footer: String? = nil,
+        footer: MullvadInfoView? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -125,7 +125,7 @@ extension SegmentedListItem where Segment == EmptyView, GroupedContent == EmptyV
         accessibilityLabel: String = "",
         @ViewBuilder leading: @escaping () -> Leading?,
         @ViewBuilder trailing: @escaping () -> Trailing?,
-        footer: String? = nil,
+        footer: MullvadInfoView? = nil,
         onSelect: (() -> Void)? = nil
     ) {
         self.level = level
@@ -137,6 +137,33 @@ extension SegmentedListItem where Segment == EmptyView, GroupedContent == EmptyV
         self.trailing = trailing
         self.segment = { nil }
         self.groupedContent = { nil }
+        self.footer = footer
+        self.onSelect = onSelect
+    }
+}
+
+extension SegmentedListItem where Segment == EmptyView {
+    init(
+        level: Int = 0,
+        isLastInList: Bool = true,
+        isDisabled: Bool = false,
+        accessibilityIdentifier: AccessibilityIdentifier? = nil,
+        accessibilityLabel: String = "",
+        @ViewBuilder leading: @escaping () -> Leading?,
+        @ViewBuilder trailing: @escaping () -> Trailing?,
+        @ViewBuilder groupedContent: @escaping () -> GroupedContent?,
+        footer: MullvadInfoView? = nil,
+        onSelect: (() -> Void)? = nil
+    ) {
+        self.level = level
+        self.isLastInList = isLastInList
+        self.isDisabled = isDisabled
+        self.accessibilityIdentifier = accessibilityIdentifier
+        self.accessibilityLabel = accessibilityLabel
+        self.leading = leading
+        self.trailing = trailing
+        self.segment = { nil }
+        self.groupedContent = groupedContent
         self.footer = footer
         self.onSelect = onSelect
     }
