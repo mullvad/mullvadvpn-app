@@ -15,7 +15,7 @@ harness = false
 name = "obfuscation_throughput"
 
 [dependencies]
-async-trait = "0.1"
+async-trait = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 mullvad-masque-proxy = { path = "../mullvad-masque-proxy" }

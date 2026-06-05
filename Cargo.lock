@@ -2392,6 +2392,7 @@ dependencies = [
  "native-windows-gui",
  "objc_id",
  "rand 0.9.4",
+ "safelog",
  "serde",
  "talpid-platform-metadata",
  "tokio",

@@ -120,7 +120,7 @@ tokio = { workspace = true, features = ["test-util"] }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os="android")'.dependencies]
-async-trait = "0.1"
+async-trait = { workspace = true }
 ctrlc = { workspace = true }
 hickory-resolver = { workspace = true }
 paranoid-android = "0.2.2"
