@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
 
+### Security
+- Linux and macOS: Fix management interface socket being created with less restrictive permissions
+  when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
+
 #### Linux
 - Plug hole in Custom DNS firewall rules for LAN resolvers.
 
@@ -53,10 +57,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix timeout when loading split tunnel driver during boot.
 - Fix race condition in `2026-3.beta1` that could result in inability to create tunnel interface.
-
-### Security
-- Linux and macOS: Fix management interface socket being create with less restrictive permissions
-  when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
 
 
 ## [2026.3-beta1] - 2026-05-19
