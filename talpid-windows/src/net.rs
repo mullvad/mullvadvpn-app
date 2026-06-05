@@ -17,13 +17,12 @@ use windows_sys::{
         Foundation::{ERROR_NOT_FOUND, HANDLE},
         NetworkManagement::{
             IpHelper::{
-                CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
+                ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
                 CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
                 GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
                 InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, NotifyIpInterfaceChange,
-                SetIpInterfaceEntry,
+                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
@@ -157,7 +156,15 @@ pub struct IpNotifierHandle {
 
 impl Drop for IpNotifierHandle {
     fn drop(&mut self) {
+        #[cfg(not(test))]
+        use windows_sys::Win32::NetworkManagement::IpHelper::CancelMibChangeNotify2;
+
+        #[cfg(test)]
+        use tests::fake_cancel_mib_change_notify2 as CancelMibChangeNotify2;
+
+        // SAFETY: `self.handle` is a valid notify handle that we own
         unsafe { CancelMibChangeNotify2(self.handle) };
+
         let callback = self
             .callback
             .take()
@@ -199,6 +206,12 @@ pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + '
         callback: Some(callback),
         handle: ptr::null_mut(),
     };
+
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::NotifyIpInterfaceChange;
+
+    #[cfg(test)]
+    use tests::fake_notify_ip_interface_change as NotifyIpInterfaceChange;
 
     win32_err!(unsafe {
         NotifyIpInterfaceChange(
@@ -572,6 +585,10 @@ impl fmt::Display for AddressFamily {
 
 #[cfg(test)]
 mod tests {
+    use windows_sys::Win32::{
+        Foundation::WIN32_ERROR, NetworkManagement::IpHelper::PIPINTERFACE_CHANGE_CALLBACK,
+    };
+
     use super::*;
 
     #[test]
@@ -595,5 +612,96 @@ mod tests {
             addr_v6,
             try_socketaddr_from_inet_sockaddr(inet_sockaddr_from_socketaddr(addr_v6)).unwrap()
         );
+    }
+
+    struct NotifyHandle {
+        handle: std::thread::JoinHandle<()>,
+    }
+
+    struct NotifySettings {
+        expected_luid: NET_LUID_LH,
+        sleep_duration: Option<Duration>,
+    }
+
+    static SETTINGS: Mutex<NotifySettings> = Mutex::new(NotifySettings {
+        expected_luid: NET_LUID_LH { Value: 1 },
+        sleep_duration: None,
+    });
+
+    pub unsafe fn fake_notify_ip_interface_change(
+        family: u16,
+        callback: PIPINTERFACE_CHANGE_CALLBACK,
+        callercontext: *const core::ffi::c_void,
+        _initialnotification: bool,
+        notificationhandle: *mut HANDLE,
+    ) -> WIN32_ERROR {
+        assert_eq!(family, AF_UNSPEC);
+
+        struct Context {
+            callback: PIPINTERFACE_CHANGE_CALLBACK,
+            callercontext: *const core::ffi::c_void,
+        }
+        unsafe impl Send for Context {}
+        let ctx = Context {
+            callback,
+            callercontext,
+        };
+
+        let thread = std::thread::spawn(move || {
+            let ctx = ctx;
+
+            if let Some(duration) = SETTINGS.lock().unwrap().sleep_duration {
+                std::thread::sleep(duration);
+            }
+
+            let cb = ctx.callback.unwrap();
+            let row = MIB_IPINTERFACE_ROW {
+                InterfaceLuid: SETTINGS.lock().unwrap().expected_luid,
+                Family: AF_INET,
+                ..MIB_IPINTERFACE_ROW::default()
+            };
+            unsafe { cb(ctx.callercontext, &row, MibAddInstance) };
+
+            let cb = ctx.callback.unwrap();
+            let row = MIB_IPINTERFACE_ROW {
+                InterfaceLuid: SETTINGS.lock().unwrap().expected_luid,
+                Family: AF_INET6,
+                ..MIB_IPINTERFACE_ROW::default()
+            };
+            unsafe { cb(ctx.callercontext, &row, MibAddInstance) };
+        });
+
+        let h = Box::into_raw(Box::new(NotifyHandle { handle: thread }));
+        unsafe { *notificationhandle = h as _ };
+
+        0
+    }
+
+    pub unsafe fn fake_cancel_mib_change_notify2(notificationhandle: HANDLE) -> WIN32_ERROR {
+        // Block until thread exits.
+        let h: Box<NotifyHandle> = unsafe { Box::from_raw(notificationhandle as _) };
+        h.handle.join().unwrap();
+        0
+    }
+
+    #[tokio::test]
+    async fn test_wait_for_interfaces() {
+        // No delay
+        let luid = SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces(luid, true, false).await.unwrap();
+        wait_for_interfaces(luid, true, true).await.unwrap();
+        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Some delay
+        SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(10));
+        wait_for_interfaces(luid, true, false).await.unwrap();
+        wait_for_interfaces(luid, true, true).await.unwrap();
+        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Force timeout
+        SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(100));
+        wait_for_interfaces_sync(luid, true, true, Duration::from_millis(1)).unwrap_err();
     }
 }

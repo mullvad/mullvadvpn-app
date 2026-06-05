@@ -12,6 +12,17 @@ socket2 = { workspace = true }
 talpid-types = { path = "../talpid-types" }
 thiserror = { workspace = true }
 
+[dev-dependencies]
+tokio = { workspace = true, features = [
+  "macros",
+  "fs",
+  "io-util",
+  "rt-multi-thread",
+  "signal",
+  "sync",
+  "time",
+] }
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [
