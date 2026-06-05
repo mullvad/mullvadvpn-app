@@ -9,7 +9,6 @@ export * from './get-location-children';
 export * from './is-daita-filter-active';
 export * from './is-lwo-filter-active';
 export * from './is-quic-filter-active';
-export * from './filter-locations';
 export * from './map-redux-city-to-city-location';
 export * from './map-redux-country-to-country-location';
 export * from './map-redux-relay-to-relay-location';
