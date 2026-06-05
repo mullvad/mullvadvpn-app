@@ -33,6 +33,10 @@ struct LocationListItem<ContextMenu>: View where ContextMenu: View {
         let isExpanded = location.showsChildren
         let isDisabled = !location.isActive || location.isExcluded
 
+        if level == 0 {
+            Color.clear.frame(height: 4)
+        }
+
         SegmentedListItem(
             level: level,
             isLastInList: isLastInList,

@@ -11,21 +11,22 @@ import SwiftUI
 
 struct SettingsDAITAView<ViewModel>: View where ViewModel: TunnelSettingsObservable<DAITASettings> {
     @StateObject var tunnelViewModel: ViewModel
+    private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView(viewModel: dataViewModel)
 
-                VStack {
-                    GroupedRowView {
-                        SwitchRowView(
-                            isOn: daitaIsEnabled,
-                            text: NSLocalizedString("Enable", comment: ""),
-                            accessibilityId: .daitaSwitch
-                        )
+                SegmentedListItem(
+                    accessibilityIdentifier: .daitaSwitch,
+                    leading: {
+                        itemFactory.leading(for: .generic(title: "Enable"))
+                    },
+                    trailing: {
+                        itemFactory.trailing(for: .toggle(isOn: daitaIsEnabled, isDisabled: false))
                     }
-                }
+                )
                 .padding(.leading, UIMetrics.contentInsets.left)
                 .padding(.trailing, UIMetrics.contentInsets.right)
             }

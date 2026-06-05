@@ -30,7 +30,11 @@ import SwiftUI
                     ])
                 )
             },
-            footer: "Short description instead of an info icon"
+            footer: MullvadInfoView(
+                bodyText: "Some body text here. ",
+                link: "A link to click...",
+                onTapLink: { print("onTapLink") }
+            )
         )
 
         SegmentedListItem(
@@ -110,9 +114,8 @@ import SwiftUI
     let itemFactory = SegmentedListItemFactory()
     let modes = MultihopState.allCases.map { $0 }
 
-    VStack(spacing: 0) {
+    VStack(spacing: 4) {
         SegmentedListItem(
-            isLastInList: false,
             leading: {
                 itemFactory.leading(
                     for: .generic(title: "Multihop mode", isSelected: false)
@@ -123,7 +126,6 @@ import SwiftUI
                 ForEach(Array(modes.enumerated()), id: \.offset) { index, mode in
                     SegmentedListItem(
                         level: level,
-                        isLastInList: index == modes.count - 1,
                         leading: {
                             itemFactory.leading(
                                 for: .generic(
@@ -163,9 +165,8 @@ import SwiftUI
     var city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
     var country = LocationNode(name: "Sweden", code: "se", children: [city])
 
-    VStack(spacing: 0) {
+    VStack(spacing: 4) {
         SegmentedListItem(
-            isLastInList: !isExpandedLevel0,
             leading: {
                 itemFactory.leading(
                     for: .location(
@@ -189,7 +190,6 @@ import SwiftUI
                 if isExpandedLevel0 {
                     SegmentedListItem(
                         level: level,
-                        isLastInList: !isExpandedLevel1,
                         leading: {
                             itemFactory.leading(
                                 for: .location(
@@ -215,7 +215,6 @@ import SwiftUI
                                 ForEach(Array(servers.enumerated()), id: \.offset) { index, server in
                                     SegmentedListItem(
                                         level: level,
-                                        isLastInList: index == servers.count - 1,
                                         leading: {
                                             itemFactory.leading(
                                                 for: .location(
@@ -253,9 +252,8 @@ import SwiftUI
     var city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
     var country = LocationNode(name: "Sweden", code: "se", children: [city])
 
-    VStack(spacing: 0) {
+    VStack(spacing: 4) {
         SegmentedListItem(
-            isLastInList: !isExpandedLevel0,
             leading: {
                 itemFactory.leading(
                     for: .customListLocation(
@@ -279,7 +277,6 @@ import SwiftUI
                 if isExpandedLevel0 {
                     SegmentedListItem(
                         level: level,
-                        isLastInList: !isExpandedLevel1,
                         leading: {
                             itemFactory.leading(
                                 for: .customListLocation(
@@ -305,7 +302,6 @@ import SwiftUI
                                 ForEach(Array(servers.enumerated()), id: \.offset) { index, server in
                                     SegmentedListItem(
                                         level: level,
-                                        isLastInList: index == servers.count - 1,
                                         leading: {
                                             itemFactory.leading(
                                                 for: .customListLocation(
