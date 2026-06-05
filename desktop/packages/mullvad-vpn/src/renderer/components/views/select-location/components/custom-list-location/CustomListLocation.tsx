@@ -8,6 +8,7 @@ import { FootnoteMiniSemiBold } from '../../../../../lib/components';
 import { AnimatedList } from '../../../../../lib/components/animated-list';
 import { FlexColumn } from '../../../../../lib/components/flex-column';
 import { spacings } from '../../../../../lib/foundations';
+import { useSelectLocationViewContext } from '../../SelectLocationViewContext';
 import { getLocationListItemMapProps } from '../../utils';
 import { CustomListGeographicalLocation } from '../custom-list-geographical-location';
 import { Location } from '../location-list-item';
@@ -29,6 +30,7 @@ const StyledLocationContainer = styled.div`
 
 function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomListLocationProps) {
   const [expanded, setExpanded] = useState(customList.expanded);
+  const { searchTerm } = useSelectLocationViewContext();
   const { handleSelect } = useLocationListsContext();
   const { loading } = useCustomListLocationContext();
 
@@ -42,10 +44,12 @@ function CustomListLocationImpl({ customList, disabled: disabledProp }: CustomLi
     }
   }, [customList.locations.length, setExpanded]);
 
-  // If custom list state is updated from outside, update state accordingly
+  // If custom list state is updated by search, update state accordingly
   useEffect(() => {
-    setExpanded(customList.expanded);
-  }, [customList.expanded]);
+    if (searchTerm.length > 0) {
+      setExpanded(customList.expanded);
+    }
+  }, [customList.expanded, searchTerm.length]);
 
   const handleClick = useCallback(() => {
     void handleSelect(customList);
