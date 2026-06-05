@@ -40,6 +40,7 @@ export class ErrorNotificationProvider
       let message = this.getMessage(this.context.tunnelState.details);
       if (
         !this.context.tunnelState.details.blockingError &&
+        this.context.tunnelState.details.cause !== ErrorStateCause.splitTunnelError &&
         this.context.hasExcludedApps &&
         this.context.splitTunnelingSupported
       ) {
@@ -70,6 +71,7 @@ export class ErrorNotificationProvider
       let subtitle = this.getMessage(this.context.tunnelState.details);
       if (
         !this.context.tunnelState.details.blockingError &&
+        this.context.tunnelState.details.cause !== ErrorStateCause.splitTunnelError &&
         this.context.hasExcludedApps &&
         this.context.splitTunnelingSupported
       ) {
