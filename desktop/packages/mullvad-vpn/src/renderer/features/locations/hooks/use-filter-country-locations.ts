@@ -1,31 +1,18 @@
+import { RelayPartitionsContext } from '../../../redux/settings/reducers';
 import { useSelector } from '../../../redux/store';
-import { useObfuscation } from '../../anti-censorship/hooks';
-import { useDaitaDirectOnly, useDaitaEnabled } from '../../daita/hooks';
 import { useMultihop } from '../../multihop/hooks';
-import { useIpVersion } from '../../tunnel/hooks';
-import { type LocationType } from '../types';
-import { filterLocations } from '../utils';
-import { useOwnership, useProviders } from '.';
+import { LocationType } from '../types';
+import { filterLocationsByFilters, getRelayPartitionsFilter } from '../utils';
 
 export function useFilterCountryLocations(locationType: LocationType) {
   const locations = useSelector((state) => state.settings.relayLocations);
-  const { activeOwnership } = useOwnership();
-  const { activeProviders } = useProviders();
-  const { daitaEnabled } = useDaitaEnabled();
-  const { daitaDirectOnly } = useDaitaDirectOnly();
-  const { obfuscation } = useObfuscation();
+  const relayPartitions = useSelector((state) => state.settings.relayPartitions);
   const { multihop } = useMultihop();
-  const { ipVersion } = useIpVersion();
 
-  return filterLocations({
-    locations,
-    ownership: activeOwnership,
-    providers: activeProviders,
-    daita: daitaEnabled,
-    directOnly: daitaDirectOnly,
-    locationType,
-    multihop,
-    obfuscation,
-    ipVersion,
-  });
+  const context: RelayPartitionsContext = locationType === LocationType.entry ? 'entry' : 'exit';
+  const filters = [getRelayPartitionsFilter(relayPartitions, context, multihop)];
+
+  return filterLocationsByFilters(locations, (relay) =>
+    filters.every((filter) => filter?.(relay) ?? true),
+  );
 }
