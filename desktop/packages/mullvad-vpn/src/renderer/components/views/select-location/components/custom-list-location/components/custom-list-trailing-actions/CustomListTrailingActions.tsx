@@ -25,6 +25,11 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
     setCustomMenuOpen((prev) => !prev);
   }, []);
 
+  // Allow expanding custom list as long as it has any locations,
+  // even if it's disabled due to all its locations being disabled,
+  // so the user can modify the list.
+  const hasAnyLocations = customList.locations.length > 0;
+
   return (
     <Location.Accordion.Header.TrailingActions>
       <Location.Accordion.Header.TrailingActions.Action>
@@ -43,6 +48,7 @@ export function CustomListTrailingActions({ customList }: CustomListTrailingActi
         />
       </Location.Accordion.Header.TrailingActions.Action>
       <Location.Accordion.Header.AccordionTrigger
+        disabled={!hasAnyLocations}
         aria-label={sprintf(
           expanded
             ? messages.pgettext('accessibility', 'Collapse %(location)s')
