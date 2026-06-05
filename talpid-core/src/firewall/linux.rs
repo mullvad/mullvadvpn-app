@@ -748,13 +748,7 @@ impl<'a> PolicyBatch<'a> {
         check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
 
         // Allow all incoming traffic from established connections to the endpoint
-        let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
-        // bitwise mask will bitwise-and the allowed_states and the ct state. It will then xor it
-        // will 0 (which changes nothing). This means it works as a bitwise-and which checks that
-        // the ESTABLISHED bit is set in the connection state.
-        in_rule.add_expr(&nft_expr!(ct state));
-        in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
-        in_rule.add_expr(&nft_expr!(cmp != 0u32));
+        check_ct_established(&mut in_rule);
         add_verdict(&mut in_rule, &Verdict::Accept);
 
         self.batch.add(&in_rule, nftnl::MsgType::Add);
@@ -787,10 +781,7 @@ impl<'a> PolicyBatch<'a> {
         let mut in_rule = Rule::new(&self.in_chain);
         // Allow incoming traffic from established connections to the endpoint
         check_endpoint(&mut in_rule, End::Src, &endpoint.endpoint);
-        let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
-        in_rule.add_expr(&nft_expr!(ct state));
-        in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
-        in_rule.add_expr(&nft_expr!(cmp != 0u32));
+        check_ct_established(&mut in_rule);
         if !endpoint.clients.allow_all() {
             in_rule.add_expr(&nft_expr!(meta skuid));
             in_rule.add_expr(&nft_expr!(cmp == super::ROOT_UID));
@@ -857,6 +848,11 @@ impl<'a> PolicyBatch<'a> {
 
             allow_rule.add_expr(&addr);
             allow_rule.add_expr(&nft_expr!(cmp == host));
+
+            if let Direction::In = direction {
+                check_ct_established(&mut allow_rule);
+            }
+
             add_verdict(&mut allow_rule, &Verdict::Accept);
 
             self.batch.add(&allow_rule, nftnl::MsgType::Add);
@@ -920,10 +916,7 @@ impl<'a> PolicyBatch<'a> {
         // connections.
         let mut interface_rule = Rule::new(&self.forward_chain);
         check_iface(&mut interface_rule, Direction::In, tunnel_interface)?;
-        interface_rule.add_expr(&nft_expr!(ct state));
-        let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
-        interface_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
-        interface_rule.add_expr(&nft_expr!(cmp != 0u32));
+        check_ct_established(&mut interface_rule);
         add_verdict(&mut interface_rule, &Verdict::Accept);
         self.batch.add(&interface_rule, nftnl::MsgType::Add);
 
@@ -1149,6 +1142,19 @@ fn l4proto(protocol: TransportProtocol) -> u8 {
         TransportProtocol::Udp => libc::IPPROTO_UDP as u8,
         TransportProtocol::Tcp => libc::IPPROTO_TCP as u8,
     }
+}
+
+/// Add `ct state established` requirement to `rule`.
+///
+/// This matches packets which are a part of an already established connection.
+fn check_ct_established(rule: &mut Rule<'_>) {
+    // bitwise mask will bitwise-and the allowed_states and the ct state. It will then xor it
+    // with 0 (which changes nothing). This means it works as a bitwise-and which checks that
+    // the ESTABLISHED bit is set in the connection state.
+    let established = nftnl::expr::ct::States::ESTABLISHED.bits();
+    rule.add_expr(&nft_expr!(ct state));
+    rule.add_expr(&nft_expr!(bitwise mask established, xor 0u32));
+    rule.add_expr(&nft_expr!(cmp != 0u32));
 }
 
 fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
