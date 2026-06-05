@@ -1,6 +1,6 @@
+import type { RelayLocation as DaemonRelayLocation } from '../../../../shared/daemon-rpc-types';
 import type { IRelayLocationCountryRedux } from '../../../redux/settings/reducers';
 import type { useDisabledLocation } from '../hooks/use-disabled-location';
-import type { useSelectedLocation } from '../hooks/use-selected-location';
 import { type CountryLocation, DisabledReason } from '../types';
 import { createLocationLabel } from './create-location-label';
 import { isCountryDisabled } from './is-country-disabled';
@@ -9,7 +9,7 @@ import { mapReduxCityToCityLocation } from './map-redux-city-to-city-location';
 
 export function mapReduxCountryToCountryLocation(
   country: IRelayLocationCountryRedux,
-  selectedLocation: ReturnType<typeof useSelectedLocation>,
+  selectedLocation: DaemonRelayLocation | undefined,
   disabledLocation: ReturnType<typeof useDisabledLocation>,
   locale: string,
 ): CountryLocation {
