@@ -1,5 +1,5 @@
 import React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 
 import { colors, Radius, spacings } from '../../../../foundations';
 import { useMenuContext } from '../../MenuContext';
@@ -12,62 +12,64 @@ import {
 
 export type MenuPopupProps = React.ComponentPropsWithoutRef<'div'>;
 
-export const StyledMenuPopup = styled.div<{ $popoverId: string }>`
-  ${({ $popoverId }) => {
-    return css`
-      --transition-duration: 0.1s;
-      --initial-opacity: 0;
-      --initial-scale: 0.9;
+export const StyledMenuPopup = styled.div.attrs<{ $popupId: string }>(({ $popupId }) => ({
+  // Set via attrs function to avoid generating a class for each instance of the popup
+  style: {
+    positionAnchor: `--${$popupId}`,
+  } as React.CSSProperties,
+}))<{
+  $popupId: string;
+}>`
+  --transition-duration: 0.1s;
+  --initial-opacity: 0;
+  --initial-scale: 0.9;
 
-      // Display block allow transition end events to fire when popover is closed,
-      // visibility is controlled by opacity and mounted state
-      display: block;
-      inset: auto;
-      margin: 0;
-      z-index: 10;
+  // Display block allow transition end events to fire when popover is closed,
+  // visibility is controlled by opacity and mounted state
+  display: block;
+  inset: auto;
+  margin: 0;
+  z-index: 10;
 
-      position-anchor: --${$popoverId};
-      position-try-fallbacks: flip-block, flip-inline;
-      top: calc(anchor(bottom) + ${spacings.tiny});
-      right: anchor(center);
+  position-try-fallbacks: flip-block, flip-inline;
+  top: calc(anchor(bottom) + ${spacings.tiny});
+  right: anchor(center);
 
+  opacity: var(--initial-opacity);
+  scale: var(--initial-scale);
+
+  box-sizing: border-box;
+  background-color: ${colors.blue40};
+  border-radius: ${Radius.radius4};
+  border: 2px solid ${colors.darkBlue};
+  padding: 6px ${spacings.tiny};
+  max-width: 65vw;
+  max-height: calc(50vh - ${spacings.medium});
+
+  // Make the popup scrollable if content exceeds max height
+  // but hide the scrollbar
+  overflow-y: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 8px 12px rgba(0, 0, 0, 0.1);
+
+  transition-property: opacity, scale, display, overlay;
+  transition-duration: var(--transition-duration);
+  transition-behavior: allow-discrete;
+
+  &:popover-open {
+    opacity: 1;
+    scale: 1;
+
+    @starting-style {
       opacity: var(--initial-opacity);
       scale: var(--initial-scale);
-
-      box-sizing: border-box;
-      background-color: ${colors.blue40};
-      border-radius: ${Radius.radius4};
-      border: 2px solid ${colors.darkBlue};
-      padding: 6px ${spacings.tiny};
-      max-width: 65vw;
-      max-height: calc(50vh - ${spacings.medium});
-
-      // Make the popup scrollable if content exceeds max height
-      // but hide the scrollbar
-      overflow-y: scroll;
-      &::-webkit-scrollbar {
-        display: none;
-      }
-
-      box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.1),
-        0 8px 12px rgba(0, 0, 0, 0.1);
-
-      transition-property: opacity, scale, display, overlay;
-      transition-duration: var(--transition-duration);
-      transition-behavior: allow-discrete;
-
-      &:popover-open {
-        opacity: 1;
-        scale: 1;
-
-        @starting-style {
-          opacity: var(--initial-opacity);
-          scale: var(--initial-scale);
-        }
-      }
-    `;
-  }}
+    }
+  }
 `;
 
 export function MenuPopup({ children, ...props }: MenuPopupProps) {
@@ -86,7 +88,7 @@ export function MenuPopup({ children, ...props }: MenuPopupProps) {
 
   return (
     <StyledMenuPopup
-      $popoverId={popoverId}
+      $popupId={popoverId}
       ref={popoverRef}
       id={popoverId}
       popover="manual"
