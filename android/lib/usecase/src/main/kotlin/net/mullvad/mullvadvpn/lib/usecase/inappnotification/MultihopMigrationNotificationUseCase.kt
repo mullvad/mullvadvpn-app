@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.usecase.inappnotification
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
@@ -9,17 +10,25 @@ import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 
 class MultihopMigrationNotificationUseCase(
     private val multihopMigrationRepository: MultihopMigrationRepository,
     private val connectionProxy: ConnectionProxy,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : InAppNotificationUseCase {
 
     override operator fun invoke(): Flow<InAppNotification?> =
-        combine(connectionProxy.tunnelState, multihopMigrationRepository.multihopMigrationState) {
-            tunnelState,
-            splitFilterMigration ->
+        combine(
+            connectionProxy.tunnelState.distinctUntilChanged(),
+            multihopMigrationRepository.multihopMigrationState.distinctUntilChanged(),
+            userPreferencesRepository.hasSeenMultihopMigrationGuide().distinctUntilChanged(),
+        ) { tunnelState, splitFilterMigration, hasSeenMultihopMigrationGuide ->
             if (splitFilterMigration == null) {
+                return@combine null
+            }
+
+            if (hasSeenMultihopMigrationGuide) {
                 return@combine null
             }
 

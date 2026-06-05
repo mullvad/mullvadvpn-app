@@ -200,6 +200,7 @@ val uiModule = module {
         MultihopMigrationNotificationUseCase(
             multihopMigrationRepository = get(),
             connectionProxy = get(),
+            userPreferencesRepository = get(),
         )
     } bind InAppNotificationUseCase::class
 
@@ -308,7 +309,6 @@ val uiModule = module {
             systemVpnSettingsUseCase = get(),
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
-            multihopMigrationRepository = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }
@@ -467,6 +467,7 @@ val uiModule = module {
             navArgs = params.get(),
             multihopMigrationRepository = get(),
             wireguardConstraintsRepository = get(),
+            userPreferencesRepository = get(),
         )
     }
 

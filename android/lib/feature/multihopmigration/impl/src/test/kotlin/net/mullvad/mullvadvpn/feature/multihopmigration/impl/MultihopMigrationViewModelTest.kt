@@ -29,6 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MultihopMigrationViewModelTest {
     private val mockMultihopMigrationRepository = mockk<MultihopMigrationRepository>()
     private val mockWireguardConstraintsRepository = mockk<WireguardConstraintsRepository>()
+    private val mockUserPreferencesRepository = mockk<UserPreferencesRepository>()
 
     private lateinit var viewModel: MultihopMigrationViewModel
 
@@ -143,31 +144,6 @@ class MultihopMigrationViewModelTest {
         // Assert
         coVerify { mockWireguardConstraintsRepository.setMultihopMode(mode) }
     }
-
-    @Test
-    fun `when calling finishMigration should call repository clearMultihopMigrationState`() =
-        runTest {
-            // Arrange
-            coEvery { mockMultihopMigrationRepository.clearMultihopMigrationState() } returns
-                Unit.right()
-            val multihopMigrationData =
-                MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                            daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = true,
-                        ),
-                    userBlocked = false,
-                )
-            viewModel = init(multihopMigrationData = multihopMigrationData)
-
-            // Act
-            viewModel.finishMigration()
-
-            // Assert
-            coVerify { mockMultihopMigrationRepository.clearMultihopMigrationState() }
-        }
 
     // This tests the pre-determined scenarios that we have for the multihop migration flow.
     // They are named similar with only the name of the scenario changing.
@@ -511,5 +487,6 @@ class MultihopMigrationViewModelTest {
             navArgs = MultihopMigrationNavKey(multihopMigrationData),
             multihopMigrationRepository = mockMultihopMigrationRepository,
             wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+            userPreferencesRepository = mockUserPreferencesRepository,
         )
 }
