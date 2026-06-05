@@ -155,8 +155,6 @@ pub struct IpNotifierHandle {
     handle: HANDLE,
 }
 
-unsafe impl Send for IpNotifierHandle {}
-
 impl Drop for IpNotifierHandle {
     fn drop(&mut self) {
         unsafe { CancelMibChangeNotify2(self.handle) };
