@@ -3,7 +3,7 @@ import type {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
 } from '../../../redux/settings/reducers';
-import type { useDisabledLocation, useSelectedLocation } from '../hooks';
+import type { useDisabledLocation } from '../hooks';
 import { type CityLocation, DisabledReason } from '../types';
 import { createLocationLabel } from './create-location-label';
 import { isCityDisabled } from './is-city-disabled';
@@ -13,7 +13,7 @@ import { mapReduxRelayToRelayLocation } from './map-redux-relay-to-relay-locatio
 export function mapReduxCityToCityLocation(
   country: IRelayLocationCountryRedux,
   city: IRelayLocationCityRedux,
-  selectedLocation: ReturnType<typeof useSelectedLocation>,
+  selectedLocation: DaemonRelayLocation | undefined,
   disabledLocation: ReturnType<typeof useDisabledLocation>,
   parentDisabledReason: DisabledReason | undefined,
   locale: string,

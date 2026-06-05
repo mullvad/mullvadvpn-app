@@ -7,7 +7,7 @@ import {
   useMapReduxCountriesToCountryLocations,
   useSearchCountryLocations,
   useSearchCustomListLocations,
-  useSelectedLocation,
+  useSelectedEntryOrExitLocation,
 } from '../../../features/locations/hooks';
 import { LocationType } from '../../../features/locations/types';
 import {
@@ -70,7 +70,7 @@ export function SelectLocationViewProvider({ children }: SelectLocationViewProvi
   );
   const searchedCountryLocations = useSearchCountryLocations(filteredCountryLocations, searchTerm);
 
-  const selectedLocation = useSelectedLocation(locationType);
+  const selectedLocation = useSelectedEntryOrExitLocation(locationType);
 
   const filteredCustomListLocations = useMapCustomListsToLocations(
     searchedCountryLocations,
