@@ -28,3 +28,7 @@ export * from './get-recent-multihop-entry-locations';
 export * from './get-recent-multihop-exit-locations';
 export * from './get-recent-singlehop-locations';
 export * from './get-unique-locations';
+export * from './filter-locations-by-relay-partitions';
+export * from './get-relay-partitions-filter';
+export * from './get-relay-partition-discards-filter';
+export * from './get-relay-partition-matches-filter';
