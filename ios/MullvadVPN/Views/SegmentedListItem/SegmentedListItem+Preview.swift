@@ -30,7 +30,8 @@ import SwiftUI
                     ])
                 )
             },
-            footer: "Short description instead of an info icon"
+            footer: MullvadInfoView(
+                bodyText: "Some body text ", link: "A link", onTapLink: { print("onTapLink") })
         )
 
         SegmentedListItem(

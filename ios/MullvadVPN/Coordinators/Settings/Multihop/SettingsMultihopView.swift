@@ -63,7 +63,7 @@ struct SettingsMultihopView: View {
                     SegmentedListItem(
                         isLastInList: false,
                         leading: {
-                            itemFactory.leading(for: .generic(title: "Mode"))
+                            itemFactory.leading(for: .generic(title: NSLocalizedString("Mode", comment: "")))
                         },
                         groupedContent: {
                             ForEach(Array(options.enumerated()), id: \.element.id) { index, option in
@@ -76,9 +76,9 @@ struct SettingsMultihopView: View {
                                             for: .generic(
                                                 title: option.label,
                                                 level: 1,
-                                                isSelected:
-                                                    viewModel.multihopState == option.id
-                                            ))
+                                                isSelected: viewModel.multihopState == option.id
+                                            )
+                                        )
                                     },
                                     segment: {
                                         if let customView = option.customView {

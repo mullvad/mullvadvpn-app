@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedContent: View>: View {
+    @Environment(\.isNestedInSegmentedListItem) private var isNestedInSegmentedListItem
+
     @State private var segmentHeight: CGFloat = UIMetrics.LocationList.cellMinHeight
 
     var level: Int = 0
@@ -16,14 +18,16 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
     @ViewBuilder var segment: () -> Segment?
     /// A `GroupedContent` sub component. Adds sub items to the list. Typically used in multi-choice settings or expanded lists.
     @ViewBuilder var groupedContent: () -> GroupedContent?
-    var footer: String? = nil
+    var footer: MullvadInfoView? = nil
     var onSelect: (() -> Void)? = nil
 
     private var topRadius: CGFloat {
-        level == 0 ? UIMetrics.LocationList.cellCornerRadius : 0
+        (level == 0 && !isNestedInSegmentedListItem) ? UIMetrics.LocationList.cellCornerRadius : 0
     }
     private var bottomRadius: CGFloat {
-        isLastInList && (groupedContent() == nil || groupedContent() is EmptyView)
+        let groupedContent = groupedContent()
+
+        return isLastInList && (groupedContent == nil || groupedContent is EmptyView)
             ? UIMetrics.LocationList.cellCornerRadius
             : 0
     }
@@ -74,20 +78,14 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                 )
             )
         )
-        .padding(.top, level == 0 ? 4 : 1)
 
         groupedContent()
+            .environment(\.isNestedInSegmentedListItem, true)
+            .padding(.top, 1)
 
-        if let footer {
-            HStack {
-                Text(footer)
-                    .font(.mullvadTiny)
-                    .foregroundStyle(Color.MullvadText.onBackground)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 2)
-                Spacer()
-            }
-        }
+        footer
+            .padding(.horizontal, 16)
+            .padding(.top, 2)
     }
 }
 
@@ -112,12 +110,29 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                     ])
                 )
             },
-            footer: "Short description instead of an info icon"
+            footer: MullvadInfoView(
+                bodyText: "Some text. ",
+                link: "A link",
+                onTapLink: { print("onLinkTap") }
+            )
         )
 
         Spacer()
     }
     .background(Color.mullvadBackground)
+}
+
+// MARK: - Nesting
+
+private struct IsNestedInSegmentedListItemKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    var isNestedInSegmentedListItem: Bool {
+        get { self[IsNestedInSegmentedListItemKey.self] }
+        set { self[IsNestedInSegmentedListItemKey.self] = newValue }
+    }
 }
 
 // MARK: - Color helpers

@@ -70,7 +70,6 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                     }
                     .padding(.horizontal, 16)
                 }
-                .listRowSpacing(0)
                 .listRowInsets(.init())
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)

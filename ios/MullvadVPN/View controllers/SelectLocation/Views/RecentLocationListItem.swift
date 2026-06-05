@@ -39,6 +39,7 @@ struct RecentLocationListItem<ContextMenu>: View where ContextMenu: View {
                 onSelect(location)
             }
         )
+        .padding(.top, 4)
         .contextMenu {
             contextMenu(location)
         }
