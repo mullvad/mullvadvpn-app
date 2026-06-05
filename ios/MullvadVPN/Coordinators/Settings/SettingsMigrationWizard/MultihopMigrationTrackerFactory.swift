@@ -212,13 +212,13 @@ enum MultihopMigrationTrackerFactory {
         let scenario6A = SettingsRule<MultihopStateV2, MultihopSuggestedAction>(
             name: "Scenario 6A"
         ) { input in
-
             input.tunnelMultihopState == .always && input.daita.isEnabled && !input.daita.directOnlyState.isEnabled
                 && input.relayConstraints.entryFilter == .any
         } transform: { input in
 
             let newValue: MultihopStateV2 = .always
             input.tunnelMultihopState = newValue
+            input.relayConstraints.entryLocations = .any
 
             return MigrationResult(
                 changes: [
