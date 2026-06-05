@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.multihopmigration.impl
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -65,6 +66,7 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithNavigationButton
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateBackIconButton
+import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryButton
 import net.mullvad.mullvadvpn.lib.ui.designsystem.PrimaryOutlinedButton
@@ -135,10 +137,18 @@ fun MultihopMigrationScreen(
     onSetEntry: (entry: Constraint<RelayItemId>) -> Unit,
     onSetMultihopMode: (MultihopMode) -> Unit,
 ) {
+    BackHandler(onBack = {
+        if(state.currentPageIndex > 0) {
+            onBackClick()
+        } else {
+            onCloseClick()
+        }
+    })
+
     val backgroundColor = MaterialTheme.colorScheme.surface
     ScaffoldWithNavigationButton(
         modifier = Modifier.background(backgroundColor),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onCloseClick) },
+        navigationIcon = { NavigateCloseIconButton(onNavigateClose = onCloseClick) },
         bottomBar = {
             BottomBar(
                 currentPage = state.currentPageIndex,
