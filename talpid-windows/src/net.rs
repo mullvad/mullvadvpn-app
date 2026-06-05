@@ -164,8 +164,10 @@ impl Drop for IpNotifierHandle {
         #[cfg(test)]
         use tests::fake_cancel_mib_change_notify2 as CancelMibChangeNotify2;
 
-        // SAFETY: `self.handle` is a valid notify handle that we own
-        unsafe { CancelMibChangeNotify2(self.handle) };
+        if !self.handle.is_null() {
+            // SAFETY: `self.handle` is a valid notify handle that we own
+            unsafe { CancelMibChangeNotify2(self.handle) };
+        }
 
         let callback = self
             .callback
