@@ -574,4 +574,5 @@
     <string name="suggested_action_button">Change to “When needed”</string>
     <string name="multihop_migration_blocked_in_app_message_title">Resolve connection issues</string>
     <string name="multihop_migration_blocked_in_app_message_description">Some of your settings have been migrated, please review the changes and resolve any issues.</string>
+    <string name="migrated_settings">Migrated settings</string>
 </resources>

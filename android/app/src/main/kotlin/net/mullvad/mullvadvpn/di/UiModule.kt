@@ -291,6 +291,7 @@ val uiModule = module {
             appVersionInfoRepository = get(),
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
+            multihopMigrationRepository = get(),
         )
     }
     viewModel {
