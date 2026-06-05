@@ -19,10 +19,10 @@ use windows_sys::{
             IpHelper::{
                 ConvertInterfaceAliasToLuid, ConvertInterfaceLuidToAlias,
                 ConvertInterfaceLuidToGuid, ConvertInterfaceLuidToIndex,
-                CreateUnicastIpAddressEntry, FreeMibTable, GetIpInterfaceEntry,
-                GetUnicastIpAddressEntry, GetUnicastIpAddressTable,
-                InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW,
-                MIB_UNICASTIPADDRESS_TABLE, MibAddInstance, SetIpInterfaceEntry,
+                CreateUnicastIpAddressEntry, FreeMibTable, GetUnicastIpAddressEntry,
+                GetUnicastIpAddressTable, InitializeUnicastIpAddressEntry, MIB_IPINTERFACE_ROW,
+                MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE, MibAddInstance,
+                SetIpInterfaceEntry,
             },
             Ndis::{IF_MAX_STRING_SIZE, NET_LUID_LH},
         },
@@ -237,6 +237,12 @@ pub fn get_ip_interface_entry(
         InterfaceLuid: *luid,
         ..Default::default()
     };
+
+    #[cfg(not(test))]
+    use windows_sys::Win32::NetworkManagement::IpHelper::GetIpInterfaceEntry;
+
+    #[cfg(test)]
+    use tests::fake_get_ip_interface_entry_fail as GetIpInterfaceEntry;
 
     win32_err!(unsafe { GetIpInterfaceEntry(&raw mut row) })?;
     Ok(row)
@@ -693,6 +699,10 @@ mod tests {
         0
     }
 
+    pub unsafe fn fake_get_ip_interface_entry_fail(_row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
+        ERROR_NOT_FOUND
+    }
+
     /// Test [`wait_for_interfaces`] using mocked notifications.
     #[tokio::test]
     async fn test_wait_for_interfaces() {
@@ -700,13 +710,28 @@ mod tests {
         let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
         wait_for_interfaces(luid, true, false).await.unwrap();
         wait_for_interfaces(luid, true, true).await.unwrap();
-        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
-        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
 
         // Some delay
         NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(10));
         wait_for_interfaces(luid, true, false).await.unwrap();
         wait_for_interfaces(luid, true, true).await.unwrap();
+    }
+
+    /// Test [`wait_for_interfaces_sync`] using mocked notifications.
+    // This can be tested with miri:
+    //
+    // ```rust
+    // cargo +nightly miri test -p talpid-windows -- test_wait_for_interfaces_sync
+    // ```
+    #[test]
+    fn test_wait_for_interfaces_sync() {
+        // No delay
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Some delay
+        NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(10));
         wait_for_interfaces_sync(luid, true, false, Duration::from_secs(1)).unwrap();
         wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
 
