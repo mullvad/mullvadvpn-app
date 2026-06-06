@@ -410,4 +410,40 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn post_quantum_secrets_uses_expected_kems_in_order() {
+        let (request, (ml_kem_keypair, hqc_keypair)) = post_quantum_secrets();
+
+        let [ml_kem_pubkey, hqc_pubkey] =
+            <&[proto::KemPubkeyV1; 2]>::try_from(request.kem_pubkeys.as_slice()).unwrap();
+
+        assert_eq!(ml_kem_pubkey.algorithm_name, "ML-KEM-1024");
+        assert_eq!(ml_kem_pubkey.key_data, ml_kem_keypair.encapsulation_key());
+
+        assert_eq!(hqc_pubkey.algorithm_name, "HQC-256");
+        assert_eq!(hqc_pubkey.key_data, hqc_keypair.encapsulation_key());
+    }
+
+    #[test]
+    fn xor_assign_mixes_each_byte() {
+        let mut dst = [0u8; 32];
+        let src = [0xffu8; 32];
+
+        xor_assign(&mut dst, &src);
+        assert_eq!(dst, [0xffu8; 32]);
+
+        xor_assign(&mut dst, &src);
+        assert_eq!(dst, [0u8; 32]);
+    }
+
+    #[test]
+    fn xor_assign_matches_bytewise_xor() {
+        let mut dst = [0x55u8; 32];
+        let src = [0x33u8; 32];
+
+        xor_assign(&mut dst, &src);
+
+        assert_eq!(dst, [0x66u8; 32]);
+    }
 }
