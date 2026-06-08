@@ -6666,7 +6666,7 @@
       },
       {
         "hostname": "fi-hel-wg-001",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6692,7 +6692,7 @@
       },
       {
         "hostname": "fi-hel-wg-002",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6748,7 +6748,7 @@
       },
       {
         "hostname": "fi-hel-wg-003",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -8121,7 +8121,7 @@
       },
       {
         "hostname": "gb-lon-wg-201",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "gb-lon",
         "provider": "xtom",
@@ -8140,7 +8140,7 @@
       },
       {
         "hostname": "gb-lon-wg-202",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "gb-lon",
         "provider": "xtom",
@@ -11691,7 +11691,7 @@
       },
       {
         "hostname": "se-mma-wg-111",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-mma",
         "provider": "31173",
@@ -20364,5 +20364,5 @@
       }
     ]
   },
-  "etag": "\"6a192648-5bf9b\""
+  "etag": "\"6a264dc8-5bf9d\""
 }
