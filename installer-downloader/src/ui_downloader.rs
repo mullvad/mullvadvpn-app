@@ -35,6 +35,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
     for UiAppDownloader<Delegate, Downloader>
 {
     async fn download_executable(self) -> Result<impl DownloadedInstaller, app::DownloadError> {
+        log::info!("Downloading app");
         match self.downloader.download_executable().await {
             Ok(installer) => {
                 self.queue.queue_main(move |self_| {
@@ -47,7 +48,8 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
                     queue: self.queue,
                 })
             }
-            Err(err) => {
+            Err(error) => {
+                log::error!("{error:?}");
                 self.queue.queue_main(move |self_| {
                     self_.clear_status_text();
                     self_.clear_download_text();
@@ -62,7 +64,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
                     });
                 });
 
-                Err(err)
+                Err(error)
             }
         }
     }
@@ -72,6 +74,7 @@ impl<Delegate: AppDelegate, Downloader: DownloadedInstaller + Send + 'static> Do
     for UiAppDownloader<Delegate, Downloader>
 {
     async fn verify(self) -> Result<impl VerifiedInstaller, app::DownloadError> {
+        log::info!("Verifying app");
         match self.downloader.verify().await {
             Ok(verified) => {
                 self.queue.queue_main(move |self_| {
@@ -84,6 +87,7 @@ impl<Delegate: AppDelegate, Downloader: DownloadedInstaller + Send + 'static> Do
                 })
             }
             Err(error) => {
+                log::error!("{error:?}");
                 self.queue.queue_main(move |self_| {
                     self_.clear_status_text();
                     self_.clear_download_text();
@@ -114,8 +118,10 @@ impl<Delegate: AppDelegate, I: VerifiedInstaller + Send + 'static> VerifiedInsta
     for UiAppDownloader<Delegate, I>
 {
     async fn install(self) -> Result<(), app::DownloadError> {
+        log::info!("Installing verified app");
         match self.downloader.install().await {
             Ok(()) => {
+                log::info!("Successfully installed app!");
                 self.queue.queue_main(move |self_| {
                     // Success!
                     self_.quit();
@@ -123,6 +129,7 @@ impl<Delegate: AppDelegate, I: VerifiedInstaller + Send + 'static> VerifiedInsta
                 Ok(())
             }
             Err(error) => {
+                log::error!("{error:?}");
                 self.queue.queue_main(move |self_| {
                     self_.clear_status_text();
                     self_.clear_download_text();
