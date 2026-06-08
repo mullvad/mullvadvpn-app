@@ -62,14 +62,18 @@ class TunnelViewController: UIViewController, RootContainment {
         false
     }
 
-    init(interactor: TunnelViewControllerInteractor, settingsStore: SettingsStore) {
+    init(
+        interactor: TunnelViewControllerInteractor,
+        settingsStore: SettingsStore,
+        relayCacheTracker: RelayCacheTrackerProviding
+    ) {
         self.interactor = interactor
 
         tunnelState = interactor.tunnelStatus.state
         connectionViewViewModel = ConnectionViewViewModel(
             tunnelStatus: interactor.tunnelStatus,
             relayConstraints: interactor.tunnelSettings.relayConstraints,
-            relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
+            relayCacheTracker: relayCacheTracker,
             customListRepository: CustomListRepository(settingsStore: settingsStore)
         )
         indicatorsViewViewModel = FeatureIndicatorsViewModel(

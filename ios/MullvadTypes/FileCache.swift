@@ -46,18 +46,15 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
     }
 
     public func read() throws -> Content {
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+
         // Fast path: if the file modification time hasn't changed, return the cached content.
         let currentModificationTime = fileModificationTime()
-        let cached: Content? = cacheLock.withLock {
-            if let cachedContent, let contentModified, contentModified == currentModificationTime,
-                currentModificationTime != nil
-            {
-                return cachedContent
-            }
-            return nil
-        }
-        if let cached {
-            return cached
+        if let cachedContent, let contentModified, contentModified == currentModificationTime,
+            currentModificationTime != nil
+        {
+            return cachedContent
         }
 
         // Slow path: acquire a shared lock and read from disk.
@@ -71,17 +68,17 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
         let data = try Data(contentsOf: fileURL)
         let content = try JSONDecoder().decode(Content.self, from: data)
-        let mtime = fileModificationTime()
 
-        cacheLock.withLock {
-            cachedContent = content
-            contentModified = mtime
-        }
+        cachedContent = content
+        contentModified = fileModificationTime()
 
         return content
     }
 
     public func write(_ content: Content) throws {
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+
         // Encode before acquiring the lock to minimize exclusive lock hold time.
         let data = try JSONEncoder().encode(content)
 
@@ -102,14 +99,14 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
             throw FileCacheError.renameFailed(errno)
         }
 
-        let mtime = fileModificationTime()
-        cacheLock.withLock {
-            cachedContent = content
-            contentModified = mtime
-        }
+        cachedContent = content
+        contentModified = fileModificationTime()
     }
 
     public func clear() throws {
+        cacheLock.lock()
+        defer { cacheLock.unlock() }
+
         let lockFd = try openLockFile()
         defer { close(lockFd) }
 
@@ -120,10 +117,8 @@ public final class FileCache<Content: Codable>: FileCacheProtocol, @unchecked Se
 
         try FileManager.default.removeItem(at: fileURL)
 
-        cacheLock.withLock {
-            cachedContent = nil
-            contentModified = nil
-        }
+        cachedContent = nil
+        contentModified = nil
     }
 
     // MARK: - Private
