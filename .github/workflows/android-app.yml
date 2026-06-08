@@ -2,6 +2,7 @@
 name: Android - Build and test
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled]
     paths:
       - '**'
       - '!.github/**'
@@ -96,6 +97,8 @@ jobs:
   prepare:
     name: Prepare
     runs-on: ["${{ inputs.android_build_runner || 'android-build' }}"]
+    # Limit label triggers to the "E2E" test label.
+    if: github.event.action != 'labeled' || github.event.label.name == 'E2E'
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
