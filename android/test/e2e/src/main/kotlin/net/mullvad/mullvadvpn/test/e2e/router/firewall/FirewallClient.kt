@@ -6,15 +6,19 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.delete
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import net.mullvad.mullvadvpn.test.e2e.constant.getRaasHost
+import net.mullvad.mullvadvpn.test.e2e.misc.KermitLogger
 
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     suspend fun createRule(rule: DropRule) {
@@ -56,5 +60,12 @@ private fun defaultHttpClient(): HttpClient =
                 }
             )
         }
+
+        install(Logging) {
+            logger = KermitLogger()
+            level = LogLevel.INFO
+            sanitizeHeader { header -> header == HttpHeaders.Authorization }
+        }
+
         expectSuccess = true
     }
