@@ -228,7 +228,9 @@ pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + '
 
     let context = IpNotifierHandle {
         callback: Some(callback),
-        handle: Some(NonNull::new(handle).unwrap()),
+        handle: Some(
+            NonNull::new(handle).expect("non-null because NotifyIpInterfaceChange succeeded"),
+        ),
     };
 
     Ok(context)
