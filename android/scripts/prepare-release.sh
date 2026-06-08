@@ -31,11 +31,24 @@ if [[ -n "$(git status --porcelain)" ]]; then
     exit 1
 fi
 
+release_notes=$(<"android/src/main/play/release-notes/en-US/default.txt")
 if [[ $PRODUCT_VERSION != *"alpha"* &&
     $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
 
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."
+    exit 1
+
+    if [[ -z $release_notes ]]; then
+        echo "The release notes file is empty!"
+        echo "Beta and Stable require a release notes file."
+        exit 1
+    fi
+fi
+
+if [[ [[ "${#release_notes}" -gt 500 ]]; then
+    echo "The number of characters in the relase notes may not exceed 500"
+    echo "Current number of charachers ${#release_notes}"
     exit 1
 fi
 
