@@ -789,17 +789,36 @@ mod tests {
         // Force timeout
         NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(100));
         wait_for_interfaces_sync(luid, true, false, Duration::from_millis(1)).unwrap_err();
-    }
 
-    /// Test case where IPv4 interface already exists, but we have to wait for IPv6
-    #[test]
-    fn test_wait_for_interfaces_sync_one_interface() {
-        let _guard = NOTIFY_LOCK.blocking_lock();
+        // IPv4 interface already exists
         {
             let mut settings = NOTIFY_SETTINGS.lock().unwrap();
             *settings = NotifySettings::default();
             settings.send_add_event_for_families = vec![AF_INET6];
             settings.get_ipv4_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // IPv6 interface already exists
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![AF_INET];
+            settings.get_ipv6_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Both interfaces exist
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![];
+            settings.get_ipv4_result = 0;
+            settings.get_ipv6_result = 0;
         }
 
         let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
