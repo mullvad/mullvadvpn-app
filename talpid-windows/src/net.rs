@@ -716,8 +716,7 @@ mod tests {
     }
 
     // Serialize and reset `NOTIFY_SETTINGS` since it is globally shared between tests.
-    static NOTIFY_LOCK: LazyLock<tokio::sync::Mutex<()>> =
-        LazyLock::new(|| tokio::sync::Mutex::new(()));
+    static NOTIFY_LOCK: tokio::sync::Mutex<()> = tokio::sync::Mutex::const_new(());
 
     /// Test [`wait_for_interfaces`] using mocked notifications.
     #[tokio::test]
