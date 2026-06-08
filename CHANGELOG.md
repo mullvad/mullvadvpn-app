@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - Align ciphers for custom shadowsocks API access methods between clients and `mullvad-daemon`. Any
   existing, invalid access method is removed with a settings migration.
 
+#### Windows
+- Fix misleading "split tunneling" error when offline.
+
 ### Security
 - Linux and macOS: Fix management interface socket being created with less restrictive permissions
   when using `MULLVAD_MANAGEMENT_SOCKET_GROUP`. This addresses the advisory `GHSA-p9rr-wc9m-qmwg`.
