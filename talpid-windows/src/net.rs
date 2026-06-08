@@ -251,7 +251,7 @@ pub fn get_ip_interface_entry(
     use windows_sys::Win32::NetworkManagement::IpHelper::GetIpInterfaceEntry;
 
     #[cfg(test)]
-    use tests::fake_get_ip_interface_entry_fail as GetIpInterfaceEntry;
+    use tests::fake_get_ip_interface_entry as GetIpInterfaceEntry;
 
     win32_err!(unsafe { GetIpInterfaceEntry(&raw mut row) })?;
     Ok(row)
@@ -654,6 +654,8 @@ mod tests {
         expected_luid: NET_LUID_LH,
         send_add_event_for_families: Vec<u16>,
         sleep_duration: Option<Duration>,
+        get_ipv4_result: u32,
+        get_ipv6_result: u32,
     }
 
     impl Default for NotifySettings {
@@ -662,6 +664,8 @@ mod tests {
                 expected_luid: NET_LUID_LH { Value: 1 },
                 send_add_event_for_families: vec![AF_INET, AF_INET6],
                 sleep_duration: None,
+                get_ipv4_result: ERROR_NOT_FOUND,
+                get_ipv6_result: ERROR_NOT_FOUND,
             }
         }
     }
@@ -726,8 +730,13 @@ mod tests {
         0
     }
 
-    pub unsafe fn fake_get_ip_interface_entry_fail(_row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
-        ERROR_NOT_FOUND
+    pub unsafe fn fake_get_ip_interface_entry(row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
+        let settings = &*NOTIFY_SETTINGS.lock().unwrap();
+        match unsafe { (*row).Family } {
+            AF_INET => settings.get_ipv4_result,
+            AF_INET6 => settings.get_ipv6_result,
+            _ => unreachable!(),
+        }
     }
 
     // Serialize and reset `NOTIFY_SETTINGS` since it is globally shared between tests.
@@ -780,5 +789,20 @@ mod tests {
         // Force timeout
         NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(100));
         wait_for_interfaces_sync(luid, true, false, Duration::from_millis(1)).unwrap_err();
+    }
+
+    /// Test case where IPv4 interface already exists, but we have to wait for IPv6
+    #[test]
+    fn test_wait_for_interfaces_sync_one_interface() {
+        let _guard = NOTIFY_LOCK.blocking_lock();
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![AF_INET6];
+            settings.get_ipv4_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
     }
 }
