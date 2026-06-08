@@ -6,10 +6,7 @@ use gotatun::{
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
-use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
 use tunnel_obfuscation::lwo;
-
-use crate::config::Config;
 
 /// A [`UdpSend`] wrapper that LWO-obfuscates every outgoing packet before forwarding it to the
 /// inner sender.
@@ -101,18 +98,6 @@ fn obfuscate_all(packets: &mut [(Packet, SocketAddr)], tx_key: &[u8; 32]) {
 fn deobfuscate_all(packets: &mut [(Packet, SocketAddr)], rx_key: &[u8; 32]) {
     for (packet, _) in packets.iter_mut() {
         lwo::deobfuscate(packet, rx_key);
-    }
-}
-
-/// Extract LWO obfuscation settings from the tunnel config.
-pub fn lwo_config(config: &Config) -> Option<([u8; 32], [u8; 32], SocketAddr)> {
-    match &config.obfuscator_config {
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { endpoint })) => {
-            let tx_key = *config.entry_peer.public_key.as_bytes();
-            let rx_key = *config.tunnel.private_key.public_key().as_bytes();
-            Some((tx_key, rx_key, *endpoint))
-        }
-        _ => None,
     }
 }
 
