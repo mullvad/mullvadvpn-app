@@ -797,7 +797,7 @@ fn udp_obfuscator_factory(
                 tun: android_tun,
                 udp: udp_socket_factory(optimize_buffer_size),
             }
-        },
+        }
         _ => { udp_socket_factory(optimize_buffer_size) }
     };
     MaybeObfuscatingTransportFactory::from_config(factory, config)
