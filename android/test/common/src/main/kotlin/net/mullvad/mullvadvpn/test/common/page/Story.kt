@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.waitForStableInActiveWindow
 import net.mullvad.mullvadvpn.test.common.extension.pressBackTwice
+import net.mullvad.mullvadvpn.test.common.misc.TestRelay
 
 // This file defines extension methods on Page objects that involve multiple actions
 // that navigate multiple pages.
@@ -132,4 +133,12 @@ fun ConnectPage.disableIPv6Story() {
         clickDeviceIpIpv4Cell()
     }
     uiDevice.pressBackTwice()
+}
+
+fun SelectLocationPage.selectRelayUsingSearch(relay: TestRelay) {
+    clickSearchLocation()
+    on<SearchLocationPage> {
+        searchInput(relay.relay)
+        clickLocation(relay.relay)
+    }
 }

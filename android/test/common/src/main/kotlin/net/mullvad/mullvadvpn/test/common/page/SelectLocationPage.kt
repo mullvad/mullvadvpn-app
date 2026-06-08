@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.misc.TestRelay
 
@@ -83,5 +84,9 @@ class SelectLocationPage internal constructor() : Page() {
         val entry = uiDevice.findObjectWithTimeout(By.res(HOP_SELECTOR_ENTRY_TEST_TAG))
 
         entry.click()
+    }
+
+    fun clickSearchLocation() {
+        uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG)).click()
     }
 }

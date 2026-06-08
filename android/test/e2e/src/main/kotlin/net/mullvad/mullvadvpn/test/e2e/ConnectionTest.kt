@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPortStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.selectRelayUsingSearch
 import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
@@ -469,10 +470,10 @@ class ConnectionTest : EndToEndTest() {
                 uiDevice.waitForStableInActiveWindow()
 
                 // Select entry relay
-                expandAndClickRelay(entryRelay)
+                selectRelayUsingSearch(entryRelay)
 
                 // Select exit relay
-                expandAndClickRelay(exitRelay)
+                selectRelayUsingSearch(exitRelay)
             }
 
             device.acceptVpnPermissionDialog()
