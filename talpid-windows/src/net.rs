@@ -7,7 +7,7 @@ use std::{
     mem::MaybeUninit,
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
-    ptr::{self, NonNull},
+    ptr::NonNull,
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -226,7 +226,7 @@ pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + '
         )
     })?;
 
-    let mut context = IpNotifierHandle {
+    let context = IpNotifierHandle {
         callback: Some(callback),
         handle: Some(NonNull::new(handle).unwrap()),
     };
