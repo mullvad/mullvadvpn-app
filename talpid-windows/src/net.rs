@@ -8,7 +8,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
     ptr::NonNull,
-    sync::Mutex,
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 use talpid_types::win32_err;
@@ -329,13 +329,21 @@ fn start_wait_for_interfaces(
     let mut found_ipv4 = !ipv4;
     let mut found_ipv6 = !ipv6;
 
+    struct FoundInterfaces {
+        ipv4: bool,
+        ipv6: bool,
+    }
+
+    let found_interfaces = Arc::new(Mutex::new(FoundInterfaces {
+        ipv4: !ipv4,
+        ipv6: !ipv6,
+    }));
+
     let mut on_found = Some(on_found);
+    let found_interfaces2 = found_interfaces.clone();
 
     let handle = notify_ip_interface_change(
         move |row, notification_type| {
-            if found_ipv4 && found_ipv6 {
-                return;
-            }
             if notification_type != MibAddInstance {
                 return;
             }
@@ -343,13 +351,14 @@ fn start_wait_for_interfaces(
             if unsafe { row.InterfaceLuid.Value != luid.Value } {
                 return;
             }
+            let mut found_interfaces = found_interfaces2.lock().unwrap();
             match row.Family {
-                AF_INET => found_ipv4 = true,
-                AF_INET6 => found_ipv6 = true,
+                AF_INET => found_interfaces.ipv4 = true,
+                AF_INET6 => found_interfaces.ipv6 = true,
                 _ => (),
             }
-            if found_ipv4
-                && found_ipv6
+            if found_interfaces.ipv4
+                && found_interfaces.ipv6
                 && let Some(on_found) = on_found.take()
             {
                 on_found();
@@ -358,10 +367,13 @@ fn start_wait_for_interfaces(
         None,
     )?;
 
-    // Make sure the interfaces were not already up
-    if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
-        && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
-    {
+    // Succeed if the interfaces were already up
+    let mut found_interfaces = found_interfaces.lock().unwrap();
+
+    found_interfaces.ipv4 |= ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?;
+    found_interfaces.ipv6 |= ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?;
+
+    if found_interfaces.ipv4 && found_interfaces.ipv6 {
         return Ok(StartNotifyResult::AlreadyExist);
     }
 
