@@ -13,12 +13,11 @@ import MullvadTypes
 import Operations
 import UIKit
 
-protocol RelayCacheTrackerProtocol: Sendable {
+protocol RelayCacheTrackerProtocol: RelayCacheTrackerProviding {
     func startPeriodicUpdates()
     func stopPeriodicUpdates()
     func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func fetchRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
-    func getCachedRelays() throws -> CachedRelays
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
     func removeObserver(_ observer: RelayCacheTrackerObserver)
