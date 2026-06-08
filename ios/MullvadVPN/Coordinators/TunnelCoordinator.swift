@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadSettings
 import Routing
 import UIKit
@@ -29,7 +30,8 @@ class TunnelCoordinator: Coordinator, Presenting {
     init(
         tunnelManager: TunnelManager,
         outgoingConnectionService: OutgoingConnectionServiceHandling,
-        ipOverrideRepository: IPOverrideRepositoryProtocol
+        ipOverrideRepository: IPOverrideRepositoryProtocol,
+        relayCacheTracker: RelayCacheTrackerProtocol
     ) {
         self.tunnelManager = tunnelManager
 
@@ -39,7 +41,10 @@ class TunnelCoordinator: Coordinator, Presenting {
             ipOverrideRepository: ipOverrideRepository
         )
 
-        controller = TunnelViewController(interactor: interactor)
+        controller = TunnelViewController(
+            interactor: interactor,
+            relayCacheTracker: relayCacheTracker
+        )
 
         super.init()
 

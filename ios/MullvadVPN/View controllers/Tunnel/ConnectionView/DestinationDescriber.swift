@@ -16,14 +16,14 @@ protocol DestinationDescribing {
 }
 
 struct DestinationDescriber: DestinationDescribing {
-    let relayCache: RelayCacheProtocol
+    let relayCacheTracker: RelayCacheTrackerProviding
     let customListRepository: CustomListRepositoryProtocol
 
     public init(
-        relayCache: RelayCacheProtocol,
+        relayCacheTracker: RelayCacheTrackerProviding,
         customListRepository: CustomListRepositoryProtocol
     ) {
-        self.relayCache = relayCache
+        self.relayCacheTracker = relayCacheTracker
         self.customListRepository = customListRepository
     }
 
@@ -54,11 +54,12 @@ struct DestinationDescriber: DestinationDescribing {
     private func relayDescription(_ destination: UserSelectedRelays) -> String? {
         guard
             let location = destination.locations.first,
-            let cachedRelays = try? relayCache.read().relays
+            let relays = try? relayCacheTracker.getCachedRelays().relays
         else { return nil }
+
         let locatedRelays = RelayWithLocation.locateRelays(
-            relays: cachedRelays.wireguard.relays,
-            locations: cachedRelays.locations
+            relays: relays.wireguard.relays,
+            locations: relays.locations
         )
 
         guard

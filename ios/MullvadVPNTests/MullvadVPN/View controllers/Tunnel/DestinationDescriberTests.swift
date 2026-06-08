@@ -25,10 +25,10 @@ final class DestinationDescriberTests: XCTestCase {
     }
 
     func testDescribeList() throws {
-        let relayCache = MockRelayCache()
+        let relayCacheTracker = MockRelayCacheTracker()
         let customListRepository = CustomListRepository()
         let describer = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
         let listid = UUID()
@@ -49,10 +49,10 @@ final class DestinationDescriberTests: XCTestCase {
     }
 
     func testDescribeSubsetOfList() throws {
-        let relayCache = MockRelayCache()
+        let relayCacheTracker = MockRelayCacheTracker()
         let customListRepository = CustomListRepository()
         let describer = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
         let listid = UUID()
@@ -73,30 +73,30 @@ final class DestinationDescriberTests: XCTestCase {
     }
 
     func testDescribeCountryDestination() {
-        let relayCache = MockRelayCache()
+        let relayCacheTracker = MockRelayCacheTracker()
         let customListRepository = CustomListRepository()
         let describer = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
         XCTAssertEqual(describer.describe(.init(locations: [.country("se")])), "Sweden")
     }
 
     func testDescribeCityDestination() {
-        let relayCache = MockRelayCache()
+        let relayCacheTracker = MockRelayCacheTracker()
         let customListRepository = CustomListRepository()
         let describer = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
         XCTAssertEqual(describer.describe(.init(locations: [.city("se", "sto")])), "Stockholm")
     }
 
     func testDescribeRelayDestination() {
-        let relayCache = MockRelayCache()
+        let relayCacheTracker = MockRelayCacheTracker()
         let customListRepository = CustomListRepository()
         let describer = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
         XCTAssertEqual(

@@ -540,7 +540,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let tunnelCoordinator = TunnelCoordinator(
             tunnelManager: tunnelManager,
             outgoingConnectionService: outgoingConnectionService,
-            ipOverrideRepository: ipOverrideRepository
+            ipOverrideRepository: ipOverrideRepository,
+            relayCacheTracker: relayCacheTracker
         )
 
         tunnelCoordinator.showSelectLocationPicker = { [weak self] in
