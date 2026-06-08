@@ -151,7 +151,7 @@ type InnerCallback = Box<Mutex<dyn FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + 'st
 /// the callback is unregistered.
 pub struct IpNotifierHandle {
     callback: Option<NonNull<InnerCallback>>,
-    handle: HANDLE,
+    handle: Option<NonNull<core::ffi::c_void>>,
 }
 
 unsafe impl Send for IpNotifierHandle {}
@@ -164,9 +164,9 @@ impl Drop for IpNotifierHandle {
         #[cfg(test)]
         use tests::fake_cancel_mib_change_notify2 as CancelMibChangeNotify2;
 
-        if !self.handle.is_null() {
-            // SAFETY: `self.handle` is a valid notify handle that we own
-            unsafe { CancelMibChangeNotify2(self.handle) };
+        if let Some(handle) = self.handle.take() {
+            // SAFETY: pointer is a valid notify handle that we own
+            unsafe { CancelMibChangeNotify2(handle.as_ptr()) };
         }
 
         let callback = self
@@ -208,16 +208,13 @@ pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + '
     let callback: Box<InnerCallback> = Box::new(callback);
     let callback = NonNull::new(Box::into_raw(callback)).unwrap();
 
-    let mut context = IpNotifierHandle {
-        callback: Some(callback),
-        handle: ptr::null_mut(),
-    };
-
     #[cfg(not(test))]
     use windows_sys::Win32::NetworkManagement::IpHelper::NotifyIpInterfaceChange;
 
     #[cfg(test)]
     use tests::fake_notify_ip_interface_change as NotifyIpInterfaceChange;
+
+    let mut handle = HANDLE::default();
 
     win32_err!(unsafe {
         NotifyIpInterfaceChange(
@@ -225,9 +222,15 @@ pub fn notify_ip_interface_change<T: FnMut(&MIB_IPINTERFACE_ROW, i32) + Send + '
             Some(outer_callback),
             callback.as_ptr().cast(),
             false,
-            &raw mut context.handle,
+            &raw mut handle,
         )
     })?;
+
+    let mut context = IpNotifierHandle {
+        callback: Some(callback),
+        handle: Some(NonNull::new(handle).unwrap()),
+    };
+
     Ok(context)
 }
 
