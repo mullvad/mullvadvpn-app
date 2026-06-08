@@ -11,7 +11,7 @@ class SettingsUiStatePreviewParameterProvider :
             Lc.Loading(Unit),
             SettingsUiState(
                     appVersion = "2222.22",
-                    isLoggedIn = true,
+                    deviceState = DeviceState.LoggedIn,
                     isSupportedVersion = true,
                     isDaitaEnabled = true,
                     isPlayBuild = true,
@@ -20,7 +20,16 @@ class SettingsUiStatePreviewParameterProvider :
                 .toLc(),
             SettingsUiState(
                     appVersion = "9000.1",
-                    isLoggedIn = false,
+                    deviceState = DeviceState.LoggedOut,
+                    isSupportedVersion = false,
+                    isDaitaEnabled = false,
+                    isPlayBuild = false,
+                    multihopEnabled = false,
+                )
+                .toLc(),
+            SettingsUiState(
+                    appVersion = "9000.1",
+                    deviceState = DeviceState.Revoked,
                     isSupportedVersion = false,
                     isDaitaEnabled = false,
                     isPlayBuild = false,

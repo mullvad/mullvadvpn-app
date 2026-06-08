@@ -58,7 +58,7 @@ class SettingsScreenTest {
             state =
                 SettingsUiState(
                         appVersion = "",
-                        isLoggedIn = true,
+                        deviceState = DeviceState.LoggedIn,
                         isSupportedVersion = true,
                         isPlayBuild = false,
                         multihopEnabled = false,
@@ -81,7 +81,7 @@ class SettingsScreenTest {
             state =
                 SettingsUiState(
                         appVersion = "",
-                        isLoggedIn = false,
+                        deviceState = DeviceState.LoggedOut,
                         isSupportedVersion = true,
                         isPlayBuild = false,
                         multihopEnabled = false,

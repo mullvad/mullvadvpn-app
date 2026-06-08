@@ -60,7 +60,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview("Loading|Supported|+")
+@Preview("Loading|Supported|LoggedOut|Revoked")
 @Composable
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class)
@@ -189,7 +189,7 @@ private fun LazyListScope.content(
     onNotificationSettingsCellClick: () -> Unit,
     onAppObfuscationClick: () -> Unit = {},
 ) {
-    if (state.isLoggedIn) {
+    if (state.deviceState is DeviceState.LoggedIn) {
         itemWithDivider {
             DaitaListItem(isDaitaEnabled = state.isDaitaEnabled, onDaitaClick = onDaitaClick)
         }
@@ -208,6 +208,9 @@ private fun LazyListScope.content(
             )
         }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
+    }
+
+    if (state.deviceState is DeviceState.LoggedIn || state.deviceState is DeviceState.Revoked) {
         item { SplitTunneling(onSplitTunnelingCellClick) }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
     }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.feature.settings.impl.DeviceState as UiDeviceState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
@@ -32,7 +33,7 @@ class SettingsViewModel(
                 settingsRepository.settingsUpdates,
             ) { deviceState, versionInfo, wireguardConstraints, settings ->
                 SettingsUiState(
-                        isLoggedIn = deviceState is DeviceState.LoggedIn,
+                        deviceState = deviceState.toUiState(),
                         appVersion = versionInfo.currentVersion,
                         isSupportedVersion = versionInfo.isSupported,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
@@ -46,4 +47,12 @@ class SettingsViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(Unit),
             )
+
+    private fun DeviceState?.toUiState(): UiDeviceState? =
+        when (this) {
+            null -> UiDeviceState.LoggedOut
+            is DeviceState.LoggedIn -> UiDeviceState.LoggedIn
+            DeviceState.LoggedOut -> UiDeviceState.LoggedOut
+            DeviceState.Revoked -> UiDeviceState.Revoked
+        }
 }

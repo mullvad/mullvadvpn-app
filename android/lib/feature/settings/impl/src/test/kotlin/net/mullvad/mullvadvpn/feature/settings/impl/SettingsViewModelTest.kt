@@ -10,6 +10,7 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.mullvadvpn.feature.settings.impl.DeviceState as UiDeviceState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -73,7 +74,7 @@ class SettingsViewModelTest {
         viewModel.uiState.test {
             val item = awaitItem()
             assertIs<Lc.Content<SettingsUiState>>(item)
-            assertEquals(false, item.value.isLoggedIn)
+            assertIs<UiDeviceState.LoggedOut>(item.value.deviceState)
         }
     }
 
