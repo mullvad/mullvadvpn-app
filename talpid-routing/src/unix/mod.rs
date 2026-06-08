@@ -247,6 +247,7 @@ impl RouteManagerHandle {
     /// (Android) This is a noop since we don't directly control the routes on Android.
     #[cfg(target_os = "android")]
     pub fn clear_routes(&self) -> Result<(), Error> {
+        log::debug!("RouteManagerHandle::clear_routes is a no-op");
         Ok(())
     }
 

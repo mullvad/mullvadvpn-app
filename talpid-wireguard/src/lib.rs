@@ -723,14 +723,18 @@ impl WireguardMonitor {
 
     /// Blocks the current thread until tunnel disconnects
     pub fn wait(mut self) -> Result<()> {
-        let wait_result = match self.close_msg_receiver.recv() {
-            Ok(CloseMsg::EphemeralPeerNegotiationTimeout) | Ok(CloseMsg::PingErr) => {
-                Err(Error::TimeoutError)
+        let wait_result = {
+            let result = self.close_msg_receiver.recv();
+            log::debug!("Tunnel was closed: {:#?}", result);
+            match result {
+                Ok(CloseMsg::EphemeralPeerNegotiationTimeout) | Ok(CloseMsg::PingErr) => {
+                    Err(Error::TimeoutError)
+                }
+                Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
+                Ok(CloseMsg::SetupError(error)) => Err(error),
+                Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
+                Err(_) => Ok(()),
             }
-            Ok(CloseMsg::Stop) | Ok(CloseMsg::ObfuscatorExpired) => Ok(()),
-            Ok(CloseMsg::SetupError(error)) => Err(error),
-            Ok(CloseMsg::ObfuscatorFailed(error)) => Err(error),
-            Err(_) => Ok(()),
         };
 
         self.pinger_stop_sender.close();
