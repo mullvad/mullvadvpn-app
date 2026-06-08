@@ -326,9 +326,6 @@ fn start_wait_for_interfaces(
     ipv6: bool,
     on_found: impl FnOnce() + Send + 'static,
 ) -> io::Result<StartNotifyResult> {
-    let mut found_ipv4 = !ipv4;
-    let mut found_ipv6 = !ipv6;
-
     struct FoundInterfaces {
         ipv4: bool,
         ipv6: bool,
@@ -370,8 +367,12 @@ fn start_wait_for_interfaces(
     // Succeed if the interfaces were already up
     let mut found_interfaces = found_interfaces.lock().unwrap();
 
-    found_interfaces.ipv4 |= ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?;
-    found_interfaces.ipv6 |= ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?;
+    if !found_interfaces.ipv4 {
+        found_interfaces.ipv4 |= ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?;
+    }
+    if !found_interfaces.ipv6 {
+        found_interfaces.ipv6 |= ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?;
+    }
 
     if found_interfaces.ipv4 && found_interfaces.ipv6 {
         return Ok(StartNotifyResult::AlreadyExist);
