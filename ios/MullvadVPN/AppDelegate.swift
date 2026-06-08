@@ -481,6 +481,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         NotificationManager.shared.notificationProviders = [
+            SettingsMigrationInAppNotificationProvider(
+                tunnelManager: tunnelManager,
+                relaySelector: relaySelector,
+                migratedSettingsState: appPreferences.migratedSettingsState,
+                onMigrationStateChanged: { migratedSettingsState in
+                    self.appPreferences.migratedSettingsState = migratedSettingsState
+                }),
             LatestChangesNotificationProvider(appPreferences: appPreferences),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
             AccountExpirySystemNotificationProvider(

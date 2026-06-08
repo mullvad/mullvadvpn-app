@@ -151,6 +151,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .includeAllNetworks:
             presentIncludeAllNetworks(animated: animated, completion: completion)
 
+        case .settingsMigrationWizard:
+            presentSettingsMigrationWizardView(animated: animated, completion: completion)
+
         case .selectLocation:
             presentSelectLocation(animated: animated, completion: completion)
 
@@ -310,6 +313,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         breadcrumbsProvider.add(observer: breadcrumbsObserver)
 
         checkForAccessMethodCipherErrors()
+        checkForMigratedSettings()
     }
 
     private func checkForAccessMethodCipherErrors() {
@@ -326,6 +330,16 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         if !methodsWithInvalidCiphers.isEmpty {
             breadcrumbsProvider.add(breadcrumb: .warning(.apiAccess))
+        }
+    }
+
+    private func checkForMigratedSettings() {
+        if tunnelManager.deviceState.isLoggedIn,
+            appPreferences.migratedSettingsState.hasCompletedMigrationWizard == false
+        {
+            breadcrumbsProvider.add(breadcrumb: .warning(.migratedSettings))
+        } else {
+            breadcrumbsProvider.remove(breadcrumb: .warning(.migratedSettings))
         }
     }
 
@@ -527,6 +541,38 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
     }
 
+    private func presentSettingsMigrationWizardView(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        guard var preMigrationSettings = appPreferences.migratedSettingsState.preMigrationSettings,
+            let migrationResult = try? MultihopMigrationTrackerFactory.make(relaySelectorWrapper).run(
+                input: &preMigrationSettings)
+        else {
+            return
+        }
+
+        let viewModel = SettingsMigrationWizardViewModel(
+            tunnelManager: tunnelManager,
+            output: migrationResult)
+
+        let coordinator = SettingsMigrationWizardCoordinator(
+            navigationController: CustomNavigationController(),
+            route: .settingsMigrationWizard,
+            viewModel: viewModel)
+
+        coordinator.didFinish = { [weak self] _, hasCompletedMigrationWizard in
+            guard let self else { return }
+            router.dismiss(.settingsMigrationWizard, animated: true)
+            guard hasCompletedMigrationWizard else { return }
+            appPreferences.migratedSettingsState.hasCompletedMigrationWizard = true
+            breadcrumbsProvider.remove(breadcrumb: .warning(.migratedSettings))
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
+            completion(coordinator)
+        }
+    }
+
     private func presentLogin(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = LoginCoordinator(
             navigationController: navigationContainer,
@@ -687,6 +733,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             proxyConfigurationTester: configurationTester,
             ipOverrideRepository: ipOverrideRepository,
             appPreferences: appPreferences,
+            relaySelectorWrapper: relaySelectorWrapper,
             breadcrumbsProvider: breadcrumbsProvider
         )
 
@@ -694,6 +741,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             guard let self = self else { return }
             appPreferences.notificationSettings = notificationSettings
             onNewNotificationSettings?(notificationSettings)
+        }
+
+        coordinator.didCompleteMigrationWizard = { [weak self] hasCompletedMigrationWizard in
+            guard let self = self, hasCompletedMigrationWizard else { return }
+            appPreferences.migratedSettingsState.hasCompletedMigrationWizard = true
+            breadcrumbsProvider.remove(breadcrumb: .warning(.migratedSettings))
+            NotificationManager.shared.updateNotifications()
         }
 
         coordinator.didFinish = { [weak self] _ in
@@ -906,6 +960,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
                 },
                 didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                     self?.deviceStateDidChange(deviceState, previousDeviceState: previousDeviceState)
+                    self?.checkForMigratedSettings()
                 }
             )
 
@@ -1222,6 +1277,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             }
         case .invalidShadowsocksCipherInAppNotificationProvider:
             router.present(.apiAccess)
+        case .settingsMigrationInAppNotificationProvider:
+            router.present(.settingsMigrationWizard)
         default: return
         }
     }
