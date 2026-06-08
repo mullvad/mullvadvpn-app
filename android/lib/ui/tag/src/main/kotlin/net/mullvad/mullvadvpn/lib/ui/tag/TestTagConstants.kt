@@ -62,6 +62,7 @@ const val LOCAL_NETWORK_SHARING_SCREEN_TEST_TAG = "local_network_sharing_screen_
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
 const val SELECT_LOCATION_MENU_BUTTON_TEST_TAG = "select_location_screen_test_tag"
 const val SELECT_LOCATION_LIST_TEST_TAG = "select_location_list_test_tag"
+const val SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG = "select_location_search_button_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_test_tag"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
@@ -72,6 +73,11 @@ const val GEOLOCATION_ITEM_TAG = "geolocation_item_test_tag"
 const val CUSTOM_LIST_ITEM_TAG = "custom_list_item_test_tag"
 const val CUSTOM_LIST_ENTRY_ITEM_TAG = "custom_list_entry_item_test_tag"
 const val RECENT_ITEM_TAG = "recent_item_test_tag"
+
+// SearchLocationScreen
+const val SEARCH_LOCATION_SCREEN_TEST_TAG = "search_location_screen_test_tag"
+const val SEARCH_LOCATION_INPUT_TEST_TAG = "search_location_input_test_tag"
+
 // ConnectScreen
 const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
 const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"

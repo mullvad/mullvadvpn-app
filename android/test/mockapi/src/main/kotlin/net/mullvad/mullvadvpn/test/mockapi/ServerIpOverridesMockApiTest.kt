@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.enableServerIpOverrideStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.selectRelayUsingSearch
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
@@ -60,7 +61,7 @@ class ServerIpOverridesMockApiTest : MockApiTest() {
             // Select the relay which has an overriden ip
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> { expandAndClickRelay(relay) }
+            on<SelectLocationPage> { selectRelayUsingSearch(relay) }
 
             device.acceptVpnPermissionDialog()
 

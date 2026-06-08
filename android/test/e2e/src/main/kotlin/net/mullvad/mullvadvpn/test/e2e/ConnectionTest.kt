@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.test.common.page.enableLocalNetworkSharingStory
 import net.mullvad.mullvadvpn.test.common.page.enableMultihopStory
 import net.mullvad.mullvadvpn.test.common.page.enableWireGuardCustomPortStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.selectRelayUsingSearch
 import net.mullvad.mullvadvpn.test.common.page.setObfuscationStory
 import net.mullvad.mullvadvpn.test.common.page.toggleInTunnelIpv6Story
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
@@ -122,11 +123,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-                clickLocationCell(relayProvider.getDefaultRelay().relay)
-            }
+            on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
             device.acceptVpnPermissionDialog()
 
@@ -161,11 +158,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-                clickLocationCell(relayProvider.getDefaultRelay().relay)
-            }
+            on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
             device.acceptVpnPermissionDialog()
 
@@ -204,11 +197,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getNonDaitaRelay().country)
-                clickLocationExpandButton(relayProvider.getNonDaitaRelay().city)
-                clickLocationCell(relayProvider.getNonDaitaRelay().relay)
-            }
+            on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getNonDaitaRelay()) }
 
             device.acceptVpnPermissionDialog()
 
@@ -221,9 +210,7 @@ class ConnectionTest : EndToEndTest() {
 
             on<SelectLocationPage> {
                 assertDaitaChipVisible()
-                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
-                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
-                clickLocationCell(relayProvider.getDaitaRelay().relay)
+                selectRelayUsingSearch(relayProvider.getDaitaRelay())
             }
 
             on<ConnectPage> { waitForConnectedLabel() }
@@ -238,11 +225,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
-        }
+        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
         device.acceptVpnPermissionDialog()
 
@@ -278,10 +261,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<SelectLocationPage> {
             val quicRelay = relayProvider.getQuicRelay()
-            clickLocationExpandButton(quicRelay.country)
-            clickLocationExpandButton(quicRelay.city)
-            scrollUntilText(quicRelay.relay)
-            clickLocationCell(quicRelay.relay)
+            selectRelayUsingSearch(quicRelay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -319,10 +299,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<SelectLocationPage> {
             val lwoRelay = relayProvider.getLwoRelay()
-            clickLocationExpandButton(lwoRelay.country)
-            clickLocationExpandButton(lwoRelay.city)
-            scrollUntilText(lwoRelay.relay)
-            clickLocationCell(lwoRelay.relay)
+            selectRelayUsingSearch(lwoRelay)
         }
 
         device.acceptVpnPermissionDialog()
@@ -398,11 +375,7 @@ class ConnectionTest : EndToEndTest() {
 
         on<ConnectPage> { clickSelectLocation() }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
-        }
+        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
         device.acceptVpnPermissionDialog()
 
@@ -469,10 +442,10 @@ class ConnectionTest : EndToEndTest() {
                 uiDevice.waitForStableInActiveWindow()
 
                 // Select entry relay
-                expandAndClickRelay(entryRelay)
+                selectRelayUsingSearch(entryRelay)
 
                 // Select exit relay
-                expandAndClickRelay(exitRelay)
+                selectRelayUsingSearch(exitRelay)
             }
 
             device.acceptVpnPermissionDialog()

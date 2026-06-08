@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.enableDAITAStory
 import net.mullvad.mullvadvpn.test.common.page.on
+import net.mullvad.mullvadvpn.test.common.page.selectRelayUsingSearch
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.constant.getTrafficGeneratorHost
@@ -69,11 +70,7 @@ class LeakTest : EndToEndTest() {
             clickSelectLocation()
         }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
-        }
+        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
         device.acceptVpnPermissionDialog()
 
@@ -117,11 +114,7 @@ class LeakTest : EndToEndTest() {
             clickSelectLocation()
         }
 
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
-        }
+        on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDefaultRelay()) }
 
         device.acceptVpnPermissionDialog()
 
@@ -175,11 +168,7 @@ class LeakTest : EndToEndTest() {
 
             on<ConnectPage> { clickSelectLocation() }
 
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
-                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
-                clickLocationCell(relayProvider.getDaitaRelay().relay)
-            }
+            on<SelectLocationPage> { selectRelayUsingSearch(relayProvider.getDaitaRelay()) }
 
             device.acceptVpnPermissionDialog()
 
