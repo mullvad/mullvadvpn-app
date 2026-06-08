@@ -270,7 +270,7 @@ fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID_LH) -> io::R
     }
 }
 
-/// Waits until the specified IP interfaces have attached to a given network interface.
+/// Waits until the specified IP interfaces have appeared for a given network device.
 pub async fn wait_for_interfaces(luid: NET_LUID_LH, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
 
