@@ -41,7 +41,7 @@ class SearchSplitTunnelingViewModel(
                 Lc.Loading(Unit),
             )
 
-    fun List<AppData>.search(searchTerm: String): List<SearchAppItem> =
+    private fun List<AppData>.search(searchTerm: String): List<SearchAppItem> =
         if (searchTerm.isEmpty()) {
             map { SearchAppItem.Default(appName = it.name, packageName = it.packageName) }
         } else {
