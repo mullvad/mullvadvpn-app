@@ -23,6 +23,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +59,8 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
 import net.mullvad.mullvadvpn.lib.ui.resource.R
+import net.mullvad.mullvadvpn.lib.ui.tag.SEARCH_LOCATION_INPUT_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SEARCH_LOCATION_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
@@ -209,11 +212,12 @@ fun SearchLocationScreen(
             )
         }
     ) {
-        Column(modifier = Modifier.padding(it)) {
+        Column(modifier = Modifier.testTag(SEARCH_LOCATION_SCREEN_TEST_TAG).padding(it)) {
             val focusRequester = remember { FocusRequester() }
             LaunchedEffect(state is Lce.Content) { focusRequester.requestFocus() }
             MullvadSearchBar(
-                modifier = Modifier.focusRequester(focusRequester),
+                modifier =
+                    Modifier.testTag(SEARCH_LOCATION_INPUT_TEST_TAG).focusRequester(focusRequester),
                 searchTerm = state.contentOrNull()?.searchTerm ?: "",
                 enabled = state is Lce.Content,
                 onSearchInputChanged = onSearchInputChanged,
