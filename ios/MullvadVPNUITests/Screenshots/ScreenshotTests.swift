@@ -86,7 +86,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
             .tapSelectLocationButton()
 
         SelectLocationPage(app)
-            .tapEntryFilterButton()
+            .tapExitFilterButton()
 
         snapshot("RelayFilter")
     }
