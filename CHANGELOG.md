@@ -49,6 +49,14 @@ Line wrap the file at 100 chars.                                              Th
 - Plug hole in Custom DNS firewall rules for LAN resolvers.
 
 
+## [2026.3-beta3] - 2026-06-08
+### Fixed
+- Custom lists become scrollable when enough custom lists have been created.
+
+#### Windows
+- Fix a race condition in the race condition fix from `2026.3-beta2`.
+
+
 ## [2026.3-beta2] - 2026-06-01
 ### Fixed
 #### Linux
