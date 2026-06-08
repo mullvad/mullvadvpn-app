@@ -174,7 +174,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
         switch self {
         case let .connecting(_, isPostQuantum: isPostQuantum, isDaita: _),
             let .connected(_, isPostQuantum: isPostQuantum, isDaita: _),
-            let .reconnecting(_, isPostQuantum: isPostQuantum, isDaita: _):
+            let .reconnecting(_, isPostQuantum: isPostQuantum, isDaita: _),
+            let .negotiatingEphemeralPeer(_, _, isPostQuantum: isPostQuantum, isDaita: _):
             isPostQuantum
         default:
             nil
@@ -185,7 +186,8 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
         switch self {
         case let .connecting(_, isPostQuantum: _, isDaita: isDaita),
             let .connected(_, isPostQuantum: _, isDaita: isDaita),
-            let .reconnecting(_, isPostQuantum: _, isDaita: isDaita):
+            let .reconnecting(_, isPostQuantum: _, isDaita: isDaita),
+            let .negotiatingEphemeralPeer(_, _, isPostQuantum: _, isDaita: isDaita):
             isDaita
         default:
             nil
