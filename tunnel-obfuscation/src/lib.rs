@@ -37,12 +37,8 @@ pub enum Error {
     #[error("Failed to run LWO")]
     RunLwoObfuscator(#[source] lwo::Error),
 
-    #[error("Failed to bind socket")]
-    BindRemoteUdp(#[source] io::Error),
-
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set fwmark on remote socket")]
-    SetFwmark(#[source] nix::Error),
+    #[error(transparent)]
+    CreateSocket(#[from] socket::Error),
 
     #[error("Failed to initialize multiplexer")]
     CreateMultiplexerObfuscator(#[source] io::Error),
@@ -85,7 +81,7 @@ pub async fn create_obfuscator(settings: &Settings) -> Result<Box<dyn Obfuscator
             .map(box_obfuscator)
             .map_err(Error::CreateUdp2TcpObfuscator),
         Settings::Shadowsocks(s) => shadowsocks::Shadowsocks::new(s).await.map(box_obfuscator),
-        Settings::Quic(s) => quic::Quic::new(s).await.map(box_obfuscator),
+        Settings::Quic(s) => quic::QuicLocalSocket::new(s).await.map(box_obfuscator),
         Settings::Lwo(s) => lwo::Lwo::new(s).await.map(box_obfuscator),
         Settings::Multiplexer(s) => multiplexer::Multiplexer::new(s).await.map(box_obfuscator),
     }

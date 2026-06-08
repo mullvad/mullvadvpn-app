@@ -312,7 +312,7 @@ impl Multiplexer {
             Transport::Direct(addr) => {
                 self.running_endpoints.insert(addr, transport);
                 log::info!("Spawning direct forwarder");
-                Ok(addr)
+                addr
             }
             Transport::Obfuscated(obfuscator_settings) => {
                 let obfuscator = crate::create_obfuscator(&obfuscator_settings).await?;
@@ -324,9 +324,9 @@ impl Multiplexer {
                         log::info!("Spawning new obfuscator");
                         let _ = obfuscator.run().await;
                     })));
-                Ok(endpoint)
+                endpoint
             }
-        }?;
+        };
 
         self.send_initial_packets_to(endpoint).await;
 

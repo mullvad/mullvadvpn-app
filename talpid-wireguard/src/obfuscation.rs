@@ -13,7 +13,10 @@ use std::{
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{
     ErrorExt,
-    net::obfuscation::{ObfuscatorConfig, Obfuscators},
+    net::{
+        obfuscation::{ObfuscatorConfig, Obfuscators},
+        wireguard::TunnelParameters,
+    },
 };
 
 use tunnel_obfuscation::{
@@ -39,10 +42,16 @@ pub async fn apply_obfuscation_config(
         return Ok(None);
     };
 
-    // When GotaTun is in use and LWO is configured, obfuscation is applied inline by
-    // MaybeObfuscatingTransportFactory.
-    if is_gotatun && is_single_lwo(obfuscator_config) {
-        log::debug!("GotaTun + LWO: skipping proxy, obfuscation will be applied inline");
+    // If the obfuscation can be applied in user space (see MaybeObfuscatingTransportFactory),
+    // then we do not modify the endpoint.
+    if is_gotatun
+        && matches!(
+            obfuscator_config,
+            Obfuscators::Single(ObfuscatorConfig::Quic { .. })
+                | Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
+        )
+    {
+        log::debug!("GotaTun + LWO/QUIC: skipping proxy, obfuscation will be applied inline");
         return Ok(None);
     }
 
@@ -90,10 +99,15 @@ pub async fn apply_obfuscation_config(
 }
 
 /// Returns `true` when the obfuscation config is a single LWO method.
-pub fn is_single_lwo(obfuscators: &Obfuscators) -> bool {
+#[cfg(not(target_os = "android"))]
+pub fn userspace_transport_available(
+    params: &talpid_types::net::wireguard::TunnelParameters,
+) -> bool {
+    use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
     matches!(
-        obfuscators,
-        Obfuscators::Single(ObfuscatorConfig::Lwo { .. })
+        params.obfuscation.as_ref(),
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { .. }))
+            | Some(Obfuscators::Single(ObfuscatorConfig::Quic { .. }))
     )
 }
 
@@ -174,7 +188,7 @@ fn settings_from_single_config(
             auth_token,
         } => {
             let wireguard_endpoint = SocketAddr::from((Ipv4Addr::LOCALHOST, 51820));
-            let settings = quic::Settings::new(
+            let mut settings = quic::Settings::new(
                 *endpoint,
                 hostname.to_owned(),
                 auth_token.parse().unwrap(),
@@ -183,7 +197,8 @@ fn settings_from_single_config(
             .mtu(mtu);
             #[cfg(target_os = "linux")]
             if let Some(fwmark) = fwmark {
-                return ObfuscationSettings::Quic(settings.fwmark(fwmark));
+                settings.set_fwmark(fwmark);
+                return ObfuscationSettings::Quic(settings);
             }
             ObfuscationSettings::Quic(settings)
         }

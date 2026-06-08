@@ -42,8 +42,6 @@ const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pe
 
 /// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
-    client_socket: Arc<UdpSocket>,
-
     /// QUIC endpoint
     quinn_conn: quinn::Connection,
 
@@ -137,9 +135,6 @@ pub enum Error {
 
 #[derive(TypedBuilder, Debug)]
 pub struct ClientConfig {
-    /// Socket that accepts proxy clients
-    pub client_socket: UdpSocket,
-
     /// Socket to bind the QUIC endpoint socket to
     pub quinn_socket: UdpSocket,
 
@@ -216,7 +211,6 @@ impl Client {
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
-            client_socket: Arc::new(config.client_socket),
             request_stream,
             send_stream,
             max_udp_payload_size,
@@ -367,7 +361,8 @@ impl Client {
     }
 
     #[must_use]
-    pub fn run(self) -> RunningClient {
+    pub fn run(self, client_socket: UdpSocket) -> RunningClient {
+        let client_socket = Arc::new(client_socket);
         let stream_id: StreamId = self.request_stream.id();
 
         let mut tasks = JoinSet::new();
@@ -392,12 +387,12 @@ impl Client {
         let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
 
         spawn!(client_socket_rx_task(
-            self.client_socket.clone(),
+            Arc::clone(&client_socket),
             client_tx,
             return_addr_tx,
         ));
 
-        spawn!(client_socket_tx_task(self.client_socket.clone(), send_rx));
+        spawn!(client_socket_tx_task(client_socket, send_rx));
 
         spawn!(fragment_reassembly_task(
             stream_id,
@@ -415,6 +410,64 @@ impl Client {
             server_tx,
             client_rx,
             Arc::clone(&self.stats),
+        ));
+
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
+    }
+
+    #[must_use]
+    pub fn run_inline<B: AsRef<[u8]> + Send + 'static>(
+        self,
+        packet_rx: mpsc::Receiver<B>,
+        packet_tx: mpsc::Sender<Bytes>,
+    ) -> RunningClient {
+        let stream_id: StreamId = self.request_stream.id();
+
+        let mut tasks = JoinSet::new();
+
+        /// Spawn a task on the `tasks` JoinSet, and log when it returns.
+        macro_rules! spawn {
+            ($fn_name:ident $args:tt) => {{
+                let future = $fn_name $args;
+                tasks.spawn(async move {
+                    let result = future.await;
+                    if let Err(err) = &result {
+                        log::debug!("{} exited with error {:?}", stringify!($fn_name), err);
+                    }
+                    result
+                })
+            }};
+        }
+
+        let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        spawn!(inline_rx_task(
+            packet_rx,
+            client_tx,
+            self.quinn_conn,
+            stream_id,
+            self.max_udp_payload_size,
+            Arc::clone(&self.stats)
+        ));
+
+        spawn!(fragment_reassembly_task_new(
+            stream_id,
+            server_rx,
+            packet_tx,
+            Arc::clone(&self.stats),
+        ));
+
+        spawn!(server_socket_task_new(
+            stream_id,
+            self.connection,
+            server_tx,
+            client_rx,
         ));
 
         RunningClient {
@@ -455,6 +508,43 @@ impl RunningClient {
             Err(_cancelled) => Ok(()),
         })
     }
+}
+
+async fn server_socket_task_new(
+    stream_id: StreamId,
+    mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
+    server_tx: mpsc::Sender<Datagram>,
+    mut outgoing_packet_rx: mpsc::Receiver<Bytes>,
+) -> Result<Stopped> {
+    loop {
+        select! {
+            datagram = connection.read_datagram() => {
+                match datagram {
+                    Ok(Some(response)) => {
+                        if server_tx.send(response).await.is_err() {
+                            break; // channel closed, exit gracefully
+                        }
+                    }
+                    Ok(None) => break, // quic conn closed, exit gracefully
+                    Err(err) => return Err(Error::ProxyResponse(err)),
+                }
+
+                continue;
+            }
+            packet = outgoing_packet_rx.recv() => {
+                if let Some(packet) = packet {
+                    connection
+                        .send_datagram(stream_id, packet)
+                        .map_err(Error::SendDatagram)?;
+                } else {
+                    break;
+                }
+            },
+            // TODO: Do we not need a `connection.poll_close(cx)` here?
+        };
+    }
+
+    Ok(Stopped)
 }
 
 async fn server_socket_task(
@@ -505,7 +595,7 @@ async fn server_socket_task(
             // drop the added context ID, since packet will have to be fragmented.
             let _ = VarInt::decode(&mut packet);
 
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
+            for fragment in fragment::fragment_packet(maximum_packet_size, &packet, fragment_id)
                 .map_err(Error::PacketTooLarge)?
             {
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
@@ -534,6 +624,9 @@ async fn client_socket_rx_task(
     let mut recv = async || {
         if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
             // Allocate space for new packets
+            // This will try to reserve space before allocating, so is the above `try_reclaim`
+            // really needed?
+            // Maybe the point is to not allocate a new buffer with only MAX_UDP_SIZE if reclaiming fails?
             client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
         }
 
@@ -713,6 +806,106 @@ async fn client_socket_non_gso_tx_task(
             .await
             .map_err(Error::ClientWrite)?;
     }
+    Ok(Stopped)
+}
+
+/// Read WireGuard packets from the inline caller, prepend the MASQUE context ID, and forward
+/// them into the proxy pipeline toward the relay.
+async fn inline_rx_task<B: AsRef<[u8]>>(
+    mut packet_rx: mpsc::Receiver<B>,
+    client_tx: mpsc::Sender<Bytes>,
+    quinn_conn: quinn::Connection,
+    stream_id: StreamId,
+    max_udp_payload_size: u16,
+    stats: Arc<Stats>,
+) -> Result<Stopped> {
+    let mut fragment_id = 0u16;
+    let stream_id_size = VarInt::from(stream_id).size() as u16;
+
+    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+    let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
+    let client_read_buf = &mut client_read_buf;
+
+    while let Some(packet) = packet_rx.recv().await {
+        if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+            // Allocate space for new packets
+            client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
+        }
+
+        // Maximum QUIC payload (including fragmentation headers)
+        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+            max_datagram_size as u16 - stream_id_size
+        } else {
+            max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
+        };
+
+        if packet.as_ref().len() <= usize::from(maximum_packet_size) {
+            stats.tx(packet.as_ref().len(), false);
+            crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(client_read_buf);
+            client_read_buf.extend_from_slice(packet.as_ref());
+            if client_tx
+                .send(client_read_buf.split().freeze())
+                .await
+                .is_err()
+            {
+                break;
+            }
+        } else {
+            for fragment in
+                fragment::fragment_packet(maximum_packet_size, packet.as_ref(), fragment_id)
+                    .map_err(Error::PacketTooLarge)?
+            {
+                debug_assert!(fragment.len() <= maximum_packet_size as usize);
+
+                stats.tx(fragment.len(), true);
+                if client_tx.send(fragment).await.is_err() {
+                    break;
+                }
+            }
+            fragment_id = fragment_id.wrapping_add(1);
+        }
+    }
+    Ok(Stopped)
+}
+
+async fn fragment_reassembly_task_new(
+    stream_id: StreamId,
+    mut server_rx: mpsc::Receiver<Datagram>,
+    send_tx: mpsc::Sender<Bytes>,
+    stats: Arc<Stats>,
+) -> Result<Stopped> {
+    let mut fragments = Fragments::default();
+
+    while let Some(response) = server_rx.recv().await {
+        if response.stream_id() != stream_id {
+            log::debug!("Received datagram with an unexpected stream ID");
+            continue;
+        }
+        let payload = response.into_payload();
+        let original_payload_len = payload.len();
+
+        match fragments.handle_incoming_packet(payload) {
+            Ok(DefragReceived::Nonfragmented(payload)) => {
+                stats.rx(payload.len(), false);
+                if send_tx.send(payload).await.is_err() {
+                    break; // channel closed, exit gracefully
+                }
+            }
+            Ok(DefragReceived::Reassembled(reassembled_payload)) => {
+                stats.rx(original_payload_len, true);
+                if send_tx.send(reassembled_payload).await.is_err() {
+                    break; // channel closed, exit gracefully
+                }
+            }
+            Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
+            Err(e) => {
+                use log::Level::*;
+                let level = if cfg!(debug_assertions) { Debug } else { Trace };
+                log::log!(level, "Packet reassembly failed: {e}");
+            }
+        }
+    }
+
     Ok(Stopped)
 }
 
