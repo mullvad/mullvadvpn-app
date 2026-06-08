@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2026.3-beta3] - 2026-06-08
 ### Fixed
 - Custom lists become scrollable when enough custom lists have been created.
 
