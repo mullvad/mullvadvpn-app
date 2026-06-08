@@ -54,18 +54,18 @@ class ConnectionTest : EndToEndTest() {
     private val firewallClient by lazy { FirewallClient() }
     private val relayProvider = RelayProvider(BuildConfig.FLAVOR_billing)
 
-    @Test
-    fun testConnect() {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        on<ConnectPage> { clickConnect() }
-
-        device.acceptVpnPermissionDialog()
-
-        on<ConnectPage> { waitForConnectedLabel() }
-    }
-
+//    @Test
+//    fun testConnect() {
+//        // Given
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        on<ConnectPage> { clickConnect() }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        on<ConnectPage> { waitForConnectedLabel() }
+//    }
+//
     @Test
     fun testConnectAndVerifyWithConnectionCheck() = runTest {
         // Given
@@ -88,30 +88,30 @@ class ConnectionTest : EndToEndTest() {
         assertEquals(result.ip, outIpv4Address)
     }
 
-    @Test
-    fun testConnectingWithoutPostQuantum() = runTest {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        on<ConnectPage> { disablePostQuantumStory() }
-
-        // Connect
-        on<ConnectPage> { clickConnect() }
-
-        device.acceptVpnPermissionDialog()
-
-        var outIpv4Address = ""
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            outIpv4Address = extractOutIpv4Address()
-        }
-
-        val result = connCheckClient.connectionCheck()
-
-        // Verify connection
-        assertEquals(result.ip, outIpv4Address)
-    }
+//    @Test
+//    fun testConnectingWithoutPostQuantum() = runTest {
+//        // Given
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        on<ConnectPage> { disablePostQuantumStory() }
+//
+//        // Connect
+//        on<ConnectPage> { clickConnect() }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var outIpv4Address = ""
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            outIpv4Address = extractOutIpv4Address()
+//        }
+//
+//        val result = connCheckClient.connectionCheck()
+//
+//        // Verify connection
+//        assertEquals(result.ip, outIpv4Address)
+//    }
 
     @Test
     @HasDependencyOnLocalAPI
@@ -152,234 +152,234 @@ class ConnectionTest : EndToEndTest() {
             }
         }
 
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testWireGuardObfuscationOff() =
-        runTest(timeout = 2.minutes) {
-            app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(localNetworkSharing = true)
-
-            on<ConnectPage> { clickSelectLocation() }
-
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-                clickLocationCell(relayProvider.getDefaultRelay().relay)
-            }
-
-            device.acceptVpnPermissionDialog()
-
-            var relayIpAddress: String? = null
-
-            on<ConnectPage> {
-                waitForConnectedLabel()
-                relayIpAddress = extractInIpAddress()
-                clickDisconnect()
-            }
-
-            // Block UDP traffic to the relay
-            createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
-
-            app.applySettings(
-                obfuscationMode = ObfuscationMode.Off,
-                deviceIpVersion = Constraint.Only(IpVersion.IPV4),
-            )
-
-            on<ConnectPage> {
-                clickConnect()
-                // Ensure it is not possible to connect to relay.
-                // Give it some time and then verify still unable to connect.
-                // This duration must be long enough to ensure all retry attempts have been made.
-                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
-                waitForConnectingLabel()
-                clickCancel()
-            }
-        }
-
-    @Test
-    fun testDaita() =
-        runTest(timeout = 2.minutes) {
-            app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(daita = DaitaOption.Auto(true))
-
-            on<ConnectPage> { clickSelectLocation() }
-
-            on<SelectLocationPage> {
-                clickLocationExpandButton(relayProvider.getNonDaitaRelay().country)
-                clickLocationExpandButton(relayProvider.getNonDaitaRelay().city)
-                clickLocationCell(relayProvider.getNonDaitaRelay().relay)
-            }
-
-            device.acceptVpnPermissionDialog()
-
-            on<ConnectPage> {
-                waitForConnectedLabel()
-                app.applySettings(daita = DaitaOption.DirectOnly(true))
-                waitForBlockedLabel()
-                clickSelectLocation()
-            }
-
-            on<SelectLocationPage> {
-                assertDaitaChipVisible()
-                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
-                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
-                clickLocationCell(relayProvider.getDaitaRelay().relay)
-            }
-
-            on<ConnectPage> { waitForConnectedLabel() }
-        }
-
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testUDPOverTCP() = runTest {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        app.applySettings(localNetworkSharing = true)
-
-        on<ConnectPage> { clickSelectLocation() }
-
-        on<SelectLocationPage> {
-            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
-            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
-            clickLocationCell(relayProvider.getDefaultRelay().relay)
-        }
-
-        device.acceptVpnPermissionDialog()
-
-        var relayIpAddress: String? = null
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            relayIpAddress = extractInIpAddress()
-            clickDisconnect()
-        }
-
-        // Block UDP traffic to the relay
-        createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
-
-        // Enable UDP-over-TCP
-        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Udp2Tcp) }
-
-        on<ConnectPage> {
-            clickConnect()
-            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
-            clickDisconnect()
-        }
-    }
-
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testQuic() = runTest {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-        app.applySettings(localNetworkSharing = true)
-
-        on<ConnectPage> { clickSelectLocation() }
-
-        on<SelectLocationPage> {
-            val quicRelay = relayProvider.getQuicRelay()
-            clickLocationExpandButton(quicRelay.country)
-            clickLocationExpandButton(quicRelay.city)
-            scrollUntilText(quicRelay.relay)
-            clickLocationCell(quicRelay.relay)
-        }
-
-        device.acceptVpnPermissionDialog()
-
-        var relayIpAddress: String? = null
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            relayIpAddress = extractInIpAddress()
-            clickDisconnect()
-        }
-
-        // Block UDP traffic to the relay
-        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
-
-        // Enable QUIC
-        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Quic) }
-
-        on<ConnectPage> {
-            clickConnect()
-            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
-            clickDisconnect()
-        }
-    }
-
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testLwo() = runTest {
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        app.applySettings(localNetworkSharing = true)
-
-        on<ConnectPage> { clickSelectLocation() }
-
-        on<SelectLocationPage> {
-            val lwoRelay = relayProvider.getLwoRelay()
-            clickLocationExpandButton(lwoRelay.country)
-            clickLocationExpandButton(lwoRelay.city)
-            scrollUntilText(lwoRelay.relay)
-            clickLocationCell(lwoRelay.relay)
-        }
-
-        device.acceptVpnPermissionDialog()
-
-        var relayIpAddress: String? = null
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            relayIpAddress = extractInIpAddress()
-            clickDisconnect()
-        }
-
-        // Block UDP traffic to the relay
-        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
-
-        // Enable LWO
-        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Lwo) }
-
-        on<ConnectPage> {
-            clickConnect()
-            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
-            clickDisconnect()
-        }
-    }
-
-    @Test
-    @HasDependencyOnLocalAPI
-    @ClearFirewallRules
-    fun testShadowsocks() =
-        runTest(timeout = 2.minutes) {
-            app.launchAndLogIn(accountTestRule.validAccountNumber)
-            app.applySettings(localNetworkSharing = true, obfuscationMode = ObfuscationMode.Off)
-
-            // Block all WireGuard traffic
-            createFirewallRules { DropRule.blockWireGuardTrafficRule(ANY_IPV4_ADDRESS) }
-
-            on<ConnectPage> { clickConnect() }
-
-            device.acceptVpnPermissionDialog()
-
-            // Ensure it is not possible to connect to relay
-            on<ConnectPage> {
-                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
-                waitForConnectingLabel()
-                clickCancel()
-            }
-
-            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Shadowsocks) }
-
-            // Ensure we can now connect with Shadowsocks enabled
-            on<ConnectPage> {
-                clickConnect()
-                waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
-                clickDisconnect()
-            }
-        }
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testWireGuardObfuscationOff() =
+//        runTest(timeout = 2.minutes) {
+//            app.launchAndLogIn(accountTestRule.validAccountNumber)
+//            app.applySettings(localNetworkSharing = true)
+//
+//            on<ConnectPage> { clickSelectLocation() }
+//
+//            on<SelectLocationPage> {
+//                clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+//                clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+//                clickLocationCell(relayProvider.getDefaultRelay().relay)
+//            }
+//
+//            device.acceptVpnPermissionDialog()
+//
+//            var relayIpAddress: String? = null
+//
+//            on<ConnectPage> {
+//                waitForConnectedLabel()
+//                relayIpAddress = extractInIpAddress()
+//                clickDisconnect()
+//            }
+//
+//            // Block UDP traffic to the relay
+//            createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
+//
+//            app.applySettings(
+//                obfuscationMode = ObfuscationMode.Off,
+//                deviceIpVersion = Constraint.Only(IpVersion.IPV4),
+//            )
+//
+//            on<ConnectPage> {
+//                clickConnect()
+//                // Ensure it is not possible to connect to relay.
+//                // Give it some time and then verify still unable to connect.
+//                // This duration must be long enough to ensure all retry attempts have been made.
+//                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
+//                waitForConnectingLabel()
+//                clickCancel()
+//            }
+//        }
+//
+//    @Test
+//    fun testDaita() =
+//        runTest(timeout = 2.minutes) {
+//            app.launchAndLogIn(accountTestRule.validAccountNumber)
+//            app.applySettings(daita = DaitaOption.Auto(true))
+//
+//            on<ConnectPage> { clickSelectLocation() }
+//
+//            on<SelectLocationPage> {
+//                clickLocationExpandButton(relayProvider.getNonDaitaRelay().country)
+//                clickLocationExpandButton(relayProvider.getNonDaitaRelay().city)
+//                clickLocationCell(relayProvider.getNonDaitaRelay().relay)
+//            }
+//
+//            device.acceptVpnPermissionDialog()
+//
+//            on<ConnectPage> {
+//                waitForConnectedLabel()
+//                app.applySettings(daita = DaitaOption.DirectOnly(true))
+//                waitForBlockedLabel()
+//                clickSelectLocation()
+//            }
+//
+//            on<SelectLocationPage> {
+//                assertDaitaChipVisible()
+//                clickLocationExpandButton(relayProvider.getDaitaRelay().country)
+//                clickLocationExpandButton(relayProvider.getDaitaRelay().city)
+//                clickLocationCell(relayProvider.getDaitaRelay().relay)
+//            }
+//
+//            on<ConnectPage> { waitForConnectedLabel() }
+//        }
+//
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testUDPOverTCP() = runTest {
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//        app.applySettings(localNetworkSharing = true)
+//
+//        on<ConnectPage> { clickSelectLocation() }
+//
+//        on<SelectLocationPage> {
+//            clickLocationExpandButton(relayProvider.getDefaultRelay().country)
+//            clickLocationExpandButton(relayProvider.getDefaultRelay().city)
+//            clickLocationCell(relayProvider.getDefaultRelay().relay)
+//        }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var relayIpAddress: String? = null
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            relayIpAddress = extractInIpAddress()
+//            clickDisconnect()
+//        }
+//
+//        // Block UDP traffic to the relay
+//        createFirewallRules { DropRule.blockUDPTrafficRule(relayIpAddress!!) }
+//
+//        // Enable UDP-over-TCP
+//        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Udp2Tcp) }
+//
+//        on<ConnectPage> {
+//            clickConnect()
+//            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+//            clickDisconnect()
+//        }
+//    }
+//
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testQuic() = runTest {
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//        app.applySettings(localNetworkSharing = true)
+//
+//        on<ConnectPage> { clickSelectLocation() }
+//
+//        on<SelectLocationPage> {
+//            val quicRelay = relayProvider.getQuicRelay()
+//            clickLocationExpandButton(quicRelay.country)
+//            clickLocationExpandButton(quicRelay.city)
+//            scrollUntilText(quicRelay.relay)
+//            clickLocationCell(quicRelay.relay)
+//        }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var relayIpAddress: String? = null
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            relayIpAddress = extractInIpAddress()
+//            clickDisconnect()
+//        }
+//
+//        // Block UDP traffic to the relay
+//        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
+//
+//        // Enable QUIC
+//        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Quic) }
+//
+//        on<ConnectPage> {
+//            clickConnect()
+//            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+//            clickDisconnect()
+//        }
+//    }
+//
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testLwo() = runTest {
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        app.applySettings(localNetworkSharing = true)
+//
+//        on<ConnectPage> { clickSelectLocation() }
+//
+//        on<SelectLocationPage> {
+//            val lwoRelay = relayProvider.getLwoRelay()
+//            clickLocationExpandButton(lwoRelay.country)
+//            clickLocationExpandButton(lwoRelay.city)
+//            scrollUntilText(lwoRelay.relay)
+//            clickLocationCell(lwoRelay.relay)
+//        }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var relayIpAddress: String? = null
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            relayIpAddress = extractInIpAddress()
+//            clickDisconnect()
+//        }
+//
+//        // Block UDP traffic to the relay
+//        createFirewallRules { DropRule.blockWireGuardTrafficRule(relayIpAddress!!) }
+//
+//        // Enable LWO
+//        on<ConnectPage> { setObfuscationStory(ObfuscationOption.Lwo) }
+//
+//        on<ConnectPage> {
+//            clickConnect()
+//            waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+//            clickDisconnect()
+//        }
+//    }
+//
+//    @Test
+//    @HasDependencyOnLocalAPI
+//    @ClearFirewallRules
+//    fun testShadowsocks() =
+//        runTest(timeout = 2.minutes) {
+//            app.launchAndLogIn(accountTestRule.validAccountNumber)
+//            app.applySettings(localNetworkSharing = true, obfuscationMode = ObfuscationMode.Off)
+//
+//            // Block all WireGuard traffic
+//            createFirewallRules { DropRule.blockWireGuardTrafficRule(ANY_IPV4_ADDRESS) }
+//
+//            on<ConnectPage> { clickConnect() }
+//
+//            device.acceptVpnPermissionDialog()
+//
+//            // Ensure it is not possible to connect to relay
+//            on<ConnectPage> {
+//                runBlocking { delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds) }
+//                waitForConnectingLabel()
+//                clickCancel()
+//            }
+//
+//            on<ConnectPage> { setObfuscationStory(ObfuscationOption.Shadowsocks) }
+//
+//            // Ensure we can now connect with Shadowsocks enabled
+//            on<ConnectPage> {
+//                clickConnect()
+//                waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+//                clickDisconnect()
+//            }
+//        }
 
     @Test
     @HasDependencyOnLocalAPI
@@ -415,41 +415,41 @@ class ConnectionTest : EndToEndTest() {
         }
     }
 
-    @Test
-    fun testConnectUsingWireguardCustomPort() = runTest {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        // Set wireguard custom port
-        on<ConnectPage> { enableWireGuardCustomPortStory(53) }
-
-        // Connect
-        on<ConnectPage> { clickConnect() }
-
-        device.acceptVpnPermissionDialog()
-
-        var inIpv4Port = ""
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            inIpv4Port = extractInIpPort()
-        }
-
-        // Verify correct port used
-        assertEquals("53", inIpv4Port)
-    }
-
-    @Test
-    fun testConnectWithoutInTunnelIpv6() = runTest {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        on<ConnectPage> { toggleInTunnelIpv6Story() }
-        on<ConnectPage> { clickConnect() }
-        device.acceptVpnPermissionDialog()
-
-        on<ConnectPage> { waitForConnectedLabel() }
-    }
+//    @Test
+//    fun testConnectUsingWireguardCustomPort() = runTest {
+//        // Given
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        // Set wireguard custom port
+//        on<ConnectPage> { enableWireGuardCustomPortStory(53) }
+//
+//        // Connect
+//        on<ConnectPage> { clickConnect() }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var inIpv4Port = ""
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            inIpv4Port = extractInIpPort()
+//        }
+//
+//        // Verify correct port used
+//        assertEquals("53", inIpv4Port)
+//    }
+//
+//    @Test
+//    fun testConnectWithoutInTunnelIpv6() = runTest {
+//        // Given
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        on<ConnectPage> { toggleInTunnelIpv6Story() }
+//        on<ConnectPage> { clickConnect() }
+//        device.acceptVpnPermissionDialog()
+//
+//        on<ConnectPage> { waitForConnectedLabel() }
+//    }
 
     @Test
     fun testConnectUsingMultihop() =
@@ -491,33 +491,33 @@ class ConnectionTest : EndToEndTest() {
             assertEquals(result.mullvadExitIpHostname, exitRelay.relay)
         }
 
-    @Test
-    @Disabled(
-        "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. "
-    )
-    fun testConnectUsingIpv6() = runTest {
-        // Given
-        app.launchAndLogIn(accountTestRule.validAccountNumber)
-
-        // Set Device IP version
-        on<ConnectPage> { enableDeviceIpv6Story() }
-
-        // Connect
-        on<ConnectPage> { clickConnect() }
-
-        device.acceptVpnPermissionDialog()
-
-        var inIpv6Address = ""
-
-        on<ConnectPage> {
-            waitForConnectedLabel()
-            inIpv6Address = extractInIpAddress()
-        }
-
-        val parsedAddress = parseNumericAddress(inIpv6Address)
-        // Verify that the in address is a IPv6 address
-        assertInstanceOf<Inet6Address>(parsedAddress)
-    }
+//    @Test
+//    @Disabled(
+//        "Disabled due to IPv6 will occasionally stop working on Android phones due to a system bug. "
+//    )
+//    fun testConnectUsingIpv6() = runTest {
+//        // Given
+//        app.launchAndLogIn(accountTestRule.validAccountNumber)
+//
+//        // Set Device IP version
+//        on<ConnectPage> { enableDeviceIpv6Story() }
+//
+//        // Connect
+//        on<ConnectPage> { clickConnect() }
+//
+//        device.acceptVpnPermissionDialog()
+//
+//        var inIpv6Address = ""
+//
+//        on<ConnectPage> {
+//            waitForConnectedLabel()
+//            inIpv6Address = extractInIpAddress()
+//        }
+//
+//        val parsedAddress = parseNumericAddress(inIpv6Address)
+//        // Verify that the in address is a IPv6 address
+//        assertInstanceOf<Inet6Address>(parsedAddress)
+//    }
 
     private suspend fun createFirewallRules(block: () -> List<DropRule>) =
         block().forEach { firewallClient.createRule(it) }

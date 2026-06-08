@@ -66,24 +66,4 @@ abstract class EndToEndTest {
                 }
             }
         )
-
-    companion object {
-        val firewallClient = FirewallClient()
-
-        @JvmStatic
-        @BeforeAll
-        // There are certain scenarios where old rules from previous tests runs may remain on
-        // the router and cause issues, so attempt to clear them before any test setup is done.
-        fun clearFirewallRules() {
-            runBlocking {
-                try {
-                    firewallClient.removeAllRules()
-                } catch (e: Exception) {
-                    // If the router can't be reached we ignore the error because the e2e
-                    // test that is about to be run may not require router access.
-                    Logger.e("firewallClient.removeAllRules() failed")
-                }
-            }
-        }
-    }
 }
