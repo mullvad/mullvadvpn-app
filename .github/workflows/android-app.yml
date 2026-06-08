@@ -118,6 +118,7 @@ jobs:
           >> $GITHUB_ENV
           echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat ||
           (github.event_name == 'schedule' && env.SCHEDULE_E2E_REPEAT) ||
+          (contains(github.event.pull_request.labels.*.name, 'E2E') && '1') ||
           env.DEFAULT_E2E_REPEAT }}" \
           >> $GITHUB_ENV
     outputs:
