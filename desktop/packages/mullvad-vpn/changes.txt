@@ -1,4 +1,2 @@
-[macOS] The Desktop app GUI is automatically restarted after an update, if it was running.
-Add list of recent server selections in the "Select location" view.
-GotaTun is now used as the userspace WireGuard implementation on all desktop platforms.
-Add port setting for the LWO Anti-censorship method.
+Custom lists become scrollable when enough custom lists have been created.
+[windows] Additional bug fixes.
