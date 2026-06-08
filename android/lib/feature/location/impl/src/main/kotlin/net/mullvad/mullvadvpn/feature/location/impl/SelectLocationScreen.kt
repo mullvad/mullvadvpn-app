@@ -108,6 +108,7 @@ import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicat
 import net.mullvad.mullvadvpn.lib.ui.icon.DeleteHistory
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_MENU_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SCREEN_TEST_TAG
+import net.mullvad.mullvadvpn.lib.ui.tag.SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
@@ -400,7 +401,9 @@ fun SelectLocationScreen(
         floatingActionButton = {
             if (!isTv() && state is Lc.Content && state.value.isSearchButtonEnabled) {
                 FloatingActionButton(
-                    modifier = Modifier.onGloballyPositioned { fabHeight = it.size.height },
+                    modifier =
+                        Modifier.testTag(SELECT_LOCATION_SEARCH_BUTTON_TEST_TAG)
+                            .onGloballyPositioned { fabHeight = it.size.height },
                     onClick = { onSearchClick(state.value.relayListType) },
                     containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                     contentColor = MaterialTheme.colorScheme.onTertiary,
