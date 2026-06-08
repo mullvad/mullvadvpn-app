@@ -89,7 +89,6 @@ async fn main() {
     let endpoint_socket = UdpSocket::bind((Ipv4Addr::UNSPECIFIED, 0)).await.unwrap();
 
     let config = ClientConfig::builder()
-        .client_socket(local_socket)
         .quinn_socket(endpoint_socket)
         .server_addr(server_addr)
         .server_host(server_hostname)
@@ -107,7 +106,7 @@ async fn main() {
         }
     }
 
-    let client = client.expect("Failed to connect client").run();
+    let client = client.expect("Failed to connect client").run(local_socket);
     let result = client.until_closed().await;
 
     if let Err(e) = result {

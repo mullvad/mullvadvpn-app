@@ -42,8 +42,6 @@ const LE_ROOT_CERT: &[u8] = include_bytes!("../../../mullvad-api/le_root_cert.pe
 
 /// Handle to a ready client that's connected, but is not yet proxying traffic.
 pub struct Client {
-    client_socket: Arc<UdpSocket>,
-
     /// QUIC endpoint
     quinn_conn: quinn::Connection,
 
@@ -137,9 +135,6 @@ pub enum Error {
 
 #[derive(TypedBuilder, Debug)]
 pub struct ClientConfig {
-    /// Socket that accepts proxy clients
-    pub client_socket: UdpSocket,
-
     /// Socket to bind the QUIC endpoint socket to
     pub quinn_socket: UdpSocket,
 
@@ -216,7 +211,6 @@ impl Client {
         Ok(Self {
             quinn_conn: connection,
             connection: h3_connection,
-            client_socket: Arc::new(config.client_socket),
             request_stream,
             send_stream,
             max_udp_payload_size,
@@ -367,7 +361,8 @@ impl Client {
     }
 
     #[must_use]
-    pub fn run(self) -> RunningClient {
+    pub fn run(self, client_socket: UdpSocket) -> RunningClient {
+        let client_socket = Arc::new(client_socket);
         let stream_id: StreamId = self.request_stream.id();
 
         let mut tasks = JoinSet::new();
@@ -389,32 +384,99 @@ impl Client {
         let (return_addr_tx, return_addr_rx) = oneshot::channel();
         let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
         let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
-        let (send_tx, send_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
+        let (output_tx, output_rx) = mpsc::channel::<Bytes>(MAX_INFLIGHT_PACKETS);
+        let (bridge_tx, bridge_rx) = mpsc::channel::<(SocketAddr, Bytes)>(MAX_INFLIGHT_PACKETS);
 
         spawn!(client_socket_rx_task(
-            self.client_socket.clone(),
+            Arc::clone(&client_socket),
             client_tx,
             return_addr_tx,
+            // These fields are new
+            self.quinn_conn,
+            stream_id,
+            self.max_udp_payload_size,
+            Arc::clone(&self.stats),
         ));
 
-        spawn!(client_socket_tx_task(self.client_socket.clone(), send_rx));
+        spawn!(client_socket_tx_task(client_socket, bridge_rx));
+
+        spawn!(client_socket_output_bridge(
+            return_addr_rx,
+            output_rx,
+            bridge_tx
+        ));
 
         spawn!(fragment_reassembly_task(
             stream_id,
             server_rx,
-            return_addr_rx,
-            send_tx,
+            output_tx,
             Arc::clone(&self.stats),
         ));
 
         spawn!(server_socket_task(
             stream_id,
-            self.max_udp_payload_size,
-            self.quinn_conn,
             self.connection,
             server_tx,
             client_rx,
+        ));
+        RunningClient {
+            tasks,
+            _send_stream: self.send_stream,
+            _request_stream: self.request_stream,
+            _stats: self.stats,
+        }
+    }
+
+    #[must_use]
+    pub fn run_inline<B: AsRef<[u8]> + Send + 'static>(
+        self,
+        packet_rx: mpsc::Receiver<B>,
+        packet_tx: mpsc::Sender<Bytes>,
+    ) -> RunningClient {
+        log::trace!("run_inline");
+        let stream_id: StreamId = self.request_stream.id();
+
+        let mut tasks = JoinSet::new();
+
+        /// Spawn a task on the `tasks` JoinSet, and log when it returns.
+        macro_rules! spawn {
+            ($fn_name:ident $args:tt) => {{
+                let future = $fn_name $args;
+                tasks.spawn(async move {
+                    log::trace!("{} spawned", stringify!($fn_name));
+                    let result = future.await;
+                    if let Err(err) = &result {
+                        log::debug!("{} exited with error {:?}", stringify!($fn_name), err);
+                    }
+                    result
+                })
+            }};
+        }
+
+        let (client_tx, client_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+        let (server_tx, server_rx) = mpsc::channel(MAX_INFLIGHT_PACKETS);
+
+        spawn!(inline_rx_task(
+            packet_rx,
+            client_tx,
+            self.quinn_conn,
+            stream_id,
+            self.max_udp_payload_size,
+            Arc::clone(&self.stats)
+        ));
+
+        spawn!(fragment_reassembly_task(
+            stream_id,
+            server_rx,
+            packet_tx,
             Arc::clone(&self.stats),
+        ));
+
+        spawn!(server_socket_task(
+            stream_id,
+            self.connection,
+            server_tx,
+            client_rx,
         ));
 
         RunningClient {
@@ -457,23 +519,43 @@ impl RunningClient {
     }
 }
 
+// TODO: Document the functions in this module
+
+async fn client_socket_output_bridge(
+    return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
+    mut output_rx: mpsc::Receiver<Bytes>,
+    bridge_tx: mpsc::Sender<(SocketAddr, Bytes)>,
+) -> Result<Stopped> {
+    // wait for the return address to be known
+    let Ok(return_addr) = return_addr_rx.await else {
+        return Ok(Stopped); // channel closed, exit gracefully
+    };
+
+    // TODO: Attaching the return addrs here feels flaky, could it be possible that
+    // the wrong one gets attached to the packet?
+    while let Some(payload) = output_rx.recv().await {
+        let return_addr = *return_addr.borrow();
+        if bridge_tx.send((return_addr, payload)).await.is_err() {
+            break; // channel closed, exit gracefully
+        }
+    }
+
+    Ok(Stopped)
+}
+
 async fn server_socket_task(
     stream_id: StreamId,
-    max_udp_payload_size: u16,
-    quinn_conn: quinn::Connection,
     mut connection: h3::client::Connection<h3_quinn::Connection, bytes::Bytes>,
     server_tx: mpsc::Sender<Datagram>,
-    mut client_rx: mpsc::Receiver<Bytes>,
-    stats: Arc<Stats>,
+    mut outgoing_packet_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
-    let mut fragment_id = 0u16;
-    let stream_id_size = VarInt::from(stream_id).size() as u16;
-
     loop {
-        let packet = select! {
+        log::trace!("server_socket_task: waiting for datagram or packet");
+        select! {
             datagram = connection.read_datagram() => {
                 match datagram {
                     Ok(Some(response)) => {
+                        log::trace!("Got QUIC datagram");
                         if server_tx.send(response).await.is_err() {
                             break; // channel closed, exit gracefully
                         }
@@ -484,94 +566,135 @@ async fn server_socket_task(
 
                 continue;
             }
-            packet = client_rx.recv() => packet,
+            packet = outgoing_packet_rx.recv() => {
+                if let Some(packet) = packet {
+                    log::trace!("Sending QUIC datagram");
+                    connection
+                        .send_datagram(stream_id, packet)
+                        .map_err(Error::SendDatagram)?;
+                } else {
+                    break;
+                }
+            },
+            // TODO: Do we not need a `connection.poll_close(cx)` here?
         };
-
-        let Some(mut packet) = packet else { break };
-
-        // Maximum QUIC payload (including fragmentation headers)
-        let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
-            max_datagram_size as u16 - stream_id_size
-        } else {
-            max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
-        };
-
-        if packet.len() <= usize::from(maximum_packet_size) {
-            stats.tx(packet.len(), false);
-            connection
-                .send_datagram(stream_id, packet)
-                .map_err(Error::SendDatagram)?;
-        } else {
-            // drop the added context ID, since packet will have to be fragmented.
-            let _ = VarInt::decode(&mut packet);
-
-            for fragment in fragment::fragment_packet(maximum_packet_size, &mut packet, fragment_id)
-                .map_err(Error::PacketTooLarge)?
-            {
-                debug_assert!(fragment.len() <= maximum_packet_size as usize);
-
-                stats.tx(fragment.len(), true);
-                connection
-                    .send_datagram(stream_id, fragment)
-                    .map_err(Error::SendDatagram)?;
-            }
-            fragment_id = fragment_id.wrapping_add(1);
-        }
     }
 
     Ok(Stopped)
+}
+
+async fn recv_from_socket(
+    client_socket: &UdpSocket,
+    client_read_buf: &mut BytesMut,
+) -> Result<(Bytes, SocketAddr)> {
+    if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+        client_read_buf.reserve(100 * crate::MAX_UDP_SIZE);
+    }
+
+    // this is the variable ID used to signify UDP payloads in HTTP datagrams.
+    crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(client_read_buf);
+
+    let (_bytes_received, recv_addr) = client_socket
+        .recv_buf_from(client_read_buf)
+        .await
+        .map_err(Error::ClientRead)?;
+
+    let packet = client_read_buf.split().freeze();
+    Ok((packet, recv_addr))
+}
+
+async fn send_outbound_datagrams(
+    client_tx: &mpsc::Sender<Bytes>,
+    quinn_conn: &quinn::Connection,
+    stream_id: StreamId,
+    max_udp_payload_size: u16,
+    stats: &Stats,
+    fragment_id: &mut u16,
+    packet: Bytes,
+) -> Result<bool> {
+    let stream_id_size = VarInt::from(stream_id).size() as u16;
+    let maximum_packet_size = if let Some(max_datagram_size) = quinn_conn.max_datagram_size() {
+        max_datagram_size as u16 - stream_id_size
+    } else {
+        max_udp_payload_size - QUIC_HEADER_SIZE - stream_id_size
+    };
+
+    if packet.len() <= usize::from(maximum_packet_size) {
+        stats.tx(packet.len(), false);
+        if client_tx.send(packet).await.is_err() {
+            return Ok(false);
+        }
+    } else {
+        let mut stripped = packet;
+        let _ = VarInt::decode(&mut stripped);
+
+        for fragment in fragment::fragment_packet(maximum_packet_size, &stripped, *fragment_id)
+            .map_err(Error::PacketTooLarge)?
+        {
+            debug_assert!(fragment.len() <= maximum_packet_size as usize);
+            stats.tx(fragment.len(), true);
+            if client_tx.send(fragment).await.is_err() {
+                return Ok(false);
+            }
+        }
+        *fragment_id = fragment_id.wrapping_add(1);
+    }
+    Ok(true)
 }
 
 async fn client_socket_rx_task(
     client_socket: Arc<UdpSocket>,
     client_tx: mpsc::Sender<Bytes>,
     return_addr_oneshot: oneshot::Sender<watch::Receiver<SocketAddr>>,
+    quinn_conn: quinn::Connection,
+    stream_id: StreamId,
+    max_udp_payload_size: u16,
+    stats: Arc<Stats>,
 ) -> Result<Stopped> {
-    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+    let mut fragment_id = 0u16;
+    let mut client_read_buf = BytesMut::with_capacity(100 * crate::MAX_UDP_SIZE);
 
-    let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
-
-    let mut recv = async || {
-        if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
-            // Allocate space for new packets
-            client_read_buf.reserve(TOTAL_BUFFER_CAPACITY);
-        }
-
-        // this is the variable ID used to signify UDP payloads in HTTP datagrams.
-        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
-
-        let (_bytes_received, recv_addr) = client_socket
-            .recv_buf_from(&mut client_read_buf)
-            .await
-            .map_err(Error::ClientRead)?;
-
-        let packet = client_read_buf.split().freeze();
-        Result::Ok((packet, recv_addr))
-    };
-
-    // call recv once outside the loop to get the initial return address
-    let (packet, mut return_addr) = recv().await?;
+    let (packet, mut return_addr) = recv_from_socket(&client_socket, &mut client_read_buf).await?;
     let (return_addr_tx, return_addr_rx) = watch::channel(return_addr);
     let _ = return_addr_oneshot.send(return_addr_rx);
 
-    if client_tx.send(packet).await.is_err() {
+    if !send_outbound_datagrams(
+        &client_tx,
+        &quinn_conn,
+        stream_id,
+        max_udp_payload_size,
+        &stats,
+        &mut fragment_id,
+        packet,
+    )
+    .await?
+    {
         return Ok(Stopped);
-    };
+    }
 
     loop {
-        let (packet, recv_addr) = recv().await?;
+        let (packet, recv_addr) = recv_from_socket(&client_socket, &mut client_read_buf).await?;
 
-        // notify other tasks if the return address changes
         if recv_addr != return_addr {
             return_addr = recv_addr;
             if return_addr_tx.send(return_addr).is_err() {
-                break; // channel closed, exit gracefully
+                break;
             }
         }
 
-        if client_tx.send(packet).await.is_err() {
-            break; // channel closed, exit gracefully
-        };
+        if !send_outbound_datagrams(
+            &client_tx,
+            &quinn_conn,
+            stream_id,
+            max_udp_payload_size,
+            &stats,
+            &mut fragment_id,
+            packet,
+        )
+        .await?
+        {
+            break;
+        }
     }
 
     Ok(Stopped)
@@ -647,6 +770,10 @@ async fn client_socket_gso_tx_task(
                 break;
             };
 
+            // TODO: This machinery for handling changing destination addr is not really used
+            // in practice. If we connected the socket we wouldn't have to deal with it.
+            // Could we make that trade-off?
+
             // If the destination differs, stop coalescing packets
             if next_dest != dest {
                 // Flush the buffer now and queue this packet
@@ -716,23 +843,81 @@ async fn client_socket_non_gso_tx_task(
     Ok(Stopped)
 }
 
+/// Read WireGuard packets from the inline caller, prepend the MASQUE context ID, and forward
+/// them into the proxy pipeline toward the relay.
+async fn inline_rx_task<B: AsRef<[u8]>>(
+    mut packet_rx: mpsc::Receiver<B>,
+    client_tx: mpsc::Sender<Bytes>,
+    quinn_conn: quinn::Connection,
+    stream_id: StreamId,
+    max_udp_payload_size: u16,
+    stats: Arc<Stats>,
+) -> Result<Stopped> {
+    log::trace!("Starting inline_rx_task");
+
+    let mut fragment_id = 0u16;
+    let stream_id_size = VarInt::from(stream_id).size() as u16;
+    let context_id_size = crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.size() as u16;
+
+    const TOTAL_BUFFER_CAPACITY: usize = 100 * crate::MAX_UDP_SIZE;
+    let mut read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
+    let read_buf = &mut read_buf;
+
+    log::trace!("inline_rx_task: waiting for packet_rx.recv()");
+    'outer: while let Some(packet) = packet_rx.recv().await {
+        if !read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
+            // Allocate space for new packets
+            read_buf.reserve(TOTAL_BUFFER_CAPACITY);
+        }
+
+        // Maximum QUIC payload (including fragmentation headers)
+        let max_datagram_size = match quinn_conn.max_datagram_size() {
+            Some(max_datagram_size) => max_datagram_size as u16,
+            None => max_udp_payload_size - QUIC_HEADER_SIZE,
+        };
+        let maximum_packet_size = max_datagram_size - stream_id_size;
+
+        if packet.as_ref().len() <= usize::from(maximum_packet_size - context_id_size) {
+            log::trace!("Outbound QUIC proxy packet");
+            stats.tx(packet.as_ref().len(), false);
+            crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(read_buf);
+            read_buf.extend_from_slice(packet.as_ref());
+            if client_tx.send(read_buf.split().freeze()).await.is_err() {
+                break 'outer;
+            }
+        } else {
+            log::trace!("Outbound QUIC proxy packet must be fragmented");
+
+            for fragment in
+                fragment::fragment_packet(maximum_packet_size, packet.as_ref(), fragment_id)
+                    .map_err(Error::PacketTooLarge)?
+            {
+                log::trace!("Sending fragment of size {}", fragment.len());
+                debug_assert!(fragment.len() <= maximum_packet_size as usize);
+
+                stats.tx(fragment.len(), true);
+                if client_tx.send(fragment).await.is_err() {
+                    break 'outer;
+                }
+            }
+            fragment_id = fragment_id.wrapping_add(1);
+        }
+        log::trace!("inline_rx_task: waiting for packet_rx.recv()");
+    }
+    log::trace!("inline_rx_task closed");
+    Ok(Stopped)
+}
+
 async fn fragment_reassembly_task(
     stream_id: StreamId,
     mut server_rx: mpsc::Receiver<Datagram>,
-    return_addr_rx: oneshot::Receiver<watch::Receiver<SocketAddr>>,
-    send_tx: mpsc::Sender<(SocketAddr, Bytes)>,
+    send_tx: mpsc::Sender<Bytes>,
     stats: Arc<Stats>,
 ) -> Result<Stopped> {
+    log::trace!("Starting fragment_reassembly_task");
     let mut fragments = Fragments::default();
 
-    // wait for the return address to be known
-    let Ok(return_addr) = return_addr_rx.await else {
-        return Ok(Stopped); // channel closed, exit gracefully
-    };
-
     while let Some(response) = server_rx.recv().await {
-        let return_addr = *return_addr.borrow();
-
         if response.stream_id() != stream_id {
             log::debug!("Received datagram with an unexpected stream ID");
             continue;
@@ -742,22 +927,23 @@ async fn fragment_reassembly_task(
 
         match fragments.handle_incoming_packet(payload) {
             Ok(DefragReceived::Nonfragmented(payload)) => {
+                log::trace!("DefragReceived::Nonfragmented");
                 stats.rx(payload.len(), false);
-                if send_tx.send((return_addr, payload)).await.is_err() {
+                if send_tx.send(payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
+                log::trace!("DefragReceived::Reassembled");
                 stats.rx(original_payload_len, true);
-                if send_tx
-                    .send((return_addr, reassembled_payload))
-                    .await
-                    .is_err()
-                {
+                if send_tx.send(reassembled_payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
-            Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
+            Ok(DefragReceived::Fragment) => {
+                log::trace!("DefragReceived::Fragment");
+                stats.rx(original_payload_len, true)
+            }
             Err(e) => {
                 use log::Level::*;
                 let level = if cfg!(debug_assertions) { Debug } else { Trace };

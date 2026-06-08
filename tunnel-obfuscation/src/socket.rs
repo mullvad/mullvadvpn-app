@@ -1,7 +1,24 @@
 use std::net::SocketAddr;
 use tokio::net::UdpSocket;
 
-use crate::Error;
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Failed to bind socket")]
+    BindRemoteUdp(std::io::Error),
+    #[cfg(target_os = "linux")]
+    #[error("Failed to set fwmark on remote socket")]
+    SetFwmark(nix::Error),
+}
+
+impl From<Error> for std::io::Error {
+    fn from(value: Error) -> Self {
+        match value {
+            Error::BindRemoteUdp(error) => error,
+            #[cfg(target_os = "linux")]
+            Error::SetFwmark(errno) => errno.into(),
+        }
+    }
+}
 
 pub async fn create_remote_socket(
     ipv4: bool,
