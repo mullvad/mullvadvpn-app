@@ -22,6 +22,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+- Custom lists become scrollable when enough custom lists have been created.
+
+#### Windows
+- Fix a race condition in the race condition fix from `2026.3-beta2`.
 
 
 ## [2026.3-beta2] - 2026-06-01
