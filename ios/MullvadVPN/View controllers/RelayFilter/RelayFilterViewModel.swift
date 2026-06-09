@@ -13,7 +13,7 @@ import MullvadTypes
 
 protocol RelayFilterSettingsViewModelProtocol {
     var filters: [SelectLocationFilter] { get }
-    var automaticLocationIsActive: Bool { get }
+    var shouldShowAutomaticFilterOverrideNotice: Bool { get }
     func onFilterTapped(_ filter: SelectLocationFilter)
 }
 
@@ -39,7 +39,7 @@ extension RelayFilterSelection {
         }
         var filters: [SelectLocationFilter] = []
         @Published var shouldShowFilterSettingsView: Bool = false
-        var automaticLocationIsActive: Bool = false
+        var shouldShowAutomaticFilterOverrideNotice: Bool = false
         private let relaySelectorWrapper: RelaySelectorProtocol
         private let relaysWithLocation: LocationRelays
         private var relayCandidatesForAny: RelayCandidates
@@ -112,11 +112,11 @@ extension RelayFilterSelection {
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
             ].compactMap { $0 }
-            shouldShowFilterSettingsView = !filters.isEmpty
+            shouldShowFilterSettingsView = !filters.isEmpty || shouldShowAutomaticFilterOverrideNotice
         }
 
         private func updateAutomaticLocationStatus() {
-            automaticLocationIsActive = multihopContext == .entry && settings.automaticMultihopIsEnabled
+            shouldShowAutomaticFilterOverrideNotice = multihopContext == .entry && settings.automaticMultihopIsEnabled
         }
 
         func onFilterTapped(_ filter: SelectLocationFilter) {

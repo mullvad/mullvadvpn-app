@@ -22,18 +22,17 @@ extension RelayFilterSelection {
                         viewModel.onFilterTapped(filter)
                     } onRemove: { _ in
                     }
-                    if viewModel.automaticLocationIsActive {
-                        HStack {
-                            Image.mullvadIconInfo.resizable().frame(width: 14, height: 14).opacity(0.6)
-                            Text("Filters are overridden when using an automatic location").font(.mullvadMini)
-                                .foregroundStyle(
-                                    Color.mullvadTextSecondary)
-                            Spacer()
-                        }
-                        .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
-                    }
                 }
-
+                if viewModel.shouldShowAutomaticFilterOverrideNotice {
+                    HStack {
+                        Image.mullvadIconInfo.resizable().frame(width: 14, height: 14).opacity(0.6)
+                        Text("Filters are overridden when using an automatic location").font(.mullvadMini)
+                            .foregroundStyle(
+                                Color.mullvadTextSecondary)
+                        Spacer()
+                    }
+                    .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
+                }
             }
             .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 16))
             .background(Color.mullvadBackground)
@@ -43,11 +42,11 @@ extension RelayFilterSelection {
 
 private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol, ObservableObject {
     var filters: [SelectLocationFilter]
-    var automaticLocationIsActive: Bool
+    var shouldShowAutomaticFilterOverrideNotice: Bool
 
     init(filters: [SelectLocationFilter], automaticLocationIsActive: Bool) {
         self.filters = filters
-        self.automaticLocationIsActive = automaticLocationIsActive
+        self.shouldShowAutomaticFilterOverrideNotice = automaticLocationIsActive
     }
 
     func onFilterTapped(_ filterr: SelectLocationFilter) {}
