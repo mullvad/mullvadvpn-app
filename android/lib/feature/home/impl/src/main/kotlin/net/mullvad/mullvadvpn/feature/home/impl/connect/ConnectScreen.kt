@@ -104,7 +104,8 @@ import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
-import net.mullvad.mullvadvpn.lib.map.AnimatedMap
+import net.mullvad.mullvadvpn.lib.map.Map
+import net.mullvad.mullvadvpn.lib.map.animatedCameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
@@ -505,11 +506,13 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
 
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
-    AnimatedMap(
-        modifier = Modifier,
-        cameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
-        cameraBaseZoom = baseZoom.value,
-        cameraVerticalBias = progressIndicatorBias,
+    Map(
+        cameraPosition =
+            animatedCameraPosition(
+                baseZoom.value,
+                targetCameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
+                cameraVerticalBias = progressIndicatorBias,
+            ),
         markers = markers,
         globeColors =
             GlobeColors(

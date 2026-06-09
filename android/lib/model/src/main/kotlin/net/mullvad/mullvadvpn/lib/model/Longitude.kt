@@ -43,7 +43,7 @@ value class Longitude(val value: Float) {
             return Longitude(unwoundValue)
         }
 
-        private fun unwind(value: Float): Float {
+        fun unwind(value: Float): Float {
             val unwound = value % COMPLETE_ANGLE
             return when {
                 unwound > MAX_LONGITUDE_VALUE -> unwound - COMPLETE_ANGLE

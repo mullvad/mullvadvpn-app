@@ -5,19 +5,31 @@ import android.opengl.GLES20
 import android.opengl.GLSurfaceView
 import android.opengl.Matrix
 import androidx.collection.LruCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import kotlin.math.pow
+import kotlin.math.sqrt
 import kotlin.math.tan
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
+import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
-import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.data.Ray
+import net.mullvad.mullvadvpn.lib.map.data.Sphere
+import net.mullvad.mullvadvpn.lib.map.data.Vector3
+import net.mullvad.mullvadvpn.lib.map.data.rotateAroundX
+import net.mullvad.mullvadvpn.lib.map.data.rotateAroundY
+import net.mullvad.mullvadvpn.lib.map.data.toVector3
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
-internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
+internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 
     private lateinit var globe: Globe
+    private var viewPortSize: Size = Size(0f, 0f)
 
     // Due to location markers themselves containing colors we cache them to avoid recreating them
     // for every draw call.
@@ -33,7 +45,13 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
             }
         }
 
-    private lateinit var viewState: MapViewState
+    internal var viewState: GlobeViewState = GlobeViewState.default()
+        set(value) {
+            field = value
+            markerVector = viewState.locationMarker.associateBy { it.latLong.toVector3() }
+        }
+
+    private val projectionMatrix = newIdentityMatrix()
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
@@ -50,8 +68,6 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
     }
-
-    private val projectionMatrix = newIdentityMatrix()
 
     override fun onDrawFrame(gl10: GL10) {
         // Clear canvas
@@ -82,8 +98,9 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
     private fun toOffsetY(cameraPosition: CameraPosition): Float {
         val percent = cameraPosition.verticalBias
         val z = cameraPosition.zoom - 1f
+
         // Calculate the size of the plane at the current z position
-        val planeSizeY = tan(FIELD_OF_VIEW.toRadians() / 2f) * z * 2f
+        val planeSizeY = tan(cameraPosition.fov.toRadians() / 2f) * z * 2f
 
         // Calculate the start of the plane
         val planeStartY = planeSizeY / 2f
@@ -105,6 +122,8 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
     override fun onSurfaceChanged(unused: GL10, width: Int, height: Int) {
         GLES20.glViewport(0, 0, width, height)
 
+        viewPortSize = Size(width.toFloat(), height.toFloat())
+
         val ratio: Float = width.toFloat() / height.toFloat()
 
         if (ratio.isFinite()) {
@@ -119,8 +138,78 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         }
     }
 
-    fun setViewState(viewState: MapViewState) {
+    fun setViewState(viewState: GlobeViewState) {
         this.viewState = viewState
+    }
+
+    var markerVector = mapOf<Vector3, Marker>()
+
+    fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
+        val cameraz = -viewState.cameraPosition.zoom
+        val camerax = 0f
+        val cameray = toOffsetY(viewState.cameraPosition)
+
+        val camera = Vector3(camerax, cameray, cameraz)
+
+        val sphere = Sphere(Vector3(0f, 0f, 0f), 1f)
+        val ratio: Float = viewPortSize.width / viewPortSize.height
+
+        val directionVector =
+            calculateDirectionVector(
+                viewState.cameraPosition.fov,
+                ratio,
+                viewPortSize.width,
+                viewPortSize.height,
+                offset.x,
+                offset.y,
+                nearPlaneDistance = PERSPECTIVE_Z_NEAR,
+            )
+
+        val ray = Ray(camera, directionVector)
+
+        val oc = ray.origin - sphere.center // Vector from ray origin to sphere center
+        val a = ray.direction.dot(ray.direction)
+        val b = 2f * oc.dot(ray.direction)
+        val c = oc.dot(oc) - sphere.radius.pow(2f)
+        val discriminant = b.pow(2f) - 4f * a * c
+
+        if (discriminant < 0f) {
+            return null // No intersection
+        } else {
+            val t = (-b - sqrt(discriminant)) / (2f * a) // Closest intersection point
+            val t2 = (-b + sqrt(discriminant)) / (2f * a) // Closest intersection point
+            val point2 = ray.origin + ray.direction * t2
+
+            val newPosition =
+                point2
+                    .rotateAroundX(-viewState.cameraPosition.latLong.latitude.value)
+                    .rotateAroundY(viewState.cameraPosition.latLong.longitude.value)
+
+            val closestMarker = markerVector.minByOrNull { it.key.distanceTo(newPosition) }
+
+            if (closestMarker != null) {
+                return closestMarker.value to closestMarker.key.distanceTo(newPosition)
+            }
+
+            return null
+        }
+    }
+
+    fun calculateDirectionVector(
+        fovy: Float,
+        aspectRatio: Float,
+        viewportWidth: Float,
+        viewportHeight: Float,
+        tapScreenX: Float,
+        tapScreenY: Float,
+        nearPlaneDistance: Float = 1.0f,
+    ): Vector3 {
+        val halfHeight = tan(fovy.toRadians() / 2.0f) * nearPlaneDistance
+        val halfWidth = halfHeight * aspectRatio
+        val x = (2.0f * tapScreenX / viewportWidth - 1.0f) * halfWidth
+        val y = (1.0f - 2.0f * tapScreenY / viewportHeight) * halfHeight
+        val z = -nearPlaneDistance
+        return Vector3(x, y, z).normalize()
     }
 
     companion object {
