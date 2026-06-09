@@ -26,8 +26,10 @@ import {
   FirewallPolicyErrorType,
   IAppVersionInfo,
   ICustomList,
+  IDaitaSettings,
   IDevice,
   IObfuscationEndpoint,
+  IpVersion,
   IRelayListCity,
   IRelayListCountry,
   IRelayListHostname,
@@ -65,7 +67,7 @@ export class ResponseParseError extends Error {
   }
 }
 
-function unwrapConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
+export function unwrapConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
   if (constraint !== undefined && constraint !== 'any') {
     return constraint.only;
   }
@@ -789,7 +791,7 @@ function convertFromOwnership(ownership: grpcTypes.Ownership): Ownership {
   }
 }
 
-function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
+export function convertToOwnership(ownership: Ownership): grpcTypes.Ownership {
   switch (ownership) {
     case Ownership.any:
       return grpcTypes.Ownership.ANY;
@@ -838,6 +840,89 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   }
 }
 
+export function convertToDaitaSettings(daitaSettings: IDaitaSettings) {
+  const grpcDaitaSettings = new grpcTypes.DaitaSettings();
+  grpcDaitaSettings.setEnabled(daitaSettings.enabled);
+  grpcDaitaSettings.setDirectOnly(daitaSettings.directOnly);
+
+  return grpcDaitaSettings;
+}
+
+export function convertToAntiCensorshipSettings(obfuscationSettings: ObfuscationSettings) {
+  const grpcObfuscationSettings = new grpcTypes.ObfuscationSettings();
+  switch (obfuscationSettings.selectedObfuscation) {
+    case ObfuscationType.auto:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.AUTO,
+      );
+      break;
+    case ObfuscationType.off:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.OFF,
+      );
+      break;
+    case ObfuscationType.shadowsocks:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.SHADOWSOCKS,
+      );
+      break;
+    case ObfuscationType.udp2tcp:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.UDP2TCP,
+      );
+      break;
+    case ObfuscationType.quic:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.QUIC,
+      );
+      break;
+    case ObfuscationType.lwo:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.LWO,
+      );
+      break;
+    case ObfuscationType.wireGuardPort:
+      grpcObfuscationSettings.setSelectedObfuscation(
+        grpcTypes.ObfuscationSettings.SelectedObfuscation.WIREGUARD_PORT,
+      );
+      break;
+  }
+
+  if (obfuscationSettings.udp2tcpSettings) {
+    const grpcUdp2tcpSettings = new grpcTypes.ObfuscationSettings.Udp2TcpObfuscation();
+    if (obfuscationSettings.udp2tcpSettings.port !== 'any') {
+      grpcUdp2tcpSettings.setPort(obfuscationSettings.udp2tcpSettings.port.only);
+    }
+    grpcObfuscationSettings.setUdp2tcp(grpcUdp2tcpSettings);
+  }
+
+  if (obfuscationSettings.shadowsocksSettings) {
+    const shadowsocksSettings = new grpcTypes.ObfuscationSettings.Shadowsocks();
+    if (obfuscationSettings.shadowsocksSettings.port !== 'any') {
+      shadowsocksSettings.setPort(obfuscationSettings.shadowsocksSettings.port.only);
+    }
+    grpcObfuscationSettings.setShadowsocks(shadowsocksSettings);
+  }
+
+  if (obfuscationSettings.wireGuardPortSettings) {
+    const wireGuardPortSettings = new grpcTypes.ObfuscationSettings.WireguardPort();
+    if (obfuscationSettings.wireGuardPortSettings.port !== 'any') {
+      wireGuardPortSettings.setPort(obfuscationSettings.wireGuardPortSettings.port.only);
+    }
+    grpcObfuscationSettings.setWireguardPort(wireGuardPortSettings);
+  }
+
+  if (obfuscationSettings.lwoSettings) {
+    const lwoSettings = new grpcTypes.ObfuscationSettings.Lwo();
+    if (obfuscationSettings.lwoSettings.port !== 'any') {
+      lwoSettings.setPort(obfuscationSettings.lwoSettings.port.only);
+    }
+    grpcObfuscationSettings.setLwo(lwoSettings);
+  }
+
+  return grpcObfuscationSettings;
+}
+
 export function convertToRelayConstraints(
   constraints: IRelaySettingsNormal,
 ): grpcTypes.NormalRelaySettings {
@@ -853,7 +938,7 @@ export function convertToRelayConstraints(
   return relayConstraints;
 }
 
-function convertToLocation(
+export function convertToLocation(
   constraint: RelayLocation | undefined,
 ): grpcTypes.LocationConstraint | undefined {
   const locationConstraint = new grpcTypes.LocationConstraint();
@@ -885,6 +970,17 @@ function convertToGeographicConstraint(
   return relayLocation;
 }
 
+export function convertToIpVersion(ipVersion: IpVersion): grpcTypes.IpVersion {
+  switch (ipVersion) {
+    case 'ipv4':
+      return grpcTypes.IpVersion.V4;
+    case 'ipv6':
+      return grpcTypes.IpVersion.V6;
+    default:
+      return ipVersion satisfies never;
+  }
+}
+
 function convertToWireguardConstraints(
   constraint: Partial<IWireguardConstraints> | undefined,
 ): grpcTypes.WireguardConstraints | undefined {
@@ -893,8 +989,7 @@ function convertToWireguardConstraints(
 
     const ipVersion = unwrapConstraint(constraint.ipVersion);
     if (ipVersion) {
-      const ipVersionProtocol =
-        ipVersion === 'ipv4' ? grpcTypes.IpVersion.V4 : grpcTypes.IpVersion.V6;
+      const ipVersionProtocol = convertToIpVersion(ipVersion);
       wireguardConstraints.setIpVersion(ipVersionProtocol);
     }
 
