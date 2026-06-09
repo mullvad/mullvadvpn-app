@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.feature.settings.impl.DeviceState as UiDeviceState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -22,6 +22,7 @@ class SettingsViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
     wireguardConstraintsRepository: WireguardConstraintsRepository,
     settingsRepository: SettingsRepository,
+    connectionProxy: ConnectionProxy,
     isPlayBuild: Boolean,
 ) : ViewModel() {
 
@@ -31,13 +32,17 @@ class SettingsViewModel(
                 appVersionInfoRepository.versionInfo,
                 wireguardConstraintsRepository.wireguardConstraints,
                 settingsRepository.settingsUpdates,
-            ) { deviceState, versionInfo, wireguardConstraints, settings ->
+                connectionProxy.tunnelState,
+            ) { deviceState, versionInfo, wireguardConstraints, settings, tunnelState ->
                 SettingsUiState(
-                        deviceState = deviceState.toUiState(),
+                        isLoggedIn = deviceState is DeviceState.LoggedIn,
                         appVersion = versionInfo.currentVersion,
                         isSupportedVersion = versionInfo.isSupported,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         isDaitaEnabled = settings?.tunnelOptions?.daitaSettings?.enabled == true,
+                        splitTunnelingIsActive =
+                            settings?.splitTunnelSettings?.enabled == true &&
+                                tunnelState.isSecured(),
                         isPlayBuild = isPlayBuild,
                     )
                     .toLc<Unit, SettingsUiState>()
@@ -47,12 +52,4 @@ class SettingsViewModel(
                 SharingStarted.WhileSubscribed(VIEW_MODEL_STOP_TIMEOUT),
                 Lc.Loading(Unit),
             )
-
-    private fun DeviceState?.toUiState(): UiDeviceState? =
-        when (this) {
-            null -> UiDeviceState.LoggedOut
-            is DeviceState.LoggedIn -> UiDeviceState.LoggedIn
-            DeviceState.LoggedOut -> UiDeviceState.LoggedOut
-            DeviceState.Revoked -> UiDeviceState.Revoked
-        }
 }

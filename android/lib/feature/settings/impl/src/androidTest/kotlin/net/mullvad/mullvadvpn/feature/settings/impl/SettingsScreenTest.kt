@@ -58,11 +58,12 @@ class SettingsScreenTest {
             state =
                 SettingsUiState(
                         appVersion = "",
-                        deviceState = DeviceState.LoggedIn,
+                        isLoggedIn = true,
                         isSupportedVersion = true,
                         isPlayBuild = false,
                         multihopEnabled = false,
                         isDaitaEnabled = false,
+                        splitTunnelingIsActive = true,
                     )
                     .toLc()
         )
@@ -81,17 +82,42 @@ class SettingsScreenTest {
             state =
                 SettingsUiState(
                         appVersion = "",
-                        deviceState = DeviceState.LoggedOut,
+                        isLoggedIn = false,
                         isSupportedVersion = true,
                         isPlayBuild = false,
                         multihopEnabled = false,
                         isDaitaEnabled = false,
+                        splitTunnelingIsActive = false,
                     )
                     .toLc()
         )
         // Assert
         onNodeWithText("VPN settings").assertDoesNotExist()
         onNodeWithText("Split tunneling").assertDoesNotExist()
+        onNodeWithText("App info").assertExists()
+        onNodeWithText("API access").assertExists()
+    }
+
+    @Test
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun testLoggedOutAndSplitTunnelingActiveState() = composeExtension.use {
+        // Arrange
+        initScreen(
+            state =
+                SettingsUiState(
+                        appVersion = "",
+                        isLoggedIn = false,
+                        isSupportedVersion = true,
+                        isPlayBuild = false,
+                        multihopEnabled = false,
+                        isDaitaEnabled = false,
+                        splitTunnelingIsActive = true,
+                    )
+                    .toLc()
+        )
+        // Assert
+        onNodeWithText("VPN settings").assertDoesNotExist()
+        onNodeWithText("Split tunneling").assertExists()
         onNodeWithText("App info").assertExists()
         onNodeWithText("API access").assertExists()
     }

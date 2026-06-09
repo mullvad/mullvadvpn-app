@@ -325,7 +325,16 @@ val uiModule = module {
             get(),
         )
     }
-    viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel {
+        SettingsViewModel(
+            deviceRepository = get(),
+            appVersionInfoRepository = get(),
+            wireguardConstraintsRepository = get(),
+            settingsRepository = get(),
+            connectionProxy = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+        )
+    }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get(), get()) }
     viewModel { params -> VpnSettingsViewModel(navArgs = params.get(), get(), get(), get(), get()) }
@@ -451,4 +460,4 @@ const val APP_PREFERENCES_NAME = "${BuildConfig.APPLICATION_ID}.app_preferences"
 const val KERMIT_FILE_LOG_DIR_NAME = "android_app_logs"
 
 private const val BOOT_COMPLETED_RECEIVER_COMPONENT_NAME = "BOOT_COMPLETED_RECEIVER_COMPONENT_NAME"
-private val IS_PLAY_BUILD = BuildConfig.FLAVOR_billing == BillingTypes.PLAY
+private const val IS_PLAY_BUILD = BuildConfig.FLAVOR_billing == BillingTypes.PLAY

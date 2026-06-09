@@ -6,19 +6,22 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
-import net.mullvad.mullvadvpn.feature.settings.impl.DeviceState as UiDeviceState
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -34,11 +37,13 @@ class SettingsViewModelTest {
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
+    private val mockConnectionProxy: ConnectionProxy = mockk()
 
     private val versionInfo =
         MutableStateFlow(VersionInfo(currentVersion = "", isSupported = false))
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
+    private val tunnelState = MutableStateFlow(mockk<TunnelState>(relaxed = true))
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -51,6 +56,7 @@ class SettingsViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockSettingsRepository.settingsUpdates } returns settings
+        every { mockConnectionProxy.tunnelState } returns tunnelState
 
         viewModel =
             SettingsViewModel(
@@ -58,6 +64,7 @@ class SettingsViewModelTest {
                 appVersionInfoRepository = mockAppVersionInfoRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
                 settingsRepository = mockSettingsRepository,
+                connectionProxy = mockConnectionProxy,
                 isPlayBuild = false,
             )
     }
@@ -74,7 +81,7 @@ class SettingsViewModelTest {
         viewModel.uiState.test {
             val item = awaitItem()
             assertIs<Lc.Content<SettingsUiState>>(item)
-            assertIs<UiDeviceState.LoggedOut>(item.value.deviceState)
+            assertFalse(item.value.isLoggedIn)
         }
     }
 
@@ -124,6 +131,25 @@ class SettingsViewModelTest {
                 val result = awaitItem()
                 assertIs<Lc.Content<SettingsUiState>>(result)
                 assertEquals(true, result.value.multihopEnabled)
+            }
+        }
+
+    @Test
+    fun `when splitTunneling is enabled and tunnel is up should return splitTunnelingIsActive true`() =
+        runTest {
+            // Arrange
+            val mockSettings: Settings = mockk(relaxed = true)
+            every { mockSettings.splitTunnelSettings.enabled } returns true
+            settings.value = mockSettings
+            val mockTunnelState: TunnelState = mockk(relaxed = true)
+            every { mockTunnelState.isSecured() } returns true
+            tunnelState.value = mockTunnelState
+
+            // Act, Assert
+            viewModel.uiState.test {
+                val result = awaitItem()
+                assertIs<Lc.Content<SettingsUiState>>(result)
+                assertTrue(result.value.splitTunnelingIsActive)
             }
         }
 }
