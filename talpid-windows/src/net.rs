@@ -8,7 +8,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::ffi::{OsStrExt, OsStringExt},
     ptr::NonNull,
-    sync::Mutex,
+    sync::{Arc, Mutex},
     time::{Duration, Instant},
 };
 use talpid_types::win32_err;
@@ -251,7 +251,7 @@ pub fn get_ip_interface_entry(
     use windows_sys::Win32::NetworkManagement::IpHelper::GetIpInterfaceEntry;
 
     #[cfg(test)]
-    use tests::fake_get_ip_interface_entry_fail as GetIpInterfaceEntry;
+    use tests::fake_get_ip_interface_entry as GetIpInterfaceEntry;
 
     win32_err!(unsafe { GetIpInterfaceEntry(&raw mut row) })?;
     Ok(row)
@@ -326,16 +326,21 @@ fn start_wait_for_interfaces(
     ipv6: bool,
     on_found: impl FnOnce() + Send + 'static,
 ) -> io::Result<StartNotifyResult> {
-    let mut found_ipv4 = !ipv4;
-    let mut found_ipv6 = !ipv6;
+    struct FoundInterfaces {
+        ipv4: bool,
+        ipv6: bool,
+    }
+
+    let found_interfaces = Arc::new(Mutex::new(FoundInterfaces {
+        ipv4: !ipv4,
+        ipv6: !ipv6,
+    }));
 
     let mut on_found = Some(on_found);
+    let found_interfaces2 = found_interfaces.clone();
 
     let handle = notify_ip_interface_change(
         move |row, notification_type| {
-            if found_ipv4 && found_ipv6 {
-                return;
-            }
             if notification_type != MibAddInstance {
                 return;
             }
@@ -343,13 +348,14 @@ fn start_wait_for_interfaces(
             if unsafe { row.InterfaceLuid.Value != luid.Value } {
                 return;
             }
+            let mut found_interfaces = found_interfaces2.lock().unwrap();
             match row.Family {
-                AF_INET => found_ipv4 = true,
-                AF_INET6 => found_ipv6 = true,
+                AF_INET => found_interfaces.ipv4 = true,
+                AF_INET6 => found_interfaces.ipv6 = true,
                 _ => (),
             }
-            if found_ipv4
-                && found_ipv6
+            if found_interfaces.ipv4
+                && found_interfaces.ipv6
                 && let Some(on_found) = on_found.take()
             {
                 on_found();
@@ -358,10 +364,17 @@ fn start_wait_for_interfaces(
         None,
     )?;
 
-    // Make sure the interfaces were not already up
-    if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
-        && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
-    {
+    // Succeed if the interfaces were already up
+    let mut found_interfaces = found_interfaces.lock().unwrap();
+
+    if !found_interfaces.ipv4 {
+        found_interfaces.ipv4 |= ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?;
+    }
+    if !found_interfaces.ipv6 {
+        found_interfaces.ipv6 |= ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?;
+    }
+
+    if found_interfaces.ipv4 && found_interfaces.ipv6 {
         return Ok(StartNotifyResult::AlreadyExist);
     }
 
@@ -641,6 +654,8 @@ mod tests {
         expected_luid: NET_LUID_LH,
         send_add_event_for_families: Vec<u16>,
         sleep_duration: Option<Duration>,
+        get_ipv4_result: u32,
+        get_ipv6_result: u32,
     }
 
     impl Default for NotifySettings {
@@ -649,6 +664,8 @@ mod tests {
                 expected_luid: NET_LUID_LH { Value: 1 },
                 send_add_event_for_families: vec![AF_INET, AF_INET6],
                 sleep_duration: None,
+                get_ipv4_result: ERROR_NOT_FOUND,
+                get_ipv6_result: ERROR_NOT_FOUND,
             }
         }
     }
@@ -713,8 +730,13 @@ mod tests {
         0
     }
 
-    pub unsafe fn fake_get_ip_interface_entry_fail(_row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
-        ERROR_NOT_FOUND
+    pub unsafe fn fake_get_ip_interface_entry(row: *mut MIB_IPINTERFACE_ROW) -> WIN32_ERROR {
+        let settings = &*NOTIFY_SETTINGS.lock().unwrap();
+        match unsafe { (*row).Family } {
+            AF_INET => settings.get_ipv4_result,
+            AF_INET6 => settings.get_ipv6_result,
+            _ => unreachable!(),
+        }
     }
 
     // Serialize and reset `NOTIFY_SETTINGS` since it is globally shared between tests.
@@ -767,5 +789,39 @@ mod tests {
         // Force timeout
         NOTIFY_SETTINGS.lock().unwrap().sleep_duration = Some(Duration::from_millis(100));
         wait_for_interfaces_sync(luid, true, false, Duration::from_millis(1)).unwrap_err();
+
+        // IPv4 interface already exists
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![AF_INET6];
+            settings.get_ipv4_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // IPv6 interface already exists
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![AF_INET];
+            settings.get_ipv6_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
+
+        // Both interfaces exist
+        {
+            let mut settings = NOTIFY_SETTINGS.lock().unwrap();
+            *settings = NotifySettings::default();
+            settings.send_add_event_for_families = vec![];
+            settings.get_ipv4_result = 0;
+            settings.get_ipv6_result = 0;
+        }
+
+        let luid = NOTIFY_SETTINGS.lock().unwrap().expected_luid;
+        wait_for_interfaces_sync(luid, true, true, Duration::from_secs(1)).unwrap();
     }
 }
