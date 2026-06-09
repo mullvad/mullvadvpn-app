@@ -174,3 +174,27 @@ reason = "The app does not use dependency directly, it is used by AGP that build
 id = "CVE-2026-45799"  # GHSA-7xpr-hc2w-34m9
 ignoreUntil = 2026-08-01
 reason = "Used by benchmark lib, used to create baseline profiles. No impact on app."
+
+# Netty HTTP/2: Advertised MAX_CONCURRENT_STREAMS are not enforced
+[[IgnoredVulns]]
+id = "CVE-2026-47244"  # GHSA-5x3r-wrvg-rp6q
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty has an IPv6 Subnet Filter Bypass via Incorrect Comparator Masking
+[[IgnoredVulns]]
+id = "CVE-2026-44249"  # GHSA-3qp7-7mw8-wx86
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes
+[[IgnoredVulns]]
+id = "CVE-2026-45416"  # GHSA-x4gw-5cx5-pgmh
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
+
+# Netty: Unix-socket fd receive leaks descriptors when peer sends two at once
+[[IgnoredVulns]]
+id = "CVE-2026-45536"  # GHSA-w573-9ffj-6ff9
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for unix socket communication"
