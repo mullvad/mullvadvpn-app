@@ -365,6 +365,7 @@ export interface IRelayListHostname {
   hostname: string;
   provider: string;
   ipv4AddrIn: string;
+  ipv6AddrIn?: string;
   includeInCountry: boolean;
   active: boolean;
   weight: number;
