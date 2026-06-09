@@ -9,7 +9,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
-import net.mullvad.mullvadvpn.feature.splittunneling.impl.applist.AppData
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.PackageName
@@ -75,9 +74,9 @@ class SplitTunnelingScreenTest {
     fun testListDisplayed() = composeExtension.use {
         // Arrange
         val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
+            AppItem(packageName = EXCLUDED_APP_PACKAGE_NAME, appName = EXCLUDED_APP_NAME)
         val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
+            AppItem(packageName = INCLUDED_APP_PACKAGE_NAME, appName = INCLUDED_APP_NAME)
         initScreen(
             state =
                 SplitTunnelingUiState(
@@ -103,7 +102,7 @@ class SplitTunnelingScreenTest {
     fun testNoExcludedApps() = composeExtension.use {
         // Arrange
         val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
+            AppItem(packageName = INCLUDED_APP_PACKAGE_NAME, appName = INCLUDED_APP_NAME)
         initScreen(
             state =
                 SplitTunnelingUiState(
@@ -129,9 +128,9 @@ class SplitTunnelingScreenTest {
     fun testClickIncludedItem() = composeExtension.use {
         // Arrange
         val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
+            AppItem(packageName = EXCLUDED_APP_PACKAGE_NAME, appName = EXCLUDED_APP_NAME)
         val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
+            AppItem(packageName = INCLUDED_APP_PACKAGE_NAME, appName = INCLUDED_APP_NAME)
         val mockedClickHandler: (PackageName) -> Unit = mockk(relaxed = true)
         initScreen(
             state =
@@ -156,9 +155,9 @@ class SplitTunnelingScreenTest {
     fun testClickExcludedItem() = composeExtension.use {
         // Arrange
         val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
+            AppItem(packageName = EXCLUDED_APP_PACKAGE_NAME, appName = EXCLUDED_APP_NAME)
         val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
+            AppItem(packageName = INCLUDED_APP_PACKAGE_NAME, appName = INCLUDED_APP_NAME)
         val mockedClickHandler: (PackageName) -> Unit = mockk(relaxed = true)
         initScreen(
             state =
@@ -183,9 +182,9 @@ class SplitTunnelingScreenTest {
     fun testClickShowSystemApps() = composeExtension.use {
         // Arrange
         val excludedApp =
-            AppData(packageName = EXCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = EXCLUDED_APP_NAME)
+            AppItem(packageName = EXCLUDED_APP_PACKAGE_NAME, appName = EXCLUDED_APP_NAME)
         val includedApp =
-            AppData(packageName = INCLUDED_APP_PACKAGE_NAME, iconRes = 0, name = INCLUDED_APP_NAME)
+            AppItem(packageName = INCLUDED_APP_PACKAGE_NAME, appName = INCLUDED_APP_NAME)
         val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
         initScreen(
             state =

@@ -97,8 +97,14 @@ class SplitTunnelingViewModelTest {
         val expectedState =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(appExcluded),
-                includedApps = listOf(appNotExcluded),
+                excludedApps =
+                    listOf(appExcluded).map {
+                        AppItem(appName = it.name, packageName = it.packageName)
+                    },
+                includedApps =
+                    listOf(appNotExcluded).map {
+                        AppItem(appName = it.name, packageName = it.packageName)
+                    },
                 showSystemApps = false,
             )
 
@@ -119,7 +125,7 @@ class SplitTunnelingViewModelTest {
         val expectedStateBeforeAction =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(app),
+                excludedApps = listOf(AppItem(appName = app.name, packageName = app.packageName)),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )
@@ -127,7 +133,7 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
-                includedApps = listOf(app),
+                includedApps = listOf(AppItem(appName = app.name, packageName = app.packageName)),
                 showSystemApps = false,
             )
         coEvery { mockedSplitTunnelingRepository.includeApp(app.packageName) } returns Unit.right()
@@ -156,14 +162,14 @@ class SplitTunnelingViewModelTest {
             SplitTunnelingUiState(
                 enabled = true,
                 excludedApps = emptyList(),
-                includedApps = listOf(app),
+                includedApps = listOf(AppItem(appName = app.name, packageName = app.packageName)),
                 showSystemApps = false,
             )
 
         val expectedStateAfterAction =
             SplitTunnelingUiState(
                 enabled = true,
-                excludedApps = listOf(app),
+                excludedApps = listOf(AppItem(appName = app.name, packageName = app.packageName)),
                 includedApps = emptyList(),
                 showSystemApps = false,
             )

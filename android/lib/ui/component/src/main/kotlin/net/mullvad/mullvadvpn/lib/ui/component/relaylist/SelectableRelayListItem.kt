@@ -45,7 +45,7 @@ private fun PreviewSelectableRelayLocationItem(
 ) {
     AppTheme {
         Column(Modifier.background(color = MaterialTheme.colorScheme.surface)) {
-            relayItems.map {
+            relayItems.forEach {
                 Spacer(Modifier.size(1.dp))
                 SelectableRelayListItem(relayListItem = it, onClick = {}, onToggleExpand = {})
             }

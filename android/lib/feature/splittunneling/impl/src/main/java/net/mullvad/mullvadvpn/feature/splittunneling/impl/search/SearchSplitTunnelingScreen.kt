@@ -21,9 +21,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -31,27 +35,39 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.CommonContentKey
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.ContentType
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.SplitTunnelingContentKey
-import net.mullvad.mullvadvpn.feature.splittunneling.impl.appItems
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.excludedAppsHeaderItem
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.hasValidSize
+import net.mullvad.mullvadvpn.feature.splittunneling.impl.extensions.isBelowMaxByteSize
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.getApplicationIconOrNull
 import net.mullvad.mullvadvpn.feature.splittunneling.impl.headerItem
 import net.mullvad.mullvadvpn.lib.common.Lc
+import net.mullvad.mullvadvpn.lib.common.compose.itemsIndexedWithDivider
 import net.mullvad.mullvadvpn.lib.model.PackageName
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.IconState
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.SplitTunnelingListItem
+import net.mullvad.mullvadvpn.lib.ui.component.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
+import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.ui.theme.color.highlight
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -166,7 +182,7 @@ private fun LazyListScope.appList(
             exludedAppsCount = state.excludedApps.size,
             includedAppsCount = state.includedApps.size,
         )
-        appItems(
+        searchAppItems(
             apps = state.excludedApps,
             focusManager = focusManager,
             onAppClick = onIncludeAppClick,
@@ -182,7 +198,7 @@ private fun LazyListScope.appList(
             textId = R.string.all_applications,
             enabled = true,
         )
-        appItems(
+        searchAppItems(
             apps = state.includedApps,
             focusManager = focusManager,
             onAppClick = onExcludeAppClick,
@@ -205,4 +221,70 @@ private fun NoAppsMatchingSearch(searchTerm: String) {
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier.padding(Dimens.cellVerticalSpacing),
     )
+}
+
+internal fun LazyListScope.searchAppItems(
+    apps: List<SearchAppItem>,
+    focusManager: FocusManager,
+    onAppClick: (PackageName) -> Unit,
+    onResolveIcon: (PackageName) -> Drawable?,
+    enabled: Boolean,
+    excluded: Boolean,
+) {
+    itemsIndexedWithDivider(
+        items = apps,
+        key = { _, listItem -> listItem.packageName.value },
+        contentType = { _, _ -> ContentType.ITEM },
+    ) { index, listItem ->
+        val packageName = listItem.packageName
+        var icon by retain(packageName) { mutableStateOf<IconState>(IconState.Loading) }
+        LaunchedEffect(packageName) {
+            launch(Dispatchers.IO) {
+                val drawable = onResolveIcon(packageName)
+                icon =
+                    if (
+                        drawable != null && drawable.isBelowMaxByteSize() && drawable.hasValidSize()
+                    ) {
+                        IconState.Icon(drawable = drawable)
+                    } else {
+                        IconState.NoIcon
+                    }
+            }
+        }
+        SplitTunnelingListItem(
+            title =
+                when (listItem) {
+                    is SearchAppItem.Default -> AnnotatedString(listItem.appName)
+                    is SearchAppItem.Match ->
+                        listItem.appName.toAnnotatedString(MaterialTheme.colorScheme.highlight)
+                },
+            iconState = icon,
+            isSelected = excluded,
+            isEnabled = enabled,
+            modifier = Modifier.animateItem(),
+            position =
+                when (index) {
+                    0 if apps.size == 1 -> Position.Single
+                    0 -> Position.Top
+                    apps.lastIndex -> Position.Bottom
+                    else -> Position.Middle
+                },
+            backgroundAlpha =
+                if (enabled) {
+                    AlphaVisible
+                } else {
+                    AlphaDisabled
+                },
+        ) {
+            // Move focus down unless the clicked item was the last in this
+            // section.
+            if (index < apps.size - 1) {
+                focusManager.moveFocus(FocusDirection.Down)
+            } else {
+                focusManager.moveFocus(FocusDirection.Up)
+            }
+
+            onAppClick(listItem.packageName)
+        }
+    }
 }

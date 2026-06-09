@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -38,21 +39,28 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 private fun PreviewSplitTunnelingListItem() {
     PreviewColumn {
         SplitTunnelingListItem(
-            title = "Removable App",
+            title = AnnotatedString("Removable App"),
             isEnabled = true,
             onCellClicked = {},
             isSelected = true,
             iconState = IconState.Loading,
         )
         SplitTunnelingListItem(
-            title = "Addable App",
+            title = AnnotatedString("Addable App"),
             isEnabled = true,
             onCellClicked = {},
             isSelected = false,
             iconState = IconState.Loading,
         )
         SplitTunnelingListItem(
-            title = "Disabled App",
+            title = AnnotatedString(text = "Highlights App"),
+            isEnabled = true,
+            onCellClicked = {},
+            isSelected = false,
+            iconState = IconState.Loading,
+        )
+        SplitTunnelingListItem(
+            title = AnnotatedString("Disabled App"),
             isEnabled = false,
             onCellClicked = {},
             isSelected = false,
@@ -66,7 +74,7 @@ fun SplitTunnelingListItem(
     modifier: Modifier = Modifier,
     hierarchy: Hierarchy = Hierarchy.Parent,
     position: Position = Position.Middle,
-    title: String,
+    title: AnnotatedString,
     singleLine: Boolean = true,
     iconState: IconState,
     isEnabled: Boolean = true,
