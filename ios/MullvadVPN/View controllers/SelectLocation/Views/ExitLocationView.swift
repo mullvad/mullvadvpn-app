@@ -81,25 +81,16 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
             .listStyle(.plain)
             .coordinateSpace(.exitLocationScroll)
             .onAppear {
-                if viewModel.isRecentsEnabled {
-                    scrollProxy.scrollTo(topAnchor, anchor: .center)
-                } else {
-                    scrollToCurrentSelection(scrollProxy)
-                }
+                scrollToCurrentSelection(scrollProxy)
             }
             .onChange(of: viewModel.isRecentsEnabled) {
-                if viewModel.isRecentsEnabled {
-                    scrollProxy.scrollTo(topAnchor, anchor: .center)
-                } else {
-                    scrollToCurrentSelection(scrollProxy)
-                }
+                scrollToCurrentSelection(scrollProxy)
+            }
+            .onChange(of: viewModel.multihopContext) {
+                scrollToCurrentSelection(scrollProxy)
             }
             .onChange(of: viewModel.searchText) { oldValue, newValue in
-                if !newValue.isEmpty {
-                    scrollProxy.scrollTo(topAnchor, anchor: .center)
-                } else if newValue.isEmpty {
-                    scrollToCurrentSelection(scrollProxy)
-                }
+                scrollToCurrentSelection(scrollProxy)
             }
         }
         .mullvadInputAlert(item: $newCustomListAlert)
@@ -249,10 +240,13 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
     }
 
     private func scrollToCurrentSelection(_ scrollProxy: ScrollViewProxy) {
-        guard viewModel.searchText.isEmpty,
+        if viewModel.isRecentsEnabled {
+            scrollProxy.scrollTo(topAnchor, anchor: .center)
+        } else if viewModel.searchText.isEmpty,
             let selectedLocation = context.selectedLocation
-        else { return }
-        scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
+        {
+            scrollProxy.scrollTo(selectedLocation.id, anchor: .center)
+        }
     }
 }
 
