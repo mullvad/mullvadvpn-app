@@ -301,17 +301,21 @@ final class TunnelManager: @unchecked Sendable {
                 }
 
                 return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
-                    if case let .success(observedState) = result {
-                        guard let connectionState = observedState.connectionState else { return }
-
-                        // This makes the app feel very responsive when the user wants to reconnect
-                        // If the tunnel is already connected, at worst the next tunnel status poll will correct the state
-                        self._tunnelStatus.state = .reconnecting(
-                            connectionState.selectedRelays,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        self._tunnelStatus.observedState = observedState
+                    if case let .success(observedState) = result,
+                        let connectionState = observedState.connectionState
+                    {
+                        // This completion fires on Tunnel.dispatchQueue; hop to internalQueue
+                        // so _tunnelStatus is mutated under nslock like every other writer.
+                        self.internalQueue.async {
+                            _ = self.setTunnelStatus { tunnelStatus in
+                                tunnelStatus.state = .reconnecting(
+                                    connectionState.selectedRelays,
+                                    isPostQuantum: connectionState.isPostQuantum,
+                                    isDaita: connectionState.isDaitaEnabled
+                                )
+                                tunnelStatus.observedState = observedState
+                            }
+                        }
                     }
 
                     finish(result.error)
@@ -715,7 +719,7 @@ final class TunnelManager: @unchecked Sendable {
 
         DispatchQueue.main.async {
             self.observerList.notify { observer in
-                observer.tunnelManager(self, didUpdateTunnelStatus: self._tunnelStatus)
+                observer.tunnelManager(self, didUpdateTunnelStatus: newTunnelStatus)
             }
         }
 
