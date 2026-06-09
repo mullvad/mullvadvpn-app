@@ -1,0 +1,27 @@
+---
+name: Android - Check release notes
+on:
+  pull_request:
+    paths:
+      - .github/workflows/android-check-release-notes.yml
+      - 'android/src/main/play/release-notes/en-US/default.txt'
+
+permissions: {}
+
+env:
+  CHARACTER_LIMIT: 500
+  RELEASE_NOTES_FILE: android/src/main/play/release-notes/en-US/default.txt
+jobs:
+  check-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - name: Release note must not exceed ${{ env.CHARACTER_LIMIT }} characters
+        run: |
+          length=${#RELEASE_NOTES_FILE}
+
+          if (( length > CHARACTER_LIMIT )); then
+            echo "Release notes may not exceed $CHARACTER_LIMIT characters (found $length)."
+            exit 1
+          fi
