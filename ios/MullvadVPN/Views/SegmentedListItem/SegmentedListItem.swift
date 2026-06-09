@@ -45,11 +45,11 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                 .padding(.leading, 16)
                 .padding(.trailing, trailing == nil ? 16 : 0)
                 .background(Color.colorForIndentationLevel(level))
-                .disabled(isDisabled)
                 .sizeOfView {
                     segmentHeight = $0.height
                 }
             }
+            .disabled(isDisabled)
 
             segment()?
                 .frame(width: UIMetrics.LocationList.cellMinHeight, height: segmentHeight)
