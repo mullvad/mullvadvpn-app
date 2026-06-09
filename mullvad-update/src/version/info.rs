@@ -10,7 +10,7 @@ use crate::format::response::Response;
 use crate::version::parameters::VersionParameters;
 
 /// Lowest version to accept using 'verify'
-pub const MIN_VERIFY_METADATA_VERSION: usize = 0;
+pub const MIN_VERIFY_METADATA_VERSION: usize = 51;
 
 /// Version update information derived from querying a [`Response`] and filtering with [`VersionParameters`]
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, PartialEq)]
