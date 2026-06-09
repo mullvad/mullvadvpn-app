@@ -1,0 +1,80 @@
+---
+# Grants a GitHub team collaborator access to every open (triage/draft)
+# repository security advisory, so the whole team can see private vulnerability
+# reports without being repo admins. Runs on a schedule (and on demand),
+# authenticating as a GitHub App used purely as a scoped token source.
+#
+# One-time setup required to use this workflow (done on GitHub by a human):
+#
+# 1. Register a GitHub App (org Settings -> Developer settings -> GitHub Apps):
+#      - Repository permissions / "Repository security advisories": Read and write
+#      - Organization permissions / "Members": Read
+#          (needed to read collaborating_teams back, so the run is idempotent)
+#      - Webhook: uncheck "Active" (no webhook is used)
+#    Then generate a private key (downloads a .pem) and note the App's Client ID.
+# 2. Install the App on every repository whose security advisories it manages.
+# 3. On each of those repositories, add under
+#    Settings -> Secrets and variables -> Actions:
+#      - Variable ADVISORY_APP_ID         = the App's Client ID
+#      - Secret   ADVISORY_APP_PRIVATE_KEY = full contents of the .pem
+# 4. Merge this workflow to the repository's default branch: the schedule and
+#    workflow_dispatch triggers only run from there.
+name: Add team to reported security advisories
+
+on:
+  schedule:
+    - cron: '0 */4 * * *'   # every 4 hours
+  workflow_dispatch:        # manual trigger
+
+permissions: {}             # default GITHUB_TOKEN unused; App token is used instead
+
+env:
+  # GitHub team slug granted collaborator access on each open advisory.
+  TEAM_SLUG: appteam
+
+jobs:
+  grant:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1  # v3.2.0
+        id: app-token
+        with:
+          client-id: ${{ vars.ADVISORY_APP_ID }}
+          private-key: ${{ secrets.ADVISORY_APP_PRIVATE_KEY }}
+
+      - name: Ensure team is collaborator on open advisories
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # Collect advisories not yet published/closed.
+          mapfile -t ghsa_ids < <(
+            for state in triage draft; do
+              gh api --paginate \
+                "repos/$REPO/security-advisories?state=$state&per_page=100" \
+                --jq '.[].ghsa_id'
+            done
+          )
+
+          if [[ "${#ghsa_ids[@]}" -eq 0 ]]; then
+            echo "No open advisories"
+            exit 0
+          fi
+
+          for ghsa_id in "${ghsa_ids[@]}"; do
+            advisory_path="repos/$REPO/security-advisories/$ghsa_id"
+            current_team_slugs=$(gh api "$advisory_path" --jq '[.collaborating_teams[]?.slug]')
+
+            if echo "$current_team_slugs" | jq -e --arg t "$TEAM_SLUG" 'index($t)' >/dev/null; then
+              echo "$ghsa_id: $TEAM_SLUG already present"
+              continue
+            fi
+
+            # PATCH replaces the whole team list, so append to the existing slugs.
+            echo "$current_team_slugs" \
+              | jq -c --arg t "$TEAM_SLUG" '{collaborating_teams: (. + [$t])}' \
+              | gh api -X PATCH "$advisory_path" --input - >/dev/null
+            echo "$ghsa_id: added $TEAM_SLUG"
+          done

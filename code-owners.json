@@ -40,6 +40,7 @@
   ],
   "appteam-lead": [
     ".github/pinact.yml",
+    ".github/workflows/advisory-team-access.yml",
     ".github/workflows/workflow-check.yml",
     "audits/**",
     "ci/keys/**",
