@@ -185,7 +185,7 @@ reason = "The app does not use netty for external http communication"
 [[IgnoredVulns]]
 id = "CVE-2026-44249"  # GHSA-3qp7-7mw8-wx86
 ignoreUntil = 2026-08-01
-reason = "The app does not use netty for external http communication" 
+reason = "The app does not use netty for external http communication"
 
 # Netty: SNI handler pre-allocates up to 16 MiB from nine attacker bytes
 [[IgnoredVulns]]
