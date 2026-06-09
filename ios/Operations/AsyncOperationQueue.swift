@@ -89,6 +89,14 @@ private final class ExclusivityManager: @unchecked Sendable {
             }
 
             if let index = operations.firstIndex(of: operation) {
+                // Break the successor's back-pointer so finished operations can be
+                // released immediately. Without this, addDependency chains every op
+                // to its predecessor — under load, releasing the tail triggers a
+                // recursive deinit cascade that overflows the stack.
+                let nextIndex = operations.index(after: index)
+                if nextIndex < operations.endIndex {
+                    operations[nextIndex].removeDependency(operation)
+                }
                 operations.remove(at: index)
             }
 
