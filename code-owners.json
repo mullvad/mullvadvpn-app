@@ -36,7 +36,8 @@
     "building/sigstore/mullvad/mullvadvpn-app-build-android@**",
     "ci/android/**",
     "scripts/check-apostrophe-style",
-    "mullvad-jni/**"
+    "mullvad-jni/**",
+    ".github/workflows/android-*"
   ],
   "appteam-lead": [
     ".github/pinact.yml",
