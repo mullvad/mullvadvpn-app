@@ -3460,6 +3460,9 @@ msgstr ""
 msgid "Makes sure the device is always on the VPN tunnel."
 msgstr ""
 
+msgid "Migrated settings"
+msgstr ""
+
 msgid "More actions"
 msgstr ""
 

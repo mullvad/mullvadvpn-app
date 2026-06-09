@@ -19,7 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
-import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
+import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -27,9 +27,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class MultihopMigrationViewModelTest {
-    private val mockMultihopMigrationRepository = mockk<MultihopMigrationRepository>()
     private val mockWireguardConstraintsRepository = mockk<WireguardConstraintsRepository>()
-    private val mockUserPreferencesRepository = mockk<UserPreferencesRepository>()
+    private val mockUserPreferencesRepository = mockk<UserPreferencesRepository>(relaxed = true)
 
     private lateinit var viewModel: MultihopMigrationViewModel
 
@@ -485,7 +484,6 @@ class MultihopMigrationViewModelTest {
     private fun init(multihopMigrationData: MultihopMigrationData): MultihopMigrationViewModel =
         MultihopMigrationViewModel(
             navArgs = MultihopMigrationNavKey(multihopMigrationData),
-            multihopMigrationRepository = mockMultihopMigrationRepository,
             wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             userPreferencesRepository = mockUserPreferencesRepository,
         )

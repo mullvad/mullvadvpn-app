@@ -20,13 +20,11 @@ import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
 class MultihopMigrationViewModel(
     navArgs: MultihopMigrationNavKey,
-    private val multihopMigrationRepository: MultihopMigrationRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {

@@ -466,7 +466,6 @@ val uiModule = module {
     viewModel { params ->
         MultihopMigrationViewModel(
             navArgs = params.get(),
-            multihopMigrationRepository = get(),
             wireguardConstraintsRepository = get(),
             userPreferencesRepository = get(),
         )
