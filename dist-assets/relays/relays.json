@@ -3592,7 +3592,7 @@
       },
       {
         "hostname": "ch-zrh-wg-403",
-        "active": true,
+        "active": false,
         "owned": false,
         "location": "ch-zrh",
         "provider": "DataPacket",
@@ -6405,7 +6405,7 @@
       },
       {
         "hostname": "ee-tll-wg-001",
-        "active": false,
+        "active": true,
         "owned": false,
         "location": "ee-tll",
         "provider": "xtom",
@@ -6666,7 +6666,7 @@
       },
       {
         "hostname": "fi-hel-wg-001",
-        "active": false,
+        "active": true,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6692,7 +6692,7 @@
       },
       {
         "hostname": "fi-hel-wg-002",
-        "active": false,
+        "active": true,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -6748,7 +6748,7 @@
       },
       {
         "hostname": "fi-hel-wg-003",
-        "active": false,
+        "active": true,
         "owned": true,
         "location": "fi-hel",
         "provider": "Creanova",
@@ -11691,7 +11691,7 @@
       },
       {
         "hostname": "se-mma-wg-111",
-        "active": true,
+        "active": false,
         "owned": true,
         "location": "se-mma",
         "provider": "31173",
@@ -12013,7 +12013,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-sto-wg-202.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12083,12 +12083,12 @@
         "weight": 300,
         "include_in_country": true,
         "public_key": "9V4G5BERZI4xHudcIf5wdDG77XZSY08lVEiXrAGXuEE=",
-        "daita": false,
+        "daita": true,
         "shadowsocks_extra_addr_in": [
           "170.62.100.16"
         ],
         "features": {
-          "daita": null,
+          "daita": {},
           "quic": {
             "addr_in": [
               "170.62.100.15"
@@ -12096,7 +12096,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-sto-wg-205.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12110,12 +12110,12 @@
         "weight": 300,
         "include_in_country": true,
         "public_key": "9KHMuwHqa1Mx2VrKX3cvqLN/ZPDjH5/z0q+IWbfrmW8=",
-        "daita": false,
+        "daita": true,
         "shadowsocks_extra_addr_in": [
           "170.62.100.72"
         ],
         "features": {
-          "daita": null,
+          "daita": {},
           "quic": {
             "addr_in": [
               "170.62.100.71"
@@ -12123,7 +12123,7 @@
             "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
             "domain": "se-sto-wg-206.blockerad.eu"
           },
-          "lwo": null
+          "lwo": {}
         }
       },
       {
@@ -12538,132 +12538,6 @@
           "daita": null,
           "quic": null,
           "lwo": null
-        }
-      },
-      {
-        "hostname": "us-atl-wg-301",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.116",
-        "ipv6_addr_in": "2606:2e00:8000:4::f001",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "SUO0TkKNce4tNTHB3F7PrlvkUzAQeLBSefsgbVnbTkM=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.6"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-atl-wg-302",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.117",
-        "ipv6_addr_in": "2606:2e00:8000:4::f101",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "OODmjMlAuaUXGeTUzwagEiG42GF3m0ZlHh+3Ssw1Ckg=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.41"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-atl-wg-303",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.118",
-        "ipv6_addr_in": "2606:2e00:8000:4::f201",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "IR4ZTWn7TBujt2nMDoB9xYISoVigWYTRyaG8mHLji1o=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.76"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {}
-        }
-      },
-      {
-        "hostname": "us-atl-wg-304",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.119",
-        "ipv6_addr_in": "2606:2e00:8000:4::f301",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "1JswEeh7qEEq0oy2sQBeqg+QjNkTJRsZ/N9/CN92SCs=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.111"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-atl-wg-305",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.120",
-        "ipv6_addr_in": "2606:2e00:8000:4::f401",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "wGxVyRjNKWba7RidWKab0jPpdNKQAgeLFzwx/bz3CWQ=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.146"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-atl-wg-306",
-        "active": false,
-        "owned": false,
-        "location": "us-atl",
-        "provider": "100TB",
-        "ipv4_addr_in": "67.213.209.121",
-        "ipv6_addr_in": "2606:2e00:8000:4::f501",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "Q8oqrXk9nC9+94GLVUXJ7E8xtV10ggdzQIiQgZI3Em4=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [
-          "155.2.190.181"
-        ],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": {}
         }
       },
       {
@@ -19770,82 +19644,6 @@
         }
       },
       {
-        "hostname": "us-slc-wg-201",
-        "active": false,
-        "owned": false,
-        "location": "us-slc",
-        "provider": "100TB",
-        "ipv4_addr_in": "69.4.234.9",
-        "ipv6_addr_in": "2607:fc98:0:8a::f301",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "sSoow0tFfqSrZIUhFRaGsTvwQsUTe33RA/9PLn93Cno=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-slc-wg-202",
-        "active": false,
-        "owned": false,
-        "location": "us-slc",
-        "provider": "100TB",
-        "ipv4_addr_in": "69.4.234.149",
-        "ipv6_addr_in": "2607:fc98:0:8a::f401",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "mKD4untTerTbg+1pJh3FA9zjOAOtoTHqOJzIP0lnqH4=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-slc-wg-203",
-        "active": false,
-        "owned": false,
-        "location": "us-slc",
-        "provider": "100TB",
-        "ipv4_addr_in": "69.4.234.131",
-        "ipv6_addr_in": "2607:fc98:0:8a::f501",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "2yVEeOFScneJRCVTrqCjKlKHg3J2wwOwkY28iy47J1Q=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
-        "hostname": "us-slc-wg-204",
-        "active": false,
-        "owned": false,
-        "location": "us-slc",
-        "provider": "100TB",
-        "ipv4_addr_in": "69.4.234.10",
-        "ipv6_addr_in": "2607:fc98:0:8a::f601",
-        "weight": 0,
-        "include_in_country": false,
-        "public_key": "SE7HGeByhTo8Ak7FGsjvrYOUJTydQ2L8fWjo17IvhSw=",
-        "daita": false,
-        "shadowsocks_extra_addr_in": [],
-        "features": {
-          "daita": null,
-          "quic": null,
-          "lwo": null
-        }
-      },
-      {
         "hostname": "us-slc-wg-301",
         "active": false,
         "owned": false,
@@ -20364,5 +20162,5 @@
       }
     ]
   },
-  "etag": "\"6a1ed099-5bf9d\""
+  "etag": "\"6a27d639-5b3c3\""
 }
