@@ -21,7 +21,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## UNRELEASED
+## [2026.3]
+### Fixed
+- Stop logging access method credentials in logs.
+
+
+## [2026.2 - 2026-04-21]
 ### Add
 - Add support for "Force all apps", which mitigates [TunnelCrack] attacks.
 - Add support for obfuscating WireGuard tunnel traffic by LWO (Lightweight WireGuard Obfuscation).
