@@ -21,6 +21,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## [android/2026.6] - 2026-06-09
+Identical to `android/2026.6-beta2`.
+
+
 ## [android/2026.6-beta2] - 2026-06-04
 ### Fixed
 - If the device is revoked and there is no time left on the account, it will now correctly show as
