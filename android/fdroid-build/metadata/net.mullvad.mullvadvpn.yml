@@ -47,7 +47,7 @@ Builds:
     build:
       - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
       - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
-      # This is to increase stability of verification builds, not required for official fdroid builds
+      # This is to increase stability of CI builds which could otherwise crash due to OOM.
       - export GRADLE_OPTS='-Dorg.gradle.jvmargs=-Xmx4096M -Dkotlin.daemon.jvm.options="-Xmx4096M"'
       - gradle --console plain fdroidRelease
     ndk: 27.3.13750724
