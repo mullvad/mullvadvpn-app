@@ -20,6 +20,7 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.lib.common.util.EstablishError.ParameterNotApplied
 import net.mullvad.mullvadvpn.lib.common.util.establishSafe
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
@@ -92,7 +93,12 @@ open class TalpidVpnService : LifecycleVpnService() {
         val vpnInterfaceFd =
             builder
                 .establishSafe()
-                .onLeft { Logger.w("Failed to establish tunnel $it") }
+                .onLeft {
+                    Logger.w("Failed to establish tunnel $it")
+                    if (it is ParameterNotApplied && config.hasIpv6Address) {
+                        Logger.w("Try to turn off IPv6")
+                    }
+                }
                 .mapLeft { EstablishError }
                 .bind()
 
@@ -130,7 +136,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     // To avoid leaks a config should either fully contain IPv6 or have no IPv6 configuration. A
-    // partial IPv6 configuration, e.g having no address but providing routes, will lead to traffic
+    // partial IPv6 configuration, e.g. having no address but providing routes, will lead to traffic
     // routed outside the tunnel
     private fun TunConfig.validIpv6Routes(): Boolean =
         hasCompleteIpv6Configuration() || hasNoIpv6Configuration()
