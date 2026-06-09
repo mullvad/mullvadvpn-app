@@ -13,4 +13,8 @@ data class GlobeColors(
     val landColorArray = landColor.toFloatArray()
     val oceanColorArray = oceanColor.toFloatArray()
     val contourColorArray = contourColor.toFloatArray()
+
+    companion object {
+        fun default() = GlobeColors(landColor = Color(0xFF294D73), oceanColor = Color(0xFF192E45))
+    }
 }

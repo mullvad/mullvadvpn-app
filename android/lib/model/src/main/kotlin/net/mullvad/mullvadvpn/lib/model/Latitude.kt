@@ -35,7 +35,7 @@ value class Latitude(val value: Float) {
             return Latitude(unwoundValue)
         }
 
-        private fun unwind(value: Float): Float {
+         fun unwind(value: Float): Float {
             // Remove all 360 degrees
             val withoutRotations = value % COMPLETE_ANGLE
 

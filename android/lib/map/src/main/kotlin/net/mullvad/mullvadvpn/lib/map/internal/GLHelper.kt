@@ -63,11 +63,11 @@ private fun loadShader(type: Int, shaderCode: String): Int {
     return shader
 }
 
-internal fun initArrayBuffer(buffer: ByteBuffer) = initArrayBuffer(buffer, Byte.SIZE_BYTES)
+internal fun initGLArrayBuffer(buffer: ByteBuffer) = initGLArrayBuffer(buffer, Byte.SIZE_BYTES)
 
-internal fun initArrayBuffer(buffer: FloatBuffer) = initArrayBuffer(buffer, Float.SIZE_BYTES)
+internal fun initGLArrayBuffer(buffer: FloatBuffer) = initGLArrayBuffer(buffer, Float.SIZE_BYTES)
 
-private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
+private fun initGLArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
     val buffer = IntArray(1)
     GLES20.glGenBuffers(1, buffer, 0)
 
@@ -81,7 +81,7 @@ private fun initArrayBuffer(dataBuffer: Buffer, unitSizeInBytes: Int = 1): Int {
     return buffer[0]
 }
 
-internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
+internal fun initGLIndexBuffer(dataBuffer: Buffer): GLIndexBuffer {
     val buffer = IntArray(1)
     GLES20.glGenBuffers(1, buffer, 0)
 
@@ -92,13 +92,10 @@ internal fun initIndexBuffer(dataBuffer: Buffer): IndexBufferWithLength {
         dataBuffer,
         GLES20.GL_STATIC_DRAW,
     )
-    return IndexBufferWithLength(
-        indexBuffer = buffer[0],
-        length = dataBuffer.capacity() / Float.SIZE_BYTES,
-    )
+    return GLIndexBuffer(indexBuffer = buffer[0], length = dataBuffer.capacity() / Float.SIZE_BYTES)
 }
 
-internal class IndexBufferWithLength(val indexBuffer: Int, val length: Int)
+internal class GLIndexBuffer(val indexBuffer: Int, val length: Int)
 
 internal fun newIdentityMatrix(): FloatArray =
     FloatArray(MATRIX_SIZE).apply { Matrix.setIdentityM(this, 0) }
