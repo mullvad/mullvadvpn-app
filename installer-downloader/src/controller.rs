@@ -270,6 +270,10 @@ where
 
         match installer {
             Some(cached_app_installer) => {
+                log::info!(
+                    "Found cached installer for app version {version}",
+                    version = cached_app_installer.version()
+                );
                 queue.queue_main(move |self_| {
                     self_.hide_download_button();
 
@@ -371,6 +375,10 @@ where
                     });
 
                     tokio::spawn(async move {
+                        log::info!(
+                            "Installing app version {version}",
+                            version = ui_installer.version()
+                        );
                         if let Err(err) = app::install_and_upgrade(ui_installer).await {
                             log::error!("install_and_upgrade failed: {err:?}");
                         } else {
@@ -515,10 +523,13 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
                 TargetVersion::Stable => &version_info.stable,
                 TargetVersion::Beta => version_info.beta.as_ref().expect("selected version exists"),
             };
-
             let Some(app_url) = select_cdn_url(&selected_version.urls) else {
                 return;
             };
+            log::info!(
+                "Downloading app version {version} from {app_url}",
+                version = selected_version.version
+            );
             let app_version = selected_version.version.clone();
             let app_sha256 = selected_version.sha256;
             let app_size = selected_version.size;
