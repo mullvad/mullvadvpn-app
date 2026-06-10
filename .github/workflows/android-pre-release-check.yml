@@ -18,4 +18,4 @@ jobs:
       - name: Run pre-release checks
         run: |
           version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName")
-          android/scripts/check-changelog.sh version
+          android/scripts/check-changelog.sh "$version"
