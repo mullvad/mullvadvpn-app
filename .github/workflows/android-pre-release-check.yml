@@ -2,10 +2,10 @@
 name: Android - Pre-release check
 on:
   pull_request:
+    branches:
+    - 'prepare-android/*'  
     paths:
       - .github/workflows/android-pre-release-check.yml
-      - 'android/src/main/play/release-notes/en-US/default.txt'
-      - 'android/CHANGELOG.md'
 
 permissions: {}
 
