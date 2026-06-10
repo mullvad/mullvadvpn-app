@@ -93,9 +93,6 @@ export default class Settings implements Readonly<ISettings> {
     IpcMainEventChannel.settings.handleSetEnableDaita((value) => {
       return this.daemonRpc.setEnableDaita(value);
     });
-    IpcMainEventChannel.settings.handleSetDaitaDirectOnly((value) => {
-      return this.daemonRpc.setDaitaDirectOnly(value);
-    });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
