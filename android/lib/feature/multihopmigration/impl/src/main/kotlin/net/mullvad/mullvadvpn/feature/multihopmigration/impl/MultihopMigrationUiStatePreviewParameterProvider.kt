@@ -77,7 +77,10 @@ class MultihopMigrationUiStatePreviewParameterProvider :
                 .toUiState()
         // 6a
         private val scenario6a =
-            listOf(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+            listOf(
+                    MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS),
+                    MultihopMigrationPage.EntrySetToAutomatic,
+                )
                 .toUiState()
         // 6b
         private val scenario6b =

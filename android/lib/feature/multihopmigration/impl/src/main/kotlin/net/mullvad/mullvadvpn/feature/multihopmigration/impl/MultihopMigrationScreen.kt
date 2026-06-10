@@ -182,6 +182,7 @@ fun MultihopMigrationScreen(
                     SuggestedMultihopEntry(onSetEntry = onSetEntry)
                 MultihopMigrationPage.SuggestedAction ->
                     SuggestedAction(onSetMultihopMode = onSetMultihopMode)
+                MultihopMigrationPage.EntrySetToAutomatic -> EntrySetToAutomatic()
             }
         }
     }
@@ -313,7 +314,7 @@ private fun SuggestedMultihopEntry(onSetEntry: (entry: Constraint<RelayItemId>) 
                 buildAnnotatedString {
                     appendLine(stringResource(R.string.suggested_multihop_entry_first_paragraph))
                     appendLine()
-                    appendLine(stringResource(R.string.suggested_multihop_entry_second_paragraph))
+                    appendLine(stringResource(R.string.automatic_entry_description))
                     appendLine()
                     withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
                         appendLine(stringResource(R.string.suggested_multihop_entry_warning))
@@ -382,6 +383,28 @@ private fun MultihopMigrationPage(title: String, content: @Composable ColumnScop
         )
         Spacer(modifier = Modifier.height(Dimens.mediumPadding))
         content()
+    }
+}
+
+@Composable
+private fun EntrySetToAutomatic() {
+    MultihopMigrationPage(title = stringResource(R.string.entry_set_to_automatic_title)) {
+        Image(
+            painter = painterResource(R.drawable.entry_set_to_automatic_illustration),
+            contentDescription = null,
+        )
+        Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text =
+                buildAnnotatedString {
+                    appendLine(stringResource(R.string.entry_set_to_automatic_first_paragraph))
+                    appendLine()
+                    appendLine(stringResource(R.string.automatic_entry_description))
+                },
+        )
     }
 }
 

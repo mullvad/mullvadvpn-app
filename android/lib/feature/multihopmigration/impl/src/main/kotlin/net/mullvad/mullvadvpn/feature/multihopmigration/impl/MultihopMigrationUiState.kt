@@ -20,6 +20,8 @@ sealed interface MultihopMigrationPage : Parcelable {
 
     data object SeparateFilters : MultihopMigrationPage
 
+    data object EntrySetToAutomatic : MultihopMigrationPage
+
     data object SuggestedMultihopEntry : MultihopMigrationPage
 
     data object SuggestedAction : MultihopMigrationPage

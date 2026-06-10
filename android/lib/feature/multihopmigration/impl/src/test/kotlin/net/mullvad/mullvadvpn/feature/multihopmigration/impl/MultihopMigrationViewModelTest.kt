@@ -15,9 +15,8 @@ import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNav
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
+import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.SplitFilterMigration
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -43,12 +42,7 @@ class MultihopMigrationViewModelTest {
         // Arrange
         val multihopMigrationData =
             MultihopMigrationData(
-                splitFilterMigration =
-                    SplitFilterMigration(
-                        multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                        daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                        filtersSet = true,
-                    ),
+                splitFilterMigration = SplitFilterMigration(scenario = Scenario.FOUR_B),
                 userBlocked = false,
             )
         viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -70,12 +64,7 @@ class MultihopMigrationViewModelTest {
         // Arrange
         val multihopMigrationData =
             MultihopMigrationData(
-                splitFilterMigration =
-                    SplitFilterMigration(
-                        multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                        daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                        filtersSet = true,
-                    ),
+                splitFilterMigration = SplitFilterMigration(scenario = Scenario.THREE_B),
                 userBlocked = false,
             )
         viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -102,12 +91,7 @@ class MultihopMigrationViewModelTest {
         coEvery { mockWireguardConstraintsRepository.setEntryLocation(any()) } returns Unit.right()
         val multihopMigrationData =
             MultihopMigrationData(
-                splitFilterMigration =
-                    SplitFilterMigration(
-                        multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                        daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                        filtersSet = true,
-                    ),
+                splitFilterMigration = SplitFilterMigration(scenario = Scenario.TWO),
                 userBlocked = false,
             )
         viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -126,12 +110,7 @@ class MultihopMigrationViewModelTest {
         coEvery { mockWireguardConstraintsRepository.setMultihopMode(any()) } returns Unit.right()
         val multihopMigrationData =
             MultihopMigrationData(
-                splitFilterMigration =
-                    SplitFilterMigration(
-                        multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                        daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                        filtersSet = true,
-                    ),
+                splitFilterMigration = SplitFilterMigration(scenario = Scenario.SEVEN_B),
                 userBlocked = false,
             )
         viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -152,12 +131,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
-                            daitaMigration = PreviousDaitaState.OFF,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.ONE_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -165,8 +139,10 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assert(state.multihopMigrationPages.size == 3)
-                assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
+                assertEquals(3, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.OFF_TO_NEVER, first.multihopMigrationState)
                 assert(state.multihopMigrationPages[1] is MultihopMigrationPage.SeparateFilters)
                 assert(state.multihopMigrationPages[2] is MultihopMigrationPage.SuggestedAction)
             }
@@ -177,12 +153,7 @@ class MultihopMigrationViewModelTest {
         // Arrange
         val multihopMigrationData =
             MultihopMigrationData(
-                splitFilterMigration =
-                    SplitFilterMigration(
-                        multihopMigrationState = MultihopMigrationState.OFF_TO_WHEN_NEEDED,
-                        daitaMigration = PreviousDaitaState.ON,
-                        filtersSet = false,
-                    ),
+                splitFilterMigration = SplitFilterMigration(scenario = Scenario.TWO),
                 userBlocked = false,
             )
         viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -190,8 +161,10 @@ class MultihopMigrationViewModelTest {
         // Act, Assert
         viewModel.uiState.test {
             val state = awaitItem()
-            assert(state.multihopMigrationPages.size == 1)
-            assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
+            assertEquals(1, state.multihopMigrationPages.size)
+            val first = state.multihopMigrationPages[0]
+            assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+            assertEquals(MultihopMigrationState.OFF_TO_WHEN_NEEDED, first.multihopMigrationState)
         }
     }
 
@@ -201,12 +174,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
-                            daitaMigration = PreviousDaitaState.ON,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.THREE_A),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -214,10 +182,12 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assert(state.multihopMigrationPages.size == 3)
-                assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
-                assert(state.multihopMigrationPages[1] is MultihopMigrationPage.SeparateFilters)
-                assert(state.multihopMigrationPages[2] is MultihopMigrationPage.SuggestedAction)
+                assertEquals(3, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages.first()
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.OFF_TO_NEVER, first.multihopMigrationState)
+                assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
+                assertIs<MultihopMigrationPage.SuggestedAction>(state.multihopMigrationPages[2])
             }
         }
 
@@ -227,12 +197,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.ON,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.THREE_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -240,11 +205,13 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assert(state.multihopMigrationPages.size == 3)
-                assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
-                assert(state.multihopMigrationPages[1] is MultihopMigrationPage.SeparateFilters)
-                assert(
-                    state.multihopMigrationPages[2] is MultihopMigrationPage.SuggestedMultihopEntry
+                assertEquals(3, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.OFF_TO_ALWAYS, first.multihopMigrationState)
+                assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
+                assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
+                    state.multihopMigrationPages[2]
                 )
             }
         }
@@ -255,12 +222,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
-                            daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = false,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.FOUR_A),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -268,9 +230,11 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assert(state.multihopMigrationPages.size == 2)
-                assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
-                assert(state.multihopMigrationPages[1] is MultihopMigrationPage.DirectOnlyRemoved)
+                assertEquals(2, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.OFF_TO_NEVER, first.multihopMigrationState)
+                assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
             }
         }
 
@@ -280,12 +244,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
-                            daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.FOUR_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -294,7 +253,9 @@ class MultihopMigrationViewModelTest {
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals(3, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.OFF_TO_NEVER, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[2])
             }
@@ -306,12 +267,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.OFF,
-                            filtersSet = false,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.FIVE_A),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -320,7 +276,9 @@ class MultihopMigrationViewModelTest {
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals(1, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
             }
         }
 
@@ -330,12 +288,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.OFF,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.FIVE_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -344,7 +297,9 @@ class MultihopMigrationViewModelTest {
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals(2, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
             }
         }
@@ -355,12 +310,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.ON,
-                            filtersSet = false,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.SIX_A),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -368,8 +318,11 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assertEquals(1, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                assertEquals(2, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
+                assertIs<MultihopMigrationPage.EntrySetToAutomatic>(state.multihopMigrationPages[1])
             }
         }
 
@@ -379,12 +332,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.ON,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.SIX_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -393,7 +341,9 @@ class MultihopMigrationViewModelTest {
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals(3, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[1])
                 assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
                     state.multihopMigrationPages[2]
@@ -407,12 +357,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = false,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.SEVEN_A),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -421,7 +366,9 @@ class MultihopMigrationViewModelTest {
             viewModel.uiState.test {
                 val state = awaitItem()
                 assertEquals(2, state.multihopMigrationPages.size)
-                assertIs<MultihopMigrationPage.NewMultihopMode>(state.multihopMigrationPages[0])
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
                 assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
             }
         }
@@ -432,12 +379,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.ON_TO_ALWAYS,
-                            daitaMigration = PreviousDaitaState.DIRECT_ONLY,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.SEVEN_B),
                     userBlocked = false,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)
@@ -445,12 +387,14 @@ class MultihopMigrationViewModelTest {
             // Act, Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assert(state.multihopMigrationPages.size == 4)
-                assert(state.multihopMigrationPages[0] is MultihopMigrationPage.NewMultihopMode)
-                assert(state.multihopMigrationPages[1] is MultihopMigrationPage.DirectOnlyRemoved)
-                assert(state.multihopMigrationPages[2] is MultihopMigrationPage.SeparateFilters)
-                assert(
-                    state.multihopMigrationPages[3] is MultihopMigrationPage.SuggestedMultihopEntry
+                assertEquals(4, state.multihopMigrationPages.size)
+                val first = state.multihopMigrationPages[0]
+                assertIs<MultihopMigrationPage.NewMultihopMode>(first)
+                assertEquals(MultihopMigrationState.ON_TO_ALWAYS, first.multihopMigrationState)
+                assertIs<MultihopMigrationPage.DirectOnlyRemoved>(state.multihopMigrationPages[1])
+                assertIs<MultihopMigrationPage.SeparateFilters>(state.multihopMigrationPages[2])
+                assertIs<MultihopMigrationPage.SuggestedMultihopEntry>(
+                    state.multihopMigrationPages[3]
                 )
             }
         }
@@ -461,12 +405,7 @@ class MultihopMigrationViewModelTest {
             // Arrange
             val multihopMigrationData =
                 MultihopMigrationData(
-                    splitFilterMigration =
-                        SplitFilterMigration(
-                            multihopMigrationState = MultihopMigrationState.OFF_TO_NEVER,
-                            daitaMigration = PreviousDaitaState.ON,
-                            filtersSet = true,
-                        ),
+                    splitFilterMigration = SplitFilterMigration(scenario = Scenario.FIVE_B),
                     userBlocked = true,
                 )
             viewModel = init(multihopMigrationData = multihopMigrationData)

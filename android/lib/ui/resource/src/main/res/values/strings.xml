@@ -572,7 +572,6 @@
     <string name="separate_filters_title_second_paragraph">Your current filters were applied to both entry and exit locations.</string>
     <string name="suggested_multihop_entry_title">Suggested multihop entry</string>
     <string name="suggested_multihop_entry_first_paragraph">To avoid having to change the entry server manually, we recommend you set the multihop entry server to “Automatic”.</string>
-    <string name="suggested_multihop_entry_second_paragraph">When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</string>
     <string name="suggested_multihop_entry_warning">Attention: With the “Automatic” location, filters are ignored for the entry server.</string>
     <string name="suggested_multihop_entry_button">Set entry to “Automatic”</string>
     <string name="suggested_action_title">Suggested action</string>
@@ -583,4 +582,7 @@
     <string name="multihop_migration_blocked_in_app_message_title">Resolve connection issues</string>
     <string name="multihop_migration_blocked_in_app_message_description">Some of your settings have been migrated, please review the changes and resolve any issues.</string>
     <string name="migrated_settings">Migrated settings</string>
+    <string name="entry_set_to_automatic_title">Multihop entry set to “Automatic”</string>
+    <string name="entry_set_to_automatic_first_paragraph">The multihop mode “Always” now features an “Automatic” location for the entry server selection.</string>
+    <string name="automatic_entry_description">When selected, the app automatically picks a random server, prioritizing those closer to the exit location for better performance.</string>
 </resources>

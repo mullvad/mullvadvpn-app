@@ -3469,6 +3469,9 @@ msgstr ""
 msgid "Mullvad services unavailable"
 msgstr ""
 
+msgid "Multihop entry set to “Automatic”"
+msgstr ""
+
 msgid "Multihop is disabled"
 msgstr ""
 
@@ -3743,6 +3746,9 @@ msgid "The app was unable to login due to not being able to reach the Mullvad AP
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr ""
+
+msgid "The multihop mode “Always” now features an “Automatic” location for the entry server selection."
 msgstr ""
 
 msgid "The selected %s port is not supported, please change it under"

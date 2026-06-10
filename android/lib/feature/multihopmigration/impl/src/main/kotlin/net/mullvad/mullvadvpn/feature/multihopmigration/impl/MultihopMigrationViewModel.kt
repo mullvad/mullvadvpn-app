@@ -95,7 +95,7 @@ class MultihopMigrationViewModel(
             }
             Scenario.SIX_A -> {
                 add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
-                // add(MultihopMigrationPage.EntrySetToAutomatic)
+                add(MultihopMigrationPage.EntrySetToAutomatic)
             }
             Scenario.SIX_B -> {
                 add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
