@@ -7,6 +7,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.data.toLatLng
+import net.mullvad.mullvadvpn.lib.model.LatLong
 
 internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
     private val renderer: MapRenderer = MapRenderer(context.resources)
@@ -38,6 +40,8 @@ internal class MapSurfaceView(context: Context) : GLSurfaceView(context) {
         renderer.setViewState(viewState)
         requestRender()
     }
+
+    fun getPosition(offset: Offset): LatLong? = renderer.calculateIntersection(offset)?.toLatLng()
 
     fun closestMarker(offset: Offset): Pair<Marker, Offset>? {
         val (marker, distance) = renderer.closestMarker(offset) ?: return null
