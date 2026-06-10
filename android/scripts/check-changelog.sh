@@ -1,26 +1,15 @@
 #!/usr/bin/env bash
 
-# This script prepares for a release. Run it with the release version as the first argument and it
-# will update version numbers, commit and add a signed tag.
+# Check the changelog and release notes to make sure they are correct.
 
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR/../.."
 
-for argument in "$@"; do
-    case "$argument" in
-        -*)
-            echo "Unknown option \"$argument\""
-            exit 1
-            ;;
-        *)
-            PRODUCT_VERSION="$argument"
-            ;;
-    esac
-done
+VERSION_NAME=$1
 
-if [[ -z ${PRODUCT_VERSION+x} ]]; then
+if [[ -z ${VERSION_NAME+x} ]]; then
     echo "Please give the release version as an argument to this script."
     echo "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
     exit 1

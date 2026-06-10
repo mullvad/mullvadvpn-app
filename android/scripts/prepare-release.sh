@@ -31,7 +31,7 @@ if [[ -n "$(git status --porcelain)" ]]; then
     exit 1
 fi
 
-android/scripts/check-prepare-release.sh "$PRODUCT_VERSION"
+android/scripts/check-changelog.sh "$PRODUCT_VERSION"
 
 scripts/commit-relay-list "$PRODUCT_VERSION"
 echo ""
