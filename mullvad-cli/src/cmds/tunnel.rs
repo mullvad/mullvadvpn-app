@@ -31,9 +31,6 @@ pub enum TunnelOptions {
     /// Configure whether to enable DAITA
     Daita { state: BooleanOption },
 
-    /// Configure whether to enable DAITA direct only
-    DaitaDirectOnly { state: BooleanOption },
-
     /// Specify custom allowed IPs for WireGuard tunnels. Use comma-separated values of IPs and IP ranges in CIDR notation.
     /// A empty string resets to the default value, where all traffic is allowed, i.e. (0.0.0.0/0,::/0).
     /// For CIDR ranges, host bits must be zero (e.g., "10.0.0.0/24" is valid, "10.0.0.1/24" is not).
@@ -147,10 +144,6 @@ impl Tunnel {
             TunnelOptions::Daita { state } => {
                 rpc.set_enable_daita(*state).await?;
                 println!("DAITA setting has been updated");
-            }
-            TunnelOptions::DaitaDirectOnly { state } => {
-                rpc.set_daita_direct_only(*state).await?;
-                println!("Direct only setting has been updated");
             }
             TunnelOptions::AllowedIps { allowed_ips } => {
                 let ips = AllowedIps::parse(allowed_ips.split(','))?;

@@ -26,7 +26,6 @@ import {
   FirewallPolicyErrorType,
   IAppVersionInfo,
   ICustomList,
-  IDaitaSettings,
   IDevice,
   IObfuscationEndpoint,
   IpVersion,
@@ -589,7 +588,7 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
   return {
     mtu: tunnelOptions.mtu,
     quantumResistant: convertFromQuantumResistantState(tunnelOptions.quantumResistant?.state),
-    daita: tunnelOptions.daita,
+    daita: tunnelOptions.daita?.enabled ?? false,
     enableIpv6: tunnelOptions.enableIpv6,
     dns: {
       state:
@@ -869,10 +868,9 @@ function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   }
 }
 
-export function convertToDaitaSettings(daitaSettings: IDaitaSettings) {
+export function convertToDaitaSettings(enabled: boolean) {
   const grpcDaitaSettings = new grpcTypes.DaitaSettings();
-  grpcDaitaSettings.setEnabled(daitaSettings.enabled);
-  grpcDaitaSettings.setDirectOnly(daitaSettings.directOnly);
+  grpcDaitaSettings.setEnabled(enabled);
 
   return grpcDaitaSettings;
 }
