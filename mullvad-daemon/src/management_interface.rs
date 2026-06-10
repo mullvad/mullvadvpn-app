@@ -357,19 +357,6 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(daita)]
-    async fn set_daita_direct_only(&self, request: Request<bool>) -> ServiceResult<()> {
-        let direct_only_enabled = request.into_inner();
-        log::debug!("set_daita_direct_only({direct_only_enabled})");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDaitaUseMultihopIfNecessary(
-            tx,
-            !direct_only_enabled,
-        ))?;
-        self.wait_for_result(rx).await?.map(Response::new)?;
-        Ok(Response::new(()))
-    }
-
-    #[cfg(daita)]
     async fn set_daita_settings(
         &self,
         request: Request<types::DaitaSettings>,
