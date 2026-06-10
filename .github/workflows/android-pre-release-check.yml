@@ -2,18 +2,33 @@
 name: Android - Pre-release check
 on:
   pull_request:
-    branches:
-      - 'prepare-android/*'
+    paths:
+      - .github/workflows/android-pre-release-check.yml
+      - 'android/CHANGELOG.md'
+      - 'android/src/main/play/release-notes/en-US/default.txt'
+  push:
+    tags:
+      - 'android/**'
 
 permissions: {}
 
+env:
+ BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
 jobs:
   check-changelog:
     runs-on: android-build
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
-      - name: Check changelog
+      - name: Calculate version
         run: |
-          version=$(./building/container-run.sh linux "cargo run -q --bin mullvad-version versionName")
-          android/scripts/check-changelog.sh "$version"
+          echo "$BRANCH_NAME"
+          if [[ "$BRANCH_NAME" =~ ^android[-/](.+)$ ]]; then
+            version="${BASH_REMATCH[1]}"
+          else
+            version=$(cat dist-assets/dist-assets/android-version-name.txt)
+          fi
+          echo "Detected version: $version"
+          echo "version=$version" >> "$GITHUB_ENV"
+      - name: Check changelog
+        run: android/scripts/check-changelog.sh "$version"
