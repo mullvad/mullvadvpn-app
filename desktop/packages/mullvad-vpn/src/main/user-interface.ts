@@ -544,6 +544,7 @@ export default class UserInterface implements WindowControllerDelegate {
       'show',
       () => (nseventforwarderStop = nseventforwarder.start(() => this.windowController.hide())),
     );
+    this.windowController.window?.on('closed', () => nseventforwarderStop?.());
     this.windowController.window?.on('hide', () => nseventforwarderStop?.());
     this.windowController.window?.on('blur', () => {
       // Make sure to hide the menubar window when other program captures the focus.
