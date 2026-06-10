@@ -28,18 +28,22 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Velocity
+import co.touchlab.kermit.Logger
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.Map
-import net.mullvad.mullvadvpn.lib.map.toAnimationDurationMillis
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.toAnimationDurationMillis
 import net.mullvad.mullvadvpn.lib.model.COMPLETE_ANGLE
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+
+val LAT_LOWER_BOUND = -40f
+val LAT_UPPER_BOUND = 60f
 
 @Preview
 @Composable
@@ -51,20 +55,18 @@ private fun InteractiveMapPreview() {
     }
 
     // Create some markers
-    val markers =
-        locations.map {
-            Marker(
-                id = it.toString(),
-                latLong = it,
-                colors =
-                    if (it == currentLocation) selectLocationMarkerColors
-                    else unselectLocationMarkerColors,
-            )
-        }
+    val markers = locations.map {
+        Marker(
+            id = it.toString(),
+            latLong = it,
+            colors =
+                if (it == currentLocation) selectLocationMarkerColors
+                else unselectLocationMarkerColors,
+        )
+    }
 
     // Range of zoom levels we can zoom to, so users don't get lost in space
     val zoomRange = 1.2f..2f
-
 
     val zoomAnimatable = remember {
         Animatable(zoomRange.start).also {
@@ -73,10 +75,11 @@ private fun InteractiveMapPreview() {
     }
     val latLngAnimatable = remember {
         Animatable(currentLocation.toOffset(), Offset.VectorConverter).also {
-            // Limit Latitude to -40 to 60 degrees. There are no servers on the north or south pole, yet.
+            // Limit Latitude to -40 to 60 degrees. There are no servers on the north or south pole,
+            // yet.
             it.updateBounds(
-                lowerBound = Offset(x = Float.NEGATIVE_INFINITY, y = -40f),
-                upperBound = Offset(x = Float.POSITIVE_INFINITY, y = 60f),
+                lowerBound = Offset(x = Float.NEGATIVE_INFINITY, y = LAT_LOWER_BOUND),
+                upperBound = Offset(x = Float.POSITIVE_INFINITY, y = LAT_UPPER_BOUND),
             )
         }
     }
@@ -97,14 +100,20 @@ private fun InteractiveMapPreview() {
     val tracker = remember { DiffVelocityTracker() }
     val scope = rememberCoroutineScope()
 
-    val onGesture: (Offset, Offset, Float, Float) -> Unit =
-        { _: Offset, pan: Offset, zoomChange: Float, _: Float ->
+    val onGesture: (Offset, Offset, Float) -> Unit =
+        { _: Offset, pan: Offset, zoomChange: Float ->
             // Calculate new camera position & zoom
             val currentPosition = latLngAnimatable.value
             val zoom = zoomAnimatable.value
 
             val latLngOffsetDiff = calculateLatLngPan(pan, zoom)
-            val newPosition = currentPosition + latLngOffsetDiff
+
+            val newPosition =
+                (currentPosition + latLngOffsetDiff).coerceIn(yMin = LAT_LOWER_BOUND, yMax = LAT_UPPER_BOUND)
+            val realDiff = newPosition - currentPosition
+
+            Logger.d { "NewPosition: $newPosition" }
+            Logger.d { "RealDiff: $realDiff" }
 
             val newZoom = (zoom + (1 - zoomChange) * 0.5f)
 
@@ -117,7 +126,7 @@ private fun InteractiveMapPreview() {
             // Track the gesture to calculate velocity later
             val isZooming = zoomChange != 1f
             if (!isZooming) {
-                tracker.addPosition(System.currentTimeMillis(), latLngOffsetDiff)
+                tracker.addPosition(System.currentTimeMillis(), realDiff)
             } else {
                 tracker.resetTracking()
             }
@@ -127,6 +136,8 @@ private fun InteractiveMapPreview() {
         scope.launch {
             // Fling the map based on velocity of the gesture
             var (longVelocity, latVelocity) = tracker.calculateVelocity()
+            Logger.d{ "LongVelocity: $longVelocity, LatVelocity: $latVelocity"}
+            Logger.d{ "OnGestureEnd"}
             tracker.resetTracking()
             do {
                 val result =
@@ -156,7 +167,6 @@ private fun InteractiveMapPreview() {
                 Unit,
                 {
                     detectTransformGesturesWithEnd(
-                        true,
                         onGesture = onGesture,
                         onGestureEnd = onGestureEnd,
                     )
@@ -167,8 +177,20 @@ private fun InteractiveMapPreview() {
         onMarkerClick = { currentLocation = it.latLong },
     )
 }
+
 private fun calculateLatLngPan(pan: Offset, zoom: Float): Offset =
     Offset(x = -pan.x * zoom / 50f, pan.y * zoom / 40f)
+
+private fun Offset.coerceIn(
+    xMin: Float = Float.NEGATIVE_INFINITY,
+    xMax: Float = Float.POSITIVE_INFINITY,
+    yMin: Float = Float.NEGATIVE_INFINITY,
+    yMax: Float = Float.POSITIVE_INFINITY,
+): Offset =
+    Offset(
+        x.coerceIn(xMin, xMax),
+        y.coerceIn(yMin, yMax),
+    )
 
 private fun LatLong.toOffset(): Offset = Offset(longitude.value, latitude.value)
 
@@ -195,8 +217,7 @@ fun calculateClosestOffset(current: Offset, target: Offset): Offset =
     Offset(current.x.closestTarget(target.x), target.y)
 
 suspend fun PointerInputScope.detectTransformGesturesWithEnd(
-    panZoomLock: Boolean = false,
-    onGesture: (centroid: Offset, pan: Offset, zoom: Float, rotation: Float) -> Unit,
+    onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
     onGestureEnd: () -> Unit,
 ) {
     awaitEachGesture {
@@ -205,7 +226,6 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
         var pan = Offset.Zero
         var pastTouchSlop = false
         val touchSlop = viewConfiguration.touchSlop
-        var lockedToPanZoom = false
 
         awaitFirstDown(requireUnconsumed = false)
         do {
@@ -213,12 +233,10 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
             val canceled = event.changes.any { it.isConsumed }
             if (!canceled) {
                 val zoomChange = event.calculateZoom()
-                val rotationChange = event.calculateRotation()
                 val panChange = event.calculatePan()
 
                 if (!pastTouchSlop) {
                     zoom *= zoomChange
-                    rotation += rotationChange
                     pan += panChange
 
                     val centroidSize = event.calculateCentroidSize(useCurrent = false)
@@ -232,15 +250,13 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
                             panMotion > touchSlop
                     ) {
                         pastTouchSlop = true
-                        lockedToPanZoom = panZoomLock && rotationMotion < touchSlop
                     }
                 }
 
                 if (pastTouchSlop) {
                     val centroid = event.calculateCentroid(useCurrent = false)
-                    val effectiveRotation = if (lockedToPanZoom) 0f else rotationChange
-                    if (effectiveRotation != 0f || zoomChange != 1f || panChange != Offset.Zero) {
-                        onGesture(centroid, panChange, zoomChange, effectiveRotation)
+                    if (zoomChange != 1f || panChange != Offset.Zero) {
+                        onGesture(centroid, panChange, zoomChange)
                     }
                     event.changes.forEach {
                         if (it.positionChanged()) {
