@@ -49,7 +49,6 @@ service ManagementService {
   rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetQuantumResistantTunnel(QuantumResistantState) returns (google.protobuf.Empty) {}
   rpc SetEnableDaita(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-  rpc SetDaitaDirectOnly(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
   rpc SetDaitaSettings(DaitaSettings) returns (google.protobuf.Empty) {}
   rpc SetDnsOptions(DnsOptions) returns (google.protobuf.Empty) {}
   rpc SetRelayOverride(RelayOverride) returns (google.protobuf.Empty) {}
@@ -665,10 +664,7 @@ message QuantumResistantState {
   State state = 1;
 }
 
-message DaitaSettings {
-  bool enabled = 1;
-  bool direct_only = 2;
-}
+message DaitaSettings { bool enabled = 1; }
 
 message TunnelOptions {
   optional uint32 mtu = 1;
