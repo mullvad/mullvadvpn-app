@@ -110,7 +110,7 @@ extension RelayFilterSelection {
         private func updateFeatureChips() {
             filters = [
                 settings.daita.isEnabled ? .daita : nil,
-                settings.wireGuardObfuscation.state.isEnabled ? .obfuscation : nil,
+                settings.wireGuardObfuscation.state.isEnabled ? .obfuscation(settings.wireGuardObfuscation.state) : nil,
             ].compactMap { $0 }
             shouldShowFilterSettingsView = !filters.isEmpty || shouldShowAutomaticFilterOverrideNotice
         }

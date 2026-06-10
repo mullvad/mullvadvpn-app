@@ -141,7 +141,7 @@ class MockSelectLocationViewModel: SelectLocationViewModel {
             ],
             filter: [
                 .daita,
-                .obfuscation,
+                .obfuscation(.lwo),
                 .rented,
                 .owned,
                 .provider(12),
