@@ -45,12 +45,26 @@ pub(crate) fn version_matches(settings: &Value) -> bool {
 #[cfg(test)]
 /// The setup for each scenario is broken down in [scenario].
 mod test {
+    use crate::migrations::multihop::settings::v17::SettingsBuilder;
+
     use super::*;
 
     /// Scenario 1A.
     /// # Expected outcome
-    /// Multihop: When needed.
-    fn scenario_1a() -> Result<()> {
+    /// Multihop: When needed / "auto".
+    #[test]
+    fn scenario_1a() -> anyhow::Result<()> {
+        let settings = SettingsBuilder::new()
+            .multihop(false)
+            .daita(false)
+            .filters(false)
+            .build();
+        let scenario = update::detect(&settings);
+        assert_eq!(scenario, Scenario::OneA);
+        let mut settings = json!(settings);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
+        update::migrate(&mut settings, scenario);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
         Ok(())
     }
 }
