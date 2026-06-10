@@ -69,8 +69,8 @@ export function convertToRelaySelectorEntryConstraints(
     grpcEntryConstraints.setObfuscationSettings(grpcAntiCensorshipSettings);
   }
 
-  if (constraints.daitaSettings) {
-    const grpcDaitaSettings = convertToDaitaSettings(constraints.daitaSettings);
+  if (constraints.daita) {
+    const grpcDaitaSettings = convertToDaitaSettings(constraints.daita);
     grpcEntryConstraints.setDaitaSettings(grpcDaitaSettings);
   }
 

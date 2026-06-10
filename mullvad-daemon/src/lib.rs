@@ -302,7 +302,6 @@ pub enum DaemonCommand {
     SetQuantumResistantTunnel(ResponseTx<(), settings::Error>, QuantumResistantState),
     /// Set DAITA settings for the tunnel
     SetEnableDaita(ResponseTx<(), settings::Error>, bool),
-    SetDaitaUseMultihopIfNecessary(ResponseTx<(), settings::Error>, bool),
     SetDaitaSettings(ResponseTx<(), settings::Error>, DaitaSettings),
     /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
@@ -1549,9 +1548,6 @@ impl Daemon {
                     .await
             }
             SetEnableDaita(tx, value) => self.on_set_daita_enabled(tx, value).await,
-            SetDaitaUseMultihopIfNecessary(tx, value) => {
-                self.on_set_daita_use_multihop_if_necessary(tx, value).await
-            }
             SetDaitaSettings(tx, daita_settings) => {
                 self.on_set_daita_settings(tx, daita_settings).await
             }
@@ -2797,43 +2793,6 @@ impl Daemon {
             Err(e) => {
                 log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
                 Self::oneshot_send(tx, Err(e), "set_daita_enabled response");
-            }
-        }
-    }
-
-    async fn on_set_daita_use_multihop_if_necessary(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        value: bool,
-    ) {
-        match self
-            .settings
-            .update(|settings| {
-                settings
-                    .tunnel_options
-                    .wireguard
-                    .daita
-                    .use_multihop_if_necessary = value
-            })
-            .await
-        {
-            Ok(settings_changed) => {
-                Self::oneshot_send(tx, Ok(()), "set_daita_use_multihop_if_necessary response");
-
-                if let RelaySettings::CustomTunnelEndpoint(_) = &self.settings.relay_settings {
-                    return; // DAITA is not supported for custom relays
-                }
-
-                let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
-
-                if settings_changed && daita_enabled {
-                    log::info!("Reconnecting because DAITA settings changed");
-                    self.reconnect_tunnel();
-                }
-            }
-            Err(e) => {
-                log::error!("{}", e.display_chain_with_msg("Unable to save settings"));
-                Self::oneshot_send(tx, Err(e), "set_daita_use_multihop_if_necessary response");
             }
         }
     }

@@ -79,7 +79,7 @@ export default function AppRouter() {
           />
           <Route exact path={RoutePath.multihopSettings} component={MultihopSettingsView} />
           <Route exact path={RoutePath.vpnSettings} component={VpnSettingsView} />
-          <Route exact path={RoutePath.daitaSettings} component={DaitaSettingsView} />
+          <Route exact path={RoutePath.daita} component={DaitaSettingsView} />
           <Route exact path={RoutePath.udpOverTcp} component={UdpOverTcpSettingsView} />
           <Route exact path={RoutePath.shadowsocks} component={ShadowsocksSettingsView} />
           <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingView} />

@@ -48,7 +48,7 @@ export class RoutesObjectModel {
   readonly antiCensorship: AntiCensorshipRouteObjectModel;
   readonly udpOverTcpSettings: UdpOverTcpSettingsRouteObjectModel;
   readonly multihopSettings: MultihopSettingsRouteObjectModel;
-  readonly daitaSettings: DaitaSettingsRouteObjectModel;
+  readonly daita: DaitaSettingsRouteObjectModel;
   readonly splitTunnelingSettings: SplitTunnelingSettingsRouteObjectModel;
   readonly shadowsocksSettings: ShadowsocksSettingsRouteObjectModel;
   readonly account: AccountRouteObjectModel;
@@ -76,7 +76,7 @@ export class RoutesObjectModel {
     this.antiCensorship = new AntiCensorshipRouteObjectModel(page, utils);
     this.udpOverTcpSettings = new UdpOverTcpSettingsRouteObjectModel(page, utils);
     this.multihopSettings = new MultihopSettingsRouteObjectModel(page, utils);
-    this.daitaSettings = new DaitaSettingsRouteObjectModel(page, utils);
+    this.daita = new DaitaSettingsRouteObjectModel(page, utils);
     this.splitTunnelingSettings = new SplitTunnelingSettingsRouteObjectModel(page, utils);
     this.shadowsocksSettings = new ShadowsocksSettingsRouteObjectModel(page, utils);
     this.account = new AccountRouteObjectModel(page, utils);

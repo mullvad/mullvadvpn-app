@@ -3,12 +3,11 @@ import { LocationType } from '../types';
 
 export function isDaitaFilterActive(
   daita: boolean,
-  directOnly: boolean,
   locationType: LocationType,
   multihop: MultihopMode,
 ) {
   const isEntry =
     multihop !== 'never' ? locationType === LocationType.entry : locationType === LocationType.exit;
 
-  return daita && (directOnly || multihop) && isEntry;
+  return daita && isEntry;
 }
