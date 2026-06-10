@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActiveFilterView: View {
     let activeFilter: [SelectLocationFilter]
+    let labelStyle: SelectLocationFilter.LabelStyle
     let automaticLocationIsActive: Bool
     let onSelect: (SelectLocationFilter) -> Void
     let onRemove: (SelectLocationFilter) -> Void
@@ -21,7 +22,7 @@ struct ActiveFilterView: View {
                         onSelect(filter)
                     } label: {
                         HStack {
-                            Text(filter.title)
+                            Text(filter.labelText(style: labelStyle))
                                 .foregroundStyle(
                                     automaticLocationIsActive && filter.isOverriddenByAutomaticLocation
                                         ? Color.MullvadText.disabled
@@ -77,8 +78,9 @@ struct ActiveFilterView: View {
                             .owned,
                             .rented,
                             .provider(2),
-                            .obfuscation,
+                            .obfuscation(.lwo),
                         ],
+                        labelStyle: .general,
                         automaticLocationIsActive: true,
                         onSelect: { _ in },
                         onRemove: { _ in }
