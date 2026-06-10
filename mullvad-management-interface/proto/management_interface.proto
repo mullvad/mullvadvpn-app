@@ -916,6 +916,12 @@ message LogMessage { string message = 1; }
 // - ❌ : The setting was disabled.
 // - ❔ : The setting did not contribute to detecting which migration to run ("Scenario").
 //
+// Clarification of some settings:
+// - Direct only: DAITA specific setting which prevented Magic Multihop from taking effect.
+// - Magic Multihop: If DAITA was enabled but Direct only was disabled, the relay selector might have
+//   chosen an entry relay automatically. If that was the case, Magic Multihop was enabled.
+// - Filters: If any ownership or provider filter was enabled, the Filters box is ticked with ✅.
+//
 // # Notes on updated settings post-migration.
 //
 // * In the same update as the SplitFilterMigration is run, the Multihop setting transitions from
