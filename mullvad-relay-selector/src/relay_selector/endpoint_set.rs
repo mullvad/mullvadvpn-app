@@ -30,7 +30,7 @@ use mullvad_types::{
 };
 use talpid_types::net::{
     IpVersion,
-    obfuscation::{ObfuscatorConfig, Obfuscators},
+    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators},
 };
 use vec1::Vec1;
 
@@ -320,6 +320,7 @@ impl RelayEndpointSet {
             .ok_or(Error::NoMatchingPort)?;
         Ok(ObfuscatorConfig::Lwo {
             endpoint: SocketAddr::new(wg_ip, port),
+            version: LwoVersion::V2,
         })
     }
 

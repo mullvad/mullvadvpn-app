@@ -2,7 +2,7 @@ use std::{
     io,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
 };
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
 use tokio::task::JoinHandle;
 use tunnel_obfuscation::{
     Settings as ObfuscationSettings, create_local_socket_obfuscator, lwo, quic, shadowsocks,
@@ -57,6 +57,7 @@ impl TunnelObfuscatorRuntime {
             server_addr: peer,
             client_public_key,
             server_public_key,
+            version: LwoVersion::V1,
         });
         Self { settings }
     }

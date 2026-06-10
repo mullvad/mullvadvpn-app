@@ -1,11 +1,13 @@
 //! LWO (Lightweight WireGuard Obfuscation)
 
+pub mod v2;
+
 use std::{io, net::SocketAddr, sync::Arc};
 
 use async_trait::async_trait;
 use rand::RngCore;
 use talpid_net::bypass::{BypassSocket, SocketBypass};
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
 use tokio::net::UdpSocket;
 
 use crate::{socket::create_remote_socket, transport::ObfuscatedTransport};
@@ -18,6 +20,35 @@ pub struct Settings {
     pub client_public_key: PublicKey,
     /// Public key of the WG server
     pub server_public_key: PublicKey,
+    /// Which version of the protocol the server speaks
+    pub version: LwoVersion,
+}
+
+/// The keys used to obfuscate traffic, which differ between protocol versions.
+enum Keys {
+    /// v1 obfuscates each direction with a different key.
+    V1 {
+        /// Key that the server obfuscates incoming packets with.
+        rx_key: PublicKey,
+        /// Key to obfuscate outgoing packets with.
+        tx_key: PublicKey,
+    },
+    /// v2 obfuscates both directions with the server public key.
+    V2 { key: PublicKey },
+}
+
+impl Keys {
+    fn new(settings: &Settings) -> Self {
+        match settings.version {
+            LwoVersion::V1 => Keys::V1 {
+                rx_key: settings.client_public_key.clone(),
+                tx_key: settings.server_public_key.clone(),
+            },
+            LwoVersion::V2 => Keys::V2 {
+                key: settings.server_public_key.clone(),
+            },
+        }
+    }
 }
 
 impl Settings {
@@ -31,10 +62,7 @@ impl Settings {
 pub struct Lwo {
     remote_socket: BypassSocket<UdpSocket>,
     server_addr: SocketAddr,
-    /// Key that the server obfuscates incoming packets with.
-    rx_key: PublicKey,
-    /// Key to obfuscate outgoing packets with.
-    tx_key: PublicKey,
+    keys: Keys,
 }
 
 impl Lwo {
@@ -44,20 +72,33 @@ impl Lwo {
         Ok(Self {
             remote_socket,
             server_addr: settings.server_addr,
-            rx_key: settings.client_public_key.clone(),
-            tx_key: settings.server_public_key.clone(),
+            keys: Keys::new(settings),
         })
+    }
+
+    async fn send_to(&self, packet: &[u8]) -> io::Result<()> {
+        self.remote_socket
+            .send_to(packet, self.server_addr)
+            .await
+            .map(drop)
     }
 }
 
 #[async_trait]
 impl ObfuscatedTransport for Lwo {
     async fn send(&self, packet: &mut [u8]) -> io::Result<()> {
-        obfuscate(&mut rand::rng(), packet, self.tx_key.as_bytes());
-        self.remote_socket
-            .send_to(packet, self.server_addr)
-            .await
-            .map(drop)
+        match &self.keys {
+            Keys::V1 { tx_key, .. } => {
+                obfuscate(&mut rand::rng(), packet, tx_key.as_bytes());
+                self.send_to(packet).await
+            }
+            Keys::V2 { key } => {
+                let mut padded = v2::pad(packet);
+                let packet = padded.as_deref_mut().unwrap_or(packet);
+                v2::obfuscate(packet, key.as_bytes());
+                self.send_to(packet).await
+            }
+        }
     }
 
     async fn recv(&self, buf: &mut [u8]) -> io::Result<usize> {
@@ -67,8 +108,22 @@ impl ObfuscatedTransport for Lwo {
                 continue;
             }
 
-            deobfuscate(&mut buf[..n], self.rx_key.as_bytes());
-            return Ok(n);
+            match &self.keys {
+                Keys::V1 { rx_key, .. } => {
+                    deobfuscate(&mut buf[..n], rx_key.as_bytes());
+                    return Ok(n);
+                }
+                Keys::V2 { key } => match v2::deobfuscate(&mut buf[..n], key.as_bytes()) {
+                    v2::Verdict::Plain => return Ok(n),
+                    v2::Verdict::Lwo { trim_to } => return Ok(trim_to.unwrap_or(n)),
+                    v2::Verdict::Invalid => {
+                        if cfg!(debug_assertions) {
+                            log::trace!("Dropping invalid LWO packet");
+                        }
+                        continue;
+                    }
+                },
+            }
         }
     }
 
@@ -211,7 +266,7 @@ mod test {
     }
 
     #[tokio::test]
-    async fn test_e2e_obfuscation() {
+    async fn test_e2e_obfuscation_v1() {
         let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
         let endpoint = UdpSocket::bind("127.0.0.1:0").await.unwrap();
 
@@ -224,6 +279,7 @@ mod test {
             server_addr: endpoint.local_addr().unwrap(),
             client_public_key: client_public_key.clone(),
             server_public_key: server_public_key.clone(),
+            version: LwoVersion::V1,
         };
 
         let lwo = crate::create_local_socket_obfuscator(&crate::Settings::Lwo(settings))
@@ -262,5 +318,66 @@ mod test {
 
         let (n, _addr) = wg_socket.recv_from(&mut buf).await.unwrap();
         assert_eq!(&buf[..n], &packet);
+    }
+
+    /// Test handshake padding trimming.
+    #[tokio::test]
+    async fn test_e2e_obfuscation_v2_handshake() {
+        let wg_socket = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+        let endpoint = UdpSocket::bind("127.0.0.1:0").await.unwrap();
+
+        let client_public_key =
+            PublicKey::from_base64("8Ka2l4T0tVrSR5pkcsvRG++mBlxfuf8XOxpqBkOCikU=").unwrap();
+        let server_public_key =
+            PublicKey::from_base64("4EkA4c160oQgN/YaNR9GN3gLMevXEfx5hnlc9jYmw14=").unwrap();
+        let key = server_public_key.as_bytes();
+
+        let settings = Settings {
+            server_addr: endpoint.local_addr().unwrap(),
+            client_public_key,
+            server_public_key: server_public_key.clone(),
+            version: LwoVersion::V2,
+        };
+
+        let lwo = crate::create_local_socket_obfuscator(&crate::Settings::Lwo(settings))
+            .await
+            .unwrap();
+        let client_socket_addr = lwo.endpoint();
+
+        tokio::spawn(lwo.run());
+
+        // Send a handshake initiation, verify it arrives padded and deobfuscates to the original
+        let mut packet = vec![0u8; HANDSHAKE_INIT_SZ];
+        packet[0] = HANDSHAKE_INIT;
+        rand::rng().fill_bytes(&mut packet[4..]);
+
+        wg_socket
+            .send_to(&packet, client_socket_addr)
+            .await
+            .unwrap();
+
+        let mut buf = vec![0u8; 1500];
+        let (n, addr) = endpoint.recv_from(&mut buf).await.unwrap();
+        assert!(n > HANDSHAKE_INIT_SZ, "handshake should have been padded");
+        assert_eq!(
+            v2::deobfuscate(&mut buf[..n], key),
+            v2::Verdict::Lwo {
+                trim_to: Some(HANDSHAKE_INIT_SZ)
+            }
+        );
+        assert_eq!(&buf[..HANDSHAKE_INIT_SZ], packet);
+
+        // Send a padded handshake response back, verify the client trims it
+        let mut response = vec![0u8; HANDSHAKE_RESP_SZ];
+        response[0] = HANDSHAKE_RESP;
+        rand::rng().fill_bytes(&mut response[4..]);
+
+        let mut obfuscated = v2::pad(&response).expect("a handshake is padded");
+        v2::obfuscate(&mut obfuscated, key);
+
+        endpoint.send_to(&obfuscated, addr).await.unwrap();
+
+        let (n, _addr) = wg_socket.recv_from(&mut buf).await.unwrap();
+        assert_eq!(&buf[..n], &response, "padding should have been trimmed");
     }
 }

@@ -14,10 +14,13 @@ use gotatun::{
     },
 };
 use talpid_net::bypass::{BypassSocket, SocketBypass};
+use talpid_types::net::obfuscation::LwoVersion;
 use tunnel_obfuscation::{Settings as ObfuscationSettings, create_transport};
 
-use lwo::{LwoRecv, LwoSend, LwoUdpTransportFactory};
+use lwo::{LwoKeys, LwoRecv, LwoSend, LwoUdpTransportFactory};
 use transport::{ObfuscatingRecv, ObfuscatingSend};
+
+pub use lwo::{lwo_timer_params, lwo_version};
 
 #[derive(Clone)]
 pub struct BypassedUdpSend(Arc<BypassSocket<UdpSocket>>);
@@ -197,8 +200,15 @@ impl MaybeObfuscatingTransportFactory {
         match settings {
             Some(ObfuscationSettings::Lwo(settings)) => Self::Lwo(LwoUdpTransportFactory {
                 inner: make_factory(bypass),
-                rx_key: *settings.client_public_key.as_bytes(),
-                tx_key: *settings.server_public_key.as_bytes(),
+                keys: match settings.version {
+                    LwoVersion::V1 => LwoKeys::V1 {
+                        tx_key: *settings.server_public_key.as_bytes(),
+                        rx_key: *settings.client_public_key.as_bytes(),
+                    },
+                    LwoVersion::V2 => LwoKeys::V2 {
+                        key: *settings.server_public_key.as_bytes(),
+                    },
+                },
                 endpoint: settings.server_addr,
             }),
             Some(settings) => Self::Transport(settings.clone(), bypass),

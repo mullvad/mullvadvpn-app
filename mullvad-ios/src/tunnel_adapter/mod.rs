@@ -667,6 +667,7 @@ impl IosTunnelAdapter {
                 server_public_key: talpid_types::net::wireguard::PublicKey::from(
                     *server_public_key,
                 ),
+                version: talpid_types::net::obfuscation::LwoVersion::V1,
             }),
         };
 
