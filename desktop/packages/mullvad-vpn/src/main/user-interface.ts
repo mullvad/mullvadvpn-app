@@ -547,10 +547,11 @@ export default class UserInterface implements WindowControllerDelegate {
     this.windowController.window?.on('closed', () => nseventforwarderStop?.());
     this.windowController.window?.on('hide', () => nseventforwarderStop?.());
     this.windowController.window?.on('blur', () => {
-      // Make sure to hide the menubar window when other program captures the focus.
-      // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
+      // Make sure to hide the menubar window when other program captures the focus if the app is unpinned.
+      // But avoid hiding the window when dev tools capture the focus to make it possible to inspect the UI.
       if (
         this.windowController.window?.isVisible() &&
+        !this.delegate.isUnpinnedWindow() &&
         !this.windowController.window?.webContents.isDevToolsFocused()
       ) {
         this.windowController.hide();
