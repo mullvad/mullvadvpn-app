@@ -3433,12 +3433,8 @@ export namespace LogMessage {
 }
 
 export class SplitFilterMigration extends jspb.Message { 
-    getMultihopMigration(): SplitFilterMigration.MultihopMigrationState;
-    setMultihopMigration(value: SplitFilterMigration.MultihopMigrationState): SplitFilterMigration;
-    getFiltersSet(): boolean;
-    setFiltersSet(value: boolean): SplitFilterMigration;
-    getDaitaMigration(): SplitFilterMigration.PreviousDaitaState;
-    setDaitaMigration(value: SplitFilterMigration.PreviousDaitaState): SplitFilterMigration;
+    getScenario(): SplitFilterMigration.Scenario;
+    setScenario(value: SplitFilterMigration.Scenario): SplitFilterMigration;
 
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): SplitFilterMigration.AsObject;
@@ -3452,22 +3448,23 @@ export class SplitFilterMigration extends jspb.Message {
 
 export namespace SplitFilterMigration {
     export type AsObject = {
-        multihopMigration: SplitFilterMigration.MultihopMigrationState,
-        filtersSet: boolean,
-        daitaMigration: SplitFilterMigration.PreviousDaitaState,
+        scenario: SplitFilterMigration.Scenario,
     }
 
-    export enum MultihopMigrationState {
-    ON_TO_ALWAYS = 0,
-    OFF_TO_NEVER = 1,
-    OFF_TO_WHEN_NEEDED = 2,
-    OFF_TO_ALWAYS = 3,
-    }
-
-    export enum PreviousDaitaState {
-    ON = 0,
-    DIRECT_ONLY = 1,
-    OFF = 2,
+    export enum Scenario {
+    ONEA = 0,
+    ONEB = 1,
+    TWO = 2,
+    THREEA = 3,
+    THREEB = 4,
+    FOURA = 5,
+    FOURB = 6,
+    FIVEA = 7,
+    FIVEB = 8,
+    SIXA = 9,
+    SIXB = 10,
+    SEVENA = 11,
+    SEVENB = 12,
     }
 
 }
