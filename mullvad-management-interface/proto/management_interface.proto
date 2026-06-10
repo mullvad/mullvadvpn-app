@@ -892,44 +892,72 @@ message LogFilter { string log_filter = 1; }
 message LogMessage { string message = 1; }
 
 // The great multihop migration of 2026
-
+//
+// The migration has to consider the following scenarios:
+//
+// | Scenario | Multihop | DAITA | Direct Only | Magic Multihop | Filters |
+// |----------|----------|-------|-------------|----------------|---------|
+// |    1A    |    ❌    |   ❌  |      ❔     |       ❔       |    ❌   |
+// |    1B    |    ❌    |   ❌  |      ❔     |       ❔       |    ✅   |
+// |    2     |    ❌    |   ✅  |      ❌     |       ❔       |    ❌   |
+// |    3A    |    ❌    |   ✅  |      ❌     |       ❌       |    ✅   |
+// |    3A    |    ❌    |   ✅  |      ❌     |       ✅       |    ✅   |
+// |    4A    |    ❌    |   ✅  |      ✅     |       ❔       |    ❌   |
+// |    4B    |    ❌    |   ✅  |      ✅     |       ❔       |    ✅   |
+// |    5A    |    ✅    |   ❌  |      ❔     |       ❔       |    ❌   |
+// |    5B    |    ✅    |   ❌  |      ❔     |       ❔       |    ✅   |
+// |    6A    |    ✅    |   ✅  |      ❌     |       ❔       |    ❌   |
+// |    6B    |    ✅    |   ✅  |      ❌     |       ❔       |    ✅   |
+// |    7A    |    ✅    |   ✅  |      ✅     |       ❔       |    ❌   |
+// |    7B    |    ✅    |   ✅  |      ✅     |       ❔       |    ✅   |
+//
+// The legends have the following meaning:
+// - ✅ : The setting was enabled.
+// - ❌ : The setting was disabled.
+// - ❔ : The setting did not contribute to detecting which migration to run ("Scenario").
+//
+// # Notes on updated settings post-migration.
+//
+// * In the same update as the SplitFilterMigration is run, the Multihop setting transitions from
+// being a boolean state (on/off) to now being a tri-state:
+//
+// - Always
+// - When needed
+// - Never
+//
+// * If any filters were previously set, they were copied and applied as both entry + exit filters.
+//
+// * "Daita: Directy only" does not exist anymore. If Daita was turned off, it is still off.
+// Otherwise Daita is enabled.
 message SplitFilterMigration {
-  // In the same update as the SplitFilterMigration is run, the Multihop setting transitions from
-  // being a boolean state (on/off) to now being a tri-state:
-  // * Always
-  // * When needed
-  // * Never
-  MultihopMigrationState multihop_migration = 1;
-  // If any filters were previously set, they were copied and applied as both entry + exit filters.
-  //
-  // true: Previous filters were applied as both entry and exit filters.
-  // false: No previous filters were set, no filters are set for either entry or exit.
-  bool filters_set = 2;
-  // "Daita: Directy only" does not exist anymore, but it is relevant to know if it was enabled.
-  // If Daita was turned off, it is still off. Otherwise Daita is enabled.
-  PreviousDaitaState daita_migration = 3;
-
-  // This enum value defines all valid transitions from the previous state to the new tri-state,
-  // which necessarily depend on additional settings beyond Multihop.
-  enum MultihopMigrationState {
-    // "On" is always mapped to "Always".
-    on_to_always = 0;
-    // "Off" has been renamed to "Never".
-    off_to_never = 1;
-    // "When needed" is the new default value.
-    off_to_when_needed = 2;
-    // "Magic multihop" - one leaf node in the giga-migration tree.
-    off_to_always = 3;
+  enum Scenario {
+    // 1A
+    OneA = 0;
+    // 1B
+    OneB = 1;
+    // 2
+    Two = 2;
+    // 3A
+    ThreeA = 3;
+    // 3B
+    ThreeB = 4;
+    // 4A
+    FourA = 5;
+    // 4B
+    FourB = 6;
+    // 5A
+    FiveA = 7;
+    // 5B
+    FiveB = 8;
+    // 6A
+    SixA = 9;
+    // 6B
+    SixB = 10;
+    // 7A
+    SevenA = 11;
+    // 7B
+    SevenB = 12;
   }
 
-  // This enum value defines all previous Daita states (tri-state) which is mapped to either on or
-  // off post-migration.
-  enum PreviousDaitaState {
-    // Daita was previoiusly enabled without "direct only"
-    on = 0;
-    // Daita was previoiusly enabled with "direct only"
-    direct_only = 1;
-    // Daita was previously off.
-    off = 2;
-  }
+  Scenario scenario = 1;
 }
