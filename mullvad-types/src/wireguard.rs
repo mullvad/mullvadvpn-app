@@ -58,31 +58,9 @@ impl FromStr for QuantumResistantState {
 #[error("Not a valid state")]
 pub struct QuantumResistantStateParseError;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct DaitaSettings {
     pub enabled: bool,
-
-    // TODO: remove
-    #[serde(default = "DaitaSettings::default_use_multihop_if_necessary")]
-    /// Whether to use multihop if the selected relay is not DAITA-compatible. Note that this is
-    /// the inverse of of "Direct only" in the GUI.
-    pub use_multihop_if_necessary: bool,
-}
-
-impl DaitaSettings {
-    /// This setting should be enabled by default.
-    const fn default_use_multihop_if_necessary() -> bool {
-        true
-    }
-}
-
-impl Default for DaitaSettings {
-    fn default() -> Self {
-        Self {
-            enabled: false,
-            use_multihop_if_necessary: Self::default_use_multihop_if_necessary(),
-        }
-    }
 }
 
 /// Contains account specific wireguard data

@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - `installer-downloader` logs are aggregated by `mullvad-problem-report`.
 
 ### Changed
+- Remove `mullvad tunnel set daita-direct-only` command. Superceded by automatic multihop setting.
+
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
