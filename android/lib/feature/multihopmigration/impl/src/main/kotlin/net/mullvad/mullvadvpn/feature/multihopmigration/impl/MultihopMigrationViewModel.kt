@@ -16,10 +16,9 @@ import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNav
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.MultihopMigrationData
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
-import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 
@@ -55,56 +54,70 @@ class MultihopMigrationViewModel(
     private fun generatePages(
         multihopMigrationData: MultihopMigrationData
     ): List<MultihopMigrationPage> = buildList {
-        // Order is important!
-        add(
-            MultihopMigrationPage.NewMultihopMode(
-                multihopMigrationData.splitFilterMigration.multihopMigrationState
-            )
-        )
-        if (
-            multihopMigrationData.splitFilterMigration.daitaMigration ==
-                PreviousDaitaState.DIRECT_ONLY
-        ) {
-            add(MultihopMigrationPage.DirectOnlyRemoved)
-        }
-        if (multihopMigrationData.splitFilterMigration.filtersSet) {
-            add(MultihopMigrationPage.SeparateFilters)
-        }
-        // If the user had multihop turned on, DAITA enabled and filters set
-        // --or--
-        // If the user was using magic multihop with daita and filters were set
-        // we want to suggest setting automatic location as entry
-        when {
-            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                MultihopMigrationState.ON_TO_ALWAYS &&
-                multihopMigrationData.splitFilterMigration.daitaMigration !=
-                    PreviousDaitaState.OFF &&
-                multihopMigrationData.splitFilterMigration.filtersSet ->
+        // Scenarios to page conversion is based on the scenario flow chart.
+        when (multihopMigrationData.splitFilterMigration.scenario) {
+            Scenario.ONE_A -> error("Scenario A should not show the guide")
+            Scenario.ONE_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))
+                add(MultihopMigrationPage.SeparateFilters)
+                add(MultihopMigrationPage.SuggestedAction)
+            }
+            Scenario.TWO -> {
+                add(
+                    MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_WHEN_NEEDED)
+                )
+            }
+            Scenario.THREE_A -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))
+                add(MultihopMigrationPage.SeparateFilters)
+                add(MultihopMigrationPage.SuggestedAction)
+            }
+            Scenario.THREE_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_ALWAYS))
+                add(MultihopMigrationPage.SeparateFilters)
                 add(MultihopMigrationPage.SuggestedMultihopEntry)
-            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                MultihopMigrationState.OFF_TO_ALWAYS &&
-                multihopMigrationData.splitFilterMigration.filtersSet ->
+            }
+            Scenario.FOUR_A -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))
+                add(MultihopMigrationPage.DirectOnlyRemoved)
+            }
+            Scenario.FOUR_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.OFF_TO_NEVER))
+                add(MultihopMigrationPage.DirectOnlyRemoved)
+                add(MultihopMigrationPage.SeparateFilters)
+            }
+            Scenario.FIVE_A -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+            }
+            Scenario.FIVE_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+                add(MultihopMigrationPage.SeparateFilters)
+            }
+            Scenario.SIX_A -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+                // add(MultihopMigrationPage.EntrySetToAutomatic)
+            }
+            Scenario.SIX_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+                add(MultihopMigrationPage.SeparateFilters)
                 add(MultihopMigrationPage.SuggestedMultihopEntry)
+            }
+            Scenario.SEVEN_A -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+                add(MultihopMigrationPage.DirectOnlyRemoved)
+            }
+            Scenario.SEVEN_B -> {
+                add(MultihopMigrationPage.NewMultihopMode(MultihopMigrationState.ON_TO_ALWAYS))
+                add(MultihopMigrationPage.DirectOnlyRemoved)
+                add(MultihopMigrationPage.SeparateFilters)
+                add(MultihopMigrationPage.SuggestedMultihopEntry)
+            }
         }
 
-        // There are three scenarios where we want to show the page to suggest a change to multihop
-        // mode when needed:
-        // - If we are on the generic error fallback flow we want to suggest setting the multihop
-        // mode to when needed to unblock the user.
-        // - If the user had neither multihop nor daita enabled and have filters set we want to
-        // suggest when needed multihop setting to prevent the user from being blocked in the
-        // future.
-        // - If the user was using daita without direct only but had selected a serer with daita
-        // support and had filters enabled we want to suggest when needed multihop to prevent being
-        // blocked in the future.
-        when {
-            multihopMigrationData.userBlocked -> add(MultihopMigrationPage.SuggestedAction)
-            multihopMigrationData.splitFilterMigration.multihopMigrationState ==
-                MultihopMigrationState.OFF_TO_NEVER &&
-                multihopMigrationData.splitFilterMigration.daitaMigration !=
-                    PreviousDaitaState.DIRECT_ONLY &&
-                multihopMigrationData.splitFilterMigration.filtersSet ->
-                add(MultihopMigrationPage.SuggestedAction)
+        // If the user is blocked we always want to show the suggested action page, so we will add
+        // that page if needed.
+        if (multihopMigrationData.userBlocked && !contains(MultihopMigrationPage.SuggestedAction)) {
+            add(MultihopMigrationPage.SuggestedAction)
         }
     }
 

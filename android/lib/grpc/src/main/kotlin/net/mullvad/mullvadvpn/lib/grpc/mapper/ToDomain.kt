@@ -49,7 +49,6 @@ import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -60,7 +59,6 @@ import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayExternalObfuscatedAccountId
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
-import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -75,6 +73,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayList
 import net.mullvad.mullvadvpn.lib.model.RelayOverride
 import net.mullvad.mullvadvpn.lib.model.RelayPartitions
 import net.mullvad.mullvadvpn.lib.model.RelaySettings
+import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.ShadowsocksObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.SocksAuth
@@ -825,34 +824,23 @@ internal fun ManagementInterface.Shadowsocks.Ciphers.toDomain() = ciphersList.ma
 }
 
 internal fun ManagementInterface.SplitFilterMigration.toDomain(): SplitFilterMigration =
-    SplitFilterMigration(
-        multihopMigrationState = multihopMigration.toDomain(),
-        filtersSet = filtersSet,
-        daitaMigration = daitaMigration.toDomain(),
-    )
+    SplitFilterMigration(scenario = scenario.toDomain())
 
-internal fun ManagementInterface.SplitFilterMigration.MultihopMigrationState.toDomain():
-    MultihopMigrationState =
+internal fun ManagementInterface.SplitFilterMigration.Scenario.toDomain(): Scenario =
     when (this) {
-        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_never ->
-            MultihopMigrationState.OFF_TO_NEVER
-        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_when_needed ->
-            MultihopMigrationState.OFF_TO_WHEN_NEEDED
-        ManagementInterface.SplitFilterMigration.MultihopMigrationState.off_to_always ->
-            MultihopMigrationState.OFF_TO_ALWAYS
-        ManagementInterface.SplitFilterMigration.MultihopMigrationState.on_to_always ->
-            MultihopMigrationState.ON_TO_ALWAYS
-        ManagementInterface.SplitFilterMigration.MultihopMigrationState.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized multihop migration state")
-    }
-
-internal fun ManagementInterface.SplitFilterMigration.PreviousDaitaState.toDomain():
-    PreviousDaitaState =
-    when (this) {
-        ManagementInterface.SplitFilterMigration.PreviousDaitaState.on -> PreviousDaitaState.ON
-        ManagementInterface.SplitFilterMigration.PreviousDaitaState.direct_only ->
-            PreviousDaitaState.DIRECT_ONLY
-        ManagementInterface.SplitFilterMigration.PreviousDaitaState.off -> PreviousDaitaState.OFF
-        ManagementInterface.SplitFilterMigration.PreviousDaitaState.UNRECOGNIZED ->
-            throw IllegalArgumentException("Unrecognized previous daita state")
+        ManagementInterface.SplitFilterMigration.Scenario.OneA -> Scenario.ONE_A
+        ManagementInterface.SplitFilterMigration.Scenario.OneB -> Scenario.ONE_B
+        ManagementInterface.SplitFilterMigration.Scenario.Two -> Scenario.TWO
+        ManagementInterface.SplitFilterMigration.Scenario.ThreeA -> Scenario.THREE_A
+        ManagementInterface.SplitFilterMigration.Scenario.ThreeB -> Scenario.THREE_B
+        ManagementInterface.SplitFilterMigration.Scenario.FourA -> Scenario.FOUR_A
+        ManagementInterface.SplitFilterMigration.Scenario.FourB -> Scenario.FOUR_B
+        ManagementInterface.SplitFilterMigration.Scenario.FiveA -> Scenario.FIVE_A
+        ManagementInterface.SplitFilterMigration.Scenario.FiveB -> Scenario.FIVE_B
+        ManagementInterface.SplitFilterMigration.Scenario.SixA -> Scenario.SIX_A
+        ManagementInterface.SplitFilterMigration.Scenario.SixB -> Scenario.SIX_B
+        ManagementInterface.SplitFilterMigration.Scenario.SevenA -> Scenario.SEVEN_A
+        ManagementInterface.SplitFilterMigration.Scenario.SevenB -> Scenario.SEVEN_B
+        ManagementInterface.SplitFilterMigration.Scenario.UNRECOGNIZED ->
+            error("Unrecognized split filter migration scenario")
     }

@@ -8,7 +8,6 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach

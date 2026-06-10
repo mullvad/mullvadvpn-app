@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.feature.multihopmigration.impl
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 
 data class MultihopMigrationUiState(
     val multihopMigrationPages: List<MultihopMigrationPage>,
@@ -24,4 +23,11 @@ sealed interface MultihopMigrationPage : Parcelable {
     data object SuggestedMultihopEntry : MultihopMigrationPage
 
     data object SuggestedAction : MultihopMigrationPage
+}
+
+enum class MultihopMigrationState {
+    ON_TO_ALWAYS,
+    OFF_TO_NEVER,
+    OFF_TO_WHEN_NEEDED,
+    OFF_TO_ALWAYS,
 }

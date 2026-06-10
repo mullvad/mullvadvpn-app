@@ -5,7 +5,5 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class SplitFilterMigration(
-    val multihopMigrationState: MultihopMigrationState,
-    val filtersSet: Boolean,
-    val daitaMigration: PreviousDaitaState,
+    val scenario: Scenario,
 ) : Parcelable

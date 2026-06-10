@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.feature.multihopmigration.impl
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 
 class MultihopMigrationUiStatePreviewParameterProvider :
     PreviewParameterProvider<MultihopMigrationUiState> {

@@ -5,8 +5,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
-import net.mullvad.mullvadvpn.lib.model.PreviousDaitaState
+import net.mullvad.mullvadvpn.lib.model.Scenario
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.MultihopMigrationRepository
@@ -28,6 +27,7 @@ class MultihopMigrationNotificationUseCase(
                 return@combine null
             }
 
+            // User has already seen the migration guide or have dismissed the in-app notification.
             if (hasSeenMultihopMigrationGuide) {
                 return@combine null
             }
@@ -41,15 +41,10 @@ class MultihopMigrationNotificationUseCase(
                 return@combine InAppNotification.MultihopMigrationBlocked(splitFilterMigration)
             }
 
-            // In the scenario where the user has not enabled Multihop, not enabled DAITA and not
+            // In the scenario 1A where the user has not enabled Multihop, not enabled DAITA and not
             // set any filters we want to not show the migration in app banner. In all other cases
             // we want to show some kind of in-app banner.
-            if (
-                splitFilterMigration.multihopMigrationState ==
-                    MultihopMigrationState.OFF_TO_WHEN_NEEDED &&
-                    !splitFilterMigration.filtersSet &&
-                    splitFilterMigration.daitaMigration == PreviousDaitaState.OFF
-            ) {
+            if (splitFilterMigration.scenario == Scenario.ONE_A) {
                 null
             } else {
                 InAppNotification.MultihopMigration(splitFilterMigration)

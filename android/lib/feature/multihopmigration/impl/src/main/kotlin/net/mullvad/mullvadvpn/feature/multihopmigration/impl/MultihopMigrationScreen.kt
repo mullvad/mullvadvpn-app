@@ -61,7 +61,6 @@ import net.mullvad.mullvadvpn.feature.multihopmigration.api.MultihopMigrationNav
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.MultihopMigrationState
 import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithNavigationButton
