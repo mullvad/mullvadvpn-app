@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Clicking on the tray icon will toggle the window instead of just showing it
 - Old `mullvad log set-level` command has been renamed to `mullvad log set-rust-log`.
 - Update `gotatun` to 0.8.1.
+- Remove `mullvad tunnel set daita-direct-only` command. Superceded by automatic multihop setting.
 
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
