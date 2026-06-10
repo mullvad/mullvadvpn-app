@@ -35,7 +35,16 @@ pub enum ObfuscatorConfig {
     },
     Lwo {
         endpoint: SocketAddr,
+        version: LwoVersion,
     },
+}
+
+/// The version of the LWO protocol.
+#[derive(Clone, Copy, Eq, PartialEq, Hash, Deserialize, Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum LwoVersion {
+    V1,
+    V2,
 }
 
 impl Obfuscators {
