@@ -15,16 +15,16 @@ if [[ -z ${VERSION_NAME+x} ]]; then
     exit 1
 fi
 
-if [[ $PRODUCT_VERSION != *"alpha"* && $PRODUCT_VERSION != *"-dev-"* &&
-    $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
+if [[ $VERSION_NAME != *"alpha"* && $VERSION_NAME != *"-dev-"* &&
+    $(grep "^## \\[android/$VERSION_NAME\\] - " android/CHANGELOG.md) == "" ]]; then
 
-    echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
+    echo "It looks like you did not add $VERSION_NAME to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."
     exit 1
 fi
 
 release_notes=$(<"android/src/main/play/release-notes/en-US/default.txt")
-if [[ $PRODUCT_VERSION != *"alpha"* && $PRODUCT_VERSION != *"-dev-"* && -z $release_notes ]]; then
+if [[ $VERSION_NAME != *"alpha"* && $VERSION_NAME != *"-dev-"* && -z $release_notes ]]; then
     echo "The release notes file is empty!"
     echo "Beta and Stable require a release notes file."
     exit 1
