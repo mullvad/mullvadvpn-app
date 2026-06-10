@@ -78,6 +78,9 @@ final class TunnelManager: @unchecked Sendable {
 
     private let settingsManager: SettingsManager
 
+    /// Owns tunnel flows migrated to Swift Concurrency. Assigned once in `init`.
+    private var tunnelJobQueue: TunnelJobQueue!
+
     // MARK: - Initialization
 
     init(
@@ -108,11 +111,40 @@ final class TunnelManager: @unchecked Sendable {
             object: nil
         )
 
+        self.tunnelJobQueue = TunnelJobQueue(
+            interactor: JobQueueInteractor(manager: self),
+            operationQueue: operationQueue,
+            backgroundTaskProvider: backgroundTaskProvider,
+            legacyExclusivityCategory: OperationCategory.manageTunnel.category
+        )
+
         self.startNetworkMonitor()
 
         #if NOT_PRODUCTION_PERMANENT
             relayCacheTracker.addObserver(self)
         #endif
+    }
+
+    /// Adapter exposing the narrow slice of `TunnelManager` that `TunnelJobQueue` needs.
+    private struct JobQueueInteractor: TunnelJobQueueInteractor {
+        weak var manager: TunnelManager?
+
+        var tunnel: (any TunnelProtocol)? {
+            manager?.tunnel
+        }
+
+        func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) {
+            _ = manager?.setTunnelStatus(block)
+        }
+
+        func startPollingTunnelStatus() {
+            manager?.startPollingTunnelStatus(interval: tunnelStatusPollInterval)
+        }
+
+        @MainActor
+        func didReconnectTunnel(error: Error?) {
+            manager?.didReconnectTunnel(error: error)
+        }
     }
 
     // MARK: - Periodic private key rotation
@@ -291,56 +323,27 @@ final class TunnelManager: @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
+    /// Request the packet tunnel to reconnect, awaiting completion.
+    func reconnectTunnel(selectNewRelay: Bool) async throws {
+        try await tunnelJobQueue.reconnect(selectNewRelay: selectNewRelay)
+    }
+
     func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
-        // Start polling the tunnel immediately when the user reconnects
-        startPollingTunnelStatus(interval: tunnelStatusPollInterval)
-        let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
+        Task {
+            var failure: Error?
             do {
-                guard let tunnel = self.tunnel else {
-                    throw UnsetTunnelError()
-                }
-
-                return tunnel.reconnectTunnel(to: selectNewRelay ? .random : .current) { result in
-                    if case let .success(observedState) = result {
-                        guard let connectionState = observedState.connectionState else { return }
-
-                        // This makes the app feel very responsive when the user wants to reconnect
-                        // If the tunnel is already connected, at worst the next tunnel status poll will correct the state
-                        self._tunnelStatus.state = .reconnecting(
-                            connectionState.selectedRelays,
-                            isPostQuantum: connectionState.isPostQuantum,
-                            isDaita: connectionState.isDaitaEnabled
-                        )
-                        self._tunnelStatus.observedState = observedState
-                    }
-
-                    finish(result.error)
-                }
+                try await tunnelJobQueue.reconnect(selectNewRelay: selectNewRelay)
             } catch {
-                finish(error)
+                failure = error
+            }
 
-                return AnyCancellable()
+            if let completionHandler {
+                let error = failure
+                await MainActor.run {
+                    completionHandler(error)
+                }
             }
         }
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                self.didReconnectTunnel(error: operation.error)
-
-                completionHandler?(operation.error)
-            }
-        }
-
-        operation.addObserver(
-            BackgroundObserver(
-                backgroundTaskProvider: backgroundTaskProvider,
-                name: "Reconnect tunnel",
-                cancelUponExpiration: true
-            )
-        )
-        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
-
-        operationQueue.addOperation(operation)
     }
 
     func reapplyTunnelConfiguration() {
@@ -1335,48 +1338,48 @@ final class TunnelManager: @unchecked Sendable {
         }
 
         /**
-        
+
          This function simulates account state transitions. The change is not permanent and any call to
          `updateAccountData()` will overwrite it, but it's usually enough for quick testing.
-        
+
          It can be invoked somewhere in `initTunnelManagerOperation` (`AppDelegate`) after tunnel manager is fully
          initialized. The following code snippet can be used to cycle through various states:
-        
+
          ```
          func delay(seconds: UInt) async throws {
          try await Task.sleep(nanoseconds: UInt64(seconds) * 1_000_000_000)
          }
-        
+
          Task {
          print("Wait 5 seconds")
          try await delay(seconds: 5)
-        
+
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          try await delay(seconds: 5)
-        
+
          print("Simulate close to expiry")
          self.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          try await delay(seconds: 10)
-        
+
          print("Simulate expired account")
          self.tunnelManager.simulateAccountExpiration(option: .expired)
          try await delay(seconds: 5)
-        
+
          print("Simulate active account")
          self.tunnelManager.simulateAccountExpiration(option: .active)
          }
          ```
-        
+
          Another way to invoke this code is to pause debugger and run it directly:
-        
+
          ```
          command alias swift expression -l Swift -O --
-        
+
          swift import MullvadVPN
          swift (UIApplication.shared.delegate as? AppDelegate)?.tunnelManager.simulateAccountExpiration(option: .closeToExpiry)
          ```
-        
+
          */
         func simulateAccountExpiration(option: AccountExpirySimulationOption) {
             scheduleDeviceStateUpdate(taskName: "Simulating account expiry", reconnectTunnel: false) { deviceState in

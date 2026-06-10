@@ -21,6 +21,11 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
 
     var backgroundTaskProvider: BackgroundTaskProviding
 
+    /// Test hook invoked by `sendProviderMessage`. Defaults to not responding at all.
+    var onSendProviderMessage: ((Data, ((Data?) -> Void)?) throws -> Void)?
+
+    private let observerList = ObserverList<any TunnelStatusObserver>()
+
     required init(tunnelProvider: TunnelManagerProtocol, backgroundTaskProvider: BackgroundTaskProviding) {
         status = .disconnected
         isOnDemandEnabled = false
@@ -28,16 +33,31 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
         self.backgroundTaskProvider = backgroundTaskProvider
     }
 
-    // Observers are currently unimplemented
-    func addObserver(_ observer: TunnelStatusObserver) {}
+    /// Set the status and notify observers, as a real tunnel would on NEVPNStatusDidChange.
+    func simulateStatusChange(_ newStatus: NEVPNStatus) {
+        status = newStatus
+        observerList.notify { observer in
+            observer.tunnel(self, didReceiveStatus: newStatus)
+        }
+    }
 
-    func removeObserver(_ observer: TunnelStatusObserver) {}
+    func addObserver(_ observer: TunnelStatusObserver) {
+        observerList.append(observer)
+    }
+
+    func removeObserver(_ observer: TunnelStatusObserver) {
+        observerList.remove(observer)
+    }
 
     func addBlockObserver(
         queue: DispatchQueue?,
         handler: @escaping (any TunnelProtocol, NEVPNStatus) -> Void
     ) -> TunnelStatusBlockObserver {
-        fatalError("MockTunnel.addBlockObserver Not implemented")
+        let observer = TunnelStatusBlockObserver(tunnel: self, queue: queue, handler: handler)
+
+        addObserver(observer)
+
+        return observer
     }
 
     func logFormat() -> String {
@@ -60,5 +80,7 @@ class MockTunnel: TunnelProtocol, @unchecked Sendable {
 
     func stop() {}
 
-    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {}
+    func sendProviderMessage(_ messageData: Data, responseHandler: ((Data?) -> Void)?) throws {
+        try onSendProviderMessage?(messageData, responseHandler)
+    }
 }

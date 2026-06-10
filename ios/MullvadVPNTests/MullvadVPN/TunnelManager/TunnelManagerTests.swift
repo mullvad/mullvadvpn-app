@@ -236,7 +236,7 @@ class TunnelManagerTests: XCTestCase {
             }
         }
 
-        tunnelManager.reconnectTunnel(selectNewRelay: false)
+        tunnelManager.reconnectTunnel(selectNewRelay: false, completionHandler: nil)
         await fulfillment(
             of: [reconnectMessageExpectation, reconnectingExpectation], enforceOrder: true
         )
@@ -244,9 +244,9 @@ class TunnelManagerTests: XCTestCase {
 
     /// This test verifies tunnel gets disconnected and reconnected on config reapply.
     func testReapplyingConfigDisconnectsAndReconnects() async throws {
-        throw XCTSkip("TODO: Fix this flaky test or relieve it of its misery")
-        var connectedExpectation = expectation(description: "Connected!")
+        let connectedExpectation = expectation(description: "Connected!")
         let disconnectedExpectation = expectation(description: "Disconnected!")
+        let reconnectedExpectation = expectation(description: "Reconnected!")
 
         accountProxy.createAccountResult = .success(NewAccountData.mockValue())
 
@@ -279,10 +279,18 @@ class TunnelManagerTests: XCTestCase {
             settingsManager: settingsManager
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+        // Observer callbacks are dispatched on the main queue, so this needs no locking.
+        var hasConnectedOnce = false
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { _, tunnelStatus in
                 switch tunnelStatus.state {
-                case .connected: connectedExpectation.fulfill()
+                case .connected:
+                    if hasConnectedOnce {
+                        reconnectedExpectation.fulfill()
+                    } else {
+                        hasConnectedOnce = true
+                        connectedExpectation.fulfill()
+                    }
                 case .disconnected: disconnectedExpectation.fulfill()
                 default: return
                 }
@@ -299,9 +307,8 @@ class TunnelManagerTests: XCTestCase {
         tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
         tunnelManager.reapplyTunnelConfiguration()
-        connectedExpectation = expectation(description: "Connected!")
         await fulfillment(
-            of: [disconnectedExpectation, connectedExpectation],
+            of: [disconnectedExpectation, reconnectedExpectation],
             timeout: .UnitTest.timeout,
             enforceOrder: true
         )
