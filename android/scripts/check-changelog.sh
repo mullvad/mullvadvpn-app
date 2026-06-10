@@ -15,6 +15,8 @@ if [[ -z ${VERSION_NAME+x} ]]; then
     exit 1
 fi
 
+echo "$VERSION_NAME"
+
 if [[ $VERSION_NAME != *"alpha"* && $VERSION_NAME != *"-dev-"* &&
     $(grep "^## \\[android/$VERSION_NAME\\] - " android/CHANGELOG.md) == "" ]]; then
 
