@@ -73,11 +73,10 @@ test.describe('Select location', () => {
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
-    test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
+    test('App shouldn\'t show entry selection when daita is enabled and multihop mode is "when-needed"', async () => {
       await helpers.updateMockSettings({
-        multihop: 'always',
+        multihop: 'when-needed',
         daita: true,
-        directOnly: false,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -87,11 +86,10 @@ test.describe('Select location', () => {
       await expect(locations).toHaveCount(0);
     });
 
-    test('App should show entry selection when daita is enabled with direct only', async () => {
+    test('App should show entry selection when daita is enabled and multihop mode is "when-needed"', async () => {
       await helpers.updateMockSettings({
         multihop: 'always',
         daita: true,
-        directOnly: true,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -140,7 +138,6 @@ test.describe('Select location', () => {
       const settings = await helpers.updateMockSettings({
         multihop: 'always',
         daita: true,
-        directOnly: true,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();

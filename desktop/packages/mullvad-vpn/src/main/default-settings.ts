@@ -36,10 +36,7 @@ export function getDefaultSettings(): ISettings {
       enableIpv6: false,
       mtu: undefined,
       quantumResistant: true,
-      daita: {
-        enabled: false,
-        directOnly: false,
-      },
+      daita: false,
       dns: {
         state: 'default',
         defaultOptions: {

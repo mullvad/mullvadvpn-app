@@ -2,7 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../shared/constants';
 import { messages } from '../../../../shared/gettext';
-import { DaitaDirectOnlySetting, DaitaSetting } from '../../../features/daita/components';
+import { DaitaSetting } from '../../../features/daita/components';
 import { Carousel } from '../../../lib/components/carousel';
 import { FlexColumn } from '../../../lib/components/flex-column';
 import { View } from '../../../lib/components/view';
@@ -136,7 +136,6 @@ export function DaitaSettingsView() {
                     </Carousel>
                     <FlexColumn>
                       <DaitaSetting />
-                      <DaitaDirectOnlySetting />
                     </FlexColumn>
                   </FlexColumn>
                 </View.Container>

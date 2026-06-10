@@ -1,6 +1,5 @@
 import {
   Constraint,
-  IDaitaSettings,
   IpVersion,
   ObfuscationSettings,
   Ownership,
@@ -65,7 +64,7 @@ export type RelaySelectorPredicateGeneralConstraints = {
 export type RelaySelectorPredicateEntryConstraints = {
   generalConstraints: RelaySelectorPredicateGeneralConstraints;
   antiCensorship: ObfuscationSettings;
-  daitaSettings: IDaitaSettings;
+  daita: boolean;
   ipVersion: Constraint<IpVersion>;
 };
 

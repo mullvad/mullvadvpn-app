@@ -5,7 +5,7 @@ import { useAppContext } from '../../../context';
 import { useSelector } from '../../../redux/store';
 
 export function useDaitaEnabled() {
-  const daitaEnabled = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
+  const daitaEnabled = useSelector((state) => state.settings.wireguard.daita);
   const { setEnableDaita: contextSetEnableDaita } = useAppContext();
 
   const setDaitaEnabled = React.useCallback(

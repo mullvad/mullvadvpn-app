@@ -307,11 +307,6 @@ impl MullvadProxyClient {
         Ok(())
     }
 
-    pub async fn set_daita_direct_only(&mut self, value: bool) -> Result<()> {
-        self.0.set_daita_direct_only(value).await?;
-        Ok(())
-    }
-
     pub async fn set_daita_settings(&mut self, settings: DaitaSettings) -> Result<()> {
         let settings = types::DaitaSettings::from(settings);
         self.0.set_daita_settings(settings).await?;
