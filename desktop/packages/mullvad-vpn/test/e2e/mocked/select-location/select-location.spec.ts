@@ -73,34 +73,6 @@ test.describe('Select location', () => {
       expect(await locations.count()).toBeGreaterThan(0);
     });
 
-    test("App shouldn't show entry selection when daita is enabled without direct only", async () => {
-      await helpers.updateMockSettings({
-        multihop: 'always',
-        daita: true,
-        directOnly: false,
-      });
-
-      const entryButton = routes.selectLocation.getEntryButton();
-      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
-
-      const locations = routes.selectLocation.getLocationsInAllLocations();
-      await expect(locations).toHaveCount(0);
-    });
-
-    test('App should show entry selection when daita is enabled with direct only', async () => {
-      await helpers.updateMockSettings({
-        multihop: 'always',
-        daita: true,
-        directOnly: true,
-      });
-
-      const entryButton = routes.selectLocation.getEntryButton();
-      await expect(entryButton).toHaveCSS('background-color', colorTokens.green);
-
-      const locations = routes.selectLocation.getLocationsInAllLocations();
-      expect(await locations.count()).toBeGreaterThan(0);
-    });
-
     test('Should show only wireguard servers in entry list', async () => {
       const entryButton = routes.selectLocation.getEntryButton();
       await entryButton.click();
@@ -140,7 +112,6 @@ test.describe('Select location', () => {
       const settings = await helpers.updateMockSettings({
         multihop: 'always',
         daita: true,
-        directOnly: true,
       });
 
       const entryButton = routes.selectLocation.getEntryButton();
@@ -163,8 +134,6 @@ test.describe('Select location', () => {
 
       await helpers.updateEntryLocation(relaySelectionPaths[0], settings);
       await helpers.expandLocatedRelays(relaySelectionPaths);
-      const entryRelayButton = routes.selectLocation.getRelaysMatching([entryRelay.hostname]);
-      await expect(entryRelayButton).toBeDisabled();
 
       const relaySelectionPathsExit = helpers.toSelectionPaths(
         helpers.getRelaysByHostnames(relayList, [exitRelay.hostname]),

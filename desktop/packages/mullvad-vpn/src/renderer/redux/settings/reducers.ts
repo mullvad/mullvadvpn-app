@@ -4,7 +4,6 @@ import {
   AccessMethodSetting,
   ApiAccessMethodSettings,
   CustomLists,
-  IDaitaSettings,
   IDnsOptions,
   IpVersion,
   IWireguardEndpointData,
@@ -96,7 +95,7 @@ export interface ISettingsReduxState {
   wireguard: {
     mtu?: number;
     quantumResistant: boolean;
-    daita?: IDaitaSettings;
+    daita: boolean;
   };
   dns: IDnsOptions;
   splitTunneling: boolean;
@@ -157,6 +156,7 @@ const initialState: ISettingsReduxState = {
   showBetaReleases: false,
   wireguard: {
     quantumResistant: true,
+    daita: false,
   },
   dns: {
     state: 'default',

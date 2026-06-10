@@ -465,10 +465,6 @@ export class DaemonRpc extends GrpcClient<ManagementServiceClient> {
     await this.callBool(this.client.setEnableDaita, value);
   }
 
-  public async setDaitaDirectOnly(value: boolean): Promise<void> {
-    await this.callBool(this.client.setDaitaDirectOnly, value);
-  }
-
   public async listDevices(accountNumber: AccountNumber): Promise<Array<IDevice>> {
     try {
       const response = await this.callString<grpcTypes.DeviceList>(
