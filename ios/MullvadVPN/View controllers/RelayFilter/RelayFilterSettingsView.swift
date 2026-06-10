@@ -17,6 +17,7 @@ extension RelayFilterSelection {
                 if !viewModel.filters.isEmpty {
                     ActiveFilterView(
                         activeFilter: viewModel.filters,
+                        labelStyle: .specific,
                         automaticLocationIsActive: false
                     ) { filter in
                         viewModel.onFilterTapped(filter)
@@ -55,7 +56,7 @@ private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol,
 #Preview {
     RelayFilterSelection.SettingsView<MockSettingsViewModel>(
         viewModel: MockSettingsViewModel(
-            filters: [.daita, .obfuscation],
+            filters: [.daita, .obfuscation(.quic)],
             automaticLocationIsActive: true
         ))
 }
