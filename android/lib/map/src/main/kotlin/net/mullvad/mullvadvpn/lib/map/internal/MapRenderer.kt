@@ -144,7 +144,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
     var markerVector = mapOf<Vector3, Marker>()
 
-    fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
+    fun calculateIntersection(offset: Offset): Vector3? {
         val cameraz = -viewState.cameraPosition.zoom
         val camerax = 0f
         val cameray = toOffsetY(viewState.cameraPosition)
@@ -176,7 +176,8 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         if (discriminant < 0f) {
             return null // No intersection
         } else {
-            val t = (-b - sqrt(discriminant)) / (2f * a) // Closest intersection point
+            // We don't care about the second intersection point
+            // val t = (-b - sqrt(discriminant)) / (2f * a) // Closest intersection point
             val t2 = (-b + sqrt(discriminant)) / (2f * a) // Closest intersection point
             val point2 = ray.origin + ray.direction * t2
 
@@ -185,14 +186,17 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
                     .rotateAroundX(-viewState.cameraPosition.latLong.latitude.value)
                     .rotateAroundY(viewState.cameraPosition.latLong.longitude.value)
 
-            val closestMarker = markerVector.minByOrNull { it.key.distanceTo(newPosition) }
-
-            if (closestMarker != null) {
-                return closestMarker.value to closestMarker.key.distanceTo(newPosition)
-            }
-
-            return null
+            return newPosition
         }
+    }
+
+    fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
+        val intersectionPoint = calculateIntersection(offset) ?: return null
+
+        val closestMarker =
+            markerVector.minByOrNull { it.key.distanceTo(intersectionPoint) } ?: return null
+
+        return closestMarker.value to closestMarker.key.distanceTo(intersectionPoint)
     }
 
     fun calculateDirectionVector(
