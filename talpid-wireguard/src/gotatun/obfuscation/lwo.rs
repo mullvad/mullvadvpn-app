@@ -1,24 +1,90 @@
-//! LWO obfuscation/deobfuscation wrappers for GotaTun UDP transports.
+//! LWO v2 obfuscation/deobfuscation wrappers for GotaTun UDP transports.
+//!
+//! LWO also changes the timing of some WireGuard timers; see [`lwo_timer_params`]. These must
+//! be applied to the [`gotatun::device::Peer`] of LWO peers.
 
-use std::{io, net::SocketAddr};
+use std::{io, net::SocketAddr, time::Duration};
 
 use gotatun::{
+    noise::TimerParams,
     packet::{Packet, PacketBufPool},
     udp::{UdpRecv, UdpSend, UdpTransportFactory, UdpTransportFactoryParams},
 };
+use rand::RngCore;
 use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
-use tunnel_obfuscation::lwo;
+use tunnel_obfuscation::lwo::v2::{self, Verdict};
 
 use crate::config::Config;
 
+/// WireGuard timer tuning for LWO V2 peers.
+pub fn lwo_timer_params() -> TimerParams {
+    TimerParams {
+        // Passive keepalive: 10 s +/- 2 s
+        keepalive_timeout: Duration::from_secs(8)..=Duration::from_secs(12),
+        // New handshake after silence: 15 s +/- 2 s
+        new_handshake_timeout: Duration::from_secs(13)..=Duration::from_secs(17),
+        // Handshake retransmit: 5 s +/- 250 ms
+        rekey_timeout: Duration::from_millis(4750)..=Duration::from_millis(5250),
+        // Rekey-after-time: only ever moved earlier
+        rekey_after_time: Duration::from_secs(100)..=Duration::from_secs(120),
+    }
+}
+
+/// Extract LWO obfuscation settings from the tunnel config.
+///
+/// Returns the obfuscation key (the **server** public key, used in both directions in LWO v2)
+/// and the endpoint to forward traffic to.
+pub fn lwo_config(config: &Config) -> Option<([u8; 32], SocketAddr)> {
+    match &config.obfuscator_config {
+        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { endpoint })) => {
+            let key = *config.entry_peer.public_key.as_bytes();
+            Some((key, *endpoint))
+        }
+        _ => None,
+    }
+}
+
+/// Pad (handshakes only) and obfuscate an outgoing packet in place.
+fn pad_and_obfuscate(packet: &mut Packet, key: &[u8; 32]) {
+    let mut rng = rand::rng();
+    let padding = v2::padding_len(packet, &mut rng);
+    if padding > 0 {
+        let buf = packet.buf_mut();
+        let packet_len = buf.len();
+        buf.resize(packet_len + padding, 0);
+        rng.fill_bytes(&mut buf[packet_len..]);
+    }
+    v2::obfuscate(packet, key);
+}
+
+/// Validate and deobfuscate an incoming packet in place, trimming handshake padding.
+///
+/// Returns `false` if the packet is invalid and must be dropped.
+fn deobfuscate_and_trim(packet: &mut Packet, key: &[u8; 32]) -> bool {
+    match v2::deobfuscate(packet, key) {
+        Verdict::Plain => true,
+        Verdict::Lwo { trim_to } => {
+            if let Some(len) = trim_to {
+                packet.truncate(len);
+            }
+            true
+        }
+        Verdict::Invalid => {
+            if cfg!(debug_assertions) {
+                log::trace!("Dropping invalid LWO packet");
+            }
+            false
+        }
+    }
+}
+
 /// A [`UdpSend`] wrapper that LWO-obfuscates every outgoing packet before forwarding it to the
 /// inner sender.
-///
-/// `tx_key` must be the **server** public key (the key used by the relay to deobfuscate).
 #[derive(Clone)]
 pub struct LwoSend<S: UdpSend> {
     inner: S,
-    tx_key: [u8; 32],
+    /// The server public key.
+    key: [u8; 32],
     endpoint: SocketAddr,
 }
 
@@ -26,7 +92,7 @@ impl<S: UdpSend> UdpSend for LwoSend<S> {
     type SendManyBuf = S::SendManyBuf;
 
     async fn send_to(&self, mut packet: Packet, _destination: SocketAddr) -> io::Result<()> {
-        lwo::obfuscate_thread_local(&mut packet, &self.tx_key);
+        pad_and_obfuscate(&mut packet, &self.key);
         self.inner.send_to(packet, self.endpoint).await
     }
 
@@ -39,7 +105,9 @@ impl<S: UdpSend> UdpSend for LwoSend<S> {
         send_buf: &mut Self::SendManyBuf,
         packets: &mut Vec<(Packet, SocketAddr)>,
     ) -> io::Result<()> {
-        obfuscate_all(packets, &self.tx_key);
+        for (packet, _) in packets.iter_mut() {
+            pad_and_obfuscate(packet, &self.key);
+        }
         self.inner.send_many_to(send_buf, packets).await
     }
 
@@ -54,21 +122,23 @@ impl<S: UdpSend> UdpSend for LwoSend<S> {
 }
 
 /// A [`UdpRecv`] wrapper that LWO-deobfuscates every incoming packet after receiving it from the
-/// inner receiver.
-///
-/// `rx_key` must be the **client** public key (the key used by the client to deobfuscate).
+/// inner receiver. Packets that fail LWO validation are dropped.
 pub struct LwoRecv<R: UdpRecv> {
     inner: R,
-    rx_key: [u8; 32],
+    /// The server public key.
+    key: [u8; 32],
 }
 
 impl<R: UdpRecv> UdpRecv for LwoRecv<R> {
     type RecvManyBuf = R::RecvManyBuf;
 
     async fn recv_from(&mut self, pool: &mut PacketBufPool) -> io::Result<(Packet, SocketAddr)> {
-        let (mut packet, addr) = self.inner.recv_from(pool).await?;
-        lwo::deobfuscate(&mut packet, &self.rx_key);
-        Ok((packet, addr))
+        loop {
+            let (mut packet, addr) = self.inner.recv_from(pool).await?;
+            if deobfuscate_and_trim(&mut packet, &self.key) {
+                return Ok((packet, addr));
+            }
+        }
     }
 
     async fn recv_many_from(
@@ -77,11 +147,18 @@ impl<R: UdpRecv> UdpRecv for LwoRecv<R> {
         pool: &mut PacketBufPool,
         packets: &mut Vec<(Packet, SocketAddr)>,
     ) -> io::Result<()> {
-        // The trait contract appends to `packets`; only deobfuscate the entries the inner call
-        // actually added so we don't touch packets the caller already owned.
+        // The trait contract appends to `packets`; only touch the entries the inner call
+        // actually added so we don't process packets the caller already owned.
         let start = packets.len();
         self.inner.recv_many_from(recv_buf, pool, packets).await?;
-        deobfuscate_all(&mut packets[start..], &self.rx_key);
+
+        let mut index = 0;
+        packets.retain_mut(|(packet, _addr)| {
+            let keep = index < start || deobfuscate_and_trim(packet, &self.key);
+            index += 1;
+            keep
+        });
+
         Ok(())
     }
 
@@ -90,41 +167,13 @@ impl<R: UdpRecv> UdpRecv for LwoRecv<R> {
     }
 }
 
-/// Apply LWO obfuscation to every packet in `packets`.
-fn obfuscate_all(packets: &mut [(Packet, SocketAddr)], tx_key: &[u8; 32]) {
-    for (packet, _) in packets.iter_mut() {
-        lwo::obfuscate_thread_local(packet, tx_key);
-    }
-}
-
-/// Apply LWO deobfuscation to every packet in `packets`.
-fn deobfuscate_all(packets: &mut [(Packet, SocketAddr)], rx_key: &[u8; 32]) {
-    for (packet, _) in packets.iter_mut() {
-        lwo::deobfuscate(packet, rx_key);
-    }
-}
-
-/// Extract LWO obfuscation settings from the tunnel config.
-pub fn lwo_config(config: &Config) -> Option<([u8; 32], [u8; 32], SocketAddr)> {
-    match &config.obfuscator_config {
-        Some(Obfuscators::Single(ObfuscatorConfig::Lwo { endpoint })) => {
-            let tx_key = *config.entry_peer.public_key.as_bytes();
-            let rx_key = *config.tunnel.private_key.public_key().as_bytes();
-            Some((tx_key, rx_key, *endpoint))
-        }
-        _ => None,
-    }
-}
-
 /// A [`UdpTransportFactory`] that wraps another factory and applies LWO obfuscation inline.
 ///
-/// * `tx_key` - server public key bytes, used to obfuscate outgoing packets.
-/// * `rx_key` - client public key bytes, used to deobfuscate incoming packets.
+/// * `key` - server public key bytes, used to obfuscate and deobfuscate in both directions.
 /// * `endpoint` - endpoint to forward traffic to.
 pub struct LwoUdpTransportFactory<F: UdpTransportFactory> {
     pub inner: F,
-    pub tx_key: [u8; 32],
-    pub rx_key: [u8; 32],
+    pub key: [u8; 32],
     pub endpoint: SocketAddr,
 }
 
@@ -143,23 +192,23 @@ impl<F: UdpTransportFactory> UdpTransportFactory for LwoUdpTransportFactory<F> {
             (
                 LwoSend {
                     inner: send_v4,
-                    tx_key: self.tx_key,
+                    key: self.key,
                     endpoint: self.endpoint,
                 },
                 LwoRecv {
                     inner: recv_v4,
-                    rx_key: self.rx_key,
+                    key: self.key,
                 },
             ),
             (
                 LwoSend {
                     inner: send_v6,
-                    tx_key: self.tx_key,
+                    key: self.key,
                     endpoint: self.endpoint,
                 },
                 LwoRecv {
                     inner: recv_v6,
-                    rx_key: self.rx_key,
+                    key: self.key,
                 },
             ),
         ))
