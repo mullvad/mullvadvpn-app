@@ -12,33 +12,71 @@ import SwiftUI
 @MainActor
 struct IncludeAllNetworksSettingsView<ViewModel: IncludeAllNetworksSettingsViewModel>: View {
     @ObservedObject var viewModel: ViewModel
+    var showIssuesInfo: (() -> Void)?
     @State private var alert: MullvadAlert?
+    private let itemFactory = SegmentedListItemFactory()
 
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
                 SettingsInfoView(viewModel: dataViewModel)
 
-                VStack {
-                    GroupedRowView {
-                        SwitchRowView(
-                            isOn: includeAllNetworksIsEnabled,
-                            disabled: !viewModel.consent,
-                            text: NSLocalizedString("Enable", comment: ""),
-                            accessibilityId: .includeAllNetworksSwitch
-                        )
-                        RowSeparator(edgeInsets: .init(top: 0, leading: 16, bottom: 0, trailing: 16))
-                        SwitchRowView(
-                            isOn: localNetworkSharingIsEnabled,
-                            disabled: !includeAllNetworksIsEnabled.wrappedValue || !viewModel.consent,
-                            text: NSLocalizedString("Local network sharing", comment: ""),
-                            accessibilityId: .localNetworkSharingSwitch
-                        ) {
-                            alert = viewModel.getLanSharingInfoAlert {
-                                alert = nil
-                            }
+                VStack(spacing: 0) {
+                    SegmentedListItem(
+                        isLastInList: false,
+                        accessibilityIdentifier: .includeAllNetworksSwitch,
+                        leading: {
+                            itemFactory.leading(for: .generic(title: NSLocalizedString("Enable", comment: "")))
+                        },
+                        trailing: {
+                            itemFactory.trailing(
+                                for: .toggle(
+                                    isOn: includeAllNetworksIsEnabled,
+                                    isDisabled: !viewModel.consent
+                                )
+                            )
+                        },
+                        groupedContent: {
+                            SegmentedListItem(
+                                accessibilityIdentifier: .localNetworkSharingSwitch,
+                                leading: {
+                                    itemFactory.leading(
+                                        for: .generic(title: NSLocalizedString("Local network sharing", comment: ""))
+                                    )
+                                },
+                                trailing: {
+                                    itemFactory.trailing(
+                                        for: .custom(items: [
+                                            .button(
+                                                icon: .info,
+                                                onSelect: {
+                                                    alert = viewModel.getLanSharingInfoAlert {
+                                                        alert = nil
+                                                    }
+                                                },
+                                                sizing: .button
+                                            ),
+                                            .toggle(
+                                                isOn: localNetworkSharingIsEnabled,
+                                                isDisabled: !includeAllNetworksIsEnabled.wrappedValue
+                                                    || !viewModel.consent
+                                            ),
+                                            .padding(),
+                                        ])
+                                    )
+                                },
+                                footer: MullvadInfoView(
+                                    bodyText:
+                                        NSLocalizedString(
+                                            "Some iOS features are known to be affected when using Force all apps.",
+                                            comment: ""
+                                        ) + " ",
+                                    link: NSLocalizedString("About known issues...", comment: ""),
+                                    onTapLink: showIssuesInfo
+                                )
+                            )
                         }
-                    }
+                    )
                 }
                 .padding(.leading, UIMetrics.contentInsets.left)
                 .padding(.trailing, UIMetrics.contentInsets.right)

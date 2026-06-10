@@ -23,7 +23,7 @@ class DAITAPage: Page {
     }
 
     @discardableResult func tapEnableDialogButtonIfPresent() -> Self {
-        let buttonElement = app.buttons[AccessibilityIdentifier.daitaConfirmAlertEnableButton]
+        let buttonElement = app.buttons[.daitaConfirmAlertEnableButton]
         if buttonElement.exists {
             buttonElement.tap()
         }
@@ -36,12 +36,12 @@ class DAITAPage: Page {
     }
 
     @discardableResult func tapEnableSwitch() -> Self {
-        app.switches[AccessibilityIdentifier.daitaSwitch].tap()
+        app.switches[.daitaSwitch].switches.firstMatch.tap()
         return self
     }
 
     @discardableResult func tapEnableSwitchIfOff() -> Self {
-        let switchElement = app.switches[AccessibilityIdentifier.daitaSwitch]
+        let switchElement = app.switches[.daitaSwitch].switches.firstMatch
 
         if switchElement.value as? String == "0" {
             tapEnableSwitch()

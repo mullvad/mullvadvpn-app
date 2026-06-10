@@ -23,12 +23,12 @@ class IncludeAllNetworksPage: Page {
     }
 
     @discardableResult func tapEnableIncludeAllNetworks() -> Self {
-        app.switches[.includeAllNetworksSwitch].tap()
+        app.switches[.includeAllNetworksSwitch].switches.firstMatch.tap()
         return self
     }
 
     @discardableResult func tapEnableLocalNetworkSharing() -> Self {
-        app.switches[.localNetworkSharingSwitch].tap()
+        app.switches[.localNetworkSharingSwitch].switches.firstMatch.tap()
         return self
     }
 
@@ -63,27 +63,27 @@ class IncludeAllNetworksPage: Page {
     }
 
     @discardableResult func verifyIncludeAllNetworksSwitchIsDisabled() -> Self {
-        XCTAssertFalse(app.switches[.includeAllNetworksSwitch].isEnabled)
+        XCTAssertFalse(app.switches[.includeAllNetworksSwitch].switches.firstMatch.isEnabled)
         return self
     }
 
     @discardableResult func verifyLocalNetworkSharingSwitchIsDisabled() -> Self {
-        XCTAssertFalse(app.switches[.localNetworkSharingSwitch].isEnabled)
+        XCTAssertFalse(app.switches[.localNetworkSharingSwitch].switches.firstMatch.isEnabled)
         return self
     }
 
     @discardableResult func verifyIncludeAllNetworksSwitchIsEnabled() -> Self {
-        XCTAssertTrue(app.switches[.includeAllNetworksSwitch].isEnabled)
+        XCTAssertTrue(app.switches[.includeAllNetworksSwitch].switches.firstMatch.isEnabled)
         return self
     }
 
     @discardableResult func verifyLocalNetworkSharingSwitchIsEnabled() -> Self {
-        XCTAssertTrue(app.switches[.localNetworkSharingSwitch].isEnabled)
+        XCTAssertTrue(app.switches[.localNetworkSharingSwitch].switches.firstMatch.isEnabled)
         return self
     }
 
     @discardableResult func verifyIncludeAllNetworksSwitchOn() -> Self {
-        let switchElement = app.switches[.includeAllNetworksSwitch]
+        let switchElement = app.switches[.includeAllNetworksSwitch].switches.firstMatch
 
         guard let switchValue = switchElement.value as? String else {
             XCTFail("Failed to read switch state")
@@ -95,7 +95,7 @@ class IncludeAllNetworksPage: Page {
     }
 
     @discardableResult func verifyIncludeLocalNetworkSharingSwitchOn() -> Self {
-        let switchElement = app.switches[.localNetworkSharingSwitch]
+        let switchElement = app.switches[.localNetworkSharingSwitch].switches.firstMatch
 
         guard let switchValue = switchElement.value as? String else {
             XCTFail("Failed to read switch state")
