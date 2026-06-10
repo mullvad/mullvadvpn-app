@@ -13,7 +13,7 @@ on:
 permissions: {}
 
 env:
- BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 jobs:
   check-changelog:
     runs-on: android-build
@@ -22,7 +22,6 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Calculate version
         run: |
-          echo "$BRANCH_NAME"
           if [[ "$BRANCH_NAME" =~ ^android[-/](.+)$ ]]; then
             version="${BASH_REMATCH[1]}"
           else
