@@ -208,11 +208,14 @@ fn settings_from_single_config(
             .mtu(mtu);
             tunnel_obfuscation::Settings::Quic(settings)
         }
-        ObfuscatorConfig::Lwo { endpoint } => tunnel_obfuscation::Settings::Lwo(lwo::Settings {
-            server_addr: *endpoint,
-            client_public_key,
-            server_public_key,
-        }),
+        ObfuscatorConfig::Lwo { endpoint, version } => {
+            tunnel_obfuscation::Settings::Lwo(lwo::Settings {
+                server_addr: *endpoint,
+                client_public_key,
+                server_public_key,
+                version: *version,
+            })
+        }
     }
 }
 
@@ -235,6 +238,7 @@ pub fn config_from_single_settings(settings: &tunnel_obfuscation::Settings) -> O
         },
         tunnel_obfuscation::Settings::Lwo(settings) => ObfuscatorConfig::Lwo {
             endpoint: settings.server_addr,
+            version: settings.version,
         },
     }
 }

@@ -11,7 +11,7 @@
 
 use core::hint::black_box;
 use criterion::{Criterion, criterion_group, criterion_main};
-use talpid_types::net::wireguard::PublicKey;
+use talpid_types::net::{obfuscation::LwoVersion, wireguard::PublicKey};
 use tokio::net::UdpSocket;
 use tunnel_obfuscation::{
     create_local_socket_obfuscator,
@@ -96,6 +96,7 @@ fn bench_proxy_lwo(c: &mut Criterion) {
             server_addr: relay.local_addr().unwrap(),
             client_public_key: client_key.clone(),
             server_public_key: server_key.clone(),
+            version: LwoVersion::V1,
         };
         let lwo = create_local_socket_obfuscator(&tunnel_obfuscation::Settings::Lwo(settings))
             .await
