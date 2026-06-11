@@ -16,4 +16,6 @@ sealed interface RelayItemSelection {
         } else {
             null
         }
+
+    fun isEntryLocationAutomatic(): Boolean = entryLocation() == Constraint.Any
 }

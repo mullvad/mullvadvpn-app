@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
@@ -59,13 +60,15 @@ class FilterViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
-        every { mockRelayListFilterRepository.selectedProviders } returns
+        every { mockRelayListFilterRepository.selectedProviders(RelayHopType.EXIT) } returns
             MutableStateFlow(Constraint.Only(mockSelectedProviders))
-        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(RelayHopType.EXIT) } returns
+            selectedOwnership
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
                 relayListFilterRepository = mockRelayListFilterRepository,
+                filterTarget = RelayHopType.EXIT,
             )
     }
 
@@ -125,8 +128,9 @@ class FilterViewModelTest {
                 mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders.keys)
             coEvery {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
-                    mockOwnership,
-                    mockSelectedProviders,
+                    ownership = mockOwnership,
+                    providers = mockSelectedProviders,
+                    filterTarget = RelayHopType.EXIT,
                 )
             } returns Unit.right()
 
@@ -136,8 +140,9 @@ class FilterViewModelTest {
             // Assert
             coVerify {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
-                    mockOwnership,
-                    mockSelectedProviders,
+                    ownership = mockOwnership,
+                    providers = mockSelectedProviders,
+                    filterTarget = RelayHopType.EXIT,
                 )
             }
         }
@@ -161,6 +166,31 @@ class FilterViewModelTest {
             val state = awaitItem()
             assertSet(state.allProviders, state.allProviders)
             assertEquals(state.selectableProviders.sorted(), state.selectableProviders)
+        }
+    }
+
+    @Test
+    fun `entry ownership should be set separately from exit`() = runTest {
+        // Arrange
+        every { mockRelayListFilterRepository.selectedProviders(RelayHopType.ENTRY) } returns
+            MutableStateFlow(Constraint.Only(mockSelectedProviders))
+        every { mockRelayListFilterRepository.selectedOwnership(RelayHopType.ENTRY) } returns
+            selectedOwnership
+
+        viewModel =
+            FilterViewModel(
+                providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
+                relayListFilterRepository = mockRelayListFilterRepository,
+                filterTarget = RelayHopType.ENTRY,
+            )
+
+        val mockOwnership = Ownership.Rented
+
+        // Assert
+        viewModel.uiState.test {
+            assertEquals(Constraint.Only(Ownership.MullvadOwned), awaitItem().selectedOwnership)
+            viewModel.setSelectedOwnership(Constraint.Only(mockOwnership))
+            assertEquals(Constraint.Only(mockOwnership), awaitItem().selectedOwnership)
         }
     }
 }

@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import net.mullvad.mullvadvpn.lib.ui.designsystem.preview.PreviewColumn
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
+import net.mullvad.mullvadvpn.lib.ui.theme.color.primaryDisabled
 import net.mullvad.mullvadvpn.lib.ui.theme.shape.chipShape
 
 @Preview
@@ -28,6 +30,12 @@ private fun PreviewDisabledMullvadFilterChip() = PreviewColumn {
     MullvadFilterChip(text = "Providers: 17", onRemoveClick = {}, enabled = false)
 }
 
+@Preview
+@Composable
+private fun PreviewInactiveMullvadFilterChip() = PreviewColumn {
+    MullvadFilterChip(text = "Providers: 17", onRemoveClick = {}, enabled = true, active = false)
+}
+
 @Composable
 fun MullvadFilterChip(
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
@@ -37,18 +45,19 @@ fun MullvadFilterChip(
     text: String,
     onRemoveClick: () -> Unit,
     enabled: Boolean,
+    active: Boolean = true,
 ) {
     InputChip(
         enabled = enabled,
         shape = MaterialTheme.shapes.chipShape,
         colors =
             FilterChipDefaults.filterChipColors(
-                containerColor = containerColor,
-                disabledContainerColor = containerColor,
-                labelColor = labelColor,
-                disabledLabelColor = labelColor,
-                iconColor = iconColor,
-            ),
+                    containerColor = if (active) containerColor else MaterialTheme.colorScheme.primaryDisabled,
+                    disabledContainerColor = containerColor,
+                    labelColor = if (active) labelColor else labelColor.copy(alpha = AlphaInactive),
+                    disabledLabelColor = labelColor,
+                    iconColor = iconColor,
+                ),
         border =
             FilterChipDefaults.filterChipBorder(
                 borderColor = borderColor,

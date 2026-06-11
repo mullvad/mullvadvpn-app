@@ -10,7 +10,6 @@ import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -19,9 +18,11 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.util.combine
 import net.mullvad.mullvadvpn.lib.common.util.isEntryAndBlocked
-import net.mullvad.mullvadvpn.lib.common.util.isMultihopEnabled
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -35,9 +36,11 @@ import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
@@ -54,24 +57,33 @@ class SelectLocationViewModel(
     private val selectSingleUseCase: SelectSinglehopUseCase,
     private val modifyMultihopUseCase: ModifyMultihopUseCase,
     private val relayListScrollConnection: RelayListScrollConnection,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
     hopSelectionUseCase: HopSelectionUseCase,
+    lastKnownLocationUseCase: LastKnownLocationUseCase,
     connectionProxy: ConnectionProxy,
 ) : ViewModel() {
-    private val _multihopRelayListTypeSelection: MutableStateFlow<MultihopRelayListType> =
-        MutableStateFlow(MultihopRelayListType.EXIT)
+    private val _multihopRelayListTypeSelection: MutableStateFlow<RelayHopType> =
+        MutableStateFlow(RelayHopType.EXIT)
 
     val uiState =
         combine(
                 filterChips(),
-                _multihopRelayListTypeSelection.filterNotNull(),
+                _multihopRelayListTypeSelection,
                 relayListRepository.relayList,
                 settingsRepository.settingsUpdates.filterNotNull(),
-                connectionProxy.tunnelState
-                    .map { it as? TunnelState.Error }
-                    .map { it?.errorState?.cause },
+                connectionProxy.tunnelState,
                 hopSelectionUseCase(),
-            ) { filterChips, relayListSelection, relayList, settings, errorStateCause, selectedHop
-                ->
+                lastKnownLocationUseCase.lastKnownDisconnectedLocation,
+                relayListFilterRepository.hasAnyFilterFlow(),
+            ) {
+                filterChips,
+                relayListSelection,
+                relayList,
+                settings,
+                tunnelState,
+                selectedHop,
+                lastKnownLocation,
+                filterState ->
                 Lc.Content(
                     SelectLocationUiState(
                         filterChips = filterChips,
@@ -85,7 +97,13 @@ class SelectLocationViewModel(
                         isFilterButtonEnabled = relayList.isNotEmpty(),
                         isRecentsEnabled = settings.recents is Recents.Enabled,
                         hopSelection = selectedHop,
-                        tunnelErrorStateCause = errorStateCause,
+                        hasAnyEntryFilter = filterState.hasAnyEntryFilter,
+                        hasAnyExitFilter = filterState.hasAnyExitFilter,
+                        tunnelErrorStateCause = tunnelState.errorCause,
+                        isEntryFilteringEnabled =
+                            !settings.isEntryBlocked() && selectedHop.entry() != Constraint.Any,
+                        lastKnownLocation = lastKnownLocation?.country,
+                        entryCountry = tunnelState.entryCountry,
                     )
                 )
             }
@@ -95,31 +113,36 @@ class SelectLocationViewModel(
                 Lc.Loading(Unit),
             )
 
+    private val TunnelState.errorCause: ErrorStateCause?
+        get() = (this as? TunnelState.Error)?.errorState?.cause
+
+    private val TunnelState.entryCountry: String?
+        get() = (this as? TunnelState.Connected)?.location?.entryCountry
+
     private val _uiSideEffect = Channel<SelectLocationSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun filterChips() =
-        combine(settingsRepository.settingsUpdates, _multihopRelayListTypeSelection) {
-                settings,
-                multihopRelayListType ->
-                if (settings?.isMultihopEnabled() == true)
-                    RelayListType.Multihop(multihopRelayListType)
+        combine(_multihopRelayListTypeSelection, multihopInEffectUseCase()) {
+                multihopRelayListType,
+                multihopActive ->
+                if (multihopActive.isMultihopInEffect) RelayListType.Multihop(multihopRelayListType)
                 else RelayListType.Single
             }
             .flatMapLatest { filterChipUseCase(it) }
 
     private fun searchButtonEnabled(
         relayList: List<RelayItem.Location.Country>,
-        relayListSelection: MultihopRelayListType,
+        relayListSelection: RelayHopType,
         settings: Settings,
     ): Boolean {
         val hasRelayListItems = relayList.isNotEmpty()
         val isEntryAndBlocked =
-            isEntryAndBlocked(multihopRelayListType = relayListSelection, settings = settings)
+            isEntryAndBlocked(hopType = relayListSelection, settings = settings)
         return hasRelayListItems && !isEntryAndBlocked
     }
 
-    fun selectRelayList(multihopRelayListType: MultihopRelayListType) {
+    fun selectRelayList(multihopRelayListType: RelayHopType) {
         viewModelScope.launch { _multihopRelayListTypeSelection.emit(multihopRelayListType) }
     }
 
@@ -133,11 +156,11 @@ class SelectLocationViewModel(
         }
     }
 
-    fun modifyMultihop(relayItem: RelayItem, multihopRelayListType: MultihopRelayListType) {
+    fun modifyMultihop(relayItem: RelayItem, multihopRelayListType: RelayHopType) {
         val change =
             when (multihopRelayListType) {
-                MultihopRelayListType.ENTRY -> MultihopChange.Entry(relayItem)
-                MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
+                RelayHopType.ENTRY -> MultihopChange.Entry(Constraint.Only(relayItem))
+                RelayHopType.EXIT -> MultihopChange.Exit(relayItem)
             }
 
         viewModelScope.launch { modifyMultihop(change = change) }
@@ -150,13 +173,17 @@ class SelectLocationViewModel(
                 {
                     when (change) {
                         is MultihopChange.Entry ->
-                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                            _multihopRelayListTypeSelection.emit(RelayHopType.EXIT)
 
                         is MultihopChange.Exit ->
                             _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                     }
                 },
             )
+    }
+
+    fun selectAutomaticMultihopEntry() {
+        viewModelScope.launch { modifyMultihop(MultihopChange.Entry(Constraint.Any)) }
     }
 
     private fun ModifyMultihopError.toSideEffect(
@@ -190,12 +217,16 @@ class SelectLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+    fun removeOwnerFilter(filterTarget: RelayHopType) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedOwnership(Constraint.Any, filterTarget)
+        }
     }
 
-    fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+    fun removeProviderFilter(filterTarget: RelayHopType) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedProviders(Constraint.Any, filterTarget)
+        }
     }
 
     fun toggleRecentsEnabled() {
@@ -215,12 +246,12 @@ class SelectLocationViewModel(
     fun toggleMultihop(enable: Boolean) {
         viewModelScope.launch {
             wireguardConstraintsRepository
-                .setMultihop(enable)
+                .setMultihop(if (enable) MultihopMode.ALWAYS else MultihopMode.NEVER)
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
                         if (enable) {
-                            _multihopRelayListTypeSelection.emit(MultihopRelayListType.EXIT)
+                            _multihopRelayListTypeSelection.emit(RelayHopType.EXIT)
                         }
                     },
                 )
@@ -231,24 +262,27 @@ class SelectLocationViewModel(
         viewModelScope.launch {
             when (undoChangeMultihopAction) {
                 UndoChangeMultihopAction.Enable ->
-                    wireguardConstraintsRepository.setMultihop(true).onLeft {
+                    wireguardConstraintsRepository.setMultihop(MultihopMode.ALWAYS).onLeft {
                         _uiSideEffect.send(SelectLocationSideEffect.GenericError)
                     }
 
                 UndoChangeMultihopAction.Disable ->
-                    wireguardConstraintsRepository.setMultihop(false).onLeft {
+                    wireguardConstraintsRepository.setMultihop(MultihopMode.NEVER).onLeft {
                         _uiSideEffect.send(SelectLocationSideEffect.GenericError)
                     }
 
                 is UndoChangeMultihopAction.DisableAndSetEntry ->
                     wireguardConstraintsRepository
-                        .setMultihopAndEntryLocation(false, undoChangeMultihopAction.relayItemId)
+                        .setMultihopAndEntryLocation(
+                            MultihopMode.NEVER,
+                            Constraint.Only(undoChangeMultihopAction.relayItemId),
+                        )
                         .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }
 
                 is UndoChangeMultihopAction.DisableAndSetExit ->
                     relayListRepository
                         .updateExitRelayLocationMultihop(
-                            false,
+                            MultihopMode.NEVER,
                             undoChangeMultihopAction.relayItemId,
                         )
                         .onLeft { _uiSideEffect.send(SelectLocationSideEffect.GenericError) }

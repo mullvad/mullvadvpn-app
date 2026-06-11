@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.feature.settings.impl
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 
 class SettingsUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, SettingsUiState>> {
@@ -15,8 +16,8 @@ class SettingsUiStatePreviewParameterProvider :
                     isSupportedVersion = true,
                     isDaitaEnabled = true,
                     isPlayBuild = true,
-                    multihopEnabled = false,
                     splitTunnelingIsActive = true,
+                    multihopMode = MultihopMode.NEVER,
                 )
                 .toLc(),
             SettingsUiState(
@@ -25,7 +26,7 @@ class SettingsUiStatePreviewParameterProvider :
                     isSupportedVersion = false,
                     isDaitaEnabled = false,
                     isPlayBuild = false,
-                    multihopEnabled = false,
+                    multihopMode = MultihopMode.NEVER,
                     splitTunnelingIsActive = false,
                 )
                 .toLc(),
@@ -35,8 +36,8 @@ class SettingsUiStatePreviewParameterProvider :
                     isSupportedVersion = false,
                     isDaitaEnabled = false,
                     isPlayBuild = false,
-                    multihopEnabled = false,
                     splitTunnelingIsActive = true,
+                    multihopMode = MultihopMode.NEVER,
                 )
                 .toLc(),
         )

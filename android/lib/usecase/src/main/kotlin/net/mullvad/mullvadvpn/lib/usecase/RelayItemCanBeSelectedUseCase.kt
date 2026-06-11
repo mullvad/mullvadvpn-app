@@ -4,16 +4,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
@@ -26,21 +24,21 @@ class RelayItemCanBeSelectedUseCase(
     operator fun invoke(relayListType: RelayListType) =
         when (relayListType) {
             is RelayListType.Multihop ->
-                validEntries(selectedAs = relayListType.multihopRelayListType.other()).map {
-                    when (relayListType.multihopRelayListType) {
-                        MultihopRelayListType.ENTRY -> ValidSelection.OnlyExit(exitIds = it)
-                        MultihopRelayListType.EXIT -> ValidSelection.OnlyEntry(entryIds = it)
+                validEntries(selectedAs = relayListType.hopType.other()).map {
+                    when (relayListType.hopType) {
+                        RelayHopType.ENTRY -> ValidSelection.OnlyExit(exitIds = it)
+                        RelayHopType.EXIT -> ValidSelection.OnlyEntry(entryIds = it)
                     }
                 }
             RelayListType.Single ->
-                validEntries(MultihopRelayListType.ENTRY).zip(
-                    validEntries(MultihopRelayListType.EXIT)
+                validEntries(RelayHopType.ENTRY).zip(
+                    validEntries(RelayHopType.EXIT)
                 ) { entries, exits ->
                     ValidSelection.Both(entryIds = entries, exitIds = exits)
                 }
         }
 
-    private fun validEntries(selectedAs: MultihopRelayListType): Flow<Set<GeoLocationId>> =
+    private fun validEntries(selectedAs: RelayHopType): Flow<Set<GeoLocationId>> =
         combine(
             relayListRepository.relayList,
             filteredRelayListUseCase(RelayListType.Multihop(selectedAs)),
@@ -56,8 +54,8 @@ class RelayItemCanBeSelectedUseCase(
                     }
                     // If exit selection, check if entry is blocked
                     if (
-                        selectedAs == MultihopRelayListType.ENTRY &&
-                            settings?.entrySelectionBlocked() == true
+                        selectedAs == RelayHopType.ENTRY &&
+                            settings?.isEntryBlocked() == true
                     ) {
                         return@filter false
                     }
@@ -66,8 +64,8 @@ class RelayItemCanBeSelectedUseCase(
                         filteredRelayCountries = filteredRelayCountries,
                         selectedRelayItem =
                             when (selectedAs) {
-                                MultihopRelayListType.EXIT -> hopSelection.entry()
-                                MultihopRelayListType.ENTRY -> hopSelection.exit()
+                                RelayHopType.EXIT -> hopSelection.entry()
+                                RelayHopType.ENTRY -> hopSelection.exit()
                             },
                         relayItem = relayItem,
                     )
@@ -91,12 +89,10 @@ class RelayItemCanBeSelectedUseCase(
             else -> true
         }
 
-    private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
-
-    private fun MultihopRelayListType.other() =
+    private fun RelayHopType.other() =
         when (this) {
-            MultihopRelayListType.ENTRY -> MultihopRelayListType.EXIT
-            MultihopRelayListType.EXIT -> MultihopRelayListType.ENTRY
+            RelayHopType.ENTRY -> RelayHopType.EXIT
+            RelayHopType.EXIT -> RelayHopType.ENTRY
         }
 }
 

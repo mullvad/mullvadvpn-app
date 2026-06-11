@@ -4,8 +4,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
-import mullvad_daemon.relay_selector.exitConstraints
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaAndNotDirectOnly
+import net.mullvad.mullvadvpn.lib.common.util.isWhenNeededMultihop
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.filter
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -13,7 +12,9 @@ import net.mullvad.mullvadvpn.lib.model.DiscardedRelay
 import net.mullvad.mullvadvpn.lib.model.EntryConstraints
 import net.mullvad.mullvadvpn.lib.model.ExitConstraints
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.NeedsOtherEntry
+import net.mullvad.mullvadvpn.lib.model.PartitionHostname
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -35,8 +36,8 @@ class FilteredRelayListUseCase(
                 .map {
                     when (relayListType) {
                         is RelayListType.Multihop ->
-                            when (relayListType.multihopRelayListType) {
-                                MultihopRelayListType.ENTRY ->
+                            when (relayListType.hopType) {
+                                RelayHopType.ENTRY ->
                                     RelaySelectorPredicate.Entry(
                                         multihopConstraints =
                                             MultihopConstraints(
@@ -45,18 +46,24 @@ class FilteredRelayListUseCase(
                                                 exitConstraints = it.toExitConstraint(),
                                             )
                                     )
-                                MultihopRelayListType.EXIT ->
-                                    RelaySelectorPredicate.Exit(
-                                        multihopConstraints =
-                                            MultihopConstraints(
-                                                entryConstraints = it.toEntryConstraint(),
-                                                exitConstraints =
-                                                    it.toExitConstraint(Constraint.Any),
-                                            )
-                                    )
+                                RelayHopType.EXIT ->
+                                    if (it.isWhenNeededMultihop()) {
+                                        RelaySelectorPredicate.Autohop(
+                                            it.toEntryConstraint(Constraint.Any)
+                                        )
+                                    } else {
+                                        RelaySelectorPredicate.Exit(
+                                            multihopConstraints =
+                                                MultihopConstraints(
+                                                    entryConstraints = it.toEntryConstraint(),
+                                                    exitConstraints =
+                                                        it.toExitConstraint(Constraint.Any),
+                                                )
+                                        )
+                                    }
                             }
                         RelayListType.Single ->
-                            if (it.isDaitaAndNotDirectOnly()) {
+                            if (it.isWhenNeededMultihop()) {
                                 RelaySelectorPredicate.Autohop(it.toEntryConstraint(Constraint.Any))
                             } else {
                                 RelaySelectorPredicate.SingleHop(
@@ -75,8 +82,10 @@ class FilteredRelayListUseCase(
             relayList.filter(partitions.relevantHostnames())
         }
 
-    private fun RelayPartitions.relevantHostnames() =
-        matches + discards.filter { it.shouldBeShown() }.map { it.hostname }
+    private fun RelayPartitions.relevantHostnames(): Map<PartitionHostname, NeedsOtherEntry> {
+        val discardsToShow = discards.filter { it.shouldBeShown() }.map { Pair(it.hostname, false) }
+        return matches + discardsToShow
+    }
 
     private fun DiscardedRelay.shouldBeShown(): Boolean =
         with(why) {
@@ -90,7 +99,9 @@ class FilteredRelayListUseCase(
                 !port
         }
 
-    private fun List<RelayItem.Location.Country>.filter(validHostnames: List<String>) = mapNotNull {
+    private fun List<RelayItem.Location.Country>.filter(
+        validHostnames: Map<PartitionHostname, NeedsOtherEntry>
+    ) = mapNotNull {
         it.filter(validHostnames)
     }
 }
@@ -102,8 +113,8 @@ private fun Settings.toEntryConstraint(
         generalConstraints =
             ExitConstraints(
                 location = overrideExitLocation ?: relaySettings.relayConstraints.location,
-                providers = relaySettings.relayConstraints.providers,
-                ownership = relaySettings.relayConstraints.ownership,
+                providers = relaySettings.relayConstraints.wireguardConstraints.entryProviders,
+                ownership = relaySettings.relayConstraints.wireguardConstraints.entryOwnership,
             ),
         obfuscation = Constraint.Only(obfuscationSettings),
         daitaSettings = Constraint.Only(tunnelOptions.daitaSettings),

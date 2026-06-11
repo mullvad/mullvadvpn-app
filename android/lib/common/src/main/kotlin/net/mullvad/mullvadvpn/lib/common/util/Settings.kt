@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Settings
 
@@ -20,9 +21,7 @@ fun Settings.wireguardPort() = obfuscationSettings.wireguardPort
 
 fun Settings.deviceIpVersion() = relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
-fun Settings.isDaitaAndDirectOnly() = isDaitaEnabled() && isDaitaDirectOnly()
-
-fun Settings.isDaitaAndNotDirectOnly() = isDaitaEnabled() && !isDaitaDirectOnly()
+fun Settings.isWhenNeededMultihop() = wireguardConstraints().multihop == MultihopMode.WHEN_NEEDED
 
 fun Settings.isQuicEnabled() = obfuscationSettings.selectedObfuscationMode == ObfuscationMode.Quic
 
@@ -32,12 +31,9 @@ fun Settings.ipVersionConstraint() = relaySettings.relayConstraints.wireguardCon
 
 fun Settings.isDaitaEnabled() = daitaSettings().enabled
 
-fun Settings.isDaitaDirectOnly() = daitaSettings().directOnly
-
 fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 
-fun Settings.isMultihopEnabled() =
-    relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
+fun Settings.multihopMode() = relaySettings.relayConstraints.wireguardConstraints.multihop
 
 fun Settings.location() = relaySettings.relayConstraints.location
 
