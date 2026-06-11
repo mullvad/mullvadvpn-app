@@ -554,7 +554,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         let viewModel = SettingsMigrationWizardViewModel(
             tunnelManager: tunnelManager,
-            output: migrationResult)
+            output: .init(changes: []))
 
         let coordinator = SettingsMigrationWizardCoordinator(
             navigationController: CustomNavigationController(),
