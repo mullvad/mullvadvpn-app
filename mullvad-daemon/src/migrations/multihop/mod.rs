@@ -271,4 +271,25 @@ mod test {
         insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
         Ok(())
     }
+
+    /// Scenario 7b.
+    /// # Expected outcome
+    /// Multihop: Always
+    /// Filters: Copied to entry.
+    #[test]
+    fn scenario_7b() -> anyhow::Result<()> {
+        let settings = SettingsBuilder::new()
+            .multihop(true)
+            .daita(true)
+            .direct_only(true)
+            .filters(true)
+            .build();
+        let scenario = migration::detect(&settings);
+        assert_eq!(scenario, Scenario::SevenB);
+        let mut settings = json!(settings);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
+        migration::migrate(&mut settings, scenario);
+        insta::assert_snapshot!(serde_json::to_string_pretty(&settings)?);
+        Ok(())
+    }
 }
