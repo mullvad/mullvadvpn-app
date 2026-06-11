@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.internal.MapSurfaceView
@@ -50,6 +51,7 @@ val LAT_UPPER_BOUND = 60f
 fun InteractiveMap(
     currLocation: MutableState<LatLong>,
     markers: List<Marker>,
+    hops: List<Hop>,
     onMarkerClick: (Marker) -> Unit,
     modifier: Modifier = Modifier,
     globeColors: GlobeColors = GlobeColors.default(),
@@ -203,6 +205,7 @@ fun InteractiveMap(
             ),
         cameraPosition = CameraPosition(latLngAnimatable.value.toLatLng(), zoomAnimatable.value),
         markers = markers,
+        hops = hops,
         onMarkerClick = onMarkerClick,
     )
 }

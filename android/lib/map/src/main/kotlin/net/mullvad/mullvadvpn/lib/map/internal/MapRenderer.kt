@@ -7,7 +7,6 @@ import android.opengl.Matrix
 import androidx.collection.LruCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import co.touchlab.kermit.Logger
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.pow
@@ -15,6 +14,7 @@ import kotlin.math.sqrt
 import kotlin.math.tan
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.Ray
@@ -24,9 +24,8 @@ import net.mullvad.mullvadvpn.lib.map.data.rotateAroundX
 import net.mullvad.mullvadvpn.lib.map.data.rotateAroundY
 import net.mullvad.mullvadvpn.lib.map.data.toVector3
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
-import net.mullvad.mullvadvpn.lib.map.internal.shapes.Hop
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
-import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.Parabola
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
 internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
@@ -48,13 +47,13 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
             }
         }
 
-    private val hopCache: LruCache<Pair<LatLong, LatLong>, Hop> =
-        object : LruCache<Pair<LatLong, LatLong>, Hop>(100) {
+    private val parabolaCache: LruCache<Hop, Parabola> =
+        object : LruCache<Hop, Parabola>(10) {
             override fun entryRemoved(
                 evicted: Boolean,
-                key: Pair<LatLong, LatLong>,
-                oldValue: Hop,
-                newValue: Hop?,
+                key: Hop,
+                oldValue: Parabola,
+                newValue: Parabola?,
             ) {
                 oldValue.onRemove()
             }
@@ -63,7 +62,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
     internal var viewState: GlobeViewState = GlobeViewState.default()
         set(value) {
             field = value
-            markerVector = viewState.locationMarkers.associateBy { it.latLong.toVector3() }
+            markerVector = viewState.markers.associateBy { it.latLong.toVector3() }
         }
 
     private val projectionMatrix = newIdentityMatrix()
@@ -71,7 +70,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
         markerCache.evictAll()
-        hopCache.evictAll()
+        parabolaCache.evictAll()
         initGLOptions()
     }
 
@@ -102,7 +101,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         globe.draw(projectionMatrix, viewMatrix, viewState.globeColors)
 
         // Draw location markers
-        viewState.locationMarkers.forEach {
+        viewState.markers.forEach {
             val marker =
                 markerCache[it.colors]
                     ?: LocationMarker(it.colors).also { markerCache.put(it.colors, it) }
@@ -110,11 +109,10 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
             marker.draw(projectionMatrix, viewMatrix, it.latLong, it.size)
         }
 
-        viewState.locationMarkers.zipWithNext() { a, b ->
-            Logger.d { "Drawing from $a to $b" }
-            val key = a.latLong to b.latLong
-            val hop = hopCache[key] ?: Hop(a.latLong, b.latLong).also { hopCache.put(key, it) }
-            hop.draw(projectionMatrix, viewMatrix)
+        viewState.hops.forEach { hop ->
+            val parabola =
+                parabolaCache[hop] ?: Parabola(hop.from, hop.to).also { parabolaCache.put(hop, it) }
+            parabola.draw(projectionMatrix, viewMatrix)
         }
     }
 
