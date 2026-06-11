@@ -60,6 +60,7 @@ pub struct QuantumResistantStateParseError;
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub struct DaitaSettings {
+    #[serde(rename = "daita")]
     pub enabled: bool,
 }
 
@@ -201,6 +202,7 @@ pub struct TunnelOptions {
     /// Obtain a PSK using the relay config client.
     pub quantum_resistant: QuantumResistantState,
     /// Configure DAITA
+    #[serde(flatten)]
     pub daita: DaitaSettings,
     /// Use userspace WireGuard.
     pub userspace: bool,
