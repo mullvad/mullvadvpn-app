@@ -2,7 +2,11 @@ name: "Android - Validate gradle wrapper"
 
 on:
   workflow_dispatch:
+  # OpenSSF scans require a HEAD run to exempt the binary jar.
   push:
+    branches:
+      - main
+  pull_request:
     paths:
       - .github/workflows/android-validate-gradle-wrapper.yml
       - '**/gradle-wrapper.jar'
