@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.GlobeViewState
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.internal.MapSurfaceView
 
 @Composable
@@ -19,9 +20,10 @@ fun Map(
     cameraPosition: CameraPosition,
     modifier: Modifier = Modifier,
     markers: List<Marker> = emptyList(),
+    hops: List<Hop> = emptyList(),
     globeColors: GlobeColors = GlobeColors.default(),
 ) {
-    val globeViewState = GlobeViewState(cameraPosition, markers, emptyList(), globeColors)
+    val globeViewState = GlobeViewState(cameraPosition, markers, hops, globeColors)
     Map(modifier = modifier, globeViewState = globeViewState)
 }
 
@@ -45,11 +47,12 @@ fun Map(
     cameraPosition: CameraPosition,
     modifier: Modifier = Modifier,
     markers: List<Marker> = emptyList(),
+    hops: List<Hop> = emptyList(),
     globeColors: GlobeColors = GlobeColors.default(),
     onMarkerClick: (Marker) -> Unit = {},
     onMarkerLongPress: (Offset, Marker) -> Unit = { _, _ -> },
 ) {
-    val globeViewState = GlobeViewState(cameraPosition, markers, emptyList(), globeColors)
+    val globeViewState = GlobeViewState(cameraPosition, markers, hops, globeColors)
     Map(modifier = modifier, globeViewState = globeViewState, onMarkerClick, onMarkerLongPress)
 }
 

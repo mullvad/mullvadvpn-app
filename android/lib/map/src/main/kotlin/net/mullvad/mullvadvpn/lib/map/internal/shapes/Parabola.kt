@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.map.internal.initShaderProgram
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
-class Hop(
+class Parabola(
     val from: LatLong,
     val to: LatLong,
     val color: Int = Color.WHITE,
