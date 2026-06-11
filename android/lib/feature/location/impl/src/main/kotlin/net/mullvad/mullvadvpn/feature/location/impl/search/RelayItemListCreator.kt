@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
@@ -108,6 +109,7 @@ private fun createRelayListItems(
     )
     addAll(
         createLocationSection(
+            selectedItem = selectedItem,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             relayListType = relayListType,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -274,6 +276,7 @@ private fun createCustomListRelayItems(
 }
 
 private fun createLocationSection(
+    selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -281,6 +284,9 @@ private fun createLocationSection(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
+    if (relayListType.isMultihopEntry) {
+        add(RelayListItem.AutomaticEntryItem(isSelected = selectedItem.isEntryLocationAutomatic()))
+    }
     addAll(
         countries.flatMap { country ->
             createGeoLocationEntry(

@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">仅 Mullvad 自有</string>
     <string name="multihop">多跳</string>
     <string name="multihop_description">多跳技术会将您的流量传输到一个 WireGuard 服务器并从另一个服务器传出，从而提高追踪的难度。这会导致延迟增加，但会提高在线匿名性。</string>
-    <string name="multihop_entry_disabled_description">%1$s的入口服务器目前被 %2$s 覆盖。要选择入口服务器，请先在设置中启用“%3$s”或停用“%2$s”。</string>
     <string name="multihop_is_disabled">多跳已停用</string>
     <string name="multihop_is_enabled">多跳已启用</string>
     <string name="name">名称</string>

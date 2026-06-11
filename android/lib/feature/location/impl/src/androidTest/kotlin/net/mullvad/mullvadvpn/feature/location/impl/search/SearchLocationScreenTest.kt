@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.impl.data.DUMMY_RELAY_ITEM_CUSTOM_LISTS
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
@@ -45,8 +46,10 @@ class SearchLocationScreenTest {
         onSelectRelayItem: (RelayItem, RelayListType) -> Unit = { _, _ -> },
         onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
         onSearchInputChanged: (String) -> Unit = {},
-        onRemoveOwnershipFilter: () -> Unit = {},
-        onRemoveProviderFilter: () -> Unit = {},
+        onRemoveOwnershipFilter: (FilterTarget) -> Unit = {},
+        onRemoveProviderFilter: (FilterTarget) -> Unit = {},
+        onSelectAutomaticEntry: () -> Unit = {},
+        onAutomaticInfoClick: () -> Unit = {},
         onGoBack: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -57,6 +60,8 @@ class SearchLocationScreenTest {
                 onSearchInputChanged = onSearchInputChanged,
                 onRemoveOwnershipFilter = onRemoveOwnershipFilter,
                 onRemoveProviderFilter = onRemoveProviderFilter,
+                onSelectAutomaticEntry = onSelectAutomaticEntry,
+                onAutomaticInfoClick = onAutomaticInfoClick,
                 onGoBack = onGoBack,
                 navigateToBottomSheet = onUpdateBottomSheetState,
             )

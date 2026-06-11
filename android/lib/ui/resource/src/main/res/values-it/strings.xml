@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Solo di proprietà di Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Il multihop instrada il tuo traffico in un server WireGuard in entrata e in un altro in uscita, rendendo più difficile il tracciamento. Questo aumenta la latenza ma aumenta anche l\'anonimato online.</string>
-    <string name="multihop_entry_disabled_description">Il server di entrata per %1$s è attualmente sovrascritto da %2$s. Per selezionare un server di entrata, prima abilita \"%3$s\" o disabilita \"%2$s\" nelle impostazioni.</string>
     <string name="multihop_is_disabled">Il multihop è disabilitato</string>
     <string name="multihop_is_enabled">Il multihop è abilitato</string>
     <string name="name">Nome</string>

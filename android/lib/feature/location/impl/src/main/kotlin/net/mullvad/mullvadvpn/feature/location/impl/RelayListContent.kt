@@ -9,12 +9,15 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -25,12 +28,17 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.ui.component.DividerButton
+import net.mullvad.mullvadvpn.lib.ui.component.listitem.LeadingContentAnimatedVisibility
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.SelectableListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.SelectableRelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.text.ListItemInfo
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemClickArea
+import net.mullvad.mullvadvpn.lib.ui.designsystem.ListItemDefaults
+import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadListItem
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Position
 import net.mullvad.mullvadvpn.lib.ui.tag.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.RECENT_CELL_TEST_TAG
@@ -42,6 +50,8 @@ fun LazyListScope.relayListContent(
     relayListItems: List<RelayListItem>,
     relayListType: RelayListType,
     onSelectRelayItem: (RelayItem) -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
     customListHeader:
@@ -76,6 +86,12 @@ fun LazyListScope.relayListContent(
                         )
                     is RelayListItem.CustomListFooter -> CustomListFooter(listItem)
                     RelayListItem.LocationHeader -> locationHeader()
+                    is RelayListItem.AutomaticEntryItem ->
+                        AutomaticItem(
+                            listItem,
+                            onSelectAutomaticEntry = onSelectAutomaticEntry,
+                            onAutomaticInfoClick = onAutomaticInfoClick,
+                        )
                     is RelayListItem.GeoLocationItem ->
                         GeoLocationItem(
                             listItem = listItem,
@@ -124,6 +140,43 @@ fun Modifier.positionalPadding(itemPosition: Position): Modifier =
         Position.Middle -> padding(top = Dimens.listItemDivider)
         Position.Bottom -> padding(top = Dimens.listItemDivider, bottom = Dimens.miniPadding)
     }
+
+@Composable
+private fun AutomaticItem(
+    listItem: RelayListItem.AutomaticEntryItem,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
+) {
+
+    val colors = ListItemDefaults.colors()
+
+    MullvadListItem(
+        modifier = Modifier.testTag(LOCATION_CELL_TEST_TAG),
+        isSelected = listItem.isSelected,
+        isEnabled = true,
+        onClick = onSelectAutomaticEntry,
+        colors = colors,
+        mainClickArea = ListItemClickArea.LeadingAndMain,
+        leadingContent = {
+            LeadingContentAnimatedVisibility(
+                modifier = Modifier.align(Alignment.Center),
+                visible = listItem.isSelected,
+            ) {
+                if (listItem.isSelected) {
+                    Icon(
+                        modifier = Modifier.padding(end = Dimens.smallPadding),
+                        imageVector = Icons.Rounded.Check,
+                        contentDescription = null,
+                    )
+                }
+            }
+        },
+        content = { Text(text = "Automatic", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        trailingContent = {
+            DividerButton(onClick = onAutomaticInfoClick, icon = Icons.Rounded.Info)
+        },
+    )
+}
 
 @Composable
 private fun GeoLocationItem(

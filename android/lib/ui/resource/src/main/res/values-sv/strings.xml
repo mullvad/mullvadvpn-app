@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
-    <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%2$s\" i inställningarna.</string>
     <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
     <string name="multihop_is_enabled">Multihopp är aktiverat</string>
     <string name="name">Namn</string>

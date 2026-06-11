@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
     <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
-    <string name="multihop_entry_disabled_description">%1$s için giriş sunucusu şu anda %2$s tarafından geçersiz kılınıyor. Bir giriş sunucusu seçmek için lütfen önce \"%3$s\"\' seçeneğini etkinleştirin veya \"%2$s\" seçeneğini devre dışı bırakın.</string>
     <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
     <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
     <string name="name">Ad</string>

@@ -793,10 +793,10 @@ private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
 
 private fun FeatureIndicator.navKey(): NavKey2 =
     when (this) {
-        FeatureIndicator.DAITA,
-        FeatureIndicator.DAITA_MULTIHOP -> DaitaNavKey(isModal = true)
-        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
+        FeatureIndicator.DAITA -> DaitaNavKey(isModal = true)
         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingNavKey(isModal = true)
+        FeatureIndicator.MULTIHOP_AUTO,
+        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
 
         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverrideNavKey(isModal = true)
 

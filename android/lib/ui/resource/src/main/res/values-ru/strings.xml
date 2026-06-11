@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
     <string name="multihop">Многократный переход</string>
     <string name="multihop_description">Функция «Многократный переход» перенаправляет трафик с одного сервера WireGuard на другой, что затрудняет отслеживание. Это увеличивает задержку, но зато повышает анонимность в сети.</string>
-    <string name="multihop_entry_disabled_description">Сервер входа для функции «%1$s» в настоящее время переопределен функцией %2$s. Чтобы выбрать сервер входа вручную, сначала включите пункт «%3$s» или отключите %2$s в настройках.</string>
     <string name="multihop_is_disabled">Многократный переход отключен</string>
     <string name="multihop_is_enabled">Многократный переход включен</string>
     <string name="name">Имя</string>
