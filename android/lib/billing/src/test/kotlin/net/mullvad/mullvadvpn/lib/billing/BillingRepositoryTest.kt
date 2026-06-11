@@ -5,6 +5,7 @@ import android.content.Context
 import app.cash.turbine.test
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
+import com.android.billingclient.api.BillingClient.OnPurchasesUpdatedSubResponseCode.PAYMENT_DECLINED_DUE_TO_INSUFFICIENT_FUNDS
 import com.android.billingclient.api.BillingClientStateListener
 import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
@@ -276,7 +277,7 @@ class BillingRepositoryTest {
             // Arrange
             val responseCode = BillingResponseCode.ITEM_UNAVAILABLE
             val message = "ERROR"
-            val expectedError = BillingException(responseCode, message)
+            val expectedError = BillingException(responseCode = responseCode, message = message)
             val mockResult: PurchasesResult = mockk()
             every { mockResult.billingResult.responseCode } returns responseCode
             every { mockResult.billingResult.debugMessage } returns message
@@ -341,10 +342,13 @@ class BillingRepositoryTest {
         val mockDebugMessage = "ERROR"
         val mockBillingResult: BillingResult = mockk()
         val mockResponseCode: Int = BillingResponseCode.ERROR
+        val mockOnPurchasesUpdatedSubResponseCode = PAYMENT_DECLINED_DUE_TO_INSUFFICIENT_FUNDS
         val expectedError =
             BillingException(responseCode = mockResponseCode, message = mockDebugMessage)
         every { mockBillingResult.responseCode } returns mockResponseCode
         every { mockBillingResult.debugMessage } returns mockDebugMessage
+        every { mockBillingResult.onPurchasesUpdatedSubResponseCode } returns
+            mockOnPurchasesUpdatedSubResponseCode
 
         // Act, Assert
         billingRepository.purchaseEvents.test {

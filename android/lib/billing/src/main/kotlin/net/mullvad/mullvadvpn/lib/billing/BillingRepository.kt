@@ -51,6 +51,7 @@ class BillingRepository(context: Context) {
                             exception =
                                 BillingException(
                                     responseCode = result.responseCode,
+                                    subResponseCode = result.onPurchasesUpdatedSubResponseCode,
                                     message = result.debugMessage,
                                 )
                         )
@@ -104,7 +105,10 @@ class BillingRepository(context: Context) {
                     } else {
                         if (continuation.isActive) {
                             continuation.resumeWithException(
-                                BillingException(result.responseCode, result.debugMessage)
+                                BillingException(
+                                    responseCode = result.responseCode,
+                                    message = result.debugMessage,
+                                )
                             )
                         }
                     }
@@ -183,7 +187,7 @@ class BillingRepository(context: Context) {
             billingClient.queryProductDetails(params.build())
         } catch (billingException: BillingException) {
             ProductDetailsResult(billingException.toBillingResult(), null)
-        } catch (t: Throwable) {
+        } catch (_: Throwable) {
             ProductDetailsResult(
                 BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build(),
                 null,

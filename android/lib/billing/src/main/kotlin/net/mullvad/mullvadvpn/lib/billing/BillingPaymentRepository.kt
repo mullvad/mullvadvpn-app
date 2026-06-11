@@ -108,7 +108,10 @@ class BillingPaymentRepository(
         } else {
             emit(
                 PurchaseResult.Error.BillingError(
-                    BillingException(result.responseCode, result.debugMessage)
+                    BillingException(
+                        responseCode = result.responseCode,
+                        message = result.debugMessage,
+                    )
                 )
             )
             return@flow
