@@ -112,7 +112,7 @@ extension RelayFilterSelection {
                 settings.daita.isEnabled ? .daita : nil,
                 settings.wireGuardObfuscation.state.isEnabled ? .obfuscation(settings.wireGuardObfuscation.state) : nil,
             ].compactMap { $0 }
-            shouldShowFilterSettingsView = !filters.isEmpty || shouldShowAutomaticFilterOverrideNotice
+            shouldShowFilterSettingsView = !filters.isEmpty
         }
 
         private func updateAutomaticLocationStatus() {
@@ -121,6 +121,10 @@ extension RelayFilterSelection {
 
         func onFilterTapped(_ filter: SelectLocationFilter) {
             self.onFeatureChipTapped?(filter)
+        }
+
+        var canShowFilterSettings: Bool {
+            multihopContext == .entry || settings.tunnelMultihopState == .never
         }
 
         private var relays: [REST.ServerRelay] { relaysWithLocation.relays }
