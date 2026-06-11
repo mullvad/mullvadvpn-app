@@ -320,12 +320,13 @@ cargo {
         }
     targetDirectory = "$repoRootPath/target"
     features {
-        val enabledFeatures = buildList {
-            if (enableApiOverride) {
-                add("api-override")
-            }
-        }
-            .toTypedArray()
+        val enabledFeatures =
+            buildList {
+                    if (enableApiOverride) {
+                        add("api-override")
+                    }
+                }
+                .toTypedArray()
 
         @Suppress("SpreadOperator") defaultAnd(*enabledFeatures)
     }

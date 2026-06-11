@@ -27,6 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -253,9 +254,11 @@ class VpnSettingsViewModelTest {
                             RelayConstraints(
                                 wireguardConstraints =
                                     WireguardConstraints(
-                                        isMultihopEnabled = false,
+                                        multihop = MultihopMode.NEVER,
                                         entryLocation = Constraint.Any,
                                         ipVersion = Constraint.Any,
+                                        entryOwnership = Constraint.Any,
+                                        entryProviders = Constraint.Any,
                                     ),
                                 providers = Constraint.Any,
                                 ownership = Constraint.Any,

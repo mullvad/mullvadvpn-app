@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåker disse datapakkene, gjør %1$s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s gjør det ved å legge til nettverkstøy på en forsiktig måte og sørge for at alle nettverkspakker har den samme størrelsen.</string>
     <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
-    <string name="daita_multihop">%1$s: Multihopp</string>
     <string name="days_were_added_30">30 dager ble lagt til kontoen din.</string>
     <string name="days_were_added_90">90 dager ble lagt til kontoen din.</string>
     <string name="delete">Slett</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Kun eid av Mullvad</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerer trafikken din inn på én WireGuard-server og ut på en annen, noe som gjør det vanskeligere å spore den. Dette resulterer i økt ventetid, men øker anonymiteten på nettet.</string>
-    <string name="multihop_entry_disabled_description">Inngangsserveren for %1$s overstyres for øyeblikket av %2$s. For å velge en inngangsserver må du først aktivere «%3$s» eller deaktivere «%2$s» i innstillingene.</string>
     <string name="multihop_is_disabled">Multihopp er deaktivert</string>
     <string name="multihop_is_enabled">Multihopp er aktivert</string>
     <string name="name">Navn</string>
@@ -359,7 +357,6 @@
     <string name="on">På</string>
     <string name="ongoing_verification_warning">Det siste kjøpet ditt blir fortsatt verifisert. Hvis du logger inn på en annen konto, vil verifiseringen mislykkes. Vil du likevel logge ut?</string>
     <string name="open_app_details">Åpne appdetaljer</string>
-    <string name="open_feature_settings">Åpne innstillinger for %1$s</string>
     <string name="open_url">Åpne URL</string>
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="overrides_cleared">Overstyringer fjernet</string>

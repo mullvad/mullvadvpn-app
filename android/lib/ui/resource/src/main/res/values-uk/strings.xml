@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">У разі моніторингу цих пакетів даних %1$s значно ускладнює визначення того, які вебсайти ви відвідуєте або з ким спілкуєтеся.</string>
     <string name="daita_description_slide_2_second_paragraph">Для цього %1$s додає мережевий шум й уніфікує розмір усіх пакетів.</string>
     <string name="daita_info">Після ввімкнення параметра «%1$s» вам потрібно вручну вибрати сервер із підтримкою %2$s. До вибору сумісного сервера в розділі «Вибір розташування» ви можете бути заблоковані.</string>
-    <string name="daita_multihop">%1$s: подвійний VPN</string>
     <string name="days_were_added_30">На баланс облікового запису додано 30 днів.</string>
     <string name="days_were_added_90">На баланс облікового запису додано 90 днів.</string>
     <string name="delete">Видалити</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
     <string name="multihop_description">Подвійний VPN спрямовує ваш трафік з одного сервера WireGuard на інший, що ускладнює відстеження. Це збільшує затримку, але підвищує анонімність в Інтернеті.</string>
-    <string name="multihop_entry_disabled_description">Сервер входу для функції «%1$s» зараз перевизначено функцією %2$s. Щоб вибрати сервер входу, спочатку ввімкніть «%3$s» або вимкніть «%2$s» у налаштуваннях.</string>
     <string name="multihop_is_disabled">Подвійний VPN вимкнено</string>
     <string name="multihop_is_enabled">Подвійний VPN увімкнено</string>
     <string name="name">Ім’я</string>
@@ -359,7 +357,6 @@
     <string name="on">Увімк.</string>
     <string name="ongoing_verification_warning">Перевірка вашої останньої покупки ще не завершена. Якщо ви ввійдете в інший обліковий запис, її буде перервано. Усе одно вийти?</string>
     <string name="open_app_details">Відкрити відомості про застосунок</string>
-    <string name="open_feature_settings">Відкрити налаштування %1$s</string>
     <string name="open_url">Відкрити URL</string>
     <string name="out_of_time">Закінчився час</string>
     <string name="overrides_cleared">Перевизначення видалені</string>

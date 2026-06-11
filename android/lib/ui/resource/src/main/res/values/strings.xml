@@ -72,7 +72,6 @@
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>]]>
     </string>
     <string name="mtu">MTU</string>
-
     <string name="mtu_x">Value: %s</string>
     <string name="wireguard_mtu_footer">Set WireGuard MTU value. Valid range: %1$d - %2$d.</string>
     <string name="hint_default">Default</string>
@@ -106,6 +105,7 @@
     <string name="udp">UDP</string>
     <string name="internet">Internet</string>
     <string name="your_device">Your device</string>
+    <string name="your_device_with_location">Your device (%s)</string>
     <string name="blocking_internet">Blocking internet</string>
     <string name="blocking_internet_device_offline">Blocking internet (device offline)</string>
     <string name="invalid_dns_servers">Custom DNS server addresses %1$s are invalid</string>
@@ -165,7 +165,6 @@
     <string name="legacy_always_on_vpn_error_notification_content">Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN.</string>
     <string name="vpn_permission_error_notification_title">VPN permission error</string>
     <string name="vpn_permission_error_notification_message">Please press connect to request VPN permission</string>
-
     <string name="new_device_notification_title">NEW DEVICE CREATED</string>
     <string name="new_device_notification_message">
         <![CDATA[Welcome, this device is now called <b>%s</b>.]]>
@@ -193,6 +192,7 @@
     <string name="dns_content_blockers_subtitle">Disable \"%s\" below to activate these settings.</string>
     <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
     <string name="automatic">Automatic</string>
+    <string name="automatic_with_country">Automatic (%s)</string>
     <string name="off">Off</string>
     <string name="none">None</string>
     <string name="created_x">Created: %s</string>
@@ -365,8 +365,13 @@
     <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.</string>
     <string name="connection_details_out">Out</string>
     <string name="multihop">Multihop</string>
+    <string name="multihop_when_needed">Multihop when needed</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
+    <string name="multihop_when_needed_info_first_paragraph">If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol.</string>
+    <string name="automatic_entry_info_first_paragraph">Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load.</string>
+    <string name="automatic_entry_warning">Attention: This will ignore filter settings for the server that is being used as an entry point.</string>
     <string name="x_via_x">%1$s via %2$s</string>
+    <string name="via_country_city">via %1$s, %2$s</string>
     <string name="country_comma_city">%1$s, %2$s</string>
     <string name="country_comma_city_comma_relay">%1$s, %2$s, %3$s</string>
     <string name="entry">Entry</string>
@@ -383,8 +388,7 @@
     <string name="direct_only">Direct only</string>
     <string name="enable_direct_only">Enable %1$s</string>
     <string name="direct_only_description">Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
-    <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%2$s\" in the settings.</string>
-    <string name="open_feature_settings">Open %1$s settings</string>
+    <string name="multihop_entry_disabled_description">An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”.</string>
     <string name="search">Search</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="device_ip_version_title">Device IP version</string>
@@ -399,7 +403,6 @@
     <string name="ip_version_v6_unavailable">IPv6 is not available, please try changing \"Device IP version\" setting.</string>
     <string name="device_ip_info_first_paragraph">This feature allows you to choose whether to use only IPv4, only IPv6, or allow the app to automatically decide the best option when connecting to a server.</string>
     <string name="device_ip_info_second_paragraph">It can be useful when you are aware of problems caused by a certain IP version.</string>
-    <string name="daita_multihop">%s: Multihop</string>
     <string name="vpn_permission_denied_error_no_vpn_settings">VPN permission was denied</string>
     <string name="vpn_settings_not_available">VPN Settings not available on device</string>
     <string name="wireguard_port_is_not_supported">The selected %s port is not supported, please change it under</string>
@@ -464,6 +467,7 @@
     <string name="warning">Warning</string>
     <string name="info">Info</string>
     <string name="add_to_list">Add to list</string>
+    <string name="set_multihop_to_always">Set multihop to “Always”</string>
     <string name="set_as_multihop_entry">Set as multihop entry</string>
     <string name="set_as_multihop_exit">Set as multihop exit</string>
     <string name="multihop_is_enabled">Multihop is enabled</string>
@@ -546,4 +550,8 @@
     <string name="verification_failed_dialog_message">We couldn’t verify your latest purchase. Please check your internet connection and try again. If the issue persists, please contact support.</string>
     <string name="payment_status_verification_failed">Google Play payment verification failed</string>
     <string name="ongoing_verification_warning">Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?</string>
+    <string name="always">Always</string>
+    <string name="never">Never</string>
+    <string name="when_needed">When needed</string>
+    <string name="mode">Mode</string>
 </resources>

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Info
@@ -76,6 +77,7 @@ fun InfoDialog(
     message: AnnotatedString,
     additionalInfo: CharSequence? = null,
     showIcon: Boolean = true,
+    messageInlineContent: Map<String, InlineTextContent> = mapOf(),
     onDismiss: () -> Unit,
     confirmButton: @Composable () -> Unit = {
         PrimaryButton(
@@ -119,6 +121,7 @@ fun InfoDialog(
                     text = message,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelLarge,
+                    inlineContent = messageInlineContent,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 if (additionalInfo != null) {

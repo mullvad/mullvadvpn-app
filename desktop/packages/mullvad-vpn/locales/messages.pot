@@ -3030,9 +3030,6 @@ msgstr ""
 msgid "%s was added to your account."
 msgstr ""
 
-msgid "%s: Multihop"
-msgstr ""
-
 msgid "(%d)"
 msgstr ""
 
@@ -3150,6 +3147,9 @@ msgstr ""
 msgid "Always-on VPN assigned to other VPN"
 msgstr ""
 
+msgid "An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”."
+msgstr ""
+
 msgid "Android 16 has a known issue. Please restart your device and try again. To learn more,"
 msgstr ""
 
@@ -3174,10 +3174,16 @@ msgstr ""
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
+msgid "Attention: This will ignore filter settings for the server that is being used as an entry point."
+msgstr ""
+
 msgid "Auto-connect & Lockdown mode"
 msgstr ""
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
+msgstr ""
+
+msgid "Automatic (%s)"
 msgstr ""
 
 msgid "Automatically connect on device start-up."
@@ -3420,6 +3426,9 @@ msgstr ""
 msgid "If these steps don’t work, please send an email to support using the button below. It will automatically attach the logs which have been anonymized."
 msgstr ""
 
+msgid "If your current location does not support your preferences, such as anti-censorship method, filters, and/or DAITA, multihop will be used automatically to connect to that location via a compatible server. This will be indicated by the %1$s symbol."
+msgstr ""
+
 msgid "Import new overrides by"
 msgstr ""
 
@@ -3490,6 +3499,9 @@ msgid "Multihop is disabled"
 msgstr ""
 
 msgid "Multihop is enabled"
+msgstr ""
+
+msgid "Multihop when needed"
 msgstr ""
 
 msgid "Name is already taken."
@@ -3565,6 +3577,9 @@ msgid "Paste or write overrides to be imported"
 msgstr ""
 
 msgid "Patch not matching specification"
+msgstr ""
+
+msgid "Picks a suitable location based on your exit location, this is based on a number of different factors such as distance, provider, and server load."
 msgstr ""
 
 msgid "Please enter a message"
@@ -3667,6 +3682,9 @@ msgid "Set as multihop exit"
 msgstr ""
 
 msgid "Set as multihop exit (incompatible)"
+msgstr ""
+
+msgid "Set multihop to “Always”"
 msgstr ""
 
 msgid "Set port"
@@ -3921,6 +3939,9 @@ msgstr ""
 msgid "Your device"
 msgstr ""
 
+msgid "Your device (%s)"
+msgstr ""
+
 msgid "Your latest purchase is still being verified. Logging in to another account will cause the verification to fail. Do you still want to log out?"
 msgstr ""
 
@@ -3943,6 +3964,9 @@ msgid "privacy policy"
 msgstr ""
 
 msgid "read more here"
+msgstr ""
+
+msgid "via %1$s, %2$s"
 msgstr ""
 
 msgid "%d day"

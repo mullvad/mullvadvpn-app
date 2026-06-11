@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
-    <string name="daita_multihop">%1$s: multihop</string>
     <string name="days_were_added_30">Er zijn 30 dagen toegevoegd aan uw account.</string>
     <string name="days_were_added_90">Er zijn 90 dagen toegevoegd aan uw account.</string>
     <string name="delete">Verwijderen</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
-    <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%2$s\" uitschakelen in de instellingen.</string>
     <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
     <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
     <string name="name">Naam</string>
@@ -359,7 +357,6 @@
     <string name="on">Aan</string>
     <string name="ongoing_verification_warning">Uw laatste aankoop wordt nog geverifieerd. Als u zich aanmeldt bij een ander account, mislukt de verificatie. Wilt u zich toch afmelden?</string>
     <string name="open_app_details">Appgegevens openen</string>
-    <string name="open_feature_settings">%1$s-instellingen openen</string>
     <string name="open_url">URL openen</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>

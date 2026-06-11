@@ -26,6 +26,7 @@ private val DUMMY_RELAY_1 =
         cityName = "Relay City 1",
         countryName = "Relay Country 1",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_2 =
     RelayItem.Location.Relay(
@@ -43,6 +44,7 @@ private val DUMMY_RELAY_2 =
         cityName = "Relay City 2",
         countryName = "Relay Country 2",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_3 =
     RelayItem.Location.Relay(
@@ -60,6 +62,7 @@ private val DUMMY_RELAY_3 =
         cityName = "Relay City 3",
         countryName = "Relay Country 3",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_4 =
     RelayItem.Location.Relay(
@@ -77,6 +80,7 @@ private val DUMMY_RELAY_4 =
         cityName = "Relay City 4",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_5 =
     RelayItem.Location.Relay(
@@ -94,6 +98,7 @@ private val DUMMY_RELAY_5 =
         cityName = "Relay City 5",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_6 =
     RelayItem.Location.Relay(
@@ -111,6 +116,7 @@ private val DUMMY_RELAY_6 =
         cityName = "Relay City 5",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_7 =
     RelayItem.Location.Relay(
@@ -128,6 +134,7 @@ private val DUMMY_RELAY_7 =
         cityName = "Relay City 5",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_8 =
     RelayItem.Location.Relay(
@@ -145,6 +152,7 @@ private val DUMMY_RELAY_8 =
         cityName = "Relay City 5",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_9 =
     RelayItem.Location.Relay(
@@ -162,6 +170,7 @@ private val DUMMY_RELAY_9 =
         cityName = "Relay City 5",
         countryName = "Relay Country 4",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_10 =
     RelayItem.Location.Relay(
@@ -179,6 +188,7 @@ private val DUMMY_RELAY_10 =
         cityName = "Relay City 4",
         countryName = "Relay Country 5",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_11 =
     RelayItem.Location.Relay(
@@ -196,6 +206,7 @@ private val DUMMY_RELAY_11 =
         cityName = "Relay City 4",
         countryName = "Relay Country 5",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_12 =
     RelayItem.Location.Relay(
@@ -213,6 +224,7 @@ private val DUMMY_RELAY_12 =
         cityName = "Relay City 4",
         countryName = "Relay Country 5",
         latLong = LatLong(0f, 0f),
+        needsOtherEntry = false,
     )
 private val DUMMY_RELAY_CITY_1 =
     RelayItem.Location.City(

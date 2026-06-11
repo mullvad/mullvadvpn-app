@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -94,7 +95,7 @@ class AppInteractor(
         wireguardPort: Constraint<Port>? = null,
         localNetworkSharing: Boolean? = null,
         daita: DaitaOption? = null,
-        multihop: Boolean? = null,
+        multihop: MultihopMode? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
         location: RelayItemId? = null,
     ) = coroutineScope {

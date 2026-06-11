@@ -14,6 +14,11 @@ data class SelectLocationUiState(
     val isRecentsEnabled: Boolean,
     val hopSelection: HopSelection,
     val tunnelErrorStateCause: ErrorStateCause?,
+    val isEntryFilteringEnabled: Boolean,
+    val lastKnownLocation: String?,
+    val entryCountry: String?,
+    val hasAnyEntryFilter: Boolean,
+    val hasAnyExitFilter: Boolean,
 ) {
     val multihopEnabled: Boolean = hopSelection is HopSelection.Multi
     val relayListType =

@@ -22,6 +22,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.MultihopConstraints
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -152,11 +153,10 @@ internal fun CustomList.fromDomain(): ManagementInterface.CustomList =
 
 internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardConstraints =
     ManagementInterface.WireguardConstraints.newBuilder()
-        .setMultihop(
-            if (isMultihopEnabled) ManagementInterface.WireguardConstraints.Multihop.Always
-            else ManagementInterface.WireguardConstraints.Multihop.Never
-        )
+        .setMultihop(multihop.fromDomain())
         .setEntryLocation(entryLocation.fromDomain())
+        .setEntryOwnership(entryOwnership.fromDomain())
+        .addAllEntryProviders(entryProviders.fromDomain())
         .let {
             when (val ipVersion = ipVersion) {
                 is Constraint.Any -> it.clearIpVersion()
@@ -164,6 +164,13 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
             }
         }
         .build()
+
+internal fun MultihopMode.fromDomain(): ManagementInterface.WireguardConstraints.Multihop =
+    when (this) {
+        MultihopMode.WHEN_NEEDED -> ManagementInterface.WireguardConstraints.Multihop.Auto
+        MultihopMode.ALWAYS -> ManagementInterface.WireguardConstraints.Multihop.Always
+        MultihopMode.NEVER -> ManagementInterface.WireguardConstraints.Multihop.Never
+    }
 
 internal fun Ownership.fromDomain(): ManagementInterface.Ownership =
     when (this) {

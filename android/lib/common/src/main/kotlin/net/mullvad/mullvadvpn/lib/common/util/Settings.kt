@@ -36,8 +36,7 @@ fun Settings.isDaitaDirectOnly() = daitaSettings().directOnly
 
 fun Settings.shadowSocksPort() = obfuscationSettings.shadowsocks.port
 
-fun Settings.isMultihopEnabled() =
-    relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
+fun Settings.multihopMode() = relaySettings.relayConstraints.wireguardConstraints.multihop
 
 fun Settings.location() = relaySettings.relayConstraints.location
 
