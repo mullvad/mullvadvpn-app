@@ -1,0 +1,45 @@
+---
+source: mullvad-daemon/src/migrations/multihop/mod.rs
+expression: "serde_json::to_string_pretty(&settings)?"
+---
+{
+  "relay_settings": {
+    "normal": {
+      "location": "any",
+      "ownership": {
+        "only": "MullvadOwned"
+      },
+      "providers": {
+        "only": {
+          "providers": [
+            "31337"
+          ]
+        }
+      },
+      "wireguard_constraints": {
+        "allowed_ips": "any",
+        "entry_location": "any",
+        "entry_ownership": {
+          "only": "MullvadOwned"
+        },
+        "entry_providers": {
+          "only": {
+            "providers": [
+              "31337"
+            ]
+          }
+        },
+        "ip_version": "any",
+        "multihop": "never"
+      }
+    }
+  },
+  "tunnel_options": {
+    "wireguard": {
+      "daita": false,
+      "mtu": null,
+      "quantum_resistant": null,
+      "rotation_interval": null
+    }
+  }
+}
