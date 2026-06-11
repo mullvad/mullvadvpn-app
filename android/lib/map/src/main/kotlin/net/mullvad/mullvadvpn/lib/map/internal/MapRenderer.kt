@@ -7,6 +7,7 @@ import android.opengl.Matrix
 import androidx.collection.LruCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import co.touchlab.kermit.Logger
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.math.pow
@@ -23,7 +24,9 @@ import net.mullvad.mullvadvpn.lib.map.data.rotateAroundX
 import net.mullvad.mullvadvpn.lib.map.data.rotateAroundY
 import net.mullvad.mullvadvpn.lib.map.data.toVector3
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
+import net.mullvad.mullvadvpn.lib.map.internal.shapes.Hop
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
+import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.toRadians
 
 internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
@@ -45,10 +48,22 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
             }
         }
 
+    private val hopCache: LruCache<Pair<LatLong, LatLong>, Hop> =
+        object : LruCache<Pair<LatLong, LatLong>, Hop>(100) {
+            override fun entryRemoved(
+                evicted: Boolean,
+                key: Pair<LatLong, LatLong>,
+                oldValue: Hop,
+                newValue: Hop?,
+            ) {
+                oldValue.onRemove()
+            }
+        }
+
     internal var viewState: GlobeViewState = GlobeViewState.default()
         set(value) {
             field = value
-            markerVector = viewState.locationMarker.associateBy { it.latLong.toVector3() }
+            markerVector = viewState.locationMarkers.associateBy { it.latLong.toVector3() }
         }
 
     private val projectionMatrix = newIdentityMatrix()
@@ -56,6 +71,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
         markerCache.evictAll()
+        hopCache.evictAll()
         initGLOptions()
     }
 
@@ -86,12 +102,19 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
         globe.draw(projectionMatrix, viewMatrix, viewState.globeColors)
 
         // Draw location markers
-        viewState.locationMarker.forEach {
+        viewState.locationMarkers.forEach {
             val marker =
                 markerCache[it.colors]
                     ?: LocationMarker(it.colors).also { markerCache.put(it.colors, it) }
 
             marker.draw(projectionMatrix, viewMatrix, it.latLong, it.size)
+        }
+
+        viewState.locationMarkers.zipWithNext() { a, b ->
+            Logger.d { "Drawing from $a to $b" }
+            val key = a.latLong to b.latLong
+            val hop = hopCache[key] ?: Hop(a.latLong, b.latLong).also { hopCache.put(key, it) }
+            hop.draw(projectionMatrix, viewMatrix)
         }
     }
 
