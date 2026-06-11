@@ -34,12 +34,11 @@ class DaitaViewModelTest {
     @Test
     fun `given daita enabled ui state should be daita enabled`() = runTest {
         // Arrange
-        val expectedState = DaitaUiState(daitaEnabled = true, directOnly = false)
+        val expectedState = DaitaUiState(daitaEnabled = true)
         settings.value = mockk {
             every { tunnelOptions.daitaSettings } returns
                 mockk {
                     every { enabled } returns true
-                    every { directOnly } returns false
                 }
         }
 
@@ -54,12 +53,11 @@ class DaitaViewModelTest {
     @Test
     fun `given direct only enabled ui state should be direct only enabled`() = runTest {
         // Arrange
-        val expectedState = DaitaUiState(daitaEnabled = false, directOnly = true)
+        val expectedState = DaitaUiState(daitaEnabled = false)
         settings.value = mockk {
             every { tunnelOptions.daitaSettings } returns
                 mockk {
                     every { enabled } returns false
-                    every { directOnly } returns true
                 }
         }
 
@@ -81,17 +79,5 @@ class DaitaViewModelTest {
 
         // Assert
         coVerify { mockSettingsRepository.setDaitaEnabled(true) }
-    }
-
-    @Test
-    fun `set direct only should call settings repository set daita direct only`() {
-        // Arrange
-        coEvery { mockSettingsRepository.setDaitaDirectOnly(any()) } returns Unit.right()
-
-        // Act
-        viewModel.setDirectOnly(true)
-
-        // Assert
-        coVerify { mockSettingsRepository.setDaitaDirectOnly(true) }
     }
 }

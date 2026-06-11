@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.EntryRecent
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -24,7 +24,7 @@ class RecentsUseCase(
 
     operator fun invoke(relayListType: RelayListType): Flow<List<RecentItem>?> =
         when (relayListType) {
-            is RelayListType.Multihop -> multihopRecents(relayListType.multihopRelayListType)
+            is RelayListType.Multihop -> multihopRecents(relayListType.hopType)
             RelayListType.Single -> singlehopRecents()
         }
 
@@ -35,12 +35,12 @@ class RecentsUseCase(
             customListsRelayItemUseCase(RelayListType.Single),
         ) { recents, relayList, customLists ->
             recents?.exit?.mapNotNull { recent ->
-                recent.location.findItem(customLists, relayList)
+                recent.location.findItem(customLists, relayList.countries)
             }
         }
 
     private fun multihopRecents(
-        multihopRelayListType: MultihopRelayListType
+        multihopRelayListType: RelayHopType
     ): Flow<List<RecentItem>?> =
         combine(
             recents(),
@@ -50,17 +50,17 @@ class RecentsUseCase(
             val enabled = recents ?: return@combine null
 
             when (multihopRelayListType) {
-                MultihopRelayListType.ENTRY ->
+                RelayHopType.ENTRY ->
                     enabled.entry.mapNotNull { recent ->
                         when (recent) {
                             EntryRecent.Automatic -> RecentItem.Automatic
                             is EntryRecent.Location ->
-                                recent.location.findItem(customLists, relayList)
+                                recent.location.findItem(customLists, relayList.countries)
                         }
                     }
-                MultihopRelayListType.EXIT ->
+                RelayHopType.EXIT ->
                     enabled.exit.mapNotNull { recent ->
-                        recent.location.findItem(customLists, relayList)
+                        recent.location.findItem(customLists, relayList.countries)
                     }
             }
         }

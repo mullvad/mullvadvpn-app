@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaInactive
 
 @Preview
@@ -39,7 +40,7 @@ fun DividerButton(
         VerticalDivider(thickness = VerticalDividerWidth)
         Box(
             modifier =
-                Modifier.width(DividerButtonWidth)
+                Modifier.width(Dimens.dividerButtonWidth)
                     .fillMaxHeight()
                     .clickable(enabled = isEnabled, onClick = onClick),
             contentAlignment = Alignment.Center,
@@ -56,5 +57,4 @@ fun DividerButton(
     }
 }
 
-private val DividerButtonWidth = 64.dp
 private val VerticalDividerWidth = 2.dp

@@ -24,16 +24,12 @@ class DaitaScreenTest {
     private fun ComposeContext.initScreen(
         state: Lc<Boolean, DaitaUiState> = Lc.Loading(false),
         onDaitaEnabled: (enable: Boolean) -> Unit = {},
-        onDirectOnlyClick: (enable: Boolean) -> Unit = {},
-        onDirectOnlyInfoClick: () -> Unit = {},
         onBackClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             DaitaScreen(
                 state,
                 onDaitaEnabled,
-                onDirectOnlyClick,
-                onDirectOnlyInfoClick,
                 onBackClick,
             )
         }

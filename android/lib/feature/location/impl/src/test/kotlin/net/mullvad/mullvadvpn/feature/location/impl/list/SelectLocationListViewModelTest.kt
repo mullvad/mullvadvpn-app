@@ -16,11 +16,11 @@ import net.mullvad.mullvadvpn.feature.location.impl.search.relayListItems
 import net.mullvad.mullvadvpn.lib.common.Lce
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
-import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
-import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
+import net.mullvad.mullvadvpn.lib.model.RelayHopType
 import net.mullvad.mullvadvpn.lib.model.RecentItem
 import net.mullvad.mullvadvpn.lib.model.Recents
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -31,6 +31,7 @@ import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
+import net.mullvad.mullvadvpn.lib.usecase.FilteredCountries
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
@@ -55,12 +56,12 @@ class SelectLocationListViewModelTest {
 
     private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
 
-    private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
+    private val filteredRelayList = MutableStateFlow(FilteredCountries())
     private val selectedLocationFlow = MutableStateFlow<RelayItemSelection>(mockk(relaxed = true))
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
-    private val recentsRelayItems = MutableStateFlow<List<RecentItem>>(emptyList())
+    private val recentsRelayItems = MutableStateFlow<List<RecentItem>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel
@@ -102,7 +103,7 @@ class SelectLocationListViewModelTest {
     fun `given filteredRelayList emits update uiState should contain new update`() = runTest {
         // Arrange
         viewModel = createSelectLocationListViewModel(RelayListType.Single)
-        filteredRelayList.value = testCountries
+        filteredRelayList.value = FilteredCountries(testCountries)
         val selectedId = testCountries.first().id
         selectedLocationFlow.value = RelayItemSelection.Single(Constraint.Only(selectedId))
 
@@ -127,7 +128,7 @@ class SelectLocationListViewModelTest {
     fun `given relay is not selected all relay items should not be selected`() = runTest {
         // Arrange
         viewModel = createSelectLocationListViewModel(RelayListType.Single)
-        filteredRelayList.value = testCountries
+        filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Single(Constraint.Any)
 
         // Act, Assert
@@ -152,16 +153,16 @@ class SelectLocationListViewModelTest {
             // Arrange
             viewModel =
                 createSelectLocationListViewModel(
-                    RelayListType.Multihop(MultihopRelayListType.EXIT)
+                    RelayListType.Multihop(RelayHopType.EXIT)
                 )
-            filteredRelayList.value = testCountries
+            filteredRelayList.value = FilteredCountries(testCountries)
             val exitLocation = Constraint.Only(GeoLocationId.Country("us"))
             selectedLocationFlow.value =
                 RelayItemSelection.Multiple(
                     entryLocation = Constraint.Only(GeoLocationId.Country("se")),
                     exitLocation = exitLocation,
                 )
-            every { settings.value.entryBlocked() } returns true
+            every { settings.value.isEntryBlocked() } returns true
 
             // Act, Assert
             viewModel.uiState.test {
@@ -169,7 +170,7 @@ class SelectLocationListViewModelTest {
 
                 verify {
                     relayListItems(
-                        relayListType = RelayListType.Multihop(MultihopRelayListType.EXIT),
+                        relayListType = RelayListType.Multihop(RelayHopType.EXIT),
                         relayCountries = testCountries,
                         customLists = any(),
                         recents = any(),
@@ -177,6 +178,7 @@ class SelectLocationListViewModelTest {
                         selectedByThisEntryExitList = exitLocation.getOrNull(),
                         selectedByOtherEntryExitList = null,
                         expandedItems = emptySet(),
+                        relayMetadata = emptyMap(),
                     )
                 }
             }
@@ -186,11 +188,11 @@ class SelectLocationListViewModelTest {
     fun `given relay type entry list and entry blocked uiState should be error`() = runTest {
         // Arrange
         viewModel =
-            createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.ENTRY))
-        filteredRelayList.value = testCountries
+            createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.ENTRY))
+        filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         settings.value = mockSettings
 
         // Act, Assert
@@ -204,11 +206,11 @@ class SelectLocationListViewModelTest {
     fun `given relay type exit list and entry blocked should work`() = runTest {
         // Arrange
         viewModel =
-            createSelectLocationListViewModel(RelayListType.Multihop(MultihopRelayListType.EXIT))
-        filteredRelayList.value = testCountries
+            createSelectLocationListViewModel(RelayListType.Multihop(RelayHopType.EXIT))
+        filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 
@@ -227,10 +229,10 @@ class SelectLocationListViewModelTest {
     fun `given relay type single list and entry blocked should work`() = runTest {
         // Arrange
         viewModel = createSelectLocationListViewModel(RelayListType.Single)
-        filteredRelayList.value = testCountries
+        filteredRelayList.value = FilteredCountries(testCountries)
         selectedLocationFlow.value = RelayItemSelection.Multiple(Constraint.Any, Constraint.Any)
         val mockSettings: Settings = mockk()
-        every { mockSettings.entryBlocked() } returns true
+        every { mockSettings.isEntryBlocked() } returns true
         every { mockSettings.recents } returns Recents.Disabled
         settings.value = mockSettings
 
@@ -269,6 +271,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.EmptyRelayList,
             is RelayListItem.SectionDivider,
             is RelayListItem.CustomListHeader,
+            is RelayListItem.AutomaticEntryItem,
             RelayListItem.LocationHeader,
             RelayListItem.RecentsListHeader,
             RelayListItem.RecentsListFooter -> null

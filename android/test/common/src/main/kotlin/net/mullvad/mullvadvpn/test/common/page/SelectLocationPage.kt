@@ -33,7 +33,7 @@ class SelectLocationPage internal constructor() : Page() {
     }
 
     fun assertDaitaChipVisible() {
-        uiDevice.findObjectWithTimeout(By.text("Setting: DAITA"))
+        uiDevice.findObjectWithTimeout(By.text("DAITA"))
     }
 
     fun clickEntryHopSelector() {
