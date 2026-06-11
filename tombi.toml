@@ -1,6 +1,5 @@
 [files]
 exclude = [
-  "android/rust-android-gradle-plugin/**",
   "dist-assets/binaries/**",
   "ios/wireguard-apple/**",
   "windows/libwfp/**",
