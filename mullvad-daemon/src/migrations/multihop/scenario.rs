@@ -22,9 +22,11 @@
 //! was undefined behaviour, but it was decided when this migration was architected to respect the
 //! previous behaviour.
 
+use serde::Serialize;
+
 /// Each scenario which a *previous* settings object maps to. Which migration takes place depends
 /// the resulting scenario.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 pub enum Scenario {
     OneA,   // 1A
     OneB,   // 1B
