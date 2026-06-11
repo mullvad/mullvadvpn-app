@@ -6,7 +6,7 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-cd "$SCRIPT_DIR/../.."
+cd "$SCRIPT_DIR"
 
 for argument in "$@"; do
     case "$argument" in
@@ -31,28 +31,22 @@ if [[ -n "$(git status --porcelain)" ]]; then
     exit 1
 fi
 
-if [[ $PRODUCT_VERSION != *"alpha"* &&
-    $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
+./check-changelog.sh "$PRODUCT_VERSION"
 
-    echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
-    echo "Please make sure the changelog is up to date and correct before you proceed."
-    exit 1
-fi
-
-scripts/commit-relay-list "$PRODUCT_VERSION"
+../../scripts/commit-relay-list "$PRODUCT_VERSION"
 echo ""
 
 echo "### Generating version information ###"
-echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
+echo "$PRODUCT_VERSION" > ../../dist-assets/android-version-name.txt
 ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
-    dist-assets/android-version-code.txt
+    ../../dist-assets/android-version-code.txt
 if git diff --quiet dist-assets/android-version-*; then
     echo "Error: Version information unchanged."
     exit 1
 fi
 git commit -S -m "Update android app version to $PRODUCT_VERSION" \
-    dist-assets/android-version-name.txt \
-    dist-assets/android-version-code.txt
+    ../../dist-assets/android-version-name.txt \
+    ../../dist-assets/android-version-code.txt
 echo ""
 
 echo "### Tagging release as android/$PRODUCT_VERSION ###"
