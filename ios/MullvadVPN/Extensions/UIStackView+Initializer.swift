@@ -12,12 +12,14 @@ extension UIStackView {
     /// a convenience initialiser allowing the elimination of constructor closures
     convenience init(
         axis: NSLayoutConstraint.Axis = .horizontal,
+        alignment: UIStackView.Alignment = .fill,
         distribution: UIStackView.Distribution = .fill,
         isLayoutMarginsRelativeArrangement: Bool = false,
         spacing: CGFloat = 0.0,
     ) {
         self.init()
         self.axis = axis
+        self.alignment = alignment
         self.distribution = distribution
         self.isLayoutMarginsRelativeArrangement = isLayoutMarginsRelativeArrangement
         self.spacing = spacing
