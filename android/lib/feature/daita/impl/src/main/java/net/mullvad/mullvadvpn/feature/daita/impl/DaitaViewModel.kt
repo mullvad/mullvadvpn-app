@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
 import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
@@ -26,7 +25,6 @@ class DaitaViewModel(
             .map { settings ->
                 DaitaUiState(
                         daitaEnabled = settings.isDaitaEnabled(),
-                        directOnly = settings.isDaitaDirectOnly(),
                         isModal,
                     )
                     .toLc<Boolean, DaitaUiState>()
@@ -39,9 +37,5 @@ class DaitaViewModel(
 
     fun setDaita(enable: Boolean) {
         viewModelScope.launch { settingsRepository.setDaitaEnabled(enable) }
-    }
-
-    fun setDirectOnly(enable: Boolean) {
-        viewModelScope.launch { settingsRepository.setDaitaDirectOnly(enable) }
     }
 }

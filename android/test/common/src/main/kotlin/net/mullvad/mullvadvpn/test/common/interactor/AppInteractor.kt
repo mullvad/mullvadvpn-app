@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -93,8 +94,8 @@ class AppInteractor(
         obfuscationMode: ObfuscationMode? = null,
         wireguardPort: Constraint<Port>? = null,
         localNetworkSharing: Boolean? = null,
-        daita: DaitaOption? = null,
-        multihop: Boolean? = null,
+        daita: Boolean? = null,
+        multihop: MultihopMode? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
         location: RelayItemId? = null,
     ) = coroutineScope {
@@ -111,14 +112,9 @@ class AppInteractor(
                 obfuscationMode?.let { service.setObfuscation(it) }
                 wireguardPort?.let { service.setWireguardObfuscationPort(wireguardPort) }
                 localNetworkSharing?.let { service.setAllowLan(it) }
+                daita?.let { service.setDaitaEnabled(it) }
                 multihop?.let { service.setMultihop(it) }
                 deviceIpVersion?.let { service.setDeviceIpVersion(deviceIpVersion) }
-                daita?.let {
-                    when (it) {
-                        is DaitaOption.Auto -> service.setDaitaEnabled(it.enabled)
-                        is DaitaOption.DirectOnly -> service.setDaitaDirectOnly(it.enabled)
-                    }
-                }
                 location?.let { service.setRelayLocation(it) }
                 cancel()
             }
@@ -127,10 +123,4 @@ class AppInteractor(
             // Ignore cancel, we have just stopped ManagementService
         }
     }
-}
-
-sealed interface DaitaOption {
-    data class Auto(val enabled: Boolean) : DaitaOption
-
-    data class DirectOnly(val enabled: Boolean) : DaitaOption
 }

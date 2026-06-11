@@ -13,6 +13,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import org.junit.jupiter.api.BeforeEach
@@ -41,25 +42,22 @@ class MultihopViewModelTest {
     }
 
     @Test
-    fun `default state should be multihop disabled`() {
-        assertEquals(false, multihopViewModel.uiState.value.contentOrNull()?.enable == true)
-    }
-
-    @Test
-    fun `when multihop enabled is true state should return multihop enabled true`() = runTest {
+    fun `when multihop always is true state should return multihop always`() = runTest {
         // Arrange
         wireguardConstraints.value =
             WireguardConstraints(
-                isMultihopEnabled = true,
+                multihop = MultihopMode.ALWAYS,
                 entryLocation = Constraint.Any,
                 ipVersion = Constraint.Any,
+                entryOwnership = Constraint.Any,
+                entryProviders = Constraint.Any,
             )
 
         // Act, Assert
         multihopViewModel.uiState.test {
             val item = awaitItem()
             assertIs<Lc.Content<MultihopUiState>>(item)
-            assertEquals(MultihopUiState(true), item.value)
+            assertEquals(MultihopUiState(mode = MultihopMode.ALWAYS), item.value)
         }
     }
 
@@ -69,9 +67,9 @@ class MultihopViewModelTest {
         coEvery { mockWireguardConstraintsRepository.setMultihop(any()) } returns Either.Right(Unit)
 
         // Act
-        multihopViewModel.setMultihop(true)
+        multihopViewModel.setMultihopMode(MultihopMode.NEVER)
 
         // Assert
-        coVerify { mockWireguardConstraintsRepository.setMultihop(true) }
+        coVerify { mockWireguardConstraintsRepository.setMultihop(MultihopMode.NEVER) }
     }
 }

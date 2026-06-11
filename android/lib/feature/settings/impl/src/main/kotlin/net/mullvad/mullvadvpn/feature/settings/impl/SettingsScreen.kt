@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.lib.common.compose.isTv
 import net.mullvad.mullvadvpn.lib.common.compose.itemWithDivider
 import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceIfDetailPane
 import net.mullvad.mullvadvpn.lib.common.util.appendHideNavOnPlayBuild
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.button.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
@@ -194,10 +195,7 @@ private fun LazyListScope.content(
             DaitaListItem(isDaitaEnabled = state.isDaitaEnabled, onDaitaClick = onDaitaClick)
         }
         itemWithDivider {
-            MultihopCell(
-                isMultihopEnabled = state.multihopEnabled,
-                onMultihopClick = onMultihopClick,
-            )
+            MultihopCell(multihopMode = state.multihopMode, onMultihopClick = onMultihopClick)
         }
         itemWithDivider {
             NavigationListItem(
@@ -333,16 +331,16 @@ private fun DaitaListItem(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
 }
 
 @Composable
-private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
+private fun MultihopCell(multihopMode: MultihopMode, onMultihopClick: () -> Unit) {
     val title = stringResource(id = R.string.multihop)
     NavigationListItem(
         title = title,
         subtitle =
             stringResource(
-                if (isMultihopEnabled) {
-                    R.string.on
-                } else {
-                    R.string.off
+                when (multihopMode) {
+                    MultihopMode.WHEN_NEEDED -> R.string.when_needed
+                    MultihopMode.ALWAYS -> R.string.always
+                    MultihopMode.NEVER -> R.string.never
                 }
             ),
         onClick = onMultihopClick,
