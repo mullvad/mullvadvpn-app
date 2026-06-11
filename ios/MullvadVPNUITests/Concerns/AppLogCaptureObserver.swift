@@ -7,6 +7,7 @@
 
 import XCTest
 
+@MainActor
 protocol AppLogConfigurable {
     var attachAppLogsOnFailure: Bool { get }
     var app: XCUIApplication { get }

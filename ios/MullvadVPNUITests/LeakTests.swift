@@ -26,27 +26,27 @@ class LeakTests: LoggedInWithTimeUITestCase {
             """
         try XCTSkipIf(true, skipReason)
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
-        startPacketCapture()
-        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
+        var capturedStreams = performPacketCapture { session in
+            let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+            trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        allowAddVPNConfigurationsIfAsked()
+            allowAddVPNConfigurationsIfAsked()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        // Keep the tunnel connection for a while
-        RunLoop.current.run(until: .now + 30)
+            // Keep the tunnel connection for a while
+            RunLoop.current.run(until: .now + 30)
 
-        TunnelControlPage(app)
-            .tapDisconnectButton()
+            TunnelControlPage(app)
+                .tapDisconnectButton()
 
-        trafficGenerator.stopGeneratingUDPTraffic()
+            trafficGenerator.stopGeneratingUDPTraffic()
+        }
 
-        var capturedStreams = stopPacketCapture()
         // For now cut the beginning and and end of the stream to trim out the part where the tunnel connection was not up
         capturedStreams = PacketCaptureClient.trimPackets(
             streams: capturedStreams,
@@ -59,40 +59,40 @@ class LeakTests: LoggedInWithTimeUITestCase {
     /// Send UDP traffic to a host, connect to relay and then disconnect to intentionally leak traffic and make sure that the test catches the leak
     func testTrafficCapturedOutsideOfTunnelShouldLeak() throws {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
-        startPacketCapture()
-        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
+        var capturedStreams = performPacketCapture { session in
+            let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+            trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        allowAddVPNConfigurationsIfAsked()
+            allowAddVPNConfigurationsIfAsked()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        RunLoop.current.run(until: .now + 2)
+            RunLoop.current.run(until: .now + 2)
 
-        TunnelControlPage(app)
-            .tapDisconnectButton()
+            TunnelControlPage(app)
+                .tapDisconnectButton()
 
-        // Give it some time to generate traffic outside of tunnel
-        RunLoop.current.run(until: .now + 5)
+            // Give it some time to generate traffic outside of tunnel
+            RunLoop.current.run(until: .now + 5)
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        // Keep the tunnel connection for a while
-        RunLoop.current.run(until: .now + 5)
+            // Keep the tunnel connection for a while
+            RunLoop.current.run(until: .now + 5)
 
-        TunnelControlPage(app)
-            .tapDisconnectButton()
+            TunnelControlPage(app)
+                .tapDisconnectButton()
 
-        // Keep the capture open for a while
-        RunLoop.current.run(until: .now + 15)
-        trafficGenerator.stopGeneratingUDPTraffic()
+            // Keep the capture open for a while
+            RunLoop.current.run(until: .now + 15)
+            trafficGenerator.stopGeneratingUDPTraffic()
+        }
 
-        var capturedStreams = stopPacketCapture()
         // For now cut the beginning and and end of the stream to trim out the part where the tunnel connection was not up
         capturedStreams = PacketCaptureClient.trimPackets(
             streams: capturedStreams,

@@ -40,13 +40,6 @@ class BaseUITestCase: XCTestCase {
     static let testsDefaultQuicCityName = "Frankfurt"
     static let testsDefaultQuicRelayName = "de-fra-wg-001"
 
-    /// True when the current test case is capturing packets
-    private var currentTestCaseShouldCapturePackets = false
-
-    /// True when a packet capture session is active
-    private var packetCaptureSessionIsActive = false
-    private var packetCaptureSession: PacketCaptureSession?
-
     let displayName =
         Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
@@ -153,26 +146,39 @@ class BaseUITestCase: XCTestCase {
     }
 
     /// Start packet capture for this test case
-    func startPacketCapture() {
-        currentTestCaseShouldCapturePackets = true
-        packetCaptureSessionIsActive = true
-        let packetCaptureClient = PacketCaptureClient()
-        packetCaptureSession = packetCaptureClient.startCapture()
-    }
+    @discardableResult
+    func performPacketCapture(closure: (PacketCaptureSession) throws -> Void) rethrows -> [Stream] {
+        let client = PacketCaptureClient()
+        let session = client.startCapture()
 
-    /// Stop the current packet capture and return captured traffic
-    func stopPacketCapture() -> [Stream] {
-        packetCaptureSessionIsActive = false
-        guard let packetCaptureSession else {
-            XCTFail("Trying to stop capture when there is no active capture")
-            return []
+        try XCTContext.runActivity(named: "Packet Capture") { activity in
+            var captureError: Error?
+            do {
+                try closure(session)
+            } catch {
+                captureError = error
+            }
+
+            client.stopCapture(session: session)
+            let pcap = client.getPCAP(session: session)
+            let parsed = client.getParsedCapture(session: session)
+
+            let pcapAttachment = XCTAttachment(data: pcap)
+            pcapAttachment.name = self.name + ".pcap"
+            pcapAttachment.lifetime = .keepAlways
+            activity.add(pcapAttachment)
+
+            let jsonAttachment = XCTAttachment(data: parsed)
+            jsonAttachment.name = self.name + ".json"
+            jsonAttachment.lifetime = .keepAlways
+            activity.add(jsonAttachment)
+
+            if let captureError = captureError {
+                throw captureError
+            }
         }
 
-        let packetCaptureAPIClient = PacketCaptureClient()
-        packetCaptureAPIClient.stopCapture(session: packetCaptureSession)
-        let capturedData = packetCaptureAPIClient.getParsedCaptureObjects(session: packetCaptureSession)
-
-        return capturedData
+        return client.getParsedCaptureObjects(session: session)
     }
 
     // MARK: - Setup & teardown
@@ -190,7 +196,6 @@ class BaseUITestCase: XCTestCase {
 
     /// Test level setup
     override func setUp() async throws {
-        currentTestCaseShouldCapturePackets = false  // Reset for each test case run
         continueAfterFailure = false
         let argumentsJsonString = try? LaunchArguments(
             target: Self.executableTarget,
@@ -223,39 +228,6 @@ class BaseUITestCase: XCTestCase {
         if app.otherElements[.revokedDeviceView].existsAfterWait(timeout: .short) {
             RevokedDevicePage(app)
                 .tapGoToLogin()
-        }
-
-    }
-
-    /// Test level teardown
-    override func tearDown() async throws {
-        if currentTestCaseShouldCapturePackets {
-            guard let packetCaptureSession = packetCaptureSession else {
-                XCTFail("Packet capture session unexpectedly not set up")
-                return
-            }
-
-            let packetCaptureClient = PacketCaptureClient()
-
-            // If there's a an active session due to cancelled/failed test run make sure to end it
-            if packetCaptureSessionIsActive {
-                packetCaptureSessionIsActive = false
-                packetCaptureClient.stopCapture(session: packetCaptureSession)
-            }
-
-            let pcapFileContents = packetCaptureClient.getPCAP(session: packetCaptureSession)
-            let parsedCapture = packetCaptureClient.getParsedCapture(session: packetCaptureSession)
-            self.packetCaptureSession = nil
-
-            let pcapAttachment = XCTAttachment(data: pcapFileContents)
-            pcapAttachment.name = self.name + ".pcap"
-            pcapAttachment.lifetime = .keepAlways
-            self.add(pcapAttachment)
-
-            let jsonAttachment = XCTAttachment(data: parsedCapture)
-            jsonAttachment.name = self.name + ".json"
-            jsonAttachment.lifetime = .keepAlways
-            self.add(jsonAttachment)
         }
     }
 
