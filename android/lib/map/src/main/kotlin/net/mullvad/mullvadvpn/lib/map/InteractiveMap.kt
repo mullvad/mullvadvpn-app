@@ -164,7 +164,7 @@ fun InteractiveMap(
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
     val cameraPosition = CameraPosition(latLngAnimatable.value.toLatLng(), zoomAnimatable.value)
-    val globeViewState = GlobeViewState(cameraPosition, markers, globeColors)
+    val globeViewState = GlobeViewState(cameraPosition, markers,  emptyList(), globeColors)
     AndroidView(
         modifier =
             Modifier.pointerInput(lifeCycleState) {

@@ -21,7 +21,7 @@ fun Map(
     markers: List<Marker> = emptyList(),
     globeColors: GlobeColors = GlobeColors.default(),
 ) {
-    val globeViewState = GlobeViewState(cameraPosition, markers, globeColors)
+    val globeViewState = GlobeViewState(cameraPosition, markers, emptyList(), globeColors)
     Map(modifier = modifier, globeViewState = globeViewState)
 }
 
@@ -49,7 +49,7 @@ fun Map(
     onMarkerClick: (Marker) -> Unit = {},
     onMarkerLongPress: (Offset, Marker) -> Unit = { _, _ -> },
 ) {
-    val globeViewState = GlobeViewState(cameraPosition, markers, globeColors)
+    val globeViewState = GlobeViewState(cameraPosition, markers, emptyList(), globeColors)
     Map(modifier = modifier, globeViewState = globeViewState, onMarkerClick, onMarkerLongPress)
 }
 
