@@ -967,6 +967,8 @@
 		BF434ABF6F9543C9BABD3CBA /* FloatingSearchBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */; };
 		C1EA193A1103489C981B6E59 /* EnvironmentValues+DismissSearchFocus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 323AB4F0478E4995ABAF99AF /* EnvironmentValues+DismissSearchFocus.swift */; };
 		D56CD86C4435C3F6AF2A2662 /* WireGuardGoTunnelImplementation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD68970B0A1DEEA01FB25D9E /* WireGuardGoTunnelImplementation.swift */; };
+		D59CB43B2FE3FD6F000B06FB /* NetworkPathSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */; };
+		D59CB43D2FE40895000B06FB /* PathMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43C2FE40895000B06FB /* PathMonitor.swift */; };
 		D59CB43F2FE40B80000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59CB43E2FE40B76000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift */; };
 		D5A6A9D92FE01E40001E4796 /* AppLogCaptureObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A6A9D82FE01E40001E4796 /* AppLogCaptureObserver.swift */; };
 		D5A6A9DC2FE021B8001E4796 /* TestObservationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A6A9DB2FE021B8001E4796 /* TestObservationConfiguration.swift */; };
@@ -2579,6 +2581,8 @@
 		A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNConnectionProtocol.swift; sourceTree = "<group>"; };
 		B24C2F93919B5526A741ADA8 /* TunnelImplementation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelImplementation.swift; sourceTree = "<group>"; };
 		B364DC07F3CF4B63A5B1BB6C /* FloatingSearchBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingSearchBar.swift; sourceTree = "<group>"; };
+		D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkPathSnapshot.swift; sourceTree = "<group>"; };
+		D59CB43C2FE40895000B06FB /* PathMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PathMonitor.swift; sourceTree = "<group>"; };
 		D59CB43E2FE40B76000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseUITestCase+ApplogCaptureObserver.swift"; sourceTree = "<group>"; };
 		D5A6A9D82FE01E40001E4796 /* AppLogCaptureObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogCaptureObserver.swift; sourceTree = "<group>"; };
 		D5A6A9DB2FE021B8001E4796 /* TestObservationConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestObservationConfiguration.swift; sourceTree = "<group>"; };
@@ -4957,6 +4961,8 @@
 			isa = PBXGroup;
 			children = (
 				D59CB43E2FE40B76000B06FB /* BaseUITestCase+ApplogCaptureObserver.swift */,
+				D59CB43C2FE40895000B06FB /* PathMonitor.swift */,
+				D59CB43A2FE3FD6F000B06FB /* NetworkPathSnapshot.swift */,
 				D5A6A9D82FE01E40001E4796 /* AppLogCaptureObserver.swift */,
 			);
 			path = Concerns;
@@ -7399,6 +7405,7 @@
 				7AFE63332ED9D10400D27DC7 /* SetUpAccountCompletedPage.swift in Sources */,
 				D5A6A9DC2FE021B8001E4796 /* TestObservationConfiguration.swift in Sources */,
 				85557B0E2B591B2600795FE1 /* FirewallClient.swift in Sources */,
+				D59CB43B2FE3FD6F000B06FB /* NetworkPathSnapshot.swift in Sources */,
 				852969282B4D9C1F007EAD4C /* AccountTests.swift in Sources */,
 				8587A05D2B84D43100152938 /* ChangeLogAlert.swift in Sources */,
 				85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */,
@@ -7426,6 +7433,7 @@
 				85557B122B594FC900795FE1 /* ConnectivityTests.swift in Sources */,
 				01C981EB2F45D5C20002D284 /* TunnelControlPageTests.swift in Sources */,
 				852969332B4E9232007EAD4C /* Page.swift in Sources */,
+				D59CB43D2FE40895000B06FB /* PathMonitor.swift in Sources */,
 				A9A557F32B7E19B10017ADA8 /* SettingsPage.swift in Sources */,
 				852D054F2BC43DF7008578D2 /* AddAccessMethodPage.swift in Sources */,
 			);
