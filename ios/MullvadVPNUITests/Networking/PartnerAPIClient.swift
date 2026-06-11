@@ -116,7 +116,7 @@ class PartnerAPIClient {
 
         task.resume()
         let waitResult = XCTWaiter().wait(for: [completionHandlerInvokedExpectation], timeout: 10)
-        XCTAssertEqual(waitResult, .completed, "Waiting for partner API request expectation completed")
+        XCTAssertEqual(waitResult, .completed, "Waiting for partner API request expectation did not complete in time")
         XCTAssertNil(requestError)
 
         return jsonResponse
