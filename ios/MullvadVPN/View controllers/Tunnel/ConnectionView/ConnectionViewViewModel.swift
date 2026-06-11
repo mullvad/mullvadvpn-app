@@ -52,13 +52,13 @@ class ConnectionViewViewModel: ObservableObject {
     init(
         tunnelStatus: TunnelStatus,
         relayConstraints: RelayConstraints,
-        relayCache: RelayCacheProtocol,
+        relayCacheTracker: RelayCacheTrackerProviding,
         customListRepository: CustomListRepositoryProtocol
     ) {
         self.tunnelStatus = tunnelStatus
         self.relayConstraints = relayConstraints
         self.destinationDescriber = DestinationDescriber(
-            relayCache: relayCache,
+            relayCacheTracker: relayCacheTracker,
             customListRepository: customListRepository
         )
     }

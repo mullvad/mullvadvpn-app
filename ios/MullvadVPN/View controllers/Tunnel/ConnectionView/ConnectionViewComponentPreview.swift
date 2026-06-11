@@ -66,7 +66,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
         viewModel = ConnectionViewViewModel(
             tunnelStatus: connectedTunnelStatus,
             relayConstraints: RelayConstraints(),
-            relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
+            relayCacheTracker: MockRelayCacheTracker(),
             customListRepository: CustomListRepository(settingsStore: settingsManager.store)
         )
         viewModel.outgoingConnectionInfo = OutgoingConnectionInfo(

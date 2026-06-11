@@ -672,6 +672,8 @@
 		7AA1309B2D0048D800640DF9 /* MainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309A2D0048D800640DF9 /* MainButton.swift */; };
 		7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */; };
 		7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */; };
+		7AA3C8FD2FD6F95200D0C26A /* MockRelayCacheProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA3C8FC2FD6F94A00D0C26A /* MockRelayCacheProvider.swift */; };
+		7AA3C8FF2FD6F9F100D0C26A /* RelayCacheProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA3C8FE2FD6F9ED00D0C26A /* RelayCacheProviding.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
 		7AA564462F29014D001D1FB9 /* IncludeAllNetworksPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */; };
 		7AA564482F2B6813001D1FB9 /* String+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA564472F2B680D001D1FB9 /* String+Assets.swift */; };
@@ -2346,6 +2348,8 @@
 		7AA1309A2D0048D800640DF9 /* MainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainButton.swift; sourceTree = "<group>"; };
 		7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitMainButton.swift; sourceTree = "<group>"; };
+		7AA3C8FC2FD6F94A00D0C26A /* MockRelayCacheProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelayCacheProvider.swift; sourceTree = "<group>"; };
+		7AA3C8FE2FD6F9ED00D0C26A /* RelayCacheProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheProviding.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
 		7AA564452F290144001D1FB9 /* IncludeAllNetworksPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IncludeAllNetworksPage.swift; sourceTree = "<group>"; };
 		7AA564472F2B680D001D1FB9 /* String+Assets.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Assets.swift"; sourceTree = "<group>"; };
@@ -4983,6 +4987,7 @@
 				A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */,
 				F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */,
 				F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */,
+				7AA3C8FC2FD6F94A00D0C26A /* MockRelayCacheProvider.swift */,
 				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
 				F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */,
@@ -5028,6 +5033,7 @@
 				F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */,
 				7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
+				7AA3C8FE2FD6F9ED00D0C26A /* RelayCacheProviding.swift */,
 				F0791F1A2D76377400449F6D /* RelayCandidates.swift */,
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
 				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
@@ -6166,6 +6172,7 @@
 				7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */,
 				7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */,
 				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
+				7AA3C8FF2FD6F9F100D0C26A /* RelayCacheProviding.swift in Sources */,
 				7AA5C3702E9D21DB00B35530 /* DefaultLocationService.swift in Sources */,
 				F0DDE4152B220458006B57A7 /* ShadowsocksConfigurationCache.swift in Sources */,
 				06799AEA28F98E4800ACD94E /* RESTProxy.swift in Sources */,
@@ -7337,6 +7344,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F0ACE31D2BE4E4F2006D5333 /* DevicesProxy+Stubs.swift in Sources */,
+				7AA3C8FD2FD6F95200D0C26A /* MockRelayCacheProvider.swift in Sources */,
 				F07F63CE2C63E5790027A351 /* AccessMethodRepository+Stub.swift in Sources */,
 				F0ACE31E2BE4E4F2006D5333 /* AccountsProxy+Stubs.swift in Sources */,
 				7AA5C3792E9FD8BA00B35530 /* URLSessionStub.swift in Sources */,
