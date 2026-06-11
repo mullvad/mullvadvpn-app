@@ -79,7 +79,7 @@ class AntiCensorshipSettingsViewModelTest {
                 TunnelOptions(
                     mtu = null,
                     quantumResistant = QuantumResistantState.Off,
-                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+                    daitaSettings = DaitaSettings(enabled = false),
                     dnsOptions = mockk(relaxed = true),
                     enableIpv6 = true,
                 )

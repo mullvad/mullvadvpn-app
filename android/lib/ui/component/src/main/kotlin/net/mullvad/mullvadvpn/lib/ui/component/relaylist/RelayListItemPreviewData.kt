@@ -64,6 +64,7 @@ object RelayListItemPreviewData {
             )
         addAll(
             listOf(
+                RelayListItem.AutomaticEntryItem.RelayList(isSelected = false),
                 RelayListItem.GeoLocationItem(
                     item = locations[0],
                     isSelected = false,

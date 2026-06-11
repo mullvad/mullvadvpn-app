@@ -3,11 +3,15 @@ package net.mullvad.mullvadvpn.lib.common.util
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 
-fun shouldFilterByDaita(daitaDirectOnly: Boolean, relayListType: RelayListType) =
+fun shouldFilterByDaita(
+    isDaitaEnabled: Boolean,
+    isWhenNeededMultihopEnabled: Boolean,
+    relayListType: RelayListType,
+) =
     when (relayListType) {
-        RelayListType.Single -> daitaDirectOnly
+        RelayListType.Single -> isDaitaEnabled && !isWhenNeededMultihopEnabled
         is RelayListType.Multihop ->
-            daitaDirectOnly && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
+            isDaitaEnabled && relayListType.multihopRelayListType == MultihopRelayListType.ENTRY
     }
 
 fun shouldFilterByQuic(isQuicEnabled: Boolean, relayListType: RelayListType) =

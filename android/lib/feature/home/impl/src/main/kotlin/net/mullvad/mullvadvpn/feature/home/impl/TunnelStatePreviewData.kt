@@ -62,6 +62,8 @@ object TunnelStatePreviewData {
             city = "",
             hostname = "",
             entryHostname = "",
+            entryCountry = "",
+            entryCity = "",
             latitude = 0.0,
             longitude = 0.0,
         )

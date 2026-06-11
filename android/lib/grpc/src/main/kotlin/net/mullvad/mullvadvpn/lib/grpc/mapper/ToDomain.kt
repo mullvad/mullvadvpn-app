@@ -13,6 +13,7 @@ import mullvad_daemon.management_interface.entryLocationOrNull
 import mullvad_daemon.management_interface.locationOrNull
 import mullvad_daemon.management_interface.recentsOrNull
 import mullvad_daemon.relay_selector.RelaySelector
+import mullvad_daemon.relay_selector.metadata
 import net.mullvad.mullvadvpn.lib.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -54,6 +55,7 @@ import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -197,6 +199,8 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
         longitude = longitude,
         hostname = if (hasHostname()) hostname else null,
         entryHostname = if (hasEntryHostname()) entryHostname else null,
+        entryCountry = if (hasEntryCountry()) entryCountry else null,
+        entryCity = if (hasEntryCity()) entryCity else null,
     )
 
 internal fun ManagementInterface.TunnelEndpoint.toDomain(): TunnelEndpoint =
@@ -417,7 +421,7 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        isMultihopEnabled = multihop == ManagementInterface.WireguardConstraints.Multihop.Always,
+        multihop = multihop.toDomain(),
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
@@ -425,7 +429,18 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             } else {
                 Constraint.Any
             },
+        entryOwnership = entryOwnership.toDomain(),
+        entryProviders = entryProvidersList.toDomain(),
     )
+
+internal fun ManagementInterface.WireguardConstraints.Multihop.toDomain(): MultihopMode =
+    when (this) {
+        ManagementInterface.WireguardConstraints.Multihop.Always -> MultihopMode.ALWAYS
+        ManagementInterface.WireguardConstraints.Multihop.Never -> MultihopMode.NEVER
+        ManagementInterface.WireguardConstraints.Multihop.Auto -> MultihopMode.WHEN_NEEDED
+        ManagementInterface.WireguardConstraints.Multihop.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized multihop")
+    }
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
     when (this) {
@@ -509,7 +524,7 @@ internal fun ManagementInterface.TunnelOptions.toDomain(): TunnelOptions =
     )
 
 internal fun ManagementInterface.DaitaSettings.toDomain(): DaitaSettings =
-    DaitaSettings(enabled = enabled, directOnly = false)
+    DaitaSettings(enabled = enabled)
 
 internal fun ManagementInterface.QuantumResistantState.toDomain(): QuantumResistantState =
     when (state) {
@@ -645,6 +660,8 @@ internal fun ManagementInterface.Relay.toDomain(
                 null
             },
         lwo = endpointData.lwo,
+        // This will be set later when we get the relay filter partition response.
+        needsOtherEntry = false,
     )
 
 private fun ManagementInterface.Location.toDomain(): LatLong =
@@ -766,8 +783,8 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.CUSTOM_MTU -> FeatureIndicator.CUSTOM_MTU
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
-        ManagementInterface.FeatureIndicator.MULTIHOP,
-        ManagementInterface.FeatureIndicator.MULTIHOP_AUTO -> FeatureIndicator.MULTIHOP
+        ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
+        ManagementInterface.FeatureIndicator.MULTIHOP_AUTO -> FeatureIndicator.MULTIHOP_AUTO
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT
@@ -807,7 +824,10 @@ internal fun ManagementInterface.ExitRecent.toDomain(): ExitRecent =
 
 internal fun RelaySelector.RelayPartitions.toDomain() =
     RelayPartitions(
-        matches = matchesList.map { it.relay.hostname },
+        matches =
+            matchesList.associate {
+                it.relay.hostname to it.metadata.needsOtherEntry
+            },
         discards = discardsList.map { it.toDomain() },
     )
 

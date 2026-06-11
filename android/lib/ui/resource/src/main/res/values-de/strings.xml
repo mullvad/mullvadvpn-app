@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Wenn ein Beobachter diese Datenpakete überwacht, macht %1$s es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s tut dies, indem es Netzwerkrauschen gezielt hinzufügt und alle Netzwerkpakete gleich groß macht.</string>
     <string name="daita_info">Wenn Sie „%1$s“ aktivieren, müssen Sie manuell einen Server auswählen, der %2$s-fähig ist. Dies kann dazu führen, dass Sie in einem blockierten Zustand landen, bis Sie einen kompatiblen Server in der Ansicht „Standort auswählen“ ausgewählt haben.</string>
-    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 Tage wurden zu Ihrem Konto hinzugefügt.</string>
     <string name="days_were_added_90">90 Tage wurden zu Ihrem Konto hinzugefügt.</string>
     <string name="delete">Löschen</string>
@@ -183,7 +182,6 @@
     <string name="device_name_info_second_paragraph">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
     <string name="device_name_info_third_paragraph">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
     <string name="direct">Direkt</string>
-    <string name="direct_only">Nur direkt</string>
     <string name="direct_only_description">Nicht alle unsere Server sind %1$s-fähig. Um das Internet nutzen zu können, müssen Sie nach der Aktivierung möglicherweise einen neuen Standort auswählen.</string>
     <string name="disable_multihop">Multihop deaktivieren</string>
     <string name="disable_recents">Letzte deaktivieren</string>
@@ -330,7 +328,6 @@
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
-    <string name="multihop_entry_disabled_description">Der Eingangsserver für %1$s wird derzeit von %2$s überschrieben. Um einen Eingangsserver zu wählen, aktivieren Sie bitte zunächst „%3$s“ oder deaktivieren Sie „%2$s“ in den Einstellungen.</string>
     <string name="multihop_is_disabled">Multihop ist deaktiviert</string>
     <string name="multihop_is_enabled">Multihop ist aktiviert</string>
     <string name="name">Name</string>
@@ -359,7 +356,6 @@
     <string name="on">Ein</string>
     <string name="ongoing_verification_warning">Ihr letzter Kauf wird noch verifiziert. Wenn Sie sich bei einem anderen Konto anmelden, schlägt die Verifizierung fehl. Möchten Sie sich trotzdem abmelden?</string>
     <string name="open_app_details">App-Details öffnen</string>
-    <string name="open_feature_settings">%1$s-Einstellungen öffnen</string>
     <string name="open_url">URL öffnen</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="overrides_cleared">Überschreibungen entfernt</string>
@@ -445,7 +441,6 @@
     <string name="set_as_multihop_exit_unavailable">Als Multihop-Ausgang festlegen (inkompatibel)</string>
     <string name="set_dns_error">Der DNS-Server des Systems konnte nicht eingestellt werden. Bitte senden Sie einen Problembericht.</string>
     <string name="set_firewall_policy_error">Firewall-Regeln können nicht angewendet werden. Bitte beheben Sie das Problem oder senden Sie einen Problembericht.</string>
-    <string name="setting_chip">Einstellung: %1$s</string>
     <string name="settings">Einstellungen</string>
     <string name="settings_account">Konto</string>
     <string name="settings_api_access">API-Zugriff</string>

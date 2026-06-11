@@ -7,6 +7,7 @@ import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -61,9 +62,9 @@ class SettingsScreenTest {
                         isLoggedIn = true,
                         isSupportedVersion = true,
                         isPlayBuild = false,
-                        multihopEnabled = false,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = true,
+                        multihopMode = MultihopMode.NEVER,
                     )
                     .toLc()
         )
@@ -85,7 +86,7 @@ class SettingsScreenTest {
                         isLoggedIn = false,
                         isSupportedVersion = true,
                         isPlayBuild = false,
-                        multihopEnabled = false,
+                        multihopMode = MultihopMode.NEVER,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = false,
                     )
@@ -109,7 +110,7 @@ class SettingsScreenTest {
                         isLoggedIn = false,
                         isSupportedVersion = true,
                         isPlayBuild = false,
-                        multihopEnabled = false,
+                        multihopMode = MultihopMode.NEVER,
                         isDaitaEnabled = false,
                         splitTunnelingIsActive = true,
                     )

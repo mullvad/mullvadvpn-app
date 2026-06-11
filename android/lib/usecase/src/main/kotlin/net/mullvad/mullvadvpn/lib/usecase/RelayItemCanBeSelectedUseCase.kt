@@ -4,8 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaDirectOnly
-import net.mullvad.mullvadvpn.lib.common.util.isDaitaEnabled
+import net.mullvad.mullvadvpn.lib.common.util.isEntryBlocked
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.isTheSameAs
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -13,7 +12,6 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
-import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
@@ -57,7 +55,7 @@ class RelayItemCanBeSelectedUseCase(
                     // If exit selection, check if entry is blocked
                     if (
                         selectedAs == MultihopRelayListType.ENTRY &&
-                            settings?.entrySelectionBlocked() == true
+                            settings?.isEntryBlocked() == true
                     ) {
                         return@filter false
                     }
@@ -90,8 +88,6 @@ class RelayItemCanBeSelectedUseCase(
             selectedRelayItem?.getOrNull()?.isTheSameAs(relayItem) == true -> false
             else -> true
         }
-
-    private fun Settings.entrySelectionBlocked() = isDaitaEnabled() && !isDaitaDirectOnly()
 
     private fun MultihopRelayListType.other() =
         when (this) {

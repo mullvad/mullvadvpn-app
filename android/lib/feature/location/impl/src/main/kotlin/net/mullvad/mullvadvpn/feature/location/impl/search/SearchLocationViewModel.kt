@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.common.util.ignoreEntrySelection
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.newFilterOnSearch
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -38,6 +39,7 @@ import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.FilterCustomListsRelayItemUseCase
+import net.mullvad.mullvadvpn.lib.usecase.itemOrNull
 
 @Suppress("LongParameterList", "TooManyFunctions")
 class SearchLocationViewModel(
@@ -134,13 +136,18 @@ class SearchLocationViewModel(
                 is RelayListType.Multihop ->
                     modifyMultihop(
                         when (relayListType.multihopRelayListType) {
-                            MultihopRelayListType.ENTRY -> MultihopChange.Entry(relayItem)
+                            MultihopRelayListType.ENTRY ->
+                                MultihopChange.Entry(Constraint.Only(relayItem))
                             MultihopRelayListType.EXIT -> MultihopChange.Exit(relayItem)
                         }
                     )
                 RelayListType.Single -> selectSinglehop(item = relayItem)
             }
         }
+    }
+
+    fun selectAutomaticMultihopEntry() {
+        viewModelScope.launch { modifyMultihop(MultihopChange.Entry(Constraint.Any)) }
     }
 
     private suspend fun selectSinglehop(item: RelayItem) =
@@ -153,7 +160,13 @@ class SearchLocationViewModel(
     private suspend fun modifyMultihop(change: MultihopChange) =
         modifyMultihopUseCase(change = change)
             .fold(
-                { _uiSideEffect.send(it.toSideEffect(change = change)) },
+                {
+                    change.itemOrNull()?.let { changedItem ->
+                        _uiSideEffect.send(
+                            it.toSideEffect(change = change, changedItem = changedItem)
+                        )
+                    }
+                },
                 { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
             )
 
@@ -185,12 +198,16 @@ class SearchLocationViewModel(
         viewModelScope.launch { customListActionUseCase(action) }
     }
 
-    fun removeOwnerFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+    fun removeOwnerFilter(filterTarget: FilterTarget) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedOwnership(Constraint.Any, filterTarget)
+        }
     }
 
-    fun removeProviderFilter() {
-        viewModelScope.launch { relayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+    fun removeProviderFilter(filterTarget: FilterTarget) {
+        viewModelScope.launch {
+            relayListFilterRepository.updateSelectedProviders(Constraint.Any, filterTarget)
+        }
     }
 
     fun onToggleExpand(item: RelayItemId, parent: CustomListId? = null, expand: Boolean) {
@@ -201,14 +218,17 @@ class SearchLocationViewModel(
         this + overrides.filterValues { expanded -> expanded }.keys -
             overrides.filterValues { expanded -> !expanded }.keys
 
-    private fun ModifyMultihopError.toSideEffect(change: MultihopChange) =
+    private fun ModifyMultihopError.toSideEffect(
+        change: MultihopChange,
+        changedItem: RelayItem,
+    ): SearchLocationSideEffect =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->
                 when (change) {
                     is MultihopChange.Entry ->
-                        SearchLocationSideEffect.ExitAlreadySelected(relayItem = change.item)
+                        SearchLocationSideEffect.ExitAlreadySelected(relayItem = changedItem)
                     is MultihopChange.Exit ->
-                        SearchLocationSideEffect.EntryAlreadySelected(relayItem = change.item)
+                        SearchLocationSideEffect.EntryAlreadySelected(relayItem = changedItem)
                 }
             ModifyMultihopError.GenericError -> SearchLocationSideEffect.GenericError
             is ModifyMultihopError.RelayItemInactive ->
