@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Лише у власності Mullvad</string>
     <string name="multihop">Подвійний VPN</string>
     <string name="multihop_description">Подвійний VPN спрямовує ваш трафік з одного сервера WireGuard на інший, що ускладнює відстеження. Це збільшує затримку, але підвищує анонімність в Інтернеті.</string>
-    <string name="multihop_entry_disabled_description">Сервер входу для функції «%1$s» зараз перевизначено функцією %2$s. Щоб вибрати сервер входу, спочатку ввімкніть «%3$s» або вимкніть «%2$s» у налаштуваннях.</string>
     <string name="multihop_is_disabled">Подвійний VPN вимкнено</string>
     <string name="multihop_is_enabled">Подвійний VPN увімкнено</string>
     <string name="name">Ім’я</string>

@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
@@ -35,7 +36,7 @@ class SettingsViewModel(
                         isLoggedIn = deviceState is DeviceState.LoggedIn,
                         appVersion = versionInfo.currentVersion,
                         isSupportedVersion = versionInfo.isSupported,
-                        multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
+                        multihopMode = wireguardConstraints?.multihop ?: MultihopMode.WHEN_NEEDED,
                         isDaitaEnabled = settings?.tunnelOptions?.daitaSettings?.enabled == true,
                         isPlayBuild = isPlayBuild,
                     )

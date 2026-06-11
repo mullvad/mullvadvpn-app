@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Kun ejet af Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop dirigerer din trafik ind på en WireGuard-server og ud på en anden, hvilket gør det sværere at spore den. Dette resulterer i øget ventetid, men øger anonymiteten online.</string>
-    <string name="multihop_entry_disabled_description">Indgangsserveren for %1$s tilsidesættes i øjeblikket af %2$s. Du skal først aktivere \"%3$s\" eller deaktivere \"%2$s\" i indstillingerne for at vælge en indgangsserver.</string>
     <string name="multihop_is_disabled">Multihop er deaktiveret</string>
     <string name="multihop_is_enabled">Multihop er aktiveret</string>
     <string name="name">Navn</string>

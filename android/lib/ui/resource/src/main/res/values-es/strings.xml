@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Solo propiedad de Mullvad</string>
     <string name="multihop">Salto múltiple</string>
     <string name="multihop_description">El salto múltiple dirige su tráfico a través de un servidor WireGuard y lo envía a otro, lo que dificulta su rastreo. Esto genera una mayor latencia, pero aumenta el anonimato en Internet.</string>
-    <string name="multihop_entry_disabled_description">%2$s está reemplazando actualmente el servidor de entrada para %1$s. Para seleccionar un servidor de entrada, active primero «%3$s» o desactive «%1$s» en la configuración.</string>
     <string name="multihop_is_disabled">Salto múltiple deshabilitado</string>
     <string name="multihop_is_enabled">Salto múltiple habilitado</string>
     <string name="name">Nombre</string>

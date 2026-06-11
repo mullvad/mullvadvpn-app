@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.WrongLocation
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.FilterList
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
@@ -77,8 +76,8 @@ import net.mullvad.mullvadvpn.feature.customlist.api.CustomListNavKey
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
-import net.mullvad.mullvadvpn.feature.daita.api.DaitaNavKey
 import net.mullvad.mullvadvpn.feature.filter.api.FilterNavKey
+import net.mullvad.mullvadvpn.feature.location.api.AutomaticEntryInfoNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavResult
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
@@ -95,11 +94,14 @@ import net.mullvad.mullvadvpn.lib.common.compose.isTv
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.toFilterTarget
+import net.mullvad.mullvadvpn.lib.ui.component.FilterButtonState
 import net.mullvad.mullvadvpn.lib.ui.component.MultihopSelector
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.lib.ui.component.Singlehop
@@ -138,7 +140,9 @@ private fun PreviewSelectLocationScreen(
             removeOwnershipFilter = {},
             removeProviderFilter = {},
             onSelectRelayList = {},
-            openDaitaSettings = {},
+            setMultihopToAlways = {},
+            onSelectAutomaticEntry = {},
+            onAutomaticInfoClick = {},
             onRefreshRelayList = {},
             scrollToItem = {},
             toggleMultihop = {},
@@ -337,13 +341,16 @@ fun SelectLocation(navigator: Navigator) {
             },
         onCreateCustomList = dropUnlessResumed { navigator.navigate(CreateCustomListNavKey()) },
         onBackClick = dropUnlessResumed { navigator.goBack() },
-        onFilterClick = dropUnlessResumed { navigator.navigate(FilterNavKey) },
+        onFilterClick =
+            dropUnlessResumed { filterTarget -> navigator.navigate(FilterNavKey(filterTarget)) },
         onEditCustomLists = dropUnlessResumed { navigator.navigate(CustomListNavKey) },
         removeOwnershipFilter = vm::removeOwnerFilter,
         removeProviderFilter = vm::removeProviderFilter,
         onSelectRelayList = vm::selectRelayList,
         onRecentsToggleEnableClick = vm::toggleRecentsEnabled,
-        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaNavKey(isModal = true)) },
+        setMultihopToAlways = { vm.toggleMultihop(true) },
+        onSelectAutomaticEntry = vm::selectAutomaticMultihopEntry,
+        onAutomaticInfoClick = dropUnlessResumed { navigator.navigate(AutomaticEntryInfoNavKey) },
         onRefreshRelayList = vm::refreshRelayList,
         toggleMultihop = vm::toggleMultihop,
         scrollToItem = vm::scrollToItem,
@@ -363,14 +370,16 @@ fun SelectLocationScreen(
     onModifyMultihop: (relayItem: RelayItem, relayListType: MultihopRelayListType) -> Unit,
     onSearchClick: (RelayListType) -> Unit,
     onBackClick: () -> Unit,
-    onFilterClick: () -> Unit,
+    onFilterClick: (filterTarget: FilterTarget) -> Unit,
     onCreateCustomList: () -> Unit,
     onEditCustomLists: () -> Unit,
     onRecentsToggleEnableClick: () -> Unit,
-    removeOwnershipFilter: () -> Unit,
-    removeProviderFilter: () -> Unit,
+    removeOwnershipFilter: (filterTarget: FilterTarget) -> Unit,
+    removeProviderFilter: (filterTarget: FilterTarget) -> Unit,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
-    openDaitaSettings: () -> Unit,
+    setMultihopToAlways: () -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onRefreshRelayList: () -> Unit,
     scrollToItem: (ScrollEvent) -> Unit,
     toggleMultihop: (Boolean) -> Unit,
@@ -424,15 +433,12 @@ fun SelectLocationScreen(
                     onClick = { state.contentOrNull()?.let { onSearchClick(it.relayListType) } },
                 )
             }
-            val filterButtonEnabled = state.contentOrNull()?.isFilterButtonEnabled == true
             val recentsCurrentlyEnabled = state.contentOrNull()?.isRecentsEnabled == true
             val multihopEnabled = state.contentOrNull()?.multihopEnabled == true
             val disabledText = stringResource(id = R.string.recents_disabled)
             val scope = rememberCoroutineScope()
 
             SelectLocationDropdownMenu(
-                filterButtonEnabled = filterButtonEnabled,
-                onFilterClick = onFilterClick,
                 recentsEnabled = recentsCurrentlyEnabled,
                 multihopEnabled = multihopEnabled,
                 onRecentsToggleEnableClick = {
@@ -496,15 +502,25 @@ fun SelectLocationScreen(
                     SelectionContainer(
                         progress = expandProgress.value,
                         relayListType = state.value.relayListType,
+                        entryFilteringEnabled = state.value.isEntryFilteringEnabled,
                         filterChips = state.value.filterChips,
                         hopSelection = state.value.hopSelection,
                         error = state.value.tunnelErrorStateCause,
+                        userLocation = state.value.lastKnownLocation,
+                        entryCountry = state.value.entryCountry,
+                        hasAnyEntryFilter = state.value.hasAnyEntryFilter,
+                        hasAnyExitFilter = state.value.hasAnyExitFilter,
                         onSelectRelayList = onSelectRelayList,
-                        removeOwnershipFilter = removeOwnershipFilter,
-                        removeProviderFilter = removeProviderFilter,
+                        removeOwnershipFilter = {
+                            removeOwnershipFilter(state.value.relayListType.toFilterTarget())
+                        },
+                        removeProviderFilter = {
+                            removeProviderFilter(state.value.relayListType.toFilterTarget())
+                        },
                         scrollToRelayItem = { relayListType: RelayListType, relayItem: RelayItem ->
                             scrollToItem(relayListType to relayItem)
                         },
+                        onFilterClick = onFilterClick,
                     )
 
                     RelayLists(
@@ -512,7 +528,9 @@ fun SelectLocationScreen(
                         bottomMargin = bottomMarginList,
                         onSelect = onSelectSinglehop,
                         onModifyMultihop = onModifyMultihop,
-                        openDaitaSettings = openDaitaSettings,
+                        onSetMultihopToAlways = setMultihopToAlways,
+                        onSelectAutomaticEntry = onSelectAutomaticEntry,
+                        onAutomaticInfoClick = onAutomaticInfoClick,
                         onAddCustomList = onCreateCustomList,
                         onEditCustomLists = onEditCustomLists,
                         onUpdateBottomSheetState = navigateToBottomSheet,
@@ -525,8 +543,6 @@ fun SelectLocationScreen(
 
 @Composable
 private fun SelectLocationDropdownMenu(
-    filterButtonEnabled: Boolean,
-    onFilterClick: () -> Unit,
     recentsEnabled: Boolean,
     multihopEnabled: Boolean,
     onRecentsToggleEnableClick: () -> Unit,
@@ -555,17 +571,6 @@ private fun SelectLocationDropdownMenu(
                 disabledLeadingIconColor =
                     MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled),
             )
-
-        DropdownMenuItem(
-            text = { Text(text = stringResource(R.string.filter)) },
-            onClick = {
-                showMenu = false
-                onFilterClick()
-            },
-            enabled = filterButtonEnabled,
-            colors = colors,
-            leadingIcon = { Icon(Icons.Rounded.FilterList, contentDescription = null) },
-        )
 
         // Keep these assets in remember so we don't change them as we animate away the dropdown
         // menu
@@ -628,7 +633,9 @@ private fun RelayLists(
     bottomMargin: Dp,
     onSelect: (item: RelayItem) -> Unit,
     onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit,
-    openDaitaSettings: () -> Unit,
+    onSetMultihopToAlways: () -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onAddCustomList: () -> Unit,
     onEditCustomLists: (() -> Unit)?,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
@@ -652,7 +659,9 @@ private fun RelayLists(
                             relayListType = it,
                             bottomMargin = bottomMargin,
                             onSelectRelayItem = onSelectRelayItem,
-                            openDaitaSettings = openDaitaSettings,
+                            onSetMultihopToAlways = onSetMultihopToAlways,
+                            onSelectAutomaticEntry = onSelectAutomaticEntry,
+                            onAutomaticInfoClick = onAutomaticInfoClick,
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -664,7 +673,9 @@ private fun RelayLists(
                             relayListType = it,
                             bottomMargin = bottomMargin,
                             onSelectRelayItem = onSelectRelayItem,
-                            openDaitaSettings = openDaitaSettings,
+                            onSetMultihopToAlways = onSetMultihopToAlways,
+                            onSelectAutomaticEntry = onSelectAutomaticEntry,
+                            onAutomaticInfoClick = onAutomaticInfoClick,
                             onAddCustomList = onAddCustomList,
                             onEditCustomLists = onEditCustomLists,
                             onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -677,7 +688,9 @@ private fun RelayLists(
                     relayListType = it,
                     bottomMargin = bottomMargin,
                     onSelectRelayItem = onSelectRelayItem,
-                    openDaitaSettings = openDaitaSettings,
+                    onSetMultihopToAlways = onSetMultihopToAlways,
+                    onSelectAutomaticEntry = onSelectAutomaticEntry,
+                    onAutomaticInfoClick = onAutomaticInfoClick,
                     onAddCustomList = onAddCustomList,
                     onEditCustomLists = onEditCustomLists,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
@@ -688,13 +701,19 @@ private fun RelayLists(
 }
 
 @OptIn(ExperimentalMotionApi::class)
-@Suppress("LongMethod")
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 @Composable
 private fun SelectionContainer(
     progress: Float, // 0 - 1
     relayListType: RelayListType,
     hopSelection: HopSelection,
     error: ErrorStateCause?,
+    userLocation: String?,
+    entryCountry: String?,
+    entryFilteringEnabled: Boolean,
+    onFilterClick: (filterTarget: FilterTarget) -> Unit,
+    hasAnyEntryFilter: Boolean,
+    hasAnyExitFilter: Boolean,
     filterChips: List<FilterChip>,
     onSelectRelayList: (MultihopRelayListType) -> Unit,
     removeOwnershipFilter: () -> Unit,
@@ -719,9 +738,19 @@ private fun SelectionContainer(
             when (hopSelection) {
                 is HopSelection.Single ->
                     Singlehop(
+                        userLocation = userLocation,
                         exitLocation = hopSelection.relay.toDisplayName(),
                         errorText = error.errorText(RelayListType.Single),
                         expandProgress = progress,
+                        filterButtonState = FilterButtonState.Enabled,
+                        onFilterClick = {
+                            onFilterClick(
+                                when (multihopListSelector) {
+                                    MultihopRelayListType.ENTRY -> FilterTarget.Entry
+                                    MultihopRelayListType.EXIT -> FilterTarget.Exit
+                                }
+                            )
+                        },
                         onSelect = {
                             hopSelection.relay?.getOrNull()?.let {
                                 scrollToRelayItem(RelayListType.Single, it)
@@ -731,6 +760,7 @@ private fun SelectionContainer(
 
                 is HopSelection.Multi ->
                     MultihopSelector(
+                        userLocation = userLocation,
                         exitSelected = multihopListSelector == MultihopRelayListType.EXIT,
                         exitLocation = hopSelection.exit.toDisplayName(),
                         exitErrorText =
@@ -747,7 +777,7 @@ private fun SelectionContainer(
                                 onSelectRelayList(MultihopRelayListType.EXIT)
                             }
                         },
-                        entryLocation = hopSelection.entry.toDisplayName(),
+                        entryLocation = hopSelection.entry.toDisplayName(entryCountry),
                         entryErrorText =
                             error.errorText(RelayListType.Multihop(MultihopRelayListType.ENTRY)),
                         onEntryClick = {
@@ -762,6 +792,18 @@ private fun SelectionContainer(
                                 onSelectRelayList(MultihopRelayListType.ENTRY)
                             }
                         },
+                        entryFilterButtonState =
+                            when {
+                                entryFilteringEnabled && hasAnyEntryFilter ->
+                                    FilterButtonState.EnabledFiltersActive
+                                entryFilteringEnabled && !hasAnyEntryFilter ->
+                                    FilterButtonState.Enabled
+                                else -> FilterButtonState.Disabled
+                            },
+                        exitFilterButtonState =
+                            if (hasAnyExitFilter) FilterButtonState.EnabledFiltersActive
+                            else FilterButtonState.Enabled,
+                        onFilterClick = onFilterClick,
                         expandProgress = progress,
                     )
             }
@@ -806,9 +848,11 @@ private fun SelectionContainer(
 }
 
 @Composable
-fun Constraint<RelayItem>?.toDisplayName() =
+fun Constraint<RelayItem>?.toDisplayName(entryCountry: String? = null) =
     when (this) {
-        Constraint.Any -> stringResource(R.string.automatic)
+        Constraint.Any ->
+            if (entryCountry != null) stringResource(R.string.automatic_with_country, entryCountry)
+            else stringResource(R.string.automatic)
         is Constraint.Only<RelayItem> -> value.name
         null -> stringResource(R.string.unavailable)
     }

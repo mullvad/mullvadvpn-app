@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 
@@ -16,24 +17,64 @@ class RelayListFilterRepository(
     private val managementService: ManagementService,
     dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
-    val selectedOwnership: StateFlow<Constraint<Ownership>> =
+    val selectedEntryOwnership: StateFlow<Constraint<Ownership>> =
+        managementService.settings
+            .map { settings ->
+                settings.relaySettings.relayConstraints.wireguardConstraints.entryOwnership
+            }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
+
+    val selectedExitOwnership: StateFlow<Constraint<Ownership>> =
         managementService.settings
             .map { settings -> settings.relaySettings.relayConstraints.ownership }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
-    val selectedProviders: StateFlow<Constraint<Providers>> =
+    fun selectedOwnership(filterTarget: FilterTarget): StateFlow<Constraint<Ownership>> =
+        when (filterTarget) {
+            FilterTarget.Entry -> selectedEntryOwnership
+            FilterTarget.Exit -> selectedExitOwnership
+        }
+
+    val selectedEntryProviders: StateFlow<Constraint<Providers>> =
+        managementService.settings
+            .map { settings ->
+                settings.relaySettings.relayConstraints.wireguardConstraints.entryProviders
+            }
+            .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
+
+    val selectedExitProviders: StateFlow<Constraint<Providers>> =
         managementService.settings
             .map { settings -> settings.relaySettings.relayConstraints.providers }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.WhileSubscribed(), Constraint.Any)
 
+    fun selectedProviders(filterTarget: FilterTarget): StateFlow<Constraint<Providers>> =
+        when (filterTarget) {
+            FilterTarget.Entry -> selectedEntryProviders
+            FilterTarget.Exit -> selectedExitProviders
+        }
+
+    fun hasAnyEntryFilter(): Boolean =
+        selectedEntryOwnership.value != Constraint.Any ||
+            selectedEntryProviders.value != Constraint.Any
+
+    fun hasAnyExitFilter(): Boolean =
+        selectedExitOwnership.value != Constraint.Any ||
+            selectedExitProviders.value != Constraint.Any
+
     suspend fun updateSelectedOwnershipAndProviderFilter(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>,
-    ) = managementService.setOwnershipAndProviders(ownership, providers)
+        filterTarget: FilterTarget,
+    ) =
+        managementService.setOwnershipAndProviders(
+            ownershipConstraint = ownership,
+            providersConstraint = providers,
+            filterTarget = filterTarget,
+        )
 
-    suspend fun updateSelectedOwnership(value: Constraint<Ownership>) =
-        managementService.setOwnership(value)
+    suspend fun updateSelectedOwnership(value: Constraint<Ownership>, filterTarget: FilterTarget) =
+        managementService.setOwnership(value, filterTarget)
 
-    suspend fun updateSelectedProviders(value: Constraint<Providers>) =
-        managementService.setProviders(value)
+    suspend fun updateSelectedProviders(value: Constraint<Providers>, filterTarget: FilterTarget) =
+        managementService.setProviders(value, filterTarget)
 }

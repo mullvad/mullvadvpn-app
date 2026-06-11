@@ -48,7 +48,7 @@ class RelayListFilterRepositoryTest {
         every { mockSettings.relaySettings.relayConstraints.ownership } returns selectedOwnership
 
         // Act, Assert
-        relayListFilterRepository.selectedOwnership.test {
+        relayListFilterRepository.selectedExitOwnership.test {
             assertEquals(Constraint.Any, awaitItem())
             settingsFlow.emit(mockSettings)
             assertEquals(selectedOwnership, awaitItem())
@@ -63,7 +63,7 @@ class RelayListFilterRepositoryTest {
         every { mockSettings.relaySettings.relayConstraints.providers } returns selectedProviders
 
         // Act, Assert
-        relayListFilterRepository.selectedProviders.test {
+        relayListFilterRepository.selectedExitProviders.test {
             assertEquals(Constraint.Any, awaitItem())
             settingsFlow.emit(mockSettings)
             assertEquals(selectedProviders, awaitItem())

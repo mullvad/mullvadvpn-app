@@ -22,20 +22,25 @@ class FilterChipUseCaseTest {
 
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private val mockProviderToOwnershipsUseCase: ProviderToOwnershipsUseCase = mockk()
+    private val mockMultihopActiveUseCase: MultihopActiveUseCase = mockk()
     private val mockSettingRepository: SettingsRepository = mockk()
 
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any)
     private val selectedProviders = MutableStateFlow<Constraint<Providers>>(Constraint.Any)
     private val providerToOwnerships = MutableStateFlow<Map<ProviderId, Set<Ownership>>>(emptyMap())
+    private val multihopActive = MutableStateFlow(MultihopActiveStatus.WhenNeededActive)
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
 
     private lateinit var filterChipUseCase: FilterChipUseCase
 
     @BeforeEach
     fun setUp() {
-        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
-        every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
+        every { mockRelayListFilterRepository.selectedExitOwnership } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedExitProviders } returns selectedProviders
+        every { mockRelayListFilterRepository.selectedOwnership(any()) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedProviders(any()) } returns selectedProviders
         every { mockProviderToOwnershipsUseCase() } returns providerToOwnerships
+        every { mockMultihopActiveUseCase() } returns multihopActive
         every { mockSettingRepository.settingsUpdates } returns settings
 
         filterChipUseCase =
@@ -43,6 +48,7 @@ class FilterChipUseCaseTest {
                 relayListFilterRepository = mockRelayListFilterRepository,
                 providerToOwnershipsUseCase = mockProviderToOwnershipsUseCase,
                 settingsRepository = mockSettingRepository,
+                multihopActiveUseCase = mockMultihopActiveUseCase,
             )
     }
 
@@ -138,8 +144,27 @@ class FilterChipUseCaseTest {
                     every { tunnelOptions.daitaSettings.directOnly } returns true
                 }
 
+            multihopActive.value = MultihopActiveStatus.AlwaysOnActive
+
             filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
                 assertLists(listOf(FilterChip.Daita), awaitItem())
+            }
+        }
+
+    @Test
+    fun `when Daita with direct only is enabled and relay list type is entry and multihop is when needed should return no filter chip`() =
+        runTest {
+            // Arrange
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { tunnelOptions.daitaSettings.enabled } returns true
+                    every { tunnelOptions.daitaSettings.directOnly } returns true
+                }
+
+            multihopActive.value = MultihopActiveStatus.WhenNeededActive
+
+            filterChipUseCase(RelayListType.Multihop(MultihopRelayListType.ENTRY)).test {
+                assertLists(emptyList(), awaitItem())
             }
         }
 

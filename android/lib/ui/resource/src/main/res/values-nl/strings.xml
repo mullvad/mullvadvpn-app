@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
-    <string name="multihop_entry_disabled_description">De ingangsserver voor %1$s is momenteel overschreven door %2$s. Om een ingangsserver te selecteren, moet u eerst \"%3$s\" inschakelen of \"%2$s\" uitschakelen in de instellingen.</string>
     <string name="multihop_is_disabled">Multihop is uitgeschakeld</string>
     <string name="multihop_is_enabled">Multihop is ingeschakeld</string>
     <string name="name">Naam</string>

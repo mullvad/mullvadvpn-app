@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Mullvad 所有サーバーのみ</string>
     <string name="multihop">マルチホップ</string>
     <string name="multihop_description">マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。</string>
-    <string name="multihop_entry_disabled_description">%1$sの入口サーバーは現在、%2$sによってオーバーライドされています。入口サーバーを選択するには、設定で [%3$s] を有効にするか、[%2$s] を無効にしてください。</string>
     <string name="multihop_is_disabled">マルチホップは無効です</string>
     <string name="multihop_is_enabled">マルチホップは有効です</string>
     <string name="name">名前</string>

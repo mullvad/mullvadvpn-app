@@ -59,9 +59,9 @@ class FilterViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
-        every { mockRelayListFilterRepository.selectedProviders } returns
+        every { mockRelayListFilterRepository.selectedExitProviders } returns
             MutableStateFlow(Constraint.Only(mockSelectedProviders))
-        every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedExitOwnership } returns selectedOwnership
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,

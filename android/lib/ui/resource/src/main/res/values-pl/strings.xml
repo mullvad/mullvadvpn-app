@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
     <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
-    <string name="multihop_entry_disabled_description">Serwer wejściowy dla %1$s jest obecnie zastępowany przez %2$s. Aby wybrać serwer wejściowy, należy najpierw włączyć opcję „%3$s” lub wyłączyć opcję „%2$s” w ustawieniach.</string>
     <string name="multihop_is_disabled">Funkcja Wielokrotny przeskok jest wyłączona</string>
     <string name="multihop_is_enabled">Funkcja Wielokrotny przeskok jest włączona</string>
     <string name="name">Nazwa</string>

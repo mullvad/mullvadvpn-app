@@ -323,7 +323,6 @@
     <string name="mullvad_owned_only">فقط متعلق به Mullvad</string>
     <string name="multihop">مولتی‌هاپ</string>
     <string name="multihop_description">مولتی‌هاپ ترافیک شما را وارد یک سرور WireGuard کرده و از سروری دیگر خارج می‌کند، که ردیابی آن را دشوارتر می‌سازد. این کار باعث افزایش تأخیر می‌شود، اما ناشناس‌بودن شما را در اینترنت بیشتر می‌کند.</string>
-    <string name="multihop_entry_disabled_description">سرور ورودی برای %1$s در حال حاضر توسط %2$s لغو شده است. برای انتخاب یک سرور ورودی، لطفاً ابتدا «%3$s» را فعال کنید یا «%2$s» را در تنظیمات غیرفعال نمایید.</string>
     <string name="multihop_is_disabled">قابلیت مولتی‌هاپ غیرفعال است</string>
     <string name="multihop_is_enabled">قابلیت مولتی‌هاپ فعال است</string>
     <string name="name">نام</string>
