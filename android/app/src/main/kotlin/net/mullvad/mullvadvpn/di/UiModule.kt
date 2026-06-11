@@ -98,6 +98,7 @@ import net.mullvad.mullvadvpn.lib.usecase.InternetAvailableUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
+import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ProviderToOwnershipsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RecentsUseCase
@@ -204,8 +205,24 @@ val uiModule = module {
     single { CustomListRelayItemsUseCase(get(), get()) }
     single { FilteredRelayListUseCase(get(), get(), get()) }
     single { LastKnownLocationUseCase(get()) }
-    single { SelectedLocationUseCase(get(), get()) }
-    single { FilterChipUseCase(get(), get(), get()) }
+    single {
+        MultihopActiveUseCase(connectionProxy = get(), wireguardConstraintsRepository = get())
+    }
+    single {
+        SelectedLocationUseCase(
+            relayListRepository = get(),
+            wireguardConstraintsRepository = get(),
+            multihopActiveUseCase = get(),
+        )
+    }
+    single {
+        FilterChipUseCase(
+            relayListFilterRepository = get(),
+            providerToOwnershipsUseCase = get(),
+            settingsRepository = get(),
+            multihopActiveUseCase = get(),
+        )
+    }
     single { DeleteCustomDnsUseCase(get()) }
     single { RecentsUseCase(get(), get(), get()) }
     single { SelectSinglehopUseCase(relayListRepository = get()) }
@@ -229,6 +246,7 @@ val uiModule = module {
             customListRelayItemUseCase = get(),
             relayListRepository = get(),
             settingsRepository = get(),
+            multihopActiveUseCase = get(),
         )
     }
     single {
@@ -312,17 +330,19 @@ val uiModule = module {
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel {
         SelectLocationViewModel(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
+            relayListFilterRepository = get(),
+            customListActionUseCase = get(),
+            relayListRepository = get(),
+            wireguardConstraintsRepository = get(),
+            filterChipUseCase = get(),
+            settingsRepository = get(),
+            selectSingleUseCase = get(),
+            modifyMultihopUseCase = get(),
+            relayListScrollConnection = get(),
+            connectionProxy = get(),
+            multihopActiveUseCase = get(),
+            hopSelectionUseCase = get(),
+            lastKnownLocationUseCase = get(),
         )
     }
     viewModel {
@@ -351,7 +371,13 @@ val uiModule = module {
     }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { FilterViewModel(get(), get()) }
+    viewModel { params ->
+        FilterViewModel(
+            filterTarget = params.get(),
+            providerToOwnershipsUseCase = get(),
+            relayListFilterRepository = get(),
+        )
+    }
     viewModel { params ->
         CreateCustomListDialogViewModel(locationCode = params.getOrNull(), get())
     }
@@ -433,6 +459,7 @@ val uiModule = module {
             hopSelectionUseCase = get(),
             modifyAndEnableMultihopUseCase = get(),
             customListsRepository = get(),
+            multihopActiveUseCase = get(),
         )
     }
     viewModel { AppIconViewModel(get()) }

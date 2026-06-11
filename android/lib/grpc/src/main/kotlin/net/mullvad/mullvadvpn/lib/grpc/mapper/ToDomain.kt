@@ -49,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -413,7 +414,7 @@ internal fun List<String>.toDomain(): Constraint<Providers> =
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(
-        isMultihopEnabled = useMultihop,
+        multihop = multihop.toDomain(),
         entryLocation = entryLocationOrNull?.toDomain() ?: Constraint.Any,
         ipVersion =
             if (hasIpVersion()) {
@@ -421,7 +422,18 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             } else {
                 Constraint.Any
             },
+        entryOwnership = entryOwnership.toDomain(),
+        entryProviders = entryProvidersList.toDomain(),
     )
+
+internal fun ManagementInterface.WireguardConstraints.Multihop.toDomain(): MultihopMode =
+    when (this) {
+        ManagementInterface.WireguardConstraints.Multihop.Always -> MultihopMode.ALWAYS
+        ManagementInterface.WireguardConstraints.Multihop.Never -> MultihopMode.NEVER
+        ManagementInterface.WireguardConstraints.Multihop.Auto -> MultihopMode.WHEN_NEEDED
+        ManagementInterface.WireguardConstraints.Multihop.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized multihop")
+    }
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
     when (this) {
@@ -758,7 +770,7 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.DAITA -> FeatureIndicator.DAITA
         ManagementInterface.FeatureIndicator.SHADOWSOCKS -> FeatureIndicator.SHADOWSOCKS
         ManagementInterface.FeatureIndicator.MULTIHOP -> FeatureIndicator.MULTIHOP
-        ManagementInterface.FeatureIndicator.DAITA_MULTIHOP -> FeatureIndicator.DAITA_MULTIHOP
+        ManagementInterface.FeatureIndicator.MULTIHOP_AUTO -> FeatureIndicator.MULTIHOP_AUTO
         ManagementInterface.FeatureIndicator.QUIC -> FeatureIndicator.QUIC
         ManagementInterface.FeatureIndicator.LWO -> FeatureIndicator.LWO
         ManagementInterface.FeatureIndicator.WIREGUARD_PORT -> FeatureIndicator.WIREGUARD_PORT

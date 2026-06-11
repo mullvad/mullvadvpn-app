@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import net.mullvad.mullvadvpn.lib.common.util.entryBlocked
-import net.mullvad.mullvadvpn.lib.common.util.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.common.util.relaylist.findByGeoLocationId
 import net.mullvad.mullvadvpn.lib.common.util.wireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.Constraint
@@ -21,6 +20,7 @@ class HopSelectionUseCase(
     private val customListRelayItemUseCase: CustomListsRelayItemUseCase,
     private val relayListRepository: RelayListRepository,
     private val settingsRepository: SettingsRepository,
+    private val multihopActiveUseCase: MultihopActiveUseCase,
 ) {
     operator fun invoke(): Flow<HopSelection> =
         combine(
@@ -28,8 +28,9 @@ class HopSelectionUseCase(
             relayListRepository.relayList,
             settingsRepository.settingsUpdates.filterNotNull(),
             relayListRepository.selectedLocation,
-        ) { customLists, relayList, settings, selectedExitLocation ->
-            if (settings.isMultihopEnabled()) {
+            multihopActiveUseCase(),
+        ) { customLists, relayList, settings, selectedExitLocation, multihopActiveStatus ->
+            if (multihopActiveStatus.isActive) {
                 val entry =
                     if (settings.entryBlocked()) {
                         Constraint.Any

@@ -19,13 +19,17 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
+import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.HopSelection
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.communication.CustomListAction
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
@@ -36,9 +40,12 @@ import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.lib.usecase.FilterChip
 import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
+import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModelOwnership
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveStatus
+import net.mullvad.mullvadvpn.lib.usecase.MultihopActiveUseCase
+import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectSinglehopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.customlists.CustomListActionUseCase
 import org.junit.jupiter.api.AfterEach
@@ -56,9 +63,12 @@ class SelectLocationViewModelTest {
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
     private val mockSettingsRepository: SettingsRepository = mockk()
     private val mockSelectSinglehopUseCase: SelectSinglehopUseCase = mockk()
+    private val mockMultihopActiveUseCase: MultihopActiveUseCase = mockk()
+    private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
     private val mockModifyMultihopUseCase: ModifyMultihopUseCase = mockk()
     private val mockHopSelectionUseCase: HopSelectionUseCase = mockk()
     private val mockConnectionProxy: ConnectionProxy = mockk()
+    private val mockTunnelState: TunnelState = mockk(relaxed = true)
 
     private val relayListScrollConnection: RelayListScrollConnection = RelayListScrollConnection()
 
@@ -69,6 +79,8 @@ class SelectLocationViewModelTest {
     private val filterChips = MutableStateFlow<List<FilterChip>>(emptyList())
     private val relayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
+    private val multihopActive = MutableStateFlow(MultihopActiveStatus.WhenNeededActive)
+    private val lastKnownDisconnectedLocation = MutableStateFlow<GeoIpLocation?>(null)
 
     @BeforeEach
     fun setup() {
@@ -77,9 +89,15 @@ class SelectLocationViewModelTest {
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
         every { mockRelayListRepository.relayList } returns relayList
+        every { mockRelayListRepository.findCountryByCode(any()) } returns null
         every { mockSettingsRepository.settingsUpdates } returns settings
-        every { mockConnectionProxy.tunnelState } returns flowOf(mockk())
+        every { mockConnectionProxy.tunnelState } returns flowOf(mockTunnelState)
         every { mockHopSelectionUseCase() } returns selectedRelayItemFlow
+        every { mockMultihopActiveUseCase() } returns multihopActive
+        every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns
+            lastKnownDisconnectedLocation
+        every { mockRelayListFilterRepository.hasAnyEntryFilter() } returns true
+        every { mockRelayListFilterRepository.hasAnyExitFilter() } returns true
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -97,6 +115,8 @@ class SelectLocationViewModelTest {
                 hopSelectionUseCase = mockHopSelectionUseCase,
                 connectionProxy = mockConnectionProxy,
                 relayListScrollConnection = relayListScrollConnection,
+                multihopActiveUseCase = mockMultihopActiveUseCase,
+                lastKnownLocationUseCase = mockLastKnownLocationUseCase,
             )
     }
 
@@ -117,7 +137,7 @@ class SelectLocationViewModelTest {
             // Arrange
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
-            val multihopChange: MultihopChange = MultihopChange.Exit(mockRelayItem)
+            val multihopChange: RelayMultihopChange = RelayMultihopChange.Exit(mockRelayItem)
             every { mockRelayItem.id } returns relayItemId
             every { mockRelayItem.active } returns true
             coEvery { mockModifyMultihopUseCase.invoke(multihopChange) } returns Unit.right()
@@ -137,7 +157,7 @@ class SelectLocationViewModelTest {
             // Arrange
             val mockRelayItem: RelayItem.Location.Country = mockk()
             val relayItemId: GeoLocationId.Country = mockk(relaxed = true)
-            val multihopChange = MultihopChange.Entry(mockRelayItem)
+            val multihopChange = RelayMultihopChange.Entry(mockRelayItem)
             every { mockRelayItem.active } returns true
             every { mockRelayItem.id } returns relayItemId
             coEvery { mockModifyMultihopUseCase.invoke(multihopChange) } returns Unit.right()
@@ -164,30 +184,36 @@ class SelectLocationViewModelTest {
     fun `removeOwnerFilter should invoke use case with Constraint Any Ownership`() = runTest {
         // Arrange
         val mockSelectedProviders: Constraint<Providers> = mockk()
-        every { mockRelayListFilterRepository.selectedProviders } returns
+        every { mockRelayListFilterRepository.selectedExitProviders } returns
             MutableStateFlow(mockSelectedProviders)
-        coEvery { mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any) } returns
-            Unit.right()
+        coEvery {
+            mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any, FilterTarget.Exit)
+        } returns Unit.right()
 
         // Act
-        viewModel.removeOwnerFilter()
+        viewModel.removeOwnerFilter(FilterTarget.Exit)
         // Assert
-        coVerify { mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any) }
+        coVerify {
+            mockRelayListFilterRepository.updateSelectedOwnership(Constraint.Any, FilterTarget.Exit)
+        }
     }
 
     @Test
     fun `removeProviderFilter should invoke use case with Constraint Any Provider`() = runTest {
         // Arrange
         val mockSelectedOwnership: Constraint<Ownership> = mockk()
-        every { mockRelayListFilterRepository.selectedOwnership } returns
+        every { mockRelayListFilterRepository.selectedExitOwnership } returns
             MutableStateFlow(mockSelectedOwnership)
-        coEvery { mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any) } returns
-            Unit.right()
+        coEvery {
+            mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any, FilterTarget.Exit)
+        } returns Unit.right()
 
         // Act
-        viewModel.removeProviderFilter()
+        viewModel.removeProviderFilter(FilterTarget.Exit)
         // Assert
-        coVerify { mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any) }
+        coVerify {
+            mockRelayListFilterRepository.updateSelectedProviders(Constraint.Any, FilterTarget.Exit)
+        }
     }
 
     @Test
@@ -209,9 +235,8 @@ class SelectLocationViewModelTest {
         settings.value = mockSettings
         every { mockSettings.tunnelOptions.daitaSettings.enabled } returns true
         every { mockSettings.tunnelOptions.daitaSettings.directOnly } returns false
-        every {
-            mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
-        } returns true
+        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.multihop } returns
+            MultihopMode.ALWAYS
         val expectedFilters = listOf(FilterChip.Quic, FilterChip.Daita)
         filterChips.value = expectedFilters
 
@@ -234,9 +259,8 @@ class SelectLocationViewModelTest {
         filterChips.value = expectedFilters
         every { mockSettings.tunnelOptions.daitaSettings.enabled } returns true
         every { mockSettings.tunnelOptions.daitaSettings.directOnly } returns false
-        every {
-            mockSettings.relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
-        } returns true
+        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.multihop } returns
+            MultihopMode.ALWAYS
 
         // Act, Assert
         viewModel.uiState.test {

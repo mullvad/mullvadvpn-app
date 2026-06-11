@@ -85,6 +85,11 @@ sealed interface RelayListItem {
         override val contentType = RelayListItemContentType.LOCATION_HEADER
     }
 
+    data class AutomaticEntryItem(val isSelected: Boolean) : RelayListItem {
+        override val key = "automatic_entry"
+        override val contentType = RelayListItemContentType.LOCATION_ITEM
+    }
+
     data class GeoLocationItem(
         override val item: RelayItem.Location,
         override val isSelected: Boolean = false,

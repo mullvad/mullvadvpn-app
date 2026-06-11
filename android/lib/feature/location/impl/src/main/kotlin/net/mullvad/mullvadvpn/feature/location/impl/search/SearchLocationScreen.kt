@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.feature.customlist.api.CreateCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.DeleteCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.EditCustomListNavResult
 import net.mullvad.mullvadvpn.feature.customlist.api.UpdateCustomListNavResult
+import net.mullvad.mullvadvpn.feature.location.api.AutomaticEntryInfoNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetNavKey
 import net.mullvad.mullvadvpn.feature.location.api.LocationBottomSheetState
 import net.mullvad.mullvadvpn.feature.location.api.SearchLocationNavResult
@@ -50,9 +51,11 @@ import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.toFilterTarget
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadSearchBar
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.ListHeader
@@ -83,6 +86,8 @@ private fun PreviewSearchLocationScreen(
             onSearchInputChanged = {},
             onRemoveOwnershipFilter = {},
             onRemoveProviderFilter = {},
+            onSelectAutomaticEntry = {},
+            onAutomaticInfoClick = {},
             navigateToBottomSheet = {},
             onGoBack = {},
         )
@@ -178,6 +183,8 @@ fun SearchLocation(relayListType: RelayListType, navigator: Navigator) {
         state = state,
         snackbarHostState = snackbarHostState,
         onSelectRelayItem = viewModel::selectRelayItem,
+        onSelectAutomaticEntry = viewModel::selectAutomaticMultihopEntry,
+        onAutomaticInfoClick = dropUnlessResumed { navigator.navigate(AutomaticEntryInfoNavKey) },
         onToggleExpand = viewModel::onToggleExpand,
         onSearchInputChanged = viewModel::onSearchInputUpdated,
         onRemoveOwnershipFilter = viewModel::removeOwnerFilter,
@@ -196,10 +203,12 @@ fun SearchLocationScreen(
     state: Lce<Unit, SearchLocationUiState, Unit>,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelayItem: (RelayItem, RelayListType) -> Unit,
+    onSelectAutomaticEntry: () -> Unit,
+    onAutomaticInfoClick: () -> Unit,
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
     onSearchInputChanged: (String) -> Unit,
-    onRemoveOwnershipFilter: () -> Unit,
-    onRemoveProviderFilter: () -> Unit,
+    onRemoveOwnershipFilter: (filterTarget: FilterTarget) -> Unit,
+    onRemoveProviderFilter: (filterTarget: FilterTarget) -> Unit,
     onGoBack: () -> Unit,
     navigateToBottomSheet: (LocationBottomSheetState) -> Unit,
 ) {
@@ -241,8 +250,12 @@ fun SearchLocationScreen(
                 if (state is Lce.Content) {
                     filterRow(
                         filters = state.value.filterChips,
-                        onRemoveOwnershipFilter = onRemoveOwnershipFilter,
-                        onRemoveProviderFilter = onRemoveProviderFilter,
+                        onRemoveOwnershipFilter = {
+                            onRemoveOwnershipFilter(state.value.relayListType.toFilterTarget())
+                        },
+                        onRemoveProviderFilter = {
+                            onRemoveProviderFilter(state.value.relayListType.toFilterTarget())
+                        },
                     )
                 }
                 when (state) {
@@ -260,6 +273,8 @@ fun SearchLocationScreen(
                             onSelectRelayItem = {
                                 onSelectRelayItem(it, state.value.relayListType)
                             },
+                            onSelectAutomaticEntry = onSelectAutomaticEntry,
+                            onAutomaticInfoClick = onAutomaticInfoClick,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = navigateToBottomSheet,
                             customListHeader = {
