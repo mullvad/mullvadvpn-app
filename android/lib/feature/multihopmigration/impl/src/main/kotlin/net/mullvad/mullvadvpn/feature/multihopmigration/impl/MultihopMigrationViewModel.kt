@@ -51,6 +51,7 @@ class MultihopMigrationViewModel(
     ): MultihopMigrationUiState =
         MultihopMigrationUiState(multihopMigrationPages = pages, currentPageIndex = page)
 
+    @Suppress("CyclomaticComplexMethod")
     private fun generatePages(
         multihopMigrationData: MultihopMigrationData
     ): List<MultihopMigrationPage> = buildList {
