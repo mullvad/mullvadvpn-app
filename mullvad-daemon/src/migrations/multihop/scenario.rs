@@ -24,9 +24,9 @@
 //!   was undefined (or atleast undocumented) behaviour, but it was decided when this migration was
 //!   architected to respect the previous behaviour.
 
-/// Each scenario which a *previous* settings object maps to. Which migration takes place depends
-/// the resulting scenario.
-#[derive(Debug, Clone, Copy, PartialEq)]
+/// Each scenario which a [*previous* settings](migrations::multihop::settings::v17) object maps to.
+/// Exactly how the migration is executed depends on this scenario.
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize)]
 pub enum Scenario {
     OneA,   // 1A
     OneB,   // 1B

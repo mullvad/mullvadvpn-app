@@ -43,7 +43,7 @@ use tokio::{
     io::{self, AsyncWriteExt},
 };
 
-use crate::{DaemonEventSender, InternalDaemonEvent};
+use crate::{DaemonEventSender, InternalDaemonEvent, migrations::multihop::scenario::Scenario};
 
 mod account_history;
 mod device;
@@ -127,16 +127,20 @@ impl MigrationComplete {
     }
 }
 
-/// Contains discarded data that may be useful for later work.
-pub type MigrationData = v5::MigrationData;
-
 /// Directories that may be passed to the migration logic.
 pub struct Directories<'path> {
     cache_dir: &'path Path,
     settings_dir: &'path Path,
 }
 
-pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option<MigrationData>> {
+/// Contains discarded data that may be useful for later work.
+#[derive(Default)]
+pub struct MigrationData {
+    pub(crate) v5: Option<v5::MigrationData>,
+    pub(crate) multihop_split_filter_migration: Option<Scenario>,
+}
+
+pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<MigrationData> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
@@ -145,7 +149,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
     let path = settings_dir.join(SETTINGS_FILE);
 
     if !path.is_file() {
-        return Ok(None);
+        return Ok(MigrationData::default());
     }
 
     let settings_bytes = fs::read(&path).await.map_err(Error::Read)?;
@@ -188,7 +192,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<Option
 async fn migrate_settings(
     directories: Option<Directories<'_>>,
     settings: &mut serde_json::Value,
-) -> Result<Option<MigrationData>> {
+) -> Result<MigrationData> {
     if !settings.is_object() {
         return Err(Error::InvalidSettingsContent);
     }
@@ -207,7 +211,7 @@ async fn migrate_settings(
         account_history::migrate_formats(settings_dir, settings).await?;
     }
 
-    let migration_data = v5::migrate(settings)?;
+    let v5 = v5::migrate(settings)?;
     v6::migrate(settings)?;
     v7::migrate(settings)?;
     v8::migrate(settings)?;
@@ -227,13 +231,16 @@ async fn migrate_settings(
     v14::migrate(settings)?;
     v15::migrate(settings)?;
     v16::migrate(settings)?;
-    multihop::migrate(settings)?;
+    let multihop_split_filter_migration = multihop::migrate(settings)?;
 
-    Ok(migration_data)
+    Ok(MigrationData {
+        v5,
+        multihop_split_filter_migration,
+    })
 }
 
 pub(crate) fn migrate_device(
-    migration_data: MigrationData,
+    migration_data: v5::MigrationData,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: DaemonEventSender<InternalDaemonEvent>,
 ) -> MigrationComplete {
