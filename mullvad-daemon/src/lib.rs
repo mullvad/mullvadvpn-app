@@ -720,13 +720,33 @@ impl Daemon {
 
         let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
             .await
-            .unwrap_or_else(|error| {
+            .inspect_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to migrate settings or cache")
                 );
-                None
-            });
+            })
+            .unwrap_or_default();
+
+        // If split filter / multihop migration ran, cache the result to disk. The result will need
+        // to be persisted until a client has acknowledged the migration, which could happen after a
+        // daemon restart.
+        // NOTE: This code may be removed once app versions prior to mid 2026 are unsupported.
+        if let Some(scenario) = migration_data.multihop_split_filter_migration
+            && let Ok(scenario) = serde_json::to_string_pretty(&scenario)
+            && let Err(err) = SettingsPersister::save_bytes(
+                config.cache_dir.join("split-filter-migration.json"),
+                &scenario,
+            )
+            .await
+        {
+            log::error!(
+                "{}",
+                err.display_chain_with_msg(&format!(
+                    "Failed to save split-filter migration ({scenario}) to disk: {err}"
+                ))
+            );
+        }
 
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
 
@@ -830,7 +850,7 @@ impl Daemon {
             });
         });
 
-        let migration_complete = if let Some(migration_data) = migration_data {
+        let migration_complete = if let Some(migration_data) = migration_data.v5 {
             migrations::migrate_device(
                 migration_data,
                 api_handle.clone(),
