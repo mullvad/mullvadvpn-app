@@ -53,7 +53,7 @@ extension RelayFilterSelection {
         ) {
             self.tunnelManager = tunnelManager
             self.settings = tunnelManager.settings
-            var settingsCopy = settings
+            var settingsCopy = settings.withAnyLocation
 
             self.relaySelectorWrapper = relaySelectorWrapper
             self.multihopContext = multihopContext
