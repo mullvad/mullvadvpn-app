@@ -23,9 +23,13 @@ extension RelayFilterSelection {
         private let filterSettingsView: UIView
         private let buttonContainerView = UIStackView(
             axis: .vertical, isLayoutMarginsRelativeArrangement: true, spacing: 16)
+        private let autoOverrideNoticeContainer = UIStackView(axis: .horizontal, alignment: .center, spacing: 8)
         private let descriptionContainer = UIStackView(axis: .vertical, spacing: 16)
         private var filterSettingsTopConstraint: NSLayoutConstraint!
+        private var filterSettingsAutoNoticeConstraint: NSLayoutConstraint!
         private var filterSettingsTableViewConstraint: NSLayoutConstraint!
+        private var autoNoticeTopConstraint: NSLayoutConstraint!
+        private var autoNoticeTableViewConstraint: NSLayoutConstraint!
         private var tableViewTopConstraint: NSLayoutConstraint!
 
         private let applyButton: AppButton = {
@@ -68,6 +72,19 @@ extension RelayFilterSelection {
 
             applyButton.addTarget(self, action: #selector(applyFilter), for: .touchUpInside)
 
+            let autoOverrideIconView: UIImageView = UIImageView(image: UIImage.Buttons.info)
+            autoOverrideIconView.contentMode = .scaleAspectFit
+            autoOverrideIconView.widthAnchor.constraint(equalToConstant: 14).isActive = true
+            autoOverrideIconView.layer.opacity = 0.6
+            autoOverrideNoticeContainer.addArrangedSubview(autoOverrideIconView)
+            let autoOverrideNoticeText = UILabel()
+            autoOverrideNoticeText.numberOfLines = 0
+            autoOverrideNoticeText.text = NSLocalizedString(
+                "Filters are overridden when using an automatic location", comment: "")
+            autoOverrideNoticeText.font = UIFont.mullvadMini
+            autoOverrideNoticeText.textColor = UIColor(Color.mullvadTextSecondary)
+            autoOverrideNoticeContainer.addArrangedSubview(autoOverrideNoticeText)
+
             tableView.backgroundColor = view.backgroundColor
             tableView.separatorColor = view.backgroundColor
             tableView.rowHeight = UITableView.automaticDimension
@@ -82,8 +99,11 @@ extension RelayFilterSelection {
 
             filterSettingsView.backgroundColor = .secondaryColor
 
-            view.addConstrainedSubviews([filterSettingsView, tableView, buttonContainerView]) {
+            view.addConstrainedSubviews([
+                filterSettingsView, autoOverrideNoticeContainer, tableView, buttonContainerView,
+            ]) {
                 filterSettingsView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
+                autoOverrideNoticeContainer.pinEdgesToSuperviewMargins(.all().excluding([.top, .bottom]))
                 tableView.pinEdgesToSuperview(.all().excluding([.top, .bottom]))
                 buttonContainerView.pinEdgesToSuperviewMargins(.all().excluding(.top))
                 buttonContainerView.topAnchor.constraint(
@@ -93,20 +113,36 @@ extension RelayFilterSelection {
             }
             filterSettingsTopConstraint = filterSettingsView.topAnchor.constraint(
                 equalTo: view.safeAreaLayoutGuide.topAnchor)
+            autoNoticeTopConstraint = autoOverrideNoticeContainer.topAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.topAnchor)
             filterSettingsTableViewConstraint = tableView.topAnchor.constraint(
                 equalTo: filterSettingsView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
             )
+            filterSettingsAutoNoticeConstraint = autoOverrideNoticeContainer.topAnchor.constraint(
+                equalTo: filterSettingsView.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
+            autoNoticeTableViewConstraint = tableView.topAnchor.constraint(
+                equalTo: autoOverrideNoticeContainer.bottomAnchor,
+                constant: UIMetrics.contentLayoutMargins.top
+            )
             tableViewTopConstraint = tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
             adjustFilterSettingsVisibility(
-                filtersVisible: viewModel.multihopContext == .entry && !viewModel.filters.isEmpty)
+                filtersVisible: viewModel.canShowFilterSettings && !viewModel.filters.isEmpty)
             setupDataSource()
         }
 
         private func adjustFilterSettingsVisibility(filtersVisible: Bool) {
             filterSettingsTopConstraint.isActive = filtersVisible
-            filterSettingsTableViewConstraint.isActive = filtersVisible
-            tableViewTopConstraint.isActive = !filtersVisible
+            autoOverrideNoticeContainer.isHidden = !viewModel.shouldShowAutomaticFilterOverrideNotice
+            autoNoticeTopConstraint.isActive = !filtersVisible && viewModel.shouldShowAutomaticFilterOverrideNotice
+            filterSettingsTableViewConstraint.isActive =
+                filtersVisible && !viewModel.shouldShowAutomaticFilterOverrideNotice
+            filterSettingsAutoNoticeConstraint.isActive =
+                filtersVisible && viewModel.shouldShowAutomaticFilterOverrideNotice
+            autoNoticeTableViewConstraint.isActive = viewModel.shouldShowAutomaticFilterOverrideNotice
+            tableViewTopConstraint.isActive = !filtersVisible && !viewModel.shouldShowAutomaticFilterOverrideNotice
         }
 
         private func setupDataSource() {
@@ -140,7 +176,7 @@ extension RelayFilterSelection {
                     }
                 }
                 .store(in: &disposeBag)
-            if viewModel.multihopContext == .entry {
+            if viewModel.canShowFilterSettings {
                 viewModel
                     .$shouldShowFilterSettingsView
                     .sink { [weak self] shouldShow in

@@ -13,27 +13,13 @@ extension RelayFilterSelection {
         @ObservedObject var viewModel: SettingsViewModel
 
         var body: some View {
-            VStack {
-                if !viewModel.filters.isEmpty {
-                    ActiveFilterView(
-                        activeFilter: viewModel.filters,
-                        labelStyle: .specific,
-                        automaticLocationIsActive: false
-                    ) { filter in
-                        viewModel.onFilterTapped(filter)
-                    } onRemove: { _ in
-                    }
-                }
-                if viewModel.shouldShowAutomaticFilterOverrideNotice {
-                    HStack {
-                        Image.mullvadIconInfo.resizable().frame(width: 14, height: 14).opacity(0.6)
-                        Text("Filters are overridden when using an automatic location").font(.mullvadMini)
-                            .foregroundStyle(
-                                Color.mullvadTextSecondary)
-                        Spacer()
-                    }
-                    .padding(EdgeInsets(top: 4, leading: 16, bottom: 0, trailing: 0))
-                }
+            ActiveFilterView(
+                activeFilter: viewModel.filters,
+                labelStyle: .specific,
+                automaticLocationIsActive: false
+            ) { filter in
+                viewModel.onFilterTapped(filter)
+            } onRemove: { _ in
             }
             .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 16))
             .background(Color.mullvadBackground)
