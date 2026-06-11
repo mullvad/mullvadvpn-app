@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Dns
+import androidx.compose.material.icons.outlined.AddLocationAlt
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.rounded.ErrorOutline
+import androidx.compose.material.icons.rounded.FilterList
+import androidx.compose.material.icons.rounded.FilterListOff
 import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
@@ -64,9 +67,13 @@ import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionScene
 import androidx.constraintlayout.compose.Visibility
 import androidx.constraintlayout.compose.layoutId
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
+import net.mullvad.mullvadvpn.lib.ui.icon.FilterActive
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.tag.HOP_SELECTOR_ENTRY_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
+import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaDisabled
 
 private object AnimationKey {
     const val Internet = "internet"
@@ -128,13 +135,14 @@ private fun PreviewCollapsibleMultihopSelector() {
 
             MultihopSelector(
                 modifier = Modifier,
-                exitSelected,
-                "Germany",
-                if (isEntryError) "No relays matching your selection" else null,
-                { exitSelected = false },
-                "Sweden",
-                if (isExitError) "No relays matching your selection" else null,
-                { exitSelected = true },
+                userLocation = "Denmark",
+                exitSelected = exitSelected,
+                entryLocation = "Germany",
+                entryErrorText = if (isEntryError) "No relays matching your selection" else null,
+                onEntryClick = { exitSelected = false },
+                exitLocation = "Sweden",
+                exitErrorText = if (isExitError) "No relays matching your selection" else null,
+                onExitClick = { exitSelected = true },
                 expandProgress = progress,
             )
         }
@@ -153,6 +161,7 @@ private fun PreviewMultihopSelector() {
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 MultihopSelector(
+                    userLocation = "USA",
                     exitSelected = false,
                     entryLocation = "Sweden",
                     exitLocation = "Germany",
@@ -175,18 +184,28 @@ private fun PreviewMultihopSelector() {
     }
 }
 
+enum class FilterButtonState {
+    Enabled,
+    EnabledFiltersActive,
+    Disabled,
+}
+
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMotionApi::class)
 @Suppress("LongMethod")
 @Composable
 fun MultihopSelector(
     modifier: Modifier = Modifier,
+    userLocation: String? = null,
     exitSelected: Boolean = true,
     entryLocation: String,
     entryErrorText: String? = null,
+    entryFilterButtonState: FilterButtonState = FilterButtonState.Enabled,
     onEntryClick: () -> Unit = {},
     exitLocation: String,
     exitErrorText: String? = null,
+    exitFilterButtonState: FilterButtonState = FilterButtonState.Enabled,
     onExitClick: () -> Unit = {},
+    onFilterClick: (FilterTarget) -> Unit = {},
     expandProgress: Float = 1f,
 ) {
     val scene = MotionScene {
@@ -323,7 +342,7 @@ fun MultihopSelector(
     ) {
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
-            text = stringResource(R.string.your_device),
+            text = resolveYourDeviceText(userLocation),
             imageVector = Icons.Rounded.PhoneAndroid,
             colors = colors,
             onIconGloballyPositioned = { deviceIconLC = it },
@@ -350,12 +369,16 @@ fun MultihopSelector(
                         end = 4.dp,
                         bottom = if (entryErrorText == null) Dimens.tinyPadding else 0.dp,
                     ),
-            leadingIcon = Icons.Outlined.Dns,
+            leadingIcon =
+                if (entryFilterButtonState == FilterButtonState.Disabled) MultihopWhenNeeded
+                else Icons.Outlined.AddLocationAlt,
             text = entryLocation,
             selected = !exitSelected,
             onSelect = onEntryClick,
             isError = entryErrorText != null,
             colors = colors,
+            filterButtonState = entryFilterButtonState,
+            onFilterClick = { onFilterClick(FilterTarget.Entry) },
             onIconGloballyPositioned = { entryIconLC = it },
         )
 
@@ -384,6 +407,8 @@ fun MultihopSelector(
             onSelect = onExitClick,
             isError = exitErrorText != null,
             colors = colors,
+            filterButtonState = exitFilterButtonState,
+            onFilterClick = { onFilterClick(FilterTarget.Exit) },
             onIconGloballyPositioned = { exitIconLC = it },
         )
         Text(
@@ -425,8 +450,11 @@ private fun PreviewSinglehopSelector() {
 @Composable
 fun Singlehop(
     exitLocation: String,
+    userLocation: String? = null,
     errorText: String? = null,
     expandProgress: Float = 1f,
+    filterButtonState: FilterButtonState = FilterButtonState.Enabled,
+    onFilterClick: () -> Unit = {},
     onSelect: (() -> Unit) = {},
 ) {
     val scene = MotionScene {
@@ -507,7 +535,7 @@ fun Singlehop(
     ) {
         LocationHint(
             modifier = Modifier.layoutId(AnimationKey.Device),
-            text = stringResource(R.string.your_device),
+            text = resolveYourDeviceText(userLocation),
             imageVector = Icons.Rounded.PhoneAndroid,
             onIconGloballyPositioned = { deviceIconLC = it },
             colors = colors,
@@ -529,6 +557,8 @@ fun Singlehop(
             isError = errorText != null,
             colors = colors,
             onIconGloballyPositioned = { exitIconLC = it },
+            filterButtonState = filterButtonState,
+            onFilterClick = onFilterClick,
         )
         Text(
             modifier =
@@ -557,6 +587,8 @@ private fun PreviewHop() {
                     onSelect = {},
                     isError = false,
                     modifier = Modifier.fillMaxWidth(),
+                    filterButtonState = FilterButtonState.Enabled,
+                    onFilterClick = {},
                 )
 
                 Hop(
@@ -566,15 +598,19 @@ private fun PreviewHop() {
                     onSelect = {},
                     isError = true,
                     modifier = Modifier.fillMaxWidth(),
+                    filterButtonState = FilterButtonState.Enabled,
+                    onFilterClick = {},
                 )
 
                 Hop(
-                    leadingIcon = Icons.Outlined.Dns,
+                    leadingIcon = Icons.Outlined.AddLocationAlt,
                     text = "Sweden",
                     selected = true,
                     onSelect = {},
                     isError = true,
                     modifier = Modifier.fillMaxWidth(),
+                    filterButtonState = FilterButtonState.Enabled,
+                    onFilterClick = {},
                 )
 
                 Hop(
@@ -584,6 +620,8 @@ private fun PreviewHop() {
                     onSelect = {},
                     isError = false,
                     modifier = Modifier.fillMaxWidth(),
+                    filterButtonState = FilterButtonState.Disabled,
+                    onFilterClick = {},
                 )
             }
         }
@@ -594,6 +632,8 @@ private fun PreviewHop() {
 @Composable
 private fun Hop(
     leadingIcon: ImageVector,
+    filterButtonState: FilterButtonState,
+    onFilterClick: () -> Unit,
     text: String,
     selected: Boolean,
     onSelect: (() -> Unit)?,
@@ -649,7 +689,31 @@ private fun Hop(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = SemiBold,
             )
+            FilterButton(onFilterClick = onFilterClick, filterButtonState = filterButtonState)
         }
+    }
+}
+
+@Composable
+private fun FilterButton(onFilterClick: () -> Unit, filterButtonState: FilterButtonState) {
+    IconButton(
+        modifier = Modifier.padding(end = Dimens.smallPadding),
+        onClick = onFilterClick,
+        enabled = filterButtonState != FilterButtonState.Disabled,
+    ) {
+        Icon(
+            imageVector =
+                when (filterButtonState) {
+                    FilterButtonState.Enabled -> Icons.Rounded.FilterList
+                    FilterButtonState.EnabledFiltersActive -> FilterActive
+                    FilterButtonState.Disabled -> Icons.Rounded.FilterListOff
+                },
+            tint =
+                if (filterButtonState == FilterButtonState.Disabled)
+                    MaterialTheme.colorScheme.onPrimary.copy(alpha = AlphaDisabled)
+                else LocalContentColor.current,
+            contentDescription = stringResource(R.string.filter),
+        )
     }
 }
 
@@ -684,6 +748,14 @@ private fun LocationHint(
         }
     }
 }
+
+@Composable
+fun resolveYourDeviceText(userLocation: String?): String =
+    if (userLocation != null) {
+        stringResource(R.string.your_device_with_location, userLocation)
+    } else {
+        stringResource(R.string.your_device)
+    }
 
 @Immutable
 class HopSelectorColors(

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 class WireguardConstraintsRepository(
@@ -20,16 +21,19 @@ class WireguardConstraintsRepository(
             .mapNotNull { it.relaySettings.relayConstraints.wireguardConstraints }
             .stateIn(CoroutineScope(dispatcher), SharingStarted.Eagerly, null)
 
-    suspend fun setMultihop(enabled: Boolean) = managementService.setMultihop(enabled)
+    suspend fun setMultihop(multihopMode: MultihopMode) =
+        managementService.setMultihop(multihopMode)
 
     suspend fun setEntryLocation(relayItemId: RelayItemId) =
         managementService.setEntryLocation(relayItemId)
+
+    suspend fun setAutomaticEntryLocation() = managementService.setAutomaticEntryLocation()
 
     suspend fun setDeviceIpVersion(ipVersion: Constraint<IpVersion>) =
         managementService.setDeviceIpVersion(ipVersion)
 
     suspend fun setMultihopAndEntryLocation(
-        multihopEnabled: Boolean,
+        multihopMode: MultihopMode,
         entryRelayItemId: RelayItemId,
-    ) = managementService.setMultihopAndEntryLocation(multihopEnabled, entryRelayItemId)
+    ) = managementService.setMultihopAndEntryLocation(multihopMode, entryRelayItemId)
 }

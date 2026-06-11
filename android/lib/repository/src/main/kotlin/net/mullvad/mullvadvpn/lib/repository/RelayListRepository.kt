@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.sortedByName
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.PortRange
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
@@ -91,14 +92,14 @@ class RelayListRepository(
         managementService.setRelayLocation(value)
 
     suspend fun updateSelectedRelayLocationMultihop(
-        isMultihopEnabled: Boolean,
+        multihopMode: MultihopMode,
         entry: RelayItemId,
         exit: RelayItemId,
-    ) = managementService.setRelayLocationMultihop(isMultihopEnabled, entry, exit)
+    ) = managementService.setRelayLocationMultihop(multihopMode, entry, exit)
 
-    suspend fun updateExitRelayLocationMultihop(isMultihopEnabled: Boolean, exit: RelayItemId) =
+    suspend fun updateExitRelayLocationMultihop(multihopMode: MultihopMode, exit: RelayItemId) =
         managementService.setRelayLocationMultihop(
-            isMultihopEnabled = isMultihopEnabled,
+            multihopMode = multihopMode,
             entry = null,
             exit = exit,
         )

@@ -367,6 +367,7 @@ class CustomListLocationsViewModelTest {
                                             lwo = false,
                                             countryName = "Sweden",
                                             cityName = "Gothenburg",
+                                            needsOtherEntry = false,
                                         )
                                     ),
                                 countryName = "Sweden",
@@ -389,6 +390,7 @@ class CustomListLocationsViewModelTest {
                 lwo = false,
                 cityName = "Copenhagen",
                 countryName = "Denmark",
+                needsOtherEntry = false,
             )
     }
 }

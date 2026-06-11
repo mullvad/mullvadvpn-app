@@ -67,6 +67,7 @@ const val CIRCULAR_PROGRESS_INDICATOR_TEST_TAG = "circular_progress_indicator_te
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"
 const val RECENT_CELL_TEST_TAG = "recent_cell_test_tag"
+const val AUTOMATIC_CELL_TEST_TAG = "automatic_cell_test_tag"
 const val HOP_SELECTOR_ENTRY_TEST_TAG = "hop_selector_entry_test_tag"
 
 const val GEOLOCATION_ITEM_TAG = "geolocation_item_test_tag"

@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
     <string name="daita_description_slide_2_third_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %1$s med alla servrar.</string>
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
-    <string name="daita_multihop">%1$s: Multihopp</string>
     <string name="days_were_added_30">30 dagar har lagts till i ditt konto.</string>
     <string name="days_were_added_90">90 dagar har lagts till i ditt konto.</string>
     <string name="delete">Ta bort</string>
@@ -323,7 +322,6 @@
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
     <string name="multihop">Multihopp</string>
     <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
-    <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%2$s\" i inställningarna.</string>
     <string name="multihop_is_disabled">Multihopp är inaktiverat</string>
     <string name="multihop_is_enabled">Multihopp är aktiverat</string>
     <string name="name">Namn</string>
@@ -351,7 +349,6 @@
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_app_details">Öppna appinformation</string>
-    <string name="open_feature_settings">Öppna %1$s-inställningarna</string>
     <string name="open_url">Öppna URL</string>
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="overrides_cleared">Åsidosättningar rensade</string>

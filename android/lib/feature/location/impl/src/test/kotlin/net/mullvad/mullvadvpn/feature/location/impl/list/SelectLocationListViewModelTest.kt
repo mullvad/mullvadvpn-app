@@ -267,6 +267,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.EmptyRelayList,
             is RelayListItem.SectionDivider,
             is RelayListItem.CustomListHeader,
+            is RelayListItem.AutomaticEntryItem,
             RelayListItem.LocationHeader,
             RelayListItem.RecentsListHeader,
             RelayListItem.RecentsListFooter -> null

@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_second_paragraph">%1$s w tym celu ostrożnie dodaje szum sieciowy i nadaje ten sam rozmiar wszystkim pakietom sieciowym.</string>
     <string name="daita_description_slide_2_third_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %1$s z dowolnym serwerem.</string>
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
-    <string name="daita_multihop">%1$s: wielokrotny przeskok</string>
     <string name="days_were_added_30">Do konta dodano 30 dni.</string>
     <string name="days_were_added_90">Do konta dodano 90 dni.</string>
     <string name="delete">Usuń</string>
@@ -323,7 +322,6 @@
     <string name="mullvad_owned_only">Wyłącznie firmy Mullvad</string>
     <string name="multihop">Wielokrotny przeskok</string>
     <string name="multihop_description">Funkcja wielokrotnego przeskoku kieruje Twój ruch przychodzący do jednego serwera WireGuard, a wychodzący wysyła z innego, co utrudnia jego śledzenie. Skutkuje to zwiększoną latencją, ale zwiększa anonimowość online.</string>
-    <string name="multihop_entry_disabled_description">Serwer wejściowy dla %1$s jest obecnie zastępowany przez %2$s. Aby wybrać serwer wejściowy, należy najpierw włączyć opcję „%3$s” lub wyłączyć opcję „%2$s” w ustawieniach.</string>
     <string name="multihop_is_disabled">Funkcja Wielokrotny przeskok jest wyłączona</string>
     <string name="multihop_is_enabled">Funkcja Wielokrotny przeskok jest włączona</string>
     <string name="name">Nazwa</string>
@@ -351,7 +349,6 @@
     <string name="off">Wył.</string>
     <string name="on">Wł.</string>
     <string name="open_app_details">Otwórz szczegóły aplikacji</string>
-    <string name="open_feature_settings">Otwórz ustawienia %1$s</string>
     <string name="open_url">Otwórz adres URL</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="overrides_cleared">Usunięto zastąpienia</string>

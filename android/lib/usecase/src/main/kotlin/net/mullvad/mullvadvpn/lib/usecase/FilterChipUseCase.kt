@@ -14,6 +14,8 @@ import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayListType
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
+import net.mullvad.mullvadvpn.lib.model.toFilterTarget
 import net.mullvad.mullvadvpn.lib.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 
@@ -23,20 +25,23 @@ class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,
     private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
 ) {
     operator fun invoke(relayListType: RelayListType): Flow<List<FilterChip>> =
         combine(
-            relayListFilterRepository.selectedOwnership,
-            relayListFilterRepository.selectedProviders,
+            relayListFilterRepository.selectedOwnership(relayListType.toFilterTarget()),
+            relayListFilterRepository.selectedProviders(relayListType.toFilterTarget()),
             providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
-        ) { selectedOwnership, selectedConstraintProviders, providerOwnership, settings ->
+            multihopInEffectUseCase(),
+        ) { selectedOwnership, selectedProviders, providerOwnership, settings, multihopInEffect ->
             filterChips(
                 selectedOwnership = selectedOwnership,
-                selectedConstraintProviders = selectedConstraintProviders,
+                selectedConstraintProviders = selectedProviders,
                 providerToOwnerships = providerOwnership,
                 settings = settings,
                 relayListType = relayListType,
+                multihopInEffect = multihopInEffect,
             )
         }
 
@@ -46,7 +51,17 @@ class FilterChipUseCase(
         providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         settings: Settings?,
         relayListType: RelayListType,
+        multihopInEffect: MultihopInEffectStatus,
     ): List<FilterChip> {
+
+        // Do not show any entry filters for when needed multihop.
+        if (
+            relayListType.isMultihopEntry &&
+                multihopInEffect == MultihopInEffectStatus.WhenNeededInEffect
+        ) {
+            return emptyList()
+        }
+
         val ownershipFilter = selectedOwnership.getOrNull()
         val providerCountFilter =
             when (selectedConstraintProviders) {
@@ -66,6 +81,7 @@ class FilterChipUseCase(
                         }
                         .size
             }
+
         return buildList {
             if (ownershipFilter != null) {
                 add(FilterChip.Ownership(ownershipFilter))
