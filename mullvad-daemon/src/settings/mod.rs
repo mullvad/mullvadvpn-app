@@ -635,6 +635,7 @@ mod test {
                   "mssfix": null
                 },
                 "wireguard": {
+                  "daita": false,
                   "mtu": null,
                   "rotation_interval": null
                 },
