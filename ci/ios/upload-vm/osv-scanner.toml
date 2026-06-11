@@ -28,3 +28,9 @@ reason = "This option isn't the default, and since we don't opt-in to use it, we
 id = "CVE-2026-35611"  # GHSA-h27x-rffw-24p4
 ignoreUntil = 2026-10-15
 reason = "We do not supply any URI:s to fastlane, so we're not affected. Once Fastlane has updated Addressable we can update Fastlane and get rid of this ignore."
+
+# jwt library does not validate input when creating new JWT tokens.
+[[IgnoredVulns]]
+id = " CVE-2026-45363 "  # GHSA-c32j-vqhx-rx3x
+ignoreUntil = 2026-12-12
+reason = "fastlane does not generate JWT tokens, it only uses them. This vulnerability does not affect us."
