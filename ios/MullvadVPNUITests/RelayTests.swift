@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import Network
+import OSLog
 import XCTest
 
 private struct RelayInfo {
@@ -16,6 +18,40 @@ private struct RelayInfo {
 
 class RelayTests: LoggedInWithTimeUITestCase {
     var removeFirewallRulesInTearDown = false
+    let previousSnapshot = OSAllocatedUnfairLock<NetworkPathSnapshot?>(initialState: nil)
+
+    lazy var monitor = PathMonitor(onPathChange: { [previousSnapshot] snap in
+        let prev = previousSnapshot.withLock { $0 }
+        let diff = snap.diffDescription(from: prev)
+
+        DispatchQueue.main.async {
+            XCTContext.runActivity(named: "Path changed: \(diff)") { activity in
+                do {
+                    let data = try JSONSerialization.data(
+                        withJSONObject: [
+                            "status": snap.status.rawValue,
+                            "interfaces": snap.interfaces.map(\.description),
+                            "gateways": snap.gateways,
+                            "isExpensive": snap.isExpensive,
+                            "isConstrained": snap.isConstrained,
+                        ],
+                        options: [.prettyPrinted, .sortedKeys]
+                    )
+                    let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
+                    attachment.name = "Snapshot"
+                    attachment.lifetime = .keepAlways
+                    activity.add(attachment)
+                } catch {
+                    let attachment = XCTAttachment(string: "Failed to serialize snapshot: \(error)")
+                    attachment.name = "Serialization Error"
+                    attachment.lifetime = .keepAlways
+                    activity.add(attachment)
+                }
+            }
+        }
+    })
+
+    let results = OSAllocatedUnfairLock(initialState: [String: [String]]())
 
     override class var settingsResetPolicy: UITestSettingsResetPolicy { .only([.settings]) }
     override class var appPreferencesPolicy: UITestAppPreferencesPolicy { .only([.includeAllNetworksConsent]) }
@@ -23,6 +59,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
     override func setUp() async throws {
         try await super.setUp()
 
+        monitor.start()
         removeFirewallRulesInTearDown = false
     }
 
@@ -31,7 +68,31 @@ class RelayTests: LoggedInWithTimeUITestCase {
             FirewallClient().removeRules()
         }
 
+        let snapshots = monitor.snapshots
+        if !snapshots.isEmpty {
+            let payload = snapshots.map { snap -> [String: Any] in
+                [
+                    "status": snap.status.rawValue,
+                    "interfaces": snap.interfaces.map(\.description),
+                    "gateways": snap.gateways,
+                    "isExpensive": snap.isExpensive,
+                    "isConstrained": snap.isConstrained,
+                ]
+            }
+
+            let data = try JSONSerialization.data(
+                withJSONObject: payload,
+                options: [.prettyPrinted, .sortedKeys]
+            )
+
+            let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
+            attachment.name = "Path Snapshots"
+            attachment.lifetime = .keepAlways
+            add(attachment)
+        }
+
         try await super.tearDown()
+        monitor.cancel()
     }
 
     func testAdBlockingViaDNS() throws {
