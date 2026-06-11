@@ -88,13 +88,9 @@ impl ParametersGenerator {
 
         let relays = inner.last_generated_relays.as_ref()?;
 
-        let (entry, exit, obfuscator) = match &relays.config {
-            WireguardConfig::Singlehop { exit } => {
-                (None, exit, relays.has_obfuscator.then_some(exit))
-            }
-            WireguardConfig::Multihop { exit, entry } => {
-                (Some(entry), exit, relays.has_obfuscator.then_some(entry))
-            }
+        let (entry, exit) = match &relays.config {
+            WireguardConfig::Singlehop { exit } => (None, exit),
+            WireguardConfig::Multihop { exit, entry } => (Some(entry), exit),
         };
         let location = exit.location.clone();
 
@@ -108,7 +104,6 @@ impl ParametersGenerator {
             mullvad_exit_ip: true,
             hostname: Some(exit.hostname.clone()),
             entry_hostname: entry.map(|relay| relay.hostname.clone()),
-            obfuscator_hostname: obfuscator.map(|relay| relay.hostname.clone()),
         })
     }
 }
@@ -154,7 +149,6 @@ impl InnerParametersGenerator {
 
         self.last_generated_relays = Some(LastSelectedRelays {
             config: inner,
-            has_obfuscator: obfuscator.is_some(),
             server_override,
         });
 
@@ -257,6 +251,5 @@ impl From<Error> for ParameterGenerationError {
 ///     client -> entry -> internet
 struct LastSelectedRelays {
     config: WireguardConfig,
-    has_obfuscator: bool,
     server_override: bool,
 }

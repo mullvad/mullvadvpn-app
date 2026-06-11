@@ -12,7 +12,6 @@ impl From<mullvad_types::location::GeoIpLocation> for proto::GeoIpLocation {
             mullvad_exit_ip: geoip.mullvad_exit_ip,
             hostname: geoip.hostname,
             entry_hostname: geoip.entry_hostname,
-            obfuscator_hostname: geoip.obfuscator_hostname,
         }
     }
 }
@@ -37,7 +36,6 @@ impl TryFrom<proto::GeoIpLocation> for mullvad_types::location::GeoIpLocation {
             mullvad_exit_ip: geoip.mullvad_exit_ip,
             hostname: geoip.hostname,
             entry_hostname: geoip.entry_hostname,
-            obfuscator_hostname: geoip.obfuscator_hostname,
         })
     }
 }

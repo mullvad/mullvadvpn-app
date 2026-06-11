@@ -160,7 +160,6 @@ pub struct GeoIpLocation {
     pub mullvad_exit_ip: bool,
     pub hostname: Option<String>,
     pub entry_hostname: Option<String>,
-    pub obfuscator_hostname: Option<String>,
 }
 
 impl From<AmIMullvad> for GeoIpLocation {
@@ -180,7 +179,6 @@ impl From<AmIMullvad> for GeoIpLocation {
             mullvad_exit_ip: location.mullvad_exit_ip,
             hostname: None,
             entry_hostname: None,
-            obfuscator_hostname: None,
         }
     }
 }
