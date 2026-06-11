@@ -123,25 +123,39 @@ class RelayTests: LoggedInWithTimeUITestCase {
         SettingsPage(app)
             .tapDoneButton()
 
+        let expectedPort = 80
+        var destinationAddress: String?
+
         // The packet capture has to start before the tunnel is up,
         // otherwise the device cannot reach the in-house router anymore
-        startPacketCapture()
+        let capturedData = try performPacketCapture { session in
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            allowAddVPNConfigurationsIfAsked()
 
-        allowAddVPNConfigurationsIfAsked()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            let (connectedToIPAddress, _) = TunnelControlPage(app)
+                .tapRelayStatusExpandCollapseButton()
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        let (connectedToIPAddress, _) = TunnelControlPage(app)
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressAndPortFromConnectionStatus()
+            try Networking.verifyCanAccessInternet()
 
-        try Networking.verifyCanAccessInternet()
+            try generateTrafficAndDisconnect(
+                from: connectedToIPAddress,
+                searchForPort: expectedPort
+            )
 
-        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 80, assertProtocol: .TCP)
+            destinationAddress = connectedToIPAddress
+        }
+
+        try assertCapturedProtocol(
+            .UDP,
+            destinationAddress: destinationAddress,
+            destinationPort: expectedPort,
+            in: capturedData)
     }
 
     func testWireGuardOverShadowsocksCustomPort() throws {
@@ -169,23 +183,36 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         // The packet capture has to start before the tunnel is up,
         // otherwise the device cannot reach the in-house router anymore
-        startPacketCapture()
+        let expectedPort = 51900
+        var destinationAddress: String?
+        let capturedData = try performPacketCapture { session in
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            allowAddVPNConfigurationsIfAsked()
 
-        allowAddVPNConfigurationsIfAsked()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            let (connectedToIPAddress, _) = TunnelControlPage(app)
+                .tapRelayStatusExpandCollapseButton()
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        let (connectedToIPAddress, _) = TunnelControlPage(app)
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressAndPortFromConnectionStatus()
+            try Networking.verifyCanAccessInternet()
 
-        try Networking.verifyCanAccessInternet()
+            try generateTrafficAndDisconnect(
+                from: connectedToIPAddress,
+                searchForPort: expectedPort,
+            )
 
-        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 51900, assertProtocol: .UDP)
+            destinationAddress = connectedToIPAddress
+        }
+
+        try assertCapturedProtocol(
+            .UDP,
+            destinationAddress: destinationAddress,
+            destinationPort: expectedPort,
+            in: capturedData)
     }
 
     func testWireGuardOverLwoCustomPort() throws {
@@ -211,25 +238,38 @@ class RelayTests: LoggedInWithTimeUITestCase {
         SettingsPage(app)
             .tapDoneButton()
 
+        let expectedPort = 4000
+        var destinationAddress: String?
         // The packet capture has to start before the tunnel is up,
         // otherwise the device cannot reach the in-house router anymore
-        startPacketCapture()
+        let capturedData = try performPacketCapture { session in
+            TunnelControlPage(app)
+                .tapConnectButton()
 
-        TunnelControlPage(app)
-            .tapConnectButton()
+            allowAddVPNConfigurationsIfAsked()
 
-        allowAddVPNConfigurationsIfAsked()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            let (connectedToIPAddress, _) = TunnelControlPage(app)
+                .tapRelayStatusExpandCollapseButton()
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        let (connectedToIPAddress, _) = TunnelControlPage(app)
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressAndPortFromConnectionStatus()
+            try Networking.verifyCanAccessInternet()
 
-        try Networking.verifyCanAccessInternet()
+            try generateTrafficAndDisconnect(
+                from: connectedToIPAddress,
+                searchForPort: 4000
+            )
 
-        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 4000, assertProtocol: .UDP)
+            destinationAddress = connectedToIPAddress
+        }
+
+        try assertCapturedProtocol(
+            .UDP,
+            destinationAddress: destinationAddress,
+            destinationPort: expectedPort,
+            in: capturedData)
     }
 
     func testWireGuardOverTCPManually() throws {
@@ -307,47 +347,60 @@ class RelayTests: LoggedInWithTimeUITestCase {
         SettingsPage(app)
             .tapDoneButton()
 
-        startPacketCapture()
+        let expectedPort = 443
+        var destinationAddress: String?
+        let capturedData = try performPacketCapture { session in
+            TunnelControlPage(app)
+                .tapSelectLocationButton()
 
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
+            SelectLocationPage(app)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicRelayName)
 
-        SelectLocationPage(app)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCountryName)
-            .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultQuicCityName)
-            .tapLocationCell(withName: BaseUITestCase.testsDefaultQuicRelayName)
+            allowAddVPNConfigurationsIfAsked()
 
-        allowAddVPNConfigurationsIfAsked()
+            TunnelControlPage(app)
+                .waitForConnectedLabel()
 
-        TunnelControlPage(app)
-            .waitForConnectedLabel()
+            let (connectedToIPAddress, _) = TunnelControlPage(app)
+                .tapRelayStatusExpandCollapseButton()
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        let (connectedToIPAddress, _) = TunnelControlPage(app)
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressAndPortFromConnectionStatus()
+            let (relayIPAddress, _) = TunnelControlPage(app)
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        let (relayIPAddress, _) = TunnelControlPage(app)
-            .getInIPAddressAndPortFromConnectionStatus()
+            // Disconnect in order to create firewall rules, otherwise the test router cannot be reached
+            TunnelControlPage(app)
+                .tapDisconnectButton()
 
-        // Disconnect in order to create firewall rules, otherwise the test router cannot be reached
-        TunnelControlPage(app)
-            .tapDisconnectButton()
-
-        try FirewallClient().createRule(
-            FirewallRule.makeBlockWireGuardTrafficRule(
-                fromIPAddress: deviceIPAddress,
-                toIPAddress: relayIPAddress
+            try FirewallClient().createRule(
+                FirewallRule.makeBlockWireGuardTrafficRule(
+                    fromIPAddress: deviceIPAddress,
+                    toIPAddress: relayIPAddress
+                )
             )
-        )
 
-        // The VPN connects despite the wireguard protocol being blocked, QUIC obfuscation is in the works
-        TunnelControlPage(app)
-            .tapConnectButton()
-            .waitForConnectedLabel()
+            // The VPN connects despite the wireguard protocol being blocked, QUIC obfuscation is in the works
+            TunnelControlPage(app)
+                .tapConnectButton()
+                .waitForConnectedLabel()
 
-        try Networking.verifyCanAccessInternet()
+            try Networking.verifyCanAccessInternet()
 
-        try generateTrafficAndDisconnect(from: connectedToIPAddress, searchForPort: 443, assertProtocol: .UDP)
+            try generateTrafficAndDisconnect(
+                from: connectedToIPAddress,
+                searchForPort: 443
+            )
+
+            destinationAddress = connectedToIPAddress
+        }
+
+        try assertCapturedProtocol(
+            .UDP,
+            destinationAddress: destinationAddress,
+            destinationPort: expectedPort,
+            in: capturedData)
     }
 
     func testWireGuardOverLwoManually() throws {
@@ -790,13 +843,11 @@ extension RelayTests {
         return RelayInfo(name: relayName, ipAddress: relayIPAddress)
     }
 
-    @discardableResult
     private func generateTrafficAndDisconnect(
         from connectedToIPAddress: String,
         searchForPort port: Int,
-        duration: TimeInterval = 1,
-        assertProtocol transportProtocol: NetworkTransportProtocol
-    ) throws -> [Stream] {
+        duration: TimeInterval = 1
+    ) throws {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
         trafficGenerator.startGeneratingUDPTraffic(interval: 0.1)
@@ -806,46 +857,45 @@ extension RelayTests {
 
         TunnelControlPage(app)
             .tapDisconnectButton()
-        let capturedStreams = stopPacketCapture()
-
-        // The capture will contain several streams where `other_addr` contains the IP the device connected to
-        // One stream will be for the source port, the other for the destination port
-        let streamFromPeerToRelay = try XCTUnwrap(
-            capturedStreams.filter { $0.destinationAddress == connectedToIPAddress && $0.destinationPort == port }.first
-        )
-
-        XCTAssertTrue(streamFromPeerToRelay.transportProtocol == transportProtocol)
-        return capturedStreams
     }
 
     /// Starts a packet capture, connects to a relay, generates synthetic traffic,
     /// disconnects from the relay, and gets a representation of the captured traffic
     private func generateTrafficSample() throws -> (String, Int, [Stream]) {
-        startPacketCapture()
+        var connectionDetails: (IP: String, port: Int)?
+        let capturedData = try performPacketCapture { session in
+            // Connect
+            TunnelControlPage(app)
+                .tapSelectLocationButton()
 
-        // Connect
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
+            SelectLocationPage(app)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultDAITACountryName)
 
-        SelectLocationPage(app)
-            .tapLocationCell(withName: BaseUITestCase.testsDefaultDAITACountryName)
+            allowAddVPNConfigurationsIfAsked()
 
-        allowAddVPNConfigurationsIfAsked()
+            // Generate traffic sample
+            let (IPAddress, port) = TunnelControlPage(app)
+                .waitForConnectedLabel()
+                .tapRelayStatusExpandCollapseButton()
+                .getInIPAddressAndPortFromConnectionStatus()
 
-        // Generate traffic sample
-        let (IPAddress, port) = TunnelControlPage(app)
-            .waitForConnectedLabel()
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressAndPortFromConnectionStatus()
+            try generateTrafficAndDisconnect(
+                from: IPAddress,
+                searchForPort: port,
+                duration: 30
+            )
 
-        let stream = try generateTrafficAndDisconnect(
-            from: IPAddress,
-            searchForPort: port,
-            duration: 30,
-            assertProtocol: .UDP
-        )
+            connectionDetails = (IPAddress, port)
+        }
 
-        return (IPAddress, port, stream)
+        let connectedTo = try XCTUnwrap(connectionDetails)
+        try assertCapturedProtocol(
+            .UDP,
+            destinationAddress: connectedTo.IP,
+            destinationPort: connectedTo.port,
+            in: capturedData)
+
+        return (connectedTo.IP, connectedTo.port, capturedData)
     }
 
     func testIPv6Connection() throws {
@@ -881,5 +931,20 @@ extension RelayTests {
 
         TunnelControlPage(app)
             .tapDisconnectButton()
+    }
+
+    func assertCapturedProtocol(
+        _ expectedProtocol: NetworkTransportProtocol,
+        destinationAddress: String?,
+        destinationPort: Int,
+        in result: [Stream]
+    ) throws {
+        let destinationAddress = try XCTUnwrap(destinationAddress)
+        let stream = try XCTUnwrap(
+            result.filter {
+                $0.destinationAddress == destinationAddress && $0.destinationPort == destinationPort
+            }.first
+        )
+        XCTAssertEqual(stream.transportProtocol, expectedProtocol)
     }
 }
