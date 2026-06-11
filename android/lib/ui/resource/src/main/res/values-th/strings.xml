@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %1$s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
-    <string name="daita_multihop">%1$s: Multihop</string>
     <string name="days_were_added_30">30 วัน ถูกเพิ่มลงในบัญชีของคุณแล้ว</string>
     <string name="days_were_added_90">เพิ่ม 90 วันในบัญชีของคุณแล้ว</string>
     <string name="delete">ลบ</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
     <string name="multihop">มัลติฮอป</string>
     <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
-    <string name="multihop_entry_disabled_description">เซิร์ฟเวอร์ทางเข้าสำหรับ %1$s ถูกเขียนทับโดย %2$s ในขณะนี้ หากต้องการเลือกเซิร์ฟเวอร์ทางเข้า โปรดเปิดใช้งาน “%3$s” ก่อน หรือปิดใช้งาน “%2$s” ในการตั้งค่า</string>
     <string name="multihop_is_disabled">ปิดใช้งาน Multihop แล้ว</string>
     <string name="multihop_is_enabled">เปิดใช้งาน Multihop แล้ว</string>
     <string name="name">ชื่อ</string>
@@ -359,7 +357,6 @@
     <string name="on">เปิด</string>
     <string name="ongoing_verification_warning">การซื้อล่าสุดของคุณกำลังอยู่ในระหว่างการตรวจสอบ การเข้าสู่ระบบบัญชีอื่นจะทำให้การตรวจสอบล้มเหลว คุณยังต้องการออกจากระบบอยู่หรือไม่</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
-    <string name="open_feature_settings">เปิดการตั้งค่า %1$s</string>
     <string name="open_url">Open URL</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="overrides_cleared">ล้างโอเวอร์ไรด์แล้ว</string>

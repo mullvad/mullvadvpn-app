@@ -22,12 +22,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -122,6 +125,7 @@ import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadSnackbar
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.lib.ui.tag.CONNECT_CARD_HEADER_TEST_TAG
@@ -482,6 +486,7 @@ private fun Content(
                 state = state,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 focusRequester = focusRequester,
+                isWhenNeededMultihop = state.tunnelState.isWhenNeededMultihopInEffect(),
                 onSwitchLocationClick = onSwitchLocationClick,
                 onDisconnectClick = onDisconnectClick,
                 onReconnectClick = onReconnectClick,
@@ -537,6 +542,7 @@ private fun ConnectionCard(
     state: ConnectUiState,
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester,
+    isWhenNeededMultihop: Boolean,
     onSwitchLocationClick: () -> Unit,
     onDisconnectClick: () -> Unit,
     onReconnectClick: () -> Unit,
@@ -560,7 +566,14 @@ private fun ConnectionCard(
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
         Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
-            ConnectionCardHeader(state, state.internetLocation, expanded) { expanded = !expanded }
+            ConnectionCardHeader(
+                state = state,
+                location = state.internetLocation,
+                isWhenNeededMultihop = isWhenNeededMultihop,
+                expanded = expanded,
+            ) {
+                expanded = !expanded
+            }
 
             AnimatedContent(
                 state.tunnelState.featureIndicators() to expanded,
@@ -600,6 +613,7 @@ private fun ConnectionCardHeader(
     state: ConnectUiState,
     location: GeoIpLocation?,
     expanded: Boolean,
+    isWhenNeededMultihop: Boolean,
     onToggleExpand: () -> Unit,
 ) {
     Column(
@@ -626,6 +640,33 @@ private fun ConnectionCardHeader(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
+        AnimatedContent(location?.multihopEntryCountryCity(), label = "via_country_city") {
+            if (it != null) {
+                Row(
+                    modifier = Modifier.padding(bottom = Dimens.tinyPadding),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (isWhenNeededMultihop) {
+                        Icon(
+                            modifier = Modifier.size(Dimens.smallIconSize),
+                            imageVector = MultihopWhenNeeded,
+                            contentDescription = null,
+                        )
+                        Spacer(Modifier.width(Dimens.tinyPadding))
+                    }
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.via_country_city, it.country, it.city),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+        }
+
         val hostnameText = location.hostnameText()
         AnimatedContent(hostnameText, label = "hostname") {
             if (it != null) {
@@ -661,6 +702,15 @@ private fun GeoIpLocation?.hostnameText(): String? {
             stringResource(R.string.x_via_x, exitHostname, entryHostname)
         else -> exitHostname
     }
+}
+
+private data class MultihopEntryInfo(val country: String, val city: String)
+
+@Suppress("ReturnCount")
+private fun GeoIpLocation?.multihopEntryCountryCity(): MultihopEntryInfo? {
+    val country = this?.entryCountry ?: return null
+    val city = entryCity ?: return null
+    return MultihopEntryInfo(country, city)
 }
 
 @Composable
@@ -816,10 +866,10 @@ private fun PrepareError.OtherAlwaysOnApp.toMessage(resources: Resources) =
 
 private fun FeatureIndicator.navKey(): NavKey2 =
     when (this) {
-        FeatureIndicator.DAITA,
-        FeatureIndicator.DAITA_MULTIHOP -> DaitaNavKey(isModal = true)
-        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
+        FeatureIndicator.DAITA -> DaitaNavKey(isModal = true)
         FeatureIndicator.SPLIT_TUNNELING -> SplitTunnelingNavKey(isModal = true)
+        FeatureIndicator.MULTIHOP_AUTO,
+        FeatureIndicator.MULTIHOP -> MultihopNavKey(isModal = true)
 
         FeatureIndicator.SERVER_IP_OVERRIDE -> ServerIpOverrideNavKey(isModal = true)
 

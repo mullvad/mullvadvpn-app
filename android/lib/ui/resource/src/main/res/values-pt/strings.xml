@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Se um observador monitorizar estes pacotes de dados, %1$s dificulta significativamente a identificação dos sites que visita ou com quem comunica.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s consegue-o ao adicionar cuidadosamente ruído de rede e ao tornar todos os pacotes de rede do mesmo tamanho.</string>
     <string name="daita_info">Ao ativar \"%1$s\", terá de selecionar manualmente um servidor que tenha %2$s ativado, o que pode fazer com que fique num estado bloqueado até selecionar um servidor compatível na vista \"Selecionar localização\".</string>
-    <string name="daita_multihop">%1$s: multihop</string>
     <string name="days_were_added_30">30 dias adicionados à sua conta.</string>
     <string name="days_were_added_90">90 dias adicionados à sua conta.</string>
     <string name="delete">Eliminar</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Apenas propriedade de Mullvad</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop encaminha o tráfego para entrar num servidor WireGuard e sair por outro, dificultando o seguimento. Isto resulta em maior latência, mas aumenta o anonimato online.</string>
-    <string name="multihop_entry_disabled_description">O servidor de entrada para %1$s é atualmente substituído por %2$s. Para selecionar um servidor de entrada, ative primeiro \"%3$s\", ou desative \"%2$s\" nas definições.</string>
     <string name="multihop_is_disabled">Multihop está desativado</string>
     <string name="multihop_is_enabled">Multihop está ativado</string>
     <string name="name">Nome</string>
@@ -359,7 +357,6 @@
     <string name="on">Ligado</string>
     <string name="ongoing_verification_warning">A sua última compra ainda está a ser verificada. Se iniciar sessão noutra conta, a verificação falhará. Ainda assim, pretende terminar a sessão?</string>
     <string name="open_app_details">Abrir detalhes da aplicação</string>
-    <string name="open_feature_settings">Abrir as definições de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="overrides_cleared">Substituições eliminadas</string>

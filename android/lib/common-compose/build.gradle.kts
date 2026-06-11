@@ -9,6 +9,7 @@ android { namespace = "net.mullvad.mullvadvpn.lib.common.compose" }
 
 dependencies {
     implementation(projects.lib.ui.resource)
+    implementation(projects.lib.ui.icon)
     implementation(projects.lib.model)
     implementation(projects.lib.common)
     implementation(projects.lib.navigation)

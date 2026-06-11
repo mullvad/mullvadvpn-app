@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.lib.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -93,8 +94,7 @@ class AppInteractor(
         obfuscationMode: ObfuscationMode? = null,
         wireguardPort: Constraint<Port>? = null,
         localNetworkSharing: Boolean? = null,
-        daita: DaitaOption? = null,
-        multihop: Boolean? = null,
+        multihop: MultihopMode? = null,
         deviceIpVersion: Constraint<IpVersion>? = null,
         location: RelayItemId? = null,
     ) = coroutineScope {
@@ -113,12 +113,6 @@ class AppInteractor(
                 localNetworkSharing?.let { service.setAllowLan(it) }
                 multihop?.let { service.setMultihop(it) }
                 deviceIpVersion?.let { service.setDeviceIpVersion(deviceIpVersion) }
-                daita?.let {
-                    when (it) {
-                        is DaitaOption.Auto -> service.setDaitaEnabled(it.enabled)
-                        is DaitaOption.DirectOnly -> service.setDaitaDirectOnly(it.enabled)
-                    }
-                }
                 location?.let { service.setRelayLocation(it) }
                 cancel()
             }

@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.lib.model.RelayListType
+import net.mullvad.mullvadvpn.lib.model.isMultihopEntry
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItem
 import net.mullvad.mullvadvpn.lib.ui.component.relaylist.RelayListItemState
 import net.mullvad.mullvadvpn.lib.ui.designsystem.Hierarchy
@@ -109,6 +110,7 @@ private fun createRelayListItems(
     )
     addAll(
         createLocationSection(
+            selectedItem = selectedItem,
             selectedByThisEntryExitList = selectedByThisEntryExitList,
             relayListType = relayListType,
             selectedByOtherEntryExitList = selectedByOtherEntryExitList,
@@ -127,13 +129,16 @@ private fun createRecentsSection(
 
     val shown =
         recents
-            .mapNotNull { recent ->
+            .map { recent ->
                 when (recent) {
                     is RecentItem.Relay -> {
                         val isSelected = recent.item.matches(itemSelection, relayListType)
                         RelayListItem.RecentListItem(item = recent.item, isSelected = isSelected)
                     }
-                    RecentItem.Automatic -> null
+                    RecentItem.Automatic ->
+                        RelayListItem.AutomaticEntryItem.Recent(
+                            isSelected = itemSelection.isEntryLocationAutomatic()
+                        )
                 }
             }
             .take(RECENTS_MAX_VISIBLE)
@@ -276,6 +281,7 @@ private fun createCustomListRelayItems(
 }
 
 private fun createLocationSection(
+    selectedItem: RelayItemSelection,
     selectedByThisEntryExitList: RelayItemId?,
     relayListType: RelayListType,
     selectedByOtherEntryExitList: RelayItemId?,
@@ -283,6 +289,13 @@ private fun createLocationSection(
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> = buildList {
     add(RelayListItem.LocationHeader)
+    if (relayListType.isMultihopEntry) {
+        add(
+            RelayListItem.AutomaticEntryItem.RelayList(
+                isSelected = selectedItem.isEntryLocationAutomatic()
+            )
+        )
+    }
     addAll(
         countries.flatMap { country ->
             createGeoLocationEntry(

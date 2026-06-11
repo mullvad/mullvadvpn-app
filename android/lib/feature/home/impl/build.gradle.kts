@@ -32,6 +32,7 @@ dependencies {
     implementation(projects.lib.repository)
     implementation(projects.lib.tv)
     implementation(projects.lib.ui.util)
+    implementation(projects.lib.ui.icon)
     implementation(projects.lib.usecase)
 
     implementation(libs.androidx.animation)

@@ -58,7 +58,7 @@ class ModifyMultihopUseCaseTest {
             Constraint.Only(mockRelayItemId)
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns true
-        val change = MultihopChange.Entry(mockRelayItem)
+        val change = RelayMultihopChange.Entry(mockRelayItem)
 
         // Act
         settingsFlow.value = mockSettings
@@ -80,7 +80,7 @@ class ModifyMultihopUseCaseTest {
         } returns Constraint.Only(mockRelayItemId)
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns true
-        val change = MultihopChange.Exit(mockRelayItem)
+        val change = RelayMultihopChange.Exit(mockRelayItem)
 
         // Act
         settingsFlow.value = mockSettings
@@ -105,7 +105,7 @@ class ModifyMultihopUseCaseTest {
             every { mockSettings.isDaitaEnabled() } returns true
             coEvery { mockWireguardConstraintsRepository.setEntryLocation(mockRelayItemId) } returns
                 Unit.right()
-            val change = MultihopChange.Entry(mockRelayItem)
+            val change = RelayMultihopChange.Entry(mockRelayItem)
 
             // Act
             settingsFlow.value = mockSettings
@@ -123,7 +123,7 @@ class ModifyMultihopUseCaseTest {
         val mockRelayItem: RelayItem.Location.Relay = mockk()
         every { mockRelayItem.id } returns mockRelayItemId
         every { mockRelayItem.active } returns false
-        val change = MultihopChange.Entry(mockRelayItem)
+        val change = RelayMultihopChange.Entry(mockRelayItem)
 
         // Act
         val error = modifyMultihopUseCase(change = change).leftOrNull()

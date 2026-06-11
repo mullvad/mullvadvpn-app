@@ -19,12 +19,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import net.mullvad.mullvadvpn.lib.common.compose.LocalNavAnimatedVisibilityScope
 import net.mullvad.mullvadvpn.lib.common.compose.LocalSharedTransitionScope
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadFeatureChip
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadMoreChip
+import net.mullvad.mullvadvpn.lib.ui.icon.MultihopWhenNeeded
 import net.mullvad.mullvadvpn.lib.ui.resource.R
 import net.mullvad.mullvadvpn.lib.ui.theme.Dimens
 
@@ -87,16 +89,12 @@ fun FeatureIndicators(
         with(sharedTransitionScope) {
             MullvadFeatureChip(
                 text = featureIndicator.text(),
+                icon = featureIndicator.icon(),
                 onClick = { onNavigateToFeature(featureIndicator) },
                 modifier =
                     if (this@with != null && animatedVisibilityScope != null) {
                         Modifier.sharedBounds(
-                            rememberSharedContentState(
-                                key =
-                                    if (featureIndicator == FeatureIndicator.DAITA_MULTIHOP)
-                                        FeatureIndicator.DAITA
-                                    else featureIndicator
-                            ),
+                            rememberSharedContentState(key = featureIndicator),
                             animatedVisibilityScope = animatedVisibilityScope,
                             // This flag should be set to `true` (default), this would allow the
                             // element to animate above all other views. However, it causes the
@@ -138,9 +136,14 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.server_ip_override
             FeatureIndicator.CUSTOM_MTU -> R.string.mtu
             FeatureIndicator.DAITA -> R.string.daita
-            FeatureIndicator.DAITA_MULTIHOP ->
-                return stringResource(R.string.daita_multihop, stringResource(R.string.daita))
+            FeatureIndicator.MULTIHOP_AUTO,
             FeatureIndicator.MULTIHOP -> R.string.multihop
         }
     return stringResource(resource)
 }
+
+private fun FeatureIndicator.icon(): ImageVector? =
+    when (this) {
+        FeatureIndicator.MULTIHOP_AUTO -> MultihopWhenNeeded
+        else -> null
+    }

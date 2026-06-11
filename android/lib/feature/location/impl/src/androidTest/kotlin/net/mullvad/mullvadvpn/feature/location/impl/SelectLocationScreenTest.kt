@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.feature.location.impl.util.onNodeTextAndAncestorTa
 import net.mullvad.mullvadvpn.feature.location.impl.util.performLongClick
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.Lce
+import net.mullvad.mullvadvpn.lib.model.FilterTarget
 import net.mullvad.mullvadvpn.lib.model.HopSelection
 import net.mullvad.mullvadvpn.lib.model.MultihopRelayListType
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -77,13 +78,15 @@ class SelectLocationScreenTest {
         onModifyMultihop: (RelayItem, MultihopRelayListType) -> Unit = { _, _ -> },
         onSearchClick: (RelayListType) -> Unit = {},
         onBackClick: () -> Unit = {},
-        onFilterClick: () -> Unit = {},
+        onFilterClick: (FilterTarget) -> Unit = {},
         onCreateCustomList: () -> Unit = {},
         onEditCustomLists: () -> Unit = {},
-        removeOwnershipFilter: () -> Unit = {},
-        removeProviderFilter: () -> Unit = {},
+        removeOwnershipFilter: (FilterTarget) -> Unit = {},
+        removeProviderFilter: (FilterTarget) -> Unit = {},
         onSelectRelayList: (MultihopRelayListType) -> Unit = {},
-        openDaitaSettings: () -> Unit = {},
+        setMultihopToAlways: () -> Unit = {},
+        onSelectAutomaticEntry: () -> Unit = {},
+        onAutomaticInfoClick: () -> Unit = {},
         onRecentsToggleEnableClick: () -> Unit = {},
         onRefreshRelayList: () -> Unit = {},
         onScrollToItem: (ScrollEvent) -> Unit = {},
@@ -104,7 +107,9 @@ class SelectLocationScreenTest {
                 removeOwnershipFilter = removeOwnershipFilter,
                 removeProviderFilter = removeProviderFilter,
                 onSelectRelayList = onSelectRelayList,
-                openDaitaSettings = openDaitaSettings,
+                setMultihopToAlways = setMultihopToAlways,
+                onSelectAutomaticEntry = onSelectAutomaticEntry,
+                onAutomaticInfoClick = onAutomaticInfoClick,
                 onRecentsToggleEnableClick = onRecentsToggleEnableClick,
                 onRefreshRelayList = onRefreshRelayList,
                 scrollToItem = onScrollToItem,
@@ -144,6 +149,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 )
         )
@@ -181,6 +191,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 )
         )
@@ -215,6 +230,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 ),
             onSelectHop = mockedOnSelectHop,
@@ -253,6 +273,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 ),
             onSelectHop = mockedOnSelectHop,
@@ -302,6 +327,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 ),
             onSelectHop = mockedOnSelectHop,
@@ -356,6 +386,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 ),
             onSelectHop = mockedOnSelectHop,
@@ -397,6 +432,11 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = true,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
+                            isEntryFilteringEnabled = true,
+                            lastKnownLocation = null,
+                            entryCountry = "Sweden",
+                            hasAnyEntryFilter = false,
+                            hasAnyExitFilter = false,
                         )
                     )
             )
@@ -442,6 +482,11 @@ class SelectLocationScreenTest {
                             isRecentsEnabled = false,
                             hopSelection = HopSelection.Single(null),
                             tunnelErrorStateCause = null,
+                            isEntryFilteringEnabled = true,
+                            lastKnownLocation = null,
+                            entryCountry = "Sweden",
+                            hasAnyEntryFilter = false,
+                            hasAnyExitFilter = false,
                         )
                     )
             )
@@ -486,6 +531,11 @@ class SelectLocationScreenTest {
                         isRecentsEnabled = true,
                         hopSelection = HopSelection.Single(null),
                         tunnelErrorStateCause = null,
+                        isEntryFilteringEnabled = true,
+                        lastKnownLocation = null,
+                        entryCountry = "Sweden",
+                        hasAnyEntryFilter = false,
+                        hasAnyExitFilter = false,
                     )
                 )
         )

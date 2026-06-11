@@ -171,6 +171,8 @@ class TunnelStateNotificationProviderTest {
                     ipv6 = null,
                     city = null,
                     hostname = null,
+                    entryCountry = null,
+                    entryCity = null,
                     entryHostname = null,
                 )
 

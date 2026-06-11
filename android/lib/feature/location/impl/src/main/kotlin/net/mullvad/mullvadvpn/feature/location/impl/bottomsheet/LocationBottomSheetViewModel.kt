@@ -25,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.util.relaylist.withDescendants
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -32,8 +33,9 @@ import net.mullvad.mullvadvpn.lib.usecase.HopSelectionUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopError
 import net.mullvad.mullvadvpn.lib.usecase.ModifyMultihopUseCase
-import net.mullvad.mullvadvpn.lib.usecase.MultihopChange
+import net.mullvad.mullvadvpn.lib.usecase.MultihopInEffectUseCase
 import net.mullvad.mullvadvpn.lib.usecase.RelayItemCanBeSelectedUseCase
+import net.mullvad.mullvadvpn.lib.usecase.RelayMultihopChange
 import net.mullvad.mullvadvpn.lib.usecase.SelectAndEnableMultihopUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectRelayItemError
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationUseCase
@@ -50,6 +52,7 @@ class LocationBottomSheetViewModel(
     private val modifyAndEnableMultihopUseCase: ModifyAndEnableMultihopUseCase,
     private val selectAndEnableMultihopUseCase: SelectAndEnableMultihopUseCase,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
+    private val multihopInEffectUseCase: MultihopInEffectUseCase,
     canBeSelectedUseCase: RelayItemCanBeSelectedUseCase,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
     selectedLocationUseCase: SelectedLocationUseCase,
@@ -133,7 +136,7 @@ class LocationBottomSheetViewModel(
 
     fun setAsEntry(
         item: RelayItem,
-        onError: (ModifyMultihopError, MultihopChange) -> Unit,
+        onError: (ModifyMultihopError, RelayMultihopChange) -> Unit,
         onUpdateMultihop: (UndoChangeMultihopAction) -> Unit,
     ) {
         viewModelScope.launch(context = Dispatchers.IO) {
@@ -141,17 +144,20 @@ class LocationBottomSheetViewModel(
                 wireguardConstraintsRepository.wireguardConstraints.value
                     ?.entryLocation
                     ?.getOrNull()
-            val change = MultihopChange.Entry(item)
-            val isMultihopEnabled = isMultihopEnabled()
-            if (isMultihopEnabled) {
+            val change = RelayMultihopChange.Entry(item)
+            val isMultihopActive = isMultihopActive()
+            if (isMultihopActive) {
                     modifyMultihopUseCase(change = change)
                 } else {
-                    modifyAndEnableMultihopUseCase(change = change, enableMultihop = true)
+                    modifyAndEnableMultihopUseCase(
+                        change = change,
+                        multihopMode = MultihopMode.ALWAYS,
+                    )
                 }
                 .fold(
                     { onError(it, change) },
                     {
-                        if (!isMultihopEnabled) {
+                        if (!isMultihopActive) {
                             onUpdateMultihop(
                                 if (previousEntry != null) {
                                     UndoChangeMultihopAction.DisableAndSetEntry(previousEntry)
@@ -167,15 +173,15 @@ class LocationBottomSheetViewModel(
 
     fun setAsExit(
         item: RelayItem,
-        onModifyMultihopError: (ModifyMultihopError, MultihopChange) -> Unit,
+        onModifyMultihopError: (ModifyMultihopError, RelayMultihopChange) -> Unit,
         onRelayItemError: (SelectRelayItemError) -> Unit,
         onUpdateMultihop: (UndoChangeMultihopAction) -> Unit,
     ) {
         viewModelScope.launch(context = Dispatchers.IO) {
             val previousExit = hopSelectionUseCase().first().exit()?.getOrNull()
-            val isMultihopEnabled = isMultihopEnabled()
-            if (isMultihopEnabled) {
-                    modifyMultihopUseCase(MultihopChange.Exit(item = item))
+            val isMultihopActive = isMultihopActive()
+            if (isMultihopActive) {
+                    modifyMultihopUseCase(RelayMultihopChange.Exit(item = item))
                 } else {
                     // If we are in singlehop mode we want to set a new multihop were the previous
                     // exit is set as an entry, and the new exit is set as exit. After that we turn
@@ -186,13 +192,13 @@ class LocationBottomSheetViewModel(
                     { error ->
                         when (error) {
                             is ModifyMultihopError ->
-                                onModifyMultihopError(error, MultihopChange.Exit(item))
+                                onModifyMultihopError(error, RelayMultihopChange.Exit(item))
                             is SelectRelayItemError -> onRelayItemError(error)
                             else -> error("Error not supported")
                         }
                     },
                     {
-                        if (!isMultihopEnabled) {
+                        if (!isMultihopActive) {
                             onUpdateMultihop(
                                 if (previousExit != null) {
                                     UndoChangeMultihopAction.DisableAndSetExit(previousExit.id)
@@ -209,7 +215,7 @@ class LocationBottomSheetViewModel(
     fun disableMultihop(onUpdateMultihop: (UndoChangeMultihopAction) -> Unit) {
         viewModelScope.launch {
             wireguardConstraintsRepository
-                .setMultihop(false)
+                .setMultihop(MultihopMode.NEVER)
                 .fold(
                     { Logger.e("Set multihop error $it") },
                     { onUpdateMultihop(UndoChangeMultihopAction.Enable) },
@@ -244,7 +250,7 @@ class LocationBottomSheetViewModel(
 
     fun onModifyMultihopError(
         modifyMultihopError: ModifyMultihopError,
-        multihopChange: MultihopChange,
+        multihopChange: RelayMultihopChange,
     ) {
         viewModelScope.launch {
             _uiSideEffect.send(modifyMultihopError.toSideEffect(multihopChange))
@@ -264,14 +270,14 @@ class LocationBottomSheetViewModel(
     }
 
     private fun ModifyMultihopError.toSideEffect(
-        multihopChange: MultihopChange
+        multihopChange: RelayMultihopChange
     ): LocationBottomSheetNavResult =
         when (this) {
             is ModifyMultihopError.EntrySameAsExit ->
                 when (multihopChange) {
-                    is MultihopChange.Entry ->
+                    is RelayMultihopChange.Entry ->
                         LocationBottomSheetNavResult.ExitAlreadySelected(relayItem = relayItem)
-                    is MultihopChange.Exit ->
+                    is RelayMultihopChange.Exit ->
                         LocationBottomSheetNavResult.EntryAlreadySelected(relayItem = relayItem)
                 }
             ModifyMultihopError.GenericError -> LocationBottomSheetNavResult.GenericError
@@ -288,8 +294,7 @@ class LocationBottomSheetViewModel(
                 LocationBottomSheetNavResult.EntryAndExitAreSame
         }
 
-    private fun isMultihopEnabled() =
-        wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled ?: false
+    private suspend fun isMultihopActive(): Boolean = multihopInEffectUseCase().first().isInEffect
 
     private fun Set<GeoLocationId>.validate(relayItem: RelayItem): SetAsState =
         if (

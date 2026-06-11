@@ -94,6 +94,7 @@ data class Dimensions(
     // Required to get the logo to look visually correct on TV
     val tvMullvadLogoTextStartPadding: Dp = 6.dp,
     val verticalSpace: Dp = 16.dp,
+    val dividerButtonWidth: Dp = 64.dp,
 )
 
 val defaultDimensions = Dimensions()

@@ -28,17 +28,25 @@ class ModifyMultihopUseCase(
 ) {
     suspend operator fun invoke(change: MultihopChange): Either<ModifyMultihopError, Unit> =
         either {
-            validate(
-                    change = change,
-                    settingsRepository = settingsRepository,
-                    customListsRepository = customListsRepository,
-                )
-                .bind()
             when (change) {
-                    is MultihopChange.Entry ->
-                        wireguardConstraintsRepository.setEntryLocation(change.item.id)
-                    is MultihopChange.Exit ->
-                        relayListRepository.updateSelectedRelayLocation(change.item.id)
+                    is RelayMultihopChange -> {
+                        validate(
+                                change = change,
+                                settingsRepository = settingsRepository,
+                                customListsRepository = customListsRepository,
+                            )
+                            .bind()
+
+                        when (change) {
+                            is RelayMultihopChange.Entry ->
+                                wireguardConstraintsRepository.setEntryLocation(change.item.id)
+                            is RelayMultihopChange.Exit ->
+                                relayListRepository.updateSelectedRelayLocation(change.item.id)
+                        }
+                    }
+                    AutomaticEntryMultihopChange -> {
+                        wireguardConstraintsRepository.setAutomaticEntryLocation()
+                    }
                 }
                 .mapLeft {
                     Logger.e("Failed to update multihop: $it")
@@ -49,7 +57,7 @@ class ModifyMultihopUseCase(
 }
 
 internal fun validate(
-    change: MultihopChange,
+    change: RelayMultihopChange,
     settingsRepository: SettingsRepository,
     customListsRepository: CustomListsRepository,
 ) = either {
@@ -63,8 +71,8 @@ internal fun validate(
     if (!settings.isDaitaEnabled() || settings.isDaitaDirectOnly()) {
         val other =
             when (change) {
-                    is MultihopChange.Entry -> settings.location().getOrNull()
-                    is MultihopChange.Exit ->
+                    is RelayMultihopChange.Entry -> settings.location().getOrNull()
+                    is RelayMultihopChange.Exit ->
                         settings.wireguardConstraints().entryLocation.getOrNull()
                 }
                 ?.convertCustomListWithOnlyHostnameToHostname(customListsRepository)
@@ -97,12 +105,16 @@ private fun RelayItemId.convertCustomListWithOnlyHostnameToHostname(
 private fun RelayItemId.isSameHost(other: RelayItemId?): Boolean =
     this is GeoLocationId.Hostname && other == this
 
-sealed class MultihopChange {
+sealed interface MultihopChange
+
+data object AutomaticEntryMultihopChange : MultihopChange
+
+sealed class RelayMultihopChange : MultihopChange {
     abstract val item: RelayItem
 
-    data class Entry(override val item: RelayItem) : MultihopChange()
+    data class Entry(override val item: RelayItem) : RelayMultihopChange()
 
-    data class Exit(override val item: RelayItem) : MultihopChange()
+    data class Exit(override val item: RelayItem) : RelayMultihopChange()
 }
 
 sealed interface ModifyMultihopError {

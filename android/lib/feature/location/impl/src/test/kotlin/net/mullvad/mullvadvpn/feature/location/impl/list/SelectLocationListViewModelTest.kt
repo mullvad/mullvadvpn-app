@@ -60,7 +60,7 @@ class SelectLocationListViewModelTest {
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
-    private val recentsRelayItems = MutableStateFlow<List<RecentItem>>(emptyList())
+    private val recentsRelayItems = MutableStateFlow<List<RecentItem>?>(emptyList())
     private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel
@@ -269,6 +269,7 @@ class SelectLocationListViewModelTest {
             is RelayListItem.EmptyRelayList,
             is RelayListItem.SectionDivider,
             is RelayListItem.CustomListHeader,
+            is RelayListItem.AutomaticEntryItem,
             RelayListItem.LocationHeader,
             RelayListItem.RecentsListHeader,
             RelayListItem.RecentsListFooter -> null

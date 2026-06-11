@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.usecase
 import arrow.core.Either
 import arrow.core.raise.either
 import co.touchlab.kermit.Logger
+import net.mullvad.mullvadvpn.lib.model.MultihopMode
 import net.mullvad.mullvadvpn.lib.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
@@ -15,8 +16,8 @@ class ModifyAndEnableMultihopUseCase(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
     suspend operator fun invoke(
-        enableMultihop: Boolean,
-        change: MultihopChange,
+        multihopMode: MultihopMode,
+        change: RelayMultihopChange,
     ): Either<ModifyMultihopError, Unit> = either {
         validate(
                 change = change,
@@ -25,14 +26,14 @@ class ModifyAndEnableMultihopUseCase(
             )
             .bind()
         when (change) {
-                is MultihopChange.Entry ->
+                is RelayMultihopChange.Entry ->
                     wireguardConstraintsRepository.setMultihopAndEntryLocation(
-                        enableMultihop,
+                        multihopMode,
                         change.item.id,
                     )
-                is MultihopChange.Exit ->
+                is RelayMultihopChange.Exit ->
                     relayListRepository.updateExitRelayLocationMultihop(
-                        enableMultihop,
+                        multihopMode,
                         change.item.id,
                     )
             }

@@ -8,5 +8,7 @@ import net.mullvad.mullvadvpn.feature.filter.api.FilterNavKey
 import net.mullvad.mullvadvpn.feature.filter.impl.Filter
 
 fun EntryProviderScope<NavKey2>.filterEntry(navigator: Navigator) {
-    entry<FilterNavKey>(metadata = slideInHorizontalTransition()) { Filter(navigator = navigator) }
+    entry<FilterNavKey>(metadata = slideInHorizontalTransition()) { navArgs ->
+        Filter(navigator = navigator, filterTarget = navArgs.filterTarget)
+    }
 }

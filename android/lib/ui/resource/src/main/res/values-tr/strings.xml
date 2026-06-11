@@ -144,7 +144,6 @@
     <string name="daita_description_slide_2_first_paragraph">Bir gözlemci bu veri paketlerini izliyorsa, %1$s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
     <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
-    <string name="daita_multihop">%1$s: Çoklu geçiş</string>
     <string name="days_were_added_30">Hesabınıza 30gün eklendi.</string>
     <string name="days_were_added_90">Hesabınıza 90 gün eklendi.</string>
     <string name="delete">Sil</string>
@@ -330,7 +329,6 @@
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
     <string name="multihop">Çoklu geçiş</string>
     <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
-    <string name="multihop_entry_disabled_description">%1$s için giriş sunucusu şu anda %2$s tarafından geçersiz kılınıyor. Bir giriş sunucusu seçmek için lütfen önce \"%3$s\"\' seçeneğini etkinleştirin veya \"%2$s\" seçeneğini devre dışı bırakın.</string>
     <string name="multihop_is_disabled">Çoklu geçiş devre dışı</string>
     <string name="multihop_is_enabled">Çoklu geçiş etkin</string>
     <string name="name">Ad</string>
@@ -359,7 +357,6 @@
     <string name="on">Açık</string>
     <string name="ongoing_verification_warning">Son satın alma işleminiz hâlâ doğrulanıyor. Başka bir hesaba giriş yapmak doğrulamanın başarısız olmasına neden olur. Yine de çıkış yapmak istiyor musunuz?</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
-    <string name="open_feature_settings">%1$s ayarlarını aç</string>
     <string name="open_url">URL\'yi aç</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>
