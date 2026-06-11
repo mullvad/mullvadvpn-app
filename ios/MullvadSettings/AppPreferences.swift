@@ -18,6 +18,7 @@ public protocol AppPreferencesDataSource {
     var isNotificationPermissionAsked: Bool { get set }
     var notificationSettings: NotificationSettings { get set }
     var includeAllNetworksConsent: Bool { get set }
+    var migratedSettingsState: MigratedSettingsState { get set }
 }
 
 enum AppStorageKey: String {
@@ -30,11 +31,10 @@ enum AppStorageKey: String {
     case isNotificationPermissionAsked
     case notificationSettings
     case includeAllNetworksConsent
+    case migratedSettingsState
 }
 
 public final class AppPreferences: AppPreferencesDataSource {
-    public init() {}
-
     @PrimitiveStorage(key: AppStorageKey.hasDoneFirstTimeLaunch.rawValue, container: .standard)
     public var hasDoneFirstTimeLaunch: Bool = false
 
@@ -61,4 +61,18 @@ public final class AppPreferences: AppPreferencesDataSource {
 
     @PrimitiveStorage(key: AppStorageKey.includeAllNetworksConsent.rawValue, container: .standard)
     public var includeAllNetworksConsent = false
+
+    @CompositeStorage(key: AppStorageKey.migratedSettingsState.rawValue, container: .standard)
+    public var migratedSettingsState = MigratedSettingsState(
+        preMigrationSettings: nil,
+        lastInstalledVersion: "",
+        lastMigratedVersion: MigratedVersion.v1.rawValue,
+        hasCompletedMigrationWizard: true,
+        shouldShowMigratedSettingsMenuItem: false)
+
+    public init() {
+        migratedSettingsState.lastInstalledVersion =
+            migratedSettingsState.lastInstalledVersion.isEmpty
+            ? lastSeenChangeLogVersion : migratedSettingsState.lastInstalledVersion
+    }
 }

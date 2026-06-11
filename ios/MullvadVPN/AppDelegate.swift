@@ -57,7 +57,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     let notificationSettingsListener = NotificationSettingsListener()
     private var notificationSettingsUpdater: NotificationSettingsUpdater!
+
+    let migratedSettingsListener = MigratedSettingsListener()
+    private var migratedSettingsUpdater: MigratedSettingsUpdater!
+
     nonisolated(unsafe) private(set) var logRedactor: LogRedacting!
+    private let containerURL = ApplicationConfiguration.containerURL
 
     // MARK: - Application lifecycle
 
@@ -71,7 +76,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             launchArguments = overriddenLaunchArguments
         }
 
-        let containerURL = ApplicationConfiguration.containerURL
         migrationManager = MigrationManager(cacheDirectory: containerURL, settingsManager: settingsManager)
         configureLogging()
 
@@ -84,6 +88,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
         notificationSettingsUpdater = NotificationSettingsUpdater(listener: notificationSettingsListener)
+        migratedSettingsUpdater = MigratedSettingsUpdater(listener: migratedSettingsListener)
 
         let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
         let shadowsocksRelaySelector = ShadowsocksRelaySelector(
@@ -156,8 +161,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         settingsObserver = TunnelBlockObserver(
             didLoadConfiguration: { [weak self] tunnelManager in
+                guard let self else { return }
                 // Redact legacy numbers that do not match the account number regex.
-                self?.logRedactor.addCustomString(tunnelManager.deviceState.accountData?.number ?? "")
+                logRedactor.addCustomString(tunnelManager.deviceState.accountData?.number ?? "")
             },
             didUpdateTunnelSettings: { _, settings in
                 tunnelSettingsListener.onNewSettings?(settings)
@@ -481,6 +487,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         )
 
         NotificationManager.shared.notificationProviders = [
+            SettingsMigrationInAppNotificationProvider(
+                tunnelManager: tunnelManager,
+                migratedSettingsUpdater: migratedSettingsUpdater),
             LatestChangesNotificationProvider(appPreferences: appPreferences),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
             AccountExpirySystemNotificationProvider(
@@ -501,6 +510,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let defaultLocationOperation = getDefaultLocationOperation()
         let loadTunnelStoreOperation = getLoadTunnelStoreOperation()
         let initTunnelManagerOperation = getInitTunnelManagerOperation()
+        let deprecatedSettingsResolverOperation = getDeprecatedSettingsResolverOperation()
 
         var operations: [Operation] = [
             defaultLocationOperation,
@@ -516,11 +526,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             wipeSettingsOperation,
             loadTunnelStoreOperation,
         ])
+        deprecatedSettingsResolverOperation.addDependency(migrateSettingsOperation)
         initTunnelManagerOperation.addDependency(migrateSettingsOperation)
 
         operations.append(contentsOf: [
             wipeSettingsOperation,
             migrateSettingsOperation,
+            deprecatedSettingsResolverOperation,
             initTunnelManagerOperation,
         ])
 
@@ -686,6 +698,73 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 }
             }
         }
+    }
+
+    private func getDeprecatedSettingsResolverOperation() -> AsyncBlockOperation {
+        AsyncBlockOperation(
+            dispatchQueue: .main,
+            block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
+
+                MainActor.assumeIsolated {
+                    let settingsResolver = DeprecatedSettingsResolver(
+                        cacheDirectory: containerURL,
+                        settingsManager: settingsManager,
+                        relaySelector: relaySelector,
+                        currentVersion: MigratedVersion(
+                            rawValue: appPreferences.migratedSettingsState.lastMigratedVersion)
+                            ?? MigratedVersion.current)
+
+                    let isAppUpdated =
+                        Bundle.main.productVersion != self.appPreferences.migratedSettingsState.lastInstalledVersion
+
+                    // Reset the migrated settings menu visibility after an app update.
+                    // The menu item should only remain visible within the same app version.
+                    appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem =
+                        !isAppUpdated && self.appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem
+
+                    settingsResolver.resolve(store: self.settingsManager.store) { [self] result in
+                        switch result {
+                        case let .migrated(old, new):
+                            // Tell the tunnel to re-read tunnel configuration after migration.
+                            logger.debug("Successful resolving deprecated settings from UI Process")
+                            appPreferences.migratedSettingsState = MigratedSettingsState(
+                                preMigrationSettings: old,
+                                lastInstalledVersion: Bundle.main.productVersion,
+                                lastMigratedVersion: MigratedVersion.current.rawValue,
+                                hasCompletedMigrationWizard: false,
+                                shouldShowMigratedSettingsMenuItem: true)
+                            migratedSettingsListener.onMigratedSettingsHandler?(.migrated)
+                            tunnelManager.updateSettings([.all(new)])
+                            finish(nil)
+
+                        case .noChange:
+                            logger.debug(
+                                "Attempted resolving deprecated settings from UI Process, but found nothing to do")
+                            appPreferences.migratedSettingsState = MigratedSettingsState(
+                                preMigrationSettings: self.appPreferences.migratedSettingsState.preMigrationSettings,
+                                lastInstalledVersion: Bundle.main.productVersion,
+                                lastMigratedVersion: MigratedVersion.current.rawValue,
+                                hasCompletedMigrationWizard: self.appPreferences.migratedSettingsState
+                                    .hasCompletedMigrationWizard,
+                                shouldShowMigratedSettingsMenuItem: self.appPreferences.migratedSettingsState
+                                    .shouldShowMigratedSettingsMenuItem)
+                            migratedSettingsListener.onMigratedSettingsHandler?(.noChanges)
+                            finish(nil)
+
+                        case let .failure(error):
+                            logger.error("Failed resolving deprecated settings from UI Process: \(error)")
+                            appPreferences.migratedSettingsState = MigratedSettingsState(
+                                preMigrationSettings: nil,
+                                lastInstalledVersion: Bundle.main.productVersion,
+                                lastMigratedVersion: MigratedVersion.current.rawValue,
+                                hasCompletedMigrationWizard: true,
+                                shouldShowMigratedSettingsMenuItem: false)
+                            migratedSettingsListener.onMigratedSettingsHandler?(.noChanges)
+                            finish(error)
+                        }
+                    }
+                }
+            })
     }
 
     // MARK: - UNUserNotificationCenterDelegate

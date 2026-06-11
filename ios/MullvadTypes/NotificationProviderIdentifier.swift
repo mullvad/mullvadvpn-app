@@ -20,14 +20,16 @@ public enum NotificationPriority: Int, Comparable {
 }
 
 public enum NotificationProviderIdentifier: String {
-    case accountExpirySystemNotification = "AccountExpiryNotification"
-    case newAppVersionSystemNotification = "NewAppVersionSystemNotification"
-    case newAppVersionInAppNotification = "NewAppVersionInAppNotification"
     case accountExpiryInAppNotification = "AccountExpiryInAppNotification"
+    case accountExpirySystemNotification = "AccountExpiryNotification"
+    case invalidShadowsocksCipherInAppNotificationProvider = "InvalidShadowsocksCipherInAppNotificationProvider"
+    case latestChangesInAppNotificationProvider = "LatestChangesInAppNotificationProvider"
+    case settingsMigrationInAppNotificationProvider = "settingsMigrationInAppNotificationProvider"
+    case newAppVersionInAppNotification = "NewAppVersionInAppNotification"
+    case newAppVersionSystemNotification = "NewAppVersionSystemNotification"
     case registeredDeviceInAppNotification = "RegisteredDeviceInAppNotification"
     case tunnelStatusNotificationProvider = "TunnelStatusNotificationProvider"
-    case latestChangesInAppNotificationProvider = "LatestChangesInAppNotificationProvider"
-    case invalidShadowsocksCipherInAppNotificationProvider = "InvalidShadowsocksCipherInAppNotificationProvider"
+
     case `default` = "default"
 
     public var domainIdentifier: String {

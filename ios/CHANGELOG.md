@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 ### Add
 - Add support for connecting over IPv6.
+- Set Multihop to "On" by default for all features with unsupported settings.
+
+### Removed
+- Remove “Direct only” from Daita
 
 ### Fixed
 - Stop logging access method credentials in logs.
