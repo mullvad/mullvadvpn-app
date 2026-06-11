@@ -6,10 +6,11 @@
 //! This module is allowed to import a number of types, unlike other migration modules, as it
 //! does not modify any files directly and may safely fail.
 
-use super::{MigrationComplete, v5::MigrationData};
+use super::MigrationComplete;
 use crate::{
     DaemonEventSender, InternalDaemonEvent,
     device::{self, DeviceService, PrivateAccountAndDevice, PrivateDevice},
+    migrations::v5,
 };
 use mullvad_types::{account::AccountNumber, wireguard::WireguardData};
 use std::time::Duration;
@@ -20,7 +21,7 @@ use tokio::time::timeout;
 const TIMEOUT: Duration = Duration::from_secs(30);
 
 pub(crate) fn generate_device(
-    migration_data: MigrationData,
+    migration_data: v5::MigrationData,
     mut migration_complete: MigrationComplete,
     rest_handle: mullvad_api::rest::MullvadRestHandle,
     daemon_tx: DaemonEventSender<InternalDaemonEvent>,
