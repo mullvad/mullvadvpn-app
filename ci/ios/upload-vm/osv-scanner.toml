@@ -31,6 +31,6 @@ reason = "We do not supply any URI:s to fastlane, so we're not affected. Once Fa
 
 # jwt library does not validate input when creating new JWT tokens.
 [[IgnoredVulns]]
-id = " CVE-2026-45363 "  # GHSA-c32j-vqhx-rx3x
+id = "CVE-2026-45363"  # GHSA-c32j-vqhx-rx3x
 ignoreUntil = 2026-12-12
 reason = "fastlane does not generate JWT tokens, it only uses them. This vulnerability does not affect us."
