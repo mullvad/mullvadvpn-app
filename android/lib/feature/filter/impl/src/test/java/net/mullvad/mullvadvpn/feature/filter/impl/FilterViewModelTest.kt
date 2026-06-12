@@ -62,7 +62,8 @@ class FilterViewModelTest {
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterRepository.selectedProviders(FilterTarget.Exit) } returns
             MutableStateFlow(Constraint.Only(mockSelectedProviders))
-        every { mockRelayListFilterRepository.selectedOwnership(FilterTarget.Exit) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(FilterTarget.Exit) } returns
+            selectedOwnership
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
@@ -173,7 +174,8 @@ class FilterViewModelTest {
         // Arrange
         every { mockRelayListFilterRepository.selectedProviders(FilterTarget.Entry) } returns
             MutableStateFlow(Constraint.Only(mockSelectedProviders))
-        every { mockRelayListFilterRepository.selectedOwnership(FilterTarget.Entry) } returns selectedOwnership
+        every { mockRelayListFilterRepository.selectedOwnership(FilterTarget.Entry) } returns
+            selectedOwnership
 
         viewModel =
             FilterViewModel(
