@@ -113,7 +113,9 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
                 when (result) {
                     is PurchaseResult.Error.VerificationError ->
                         Logger.e("Could not verify purchase")
-                    is PurchaseResult.Error.BillingError -> Logger.e("BillingError")
+                    is PurchaseResult.Error.BillingError -> {
+                        Logger.e("BillingError ${result.exception}")
+                    }
                     is PurchaseResult.Error.FetchProductsError ->
                         Logger.e("Could not fetch any products")
                     is PurchaseResult.Error.NoProductFound -> Logger.e("No product available")
