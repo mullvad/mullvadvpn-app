@@ -14,29 +14,27 @@ extension RelayFilterSelection {
 
         var body: some View {
             ActiveFilterView(
-                activeFilter: viewModel.filters,
+                activeFilter: viewModel.featureFilters,
                 labelStyle: .specific,
-                automaticLocationIsActive: false
+                automaticLocationIsActive: false,
+                shouldShowAutomaticFilterOverrideNotice: viewModel.shouldShowAutomaticFilterOverrideNotice
             ) { filter in
-                viewModel.onFilterTapped(filter)
+                viewModel.onFeatureChipTapped?(filter)
             } onRemove: { _ in
             }
-            .padding(EdgeInsets(top: 0, leading: 0, bottom: 4, trailing: 16))
-            .background(Color.mullvadBackground)
         }
     }
 }
 
 private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol, ObservableObject {
-    var filters: [SelectLocationFilter]
+    var featureFilters: [SelectLocationFilter]
     var shouldShowAutomaticFilterOverrideNotice: Bool
+    var onFeatureChipTapped: ((SelectLocationFilter) -> Void)?
 
     init(filters: [SelectLocationFilter], automaticLocationIsActive: Bool) {
-        self.filters = filters
+        self.featureFilters = filters
         self.shouldShowAutomaticFilterOverrideNotice = automaticLocationIsActive
     }
-
-    func onFilterTapped(_ filterr: SelectLocationFilter) {}
 }
 
 #Preview {
@@ -44,5 +42,6 @@ private final class MockSettingsViewModel: RelayFilterSettingsViewModelProtocol,
         viewModel: MockSettingsViewModel(
             filters: [.daita, .obfuscation(.quic)],
             automaticLocationIsActive: true
-        ))
+        )
+    )
 }
