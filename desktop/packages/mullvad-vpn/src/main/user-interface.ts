@@ -588,7 +588,6 @@ export default class UserInterface implements WindowControllerDelegate {
         }
         break;
       case 'darwin':
-        this.tray?.on('right-click', () => this.windowController.hide());
         this.tray?.on('click', (event) => {
           if (event.metaKey) {
             setImmediate(() => this.windowController.updatePosition());
