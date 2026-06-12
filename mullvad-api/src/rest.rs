@@ -35,6 +35,11 @@ const USER_AGENT: &str = "mullvad-app";
 
 pub type Result<T> = std::result::Result<T, Error>;
 const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
+/// How long an HTTP connection may sit idle in hyper's connection pool before
+/// it is evicted. Closes pooled keepalive sockets (and their upstream proxy
+/// connections, if any) after a quiet period without affecting in-flight
+/// requests.
+const POOL_IDLE_TIMEOUT: Duration = Duration::from_secs(60);
 
 /// Describes all the ways a REST request can fail
 #[derive(thiserror::Error, Debug, Clone)]
@@ -176,6 +181,8 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         );
         let client =
             hyper_util::client::legacy::Client::builder(hyper_util::rt::TokioExecutor::new())
+                .pool_idle_timeout(Some(POOL_IDLE_TIMEOUT))
+                .pool_timer(hyper_util::rt::TokioTimer::new())
                 .build(connector.clone());
 
         let (command_tx, command_rx) = mpsc::unbounded();
