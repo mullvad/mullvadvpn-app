@@ -3696,6 +3696,9 @@ msgstr ""
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr ""
 
+msgid "Unable to open the VPN permission dialog, please check your OS configuration"
+msgstr ""
+
 msgid "Unable to parse patch"
 msgstr ""
 
@@ -3703,9 +3706,6 @@ msgid "Unable to reach API"
 msgstr ""
 
 msgid "Unable to reach API, %s"
-msgstr ""
-
-msgid "Unable to start the vpn permission dialog, please check your os configuration"
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
