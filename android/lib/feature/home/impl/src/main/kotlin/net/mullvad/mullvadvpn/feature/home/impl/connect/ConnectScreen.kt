@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.feature.home.impl.connect
 
+import android.content.ActivityNotFoundException
 import android.content.res.Resources
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
@@ -217,8 +218,18 @@ fun Connect(navigator: Navigator, animatedVisibilityScope: AnimatedVisibilitySco
                                 message = sideEffect.prepareError.toMessage(resources)
                             )
                         }
-                    is PrepareError.NotPrepared ->
-                        createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
+                    is PrepareError.NotPrepared -> {
+                        try {
+                            createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
+                        } catch (_: ActivityNotFoundException) {
+                            // The app could not find the vpn permission dialog, so instead of
+                            // crashing we will tell the user about the issue.
+                            snackbarHostState.showSnackbarImmediately(
+                                message =
+                                    resources.getString(R.string.vpn_dialog_activity_not_found)
+                            )
+                        }
+                    }
                 }
 
             ConnectViewModel.UiSideEffect.ConnectError.Generic ->
