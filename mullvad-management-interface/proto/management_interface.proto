@@ -919,14 +919,13 @@ message LogMessage { string message = 1; }
 // Clarification of some settings:
 // - Direct only: DAITA specific setting which prevented Magic Multihop from taking effect.
 // - Magic Multihop: If DAITA was enabled but Direct only was disabled, the relay selector might
-// have
-//   chosen an entry relay automatically. If that was the case, Magic Multihop was enabled.
+//  have chosen an entry relay automatically. If that was the case, Magic Multihop was enabled.
 // - Filters: If any ownership or provider filter was enabled, the Filters box is ticked with ✅.
 //
 // # Notes on updated settings post-migration.
 //
 // * In the same update as the SplitFilterMigration is run, the Multihop setting transitions from
-// being a boolean state (on/off) to now being a tri-state:
+//  being a boolean state (on/off) to now being a tri-state:
 //
 // - Always
 // - When needed
@@ -934,8 +933,8 @@ message LogMessage { string message = 1; }
 //
 // * If any filters were previously set, they were copied and applied as both entry + exit filters.
 //
-// * "Daita: Directy only" does not exist anymore. If Daita was turned off, it is still off.
-// Otherwise Daita is enabled.
+// * "Daita: Direct only" does not exist anymore. If Daita was turned off, it is still off.
+//  Otherwise Daita is enabled.
 message SplitFilterMigration {
   enum Scenario {
     // 1A
