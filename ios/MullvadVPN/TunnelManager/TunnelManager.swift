@@ -718,8 +718,9 @@ final class TunnelManager: @unchecked Sendable {
         }
 
         DispatchQueue.main.async {
-            self.observerList.notify { observer in
-                observer.tunnelManager(self, didUpdateTunnelStatus: newTunnelStatus)
+            self.observerList.notify { [tunnelStatus = self.tunnelStatus] observer in
+                observer
+                    .tunnelManager(self, didUpdateTunnelStatus: tunnelStatus)
             }
         }
 
