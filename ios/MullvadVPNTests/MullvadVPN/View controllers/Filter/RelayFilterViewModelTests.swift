@@ -37,39 +37,41 @@ struct RelayFilterViewModelTests {
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
-        let filteredRelays = viewModel.getFilteredRelays(RelayFilter())
+        let filteredRelays = viewModel.availableRelays
 
-        #expect(filteredRelays.isEnabled, "Filtered relays should be enabled")
+        #expect(filteredRelays.count > 0, "Filtered relays should be enabled")
     }
 
     @Test(
         "Returns correct providers based on ownership type",
         arguments: [
-            RelayFilter.Ownership.any,
-            RelayFilter.Ownership.owned,
-            RelayFilter.Ownership.rented,
+            RelayFilterItem.anyOwnershipItem(),
+            RelayFilterItem.ownedOwnershipItem(),
+            RelayFilterItem.rentedOwnershipItem(),
         ]
     )
-    func testAvailableProvidersByOwnership(_ ownership: RelayFilter.Ownership) {
+    func testAvailableProvidersByOwnership(_ ownershipItem: RelayFilterItem) {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
             multihopContext: .exit
         )
-        let providers = viewModel.availableProviders(for: ownership)
 
-        #expect(!providers.isEmpty, "Providers list should not be empty for \(ownership)")
+        viewModel.toggleItem(ownershipItem)
+
+        #expect(!viewModel.providerItems.isEmpty, "Providers list should not be empty for \(ownershipItem.type)")
     }
 
     @Test(
         "Toggles relay providers filter items correctly",
+        .serialized,
         arguments: [
-            RelayFilterSelection.DataSourceItem(name: "DataPacket", type: .provider, isEnabled: true),
-            RelayFilterSelection.DataSourceItem(name: "All Providers", type: .allProviders, isEnabled: true),
-            RelayFilterSelection.DataSourceItem(name: "Blix", type: .provider, isEnabled: true),
+            RelayFilterItem(name: "DataPacket", type: .provider, isSelected: true),
+            RelayFilterItem.allProviders(isSelected: true),
+            RelayFilterItem(name: "Blix", type: .provider, isSelected: true),
         ]
     )
-    func testToggleFilterItem(_ item: RelayFilterSelection.DataSourceItem) {
+    func testToggleFilterItem(_ providerItem: RelayFilterItem) {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
@@ -77,12 +79,12 @@ struct RelayFilterViewModelTests {
         )
 
         let initialFilter = viewModel.relayFilter
-        viewModel.toggleItem(item)
+        viewModel.toggleItem(providerItem)
         let updatedFilter = viewModel.relayFilter
 
-        #expect(initialFilter != updatedFilter, "Toggling \(item.name) should change the filter state")
+        #expect(initialFilter != updatedFilter, "Toggling \(providerItem.name) should change the filter state")
 
-        viewModel.toggleItem(item)
+        viewModel.toggleItem(providerItem)
 
         #expect(viewModel.relayFilter == initialFilter, "Toggling twice should restore the initial state")
     }
@@ -90,11 +92,11 @@ struct RelayFilterViewModelTests {
     @Test(
         "Toggles relay provider filter items correctly",
         arguments: [
-            RelayFilterSelection.DataSourceItem.ownedOwnershipItem,
-            RelayFilterSelection.DataSourceItem.rentedOwnershipItem,
+            RelayFilterItem.ownedOwnershipItem(),
+            RelayFilterItem.rentedOwnershipItem(),
         ]
     )
-    func testToggleRelayProviderFilterItem(_ item: RelayFilterSelection.DataSourceItem) {
+    func testToggleRelayProviderFilterItem(_ providerItem: RelayFilterItem) {
         let viewModel = RelayFilterSelection.ViewModel(
             tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
             relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
@@ -102,53 +104,26 @@ struct RelayFilterViewModelTests {
         )
 
         let initialFilter = viewModel.relayFilter
-        viewModel.toggleItem(item)
+        viewModel.toggleItem(providerItem)
         let updatedFilter = viewModel.relayFilter
 
-        #expect(initialFilter != updatedFilter, "Toggling \(item.name) should update the filter state")
+        #expect(initialFilter != updatedFilter, "Toggling \(providerItem.name) should update the filter state")
         #expect(
-            viewModel.relayFilter.ownership == viewModel.ownership(for: item),
+            viewModel.relayFilter.ownership == viewModel.ownership(for: providerItem),
             "Filter's ownership should match the toggled item's ownership"
-        )
-    }
-
-    @Test(
-        "Maps ownership filter to the correct ownership item",
-        arguments: [
-            (RelayFilter.Ownership.any, RelayFilterSelection.DataSourceItem.anyOwnershipItem),
-            (RelayFilter.Ownership.owned, RelayFilterSelection.DataSourceItem.ownedOwnershipItem),
-            (RelayFilter.Ownership.rented, RelayFilterSelection.DataSourceItem.rentedOwnershipItem),
-        ]
-    )
-    func testOwnershipItemForFilter(
-        _ ownership: RelayFilter.Ownership,
-        expectedItem: RelayFilterSelection.DataSourceItem
-    ) throws {
-        let viewModel = RelayFilterSelection.ViewModel(
-            tunnelManager: RelayFilterSelection.ViewModel.MockTunnelManager(settings: LatestTunnelSettings()),
-            relaySelectorWrapper: RelaySelectorWrapper(relayCache: MockRelayCache()),
-            multihopContext: .exit
-        )
-        guard let ownershipItem = viewModel.ownershipItem(for: ownership) else {
-            throw TestError.nilOwnershipItem("ownershipItem(for: \(ownership)) returned nil")
-        }
-
-        #expect(
-            ownershipItem == expectedItem,
-            "Expected \(expectedItem.name) for ownership type \(ownership), but got \(ownershipItem.name)"
         )
     }
 
     @Test(
         "Maps ownership item to the correct ownership filter",
         arguments: [
-            (RelayFilterSelection.DataSourceItem.anyOwnershipItem, RelayFilter.Ownership.any),
-            (RelayFilterSelection.DataSourceItem.ownedOwnershipItem, RelayFilter.Ownership.owned),
-            (RelayFilterSelection.DataSourceItem.rentedOwnershipItem, RelayFilter.Ownership.rented),
+            RelayFilterItem.anyOwnershipItem(): RelayFilter.Ownership.any,
+            RelayFilterItem.ownedOwnershipItem(): RelayFilter.Ownership.owned,
+            RelayFilterItem.rentedOwnershipItem(): RelayFilter.Ownership.rented,
         ]
     )
     func testFilterOwnershipForItem(
-        _ ownershipItem: RelayFilterSelection.DataSourceItem,
+        _ ownershipItem: RelayFilterItem,
         expectedOwnership: RelayFilter.Ownership
     ) {
         let viewModel = RelayFilterSelection.ViewModel(
@@ -163,8 +138,4 @@ struct RelayFilterViewModelTests {
             "Expected ownership \(expectedOwnership) for item \(ownershipItem.name), but got \(ownership)"
         )
     }
-}
-
-private enum TestError: Error {
-    case nilOwnershipItem(String)
 }

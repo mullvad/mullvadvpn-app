@@ -15,24 +15,35 @@ struct ResizableImageView: View {
 
     let image: Image
     let dimension: Dimension?
+    let tint: Color?
 
     @ScaledMetric(relativeTo: .body)
     private var dynamicScale = 1.0
 
-    init(image: Image, dimension: Dimension? = nil) {
+    init(image: Image, dimension: Dimension? = nil, tint: Color? = nil) {
         self.image = image
         self.dimension = dimension
+        self.tint = tint
     }
 
     var body: some View {
         image
             .resizable()
+            .ifLet(
+                tint,
+                { image, tint in
+                    image
+                        .renderingMode(.template)
+                        .foregroundStyle(tint)
+                }
+            )
             .aspectRatio(contentMode: .fit)
             .modifier(
                 FrameModifier(
                     dimension: dimension,
                     scale: dynamicScale
-                ))
+                )
+            )
     }
 }
 
