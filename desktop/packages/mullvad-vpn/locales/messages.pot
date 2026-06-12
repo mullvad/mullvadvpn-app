@@ -3705,6 +3705,9 @@ msgstr ""
 msgid "Unable to reach API, %s"
 msgstr ""
 
+msgid "Unable to start the vpn permission dialog, please check your os configuration"
+msgstr ""
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
 msgstr ""
 
