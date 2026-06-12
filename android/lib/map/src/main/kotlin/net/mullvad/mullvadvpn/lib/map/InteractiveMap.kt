@@ -14,7 +14,6 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,21 +44,25 @@ import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 
 val LAT_LOWER_BOUND = -40f
-val LAT_UPPER_BOUND = 60f
+val LAT_UPPER_BOUND = 65f
 
 @Composable
 fun InteractiveMap(
-    currLocation: MutableState<LatLong>,
+    currentLocation: LatLong,
+    verticalBias: Float = .5f,
     markers: List<Marker>,
     hops: List<Hop>,
-    onMarkerClick: (Marker) -> Unit,
     modifier: Modifier = Modifier,
+    onMarkerClick: ((Marker) -> Unit)? = null,
     globeColors: GlobeColors = GlobeColors.default(),
 ) {
-    val currentLocation by currLocation
 
     // Range of zoom levels we can zoom to, so users don't get lost in space
-    val zoomRange = 1.2f..2f
+    val zoomRange = 1.2f..2.5f
+
+    val alphaAnimation = remember {
+        Animatable(0f)
+    }
 
     val zoomAnimatable = remember {
         Animatable(zoomRange.start).also {
@@ -88,12 +91,19 @@ fun InteractiveMap(
             latLngAnimatable.animateTo(currentLocation.toOffset(), animationSpec = tween(duration))
         }
         launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
+        launch { alphaAnimation.animateTo(1f, animationSpec = tween(duration)) }
     }
 
     val tracker = remember { DiffVelocityTracker() }
     val scope = rememberCoroutineScope()
 
     var view: MapSurfaceView? = remember { null }
+
+    val onGestureStart: () -> Unit = {
+        scope.launch {
+            alphaAnimation.animateTo(1f, tween(1000))
+        }
+    }
 
     val onGesture: (Offset, Offset, Float) -> Unit =
         onGesture@{ centroid: Offset, pan: Offset, zoomChange: Float ->
@@ -105,7 +115,6 @@ fun InteractiveMap(
             val new = view?.getPosition(centroid + pan) ?: return@onGesture
 
             val latDiff = org - new
-//            val latLngOffsetDiff = calculateLatLngPan(pan, zoom)
 
             val newPosition =
                 (currentPosition + latDiff.toOffset()).coerceIn(
@@ -160,30 +169,38 @@ fun InteractiveMap(
                 )
             }
             launch { zoomAnimatable.animateTo(zoomRange.start, tween(1000, 2000)) }
+            launch { alphaAnimation.animateTo(0f, tween(1000, 2000)) }
         }
     }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
 
-    val cameraPosition = CameraPosition(latLngAnimatable.value.toLatLng(), zoomAnimatable.value)
-    val globeViewState = GlobeViewState(cameraPosition, markers,  emptyList(), globeColors)
+    val cameraPosition =
+        CameraPosition(
+            latLngAnimatable.value.toLatLng(),
+            zoomAnimatable.value,
+            verticalBias = verticalBias,
+        )
+    val globeViewState =
+        GlobeViewState(
+            cameraPosition,
+            markers,
+            hops.map { it.copy(color = Color.White.copy(alpha = alphaAnimation.value)) },
+            globeColors,
+        )
     AndroidView(
         modifier =
             Modifier.pointerInput(lifeCycleState) {
                     detectTapGestures(
                         onTap = {
                             val result = view?.closestMarker(it) ?: return@detectTapGestures
-                            onMarkerClick(result.first)
+                            onMarkerClick?.invoke(result.first)
                         }
-                        //                    onLongPress = {
-                        //                        val result = view?.closestMarker(it) ?:
-                        // return@detectTapGestures
-                        //                        onLongClick(result.second, result.first)
-                        //                    },
                     )
                 }
                 .pointerInput(lifeCycleState) {
                     detectTransformGesturesWithEnd(
+                        onGestureStart = onGestureStart,
                         onGesture = onGesture,
                         onGestureEnd = onGestureEnd,
                     )
@@ -197,21 +214,7 @@ fun InteractiveMap(
         },
         onRelease = { it.lifecycle = null },
     )
-    Map(
-        modifier =
-            Modifier.pointerInput(
-                Unit,
-                {},
-            ),
-        cameraPosition = CameraPosition(latLngAnimatable.value.toLatLng(), zoomAnimatable.value),
-        markers = markers,
-        hops = hops,
-        onMarkerClick = onMarkerClick,
-    )
 }
-
-private fun calculateLatLngPan(pan: Offset, zoom: Float): Offset =
-    Offset(x = -pan.x * zoom / 50f, pan.y * zoom / 40f)
 
 private fun Offset.coerceIn(
     xMin: Float = Float.NEGATIVE_INFINITY,
@@ -249,6 +252,7 @@ fun calculateClosestOffset(current: Offset, target: Offset): Offset =
     Offset(current.x.closestTarget(target.x), target.y)
 
 suspend fun PointerInputScope.detectTransformGesturesWithEnd(
+    onGestureStart: () -> Unit,
     onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit,
     onGestureEnd: () -> Unit,
 ) {
@@ -259,6 +263,7 @@ suspend fun PointerInputScope.detectTransformGesturesWithEnd(
         val touchSlop = viewConfiguration.touchSlop
 
         awaitFirstDown(requireUnconsumed = false)
+        onGestureStart()
         do {
             val event = awaitPointerEvent()
             val canceled = event.changes.any { it.isConsumed }

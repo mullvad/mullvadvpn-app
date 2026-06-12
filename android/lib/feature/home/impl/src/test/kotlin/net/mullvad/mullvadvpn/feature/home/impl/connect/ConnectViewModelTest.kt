@@ -200,11 +200,11 @@ class ConnectViewModelTest {
             tunnelState.emit(TunnelState.Disconnected(null))
 
             // Start of with no location
-            assertNull(awaitItem().location)
+            assertNull(awaitItem().internetLocation)
 
             // After updated we show latest
             tunnelState.emit(TunnelState.Disconnected(locationTestItem))
-            assertEquals(locationTestItem, awaitItem().location)
+            assertEquals(locationTestItem, awaitItem().internetLocation)
         }
     }
 
@@ -215,7 +215,7 @@ class ConnectViewModelTest {
             val locationTestItem = null
 
             // Act, Assert
-            viewModel.uiState.test { assertEquals(locationTestItem, awaitItem().location) }
+            viewModel.uiState.test { assertEquals(locationTestItem, awaitItem().internetLocation) }
         }
 
     @Test
@@ -330,7 +330,7 @@ class ConnectViewModelTest {
                 tunnelState.emit(tunnel)
                 awaitItem()
                 val result = awaitItem()
-                assertEquals(lastKnownLocation, result.location)
+                assertEquals(lastKnownLocation, result.internetLocation)
             }
         }
 

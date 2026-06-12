@@ -32,7 +32,7 @@ private val otherStates =
         )
         .mapIndexed { index, state ->
             ConnectUiState(
-                location =
+                internetLocation =
                     GeoIpLocation(
                         ipv4 = InetAddress.getLocalHost(),
                         ipv6 = null,
@@ -50,5 +50,6 @@ private val otherStates =
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
                 isPlayBuild = true,
+                hops = emptyList()
             )
         }

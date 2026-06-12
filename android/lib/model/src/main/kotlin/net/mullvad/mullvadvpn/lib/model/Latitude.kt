@@ -1,9 +1,12 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.os.Parcelable
 import kotlin.math.absoluteValue
+import kotlinx.parcelize.Parcelize
 
 @JvmInline
-value class Latitude(val value: Float) {
+@Parcelize
+value class Latitude(val value: Float): Parcelable {
     init {
         require(value in LATITUDE_RANGE) {
             "Latitude: '$value' must be between $MIN_LATITUDE_VALUE and $MAX_LATITUDE_VALUE"
