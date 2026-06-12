@@ -161,8 +161,8 @@ import SwiftUI
         LocationNode(name: "se-sto-wg-001", code: "se-sto-wg-001"),
         LocationNode(name: "se-sto-wg-002", code: "se-sto-wg-002"),
     ]
-    var city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
-    var country = LocationNode(name: "Sweden", code: "se", children: [city])
+    let city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
+    let country = LocationNode(name: "Sweden", code: "se", children: [city])
 
     VStack(spacing: 0) {
         SegmentedListItem(
@@ -251,8 +251,8 @@ import SwiftUI
         LocationNode(name: "se-sto-wg-001", code: "se-sto-wg-001"),
         LocationNode(name: "se-sto-wg-002", code: "se-sto-wg-002"),
     ]
-    var city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
-    var country = LocationNode(name: "Sweden", code: "se", children: [city])
+    let city = LocationNode(name: "Stockholm", code: "se-sto", children: servers)
+    let country = LocationNode(name: "Sweden", code: "se", children: [city])
 
     VStack(spacing: 0) {
         SegmentedListItem(
