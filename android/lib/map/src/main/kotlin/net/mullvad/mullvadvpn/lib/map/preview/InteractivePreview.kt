@@ -32,7 +32,7 @@ private fun InteractiveMapPreview() {
         )
     }
     InteractiveMap(
-        currLocation = currentLocation,
+        currentLocation = currentLocation.value,
         markers = markers,
         hops = listOf(Hop(currentLocation.value, locations[1]), Hop(locations[1], locations[2])),
         onMarkerClick = { currentLocation.value = it.latLong },

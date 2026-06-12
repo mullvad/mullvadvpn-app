@@ -49,7 +49,7 @@ fun Map(
     markers: List<Marker> = emptyList(),
     hops: List<Hop> = emptyList(),
     globeColors: GlobeColors = GlobeColors.default(),
-    onMarkerClick: (Marker) -> Unit = {},
+    onMarkerClick: ((Marker) -> Unit) = {},
     onMarkerLongPress: (Offset, Marker) -> Unit = { _, _ -> },
 ) {
     val globeViewState = GlobeViewState(cameraPosition, markers, hops, globeColors)

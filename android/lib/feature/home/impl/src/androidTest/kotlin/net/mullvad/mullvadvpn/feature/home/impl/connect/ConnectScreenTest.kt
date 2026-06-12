@@ -117,7 +117,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -144,7 +144,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
                         deviceName = "",
@@ -168,7 +168,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
                         deviceName = "",
@@ -193,7 +193,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = mockSelectedRelayTitle,
                         tunnelState = TunnelState.Disconnected(),
                         deviceName = "",
@@ -217,7 +217,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true)),
@@ -246,7 +246,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
@@ -276,7 +276,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
                         deviceName = "",
@@ -302,7 +302,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
                         deviceName = "",
@@ -329,7 +329,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = mockSelectedRelayItemTitle,
                         tunnelState = TunnelState.Disconnected(),
                         deviceName = "",
@@ -357,7 +357,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
                         deviceName = "",
@@ -385,7 +385,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
                         deviceName = "",
@@ -412,7 +412,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Disconnected(),
                         deviceName = "",
@@ -439,7 +439,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -489,7 +489,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
@@ -524,7 +524,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -551,7 +551,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -581,7 +581,7 @@ class ConnectScreenTest {
                 onOpenAppListing = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -609,7 +609,7 @@ class ConnectScreenTest {
                 onManageAccountClick = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -639,7 +639,7 @@ class ConnectScreenTest {
                 onChangelogClick = mockedClickHandler,
                 state =
                     ConnectUiState(
-                        location = null,
+                        internetLocation = null,
                         selectedRelayItemTitle = null,
                         tunnelState = TunnelState.Connecting(null, null, emptyList()),
                         deviceName = "",
@@ -702,7 +702,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
@@ -759,7 +759,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
@@ -804,7 +804,7 @@ class ConnectScreenTest {
             initScreen(
                 state =
                     ConnectUiState(
-                        location = mockLocation,
+                        internetLocation = mockLocation,
                         selectedRelayItemTitle = null,
                         tunnelState =
                             TunnelState.Connected(

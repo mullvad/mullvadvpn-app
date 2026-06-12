@@ -90,6 +90,7 @@ import net.mullvad.mullvadvpn.lib.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.lib.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.lib.repository.VoucherRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.DeleteCustomDnsUseCase
 import net.mullvad.mullvadvpn.lib.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.lib.usecase.FilteredRelayListUseCase
@@ -251,6 +252,9 @@ val uiModule = module {
         )
     }
 
+    single {
+        ConnectionPathUseCase(get(), get(), get())
+    }
     single { InAppNotificationController(getAll(), MainScope()) }
 
     single { ChangelogDataProvider(get()) }
@@ -298,6 +302,7 @@ val uiModule = module {
             systemVpnSettingsUseCase = get(),
             isPlayBuild = IS_PLAY_BUILD,
             resolveAppListing = get(),
+            connectionPath = get(),
         )
     }
     viewModel { params -> DeviceListViewModel(accountNumber = params.get(), get()) }

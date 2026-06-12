@@ -111,7 +111,7 @@ internal class MapRenderer(private val resources: Resources) : GLSurfaceView.Ren
 
         viewState.hops.forEach { hop ->
             val parabola =
-                parabolaCache[hop] ?: Parabola(hop.from, hop.to).also { parabolaCache.put(hop, it) }
+                parabolaCache[hop] ?: Parabola(hop.from, hop.to, color = hop.color).also { parabolaCache.put(hop, it) }
             parabola.draw(projectionMatrix, viewMatrix)
         }
     }

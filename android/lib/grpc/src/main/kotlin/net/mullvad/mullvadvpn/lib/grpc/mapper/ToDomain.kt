@@ -47,6 +47,9 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.IncompatibleConstraints
 import net.mullvad.mullvadvpn.lib.model.IpVersion
+import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.Latitude
+import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.LwoObfuscationSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
@@ -626,6 +629,7 @@ internal fun ManagementInterface.Relay.toDomain(
 ): RelayItem.Location.Relay =
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(city, hostname),
+        latLong = location.toDomain(),
         cityName = cityName,
         countryName = countryName,
         active = active,
@@ -640,6 +644,9 @@ internal fun ManagementInterface.Relay.toDomain(
             },
         lwo = endpointData.lwo,
     )
+
+private fun ManagementInterface.Location.toDomain() : LatLong =
+    LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
 
 private fun ManagementInterface.Relay.WireguardEndpoint.Quic.toDomain(): Quic =
     Quic(inAddresses = addrInList.map { it.toInetAddress() })

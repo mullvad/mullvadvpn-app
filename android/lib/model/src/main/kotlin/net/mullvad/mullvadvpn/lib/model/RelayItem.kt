@@ -82,6 +82,7 @@ sealed interface RelayItem : Parcelable {
         data class Relay(
             override val id: GeoLocationId.Hostname,
             override val active: Boolean,
+            val latLong: LatLong,
             val provider: ProviderId,
             val ownership: Ownership,
             val daita: Boolean,

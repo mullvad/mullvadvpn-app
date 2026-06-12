@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.map.internal.shapes
 
-import android.graphics.Color
 import android.opengl.GLES20
+import androidx.compose.ui.graphics.Color
 import java.nio.FloatBuffer
 import kotlin.math.cos
 import kotlin.math.sin
@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.lib.model.toRadians
 class Parabola(
     val from: LatLong,
     val to: LatLong,
-    val color: Int = Color.WHITE,
+    val color: Color = Color.White,
     private val segments: Int = 48,
 ) {
     private val shaderProgram: Int
@@ -61,11 +61,7 @@ class Parabola(
             modelViewMatrix = GLES20.glGetUniformLocation(shaderProgram, "uModelViewMatrix")
         )
 
-        val r = Color.red(color) / 255f
-        val g = Color.green(color) / 255f
-        val b = Color.blue(color) / 255f
-        val a = Color.alpha(color) / 255f
-        colorArray = floatArrayOf(r, g, b, a)
+        colorArray = floatArrayOf(color.red, color.green, color.blue, color.alpha)
     }
 
     fun draw(projectionMatrix: FloatArray, viewMatrix: FloatArray, lineWidth: Float = 4f) {

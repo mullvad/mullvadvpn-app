@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.NavKey2
@@ -104,9 +105,9 @@ import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
 import net.mullvad.mullvadvpn.lib.common.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.common.util.removeHtmlTags
-import net.mullvad.mullvadvpn.lib.map.Map
-import net.mullvad.mullvadvpn.lib.map.animatedCameraPosition
+import net.mullvad.mullvadvpn.lib.map.InteractiveMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
+import net.mullvad.mullvadvpn.lib.map.data.Hop
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -504,16 +505,35 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             label = "baseZoom",
         )
 
-    val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+    val markers =
+        state.tunnelState.toMarker(state.internetLocation)?.let { listOf(it) } ?: emptyList()
 
-    Map(
-        cameraPosition =
-            animatedCameraPosition(
-                baseZoom.value,
-                targetCameraLocation = state.location?.toLatLong() ?: fallbackLatLong,
-                cameraVerticalBias = progressIndicatorBias,
-            ),
+    val currentLocation =
+        remember(state.internetLocation?.toLatLong()) {
+            // Berlin
+            mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
+        }
+
+//    val offlineMarker =
+//        state.physicalLocation?.let {
+//            Marker(it.toLatLong(), colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error))
+//        }
+
+//    val entryMarker = when(val tState = state.tunnelState) {
+//        is TunnelState.Connected -> tState.endpoint.entryEndpoint
+//        is TunnelState.Connecting -> TODO()
+//        is TunnelState.Disconnected -> TODO()
+//        is TunnelState.Disconnecting -> TODO()
+//        is TunnelState.Error -> TODO()
+//    }
+
+    val hops = state.hops.zipWithNext().map { Hop(it.first, it.second) }
+
+    InteractiveMap(
+        currentLocation = currentLocation.value,
+        progressIndicatorBias,
         markers = markers,
+        hops = hops,
         globeColors =
             GlobeColors(
                 landColor = MaterialTheme.colorScheme.primary,
@@ -550,7 +570,7 @@ private fun ConnectionCard(
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
         Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
-            ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
+            ConnectionCardHeader(state, state.internetLocation, expanded) { expanded = !expanded }
 
             AnimatedContent(
                 state.tunnelState.featureIndicators() to expanded,

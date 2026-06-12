@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
+import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.lib.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.lib.usecase.SelectedLocationTitleUseCase
@@ -48,6 +49,7 @@ class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val changelogRepository: ChangelogRepository,
+    private val connectionPath: ConnectionPathUseCase,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceRepository: NewDeviceRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
@@ -55,7 +57,7 @@ class ConnectViewModel(
     private val outOfTimeUseCase: OutOfTimeUseCase,
     private val paymentUseCase: PaymentLogic,
     private val connectionProxy: ConnectionProxy,
-    lastKnownLocationUseCase: LastKnownLocationUseCase,
+    private val lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val isPlayBuild: Boolean,
     private val resolveAppListing: ResolveAppListingUseCase,
@@ -68,6 +70,7 @@ class ConnectViewModel(
     @OptIn(FlowPreview::class)
     val uiState: StateFlow<ConnectUiState> =
         combine(
+                connectionPath(),
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState.withPrev(),
@@ -75,6 +78,7 @@ class ConnectViewModel(
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
             ) {
+                connectionPath,
                 selectedRelayItemTitle,
                 notifications,
                 (tunnelState, prevTunnelState),
@@ -82,7 +86,8 @@ class ConnectViewModel(
                 accountData,
                 deviceName ->
                 ConnectUiState(
-                    location =
+                    hops = connectionPath,
+                    internetLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->
                                 tunnelState.location ?: lastKnownDisconnectedLocation
