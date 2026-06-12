@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Update `wireguard-nt` to version 1.1. This retires the Mullvad fork at
   <https://github.com/mullvad/wireguard-nt>.
+- Switch winreg out for windows_registry.
 
 #### macOS
 - Use arch-specific installers to deliver updates. This makes updates around 50% smaller.
@@ -47,6 +48,10 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Plug hole in Custom DNS firewall rules for LAN resolvers.
+
+
+## [2026.3] - 2026-06-15
+This release is identical to 2026.3-beta3.
 
 
 ## [2026.3-beta3] - 2026-06-08
@@ -74,6 +79,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add port setting for LWO obfuscation.
 - Add list of recent server selections in the select location view.
+- Add context menu to locations in the select location view.
 - GotaTun is now used as the userspace WireGuard implementation on all desktop platforms, not just
   macOS. It replaces wireguard-go.
 
@@ -93,9 +99,6 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Restart the GUI after an update if it was running.
 - `mullvad-daemon` now installs the same shutdown handler for `SIGHUP` as `SIGINT` and `SIGTERM`.
-
-#### Windows
-- Switch winreg out for windows_registry.
 
 ### Fixed
 - Fix duplicate "Connected"/"Disconnected" desktop notifications caused by the daemon sending
