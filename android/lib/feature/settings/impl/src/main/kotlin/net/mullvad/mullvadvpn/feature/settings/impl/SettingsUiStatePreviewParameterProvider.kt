@@ -16,6 +16,7 @@ class SettingsUiStatePreviewParameterProvider :
                     isDaitaEnabled = true,
                     isPlayBuild = true,
                     multihopEnabled = false,
+                    splitTunnelingIsActive = true,
                 )
                 .toLc(),
             SettingsUiState(
@@ -25,6 +26,17 @@ class SettingsUiStatePreviewParameterProvider :
                     isDaitaEnabled = false,
                     isPlayBuild = false,
                     multihopEnabled = false,
+                    splitTunnelingIsActive = false,
+                )
+                .toLc(),
+            SettingsUiState(
+                    appVersion = "9000.1",
+                    isLoggedIn = false,
+                    isSupportedVersion = false,
+                    isDaitaEnabled = false,
+                    isPlayBuild = false,
+                    multihopEnabled = false,
+                    splitTunnelingIsActive = true,
                 )
                 .toLc(),
         )

@@ -12,6 +12,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.VIEW_MODEL_STOP_TIMEOUT
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.repository.AppVersionInfoRepository
+import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.SettingsRepository
 import net.mullvad.mullvadvpn.lib.repository.WireguardConstraintsRepository
@@ -21,6 +22,7 @@ class SettingsViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
     wireguardConstraintsRepository: WireguardConstraintsRepository,
     settingsRepository: SettingsRepository,
+    connectionProxy: ConnectionProxy,
     isPlayBuild: Boolean,
 ) : ViewModel() {
 
@@ -30,13 +32,17 @@ class SettingsViewModel(
                 appVersionInfoRepository.versionInfo,
                 wireguardConstraintsRepository.wireguardConstraints,
                 settingsRepository.settingsUpdates,
-            ) { deviceState, versionInfo, wireguardConstraints, settings ->
+                connectionProxy.tunnelState,
+            ) { deviceState, versionInfo, wireguardConstraints, settings, tunnelState ->
                 SettingsUiState(
                         isLoggedIn = deviceState is DeviceState.LoggedIn,
                         appVersion = versionInfo.currentVersion,
                         isSupportedVersion = versionInfo.isSupported,
                         multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         isDaitaEnabled = settings?.tunnelOptions?.daitaSettings?.enabled == true,
+                        splitTunnelingIsActive =
+                            settings?.splitTunnelSettings?.enabled == true &&
+                                tunnelState.isSecured(),
                         isPlayBuild = isPlayBuild,
                     )
                     .toLc<Unit, SettingsUiState>()

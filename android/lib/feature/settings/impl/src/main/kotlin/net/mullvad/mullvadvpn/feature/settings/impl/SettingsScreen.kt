@@ -60,7 +60,7 @@ import net.mullvad.mullvadvpn.lib.ui.theme.color.AlphaScrollbar
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview("Loading|Supported|+")
+@Preview("Loading|Supported|LoggedOut|SplitTunnelingActive")
 @Composable
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class)
@@ -208,6 +208,9 @@ private fun LazyListScope.content(
             )
         }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
+    }
+
+    if (state.isLoggedIn || state.splitTunnelingIsActive) {
         item { SplitTunneling(onSplitTunnelingCellClick) }
         item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }
     }
