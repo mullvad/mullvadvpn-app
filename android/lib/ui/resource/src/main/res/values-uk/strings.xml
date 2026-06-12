@@ -350,7 +350,6 @@
     <string name="off">Вимк.</string>
     <string name="on">Увімк.</string>
     <string name="open_app_details">Відкрити відомості про застосунок</string>
-    <string name="open_feature_settings">Відкрити налаштування %1$s</string>
     <string name="open_url">Відкрити URL</string>
     <string name="out_of_time">Закінчився час</string>
     <string name="overrides_cleared">Перевизначення видалені</string>

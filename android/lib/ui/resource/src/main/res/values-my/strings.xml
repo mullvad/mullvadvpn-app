@@ -350,7 +350,6 @@
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
     <string name="open_app_details">အက်ပ်အသေးစိတ်အချက်အလက်များကို ဖွင့်ပါ</string>
-    <string name="open_feature_settings">%1$s ဆက်တင်များကို ဖွင့်ရန်</string>
     <string name="open_url">URL ဖွင့်ရန်</string>
     <string name="out_of_time">အချိန်စေ့သွားပါပြီ</string>
     <string name="overrides_cleared">ကျော်လွန် ပယ်ဖျက်မှုများ ရှင်းပြီးပါပြီ</string>

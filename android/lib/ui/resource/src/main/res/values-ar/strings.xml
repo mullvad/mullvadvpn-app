@@ -350,7 +350,6 @@
     <string name="off">إيقاف</string>
     <string name="on">تشغيل</string>
     <string name="open_app_details">فتح تفاصيل التطبيق</string>
-    <string name="open_feature_settings">فتح إعدادات ميزة %1$s</string>
     <string name="open_url">فتح عنوان URL</string>
     <string name="out_of_time">انتهى الوقت</string>
     <string name="overrides_cleared">تم مسح التجاوزات</string>

@@ -350,7 +350,6 @@
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
     <string name="open_app_details">Avaa sovelluksen tiedot</string>
-    <string name="open_feature_settings">Avaa %1$s-asetukset</string>
     <string name="open_url">Avaa URL</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="overrides_cleared">Ohitukset on poistettu</string>

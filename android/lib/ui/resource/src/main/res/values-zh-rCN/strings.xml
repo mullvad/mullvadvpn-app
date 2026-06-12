@@ -350,7 +350,6 @@
     <string name="off">关</string>
     <string name="on">开</string>
     <string name="open_app_details">打开应用详细信息</string>
-    <string name="open_feature_settings">打开 %1$s 设置</string>
     <string name="open_url">打开网址</string>
     <string name="out_of_time">已没有时间</string>
     <string name="overrides_cleared">覆盖设置已清除</string>

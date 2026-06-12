@@ -350,7 +350,6 @@
     <string name="off">Fra</string>
     <string name="on">Til</string>
     <string name="open_app_details">Se oplysninger om app</string>
-    <string name="open_feature_settings">Åbn indstillinger for %1$s</string>
     <string name="open_url">Åbn URL</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="overrides_cleared">Tilsidesættelser ryddet</string>

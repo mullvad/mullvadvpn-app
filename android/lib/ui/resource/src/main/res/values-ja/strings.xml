@@ -350,7 +350,6 @@
     <string name="off">オフ</string>
     <string name="on">オン</string>
     <string name="open_app_details">アプリの詳細を開く</string>
-    <string name="open_feature_settings">%1$s設定を開く</string>
     <string name="open_url">URLを開く</string>
     <string name="out_of_time">時間切れ</string>
     <string name="overrides_cleared">オーバーライドがクリアされました</string>

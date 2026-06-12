@@ -350,7 +350,6 @@
     <string name="off">Kapalı</string>
     <string name="on">Açık</string>
     <string name="open_app_details">Uygulama ayrıntılarını aç</string>
-    <string name="open_feature_settings">%1$s ayarlarını aç</string>
     <string name="open_url">URL\'yi aç</string>
     <string name="out_of_time">Süre doldu</string>
     <string name="overrides_cleared">Geçersiz kılmalar temizlendi</string>

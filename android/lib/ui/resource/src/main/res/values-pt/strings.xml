@@ -350,7 +350,6 @@
     <string name="off">Desligado</string>
     <string name="on">Ligado</string>
     <string name="open_app_details">Abrir detalhes da aplicação</string>
-    <string name="open_feature_settings">Abrir as definições de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="overrides_cleared">Substituições eliminadas</string>

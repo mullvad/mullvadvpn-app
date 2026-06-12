@@ -350,7 +350,6 @@
     <string name="off">關閉</string>
     <string name="on">開啟</string>
     <string name="open_app_details">開啟應用程式詳細資訊</string>
-    <string name="open_feature_settings">開啟 %1$s 設定</string>
     <string name="open_url">開啟 URL</string>
     <string name="out_of_time">逾時</string>
     <string name="overrides_cleared">覆寫設定已清除</string>

@@ -350,7 +350,6 @@
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_app_details">Åpne appdetaljer</string>
-    <string name="open_feature_settings">Åpne innstillinger for %1$s</string>
     <string name="open_url">Åpne URL</string>
     <string name="out_of_time">Tiden har utløpt</string>
     <string name="overrides_cleared">Overstyringer fjernet</string>

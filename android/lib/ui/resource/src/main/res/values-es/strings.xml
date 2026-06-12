@@ -350,7 +350,6 @@
     <string name="off">Desactivado</string>
     <string name="on">Activado</string>
     <string name="open_app_details">Abrir detalles de la aplicación</string>
-    <string name="open_feature_settings">Abrir la configuración de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Tiempo agotado</string>
     <string name="overrides_cleared">Anulaciones borradas</string>

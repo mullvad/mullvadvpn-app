@@ -350,7 +350,6 @@
     <string name="off">خاموش</string>
     <string name="on">روشن</string>
     <string name="open_app_details">باز کردن جزئیات اپلیکیشن</string>
-    <string name="open_feature_settings">باز کردن تنظیمات %1$s</string>
     <string name="open_url">باز کردن URL</string>
     <string name="out_of_time">زمان به پایان رسیده است</string>
     <string name="overrides_cleared">جایگزینی‌ها پاک شدند</string>

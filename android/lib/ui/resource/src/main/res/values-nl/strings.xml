@@ -350,7 +350,6 @@
     <string name="off">Uit</string>
     <string name="on">Aan</string>
     <string name="open_app_details">Appgegevens openen</string>
-    <string name="open_feature_settings">%1$s-instellingen openen</string>
     <string name="open_url">URL openen</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="overrides_cleared">Overschrijvingen gewist</string>

@@ -350,7 +350,6 @@
     <string name="off">Av</string>
     <string name="on">På</string>
     <string name="open_app_details">Öppna appinformation</string>
-    <string name="open_feature_settings">Öppna %1$s-inställningarna</string>
     <string name="open_url">Öppna URL</string>
     <string name="out_of_time">Ingen tid kvar</string>
     <string name="overrides_cleared">Åsidosättningar rensade</string>

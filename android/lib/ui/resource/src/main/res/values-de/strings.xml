@@ -350,7 +350,6 @@
     <string name="off">Aus</string>
     <string name="on">Ein</string>
     <string name="open_app_details">App-Details öffnen</string>
-    <string name="open_feature_settings">%1$s-Einstellungen öffnen</string>
     <string name="open_url">URL öffnen</string>
     <string name="out_of_time">Zeit abgelaufen</string>
     <string name="overrides_cleared">Überschreibungen entfernt</string>

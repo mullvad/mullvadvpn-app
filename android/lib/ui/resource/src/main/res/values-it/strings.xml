@@ -350,7 +350,6 @@
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="open_app_details">Apri dettagli app</string>
-    <string name="open_feature_settings">Apri le impostazioni %1$s</string>
     <string name="open_url">Apri URL</string>
     <string name="out_of_time">Scaduto</string>
     <string name="overrides_cleared">Sovrascritture cancellate</string>

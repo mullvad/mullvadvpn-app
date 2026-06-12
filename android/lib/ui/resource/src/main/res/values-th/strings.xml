@@ -350,7 +350,6 @@
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
     <string name="open_app_details">เปิดรายละเอียดแอป</string>
-    <string name="open_feature_settings">เปิดการตั้งค่า %1$s</string>
     <string name="open_url">Open URL</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="overrides_cleared">ล้างโอเวอร์ไรด์แล้ว</string>

@@ -350,7 +350,6 @@
     <string name="off">Выкл.</string>
     <string name="on">Вкл.</string>
     <string name="open_app_details">Открыть сведения о приложении</string>
-    <string name="open_feature_settings">Открыть настройки %1$s</string>
     <string name="open_url">Открыть URL</string>
     <string name="out_of_time">Закончилось время</string>
     <string name="overrides_cleared">Переопределения удалены</string>
