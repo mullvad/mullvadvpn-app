@@ -1,2 +1,5 @@
-Custom lists become scrollable when enough custom lists have been created.
-[windows] Additional bug fixes.
+[macOS] The Desktop app GUI is automatically restarted after an update, if it was running.
+Add list of recent server selections in the "Select location" view.
+GotaTun replaces wireguard-go as the userspace WireGuard implementation.
+Add port setting for the LWO Anti-censorship method.
+Bug fixes and improvements.
