@@ -11,11 +11,11 @@ import UIKit
 class SettingsFieldValidationErrorContentView: UIView, UIContentView {
     let contentView = UIStackView()
 
-    var icon: UIImageView {
-        let view = UIImageView(image: UIImage.Buttons.alert.withTintColor(.dangerColor))
-        view.heightAnchor.constraint(equalToConstant: 18).isActive = true
-        view.widthAnchor.constraint(equalTo: view.heightAnchor, multiplier: 1).isActive = true
-        return view
+    var icon: DynamicImageView {
+        let imageView = DynamicImageView(
+            image: UIImage.Buttons.alert.withTintColor(.dangerColor), baseSize: 18, textStyle: .subheadline)
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }
 
     var configuration: UIContentConfiguration {
@@ -75,7 +75,12 @@ class SettingsFieldValidationErrorContentView: UIView, UIContentView {
             label.numberOfLines = 0
             label.adjustsFontForContentSizeCategory = true
             label.font = .mullvadTiny
+            label.setContentHuggingPriority(.defaultLow, for: .horizontal)  // Allow growing
+            label.setContentCompressionResistancePriority(.required, for: .horizontal)
             label.textColor = .white
+
+            icon.setContentHuggingPriority(.defaultHigh, for: .horizontal)  // Resist growing
+            icon.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
             let stackView = UIStackView(arrangedSubviews: [icon, label])
             stackView.alignment = .center
