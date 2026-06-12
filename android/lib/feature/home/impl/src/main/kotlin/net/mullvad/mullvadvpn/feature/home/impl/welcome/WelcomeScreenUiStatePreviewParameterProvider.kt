@@ -5,6 +5,7 @@ import net.mullvad.mullvadvpn.feature.home.impl.TunnelStatePreviewData
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 
 class WelcomeScreenUiStatePreviewParameterProvider :
     PreviewParameterProvider<Lc<Unit, WelcomeUiState>> {
@@ -16,7 +17,7 @@ class WelcomeScreenUiStatePreviewParameterProvider :
                     accountNumber = AccountNumber("4444555566667777"),
                     deviceName = "Happy Mole",
                     showSitePayment = false,
-                    verificationPending = true,
+                    paymentStatus = PaymentStatus.PENDING,
                 )
                 .toLc(),
             WelcomeUiState(
@@ -25,7 +26,7 @@ class WelcomeScreenUiStatePreviewParameterProvider :
                     accountNumber = AccountNumber("4444555566667777"),
                     deviceName = "Happy Mole",
                     showSitePayment = true,
-                    verificationPending = false,
+                    paymentStatus = null,
                 )
                 .toLc(),
         )

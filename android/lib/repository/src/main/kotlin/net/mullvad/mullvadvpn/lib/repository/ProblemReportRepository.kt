@@ -73,9 +73,8 @@ class ProblemReportRepository(
                     kermitFileLogDir = kermitFileLogDirPath.absolutePath,
                     problemReportOutputPath = problemReportOutputPath.absolutePath,
                     unverifiedPurchases =
-                        availableProducts?.count {
-                            it.status == PaymentStatus.VERIFICATION_IN_PROGRESS
-                        } ?: 0,
+                        availableProducts?.count { it.status == PaymentStatus.PURCHASED_UNVERIFIED }
+                            ?: 0,
                     pendingPurchases =
                         availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
                 )

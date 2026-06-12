@@ -168,7 +168,7 @@ class OutOfTimeViewModelTest {
         viewModel.uiState.test {
             val result = awaitItem()
             assertIs<Lc.Content<OutOfTimeUiState>>(result)
-            assertEquals(true, result.value.verificationPending)
+            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
         }
     }
 

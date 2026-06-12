@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
@@ -45,7 +46,7 @@ class OutOfTimeScreenTest {
         onDisconnectClick: () -> Unit = {},
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
-        onPlayPaymentInfoClick: () -> Unit = {},
+        onPlayPaymentInfoClick: (PaymentStatus) -> Unit = {},
         onAddMoreTimeClick: () -> Unit = {},
     ) {
 
@@ -111,9 +112,14 @@ class OutOfTimeScreenTest {
     @Test
     fun testShowPendingPaymentInfoDialog() = composeExtension.use {
         // Arrange
-        val mockOnPlayPaymentInfoClick: () -> Unit = mockk(relaxed = true)
+        val mockOnPlayPaymentInfoClick: (PaymentStatus) -> Unit = mockk(relaxed = true)
         initScreen(
-            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true).toLc(),
+            state =
+                OutOfTimeUiState(
+                        showSitePayment = true,
+                        paymentStatus = PaymentStatus.PURCHASED_UNVERIFIED,
+                    )
+                    .toLc(),
             onPlayPaymentInfoClick = mockOnPlayPaymentInfoClick,
         )
 
@@ -122,14 +128,18 @@ class OutOfTimeScreenTest {
         onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).assertExists()
 
         // Assert
-        verify(exactly = 1) { mockOnPlayPaymentInfoClick.invoke() }
+        verify(exactly = 1) {
+            mockOnPlayPaymentInfoClick.invoke(PaymentStatus.PURCHASED_UNVERIFIED)
+        }
     }
 
     @Test
     fun testShowVerificationInProgress() = composeExtension.use {
         // Arrange
         initScreen(
-            state = OutOfTimeUiState(showSitePayment = true, verificationPending = true).toLc()
+            state =
+                OutOfTimeUiState(showSitePayment = true, paymentStatus = PaymentStatus.PENDING)
+                    .toLc()
         )
 
         // Assert

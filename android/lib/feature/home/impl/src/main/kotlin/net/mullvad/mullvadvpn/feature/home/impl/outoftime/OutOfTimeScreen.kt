@@ -44,7 +44,9 @@ import net.mullvad.mullvadvpn.feature.settings.api.SettingsNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.lib.ui.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.lib.ui.designsystem.MullvadCircularProgressIndicatorLarge
@@ -108,7 +110,9 @@ fun OutOfTime(navigator: Navigator) {
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountNavKey) },
         onAddMoreTimeClick = dropUnlessResumed { navigator.navigate(AddTimeNavKey) },
         onPlayPaymentInfoClick =
-            dropUnlessResumed { navigator.navigate(VerificationPendingNavKey) },
+            dropUnlessResumed { paymentStatus ->
+                navigator.navigate(VerificationPendingNavKey(paymentStatus))
+            },
         onDisconnectClick = vm::onDisconnectClick,
     )
 }
@@ -121,7 +125,7 @@ fun OutOfTimeScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onAddMoreTimeClick: () -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
 ) {
     val scrollState = rememberScrollState()
     ScaffoldWithTopBarAndDeviceName(
@@ -217,7 +221,7 @@ private fun ButtonPanel(
     state: OutOfTimeUiState,
     onDisconnectClick: () -> Unit,
     onAddMoreTimeClick: () -> Unit,
-    onInfoClick: () -> Unit,
+    onInfoClick: (PaymentStatus) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(Dimens.buttonSpacing)) {
         if (state.tunnelState.isSecured()) {
@@ -226,10 +230,10 @@ private fun ButtonPanel(
                 text = stringResource(id = R.string.disconnect),
             )
         }
-        if (state.verificationPending) {
+        if (state.paymentStatus != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
-                    onClick = onInfoClick,
+                    onClick = { onInfoClick(state.paymentStatus) },
                     modifier = Modifier.testTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG),
                 ) {
                     Icon(
@@ -241,7 +245,15 @@ private fun ButtonPanel(
                 Text(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface,
-                    text = stringResource(R.string.payment_status_pending_short),
+                    text =
+                        stringResource(
+                            id =
+                                when (state.paymentStatus) {
+                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
+                                    PaymentStatus.PURCHASED_UNVERIFIED ->
+                                        R.string.payment_status_verification_failed
+                                }
+                        ),
                 )
             }
         }

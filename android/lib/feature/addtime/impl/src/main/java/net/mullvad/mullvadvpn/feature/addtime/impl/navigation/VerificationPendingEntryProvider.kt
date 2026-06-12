@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.verificationpending.Verificat
 @OptIn(ExperimentalMaterial3Api::class)
 fun EntryProviderScope<NavKey2>.addTimeVerificationPendingEntry(navigator: Navigator) {
     entry<VerificationPendingNavKey>(metadata = DialogSceneStrategy.dialog()) {
-        VerificationPending(navigator = navigator)
+        VerificationPending(navArgs = it, navigator = navigator)
     }
 
     addTimeEntry(navigator)

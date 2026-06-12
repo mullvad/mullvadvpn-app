@@ -37,14 +37,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.core.Navigator
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
+import net.mullvad.mullvadvpn.feature.problemreport.api.ProblemReportNavKey
 import net.mullvad.mullvadvpn.feature.redeemvoucher.api.RedeemVoucherNavKey
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.compose.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.common.compose.createOpenAccountPageHook
+import net.mullvad.mullvadvpn.lib.common.compose.dropUnlessResumed
 import net.mullvad.mullvadvpn.lib.common.compose.goBack
 import net.mullvad.mullvadvpn.lib.common.compose.navigateReplaceTop
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.OneMonth
 import net.mullvad.mullvadvpn.lib.payment.ProductIds.ThreeMonths
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.ui.component.MullvadModalBottomSheet
 import net.mullvad.mullvadvpn.lib.ui.component.listitem.BottomSheetListItem
@@ -87,6 +90,8 @@ private fun PreviewAddTimeBottomSheet(
             onRetryFetchProducts = {},
             resetPurchaseState = {},
             closeSheetAndResetPurchaseState = {},
+            onRetryVerification = {},
+            navigateToProblemReport = {},
         )
     }
 }
@@ -120,14 +125,23 @@ fun AddTimeBottomSheet(navigator: Navigator) {
         onSitePaymentClick = viewModel::onManageAccountClick,
         onRetryFetchProducts = viewModel::fetchPaymentAvailability,
         onPlayPaymentInfoClick =
-            dropUnlessResumed {
-                navigator.navigateReplaceTop(sheetState, scope, VerificationPendingNavKey)
+            dropUnlessResumed { paymentStatus ->
+                navigator.navigateReplaceTop(
+                    sheetState,
+                    scope,
+                    VerificationPendingNavKey(paymentStatus),
+                )
             },
         onRedeemVoucherClick =
             dropUnlessResumed {
                 navigator.navigateReplaceTop(sheetState, scope, RedeemVoucherNavKey)
             },
         resetPurchaseState = { viewModel.resetPurchaseResult() },
+        onRetryVerification = { viewModel.retryVerifyPurchase() },
+        navigateToProblemReport =
+            dropUnlessResumed {
+                navigator.navigateReplaceTop(sheetState, scope, ProblemReportNavKey)
+            },
         closeSheetAndResetPurchaseState = {
             viewModel.resetPurchaseResult()
             navigator.goBack(sheetState, scope)
@@ -148,13 +162,15 @@ fun AddTimeBottomSheetContent(
     state: Lc<Unit, AddTimeUiState>,
     sheetState: SheetState,
     onPurchaseBillingProductClick: (ProductId) -> Unit = {},
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
     resetPurchaseState: () -> Unit,
     closeSheetAndResetPurchaseState: (Boolean) -> Unit,
     closeBottomSheet: (animate: Boolean) -> Unit,
+    onRetryVerification: () -> Unit,
+    navigateToProblemReport: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surfaceContainer
     val onBackgroundColor = MaterialTheme.colorScheme.onSurface
@@ -186,6 +202,8 @@ fun AddTimeBottomSheetContent(
                     onRetryFetchProducts = onRetryFetchProducts,
                     resetPurchaseState = resetPurchaseState,
                     closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
+                    onRetryVerification = onRetryVerification,
+                    navigateToProblemReport = navigateToProblemReport,
                 )
         }
     }
@@ -198,12 +216,14 @@ private fun Content(
     backgroundColor: Color,
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
+    onRetryVerification: () -> Unit,
     resetPurchaseState: () -> Unit,
     closeSheetAndResetPurchaseState: (Boolean) -> Unit,
+    navigateToProblemReport: () -> Unit,
 ) {
     AnimatedContent(targetState = state) { state ->
         Column {
@@ -214,6 +234,8 @@ private fun Content(
                     purchaseState = state.purchaseState,
                     resetPurchaseState = resetPurchaseState,
                     closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
+                    onRetryVerification = onRetryVerification,
+                    navigateToProblemReport = navigateToProblemReport,
                 )
             } else {
                 Products(
@@ -240,6 +262,8 @@ private fun ColumnScope.PurchaseState(
     purchaseState: PurchaseState,
     resetPurchaseState: () -> Unit,
     closeSheetAndResetPurchaseState: (Boolean) -> Unit,
+    onRetryVerification: () -> Unit,
+    navigateToProblemReport: () -> Unit,
 ) {
     when (purchaseState) {
         // Fetching products and obfuscated id loading state
@@ -285,6 +309,30 @@ private fun ColumnScope.PurchaseState(
                 title = stringResource(R.string.payment_billing_error_dialog_title),
                 message = stringResource(R.string.payment_billing_error_dialog_message),
                 resetPurchaseState = resetPurchaseState,
+            )
+        }
+
+        PurchaseState.Error.VerificationError.Unrecoverable -> {
+            PurchaseStateVerificationError(
+                backgroundColor = backgroundColor,
+                onBackgroundColor = onBackgroundColor,
+                message = stringResource(R.string.verifying_purchase_unrecoverable_error),
+                isRecoverable = false,
+                close = { closeSheetAndResetPurchaseState(false) },
+                tryAgain = {},
+                contactSupport = navigateToProblemReport,
+            )
+        }
+
+        PurchaseState.Error.VerificationError.Recoverable -> {
+            PurchaseStateVerificationError(
+                backgroundColor = backgroundColor,
+                onBackgroundColor = onBackgroundColor,
+                message = stringResource(R.string.verifying_purchase_recoverable_error),
+                isRecoverable = true,
+                close = { closeSheetAndResetPurchaseState(false) },
+                tryAgain = onRetryVerification,
+                contactSupport = navigateToProblemReport,
             )
         }
     }
@@ -402,6 +450,48 @@ private fun ColumnScope.PurchaseStateError(
 }
 
 @Composable
+private fun ColumnScope.PurchaseStateVerificationError(
+    onBackgroundColor: Color,
+    backgroundColor: Color,
+    message: String,
+    isRecoverable: Boolean,
+    close: () -> Unit,
+    tryAgain: () -> Unit,
+    contactSupport: () -> Unit,
+) {
+    SheetTitle(
+        title = stringResource(id = R.string.verifying_purchase_error),
+        onBackgroundColor = onBackgroundColor,
+        backgroundColor = backgroundColor,
+    )
+    Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+    Text(
+        text = message,
+        style = MaterialTheme.typography.labelLarge,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(horizontal = Dimens.sideMargin),
+    )
+    Row(
+        modifier = Modifier.padding(top = Dimens.mediumPadding).align(Alignment.CenterHorizontally)
+    ) {
+        SmallPrimaryButton(text = stringResource(android.R.string.ok), onClick = close)
+        if (isRecoverable) {
+            SmallPrimaryButton(
+                text = stringResource(R.string.try_again),
+                onClick = tryAgain,
+                modifier = Modifier.padding(start = Dimens.mediumPadding),
+            )
+        } else {
+            SmallPrimaryButton(
+                text = stringResource(R.string.contact_support),
+                onClick = contactSupport,
+                modifier = Modifier.padding(start = Dimens.mediumPadding),
+            )
+        }
+    }
+}
+
+@Composable
 private fun Products(
     billingPaymentState: PaymentState?,
     internetBlocked: Boolean,
@@ -409,7 +499,7 @@ private fun Products(
     backgroundColor: Color,
     onBackgroundColor: Color,
     onPurchaseBillingProductClick: (ProductId) -> Unit,
-    onPlayPaymentInfoClick: () -> Unit,
+    onPlayPaymentInfoClick: (PaymentStatus) -> Unit,
     onSitePaymentClick: () -> Unit,
     onRedeemVoucherClick: () -> Unit,
     onRetryFetchProducts: () -> Unit,
