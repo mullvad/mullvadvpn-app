@@ -198,3 +198,9 @@ reason = "The app does not use netty for external http communication"
 id = "CVE-2026-45536"  # GHSA-w573-9ffj-6ff9
 ignoreUntil = 2026-08-01
 reason = "The app does not use netty for unix socket communication"
+
+# netty-codec-http2: ByteBuf Reference-Count Leak in DelegatingDecompressorFrameListener Leads to Memory Exhaustion
+[[IgnoredVulns]]
+id = "CVE-2026-48043"  # GHSA-c2gf-v879-257j
+ignoreUntil = 2026-08-01
+reason = "The app does not use netty for external http communication"
