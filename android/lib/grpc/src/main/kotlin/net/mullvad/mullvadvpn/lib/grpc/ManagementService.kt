@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.optics.copy
@@ -28,7 +27,6 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
