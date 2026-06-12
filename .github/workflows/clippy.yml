@@ -8,6 +8,7 @@ on:
       - clippy.toml
       - '**/Cargo.toml'  # Lint rules defined in toml files
       - '**/*.rs'
+      - '**/*.proto'
   workflow_dispatch:
 
 permissions: {}
