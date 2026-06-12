@@ -63,7 +63,7 @@ apksigner sign --ks app-keys.jks (MullvadVPN)(version)(.apk|.aab)
 ## Build without the provided container
 
 > __*NOTE:*__ This guide is only supported on Linux and may not work on other platforms, if you are
-> using macOS please refer to [macOS build instructions](./docs/BuildInstructions.macos.md)
+> using macOS please refer to [macOS build instructions](./BuildInstructions.macos.md)
 
 Building without the provided container requires installing multiple Sdk:s and toolchains, and is
 therefore more complex.
