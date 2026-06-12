@@ -21,7 +21,7 @@ the Gradle CLI or the Android Studio GUI.
 > platforms.
 
 Building both the native libraries and Android project can easily be achieved by running the
-[containerized-build.sh](../building/containerized-build.sh) script, which helps using the correct
+[containerized-build.sh](../../building/containerized-build.sh) script, which helps using the correct
 tag and mounting volumes. The script relies on [podman](https://podman.io/getting-started/installation.html)
 by default, however another container runner such as [docker](https://docs.docker.com/get-started/)
 can be used by setting the `CONTAINER_RUNNER` environment variable.
@@ -191,7 +191,7 @@ down the used passwords:
 
 ## Creating an alpha release
 
-Run the [prepare-release.sh](scripts/prepare-release.sh) script with the desired version you wish
+Run the [prepare-release.sh](../scripts/prepare-release.sh) script with the desired version you wish
 to release as an argument. The prepare script will download the latest relay list and update the
 version files, and add as commits.
 
@@ -263,8 +263,8 @@ When building without the container on Linux systems, reproducibility depends on
 To maximize reproducibility when building without the container:
 
 - Build the app on a **Linux system or virtual machine**.
-- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../building/Dockerfile)
-  and [Android Dockerfile](docker/Dockerfile). This includes for example Android SDK and NDK versions.
+- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../../building/Dockerfile)
+  and [Android Dockerfile](../docker/Dockerfile). This includes for example Android SDK and NDK versions.
 
 ### How to verify reproducible builds across environments
 
