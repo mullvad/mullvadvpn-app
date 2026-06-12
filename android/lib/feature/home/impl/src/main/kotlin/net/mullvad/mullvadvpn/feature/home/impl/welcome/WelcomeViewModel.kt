@@ -23,8 +23,8 @@ import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DisconnectReason
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.payment.util.hasPendingPayment
 import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
+import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
@@ -53,7 +53,7 @@ class WelcomeViewModel(
                         accountNumber = accountState.accountNumber(),
                         deviceName = accountState.displayName(),
                         showSitePayment = !isPlayBuild,
-                        verificationPending = paymentAvailability.hasPendingPayment(),
+                        paymentStatus = paymentAvailability?.status(),
                     )
                 )
             }

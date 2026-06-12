@@ -127,7 +127,7 @@ class ConnectViewModel(
 
     init {
         viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().getOrNull() == VerificationResult.Success) {
+            if (paymentUseCase.verifyPurchases().getOrNull() is VerificationResult.Success) {
                 accountRepository.refreshAccountData()
             }
         }

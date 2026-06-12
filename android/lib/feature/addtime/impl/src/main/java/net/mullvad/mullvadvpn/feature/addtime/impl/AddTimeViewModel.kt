@@ -55,7 +55,7 @@ class AddTimeViewModel(
             )
 
     init {
-        verifyPurchases()
+        verifyPurchases(false)
         fetchPaymentAvailability()
         handlePurchaseResultTerminatingState()
     }
@@ -79,9 +79,21 @@ class AddTimeViewModel(
         viewModelScope.launch { paymentUseCase.resetPurchaseResult() }
     }
 
-    private fun verifyPurchases() {
+    fun verifyPurchases(updatePurchaseResult: Boolean) {
         viewModelScope.launch {
-            if (paymentUseCase.verifyPurchases().isSuccess()) {
+            if (
+                paymentUseCase
+                    .verifyPurchases(
+                        updatePurchaseResult = updatePurchaseResult,
+                        attempts =
+                            if (updatePurchaseResult) {
+                                1
+                            } else {
+                                null
+                            },
+                    )
+                    .isSuccess()
+            ) {
                 updateAccountExpiry()
             }
         }
@@ -100,7 +112,7 @@ class AddTimeViewModel(
                         // Otherwise update payment availability to check for pending purchases
                         fetchPaymentAvailability()
                         // Check if we have any non-verified purchase
-                        verifyPurchases()
+                        verifyPurchases(false)
                     }
                 }
         }
@@ -126,7 +138,10 @@ class AddTimeViewModel(
             PurchaseResult.VerificationStarted -> PurchaseState.VerificationStarted
             // Pending state
             is PurchaseResult.Completed.Pending,
-            is PurchaseResult.Error.VerificationError -> PurchaseState.VerifyingPurchase
+            is PurchaseResult.Error.VerificationError.VerificationFailed ->
+                PurchaseState.Error.VerificationError.Unrecoverable
+            is PurchaseResult.Error.VerificationError.Other ->
+                PurchaseState.Error.VerificationError.Recoverable
             // Success state
             is PurchaseResult.Completed.Success -> PurchaseState.Success(productId)
             // Error states

@@ -22,5 +22,11 @@ sealed interface PurchaseState {
         data class TransactionIdError(val productId: ProductId) : Error
 
         data class OtherError(val productId: ProductId) : Error
+
+        sealed interface VerificationError : Error {
+            data object Recoverable : VerificationError
+
+            data object Unrecoverable : VerificationError
+        }
     }
 }

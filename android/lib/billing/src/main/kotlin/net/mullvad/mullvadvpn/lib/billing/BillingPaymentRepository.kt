@@ -157,7 +157,7 @@ class BillingPaymentRepository(
         }
         verifyPurchase(purchases.first())
             .mapLeft { it.toPurchaseVerificationError() }
-            .map { VerificationResult.Success }
+            .map { VerificationResult.Success(ProductId(purchases.first().products.first())) }
             .bind()
     }
 

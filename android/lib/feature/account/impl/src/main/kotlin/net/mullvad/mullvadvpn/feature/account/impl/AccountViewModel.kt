@@ -24,8 +24,9 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.payment.util.hasPendingPayment
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
+import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
@@ -52,7 +53,7 @@ class AccountViewModel(
                         accountNumber = deviceState.accountNumber,
                         accountExpiry = accountData?.expiryDate,
                         showLogoutLoading = isLoggingOut,
-                        verificationPending = paymentAvailability.hasPendingPayment(),
+                        paymentStatus = paymentAvailability?.status(),
                     )
                     .toLc<Unit, AccountUiState>()
             }
@@ -126,5 +127,5 @@ data class AccountUiState(
     val accountNumber: AccountNumber,
     val accountExpiry: ZonedDateTime?,
     val showLogoutLoading: Boolean,
-    val verificationPending: Boolean,
+    val paymentStatus: PaymentStatus?,
 )

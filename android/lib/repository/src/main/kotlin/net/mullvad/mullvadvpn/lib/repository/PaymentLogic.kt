@@ -33,7 +33,10 @@ interface PaymentLogic {
 
     suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>
+    suspend fun verifyPurchases(
+        updatePurchaseResult: Boolean = false,
+        attempts: Long? = null,
+    ): Either<VerificationError, VerificationResult>
 
     suspend fun allAvailableProducts(): List<PaymentProduct>?
 }
@@ -69,19 +72,32 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
         _purchaseResult.emit(null)
     }
 
-    override suspend fun verifyPurchases() =
+    override suspend fun verifyPurchases(updatePurchaseResult: Boolean, attempts: Long?) =
         Schedule.exponential<VerificationError>(
                 VERIFICATION_INITIAL_BACK_OFF_DURATION,
                 VERIFICATION_BACK_OFF_FACTOR,
             )
-            .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS.toLong()))
+            .and(Schedule.recurs(attempts ?: VERIFICATION_MAX_ATTEMPTS))
             .doWhile { error, _ ->
                 // If we have a verification error we should not retry as it will fail again.
                 error !is VerificationError.PlayVerificationError.VerificationFailed
             }
-            .retryEither { paymentRepository.verifyPurchases() }
+            .retryEither {
+                if (updatePurchaseResult) {
+                    _purchaseResult.emit(PurchaseResult.VerificationStarted)
+                }
+                paymentRepository.verifyPurchases()
+            }
+            .onLeft {
+                if (updatePurchaseResult) {
+                    _purchaseResult.emit(it.toPurchaseError())
+                }
+            }
             .onRight {
-                if (it == VerificationResult.Success) {
+                if (it is VerificationResult.Success) {
+                    if (updatePurchaseResult) {
+                        _purchaseResult.emit(PurchaseResult.Completed.Success(it.productId))
+                    }
                     // Update the payment availability after a successful verification.
                     queryPaymentAvailability()
                 }
@@ -150,11 +166,20 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
         }
     }
 
+    private fun VerificationError.toPurchaseError(): PurchaseResult.Error =
+        when (this) {
+            is VerificationError.BillingError -> PurchaseResult.Error.BillingError(this.exception)
+            is VerificationError.PlayVerificationError.VerificationFailed ->
+                PurchaseResult.Error.VerificationError.VerificationFailed
+            is VerificationError.PlayVerificationError.Other ->
+                PurchaseResult.Error.VerificationError.Other
+        }
+
     companion object {
         const val EXTRA_LOADING_DELAY_MS = 300L
         const val QUERY_PRODUCTS_TIMEOUT = 3000L
 
-        const val VERIFICATION_MAX_ATTEMPTS = 4
+        const val VERIFICATION_MAX_ATTEMPTS = 4L
         val VERIFICATION_INITIAL_BACK_OFF_DURATION = 3.seconds
         const val VERIFICATION_BACK_OFF_FACTOR = 3.toDouble()
     }
@@ -176,7 +201,8 @@ class EmptyPaymentUseCase : PaymentLogic {
         // No op
     }
 
-    override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
+    override suspend fun verifyPurchases(updatePurchaseResult: Boolean, attempts: Long?) =
+        VerificationResult.NothingToVerify.right()
 
     override suspend fun allAvailableProducts(): List<PaymentProduct>? = null
 }
