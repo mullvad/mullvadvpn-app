@@ -407,7 +407,6 @@ message GeoIpLocation {
   bool mullvad_exit_ip = 7;
   optional string hostname = 8;
   optional string entry_hostname = 10;
-  optional string obfuscator_hostname = 11;
 }
 
 message TunnelMetadata { string tunnel_interface = 1; }

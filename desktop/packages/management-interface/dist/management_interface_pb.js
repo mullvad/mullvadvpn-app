@@ -8696,8 +8696,7 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.toObject = function(incl
     longitude: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
     mullvadExitIp: jspb.Message.getBooleanFieldWithDefault(msg, 7, false),
     hostname: jspb.Message.getFieldWithDefault(msg, 8, ""),
-    entryHostname: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    obfuscatorHostname: jspb.Message.getFieldWithDefault(msg, 11, "")
+    entryHostname: jspb.Message.getFieldWithDefault(msg, 10, "")
   };
 
   if (includeInstance) {
@@ -8769,10 +8768,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.deserializeBinaryFromRea
     case 10:
       var value = /** @type {string} */ (reader.readString());
       msg.setEntryHostname(value);
-      break;
-    case 11:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setObfuscatorHostname(value);
       break;
     default:
       reader.skipField();
@@ -8863,13 +8858,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.serializeBinaryToWriter 
   if (f != null) {
     writer.writeString(
       10,
-      f
-    );
-  }
-  f = /** @type {string} */ (jspb.Message.getField(message, 11));
-  if (f != null) {
-    writer.writeString(
-      11,
       f
     );
   }
@@ -9125,42 +9113,6 @@ proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearEntryHost
  */
 proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasEntryHostname = function() {
   return jspb.Message.getField(this, 10) != null;
-};
-
-
-/**
- * optional string obfuscator_hostname = 11;
- * @return {string}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.getObfuscatorHostname = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.setObfuscatorHostname = function(value) {
-  return jspb.Message.setField(this, 11, value);
-};
-
-
-/**
- * Clears the field making it undefined.
- * @return {!proto.mullvad_daemon.management_interface.GeoIpLocation} returns this
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.clearObfuscatorHostname = function() {
-  return jspb.Message.setField(this, 11, undefined);
-};
-
-
-/**
- * Returns whether this field is set.
- * @return {boolean}
- */
-proto.mullvad_daemon.management_interface.GeoIpLocation.prototype.hasObfuscatorHostname = function() {
-  return jspb.Message.getField(this, 11) != null;
 };
 
 

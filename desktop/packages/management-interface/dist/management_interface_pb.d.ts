@@ -988,11 +988,6 @@ export class GeoIpLocation extends jspb.Message {
     getEntryHostname(): string | undefined;
     setEntryHostname(value: string): GeoIpLocation;
 
-    hasObfuscatorHostname(): boolean;
-    clearObfuscatorHostname(): void;
-    getObfuscatorHostname(): string | undefined;
-    setObfuscatorHostname(value: string): GeoIpLocation;
-
     serializeBinary(): Uint8Array;
     toObject(includeInstance?: boolean): GeoIpLocation.AsObject;
     static toObject(includeInstance: boolean, msg: GeoIpLocation): GeoIpLocation.AsObject;
@@ -1014,7 +1009,6 @@ export namespace GeoIpLocation {
         mullvadExitIp: boolean,
         hostname?: string,
         entryHostname?: string,
-        obfuscatorHostname?: string,
     }
 }
 
