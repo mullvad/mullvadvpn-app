@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { NavigationHeader, NavigationHeaderProps } from '../../lib/components';
 import { InitialFocus } from '../initial-focus';
 import { NavigationScrollContext } from '../NavigationContainer';
-import { AppNavigationHeaderBackButton, AppNavigationHeaderInfoButton } from './components';
+import { AppNavigationHeaderBackButton, AppNavigationHeaderInfo } from './components';
 
 export interface NavigationBarProps extends NavigationHeaderProps {
   title: string;
@@ -27,7 +27,7 @@ const AppNavigationHeader = ({ title, children, ...props }: NavigationBarProps) 
 
 const AppNavigationHeaderNamespace = Object.assign(AppNavigationHeader, {
   IconButton: NavigationHeader.IconButton,
-  InfoButton: AppNavigationHeaderInfoButton,
+  Info: AppNavigationHeaderInfo,
 });
 
 export { AppNavigationHeaderNamespace as AppNavigationHeader };

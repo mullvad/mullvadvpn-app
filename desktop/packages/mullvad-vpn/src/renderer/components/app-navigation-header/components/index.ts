@@ -1,2 +1,2 @@
 export * from './AppNavigationHeaderBackButton';
-export * from './AppNavigationHeaderInfoButton';
+export * from './app-navigation-header-info';

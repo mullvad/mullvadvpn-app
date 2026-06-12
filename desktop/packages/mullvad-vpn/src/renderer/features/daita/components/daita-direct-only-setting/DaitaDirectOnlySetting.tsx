@@ -2,8 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { strings } from '../../../../../shared/constants';
 import { messages } from '../../../../../shared/gettext';
-import InfoButton from '../../../../components/InfoButton';
-import { ModalMessage } from '../../../../components/Modal';
+import { Info } from '../../../../components/info';
 import { SettingsListItem } from '../../../../components/settings-list-item';
 import { useNormalRelaySettings } from '../../../../lib/relay-settings-hooks';
 import { useDaitaEnabled } from '../../hooks';
@@ -24,20 +23,23 @@ export function DaitaDirectOnlySetting() {
             {messages.gettext('Direct only')}
           </DaitaDirectOnlySwitch.Label>
           <SettingsListItem.Item.ActionGroup>
-            <InfoButton>
-              <ModalMessage>
-                {sprintf(
-                  messages.pgettext(
-                    'wireguard-settings-view',
-                    'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
-                  ),
-                  {
-                    daita: strings.daita,
-                    directOnly: messages.gettext('Direct only'),
-                  },
-                )}
-              </ModalMessage>
-            </InfoButton>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
+                  {sprintf(
+                    messages.pgettext(
+                      'wireguard-settings-view',
+                      'By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.',
+                    ),
+                    {
+                      daita: strings.daita,
+                      directOnly: messages.gettext('Direct only'),
+                    },
+                  )}
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
             <DaitaDirectOnlySwitch.Input />
           </SettingsListItem.Item.ActionGroup>
         </DaitaDirectOnlySwitch>

@@ -117,25 +117,34 @@ export function SettingsImportView() {
             // TRANSLATORS: users import server IP settings.
             messages.pgettext('settings-import', 'Server IP override')
           }>
-          <AppNavigationHeader.InfoButton
-            title={messages.pgettext('settings-import', 'Server IP override')}
-            variant="secondary"
-            message={[
-              messages.pgettext(
-                'settings-import',
-                'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
-              ),
-              messages.pgettext(
-                'settings-import',
-                'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
-              ),
-              messages.pgettext(
-                'settings-import',
-                'If you are having issues connecting to VPN servers, please contact support.',
-              ),
-            ]}
-          />
+          <AppNavigationHeader.Info>
+            <AppNavigationHeader.Info.Button />
+            <AppNavigationHeader.Info.Dialog>
+              <AppNavigationHeader.Info.Dialog.Title>
+                {messages.pgettext('settings-import', 'Server IP override')}
+              </AppNavigationHeader.Info.Dialog.Title>
+              <AppNavigationHeader.Info.Dialog.Text>
+                {messages.pgettext(
+                  'settings-import',
+                  'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
+                )}
+              </AppNavigationHeader.Info.Dialog.Text>
+              <AppNavigationHeader.Info.Dialog.Text>
+                {messages.pgettext(
+                  'settings-import',
+                  'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
+                )}
+              </AppNavigationHeader.Info.Dialog.Text>
+              <AppNavigationHeader.Info.Dialog.Text>
+                {messages.pgettext(
+                  'settings-import',
+                  'If you are having issues connecting to VPN servers, please contact support.',
+                )}
+              </AppNavigationHeader.Info.Dialog.Text>
+            </AppNavigationHeader.Info.Dialog>
+          </AppNavigationHeader.Info>
         </AppNavigationHeader>
+
         <View.Content>
           <View.Container
             horizontalMargin="medium"
