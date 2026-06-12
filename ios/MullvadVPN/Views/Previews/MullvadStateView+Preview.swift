@@ -46,7 +46,7 @@ struct MullvadStateViewPreviewWrapper: View {
     var body: some View {
         let view1 = MullvadStateView(
             viewModel: StateViewModel(
-                style: .info,
+                style: .success,
                 title: MullvadStateView.TextItem(text: "info", style: .headline(.bold)),
                 details: [
                     MullvadStateView.TextItem(text: Self.p1, style: .primary(.none)),

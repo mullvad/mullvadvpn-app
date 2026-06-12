@@ -69,30 +69,10 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
                 .padding(.horizontal, 16)
                 if headerIsExpanded {
                     VStack {
-                        if viewModel.multihopContext == .entry {
-                            ActiveFilterView(
-                                activeFilter: viewModel.visibleFilterChips,
-                                labelStyle: .general,
-                                automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
-                            ) { filter in
-                                viewModel.onFilterTapped(filter)
-                            } onRemove: { filter in
-                                viewModel.onFilterRemoved(filter)
-                            }.transition(
-                                .move(edge: .leading)
-                            )
+                        if viewModel.multihopContext == .entry && viewModel.multihopState != .whenNeeded {
+                            activeFilterView(locationContext: viewModel.entryContext, transition: .move(edge: .leading))
                         } else {
-                            ActiveFilterView(
-                                activeFilter: viewModel.visibleFilterChips,
-                                labelStyle: .general,
-                                automaticLocationIsActive: viewModel.currentLocationContext.isAutomaticLocation
-                            ) { filter in
-                                viewModel.onFilterTapped(filter)
-                            } onRemove: { filter in
-                                viewModel.onFilterRemoved(filter)
-                            }.transition(
-                                .move(edge: .trailing)
-                            )
+                            activeFilterView(locationContext: viewModel.exitContext, transition: .move(edge: .trailing))
                         }
                     }
                     .transition(
@@ -269,6 +249,23 @@ struct SelectLocationView<ViewModel>: View where ViewModel: SelectLocationViewMo
         }
         .mullvadAlert(item: $disablingRecentConnectionsAlert)
         .mullvadAlert(item: $multihopWarningAlert)
+    }
+
+    private func activeFilterView(locationContext: LocationContext, transition: AnyTransition) -> some View {
+        ActiveFilterView(
+            activeFilter: locationContext.filter,
+            labelStyle: .general,
+            automaticLocationIsActive: locationContext.isAutomaticLocation,
+            shouldShowAutomaticFilterOverrideNotice:
+                locationContext.isAutomaticLocation
+                && locationContext.filter.contains(where: { $0.isOverriddenByAutomaticLocation })
+        ) { filter in
+            viewModel.onFilterTapped(filter)
+        } onRemove: { filter in
+            viewModel.onFilterRemoved(filter)
+        }.transition(
+            transition
+        )
     }
 
     private func getMultihopFilterOverrideWarningAlert(newMultihopState: MultihopState) -> MullvadAlert? {

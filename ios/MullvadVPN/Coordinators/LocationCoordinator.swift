@@ -185,8 +185,8 @@ extension LocationCoordinator {
             relaySelectorWrapper: relaySelectorWrapper
         )
 
-        relayFilterCoordinator.didFinish = { coordinator, _ in
-            coordinator.dismiss(animated: true)
+        relayFilterCoordinator.didFinish = {
+            relayFilterCoordinator.dismiss(animated: true)
         }
         relayFilterCoordinator.onFeatureChipTapped = { [weak self] feature in
             switch feature {

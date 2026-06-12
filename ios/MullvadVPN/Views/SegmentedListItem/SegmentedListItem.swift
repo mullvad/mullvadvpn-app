@@ -97,10 +97,10 @@ struct SegmentedListItem<Leading: View, Trailing: View, Segment: View, GroupedCo
                 )
             )
         )
+        .if(level != 0, { $0.padding(.top, 1) })
 
         groupedContent()
             .environment(\.isNestedInSegmentedListItem, true)
-            .padding(.top, 1)
 
         footer
             .padding(.horizontal, 16)
