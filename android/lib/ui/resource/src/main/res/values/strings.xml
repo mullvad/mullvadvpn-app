@@ -389,7 +389,6 @@
     <string name="enable_direct_only">Enable %1$s</string>
     <string name="direct_only_description">Not all our servers are %1$s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
     <string name="multihop_entry_disabled_description">An entry server is currently selected automatically when needed to ensure a working connection. To manually select an entry server, please switch multihop mode to “Always”.</string>
-    <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="device_ip_version_title">Device IP version</string>
