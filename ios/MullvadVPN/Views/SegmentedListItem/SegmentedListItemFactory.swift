@@ -15,6 +15,7 @@ struct SegmentedListItemFactory {
         case customListLocation(node: LocationNode, level: Int = 0, isSelected: Binding<Bool>)
         case location(node: LocationNode, context: MultihopContext, level: Int = 0)
         case recentLocation(node: LocationNode, context: MultihopContext)
+        case relayFilter(item: RelayFilterItem, isSelected: Binding<Bool>)
         case generic(title: String, subtitle: String? = nil, level: Int = 0, isSelected: Bool = false)
     }
 
@@ -75,6 +76,22 @@ struct SegmentedListItemFactory {
             LocationItemView(node: node, multihopContext: context, level: level)
         case .recentLocation(let node, let context):
             RecentItemView(node: node, multihopContext: context)
+        case .relayFilter(let item, let isSelected):
+            let isProvider = [.allProviders, .provider].contains(item.type)
+            ListItem(
+                title: item.name,
+                level: 1,
+                selected: isProvider ? false : isSelected.wrappedValue,
+                statusIndicator: {
+                    if isProvider {
+                        statusIndicator(for: .checkbox(isOn: isSelected))
+                    } else {
+                        if isSelected.wrappedValue {
+                            statusIndicator(for: .tick)
+                        }
+                    }
+                }
+            )
         case .generic(let title, let subtitle, let level, let isSelected):
             ListItem(
                 title: title,

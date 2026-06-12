@@ -44,7 +44,10 @@ struct ExitLocationView<ViewModel: SelectLocationViewModel>: View {
                         ActiveFilterView(
                             activeFilter: context.filter,
                             labelStyle: .general,
-                            automaticLocationIsActive: context.isAutomaticLocation
+                            automaticLocationIsActive: context.isAutomaticLocation,
+                            shouldShowAutomaticFilterOverrideNotice:
+                                context.isAutomaticLocation
+                                && context.filter.contains(where: { $0.isOverriddenByAutomaticLocation })
                         ) { filter in
                             viewModel.onFilterTapped(filter)
                         } onRemove: { filter in
