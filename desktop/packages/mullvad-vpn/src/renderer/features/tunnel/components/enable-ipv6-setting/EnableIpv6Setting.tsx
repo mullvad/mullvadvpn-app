@@ -1,8 +1,7 @@
 import React from 'react';
 
 import { messages } from '../../../../../shared/gettext';
-import InfoButton from '../../../../components/InfoButton';
-import { ModalMessage } from '../../../../components/Modal';
+import { Info } from '../../../../components/info';
 import { SettingsListItem } from '../../../../components/settings-list-item';
 import { ListItemProps } from '../../../../lib/components/list-item';
 import { EnableIpv6Switch } from '../enable-ipv6-switch/EnableIpv6Switch';
@@ -22,20 +21,23 @@ export function EnableIpv6Setting(props: EnableIpv6SettingProps) {
             }
           </EnableIpv6Switch.Label>
           <SettingsListItem.Item.ActionGroup>
-            <InfoButton>
-              <ModalMessage>
-                {messages.pgettext(
-                  'vpn-settings-view',
-                  'When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.',
-                )}
-              </ModalMessage>
-              <ModalMessage>
-                {messages.pgettext(
-                  'vpn-settings-view',
-                  'IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it.',
-                )}
-              </ModalMessage>
-            </InfoButton>
+            <Info>
+              <Info.Button />
+              <Info.Dialog>
+                <Info.Dialog.Text>
+                  {messages.pgettext(
+                    'vpn-settings-view',
+                    'When this feature is enabled, IPv6 can be used alongside IPv4 in the VPN tunnel to communicate with internet services.',
+                  )}
+                </Info.Dialog.Text>
+                <Info.Dialog.Text>
+                  {messages.pgettext(
+                    'vpn-settings-view',
+                    'IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it.',
+                  )}
+                </Info.Dialog.Text>
+              </Info.Dialog>
+            </Info>
 
             <EnableIpv6Switch.Input />
           </SettingsListItem.Item.ActionGroup>

@@ -1,27 +1,15 @@
 import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../lib/foundations';
-import { measurements, tinyText } from '../common-styles';
-import InfoButton from '../InfoButton';
+import { LabelTinySemiBold } from '../../lib/components';
+import { FlexRow } from '../../lib/components/flex-row';
+import { Info } from '../info';
 import { SettingsRowErrorMessage } from './SettingsRow';
 
 const StyledContainer = styled.div({
   '& ~ &&': {
     marginTop: '20px',
   },
-});
-
-const StyledTitle = styled.h2(tinyText, {
-  display: 'flex',
-  alignItems: 'center',
-  color: colors.whiteAlpha80,
-  margin: `0 ${measurements.horizontalViewMargin} 8px`,
-  lineHeight: '17px',
-});
-
-const StyledInfoButton = styled(InfoButton)({
-  marginLeft: '6px',
 });
 
 export const StyledSettingsGroup = styled.div({});
@@ -56,7 +44,11 @@ interface SettingsGroupProps {
   infoMessage?: string | Array<string>;
 }
 
-export function SettingsGroup(props: React.PropsWithChildren<SettingsGroupProps>) {
+export function SettingsGroup({
+  title,
+  infoMessage,
+  children,
+}: React.PropsWithChildren<SettingsGroupProps>) {
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const setError = useCallback((key: string, errorMessage: string) => {
@@ -81,15 +73,26 @@ export function SettingsGroup(props: React.PropsWithChildren<SettingsGroupProps>
   return (
     <settingsGroupContext.Provider value={contextValue}>
       <StyledContainer>
-        {props.title !== undefined && (
-          <StyledTitle>
-            {props.title}
-            {props.infoMessage !== undefined && (
-              <StyledInfoButton size="small" message={props.infoMessage} />
+        {title !== undefined && (
+          <FlexRow gap="small" margin={{ left: 'medium', bottom: 'small' }}>
+            <LabelTinySemiBold color="whiteAlpha60">{title}</LabelTinySemiBold>
+            {infoMessage !== undefined && (
+              <Info>
+                <Info.Button size="small" />
+                <Info.Dialog>
+                  {infoMessage instanceof Array ? (
+                    infoMessage.map((message, index) => (
+                      <Info.Dialog.Text key={index}>{message}</Info.Dialog.Text>
+                    ))
+                  ) : (
+                    <Info.Dialog.Text>{infoMessage}</Info.Dialog.Text>
+                  )}
+                </Info.Dialog>
+              </Info>
             )}
-          </StyledTitle>
+          </FlexRow>
         )}
-        <StyledSettingsGroup>{props.children}</StyledSettingsGroup>
+        <StyledSettingsGroup>{children}</StyledSettingsGroup>
         {Object.values(errors).map((error) => (
           <SettingsRowErrorMessage key={error}>{error}</SettingsRowErrorMessage>
         ))}
