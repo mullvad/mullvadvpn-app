@@ -1,3 +1,2 @@
-Add "force all apps" feature, it configures the phone to leak less traffic.
-Add LWO obfuscation method.
-Add button to refresh relay list manually.
+Stop logging SOCKS and shadowsocks credentials.
+Fix crashes in UI process.
