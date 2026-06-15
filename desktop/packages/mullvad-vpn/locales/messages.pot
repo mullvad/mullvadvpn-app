@@ -2579,11 +2579,19 @@ msgid "Language"
 msgstr ""
 
 msgctxt "user-interface-settings-view"
+msgid "Monochromatic menu bar icon"
+msgstr ""
+
+msgctxt "user-interface-settings-view"
 msgid "Monochromatic tray icon"
 msgstr ""
 
 msgctxt "user-interface-settings-view"
 msgid "Notifications"
+msgstr ""
+
+msgctxt "user-interface-settings-view"
+msgid "Show only the menu bar icon when the app starts."
 msgstr ""
 
 msgctxt "user-interface-settings-view"
@@ -2602,6 +2610,10 @@ msgstr ""
 #. Label for a setting to unpin the app window from the Windows "taskbar"
 msgctxt "user-interface-settings-view"
 msgid "Unpin app from taskbar"
+msgstr ""
+
+msgctxt "user-interface-settings-view"
+msgid "Use a monochromatic menu bar icon instead of a colored one."
 msgstr ""
 
 msgctxt "user-interface-settings-view"
