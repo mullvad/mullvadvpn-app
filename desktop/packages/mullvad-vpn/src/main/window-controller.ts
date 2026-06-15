@@ -22,7 +22,7 @@ export interface WindowControllerDelegate {
 
 class StandaloneWindowPositioning implements IWindowPositioning {
   public getPosition(window: BrowserWindow): IPosition {
-    const windowBounds = window.getBounds();
+    const windowBounds = window.getContentBounds();
 
     const primaryDisplay = screen.getPrimaryDisplay();
     const workArea = primaryDisplay.workArea;
