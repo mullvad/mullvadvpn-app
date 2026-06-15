@@ -80,7 +80,7 @@ sealed interface RelayItem : Parcelable {
 
         @optics
         data class Relay(
-            override val id: GeoLocationId.Hostname,
+            override val sd: GeoLocationId.Hostname,
             override val active: Boolean,
             val latLong: LatLong,
             val provider: ProviderId,
