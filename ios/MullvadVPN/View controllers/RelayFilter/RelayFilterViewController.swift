@@ -121,7 +121,7 @@ extension RelayFilterSelection {
             )
             filterSettingsAutoNoticeConstraint = autoOverrideNoticeContainer.topAnchor.constraint(
                 equalTo: filterSettingsView.bottomAnchor,
-                constant: UIMetrics.contentLayoutMargins.top
+                constant: UIMetrics.padding8
             )
             autoNoticeTableViewConstraint = tableView.topAnchor.constraint(
                 equalTo: autoOverrideNoticeContainer.bottomAnchor,
