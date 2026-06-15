@@ -40,4 +40,7 @@ enum SettingsNavigationRoute: Equatable {
 
     /// IAN route.
     case includeAllNetworks
+
+    /// Migrated settings route
+    case migratedSettings
 }

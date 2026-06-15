@@ -6,6 +6,7 @@
 //  Copyright © 2026 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadSettings
 import Routing
 import SwiftUI
@@ -31,12 +32,14 @@ final class SettingsViewControllerFactory {
     private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
     private let breadcrumbsProvider: BreadcrumbsProvider
     private let ipOverrideRepository: IPOverrideRepository
+    private let relaySelectorWrapper: RelaySelectorWrapper
 
     private let navigationController: UINavigationController
     private let alertPresenter: AlertPresenter
     private var appPreferences: AppPreferencesDataSource
 
     var didUpdateNotificationSettings: ((NotificationSettings) -> Void)?
+    var didCompleteMigrationWizard: ((Bool) -> Void)?
 
     init(
         interactorFactory: SettingsInteractorFactory,
@@ -46,6 +49,7 @@ final class SettingsViewControllerFactory {
         ipOverrideRepository: IPOverrideRepository,
         navigationController: UINavigationController,
         alertPresenter: AlertPresenter,
+        relaySelectorWrapper: RelaySelectorWrapper,
         appPreferences: AppPreferencesDataSource
     ) {
         self.interactorFactory = interactorFactory
@@ -54,6 +58,7 @@ final class SettingsViewControllerFactory {
         self.breadcrumbsProvider = breadcrumbsProvider
         self.ipOverrideRepository = ipOverrideRepository
         self.navigationController = navigationController
+        self.relaySelectorWrapper = relaySelectorWrapper
         self.alertPresenter = alertPresenter
         self.appPreferences = appPreferences
     }
@@ -85,6 +90,8 @@ final class SettingsViewControllerFactory {
             makeNotificationSettingsCoordinator()
         case .includeAllNetworks:
             makeIncludeAllNetworksSettingsCoordinator()
+        case .migratedSettings:
+            makeMigratedSettingsCoordinator()
         }
     }
 
@@ -174,6 +181,32 @@ final class SettingsViewControllerFactory {
             viewModel: viewModel
         )
 
+        return .childCoordinator(coordinator)
+    }
+
+    private func makeMigratedSettingsCoordinator() -> MakeChildResult {
+        guard var preMigrationSettings = appPreferences.migratedSettingsState.preMigrationSettings,
+            let migrationResult = try? MultihopMigrationTrackerFactory.make(relaySelectorWrapper).run(
+                input: &preMigrationSettings)
+        else {
+            return .failed
+        }
+
+        let viewModel = SettingsMigrationWizardViewModel(
+            tunnelManager: interactorFactory.tunnelManager,
+            output: migrationResult)
+
+        let coordinator = SettingsMigrationWizardCoordinator(
+            navigationController: navigationController,
+            route: .settings(.migratedSettings),
+            viewModel: viewModel)
+
+        coordinator.didFinish = { [weak self] coordinator, hasCompletedMigrationWizard in
+            guard let self else { return }
+            coordinator.removeFromParent()
+            navigationController.popToRootViewController(animated: true)
+            didCompleteMigrationWizard?(hasCompletedMigrationWizard)
+        }
         return .childCoordinator(coordinator)
     }
 }
