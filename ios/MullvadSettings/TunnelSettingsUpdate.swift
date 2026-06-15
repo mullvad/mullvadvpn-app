@@ -16,6 +16,7 @@ import MullvadTypes
 // Version upgrades should be handled in `upgradeToNextVersion()`.
 public enum TunnelSettingsUpdate: Sendable {
     case reset
+    case all(LatestTunnelSettings)
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)
@@ -29,6 +30,8 @@ public enum TunnelSettingsUpdate: Sendable {
 extension TunnelSettingsUpdate {
     public func apply(to settings: inout LatestTunnelSettings) {
         switch self {
+        case .all(let latestTunnelSettings):
+            settings = latestTunnelSettings
         case .reset:
             settings = .default
         case let .dnsSettings(newDNSSettings):
@@ -52,7 +55,8 @@ extension TunnelSettingsUpdate {
 
     public var subjectName: String {
         switch self {
-        case .reset: "all settings"
+        case .all: "all settings"
+        case .reset: "reset settings"
         case .dnsSettings: "DNS settings"
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"

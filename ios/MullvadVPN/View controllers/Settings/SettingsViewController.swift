@@ -23,6 +23,7 @@ class SettingsViewController: UITableViewController {
     weak var delegate: SettingsViewControllerDelegate?
     private var dataSource: SettingsDataSource?
     private let interactor: SettingsInteractor
+    private var appPreferences: AppPreferencesDataSource
     private let breadcrumbsProvider: BreadcrumbsProvider
     private var breadcrumbsObserver: BreadcrumbsBlockObserver?
 
@@ -30,10 +31,13 @@ class SettingsViewController: UITableViewController {
         .lightContent
     }
 
-    init(interactor: SettingsInteractor, breadcrumbsProvider: BreadcrumbsProvider) {
+    init(
+        interactor: SettingsInteractor, appPreferences: AppPreferencesDataSource,
+        breadcrumbsProvider: BreadcrumbsProvider
+    ) {
         self.interactor = interactor
         self.breadcrumbsProvider = breadcrumbsProvider
-
+        self.appPreferences = appPreferences
         super.init(style: .grouped)
     }
 
@@ -77,6 +81,7 @@ class SettingsViewController: UITableViewController {
         dataSource = SettingsDataSource(
             tableView: tableView,
             interactor: interactor,
+            appPreferences: appPreferences,
             breadcrumbs: breadcrumbsProvider.breadcrumbs
         )
         dataSource?.delegate = self
@@ -118,6 +123,8 @@ private extension SettingsDataSource.Item {
             .notificationSettings
         case .includeAllNetworks:
             .includeAllNetworks
+        case .migratedSettings:
+            .migratedSettings
         }
     }
 }
