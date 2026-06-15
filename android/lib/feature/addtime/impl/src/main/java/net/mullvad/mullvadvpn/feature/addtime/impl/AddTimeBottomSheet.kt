@@ -137,7 +137,7 @@ fun AddTimeBottomSheet(navigator: Navigator) {
                 navigator.navigateReplaceTop(sheetState, scope, RedeemVoucherNavKey)
             },
         resetPurchaseState = { viewModel.resetPurchaseResult() },
-        onRetryVerification = { viewModel.verifyPurchases(true) },
+        onRetryVerification = { viewModel.retryVerifyPurchase() },
         navigateToProblemReport =
             dropUnlessResumed {
                 navigator.navigateReplaceTop(sheetState, scope, ProblemReportNavKey)

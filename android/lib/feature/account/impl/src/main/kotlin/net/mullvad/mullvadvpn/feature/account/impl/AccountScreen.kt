@@ -340,12 +340,9 @@ private fun PaidUntilRow(
                         stringResource(
                             id =
                                 when (paymentStatus) {
-                                    PaymentStatus.PENDING ->
-                                        net.mullvad.mullvadvpn.lib.ui.resource.R.string
-                                            .payment_status_pending_short
+                                    PaymentStatus.PENDING -> R.string.payment_status_pending_short
                                     PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                                        net.mullvad.mullvadvpn.lib.ui.resource.R.string
-                                            .payment_status_verification_failed
+                                        R.string.payment_status_verification_failed
                                 }
                         ),
                 )

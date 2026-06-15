@@ -33,12 +33,11 @@ interface PaymentLogic {
 
     suspend fun resetPurchaseResult()
 
-    suspend fun verifyPurchases(
-        updatePurchaseResult: Boolean = false,
-        attempts: Long? = null,
-    ): Either<VerificationError, VerificationResult>
+    suspend fun verifyPurchases(): Either<VerificationError, VerificationResult>
 
     suspend fun allAvailableProducts(): List<PaymentProduct>?
+
+    suspend fun retryVerifyPurchase(): Either<VerificationError, VerificationResult>
 }
 
 class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : PaymentLogic {
@@ -72,36 +71,37 @@ class PlayPaymentLogic(private val paymentRepository: PaymentRepository) : Payme
         _purchaseResult.emit(null)
     }
 
-    override suspend fun verifyPurchases(updatePurchaseResult: Boolean, attempts: Long?) =
+    override suspend fun verifyPurchases() =
         Schedule.exponential<VerificationError>(
                 VERIFICATION_INITIAL_BACK_OFF_DURATION,
                 VERIFICATION_BACK_OFF_FACTOR,
             )
-            .and(Schedule.recurs(attempts ?: VERIFICATION_MAX_ATTEMPTS))
+            .and(Schedule.recurs(VERIFICATION_MAX_ATTEMPTS))
             .doWhile { error, _ ->
                 // If we have a verification error we should not retry as it will fail again.
                 error !is VerificationError.PlayVerificationError.VerificationFailed
             }
-            .retryEither {
-                if (updatePurchaseResult) {
-                    _purchaseResult.emit(PurchaseResult.VerificationStarted)
-                }
-                paymentRepository.verifyPurchases()
-            }
-            .onLeft {
-                if (updatePurchaseResult) {
-                    _purchaseResult.emit(it.toPurchaseError())
-                }
-            }
+            .retryEither { paymentRepository.verifyPurchases() }
             .onRight {
                 if (it is VerificationResult.Success) {
-                    if (updatePurchaseResult) {
-                        _purchaseResult.emit(PurchaseResult.Completed.Success(it.productId))
-                    }
                     // Update the payment availability after a successful verification.
                     queryPaymentAvailability()
                 }
             }
+
+    override suspend fun retryVerifyPurchase(): Either<VerificationError, VerificationResult> {
+        _purchaseResult.emit(PurchaseResult.VerificationStarted)
+        return paymentRepository
+            .verifyPurchases()
+            .onLeft { _purchaseResult.emit(it.toPurchaseError()) }
+            .onRight {
+                if (it is VerificationResult.Success) {
+                    _purchaseResult.emit(PurchaseResult.Completed.Success(it.productId))
+                    // Update the payment availability after a successful verification.
+                    queryPaymentAvailability()
+                }
+            }
+    }
 
     override suspend fun allAvailableProducts(): List<PaymentProduct>? =
         paymentRepository
@@ -201,7 +201,9 @@ class EmptyPaymentUseCase : PaymentLogic {
         // No op
     }
 
-    override suspend fun verifyPurchases(updatePurchaseResult: Boolean, attempts: Long?) =
+    override suspend fun verifyPurchases() = VerificationResult.NothingToVerify.right()
+
+    override suspend fun retryVerifyPurchase(): Either<VerificationError, VerificationResult> =
         VerificationResult.NothingToVerify.right()
 
     override suspend fun allAvailableProducts(): List<PaymentProduct>? = null

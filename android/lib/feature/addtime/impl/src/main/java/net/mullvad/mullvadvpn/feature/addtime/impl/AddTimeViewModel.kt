@@ -55,7 +55,7 @@ class AddTimeViewModel(
             )
 
     init {
-        verifyPurchases(false)
+        verifyPurchases()
         fetchPaymentAvailability()
         handlePurchaseResultTerminatingState()
     }
@@ -79,21 +79,17 @@ class AddTimeViewModel(
         viewModelScope.launch { paymentUseCase.resetPurchaseResult() }
     }
 
-    fun verifyPurchases(updatePurchaseResult: Boolean) {
+    private fun verifyPurchases() {
         viewModelScope.launch {
-            if (
-                paymentUseCase
-                    .verifyPurchases(
-                        updatePurchaseResult = updatePurchaseResult,
-                        attempts =
-                            if (updatePurchaseResult) {
-                                1
-                            } else {
-                                null
-                            },
-                    )
-                    .isSuccess()
-            ) {
+            if (paymentUseCase.verifyPurchases().isSuccess()) {
+                updateAccountExpiry()
+            }
+        }
+    }
+
+    fun retryVerifyPurchase() {
+        viewModelScope.launch {
+            if (paymentUseCase.retryVerifyPurchase().isSuccess()) {
                 updateAccountExpiry()
             }
         }
@@ -112,7 +108,7 @@ class AddTimeViewModel(
                         // Otherwise update payment availability to check for pending purchases
                         fetchPaymentAvailability()
                         // Check if we have any non-verified purchase
-                        verifyPurchases(false)
+                        verifyPurchases()
                     }
                 }
         }
