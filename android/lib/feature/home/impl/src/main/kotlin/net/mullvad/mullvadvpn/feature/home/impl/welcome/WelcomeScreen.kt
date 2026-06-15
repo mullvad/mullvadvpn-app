@@ -371,7 +371,7 @@ private fun ButtonPanel(
                             id =
                                 when (paymentStatus) {
                                     PaymentStatus.PENDING -> R.string.payment_status_pending_short
-                                    PaymentStatus.VERIFICATION_IN_PROGRESS ->
+                                    PaymentStatus.PURCHASED_UNVERIFIED ->
                                         R.string.payment_status_verification_failed
                                 }
                         ),

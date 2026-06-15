@@ -211,7 +211,7 @@ class AddTimeBottomSheetTest {
         // Arrange
         val mockPaymentProduct: PaymentProduct = mockk()
         every { mockPaymentProduct.price } returns ProductPrice("$10")
-        every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
+        every { mockPaymentProduct.status } returns PaymentStatus.PURCHASED_UNVERIFIED
         every { mockPaymentProduct.productId } returns ProductId(ProductIds.ThreeMonths)
         initBottomSheet(
             state =

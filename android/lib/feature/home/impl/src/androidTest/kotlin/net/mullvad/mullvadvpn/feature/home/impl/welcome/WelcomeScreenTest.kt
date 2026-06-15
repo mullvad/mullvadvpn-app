@@ -115,7 +115,7 @@ class WelcomeScreenTest {
                         accountNumber = null,
                         deviceName = null,
                         showSitePayment = false,
-                        paymentStatus = PaymentStatus.VERIFICATION_IN_PROGRESS,
+                        paymentStatus = PaymentStatus.PURCHASED_UNVERIFIED,
                     )
                     .toLc(),
             onPlayPaymentInfoClick = mockShowPendingInfo,
@@ -125,7 +125,7 @@ class WelcomeScreenTest {
         onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
 
         // Assert
-        verify(exactly = 1) { mockShowPendingInfo(PaymentStatus.VERIFICATION_IN_PROGRESS) }
+        verify(exactly = 1) { mockShowPendingInfo(PaymentStatus.PURCHASED_UNVERIFIED) }
     }
 
     @Test

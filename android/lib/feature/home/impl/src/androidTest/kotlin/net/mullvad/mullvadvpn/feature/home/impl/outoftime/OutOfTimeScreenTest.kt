@@ -117,7 +117,7 @@ class OutOfTimeScreenTest {
             state =
                 OutOfTimeUiState(
                         showSitePayment = true,
-                        paymentStatus = PaymentStatus.VERIFICATION_IN_PROGRESS,
+                        paymentStatus = PaymentStatus.PURCHASED_UNVERIFIED,
                     )
                     .toLc(),
             onPlayPaymentInfoClick = mockOnPlayPaymentInfoClick,
@@ -129,7 +129,7 @@ class OutOfTimeScreenTest {
 
         // Assert
         verify(exactly = 1) {
-            mockOnPlayPaymentInfoClick.invoke(PaymentStatus.VERIFICATION_IN_PROGRESS)
+            mockOnPlayPaymentInfoClick.invoke(PaymentStatus.PURCHASED_UNVERIFIED)
         }
     }
 

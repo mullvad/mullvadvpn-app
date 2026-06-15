@@ -39,7 +39,7 @@ fun VerificationPendingDialog(paymentStatus: PaymentStatus, onClose: () -> Unit)
                         id =
                             when (paymentStatus) {
                                 PaymentStatus.PENDING -> R.string.verifying_purchase
-                                PaymentStatus.VERIFICATION_IN_PROGRESS ->
+                                PaymentStatus.PURCHASED_UNVERIFIED ->
                                     R.string.verifying_purchase_error
                             }
                     )
@@ -52,7 +52,7 @@ fun VerificationPendingDialog(paymentStatus: PaymentStatus, onClose: () -> Unit)
                         id =
                             when (paymentStatus) {
                                 PaymentStatus.PENDING -> R.string.payment_pending_dialog_message
-                                PaymentStatus.VERIFICATION_IN_PROGRESS ->
+                                PaymentStatus.PURCHASED_UNVERIFIED ->
                                     R.string.verification_failed_dialog_message
                             }
                     ),

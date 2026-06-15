@@ -49,7 +49,7 @@ class PlayPaymentPaymentStatePreviewParameterProvider : PreviewParameterProvider
                             PaymentProduct(
                                 productId = ProductId("one_month"),
                                 price = ProductPrice("$10"),
-                                status = PaymentStatus.VERIFICATION_IN_PROGRESS,
+                                status = PaymentStatus.PURCHASED_UNVERIFIED,
                             ),
                             PaymentProduct(
                                 productId = ProductId("three_months"),

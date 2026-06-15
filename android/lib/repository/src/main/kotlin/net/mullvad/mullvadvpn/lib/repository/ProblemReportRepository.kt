@@ -74,7 +74,7 @@ class ProblemReportRepository(
                     problemReportOutputPath = problemReportOutputPath.absolutePath,
                     unverifiedPurchases =
                         availableProducts?.count {
-                            it.status == PaymentStatus.VERIFICATION_IN_PROGRESS
+                            it.status == PaymentStatus.PURCHASED_UNVERIFIED
                         } ?: 0,
                     pendingPurchases =
                         availableProducts?.count { it.status == PaymentStatus.PENDING } ?: 0,
