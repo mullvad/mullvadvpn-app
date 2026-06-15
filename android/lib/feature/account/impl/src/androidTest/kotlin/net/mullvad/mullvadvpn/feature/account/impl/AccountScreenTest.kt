@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeUiState
 import net.mullvad.mullvadvpn.feature.addtime.impl.AddTimeViewModel
 import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
 import org.junit.jupiter.api.BeforeEach
@@ -72,7 +73,7 @@ class AccountScreenTest {
                     accountNumber = DUMMY_ACCOUNT_NUMBER,
                     accountExpiry = null,
                     showLogoutLoading = false,
-                    verificationPending = false,
+                    paymentStatus = null,
                 )
         )
 
@@ -91,7 +92,7 @@ class AccountScreenTest {
                     accountNumber = DUMMY_ACCOUNT_NUMBER,
                     accountExpiry = null,
                     showLogoutLoading = false,
-                    verificationPending = false,
+                    paymentStatus = null,
                 ),
             onLogoutClick = mockedClickHandler,
         )
@@ -113,7 +114,7 @@ class AccountScreenTest {
                     accountNumber = DUMMY_ACCOUNT_NUMBER,
                     accountExpiry = null,
                     showLogoutLoading = false,
-                    verificationPending = true,
+                    paymentStatus = PaymentStatus.PENDING,
                 )
         )
 

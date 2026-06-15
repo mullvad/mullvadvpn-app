@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -24,8 +25,9 @@ import net.mullvad.mullvadvpn.lib.model.AccountData
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import net.mullvad.mullvadvpn.lib.payment.util.hasPendingPayment
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.util.isSuccess
+import net.mullvad.mullvadvpn.lib.payment.util.status
 import net.mullvad.mullvadvpn.lib.repository.AccountRepository
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
@@ -52,7 +54,7 @@ class AccountViewModel(
                         accountNumber = deviceState.accountNumber,
                         accountExpiry = accountData?.expiryDate,
                         showLogoutLoading = isLoggingOut,
-                        verificationPending = paymentAvailability.hasPendingPayment(),
+                        paymentStatus = paymentAvailability?.status(),
                     )
                     .toLc<Unit, AccountUiState>()
             }
@@ -75,18 +77,23 @@ class AccountViewModel(
             .onStart<AccountData?> { emit(accountRepository.accountData.value) }
             .distinctUntilChanged()
 
-    fun onLogoutClick() {
+    fun onLogoutClick(force: Boolean) {
         if (isLoggingOut.value) return
         isLoggingOut.value = true
 
         viewModelScope.launch {
-            accountRepository
-                .logout()
-                .also { isLoggingOut.value = false }
-                .fold(
-                    { _uiSideEffect.send(UiSideEffect.GenericError) },
-                    { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
-                )
+            if (force || hasAnyPaymentInNeedOfVerification().not()) {
+                accountRepository
+                    .logout()
+                    .also { isLoggingOut.value = false }
+                    .fold(
+                        { _uiSideEffect.send(UiSideEffect.GenericError) },
+                        { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
+                    )
+            } else {
+                isLoggingOut.value = false
+                _uiSideEffect.send(UiSideEffect.ShowLogoutPendingVerificationDialog)
+            }
         }
     }
 
@@ -110,6 +117,10 @@ class AccountViewModel(
         viewModelScope.launch { paymentUseCase.queryPaymentAvailability() }
     }
 
+    private suspend fun hasAnyPaymentInNeedOfVerification() =
+        paymentUseCase.paymentAvailability.firstOrNull()?.status() ==
+            PaymentStatus.VERIFICATION_IN_PROGRESS
+
     sealed class UiSideEffect {
         data object NavigateToLogin : UiSideEffect()
 
@@ -118,6 +129,8 @@ class AccountViewModel(
         data class CopyAccountNumber(val accountNumber: String) : UiSideEffect()
 
         data object GenericError : UiSideEffect()
+
+        data object ShowLogoutPendingVerificationDialog : UiSideEffect()
     }
 }
 
@@ -126,5 +139,5 @@ data class AccountUiState(
     val accountNumber: AccountNumber,
     val accountExpiry: ZonedDateTime?,
     val showLogoutLoading: Boolean,
-    val verificationPending: Boolean,
+    val paymentStatus: PaymentStatus?,
 )
