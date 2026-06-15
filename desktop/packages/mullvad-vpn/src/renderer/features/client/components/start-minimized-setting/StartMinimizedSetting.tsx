@@ -6,6 +6,16 @@ import { StartMinimizedSwitch } from '../start-minimized-switch/StartMinimizedSw
 export type StartMinimizedSettingProps = Omit<ListItemProps, 'children'>;
 
 export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
+  const description =
+    process.platform === 'darwin'
+      ? messages.pgettext(
+          'user-interface-settings-view',
+          'Show only the menu bar icon when the app starts.',
+        )
+      : messages.pgettext(
+          'user-interface-settings-view',
+          'Show only the tray icon when the app starts.',
+        );
   return (
     <SettingsListItem {...props}>
       <SettingsListItem.Item>
@@ -19,12 +29,7 @@ export function StartMinimizedSetting(props: StartMinimizedSettingProps) {
         </StartMinimizedSwitch>
       </SettingsListItem.Item>
       <SettingsListItem.Footer>
-        <SettingsListItem.Footer.Text>
-          {messages.pgettext(
-            'user-interface-settings-view',
-            'Show only the tray icon when the app starts.',
-          )}
-        </SettingsListItem.Footer.Text>
+        <SettingsListItem.Footer.Text>{description}</SettingsListItem.Footer.Text>
       </SettingsListItem.Footer>
     </SettingsListItem>
   );
