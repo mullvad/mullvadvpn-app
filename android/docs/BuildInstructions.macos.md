@@ -3,7 +3,7 @@
 This document will guide you to setup your development environment on macOS. It has been
 tested on a clean install of macOS Ventura 13.5.1 on a M2 MacBook.
 
-As an alternative to this guide you can also follow [these nix devshell instructions](../BuildInstructions.md#build-using-nix-devshell).
+As an alternative to this guide you can also follow [these nix devshell instructions](BuildInstructions.md#build-using-nix-devshell).
 
 ## 1. Install Prerequisites
 
@@ -82,7 +82,7 @@ From the `android/` directory, run the following command to assemble all the nat
 
 # Build options and configuration
 
-For configuring signing or options to your build continue with the general [build instructions](../BuildInstructions.md).
+For configuring signing or options to your build continue with the general [build instructions](BuildInstructions.md).
 
 # Debugging the Rust native code
 

@@ -532,7 +532,7 @@ Identical to `android/2024.3-beta1` except for updated translations.
 ### Changed
 - Change [default retry connection attempts][`relay selector defaults`].
 
-[`relay selector defaults`]: docs/relay-selector.md#default-constraints-for-tunnel-endpoints
+[`relay selector defaults`]: ../docs/relay-selector.md#default-constraints-for-tunnel-endpoints
 
 ### Fixed
 - Fix pointless API access method rotations for concurrent requests.
