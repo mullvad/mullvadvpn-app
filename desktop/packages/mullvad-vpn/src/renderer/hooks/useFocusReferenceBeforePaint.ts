@@ -6,6 +6,7 @@ export const useFocusReferenceBeforePaint = <T extends HTMLElement>(
 ) => {
   React.useLayoutEffect(() => {
     if (focus) {
+      console.log('focus before paint?');
       ref?.current?.focus({ preventScroll: true });
     }
   }, [ref, focus]);

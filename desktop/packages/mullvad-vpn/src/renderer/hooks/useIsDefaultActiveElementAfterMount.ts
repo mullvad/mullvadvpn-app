@@ -11,6 +11,8 @@ export const useIsDefaultActiveElementAfterMount = () => {
         document.activeElement === document.body ||
         document.activeElement === document.documentElement;
 
+      console.log('in here?', isBodyOrDocumentElement);
+
       setIsDefaultActiveElementAfterMount(isBodyOrDocumentElement);
     }
 

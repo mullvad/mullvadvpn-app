@@ -5,8 +5,10 @@ export const useFocusReferenceAfterPaint = <T extends HTMLElement>(
   focus?: boolean,
 ) => {
   React.useEffect(() => {
-    if (focus) {
-      ref?.current?.focus({ preventScroll: true });
+    console.log('inside focus after paint', ref?.current, document.activeElement?.tagName);
+    if (focus && ref?.current) {
+      console.log('focusing?', ref);
+      // ref?.current?.focus({ preventScroll: true });
     }
   }, [ref, focus]);
 };

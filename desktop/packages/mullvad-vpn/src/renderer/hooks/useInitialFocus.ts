@@ -9,14 +9,18 @@ export const useInitialFocus = <T extends HTMLElement = HTMLDivElement>(): {
   const ref = React.useRef<T>(null);
 
   const isDefaultFocus = useIsDefaultActiveElementAfterMount();
-  const shouldFocus = isDefaultFocus === true;
+  const shouldFocus = ref.current !== null && isDefaultFocus === true;
 
   useFocusReferenceAfterPaint(ref, shouldFocus);
 
-  if (!isDefaultFocus)
-    return {
-      ref: undefined,
-    };
+  console.log('shouldFocus', shouldFocus, isDefaultFocus, ref, document.activeElement);
+
+  // if (!isDefaultFocus) {
+  //   return {
+  //     ref: undefined,
+  //   };
+  // }
+
   return {
     ref,
   };
