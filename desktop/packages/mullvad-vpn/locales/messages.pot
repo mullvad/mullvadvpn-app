@@ -3664,6 +3664,9 @@ msgstr ""
 msgid "The selected %s port is not supported, please change it under"
 msgstr ""
 
+msgid "There is a purchase that is still trying to verify. Logging into another account will make it impossible for the app to verify the purchase. Are you sure that you want to log out?"
+msgstr ""
+
 msgid "These methods may be useful in situations where you are blocked from reaching Mullvad. When “Automatic” is selected, the app will attempt all methods until one works."
 msgstr ""
 

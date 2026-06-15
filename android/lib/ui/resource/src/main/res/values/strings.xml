@@ -546,4 +546,5 @@
     <string name="contact_support">Contact support</string>
     <string name="verification_failed_dialog_message">We are not able to verify your latest purchase. Please check your network settings. If the issue persist please contact support</string>
     <string name="payment_status_verification_failed">Google Play payment verification failed</string>
+    <string name="ongoing_verification_warning">There is a purchase that is still trying to verify. Logging into another account will make it impossible for the app to verify the purchase. Are you sure that you want to log out?</string>
 </resources>

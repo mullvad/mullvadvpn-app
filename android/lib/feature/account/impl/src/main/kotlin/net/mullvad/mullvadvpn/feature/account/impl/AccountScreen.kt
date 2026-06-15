@@ -44,7 +44,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import java.time.ZonedDateTime
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.core.LocalResultStore
 import net.mullvad.mullvadvpn.core.Navigator
+import net.mullvad.mullvadvpn.feature.account.api.LogoutPurchaseVerificationNavKey
+import net.mullvad.mullvadvpn.feature.account.api.LogoutPurchaseVerificationNavResult
 import net.mullvad.mullvadvpn.feature.addtime.api.AddTimeNavKey
 import net.mullvad.mullvadvpn.feature.addtime.api.VerificationPendingNavKey
 import net.mullvad.mullvadvpn.feature.deleteaccount.api.DeleteAccountNavKey
@@ -101,6 +104,10 @@ fun Account(navigator: Navigator) {
     val vm = koinViewModel<AccountViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
 
+    LocalResultStore.current.consumeResult<LogoutPurchaseVerificationNavResult> {
+        vm.onLogoutClick(true)
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
     val errorString = stringResource(id = R.string.error_occurred)
@@ -112,6 +119,9 @@ fun Account(navigator: Navigator) {
         when (sideEffect) {
             AccountViewModel.UiSideEffect.NavigateToLogin -> {
                 navigator.navigate(LoginNavKey(), clearBackStack = true)
+            }
+            AccountViewModel.UiSideEffect.ShowLogoutPendingVerificationDialog -> {
+                navigator.navigate(LogoutPurchaseVerificationNavKey)
             }
             is AccountViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
@@ -131,7 +141,7 @@ fun Account(navigator: Navigator) {
                     navigator.navigate(ManageDevicesNavKey(it))
                 }
             },
-        onLogoutClick = vm::onLogoutClick,
+        onLogoutClick = { vm.onLogoutClick(false) },
         onCopyAccountNumber = vm::onCopyAccountNumber,
         onPlayPaymentInfoClick =
             dropUnlessResumed { paymentStatus ->

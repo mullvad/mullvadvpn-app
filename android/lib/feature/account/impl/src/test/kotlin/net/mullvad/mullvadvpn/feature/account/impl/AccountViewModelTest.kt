@@ -95,7 +95,7 @@ class AccountViewModelTest {
         coEvery { mockAccountRepository.logout() } returns Unit.right()
 
         // Act
-        viewModel.onLogoutClick()
+        viewModel.onLogoutClick(false)
 
         // Assert
         coVerify { mockAccountRepository.logout() }
