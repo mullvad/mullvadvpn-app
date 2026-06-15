@@ -10,7 +10,13 @@ export const createSelectors = (page: Page) => ({
       hasText: label,
     }),
   autoStartSwitch: () => page.getByRole('switch', { name: 'Notifications' }),
-  monochromaticTrayIconSwitch: () => page.getByRole('switch', { name: 'Monochromatic tray icon' }),
+  monochromaticTrayIconSwitch: () => {
+    if (process.platform === 'darwin') {
+      return page.getByRole('switch', { name: 'Monochromatic menu bar icon' });
+    }
+
+    return page.getByRole('switch', { name: 'Monochromatic tray icon' });
+  },
   unpinnedWindowSwitch: () => {
     if (process.platform === 'win32') {
       return page.getByRole('switch', { name: 'Unpin app from taskbar' });
