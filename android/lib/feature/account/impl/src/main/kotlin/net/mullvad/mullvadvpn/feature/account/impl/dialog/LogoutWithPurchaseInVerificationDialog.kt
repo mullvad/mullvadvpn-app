@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.ui.resource.R
 
 @Preview
 @Composable
-private fun LogoutWithPurchaseInVerificationDialogPreview() {
+private fun PreviewLogoutWithPurchaseInVerificationDialog() {
     LogoutWithPurchaseInVerificationDialog(logout = {}, cancel = {})
 }
 
