@@ -103,7 +103,8 @@ final class WelcomeContentView: UIView, Sendable {
                 comment: ""
             ),
             NSLocalizedString(
-                "Either buy credit on our website or redeem a voucher.", comment: ""
+                "You can buy time in the app, or you can go to our website where you can also redeem vouchers.",
+                comment: ""
             ),
         ].joined(separator: " ")
         return label
