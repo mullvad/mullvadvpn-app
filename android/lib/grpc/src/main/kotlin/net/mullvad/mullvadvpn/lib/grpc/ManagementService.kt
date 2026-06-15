@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.grpc
 
 import android.net.LocalSocketAddress
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import arrow.optics.copy
@@ -816,7 +817,8 @@ class ManagementService(
             .mapLeft { PlayPurchaseInitError.OtherError }
 
     suspend fun verifyPlayPurchase(purchase: PlayPurchase): Either<PlayPurchaseVerifyError, Unit> =
-        Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
+        PlayPurchaseVerifyError.OtherError.left()
+        /*Either.catch { grpc.verifyPlayPurchase(purchase.fromDomain()) }
             .onLeft { Logger.e("Verify play purchase error") }
             .mapLeft { error ->
                 if (error is StatusException && error.status.code == Status.Code.INVALID_ARGUMENT) {
@@ -825,7 +827,7 @@ class ManagementService(
                     PlayPurchaseVerifyError.OtherError
                 }
             }
-            .mapEmpty()
+            .mapEmpty()*/
 
     suspend fun addSplitTunnelingApp(app: PackageName): Either<AddSplitTunnelingAppError, Unit> =
         Either.catch { grpc.addSplitTunnelApp(StringValue.of(app.value)) }
