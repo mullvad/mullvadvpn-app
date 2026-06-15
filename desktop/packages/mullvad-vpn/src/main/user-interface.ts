@@ -306,6 +306,7 @@ export default class UserInterface implements WindowControllerDelegate {
           closable: unpinnedWindow,
           transparent: !unpinnedWindow,
           hiddenInMissionControl: !unpinnedWindow,
+          backgroundColor: '#192e45', // colorTokens.darkBlue
         });
 
         // make the window visible on all workspaces and prevent the icon from showing in the dock
