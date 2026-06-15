@@ -37,6 +37,7 @@ import net.mullvad.mullvadvpn.lib.repository.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.repository.DeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.lib.repository.PaymentLogic
+import net.mullvad.mullvadvpn.lib.repository.RelayListRepository
 import net.mullvad.mullvadvpn.lib.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.lib.usecase.ConnectionPathUseCase
 import net.mullvad.mullvadvpn.lib.usecase.LastKnownLocationUseCase
@@ -48,6 +49,7 @@ import net.mullvad.mullvadvpn.lib.usecase.SystemVpnSettingsAvailableUseCase
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    private val relayListRepository: RelayListRepository,
     private val changelogRepository: ChangelogRepository,
     private val connectionPath: ConnectionPathUseCase,
     inAppNotificationController: InAppNotificationController,
@@ -71,6 +73,7 @@ class ConnectViewModel(
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 connectionPath(),
+            relayListRepository.relayList,
                 selectedLocationTitleUseCase(),
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState.withPrev(),
@@ -79,6 +82,7 @@ class ConnectViewModel(
                 deviceRepository.deviceState.map { it?.displayName() },
             ) {
                 connectionPath,
+                relayList,
                 selectedRelayItemTitle,
                 notifications,
                 (tunnelState, prevTunnelState),
@@ -87,6 +91,7 @@ class ConnectViewModel(
                 deviceName ->
                 ConnectUiState(
                     hops = connectionPath,
+                    locations = relayList.flatMap { it.cities },
                     internetLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->

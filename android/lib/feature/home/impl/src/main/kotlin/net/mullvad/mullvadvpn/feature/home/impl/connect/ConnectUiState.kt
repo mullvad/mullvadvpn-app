@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 
 data class ConnectUiState(
     val hops: List<LatLong>,
+    val locations: List<LatLong>,
     val internetLocation: GeoIpLocation?,
     val selectedRelayItemTitle: String?,
     val tunnelState: TunnelState,
@@ -23,6 +24,7 @@ data class ConnectUiState(
         val INITIAL =
             ConnectUiState(
                 hops = emptyList(),
+                locations = emptyList(),
                 internetLocation = null,
                 selectedRelayItemTitle = null,
                 tunnelState = TunnelState.Disconnected(),

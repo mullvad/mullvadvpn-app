@@ -514,19 +514,6 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
             mutableStateOf(state.internetLocation?.toLatLong() ?: fallbackLatLong)
         }
 
-//    val offlineMarker =
-//        state.physicalLocation?.let {
-//            Marker(it.toLatLong(), colors = LocationMarkerColors(centerColor = MaterialTheme.colorScheme.error))
-//        }
-
-//    val entryMarker = when(val tState = state.tunnelState) {
-//        is TunnelState.Connected -> tState.endpoint.entryEndpoint
-//        is TunnelState.Connecting -> TODO()
-//        is TunnelState.Disconnected -> TODO()
-//        is TunnelState.Disconnecting -> TODO()
-//        is TunnelState.Error -> TODO()
-//    }
-
     val hops = state.hops.zipWithNext().map { Hop(it.first, it.second) }
 
     InteractiveMap(
