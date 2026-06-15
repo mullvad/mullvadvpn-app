@@ -39,13 +39,15 @@ class AddTimeBottomSheetTest {
                 velocityThreshold = { 0f },
             ),
         onPurchaseBillingProductClick: (ProductId) -> Unit = {},
-        onPlayPaymentInfoClick: () -> Unit = {},
+        onPlayPaymentInfoClick: (PaymentStatus) -> Unit = {},
         onSitePaymentClick: () -> Unit = {},
         onRedeemVoucherClick: () -> Unit = {},
         onRetryFetchProducts: () -> Unit = {},
         resetPurchaseState: () -> Unit = {},
         closeSheetAndResetPurchaseState: (Boolean) -> Unit = {},
         closeBottomSheet: (animate: Boolean) -> Unit = {},
+        onRetryVerification: () -> Unit = {},
+        navigateToProblemReport: () -> Unit = {},
     ) {
         setContentWithTheme {
             AddTimeBottomSheetContent(
@@ -59,6 +61,8 @@ class AddTimeBottomSheetTest {
                 resetPurchaseState = resetPurchaseState,
                 closeSheetAndResetPurchaseState = closeSheetAndResetPurchaseState,
                 closeBottomSheet = closeBottomSheet,
+                onRetryVerification = onRetryVerification,
+                navigateToProblemReport = navigateToProblemReport,
             )
         }
     }
@@ -180,7 +184,7 @@ class AddTimeBottomSheetTest {
         every { mockPaymentProduct.price } returns ProductPrice("$10")
         every { mockPaymentProduct.status } returns PaymentStatus.PENDING
         every { mockPaymentProduct.productId } returns ProductId(ProductIds.OneMonth)
-        val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
+        val mockNavigateToVerificationPending: (PaymentStatus) -> Unit = mockk(relaxed = true)
         PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
         initBottomSheet(
             state =
@@ -199,7 +203,7 @@ class AddTimeBottomSheetTest {
         onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
 
         // Assert
-        verify(exactly = 1) { mockNavigateToVerificationPending.invoke() }
+        verify(exactly = 1) { mockNavigateToVerificationPending.invoke(PaymentStatus.PENDING) }
     }
 
     @Test
@@ -222,7 +226,7 @@ class AddTimeBottomSheetTest {
         )
 
         // Assert
-        onNodeWithText("Verifying purchase").assertExists()
+        onNodeWithText("Unable to verify purchase").assertExists()
     }
 
     @Test

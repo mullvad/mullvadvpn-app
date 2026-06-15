@@ -103,7 +103,7 @@ class PlayPaymentLogicTest {
     fun `verifyPurchases call should invoke verifyPurchases on repository`() = runTest {
         // Arrange
         coEvery { mockPaymentRepository.verifyPurchases() } returns
-            VerificationResult.Success.right()
+            VerificationResult.Success(ProductId("productId")).right()
 
         // Act
         playPaymentLogic.verifyPurchases()
@@ -116,7 +116,7 @@ class PlayPaymentLogicTest {
     fun `when verifyPurchases returns success should not retry`() = runTest {
         // Arrange
         coEvery { mockPaymentRepository.verifyPurchases() } returns
-            VerificationResult.Success.right()
+            VerificationResult.Success(ProductId("productId")).right()
 
         // Act
         playPaymentLogic.verifyPurchases()
@@ -135,7 +135,7 @@ class PlayPaymentLogicTest {
         playPaymentLogic.verifyPurchases()
 
         // Assert
-        coVerify(exactly = PlayPaymentLogic.VERIFICATION_MAX_ATTEMPTS + 1) {
+        coVerify(exactly = PlayPaymentLogic.VERIFICATION_MAX_ATTEMPTS.toInt() + 1) {
             mockPaymentRepository.verifyPurchases()
         }
     }

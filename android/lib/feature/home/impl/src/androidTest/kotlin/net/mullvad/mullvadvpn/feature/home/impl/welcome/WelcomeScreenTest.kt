@@ -16,6 +16,7 @@ import net.mullvad.mullvadvpn.lib.common.Lc
 import net.mullvad.mullvadvpn.lib.common.toLc
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.TunnelState
+import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.ui.tag.PLAY_PAYMENT_INFO_ICON_TEST_TAG
 import net.mullvad.mullvadvpn.screen.test.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.screen.test.setContentWithTheme
@@ -46,7 +47,7 @@ class WelcomeScreenTest {
         onAccountClick: () -> Unit = {},
         onDisconnectClick: () -> Unit = {},
         navigateToDeviceInfoDialog: () -> Unit = {},
-        onPlayPaymentInfoClick: () -> Unit = {},
+        onPlayPaymentInfoClick: (PaymentStatus) -> Unit = {},
         onAddMoreTimeClick: () -> Unit = {},
     ) {
         setContentWithTheme {
@@ -94,7 +95,7 @@ class WelcomeScreenTest {
                         accountNumber = rawAccountNumber,
                         deviceName = null,
                         showSitePayment = false,
-                        verificationPending = false,
+                        paymentStatus = null,
                     )
                     .toLc()
         )
@@ -106,7 +107,7 @@ class WelcomeScreenTest {
     @Test
     fun testShowPendingPaymentInfoDialog() = composeExtension.use {
         // Arrange
-        val mockShowPendingInfo = mockk<() -> Unit>(relaxed = true)
+        val mockShowPendingInfo = mockk<(PaymentStatus) -> Unit>(relaxed = true)
         initScreen(
             state =
                 WelcomeUiState(
@@ -114,7 +115,7 @@ class WelcomeScreenTest {
                         accountNumber = null,
                         deviceName = null,
                         showSitePayment = false,
-                        verificationPending = true,
+                        paymentStatus = PaymentStatus.VERIFICATION_IN_PROGRESS,
                     )
                     .toLc(),
             onPlayPaymentInfoClick = mockShowPendingInfo,
@@ -124,7 +125,7 @@ class WelcomeScreenTest {
         onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
 
         // Assert
-        verify(exactly = 1) { mockShowPendingInfo() }
+        verify(exactly = 1) { mockShowPendingInfo(PaymentStatus.VERIFICATION_IN_PROGRESS) }
     }
 
     @Test
@@ -137,7 +138,7 @@ class WelcomeScreenTest {
                         accountNumber = null,
                         deviceName = null,
                         showSitePayment = false,
-                        verificationPending = true,
+                        paymentStatus = PaymentStatus.PENDING,
                     )
                     .toLc()
         )
@@ -159,7 +160,7 @@ class WelcomeScreenTest {
                         accountNumber = null,
                         deviceName = null,
                         showSitePayment = false,
-                        verificationPending = false,
+                        paymentStatus = null,
                     )
                     .toLc(),
             onDisconnectClick = clickHandler,
