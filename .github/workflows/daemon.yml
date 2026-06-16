@@ -5,7 +5,7 @@ on:
     paths:
       - "**"
       - "!**/**.md"
-      - "!.github/workflows/**"
+      - "!.github/**"
       - ".github/workflows/daemon.yml"
       - "!.github/CODEOWNERS"
       - "!android/**"
