@@ -31,14 +31,20 @@ enum SelectLocationFilter: Hashable {
     func labelText(style: LabelStyle) -> LocalizedStringKey {
         switch self {
         case .daita:
-            "Setting: \("DAITA")"
+            switch style {
+            case .general: "Setting: \("DAITA")"
+            case .specific: "DAITA"
+            }
         case .obfuscation(let obfuscationType):
             switch style {
             case .general: "Setting: \("Obfuscation")"
-            case .specific: LocalizedStringKey("Setting: \(obfuscationType.description)")
+            case .specific: LocalizedStringKey(obfuscationType.description)
             }
         case .ipv6:
-            "Setting: \("IPv6")"
+            switch style {
+            case .general: "Setting: \("IPv6")"
+            case .specific: "IPv6"
+            }
         case .owned:
             "Owned"
         case .rented:
