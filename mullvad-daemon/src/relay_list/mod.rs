@@ -21,7 +21,7 @@ use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
-use crate::relay_selector::RelaySelector;
+use crate::relay_selector::RelaySelectorIO;
 
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading
@@ -88,12 +88,12 @@ pub(crate) struct RelayListUpdater {
     bridge_list: BridgeList,
     overrides: Vec<RelayOverride>,
     // The relay selector will only ever see the relay list with IP overrides applied.
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
 }
 
 impl RelayListUpdater {
     pub fn spawn(
-        selector: RelaySelector,
+        selector: RelaySelectorIO,
         api_handle: MullvadRestHandle,
         cache_dir: &Path,
         overrides: Vec<RelayOverride>,
