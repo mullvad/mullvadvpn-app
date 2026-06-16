@@ -17,10 +17,11 @@ use tokio::fs::File;
 use mullvad_api::{
     CachedRelayList, ETag, RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle,
 };
-use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::{BridgeList, RelayList};
 use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
+
+use crate::relay_selector::RelaySelector;
 
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.
 /// This check is very cheap. The only reason to not have it very often is because if downloading

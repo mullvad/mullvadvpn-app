@@ -2,8 +2,9 @@
 
 use mullvad_management_interface::types::relay_selector as proto;
 use mullvad_management_interface::{RelaySelectorService, Request, Response, Status};
-use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_selector::Predicate;
+
+use crate::relay_selector::RelaySelector;
 
 /// The relay selector exposed as a gRPC service. See `relay_selector.proto` for API.
 pub struct RelaySelectorServiceImpl(RelaySelector);
