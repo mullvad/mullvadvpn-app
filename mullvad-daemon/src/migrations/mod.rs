@@ -69,6 +69,9 @@ const SETTINGS_FILE: &str = "settings.json";
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
+    #[error("An error occured")]
+    Other(#[from] anyhow::Error),
+
     #[error("Failed to read the settings")]
     Read(#[source] io::Error),
 
@@ -231,6 +234,7 @@ async fn migrate_settings(
     v14::migrate(settings)?;
     v15::migrate(settings)?;
     v16::migrate(settings)?;
+
     let multihop_split_filter_migration = multihop::migrate(settings)?;
 
     Ok(MigrationData {
