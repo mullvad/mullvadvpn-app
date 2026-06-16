@@ -16,58 +16,24 @@ use crate::{
 };
 
 pub use mullvad_types::relay_list::Relay;
-use mullvad_types::relay_selector::{EntrySpecificConstraints, MultihopConstraints};
+use mullvad_types::relay_selector::MultihopConstraints;
 use mullvad_types::{
     constraints::Constraint,
-    custom_list::CustomListsSettings,
     endpoint::MullvadEndpoint,
     location::Coordinates,
-    relay_constraints::RelaySettings,
     relay_list::{Bridge, BridgeList, RelayList, WireguardRelay},
-    settings::Settings,
 };
 use std::ops::Deref;
 use std::{
     collections::HashMap,
-    sync::{Arc, LazyLock, Mutex, RwLock},
+    sync::{Arc, RwLock},
 };
-use talpid_types::net::{IpAvailability, IpVersion, obfuscation::Obfuscators, proxy::Shadowsocks};
-
-/// [`RETRY_ORDER`] defines an ordered set of entry-relay parameters which the relay selector
-/// should prioritize on successive connection attempts. Note that these will *never* override user
-/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
-///
-/// Each entry is an [`EntrySpecificConstraints`] that specifies only the axes that vary between
-/// retry attempts (`ip_version` and `obfuscation`). All other fields are left as
-/// `Constraint::Any` so that intersecting with the user's entry-specific constraints preserves
-/// them. The user's hop count, exit constraints, allowed_ips, and quantum_resistant settings
-/// are passed through unchanged when merging with the user query via
-/// [`RelayQuery::merge_retry`].
-///
-/// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
-pub static RETRY_ORDER: LazyLock<Vec<EntrySpecificConstraints>> = LazyLock::new(|| {
-    vec![
-        // 1: any wireguard relay
-        EntrySpecificConstraints::default(),
-        // 2: prefer IPv6
-        EntrySpecificConstraints::default().ip_version(IpVersion::V6),
-        // 3: lwo
-        EntrySpecificConstraints::lwo(),
-        // 4: shadowsocks
-        EntrySpecificConstraints::shadowsocks(),
-        // 5: quic
-        EntrySpecificConstraints::quic(),
-        // 6: udp2tcp
-        EntrySpecificConstraints::udp2tcp(),
-        // 7: udp2tcp + IPv6
-        EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
-    ]
-});
+use talpid_types::net::{obfuscation::Obfuscators, proxy::Shadowsocks};
 
 /// A [`RelayList`] together with pre-computed [`endpoint_set::RelayEndpointSet`]s for every
 /// relay. Both are stored under the same [`RwLock`] in [`RelaySelector`] so that the cache
 /// is always consistent with the list.
-struct AnnotatedRelayList {
+pub struct AnnotatedRelayList {
     inner: RelayList,
     /// Maps relay hostname → pre-computed endpoint set.
     /// Relays whose WireGuard port ranges are empty are absent from this map.
@@ -75,7 +41,7 @@ struct AnnotatedRelayList {
 }
 
 impl AnnotatedRelayList {
-    fn new(list: RelayList) -> Self {
+    pub fn new(list: RelayList) -> Self {
         let endpoint_sets = list
             .relays()
             .map(|relay| {
@@ -97,44 +63,13 @@ impl AnnotatedRelayList {
 
 #[derive(Clone)]
 pub struct RelaySelector {
-    config: Arc<Mutex<Config>>,
     // Relays are updated very infrequently, but might conceivably be accessed by multiple readers at
     // the same time.
-    relays: Arc<RwLock<AnnotatedRelayList>>,
-    bridges: Arc<RwLock<BridgeList>>,
+    pub relays: Arc<RwLock<AnnotatedRelayList>>,
+    pub bridges: Arc<RwLock<BridgeList>>,
 }
 
-/// Relay selector configuration. This datastructure keeps the relay selector in sync with
-/// mullvad-daemon.
-///
-/// Carries the pre-computed [`RelayQuery`] derived from the user's settings together with the
-/// custom lists needed for location filtering. When the user has configured a custom tunnel
-/// endpoint the relay selector is never queried, so a dormant default config is used.
-#[derive(Debug, Clone, Default)]
-struct Config {
-    query: RelayQuery,
-    custom_lists: CustomListsSettings,
-}
-
-impl From<&Settings> for Config {
-    fn from(settings: &Settings) -> Self {
-        Config {
-            query: RelayQuery::from(settings),
-            custom_lists: settings.custom_lists.clone(),
-        }
-    }
-}
-
-impl From<RelayQuery> for Config {
-    fn from(query: RelayQuery) -> Self {
-        Config {
-            query,
-            custom_lists: CustomListsSettings::default(),
-        }
-    }
-}
-
-/// The return type of [`RelaySelector::get_relay`].
+/// The return type of [`RelaySelector::get_relay_by_query`].
 #[derive(Clone, Debug)]
 pub struct GetRelay {
     pub endpoint: MullvadEndpoint,
@@ -142,43 +77,12 @@ pub struct GetRelay {
     pub inner: WireguardConfig,
 }
 
-impl TryFrom<Settings> for RelayQuery {
-    type Error = crate::Error;
-
-    fn try_from(value: Settings) -> Result<Self, Self::Error> {
-        match &value.relay_settings {
-            RelaySettings::Normal(_) => Ok(RelayQuery::from(&value)),
-            RelaySettings::CustomTunnelEndpoint(_) => Err(Error::InvalidConstraints),
-        }
-    }
-}
-
 impl RelaySelector {
-    /// Create a new `RelaySelector` from a set of relays and bridges.
-    pub fn from_query(query: RelayQuery, relays: RelayList, bridges: BridgeList) -> Self {
+    pub fn new(relays: RelayList, bridges: BridgeList) -> Self {
         RelaySelector {
-            config: Arc::new(Mutex::new(Config::from(query))),
             relays: Arc::new(RwLock::new(AnnotatedRelayList::new(relays))),
             bridges: Arc::new(RwLock::new(bridges)),
         }
-    }
-
-    pub fn from_settings(config: &Settings, relays: RelayList, bridges: BridgeList) -> Self {
-        RelaySelector {
-            config: Arc::new(Mutex::new(Config::from(config))),
-            relays: Arc::new(RwLock::new(AnnotatedRelayList::new(relays))),
-            bridges: Arc::new(RwLock::new(bridges)),
-        }
-    }
-
-    /// Update the relay selector config.
-    pub fn set_config(&self, settings: &Settings) {
-        *self.config.lock().unwrap() = Config::from(settings);
-    }
-
-    /// Update only the custom list settings used for location filtering.
-    pub fn set_custom_lists(&self, custom_lists: CustomListsSettings) {
-        self.config.lock().unwrap().custom_lists = custom_lists;
     }
 
     /// Peek the relay list.
@@ -190,10 +94,6 @@ impl RelaySelector {
     pub fn bridge_list<T>(&self, f: impl Fn(&BridgeList) -> T) -> T {
         let bridges = &self.bridges.read().unwrap();
         f(bridges)
-    }
-
-    fn custom_lists(&self) -> CustomListsSettings {
-        self.config.lock().unwrap().custom_lists.clone()
     }
 
     /// Update the list of relays
@@ -228,58 +128,14 @@ impl RelaySelector {
             .ok()
     }
 
-    /// Returns a random relay and relay endpoint matching the current constraints corresponding to
-    /// `retry_attempt` in one of the retry orders while considering the [`Config`].
-    pub fn get_relay(
-        &self,
-        retry_attempt: usize,
-        runtime_ip_availability: IpAvailability,
-    ) -> Result<GetRelay, Error> {
-        self.get_relay_with_custom_params(retry_attempt, &RETRY_ORDER, runtime_ip_availability)
-    }
-
-    /// Returns a random relay and relay endpoint matching the current constraints defined by
-    /// `retry_order` corresponding to `retry_attempt`.
-    pub fn get_relay_with_custom_params(
-        &self,
-        retry_attempt: usize,
-        retry_order: &[EntrySpecificConstraints],
-        runtime_ip_availability: IpAvailability,
-    ) -> Result<GetRelay, Error> {
-        let mut user_query = self.config.lock().unwrap().query.clone();
-
-        // Runtime parameters may shrink the set of usable IP versions — apply that *before*
-        // merging with retry_order so an IPv6-only retry attempt is correctly rejected when only
-        // IPv4 is available.
-        user_query.apply_ip_availability(runtime_ip_availability)?;
-        log::trace!("Merging user preferences {user_query:?} with default retry strategy");
-
-        // Select a relay using the user's preferences merged with the nth compatible retry entry,
-        // looping back to the start if necessary.
-        let maybe_relay = retry_order
-            .iter()
-            .filter_map(|retry| user_query.clone().merge_retry(retry.clone()))
-            .filter_map(|query| self.get_relay_by_query(query).ok())
-            .cycle()
-            .nth(retry_attempt);
-
-        match maybe_relay {
-            Some(v) => Ok(v),
-            // If no retry merged with `user_query` yields a relay, fall back to the user's
-            // preferences alone.
-            None => self.get_relay_by_query(user_query),
-        }
-    }
-
     /// Returns random relay and relay endpoint matching `query`.
     /// Note that this does not take custom config into consideration.
     pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
         let annotated = self.relays.read().unwrap();
-        let custom_lists = self.custom_lists();
 
-        let inner = select_wireguard_relay(&annotated, &custom_lists, &query)?;
+        let inner = select_wireguard_relay(&annotated, &query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -312,19 +168,18 @@ impl RelaySelector {
 /// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.
 fn select_wireguard_relay(
     relays: &AnnotatedRelayList,
-    custom_lists: &CustomListsSettings,
     query: &RelayQuery,
 ) -> Result<WireguardConfig, Error> {
     match &query.hops {
         Hops::Single(constraints) => {
-            let partitions = filter::partition_entry(relays, constraints, custom_lists);
+            let partitions = filter::partition_entry(relays, constraints);
             match helpers::pick_random_relay(&partitions.matches) {
                 Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
                 None => Err(Error::NoRelay(Box::new(query.clone()))),
             }
         }
         Hops::Auto(constraints) => {
-            let autohop = filter::partition_autohop(relays, constraints.clone(), custom_lists);
+            let autohop = filter::partition_autohop(relays, constraints.clone());
             // Attempt to pick a single relay that matches all constraints
             if let Some(exit) = helpers::pick_random_relay(&autohop.singlehop.matches) {
                 return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
@@ -334,7 +189,7 @@ fn select_wireguard_relay(
             select_from_multihop_partitions(autohop.multihop, multihop_constraints)
         }
         Hops::Multi(constraints) => {
-            let partitions = filter::partition_multihop(relays, constraints, custom_lists);
+            let partitions = filter::partition_multihop(relays, constraints);
             select_from_multihop_partitions(partitions, constraints.clone())
         }
     }

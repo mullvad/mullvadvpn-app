@@ -11,7 +11,7 @@ use serde_json::{Value, json};
 /// Perform the migration on a settings blob.
 pub(crate) fn migration(settings: &mut Value) -> Result<Scenario, Error> {
     // Parse the current settings blob to a structured format.
-    let input = v17::Settings::parse(settings.clone())?;
+    let mut input = v17::Settings::parse(settings.clone())?.check_magic_mulithop()?;
     // Detect which scenario the migration led to.
     let scenario = detect(&input);
     // Run the actual migration
