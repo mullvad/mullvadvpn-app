@@ -60,6 +60,8 @@ impl IosTunDevice {
             return Err(io::Error::last_os_error());
         }
 
+        // SAFETY: `dup_fd` is a valid open fd we just obtained from `dup`; `F_GETFL`
+        // reads the descriptor flags and takes no further argument.
         let flags = unsafe { libc::fcntl(dup_fd, libc::F_GETFL) };
         if flags < 0 {
             let err = io::Error::last_os_error();
