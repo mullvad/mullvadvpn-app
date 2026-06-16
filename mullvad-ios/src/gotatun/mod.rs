@@ -1,3 +1,5 @@
+pub mod connection_tracker;
+pub mod ip_mux;
 pub mod smoltcp_network;
 
 /// Minimal IPv4 TCP packet with the given addresses, ports, and flags.
