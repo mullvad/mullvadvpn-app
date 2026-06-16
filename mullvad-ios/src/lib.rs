@@ -2,6 +2,7 @@
 #![allow(clippy::undocumented_unsafe_blocks)]
 
 mod gotatun;
+mod tunnel_adapter;
 
 #[cfg(target_os = "ios")]
 mod api_client;
