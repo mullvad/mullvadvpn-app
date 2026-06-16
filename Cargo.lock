@@ -3239,6 +3239,7 @@ dependencies = [
  "mullvad-encrypted-dns-proxy",
  "mullvad-logging",
  "mullvad-types",
+ "nix 0.31.3",
  "rand 0.9.4",
  "regex",
  "shadowsocks",

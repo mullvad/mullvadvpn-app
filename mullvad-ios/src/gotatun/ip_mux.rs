@@ -76,25 +76,18 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
             result = self.primary.recv(pool) => return result.map(Either::Left),
         };
 
-        match result {
-            RecvResult::Primary(result) => result.map(|iter| {
-                let packets: Vec<_> = iter.collect();
-                MuxIter(packets.into_iter())
-            }),
-            RecvResult::Secondary(result) => {
-                let iter = result?;
-                let packets: Vec<_> = iter.collect();
-                for pkt in &packets {
-                    if let Some(event) = outbound_event((*pkt).as_bytes()) {
-                        if self.events_tx.try_send(event).is_err() {
-                            log::warn!(
-                                "ip_mux: connection-tracker event channel full or closed, \
-                                 dropping event"
-                            );
-                        }
-                    }
-                }
-                Ok(MuxIter(packets.into_iter()))
+        let packets: Vec<_> = result?.collect();
+        for pkt in &packets {
+            if let Some(event) = outbound_conntrack_event(pkt)
+                && self.conntrack_event_tx.send(event).await.is_err()
+            {
+                // TODO: consider using tokio::watch to synchronize the routing table between the
+                // IpRecv and IpSend here - that would solve the overflow issue.
+                // https://github.com/mullvad/gotatun/commit/039f7e504f74ed39b8e7c1fb36d62637878baa40#diff-23c351a6e03b5cf70d38450a5838f719e489e4af36f6c062054c03c7555a692fR49-R72
+                log::warn!(
+                    "ip_mux: connection-tracker event channel full or closed, \
+                         dropping event"
+                );
             }
         }
         Ok(Either::Right(packets.into_iter()))
