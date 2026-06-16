@@ -16,6 +16,9 @@ fn parse_cstr(ptr: *const c_char) -> Option<String> {
         log::error!("gotatun FFI: received null C string pointer");
         return None;
     }
+    // SAFETY: `ptr` is non-null (checked above). Every caller is an FFI entry point
+    // whose `# Safety` contract requires `ptr` to be either null or a valid
+    // null-terminated C string, so it points to a readable `CStr` here.
     unsafe { CStr::from_ptr(ptr) }
         .to_str()
         .ok()
