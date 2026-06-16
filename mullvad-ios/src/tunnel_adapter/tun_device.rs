@@ -146,6 +146,9 @@ impl IpRecv for IosTunDevice {
         loop {
             let mut guard = self.async_fd.readable().await?;
             match guard.try_io(|_| {
+                // SAFETY: `self.fd` stays open for the lifetime of `self` (see above).
+                // `raw_buf` is a live, mutable allocation of `raw_buf.len()` bytes, so
+                // the pointer/length pair is valid for `read` to write into.
                 let ret =
                     unsafe { libc::read(self.fd, raw_buf.as_mut_ptr().cast(), raw_buf.len()) };
                 if ret < 0 {
