@@ -523,6 +523,7 @@ async fn create_devices(
             optimize_buffer_size,
             #[cfg(target_os = "android")]
             android_tun,
+            // tun_dev.mtu().get() // TODO: We need to pass the outer MTU, is this it?
         );
         let devices = if let Some(exit_peer) = &config.exit_peer {
             // Multihop setup
