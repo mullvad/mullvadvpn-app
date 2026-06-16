@@ -5,7 +5,8 @@ on:
     paths:
       - "**"
       - "!**/**.md"
-      - "!.github/workflows/**"
+      - "!.github/**"
+      - ".github/actions/mullvad-build-env"
       - ".github/workflows/daemon.yml"
       - "!.github/CODEOWNERS"
       - "!android/**"
