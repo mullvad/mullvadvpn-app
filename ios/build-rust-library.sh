@@ -46,10 +46,28 @@ if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
   TARGET=aarch64-apple-ios-sim
 fi
 
+# Optimize the WireGuard data-path / crypto hot loop even in debug builds.
+# Unoptimized ChaCha20-Poly1305 (via `ring`) caps tunnel decrypt throughput,
+# which starves the receive path and inflates loaded latency on-device.
+#
+# Scoped to this iOS build only (this script builds nothing else) via per-package
+# `--config` overrides, so host/desktop builds are untouched and iteration stays
+# fast (only these few crates are optimized). Deliberately excludes the
+# `mullvad-ios` FFI crate itself: optimizing it dead-strips `#[no_mangle]`
+# exports and breaks linking against the Swift side. Released builds already get
+# these opt-levels via `[profile.release.package]` in the workspace Cargo.toml.
+OPT_CONFIG=(
+    --config 'profile.dev.package.gotatun.opt-level=3'
+    --config 'profile.dev.package.ring.opt-level=3'
+    --config 'profile.dev.package.chacha20poly1305.opt-level=3'
+    --config 'profile.dev.package.chacha20.opt-level=3'
+    --config 'profile.dev.package.poly1305.opt-level=3'
+)
+
 for arch in $ARCHS; do
     case "$arch" in
         arm64)
-            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
+            "$HOME"/.cargo/bin/cargo build $LOCKEDFLAG "${OPT_CONFIG[@]}" -p "$FFI_TARGET" --lib $RELFLAG --target $TARGET ${FEATURE_FLAGS:+--features "$FEATURE_FLAGS"}
             ;;
     esac
 done
