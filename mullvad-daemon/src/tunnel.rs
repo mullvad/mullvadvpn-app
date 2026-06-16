@@ -4,7 +4,7 @@ use std::{future::Future, net::IpAddr, pin::Pin, sync::Arc};
 use talpid_types::net::wireguard::TunnelParameters;
 use tokio::sync::Mutex;
 
-use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadEndpoint,
     location::GeoIpLocation,
@@ -17,6 +17,7 @@ use talpid_types::net::{obfuscation::Obfuscators, wireguard};
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
+use crate::relay_selector::RelaySelectorIO;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -37,7 +38,7 @@ pub enum Error {
 pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 
 struct InnerParametersGenerator {
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_settings: RelaySettings,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
@@ -49,7 +50,7 @@ impl ParametersGenerator {
     /// Constructs a new tunnel parameters generator.
     pub fn new(
         account_manager: AccountManagerHandle,
-        relay_selector: RelaySelector,
+        relay_selector: RelaySelectorIO,
         relay_settings: RelaySettings,
         tunnel_options: TunnelOptions,
     ) -> Self {
@@ -71,7 +72,7 @@ impl ParametersGenerator {
     pub async fn set_settings(&self, settings: Settings) {
         let mut inner = self.0.lock().await;
         inner.relay_settings = settings.relay_settings.clone();
-        inner.relay_selector.set_config(&settings);
+        inner.relay_selector.set_config(settings);
     }
 
     pub async fn last_relay_was_overridden(&self) -> bool {
