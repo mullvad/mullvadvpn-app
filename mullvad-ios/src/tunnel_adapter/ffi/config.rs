@@ -162,6 +162,9 @@ pub unsafe extern "C" fn gotatun_config_enable_pq(config: *mut GotaTunConfigHand
 /// - `config` must be a valid pointer from `gotatun_config_new`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn gotatun_config_enable_daita(config: *mut GotaTunConfigHandle) {
+    // SAFETY: per this function's `# Safety` contract, `config` is either null (then
+    // `as_mut` yields `None`) or a valid, uniquely-owned pointer from
+    // `gotatun_config_new`, so taking a mutable reference for this call is sound.
     if let Some(config) = unsafe { config.as_mut() } {
         config.enable_daita = true;
     }
