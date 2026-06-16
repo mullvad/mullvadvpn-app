@@ -65,8 +65,8 @@ fn smoltcp_now(reference: &StdInstant) -> SmoltcpInstant {
 fn to_smoltcp_endpoint(addr: SocketAddr) -> IpEndpoint {
     IpEndpoint {
         addr: match addr {
-            SocketAddr::V4(v4) => IpAddress::Ipv4((*v4.ip())),
-            SocketAddr::V6(v6) => IpAddress::Ipv6((*v6.ip())),
+            SocketAddr::V4(v4) => IpAddress::Ipv4(*v4.ip()),
+            SocketAddr::V6(v6) => IpAddress::Ipv6(*v6.ip()),
         },
         port: addr.port(),
     }
