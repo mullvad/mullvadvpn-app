@@ -790,7 +790,7 @@ impl IosTunnelAdapter {
                     .ok()
                     .and_then(|mut guard| guard.take())
                     .ok_or_else(|| {
-                        io::Error::new(io::ErrorKind::Other, "connector stream unavailable")
+                        io::Error::other("connector stream unavailable")
                     });
                 async move {
                     Ok::<_, io::Error>(hyper_util::rt::tokio::TokioIo::new(stream?))
