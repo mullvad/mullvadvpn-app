@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useDialogContext } from '../../../DialogContext';
+import { usePopupContext } from '../PopupContext';
 
 export function useHandleClose() {
-  const { open, onOpenChange } = useDialogContext();
+  const { open, onOpenChange } = usePopupContext();
 
   return React.useCallback(() => {
     if (!open) return;

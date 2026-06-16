@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { useDialogContext } from '../../../DialogContext';
+import { usePopupContext } from '../PopupContext';
 
 export const useHandleAnimationEnd = () => {
-  const { setMounted, open } = useDialogContext();
+  const { setMounted, open } = usePopupContext();
 
   // We conditionally render based on mounted, which needs to be set
   // after animation finished to not cut closing animation short.
