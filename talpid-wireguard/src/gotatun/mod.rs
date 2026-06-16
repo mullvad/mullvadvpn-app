@@ -424,7 +424,7 @@ async fn configure_devices(
         );
 
         let private_key = StaticSecret::from(config.tunnel.private_key.to_bytes());
-        let exit_peer = to_gotatun_peer(exit_peer, daita);
+        let exit_peer = to_gotatun_peer(exit_peer, None);
 
         match devices {
             Devices::Multihop {
