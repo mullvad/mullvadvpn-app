@@ -117,14 +117,13 @@ impl<P: IpRecv, S: IpRecv> IpRecv for IpMuxRecv<P, S> {
                 let iter = result?;
                 let packets: Vec<_> = iter.collect();
                 for pkt in &packets {
-                    if let Some(event) = outbound_event((*pkt).as_bytes()) {
-                        if self.events_tx.try_send(event).is_err() {
+                    if let Some(event) = outbound_event((*pkt).as_bytes())
+                        && self.events_tx.try_send(event).is_err() {
                             log::warn!(
                                 "ip_mux: connection-tracker event channel full or closed, \
                                  dropping event"
                             );
                         }
-                    }
                 }
                 Ok(MuxIter(packets.into_iter()))
             }

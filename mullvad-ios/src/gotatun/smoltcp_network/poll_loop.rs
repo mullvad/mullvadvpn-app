@@ -65,8 +65,8 @@ fn smoltcp_now(reference: &StdInstant) -> SmoltcpInstant {
 fn to_smoltcp_endpoint(addr: SocketAddr) -> IpEndpoint {
     IpEndpoint {
         addr: match addr {
-            SocketAddr::V4(v4) => IpAddress::Ipv4((*v4.ip()).into()),
-            SocketAddr::V6(v6) => IpAddress::Ipv6((*v6.ip()).into()),
+            SocketAddr::V4(v4) => IpAddress::Ipv4((*v4.ip())),
+            SocketAddr::V6(v6) => IpAddress::Ipv6((*v6.ip())),
         },
         port: addr.port(),
     }
@@ -138,11 +138,11 @@ impl SmoltcpStack {
 
         iface.update_ip_addrs(|addrs| {
             addrs
-                .push(IpCidr::new(IpAddress::Ipv4(config.ipv4_addr.into()), 32))
+                .push(IpCidr::new(IpAddress::Ipv4(config.ipv4_addr), 32))
                 .expect("enough space for IPv4 address");
             if let Some(v6) = config.ipv6_addr {
                 addrs
-                    .push(IpCidr::new(IpAddress::Ipv6(v6.into()), 128))
+                    .push(IpCidr::new(IpAddress::Ipv6(v6), 128))
                     .expect("enough space for IPv6 address");
             }
         });
@@ -173,7 +173,7 @@ impl SmoltcpStack {
     fn poll_delay(&mut self, now: SmoltcpInstant) -> Duration {
         self.iface
             .poll_delay(now, &self.sockets)
-            .map(|d| Duration::from_millis(d.total_millis() as u64))
+            .map(|d| Duration::from_millis(d.total_millis()))
             .unwrap_or(Duration::from_millis(100))
     }
 

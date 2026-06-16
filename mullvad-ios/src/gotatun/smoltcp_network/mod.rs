@@ -192,7 +192,7 @@ pub struct SmoltcpIpSend {
 impl IpSend for SmoltcpIpSend {
     async fn send(&mut self, packet: Packet<Ip>) -> io::Result<()> {
         let raw: Packet<[u8]> = packet.into_bytes();
-        let bytes: &[u8] = &*raw;
+        let bytes: &[u8] = &raw;
         self.tx
             .send(bytes.to_vec())
             .await
