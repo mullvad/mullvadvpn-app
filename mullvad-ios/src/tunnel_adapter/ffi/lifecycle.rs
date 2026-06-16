@@ -122,6 +122,9 @@ pub unsafe extern "C" fn gotatun_stop_tunnel(handle: *mut GotaTunHandle) {
 /// - `handle` must be a valid pointer from `gotatun_start_tunnel`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn gotatun_recycle_sockets(handle: *mut GotaTunHandle) {
+    // SAFETY: per this function's `# Safety` contract, `handle` is either null (then
+    // `as_ref` yields `None`) or a valid pointer from `gotatun_start_tunnel` that
+    // outlives this call, so taking a shared reference is sound.
     if let Some(handle) = unsafe { handle.as_ref() } {
         handle.adapter.recycle_udp_sockets();
     }
