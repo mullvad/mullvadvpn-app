@@ -240,20 +240,18 @@ async fn create_daemon(
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
-    Daemon::start(
-        DaemonConfig {
-            log_dir,
-            resource_dir,
-            settings_dir,
-            cache_dir,
-            rpc_socket_path,
-            endpoint: mullvad_api::ApiEndpoint::from_env_vars(),
-            log_handle,
-        },
-        DaemonCommandChannel::new(),
-    )
-    .await
-    .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
+    let config = DaemonConfig {
+        log_dir,
+        resource_dir,
+        settings_dir,
+        cache_dir,
+        rpc_socket_path,
+        endpoint: mullvad_api::ApiEndpoint::from_env_vars(),
+        log_handle,
+    };
+    Daemon::start(config, DaemonCommandChannel::new())
+        .await
+        .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
 #[cfg(unix)]
