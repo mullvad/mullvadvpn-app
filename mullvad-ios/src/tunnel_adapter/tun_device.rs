@@ -119,6 +119,9 @@ impl IpSend for IosTunDevice {
         loop {
             let mut guard = self.async_fd.writable().await?;
             match guard.try_io(|_| {
+                // SAFETY: `self.fd` stays open for the lifetime of `self` (closed only
+                // when the last clone drops, via `FdCloseGuard`). `buf` is a live slice
+                // of `buf.len()` bytes, so the pointer/length pair is valid to read.
                 let ret = unsafe { libc::write(self.fd, buf.as_ptr().cast(), buf.len()) };
                 if ret < 0 {
                     Err(io::Error::last_os_error())
