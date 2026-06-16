@@ -27,6 +27,8 @@ pub struct GotaTunCallbacks {
 // pointers. The Swift side guarantees the context is safe to send to another thread
 // and keeps it alive until `gotatun_stop_tunnel`.
 unsafe impl Send for GotaTunCallbacks {}
+// SAFETY: as above — the Swift side guarantees the context and callbacks are safe to
+// invoke concurrently from multiple threads.
 unsafe impl Sync for GotaTunCallbacks {}
 
 impl TunnelCallbackHandler for GotaTunCallbacks {
