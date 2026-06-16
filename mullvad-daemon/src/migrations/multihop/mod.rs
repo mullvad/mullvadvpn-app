@@ -3,7 +3,6 @@
 //! In this migration the new Multihop tri-state is introduced (Auto, Never & Always) superceeding
 //! the previous boolean value. It also deprecates the old "direct only" setting from DAITA, and
 //! it's inverse ('automatic multihop') has been superceeded by the new Auto option for Multihop.
-#![allow(unused)] // TODO: Remove before merging to main.
 
 use super::Result;
 use super::multihop::scenario::Scenario;
