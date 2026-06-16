@@ -65,6 +65,8 @@ impl IosTunDevice {
         let flags = unsafe { libc::fcntl(dup_fd, libc::F_GETFL) };
         if flags < 0 {
             let err = io::Error::last_os_error();
+            // SAFETY: `dup_fd` is the valid fd from `dup` above and is still open; we
+            // close it exactly once on this error path before returning.
             unsafe { libc::close(dup_fd) };
             return Err(err);
         }
