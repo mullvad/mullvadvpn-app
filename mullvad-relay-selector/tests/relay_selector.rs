@@ -9,7 +9,7 @@ use std::{
 use talpid_types::net::{
     IpVersion,
     TransportProtocol::{Tcp, Udp},
-    obfuscation::{ObfuscatorConfig, Obfuscators},
+    obfuscation::{LwoVersion, ObfuscatorConfig, Obfuscators},
     proxy::ShadowsocksCipher,
     wireguard::PublicKey,
 };
@@ -600,6 +600,44 @@ mod relay_selection {
             obfuscator,
             Obfuscators::Single(ObfuscatorConfig::Lwo { .. }),
         )));
+    }
+
+    /// The LWO version a relay advertises is the one the obfuscator is configured with.
+    ///
+    /// Picking between versions a relay supports happens when the relay list is parsed, so see
+    /// `mullvad_api::relay_list` for that.
+    #[test]
+    fn test_lwo_version_is_propagated() {
+        for expected in [LwoVersion::V1, LwoVersion::V2] {
+            let mut relay_list = RelayListBuilder::new();
+            let relay = relay_list.add_relay("lwo");
+            relay.endpoint_data.lwo = Some(expected);
+            let relay_selector = RelaySelector::from(relay_list);
+
+            let query = RelayQueryBuilder::new().lwo().build();
+            let selected = relay_selector.get_relay_by_query(query);
+
+            match selected {
+                Ok(relay) => assert_matches!(
+                    relay.obfuscator,
+                    Some(Obfuscators::Single(ObfuscatorConfig::Lwo { version, .. }))
+                        if version == expected,
+                    "expected LWO {expected:?}, got {:?}",
+                    relay.obfuscator,
+                ),
+                selected => panic!(
+                    "expected {expected:?}, got {:?}",
+                    selected.map(|r| r.obfuscator),
+                ),
+            }
+        }
+
+        let mut relay_list = RelayListBuilder::new();
+        relay_list.add_relay("no_lwo");
+        let relay_selector = RelaySelector::from(relay_list);
+        let query = RelayQueryBuilder::new().lwo().build();
+        let selected = relay_selector.get_relay_by_query(query);
+        selected.unwrap_err();
     }
 
     /// Ignore extra IPv4 addresses when overrides are set
@@ -1314,7 +1352,7 @@ mod partition_relays {
         let mut relay_list = RelayListBuilder::new();
         relay_list.add_relay("basic");
         relay_list.add_relay("basic_ipv6").ipv6_addr_in = Some(Ipv6Addr::UNSPECIFIED);
-        relay_list.add_relay("lwo").endpoint_data.lwo = true;
+        relay_list.add_relay("lwo").endpoint_data.lwo = Some(LwoVersion::V2);
         relay_list.add_relay("quic_ipv4").endpoint_data.quic = Some(Quic::new(
             vec1![Ipv4Addr::UNSPECIFIED.into()],
             String::new(),
