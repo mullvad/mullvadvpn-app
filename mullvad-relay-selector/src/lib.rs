@@ -1,5 +1,4 @@
-//! When changing relay selection, please verify if `docs/relay-selector.md` needs to be
-//! updated as well.
+//! The relay selector picks one or more relays for any Mullvad VPN config.
 #![allow(rustdoc::private_intra_doc_links)]
 mod error;
 mod relay_selector;
@@ -11,6 +10,5 @@ pub use mullvad_types::relay_selector::{
     Reason, RelayPartitions,
 };
 pub use relay_selector::{
-    GetRelay, RETRY_ORDER, Relay, RelaySelector, detailer, endpoint_set, query,
-    relays::WireguardConfig,
+    GetRelay, Relay, RelaySelector, detailer, endpoint_set, query, relays::WireguardConfig,
 };
