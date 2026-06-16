@@ -4,7 +4,7 @@ use std::net::SocketAddr;
 use crate::DaemonCommand;
 #[cfg(target_os = "android")]
 use crate::DaemonEventSender;
-use crate::relay_selector::RelaySelector;
+use crate::relay_selector::RelaySelectorIO;
 use futures::{StreamExt, channel::mpsc};
 use mullvad_api::AddressCache;
 use mullvad_api::FileAddressCacheBacking;
@@ -24,14 +24,14 @@ use talpid_types::net::TransportProtocol;
 use talpid_types::net::{AllowedClients, Connectivity, proxy::CustomProxy};
 
 pub struct DaemonAccessMethodResolver {
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     encrypted_dns_proxy_cache: EncryptedDnsProxyState,
     address_cache: AddressCache<FileAddressCacheBacking>,
 }
 
 impl DaemonAccessMethodResolver {
     pub fn new(
-        relay_selector: RelaySelector,
+        relay_selector: RelaySelectorIO,
         encrypted_dns_proxy_cache: EncryptedDnsProxyState,
         address_cache: AddressCache<FileAddressCacheBacking>,
     ) -> Self {

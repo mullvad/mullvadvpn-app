@@ -17,12 +17,10 @@ pub use mullvad_types::relay_constraints::{
 use mullvad_types::{
     Intersection,
     constraints::Constraint,
-    relay_constraints::{
-        AllowedIps, Multihop, ObfuscationSettings, RelayConstraints, RelaySettings,
-        WireguardConstraints,
-    },
+    relay_constraints::{AllowedIps, Multihop, RelaySettings},
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
+        ResolvedLocationConstraint,
     },
     settings::Settings,
     wireguard::QuantumResistantState,
@@ -161,7 +159,10 @@ impl From<Settings> for RelayQuery {
             ip_version: wg.ip_version,
         };
         let exit = ExitConstraints {
-            location: relay_settings.location,
+            location: ResolvedLocationConstraint::from_constraint(
+                relay_settings.location,
+                &settings.custom_lists,
+            ),
             providers: relay_settings.providers,
             ownership: relay_settings.ownership,
         };
@@ -179,7 +180,10 @@ impl From<Settings> for RelayQuery {
             entry: EntryConstraints {
                 entry_specific,
                 general: ExitConstraints {
-                    location: wg.entry_location.clone(),
+                    location: ResolvedLocationConstraint::from_constraint(
+                        wg.entry_location.clone(),
+                        &settings.custom_lists,
+                    ),
                     providers: wg.entry_providers.clone(),
                     ownership: wg.entry_ownership,
                 },
@@ -199,73 +203,6 @@ impl From<Settings> for RelayQuery {
             quantum_resistant: Constraint::Only(
                 settings.tunnel_options.wireguard.quantum_resistant,
             ),
-        }
-    }
-}
-
-impl RelayQuery {
-    /// Convert the query into RelayConstraints and ObfuscationSettings.
-    /// Currently only used by the e2e tests via gRPC.
-    pub fn into_settings(self) -> (RelayConstraints, ObfuscationSettings) {
-        let RelayQuery {
-            hops,
-            allowed_ips,
-            quantum_resistant: _,
-        } = self;
-
-        match hops {
-            Hops::Single(entry) => {
-                let constraints = RelayConstraints {
-                    location: entry.general.location,
-                    providers: entry.general.providers,
-                    ownership: entry.general.ownership,
-                    wireguard_constraints: WireguardConstraints {
-                        ip_version: entry.entry_specific.ip_version,
-                        allowed_ips,
-                        multihop: Multihop::Never,
-                        entry_location: Constraint::Any,
-                        entry_providers: Constraint::Any,
-                        entry_ownership: Constraint::Any,
-                    },
-                };
-                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
-                (constraints, obfuscation)
-            }
-            Hops::Auto(entry) => {
-                let constraints = RelayConstraints {
-                    location: entry.general.location,
-                    providers: entry.general.providers,
-                    ownership: entry.general.ownership,
-                    wireguard_constraints: WireguardConstraints {
-                        ip_version: entry.entry_specific.ip_version,
-                        allowed_ips,
-                        multihop: Multihop::Auto,
-                        entry_location: Constraint::Any,
-                        entry_providers: Constraint::Any,
-                        entry_ownership: Constraint::Any,
-                    },
-                };
-                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
-                (constraints, obfuscation)
-            }
-            Hops::Multi(MultihopConstraints { entry, exit }) => {
-                let constraints = RelayConstraints {
-                    location: exit.location,
-                    providers: exit.providers,
-                    ownership: exit.ownership,
-                    wireguard_constraints: WireguardConstraints {
-                        ip_version: entry.entry_specific.ip_version,
-                        allowed_ips,
-                        // TODO: Check which variant is true here.
-                        multihop: Multihop::Always,
-                        entry_location: entry.general.location,
-                        entry_providers: entry.general.providers,
-                        entry_ownership: entry.general.ownership,
-                    },
-                };
-                let obfuscation = obfuscation_to_settings(entry.entry_specific.obfuscation);
-                (constraints, obfuscation)
-            }
         }
     }
 }
@@ -297,6 +234,7 @@ pub mod builder {
         },
         relay_selector::{
             EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
+            ResolvedLocationConstraint,
         },
         wireguard::QuantumResistantState,
     };
@@ -370,8 +308,11 @@ pub mod builder {
     impl<Multihop, Obfuscation> RelayQueryBuilder<Multihop, Obfuscation> {
         /// Configure the exit relay's location. (For singlehop/autohop, the exit is
         /// the only relay; for multihop, the exit is the second hop.)
-        pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
-            self.exit.location = Constraint::Only(location.into());
+        pub fn location(
+            mut self,
+            location: impl Into<Constraint<ResolvedLocationConstraint>>,
+        ) -> Self {
+            self.exit.location = location.into();
             self
         }
 
@@ -457,7 +398,7 @@ pub mod builder {
 
     // `.entry_*` only available after `.multihop()`.
     impl<Obfuscation> RelayQueryBuilder<bool, Obfuscation> {
-        pub fn entry(mut self, location: impl Into<LocationConstraint>) -> Self {
+        pub fn entry(mut self, location: impl Into<ResolvedLocationConstraint>) -> Self {
             self.multihop_entry.location = Constraint::Only(location.into());
             self
         }
