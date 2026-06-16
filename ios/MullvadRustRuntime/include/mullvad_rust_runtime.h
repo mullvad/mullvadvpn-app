@@ -6,6 +6,11 @@
 #include <stdlib.h>
 
 /**
+ * WireGuard overhead. Size of UDP header, plus header and footer of a WireGuard data packet.
+ */
+#define WIREGUARD_OVERHEAD (8 + 32)
+
+/**
  * Used by Swift to instruct which access method kind it is trying to convert
  */
 enum SwiftAccessMethodKind {
@@ -259,8 +264,8 @@ void *convert_builtin_access_method_setting(const char *unique_identifier,
  *
  * # SAFETY
  * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
- * resulting from a call to `convert_builtin_access_method_setting`
- * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
+ * resulting from a call to `convert_builtin_access_method_setting`.
+ * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`.
  */
 struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(void *direct_method_raw,
                                                                             void *bridges_method_raw,
