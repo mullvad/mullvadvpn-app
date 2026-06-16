@@ -39,6 +39,8 @@ impl TunnelCallbackHandler for GotaTunCallbacks {
     }
 
     fn on_timeout(&self) {
+        // SAFETY: `on_timeout` is a valid Swift function pointer and `context` is valid
+        // for the tunnel's lifetime (upheld by `gotatun_start_tunnel`).
         unsafe { (self.on_timeout)(self.context) };
     }
 
