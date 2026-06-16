@@ -266,6 +266,9 @@ pub unsafe extern "C" fn gotatun_config_set_establish_timeout(
     config: *mut GotaTunConfigHandle,
     timeout_secs: u32,
 ) {
+    // SAFETY: per this function's `# Safety` contract, `config` is either null (then
+    // `as_mut` yields `None`) or a valid, uniquely-owned pointer from
+    // `gotatun_config_new`, so taking a mutable reference for this call is sound.
     if let Some(config) = unsafe { config.as_mut() } {
         config.establish_timeout_secs = timeout_secs;
     }
