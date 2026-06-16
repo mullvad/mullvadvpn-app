@@ -26,6 +26,16 @@ typedef struct ApiContext ApiContext;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+/**
+ * Opaque config handle built incrementally from Swift.
+ */
+typedef struct GotaTunConfigHandle GotaTunConfigHandle;
+
+/**
+ * Opaque handle to a running tunnel adapter.
+ */
+typedef struct GotaTunHandle GotaTunHandle;
+
 typedef struct LogRedactor LogRedactor;
 
 typedef struct Map Map;
@@ -35,6 +45,28 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 typedef struct RetryStrategy RetryStrategy;
 
 typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
+
+/**
+ * Callback function pointers from Rust to Swift.
+ */
+typedef struct GotaTunCallbacks {
+  /**
+   * Context pointer passed back to all callbacks.
+   */
+  void *context;
+  /**
+   * Called when the tunnel is connected and traffic flows.
+   */
+  void (*on_connected)(void *ctx);
+  /**
+   * Called when the pinger times out.
+   */
+  void (*on_timeout)(void *ctx);
+  /**
+   * Called on fatal error. `message` is a null-terminated C string.
+   */
+  void (*on_error)(void *ctx, const char *message);
+} GotaTunCallbacks;
 
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
@@ -133,6 +165,172 @@ typedef struct ProxyHandle {
 } ProxyHandle;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+/**
+ * Create a new config with the required private key, tunnel IPv4 address, and
+ * exit peer.
+ *
+ * Every tunnel must have an exit peer, so it is required at construction rather
+ * than set separately — a config cannot exist without one.
+ *
+ * Returns a handle that must be freed with `gotatun_config_free` or consumed
+ * by `gotatun_start_tunnel`. Returns null if any argument is invalid.
+ *
+ * # Safety
+ * - `ipv4_addr` and `exit_endpoint` must be valid null-terminated C strings
+ *   (e.g. `exit_endpoint` like "1.2.3.4:51820").
+ * - `private_key` and `exit_public_key` must each point to at least 32 bytes.
+ */
+struct GotaTunConfigHandle *gotatun_config_new(const uint8_t *private_key,
+                                               const char *ipv4_addr,
+                                               const uint8_t *exit_public_key,
+                                               const char *exit_endpoint);
+
+/**
+ * Set the MTU on the config.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_set_mtu(struct GotaTunConfigHandle *config, uint16_t mtu);
+
+/**
+ * Set the entry peer for multihop.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - `public_key` must point to at least 32 bytes.
+ * - `endpoint` must be a valid null-terminated C string.
+ */
+void gotatun_config_set_entry_peer(struct GotaTunConfigHandle *config,
+                                   const uint8_t *public_key,
+                                   const char *endpoint);
+
+/**
+ * Set the gateway IPv4 address used for connectivity pings.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - `gateway` must be a valid null-terminated C string.
+ */
+void gotatun_config_set_gateway(struct GotaTunConfigHandle *config, const char *gateway);
+
+/**
+ * Enable post-quantum key exchange.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_enable_pq(struct GotaTunConfigHandle *config);
+
+/**
+ * Enable DAITA.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_enable_daita(struct GotaTunConfigHandle *config);
+
+/**
+ * Set obfuscation to UDP-over-TCP.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_set_obfuscation_udp_over_tcp(struct GotaTunConfigHandle *config);
+
+/**
+ * Set obfuscation to Shadowsocks.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_set_obfuscation_shadowsocks(struct GotaTunConfigHandle *config);
+
+/**
+ * Set obfuscation to QUIC.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - `hostname` and `token` must be valid null-terminated C strings.
+ */
+void gotatun_config_set_obfuscation_quic(struct GotaTunConfigHandle *config,
+                                         const char *hostname,
+                                         const char *token);
+
+/**
+ * Set obfuscation to LWO (Lightweight Obfuscation).
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - `client_public_key` and `server_public_key` must point to at least 32 bytes each.
+ */
+void gotatun_config_set_obfuscation_lwo(struct GotaTunConfigHandle *config,
+                                        const uint8_t *client_public_key,
+                                        const uint8_t *server_public_key);
+
+/**
+ * Set the establish timeout in seconds.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ */
+void gotatun_config_set_establish_timeout(struct GotaTunConfigHandle *config,
+                                          uint32_t timeout_secs);
+
+/**
+ * Free a config without starting a tunnel.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - Must only be called once.
+ */
+void gotatun_config_free(struct GotaTunConfigHandle *config);
+
+/**
+ * Start a GotaTun tunnel.
+ *
+ * Consumes the config handle. Returns a tunnel handle, or null on error.
+ *
+ * # Safety
+ * - `config` must be a valid pointer from `gotatun_config_new`.
+ * - `callbacks.context` must remain valid until `gotatun_stop_tunnel`.
+ */
+struct GotaTunHandle *gotatun_start_tunnel(int32_t tun_fd,
+                                           struct GotaTunConfigHandle *config,
+                                           struct GotaTunCallbacks callbacks);
+
+/**
+ * Stop and destroy a tunnel adapter.
+ *
+ * # Safety
+ * - `handle` must be a valid pointer from `gotatun_start_tunnel`.
+ */
+void gotatun_stop_tunnel(struct GotaTunHandle *handle);
+
+/**
+ * Recycle UDP sockets after a network path change.
+ *
+ * # Safety
+ * - `handle` must be a valid pointer from `gotatun_start_tunnel`.
+ */
+void gotatun_recycle_sockets(struct GotaTunHandle *handle);
+
+/**
+ * Suspend the tunnel.
+ *
+ * # Safety
+ * - `handle` must be a valid pointer from `gotatun_start_tunnel`.
+ */
+void gotatun_suspend_tunnel(struct GotaTunHandle *handle);
+
+/**
+ * Wake the tunnel.
+ *
+ * # Safety
+ * - `handle` must be a valid pointer from `gotatun_start_tunnel`.
+ */
+void gotatun_wake_tunnel(struct GotaTunHandle *handle);
 
 /**
  * Called by Swift to set the available access methods
