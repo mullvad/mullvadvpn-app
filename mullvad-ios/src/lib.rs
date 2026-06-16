@@ -1,5 +1,7 @@
 #![cfg(any(target_os = "ios", target_os = "macos"))]
-#![allow(clippy::undocumented_unsafe_blocks)]
+// On macOS the iOS-only FFI exports are not compiled. We allow to build it on macOS to aid with
+// running unit tests.
+#![cfg_attr(target_os = "macos", allow(dead_code))]
 
 mod gotatun;
 mod tunnel_adapter;
