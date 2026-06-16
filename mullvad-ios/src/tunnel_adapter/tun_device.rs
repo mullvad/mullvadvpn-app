@@ -84,6 +84,8 @@ impl IosTunDevice {
         let async_fd = match AsyncFd::new(dup_fd) {
             Ok(fd) => fd,
             Err(e) => {
+                // SAFETY: as above — `dup_fd` is still open and not yet handed to the
+                // `FdCloseGuard`, so we close it exactly once here.
                 unsafe { libc::close(dup_fd) };
                 return Err(e);
             }
