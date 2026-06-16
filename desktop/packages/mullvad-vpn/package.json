@@ -55,7 +55,7 @@
     "globals": "^15.9.0",
     "playwright": "^1.55.1",
     "postject": "^1.0.0-alpha.6",
-    "vite": "7.3.2",
+    "vite": "7.3.5",
     "vite-plugin-electron": "^0.29.1",
     "vitest": "^4.1.4",
     "xvfb-maybe": "^0.2.1"
