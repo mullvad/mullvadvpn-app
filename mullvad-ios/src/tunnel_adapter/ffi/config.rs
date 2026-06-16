@@ -131,6 +131,9 @@ pub unsafe extern "C" fn gotatun_config_set_gateway(
     config: *mut GotaTunConfigHandle,
     gateway: *const c_char,
 ) {
+    // SAFETY: per this function's `# Safety` contract, `config` is either null (then
+    // `as_mut` yields `None`) or a valid, uniquely-owned pointer from
+    // `gotatun_config_new`, so taking a mutable reference for this call is sound.
     let Some(config) = (unsafe { config.as_mut() }) else {
         return;
     };
