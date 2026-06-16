@@ -1,9 +1,10 @@
 use mullvad_types::{
     constraints::Constraint,
+    custom_list::CustomListsSettings,
     relay_list::Relay,
     relay_selector::{
         EntryConstraints, EntrySpecificConstraints, ExitConstraints, MultihopConstraints,
-        Predicate, Reason, RelayPartitions,
+        Predicate, Reason, RelayPartitions, ResolvedLocationConstraint,
     },
 };
 
@@ -12,39 +13,40 @@ use crate::types::{
 };
 use crate::types::{relay_constraints::providers_constraint_from_proto, relay_selector as proto};
 
-impl TryFrom<proto::Predicate> for Predicate {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(predicate: proto::Predicate) -> Result<Self, Self::Error> {
-        let Some(context) = predicate.context else {
+impl proto::Predicate {
+    pub fn into_domain(
+        self,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<Predicate, FromProtobufTypeError> {
+        let Some(context) = self.context else {
             return Err(FromProtobufTypeError::invalid_argument(
                 "context must be provided",
             ));
         };
         match context {
-            proto::predicate::Context::Singlehop(constraints) => {
-                EntryConstraints::try_from(constraints).map(Self::Singlehop)
-            }
-            proto::predicate::Context::Autohop(constraints) => {
-                EntryConstraints::try_from(constraints).map(Self::Autohop)
-            }
+            proto::predicate::Context::Singlehop(constraints) => constraints
+                .into_domain(custom_lists)
+                .map(Predicate::Singlehop),
+            proto::predicate::Context::Autohop(constraints) => constraints
+                .into_domain(custom_lists)
+                .map(Predicate::Autohop),
             proto::predicate::Context::Entry(proto::MultiHopConstraints {
                 entry: Some(entry),
                 exit: Some(exit),
             }) => {
-                let entry = EntryConstraints::try_from(entry)?;
-                let exit = ExitConstraints::try_from(exit)?;
+                let entry = entry.into_domain(custom_lists)?;
+                let exit = exit.into_domain(custom_lists)?;
                 let constraints = MultihopConstraints { entry, exit };
-                Ok(Self::Entry(constraints))
+                Ok(Predicate::Entry(constraints))
             }
             proto::predicate::Context::Exit(proto::MultiHopConstraints {
                 entry: Some(entry),
                 exit: Some(exit),
             }) => {
-                let entry = EntryConstraints::try_from(entry)?;
-                let exit = ExitConstraints::try_from(exit)?;
+                let entry = entry.into_domain(custom_lists)?;
+                let exit = exit.into_domain(custom_lists)?;
                 let constraints = MultihopConstraints { entry, exit };
-                Ok(Self::Exit(constraints))
+                Ok(Predicate::Exit(constraints))
             }
             proto::predicate::Context::Entry(_) | proto::predicate::Context::Exit(_) => Err(
                 FromProtobufTypeError::invalid_argument("entry + exit must be provided"),
@@ -53,19 +55,19 @@ impl TryFrom<proto::Predicate> for Predicate {
     }
 }
 
-impl TryFrom<proto::EntryConstraints> for EntryConstraints {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(
-        proto::EntryConstraints {
+impl proto::EntryConstraints {
+    fn into_domain(
+        self,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<EntryConstraints, FromProtobufTypeError> {
+        let proto::EntryConstraints {
             general_constraints,
             obfuscation_settings,
             daita_settings,
             ip_version,
-        }: proto::EntryConstraints,
-    ) -> Result<Self, Self::Error> {
+        } = self;
         let general = general_constraints
-            .map(ExitConstraints::try_from)
+            .map(|gc| gc.into_domain(custom_lists))
             .transpose()?
             .unwrap_or_default();
 
@@ -100,20 +102,22 @@ impl TryFrom<proto::EntryConstraints> for EntryConstraints {
     }
 }
 
-impl TryFrom<proto::ExitConstraints> for ExitConstraints {
-    type Error = FromProtobufTypeError;
-
-    fn try_from(
-        proto::ExitConstraints {
+impl proto::ExitConstraints {
+    fn into_domain(
+        self,
+        custom_lists: &CustomListsSettings,
+    ) -> Result<ExitConstraints, FromProtobufTypeError> {
+        let proto::ExitConstraints {
             location,
             providers,
             ownership,
-        }: proto::ExitConstraints,
-    ) -> Result<Self, Self::Error> {
-        let location: Constraint<_> = location
+        } = self;
+        let location_constraint: Constraint<_> = location
             .map(mullvad_types::relay_constraints::LocationConstraint::try_from)
             .transpose()?
             .into();
+        let location =
+            ResolvedLocationConstraint::from_constraint(location_constraint, custom_lists);
         let providers = providers_constraint_from_proto(&providers);
         let ownership = try_ownership_constraint_from_i32(ownership)?;
 

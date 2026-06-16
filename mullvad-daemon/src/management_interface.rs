@@ -1,6 +1,6 @@
 use crate::{
     DaemonCommand, DaemonCommandSender, account_history, device,
-    relay_selector::RelaySelectorServiceImpl,
+    relay_selector::{RelaySelectorIO, RelaySelectorServiceImpl},
 };
 use futures::{
     StreamExt,
@@ -1367,7 +1367,7 @@ impl ManagementInterfaceServer {
         rpc_socket_path: PathBuf,
         app_upgrade_broadcast: AppUpgradeBroadcast,
         log_reload_handle: crate::logging::LogHandle,
-        relay_selector: mullvad_relay_selector::RelaySelector,
+        relay_selector: RelaySelectorIO,
     ) -> Result<ManagementInterfaceServer, Error> {
         let subscriptions = Arc::<Mutex<Vec<EventsListenerSender>>>::default();
 

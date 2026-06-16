@@ -30,8 +30,6 @@ macro_rules! impl_intersection_partialeq {
     };
 }
 
-// NOTE: This docstring cannot link to `mullvad_relay_selector::relay_selector::query` and
-// `RETRY_ORDER`as `mullvad_relay_selector` is not a dependency of this crate
 /// The intersection of two sets of criteria on [`Relay`](crate::relay_list::Relay)s is another
 /// criteria which matches the given relay iff both of the original criteria matched. It is
 /// primarily used by the relay selector to check whether a given connection method is compatible
@@ -133,6 +131,7 @@ impl_intersection_partialeq!(relay_constraints::Ownership);
 impl_intersection_partialeq!(talpid_types::net::TransportProtocol);
 impl_intersection_partialeq!(talpid_types::net::IpVersion);
 impl_intersection_partialeq!(relay_constraints::AllowedIps);
+impl_intersection_partialeq!(crate::relay_selector::ResolvedLocationConstraint);
 
 #[cfg(test)]
 mod tests {

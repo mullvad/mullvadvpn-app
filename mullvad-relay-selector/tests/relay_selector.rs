@@ -14,12 +14,10 @@ use talpid_types::net::{
 };
 
 use mullvad_relay_selector::{
-    EntrySpecificConstraints, Error, GetRelay, MultihopConstraints, Predicate, RETRY_ORDER, Reason,
-    RelaySelector, WireguardConfig,
+    Error, GetRelay, MultihopConstraints, Predicate, Reason, RelaySelector, WireguardConfig,
     query::{Hops, ObfuscationMode, builder::RelayQueryBuilder},
 };
 use mullvad_types::{
-    constraints::Constraint,
     endpoint::MullvadEndpoint,
     location::Location,
     relay_constraints::{
@@ -30,7 +28,6 @@ use mullvad_types::{
         RelayListCity, RelayListCountry, ShadowsocksEndpointData, WireguardRelay,
         WireguardRelayEndpointData,
     },
-    settings::Settings,
 };
 use vec1::vec1;
 
@@ -233,7 +230,7 @@ fn unwrap_endpoint(get_result: GetRelay) -> MullvadEndpoint {
 }
 
 fn default_relay_selector() -> RelaySelector {
-    RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone())
+    RelaySelector::new(RELAYS.clone(), BRIDGES.clone())
 }
 
 fn supports_daita(relay: &WireguardRelay) -> bool {
@@ -246,89 +243,6 @@ mod relay_selection {
     use crate::relay_list_builder::RelayListBuilder;
 
     use super::*;
-
-    /// This is not an actual test. Rather, it serves as a reminder that if [`RETRY_ORDER`] is
-    /// modified, the programmer should be made aware to update all external documents which rely on the
-    /// retry order to be correct.
-    ///
-    /// When all necessary changes have been made, feel free to update this test to mirror the new
-    /// [`RETRY_ORDER`].
-    #[test]
-    fn assert_retry_order() {
-        use talpid_types::net::IpVersion;
-        let expected_retry_order = vec![
-            // 1 (wireguard)
-            EntrySpecificConstraints::default(),
-            // 2
-            EntrySpecificConstraints::default().ip_version(IpVersion::V6),
-            // 3
-            EntrySpecificConstraints::lwo(),
-            // 4
-            EntrySpecificConstraints::shadowsocks(),
-            // 5
-            EntrySpecificConstraints::quic(),
-            // 6
-            EntrySpecificConstraints::udp2tcp(),
-            // 7
-            EntrySpecificConstraints::udp2tcp().ip_version(IpVersion::V6),
-        ];
-
-        assert!(
-            *RETRY_ORDER == expected_retry_order,
-            "
-    The relay selector's retry order has been modified!
-    Make sure to update `docs/relay-selector.md` with these changes.
-    Lastly, you may go ahead and fix this test to reflect the new retry order.
-    "
-        );
-    }
-
-    /// Test whether the relay selector seems to respect the order as defined by
-    /// [`RETRY_ORDER`].
-    #[test]
-    fn test_retry_order() {
-        // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
-        // the user settings need to be 'neutral' on the type of relay that it wants to connect to.
-        // A default config *should* have this property, but a more robust way to guarantee
-        // this would be to create a neutral relay query and supply it to the relay selector at every
-        // call to the `get_relay` function.
-        let relay_selector = default_relay_selector();
-        for (retry_attempt, retry) in RETRY_ORDER.iter().enumerate() {
-            let relay = relay_selector
-                .get_relay(
-                    retry_attempt,
-                    talpid_types::net::IpAvailability::Ipv4AndIpv6,
-                )
-                .unwrap_or_else(|_| {
-                    panic!("Retry attempt {retry_attempt} did not yield any relay")
-                });
-            // Then perform some protocol-specific probing as well.
-            let GetRelay {
-                endpoint,
-                obfuscator,
-                ..
-            } = relay;
-            assert!(
-                retry
-                    .ip_version
-                    .matches_eq(&match endpoint.peer.endpoint.ip() {
-                        std::net::IpAddr::V4(_) => talpid_types::net::IpVersion::V4,
-                        std::net::IpAddr::V6(_) => talpid_types::net::IpVersion::V6,
-                    })
-            );
-            assert!(match &retry.obfuscation {
-                Constraint::Any => true,
-                Constraint::Only(ObfuscationMode::Off | ObfuscationMode::Port(_)) =>
-                    obfuscator.is_none(),
-                Constraint::Only(
-                    ObfuscationMode::Quic
-                    | ObfuscationMode::Udp2tcp(_)
-                    | ObfuscationMode::Shadowsocks(_)
-                    | ObfuscationMode::Lwo(_),
-                ) => obfuscator.is_some(),
-            });
-        }
-    }
 
     /// Assert that the relay selector does *not* return a multihop configuration where the exit and
     /// entry relay are the same, even if the constraints would allow for it. Also verify that the relay
@@ -403,7 +317,7 @@ mod relay_selection {
 
         let bridges = BridgeList::default();
 
-        let relay_selector = RelaySelector::from_settings(&Settings::default(), relays, bridges);
+        let relay_selector = RelaySelector::new(relays, bridges);
         let specific_hostname = "se10-wireguard";
         let specific_location =
             GeographicLocationConstraint::hostname("se", "got", specific_hostname);
@@ -479,8 +393,7 @@ mod relay_selection {
     /// selected.
     #[test]
     fn test_selecting_over_shadowsocks() {
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        let relay_selector = RelaySelector::new(RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().shadowsocks().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
@@ -501,8 +414,7 @@ mod relay_selection {
     /// Test whether extra Shadowsocks IPs are selected when available
     #[test]
     fn test_selecting_over_shadowsocks_extra_ips() {
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        let relay_selector = RelaySelector::new(RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new()
             .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -534,8 +446,7 @@ mod relay_selection {
     /// Test whether Quic is always selected as the obfuscation protocol when Quic is selected.
     #[test]
     fn test_selecting_over_quic() {
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        let relay_selector = RelaySelector::new(RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().quic().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
@@ -556,8 +467,7 @@ mod relay_selection {
     /// Test LWO relay selection
     #[test]
     fn test_selecting_over_lwo() {
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        let relay_selector = RelaySelector::new(RELAYS.clone(), BRIDGES.clone());
 
         let query = RelayQueryBuilder::new().lwo().build();
         assert!(!matches!(query.hops, Hops::Multi(_)));
@@ -586,8 +496,7 @@ mod relay_selection {
             ipv6_addr_in: None,
         }]);
 
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
+        let relay_selector = RelaySelector::new(relay_list, BRIDGES.clone());
 
         let query_v4 = RelayQueryBuilder::new()
             .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -625,8 +534,7 @@ mod relay_selection {
             ipv6_addr_in: Some(OVERRIDE_IPV6),
         }]);
 
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), relay_list, BRIDGES.clone());
+        let relay_selector = RelaySelector::new(relay_list, BRIDGES.clone());
 
         let query_v6 = RelayQueryBuilder::new()
             .location(SHADOWSOCKS_RELAY_LOCATION.clone())
@@ -822,8 +730,7 @@ mod relay_selection {
     /// to be filtered out.
     #[test]
     fn test_daita() {
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), RELAYS.clone(), BRIDGES.clone());
+        let relay_selector = RelaySelector::new(RELAYS.clone(), BRIDGES.clone());
 
         // Only pick relays that support DAITA
         let query = RelayQueryBuilder::new().daita().build();
@@ -931,30 +838,6 @@ mod relay_selection {
         }
     }
 
-    /// Check that if the original user query would yield a relay, the result of running the query
-    /// which is the intersection between the user query and any of the default queries shall never
-    /// fail.
-    #[test]
-    fn valid_user_setting_should_yield_relay() {
-        // Make a valid user relay constraint
-        let location = GeographicLocationConstraint::hostname("se", "got", "se9-wireguard");
-        let user_query = RelayQueryBuilder::new().location(location.clone()).build();
-
-        let relay_selector =
-            RelaySelector::from_query(user_query.clone(), RELAYS.clone(), BRIDGES.clone());
-        let user_result = relay_selector.get_relay_by_query(user_query.clone());
-        for retry_attempt in 0..RETRY_ORDER.len() {
-            let post_unification_result =
-                relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
-            if user_result.is_ok() {
-                assert!(
-                    post_unification_result.is_ok(),
-                    "Expected Post-unification query to be valid because original query {user_query:#?} yielded a connection configuration"
-                )
-            }
-        }
-    }
-
     /// Country-level multihop must not silently fall back onto an `include_in_country = false`
     /// relay. With one `=false` relay (`se-sto-wg-009`) and one `=true` relay (`se-sto-wg-204`)
     /// in Stockholm, a country-level query has only one country-selectable relay and so
@@ -1059,8 +942,7 @@ mod relay_selection {
                 wireguard,
             }
         };
-        let relay_selector =
-            RelaySelector::from_settings(&Settings::default(), relays, BridgeList::default());
+        let relay_selector = RelaySelector::new(relays, BridgeList::default());
 
         // Country-level multihop must fail: only one relay (`se-sto-wg-204`) is
         // selectable at country level, so no entry/exit pair can be formed.
@@ -1088,7 +970,8 @@ mod partition_relays {
     use itertools::Itertools;
     use mullvad_relay_selector::{EntryConstraints, ExitConstraints, RelayPartitions};
     use mullvad_types::constraints::Constraint;
-    use mullvad_types::relay_constraints::{LocationConstraint, ShadowsocksSettings};
+    use mullvad_types::relay_constraints::ShadowsocksSettings;
+    use mullvad_types::relay_selector::ResolvedLocationConstraint;
     use std::collections::HashSet;
 
     use super::*;
@@ -1106,11 +989,7 @@ mod partition_relays {
     fn relay_selector() -> RelaySelector {
         static RELAY_SELECTOR: LazyLock<RelaySelector> = LazyLock::new(|| {
             let (relay_list, bridge_list) = &*RELAYS;
-            RelaySelector::from_settings(
-                &Settings::default(),
-                relay_list.clone(),
-                bridge_list.clone(),
-            )
+            RelaySelector::new(relay_list.clone(), bridge_list.clone())
         });
         RELAY_SELECTOR.clone()
     }
@@ -1207,12 +1086,12 @@ mod partition_relays {
     fn entry_hostname_collision() {
         let relay_selector = relay_selector();
         // Define two distinct Wireguard relays.
-        let wg101 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+        let wg101 = ResolvedLocationConstraint::from(GeographicLocationConstraint::hostname(
             "se",
             "got",
             "se-got-wg-101",
         ));
-        let wg001 = LocationConstraint::from(GeographicLocationConstraint::hostname(
+        let wg001 = ResolvedLocationConstraint::from(GeographicLocationConstraint::hostname(
             "se",
             "got",
             "se-got-wg-001",
@@ -1526,7 +1405,7 @@ mod partition_relays {
             let mut constraints = daita_constraints.clone();
             // Force the entry relay to be a relay without DAITA.
             constraints.general.location =
-                LocationConstraint::from(GeographicLocationConstraint::hostname(
+                ResolvedLocationConstraint::from(GeographicLocationConstraint::hostname(
                     non_daita_relay.location.country.clone(),
                     non_daita_relay.location.city.clone(),
                     non_daita_relay.hostname.clone(),
@@ -1707,7 +1586,7 @@ mod partition_relays {
         let relay_selector = RelaySelector::from(relay_list);
         let results = relay_selector.partition_relays(Predicate::Autohop(EntryConstraints {
             general: ExitConstraints {
-                location: Constraint::Only(LocationConstraint::Location(
+                location: Constraint::Only(ResolvedLocationConstraint::from(
                     GeographicLocationConstraint::Hostname(
                         "country".into(),
                         "city".into(),
@@ -1975,7 +1854,6 @@ mod relay_list_builder {
             BridgeList, EndpointData, RelayList, RelayListCity, RelayListCountry, WireguardRelay,
             WireguardRelayEndpointData,
         },
-        settings::Settings,
     };
     use talpid_types::net::wireguard::PublicKey;
 
@@ -1986,7 +1864,7 @@ mod relay_list_builder {
 
     impl From<RelayListBuilder> for RelaySelector {
         fn from(val: RelayListBuilder) -> Self {
-            RelaySelector::from_settings(&Settings::default(), val.finish(), BridgeList::default())
+            RelaySelector::new(val.finish(), BridgeList::default())
         }
     }
 
