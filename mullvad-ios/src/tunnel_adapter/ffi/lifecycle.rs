@@ -46,6 +46,9 @@ impl TunnelCallbackHandler for GotaTunCallbacks {
 
     fn on_error(&self, message: String) {
         let c_msg = std::ffi::CString::new(message).unwrap_or_default();
+        // SAFETY: `on_error` is a valid Swift function pointer and `context` is valid
+        // for the tunnel's lifetime. `c_msg` is a live, null-terminated string that
+        // outlives the call, so the pointer passed to Swift is valid for its duration.
         unsafe { (self.on_error)(self.context, c_msg.as_ptr()) };
     }
 }
