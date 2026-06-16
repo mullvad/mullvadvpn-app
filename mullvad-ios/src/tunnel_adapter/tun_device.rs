@@ -53,6 +53,8 @@ impl IosTunDevice {
     ///
     /// The fd is `dup()`d so we have our own copy (matching WireGuard-Go behavior).
     pub fn new(fd: RawFd, mtu: u16) -> io::Result<Self> {
+        // SAFETY: `dup` has no preconditions on its argument — an invalid `fd` just
+        // returns an error, which we handle. On success it returns a fresh fd we own.
         let dup_fd = unsafe { libc::dup(fd) };
         if dup_fd < 0 {
             return Err(io::Error::last_os_error());
