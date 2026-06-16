@@ -18,7 +18,9 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
 
       - name: Install cargo-shear
-        uses: taiki-e/install-action@cargo-shear
+        uses: taiki-e/install-action@0631aa6515c7d545823c67cfae7ef4fc7f490154  # v2.81.8
+        with:
+          tool: cargo-shear
 
       - name: Run cargo shear in all workspaces
         shell: bash
