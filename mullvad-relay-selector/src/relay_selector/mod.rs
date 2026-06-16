@@ -95,9 +95,7 @@ impl AnnotatedRelayList {
 }
 
 #[derive(Clone)]
-pub struct RelaySelector<C = ()> {
-    /// TODO: Document
-    pub config: C,
+pub struct RelaySelector {
     // Relays are updated very infrequently, but might conceivably be accessed by multiple readers at
     // the same time.
     pub relays: Arc<RwLock<AnnotatedRelayList>>,
@@ -122,25 +120,14 @@ pub struct GetRelay {
     pub inner: WireguardConfig,
 }
 
-impl RelaySelector<()> {
+impl RelaySelector {
     pub fn new(relays: RelayList, bridges: BridgeList) -> Self {
         RelaySelector {
-            config: (),
             relays: Arc::new(RwLock::new(AnnotatedRelayList::new(relays))),
             bridges: Arc::new(RwLock::new(bridges)),
         }
     }
 
-    pub fn with_config<C: CustomListProvider>(self, config: C) -> RelaySelector<C> {
-        RelaySelector {
-            config,
-            relays: self.relays,
-            bridges: self.bridges,
-        }
-    }
-}
-
-impl<C: CustomListProvider> RelaySelector<C> {
     /// Peek the relay list.
     pub fn relay_list<T>(&self, f: impl Fn(&RelayList) -> T) -> T {
         let relays = self.relays.read().unwrap();
@@ -190,9 +177,8 @@ impl<C: CustomListProvider> RelaySelector<C> {
         // Hold a single read lock for the whole call so the relay we choose during
         // partitioning is the same one we look up in `endpoint_sets` afterwards.
         let annotated = self.relays.read().unwrap();
-        let custom_lists = self.config.custom_lists();
 
-        let inner = select_wireguard_relay(&annotated, &custom_lists, &query)?;
+        let inner = select_wireguard_relay(&annotated, &query)?;
 
         let entry = match &inner {
             WireguardConfig::Singlehop { exit } => exit,
@@ -225,19 +211,18 @@ impl<C: CustomListProvider> RelaySelector<C> {
 /// Select relay(s) matching the constraints, handling singlehop, autohop, and multihop routing.
 fn select_wireguard_relay(
     relays: &AnnotatedRelayList,
-    custom_lists: &CustomListsSettings,
     query: &RelayQuery,
 ) -> Result<WireguardConfig, Error> {
     match &query.hops {
         Hops::Single(constraints) => {
-            let partitions = filter::partition_entry(relays, constraints, custom_lists);
+            let partitions = filter::partition_entry(relays, constraints);
             match helpers::pick_random_relay(&partitions.matches) {
                 Some(exit) => Ok(WireguardConfig::from(Singlehop::new(exit.clone()))),
                 None => Err(Error::NoRelay(Box::new(query.clone()))),
             }
         }
         Hops::Auto(constraints) => {
-            let autohop = filter::partition_autohop(relays, constraints.clone(), custom_lists);
+            let autohop = filter::partition_autohop(relays, constraints.clone());
             // Attempt to pick a single relay that matches all constraints
             if let Some(exit) = helpers::pick_random_relay(&autohop.singlehop.matches) {
                 return Ok(WireguardConfig::from(Singlehop::new(exit.clone())));
@@ -247,7 +232,7 @@ fn select_wireguard_relay(
             select_from_multihop_partitions(autohop.multihop, multihop_constraints)
         }
         Hops::Multi(constraints) => {
-            let partitions = filter::partition_multihop(relays, constraints, custom_lists);
+            let partitions = filter::partition_multihop(relays, constraints);
             select_from_multihop_partitions(partitions, constraints.clone())
         }
     }

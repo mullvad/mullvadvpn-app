@@ -2,15 +2,15 @@
 
 use mullvad_management_interface::types::relay_selector as proto;
 use mullvad_management_interface::{RelaySelectorService, Request, Response, Status};
-use mullvad_types::relay_selector::Predicate;
+use mullvad_relay_selector::CustomListProvider;
 
-use crate::relay_selector::RelaySelector;
+use crate::relay_selector::RelaySelectorIO;
 
 /// The relay selector exposed as a gRPC service. See `relay_selector.proto` for API.
-pub struct RelaySelectorServiceImpl(RelaySelector);
+pub struct RelaySelectorServiceImpl(RelaySelectorIO);
 
 impl RelaySelectorServiceImpl {
-    pub fn new(relay_selector: RelaySelector) -> Self {
+    pub fn new(relay_selector: RelaySelectorIO) -> Self {
         RelaySelectorServiceImpl(relay_selector)
     }
 }
@@ -22,7 +22,7 @@ impl RelaySelectorService for RelaySelectorServiceImpl {
         predicate: Request<proto::Predicate>,
     ) -> Result<Response<proto::RelayPartitions>, Status> {
         let predicate = predicate.into_inner();
-        let predicate = Predicate::try_from(predicate)?;
+        let predicate = predicate.into_domain(&self.0.config.custom_lists())?;
         let partitions = self.0.partition_relays(predicate);
         let partitions = proto::RelayPartitions::from(partitions);
         Ok(Response::new(partitions))

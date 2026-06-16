@@ -11,6 +11,7 @@ use anyhow::Context;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_relay_selector::query::{Hops, RelayQuery};
 use mullvad_relay_selector::{CustomListProvider, GetRelay, RelaySelector, WireguardConfig};
+use mullvad_types::relay_selector::ResolvedLocationConstraint;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashSet;
@@ -76,11 +77,13 @@ impl From<Settings> for RelayQuery {
         } else {
             builder
         };
-        let builder = if let Constraint::Only(location) = relay_settings.location {
-            builder.location(location)
-        } else {
-            builder
-        };
+        let builder = builder.location(ResolvedLocationConstraint::from_constraint(
+            match relay_settings.location {
+                Constraint::Any => mullvad_types::constraints::Constraint::Any,
+                Constraint::Only(loc) => mullvad_types::constraints::Constraint::Only(loc.into()),
+            },
+            &value.custom_lists.into(),
+        ));
 
         // tunnel options
         let daita = value.tunnel_options.wireguard.daita;
@@ -107,9 +110,8 @@ impl Settings {
 
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
     pub fn check_magic_mulithop(mut self) -> anyhow::Result<Self> {
-        let relay_selector = RelaySelector::load()
-            .context("Failed to initialize relay selector. Skipping migration.")?
-            .with_config(self.custom_lists.clone());
+        let relay_selector = RelaySelectorIO::load(self.custom_lists.clone())
+            .context("Failed to initialize relay selector. Skipping migration.")?;
         // Query the relay selector for entry relay
         // If an entry relay needs to be selected even though multihop is not explicitly enabled, the
         // entry might be needed to unblock the user post-migration.

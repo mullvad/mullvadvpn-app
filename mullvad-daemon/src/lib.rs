@@ -31,7 +31,7 @@ mod tunnel;
 pub mod version;
 
 use crate::{
-    relay_list::parsed_relays::parse_relays_from_file, relay_selector::RelaySelector,
+    relay_list::parsed_relays::parse_relays_from_file, relay_selector::RelaySelectorIO,
     target_state::PersistentTargetState,
 };
 use api::DaemonAccessMethodResolver;
@@ -691,7 +691,7 @@ pub struct Daemon {
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_handle: version::router::VersionRouterHandle,
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
@@ -768,7 +768,7 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            RelaySelector::from_settings(
+            RelaySelectorIO::from_settings(
                 settings.to_settings(),
                 initial_relay_list.clone(),
                 initial_bridge_list.clone(),

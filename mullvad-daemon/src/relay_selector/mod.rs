@@ -8,8 +8,7 @@ use std::sync::{Arc, Mutex};
 
 use mullvad_relay_selector::query::RelayQuery;
 use mullvad_relay_selector::{
-    CustomListProvider, EntrySpecificConstraints, Error, GetRelay, RETRY_ORDER,
-    RelaySelector as Impl,
+    CustomListProvider, EntrySpecificConstraints, Error, GetRelay, RETRY_ORDER, RelaySelector,
 };
 use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_list::{BridgeList, RelayList};
@@ -17,24 +16,22 @@ use mullvad_types::settings::Settings;
 use talpid_types::net::IpAvailability;
 
 #[derive(Clone)]
-pub struct RelaySelector(Impl<Config>);
+pub struct RelaySelectorIO {
+    inner: RelaySelector,
+    config: Config,
+}
 
-impl Deref for RelaySelector {
-    type Target = Impl<Config>;
+impl Deref for RelaySelectorIO {
+    type Target = RelaySelector;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.inner
     }
 }
 
-pub trait RelaySelectorIO {
-    /// Initialize relay selector state from disk, loading any cached relay list.
-    fn load() -> io::Result<Box<Self>>;
-}
-
-impl RelaySelectorIO for Impl {
+impl RelaySelectorIO {
     #[cfg(not(test))]
-    fn load() -> io::Result<Box<Self>> {
+    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
         use crate::relay_list::parsed_relays::parse_relays_from_file;
 
         let cache_dir = mullvad_paths::get_cache_dir()
@@ -46,23 +43,35 @@ impl RelaySelectorIO for Impl {
         let initial_relay_list = parse_relays_from_file(&cache_dir, &config_dir)
             .inspect_err(|err| log::error!("{err}"))
             .ok();
-        let relay_selector = {
+        let inner = {
             let (initial_relay_list, initial_bridge_list) = initial_relay_list
                 .clone()
                 .map(mullvad_api::CachedRelayList::into_internal_repr)
                 .unwrap_or_default();
-            Impl::new(initial_relay_list.clone(), initial_bridge_list.clone())
+            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
-        Ok(Box::new(relay_selector))
+        Ok(RelaySelectorIO {
+            inner,
+            config: Config {
+                query: Default::default(),
+                custom_lists: Arc::new(Mutex::new(custom_lists)),
+            },
+        })
     }
     #[cfg(test)]
-    fn load() -> io::Result<Box<Self>> {
-        let relay_selector = {
+    pub fn load(custom_lists: CustomListsSettings) -> io::Result<Self> {
+        let inner = {
             let (initial_relay_list, initial_bridge_list): (RelayList, BridgeList) =
                 Default::default();
-            Impl::new(initial_relay_list.clone(), initial_bridge_list.clone())
+            RelaySelector::new(initial_relay_list.clone(), initial_bridge_list.clone())
         };
-        Ok(Box::new(relay_selector))
+        Ok(RelaySelectorIO {
+            inner,
+            config: Config {
+                query: Default::default(),
+                custom_lists: Arc::new(Mutex::new(custom_lists)),
+            },
+        })
     }
 }
 
@@ -106,7 +115,7 @@ impl CustomListProvider for Config {
     }
 }
 
-impl RelaySelector {
+impl RelaySelectorIO {
     pub fn create() -> Option<Self> {
         todo!("implement")
     }
@@ -115,22 +124,22 @@ impl RelaySelector {
         settings: Settings,
         relays: RelayList,
         bridges: BridgeList,
-    ) -> RelaySelector {
+    ) -> RelaySelectorIO {
         let config = Config::from(settings);
-        let relay_selector = Impl::new(relays, bridges).with_config(config);
-        RelaySelector(relay_selector)
+        let inner = RelaySelector::new(relays, bridges);
+        RelaySelectorIO { inner, config }
     }
 
     /// Update the relay selector config.
     pub fn set_config(&self, settings: Settings) {
-        let config = &self.0.config;
+        let config = &self.config;
         *config.custom_lists.lock().unwrap() = settings.custom_lists.clone();
         *config.query.lock().unwrap() = RelayQuery::from(settings);
     }
 
     /// Update only the custom list settings used for location filtering.
     pub fn set_custom_lists(&self, custom_lists: CustomListsSettings) {
-        let config = &self.0.config;
+        let config = &self.config;
         *config.custom_lists.lock().unwrap() = custom_lists;
     }
 

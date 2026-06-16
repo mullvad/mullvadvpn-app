@@ -17,7 +17,7 @@ use talpid_types::net::{obfuscation::Obfuscators, wireguard};
 use talpid_types::{ErrorExt, net::IpAvailability, tunnel::ParameterGenerationError};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
-use crate::relay_selector::RelaySelector;
+use crate::relay_selector::RelaySelectorIO;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -38,7 +38,7 @@ pub enum Error {
 pub(crate) struct ParametersGenerator(Arc<Mutex<InnerParametersGenerator>>);
 
 struct InnerParametersGenerator {
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_settings: RelaySettings,
     tunnel_options: TunnelOptions,
     account_manager: AccountManagerHandle,
@@ -50,7 +50,7 @@ impl ParametersGenerator {
     /// Constructs a new tunnel parameters generator.
     pub fn new(
         account_manager: AccountManagerHandle,
-        relay_selector: RelaySelector,
+        relay_selector: RelaySelectorIO,
         relay_settings: RelaySettings,
         tunnel_options: TunnelOptions,
     ) -> Self {
