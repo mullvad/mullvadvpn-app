@@ -88,7 +88,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
             relaySelectorWrapper: appDelegate.relaySelector,
             breadcrumbsProvider: appDelegate.breadcrumbsProvider,
             settingsManager: appDelegate.settingsManager,
-            logRedactor: appDelegate.logRedactor
+            logRedactor: appDelegate.logRedactor,
+            migratedSettingsListener: appDelegate.migratedSettingsListener
         )
 
         appCoordinator?.onShowSettings = { [weak self] in

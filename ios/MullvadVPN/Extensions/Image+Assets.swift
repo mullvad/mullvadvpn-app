@@ -40,4 +40,6 @@ extension Image {
     static let mullvadIconExternal = Image("IconExtlink")
     static let mullvadIconCheckboxSelected = Image("CheckboxSelected")
     static let mullvadIconCheckboxUnselected = Image("CheckboxUnselected")
+    static let mullvadAutomaticMultihopBanner = Image("AutomaticMultihopBanner")
+    static let mullvadUniqueFilterBanner = Image("UniqueFilterBanner")
 }

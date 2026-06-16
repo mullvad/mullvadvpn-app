@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 ## UNRELEASED
 ### Add
 - Add support for connecting over IPv6.
+- Add automatic entry location selection.
+
+### Removed
+- Remove “Direct only” from Daita
 
 ### Fixed
 - Stop logging access method credentials in logs.

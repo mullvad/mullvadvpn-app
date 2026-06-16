@@ -11,7 +11,7 @@ import Routing
 import SwiftUI
 
 class IncludeAllNetworksSettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentable, Presenting {
-    private lazy var logger = Logger(label: "NotificationManager")
+    private lazy var logger = Logger(label: "IncludeAllNetworksSettingsCoordinator")
     private let navigationController: UINavigationController
     private let viewModel: IncludeAllNetworksSettingsViewModelImpl
     private let route: AppRoute
