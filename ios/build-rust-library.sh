@@ -46,22 +46,27 @@ if [ "${LLVM_TARGET_TRIPLE_SUFFIX-}" = "-simulator" ]; then
   TARGET=aarch64-apple-ios-sim
 fi
 
-# Optimize the WireGuard data-path / crypto hot loop even in debug builds.
-# Unoptimized ChaCha20-Poly1305 (via `ring`) caps tunnel decrypt throughput,
-# which starves the receive path and inflates loaded latency on-device.
-#
-# Scoped to this iOS build only (this script builds nothing else) via per-package
-# `--config` overrides, so host/desktop builds are untouched and iteration stays
-# fast (only these few crates are optimized). Deliberately excludes the
-# `mullvad-ios` FFI crate itself: optimizing it dead-strips `#[no_mangle]`
-# exports and breaks linking against the Swift side. Released builds already get
-# these opt-levels via `[profile.release.package]` in the workspace Cargo.toml.
+# To make GotaTun fast enough to not be bothersome in DEBUG builds, lets
+# disable debug assertions, overflow checks and set the optimization level to 3
+# for the relevant crates. Relevant being on the data path for traffic between
+# the tunnel device and the UDP socket.
 OPT_CONFIG=(
     --config 'profile.dev.package.gotatun.opt-level=3'
+    --config 'profile.dev.package.gotatun.debug-assertions=false'
+    --config 'profile.dev.package.gotatun.overflow-checks=false'
+    --config 'profile.dev.package.smoltcp.opt-level=3'
+    --config 'profile.dev.package.smoltcp.debug-assertions=false'
+    --config 'profile.dev.package.smoltcp.overflow-checks=false'
     --config 'profile.dev.package.ring.opt-level=3'
     --config 'profile.dev.package.chacha20poly1305.opt-level=3'
+    --config 'profile.dev.package.chacha20poly1305.debug-assertions=false'
+    --config 'profile.dev.package.chacha20poly1305.overflow-checks=false'
     --config 'profile.dev.package.chacha20.opt-level=3'
+    --config 'profile.dev.package.chacha20.overflow-checks=false'
     --config 'profile.dev.package.poly1305.opt-level=3'
+    --config 'profile.dev.package.poly1305.overflow-checks=false'
+    --config 'profile.dev.package.mullvad-ios.debug-assertions=false'
+    --config 'profile.dev.package.mullvad-ios.overflow-checks=false'
 )
 
 for arch in $ARCHS; do
