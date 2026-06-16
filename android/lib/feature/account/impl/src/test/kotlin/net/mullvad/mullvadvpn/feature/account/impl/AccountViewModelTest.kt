@@ -95,7 +95,7 @@ class AccountViewModelTest {
         coEvery { mockAccountRepository.logout() } returns Unit.right()
 
         // Act
-        viewModel.onLogoutClick()
+        viewModel.onLogoutClick(false)
 
         // Assert
         coVerify { mockAccountRepository.logout() }
@@ -120,7 +120,7 @@ class AccountViewModelTest {
         viewModel.uiState.test {
             val result = awaitItem()
             assertIs<Lc.Content<AccountUiState>>(result)
-            assertEquals(true, result.value.verificationPending)
+            assertEquals(PaymentStatus.PENDING, result.value.paymentStatus)
         }
     }
 
