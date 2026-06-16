@@ -165,7 +165,7 @@ impl<F: UdpTransportFactory> MaybeObfuscatingTransportFactory<F> {
                     auth_token.parse().unwrap(),
                     wg_endpoint,
                 );
-                let settings = settings.mtu(config.mtu);
+                let settings = dbg!(settings.mtu(dbg!(1480))); // TODO: Wrong MTU, should be route/obfuscator MTU
 
                 Self::Quic(QuicTransportFactory {
                     settings,
