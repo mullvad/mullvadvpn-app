@@ -5,6 +5,8 @@
 //! it's inverse ('automatic multihop') has been superceeded by the new Auto option for Multihop.
 #![allow(unused)] // TODO: Remove before merging to main.
 
+use mullvad_relay_selector::RelaySelector;
+
 use super::Result;
 use super::multihop::scenario::Scenario;
 use super::multihop::update::migration;
