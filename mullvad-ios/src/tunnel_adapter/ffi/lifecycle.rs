@@ -23,6 +23,9 @@ pub struct GotaTunCallbacks {
     pub on_error: unsafe extern "C" fn(ctx: *mut std::ffi::c_void, message: *const c_char),
 }
 
+// SAFETY: `GotaTunCallbacks` holds an opaque Swift context pointer and Swift function
+// pointers. The Swift side guarantees the context is safe to send to another thread
+// and keeps it alive until `gotatun_stop_tunnel`.
 unsafe impl Send for GotaTunCallbacks {}
 unsafe impl Sync for GotaTunCallbacks {}
 
