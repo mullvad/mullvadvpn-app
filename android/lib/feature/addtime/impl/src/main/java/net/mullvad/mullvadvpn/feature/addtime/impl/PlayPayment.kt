@@ -224,6 +224,5 @@ private fun List<PaymentProduct>.status(): PaymentStatus? {
 private fun PaymentStatus.message(): String =
     when (this) {
         PaymentStatus.PENDING -> stringResource(id = R.string.payment_status_pending_long)
-        PaymentStatus.PURCHASED_UNVERIFIED ->
-            stringResource(id = R.string.verifying_purchase_error)
+        PaymentStatus.PURCHASED_UNVERIFIED -> stringResource(id = R.string.verifying_purchase_error)
     }
