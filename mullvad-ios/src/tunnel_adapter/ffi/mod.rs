@@ -30,6 +30,9 @@ fn read_32_bytes(ptr: *const u8) -> Option<[u8; 32]> {
         log::error!("gotatun FFI: received null key pointer");
         return None;
     }
+    // SAFETY: `ptr` is non-null (checked above). Every caller is an FFI entry point
+    // whose `# Safety` contract requires key pointers to reference at least 32
+    // readable bytes, so the 32-byte slice is in bounds and outlives this read.
     let slice = unsafe { std::slice::from_raw_parts(ptr, 32) };
     let mut arr = [0u8; 32];
     arr.copy_from_slice(slice);
