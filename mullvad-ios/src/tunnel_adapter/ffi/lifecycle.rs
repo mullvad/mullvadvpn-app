@@ -108,6 +108,9 @@ pub unsafe extern "C" fn gotatun_start_tunnel(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn gotatun_stop_tunnel(handle: *mut GotaTunHandle) {
     if !handle.is_null() {
+        // SAFETY: `handle` is non-null (checked) and, per this function's `# Safety`
+        // contract, came from `gotatun_start_tunnel` and has not been stopped before,
+        // so it is safe to reclaim ownership of the `Box` and drop it exactly once.
         let handle = unsafe { Box::from_raw(handle) };
         handle.adapter.stop();
     }
