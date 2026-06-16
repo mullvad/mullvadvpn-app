@@ -1,3 +1,5 @@
+use crate::CustomListProvider;
+
 use super::{
     AnnotatedRelayList, RelaySelector,
     endpoint_set::{RelayEndpointSet, Verdict, VerdictExt},
@@ -70,14 +72,14 @@ impl AutohopPartition {
     }
 }
 
-impl RelaySelector {
+impl<C: CustomListProvider> RelaySelector<C> {
     /// As opposed to the prior [`Self::get_relay_by_query`], this function is stateless with
     /// regards to any particular config / settings, but is stateful in the sense that it works with
     /// the [`RelaySelector`]s current relay list. [`RelaySelector::partition_relays`] is idempotent
     /// if the relay list is pinned.
     pub fn partition_relays(&self, predicate: Predicate) -> RelayPartitions {
         let relays = self.relays.read().unwrap();
-        let custom_lists = self.custom_lists();
+        let custom_lists = self.config.custom_lists();
         match predicate {
             Predicate::Singlehop(constraints) => {
                 partition_entry(&relays, &constraints, &custom_lists)

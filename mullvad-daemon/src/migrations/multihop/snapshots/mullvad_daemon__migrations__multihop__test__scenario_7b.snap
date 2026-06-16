@@ -3,6 +3,9 @@ source: mullvad-daemon/src/migrations/multihop/mod.rs
 expression: "serde_json::to_string_pretty(&settings)?"
 ---
 {
+  "custom_lists": {
+    "custom_lists": []
+  },
   "relay_settings": {
     "normal": {
       "location": "any",

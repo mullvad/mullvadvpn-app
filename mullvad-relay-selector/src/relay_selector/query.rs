@@ -142,9 +142,9 @@ impl RelayQuery {
     }
 }
 
-impl From<&Settings> for RelayQuery {
-    fn from(settings: &Settings) -> Self {
-        let RelaySettings::Normal(relay_settings) = &settings.relay_settings else {
+impl From<Settings> for RelayQuery {
+    fn from(settings: Settings) -> Self {
+        let RelaySettings::Normal(relay_settings) = settings.relay_settings else {
             // Custom tunnel endpoints bypass the relay selector entirely — return a
             // dormant default. Callers that care about custom endpoints check
             // `relay_settings` themselves before consulting the relay selector.
@@ -161,8 +161,8 @@ impl From<&Settings> for RelayQuery {
             ip_version: wg.ip_version,
         };
         let exit = ExitConstraints {
-            location: relay_settings.location.clone(),
-            providers: relay_settings.providers.clone(),
+            location: relay_settings.location,
+            providers: relay_settings.providers,
             ownership: relay_settings.ownership,
         };
 
