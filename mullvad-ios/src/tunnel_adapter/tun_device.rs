@@ -74,6 +74,7 @@ impl IosTunDevice {
         let ret = unsafe { libc::fcntl(dup_fd, libc::F_SETFL, flags | libc::O_NONBLOCK) };
         if ret < 0 {
             let err = io::Error::last_os_error();
+            // SAFETY: as above — `dup_fd` is still the only owner and still open.
             unsafe { libc::close(dup_fd) };
             return Err(err);
         }
