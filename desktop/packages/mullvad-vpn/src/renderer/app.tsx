@@ -66,6 +66,7 @@ import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
+import { convertSettingsToRelaySelectorQueries } from './utils';
 
 const IpcRendererEventChannel = window.ipc;
 
@@ -176,6 +177,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.settings.listen((newSettings: ISettings) => {
       this.setSettings(newSettings);
       this.updateBlockedState(this.tunnelState);
+      void this.updateRelayLocationsFiltered();
     });
 
     IpcRendererEventChannel.settings.listenApiAccessMethodSettingChange((setting) => {
@@ -664,6 +666,63 @@ export default class AppRenderer {
     await IpcRendererEventChannel.app.showFullDiskAccessSettings();
   };
 
+  public updateRelayLocationsFiltered = async (ignoreCache: boolean = false) => {
+    const state = this.reduxStore.getState();
+    const relaySelectorQueries = convertSettingsToRelaySelectorQueries(state.settings);
+    if (relaySelectorQueries) {
+      const relaySelectorQueriesWithKey = relaySelectorQueries
+        .map(({ predicate, ...query }) => {
+          // Avoid doing unnecessary queries by saving a string representation of each predicate
+          // with the resulting partitions, then next time before we query the Relay selector we
+          // can check if the key generated for the predicate matches the stored one, and if that
+          // is the case then we can skip doing the query.
+          const key = JSON.stringify(predicate);
+
+          return {
+            ...query,
+            key,
+            predicate,
+          };
+        })
+        .filter(({ context, key }) => {
+          if (ignoreCache || !(context in state.settings.relayLocationsFiltered)) {
+            return true;
+          }
+
+          const relayLocationsFilteredContextKey =
+            state.settings.relayLocationsFiltered[context].key;
+
+          return key !== relayLocationsFilteredContextKey;
+        });
+      if (relaySelectorQueriesWithKey.length > 0) {
+        const relaySelectorQueryResults = await Promise.all(
+          relaySelectorQueriesWithKey.map(async ({ context, key, predicate }) => {
+            const relayPartitions = await IpcRendererEventChannel.relays.partitionRelays(predicate);
+
+            return {
+              context,
+              relayPartitions,
+              key,
+            };
+          }),
+        );
+
+        const relayLocationsFiltered = relaySelectorQueryResults.reduce(
+          (allRelayLocationsFiltered, { context, relayPartitions, key }) => ({
+            ...allRelayLocationsFiltered,
+            [context]: {
+              ...relayPartitions,
+              key,
+            },
+          }),
+          state.settings.relayLocationsFiltered,
+        );
+
+        this.reduxActions.settings.updateRelayLocationsFiltered(relayLocationsFiltered);
+      }
+    }
+  };
+
   public async sendProblemReport(
     email: string,
     message: string,
@@ -792,6 +851,7 @@ export default class AppRenderer {
     this.reduxActions.userInterface.setConnectedToDaemon(true);
     this.reduxActions.userInterface.setDaemonAllowed(true);
     this.reduxActions.userInterface.setDaemonStatus('running');
+    void this.updateRelayLocationsFiltered();
   }
 
   private onDaemonDisconnected() {
@@ -860,6 +920,8 @@ export default class AppRenderer {
     reduxSettings.updateRecents(newSettings.recents);
 
     this.setReduxRelaySettings(newSettings.relaySettings);
+
+    void this.updateRelayLocationsFiltered();
   }
 
   private setIsPerformingPostUpgrade(isPerformingPostUpgrade: boolean) {
@@ -946,6 +1008,8 @@ export default class AppRenderer {
     if (this.relayList) {
       this.reduxActions.settings.updateRelayLocations(this.relayList.relayList.countries);
       this.reduxActions.settings.updateWireguardEndpointData(this.relayList.wireguardEndpointData);
+      // When the relay list changes the old queries are stale and the cache can be ignored
+      void this.updateRelayLocationsFiltered(true);
     }
   }
 

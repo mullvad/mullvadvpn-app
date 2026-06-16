@@ -15,6 +15,7 @@ import { IGuiSettingsState } from '../../../src/shared/gui-settings-state';
 import { ITranslations, MacOsScrollbarVisibility } from '../../../src/shared/ipc-schema';
 import { ICurrentAppVersionInfo } from '../../../src/shared/ipc-types';
 import { mockData } from '../mock-data';
+import { getRelayPartitions } from './mock-relay-selector';
 
 const DEBUG = false;
 const TEST_SHOW_WINDOW = process.env.TEST_SHOW_WINDOW === '1';
@@ -146,6 +147,11 @@ class ApplicationMain {
       scrollPositions: {},
       isMacOs13OrNewer: true,
     }));
+
+    IpcMainEventChannel.relays.handlePartitionRelays(async (predicate) => {
+      const relayPartitions = getRelayPartitions(predicate, mockData.relayList);
+      return Promise.resolve(relayPartitions);
+    });
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale) => {
       this.updateCurrentLocale(locale);

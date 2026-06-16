@@ -20,6 +20,7 @@ import {
   type ShadowsocksCipher,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
+import { RelaySelectorPartitions } from '../../../shared/relay-selector-rpc-types';
 import { ReduxAction } from '../store';
 
 export type NormalRelaySettingsRedux = {
@@ -72,11 +73,20 @@ export interface IRelayLocationCountryRedux {
   cities: IRelayLocationCityRedux[];
 }
 
+export type RelayLocationsFilterContext = 'entry' | 'exit';
+
+export type RelayLocationsFiltered = {
+  [key in RelayLocationsFilterContext]: RelaySelectorPartitions & {
+    key: string;
+  };
+};
+
 export interface ISettingsReduxState {
   autoStart: boolean;
   guiSettings: IGuiSettingsState;
   relaySettings: RelaySettingsRedux;
   relayLocations: IRelayLocationCountryRedux[];
+  relayLocationsFiltered: RelayLocationsFiltered;
   wireguardEndpointData: IWireguardEndpointData;
   allowLan: boolean;
   enableIpv6: boolean;
@@ -123,6 +133,18 @@ const initialState: ISettingsReduxState = {
     },
   },
   relayLocations: [],
+  relayLocationsFiltered: {
+    entry: {
+      key: '',
+      matches: [],
+      discards: [],
+    },
+    exit: {
+      key: '',
+      matches: [],
+      discards: [],
+    },
+  },
   wireguardEndpointData: { portRanges: [], udp2tcpPorts: [] },
   allowLan: false,
   enableIpv6: true,
@@ -192,6 +214,12 @@ export default function (
       return {
         ...state,
         relayLocations: action.relayLocations,
+      };
+
+    case 'UPDATE_RELAY_LOCATIONS_FILTERED':
+      return {
+        ...state,
+        relayLocationsFiltered: action.relayLocationsFiltered,
       };
 
     case 'UPDATE_WIREGUARD_ENDPOINT_DATA':
