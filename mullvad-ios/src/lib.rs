@@ -1,5 +1,6 @@
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 mod gotatun;
+mod tunnel_adapter;
 
 #[cfg(target_os = "ios")]
 mod api_client;
