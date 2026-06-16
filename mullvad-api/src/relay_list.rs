@@ -8,7 +8,7 @@ use mullvad_types::{
     relay_list::{self, BridgeList, RelayListCountry},
 };
 use serde::{Deserialize, Serialize};
-use talpid_types::net::wireguard;
+use talpid_types::net::{obfuscation::LwoVersion, wireguard};
 use vec1::Vec1;
 
 use std::{
@@ -418,6 +418,7 @@ impl WireGuardRelay {
             weight: self.relay.weight,
             location,
         };
+        let lwo = self.features.lwo_version();
         let endpoint_data = relay_list::WireguardRelayEndpointData {
             public_key: self.public_key,
             // FIXME: This hack is forward-compatible with 'features' being rolled out.
@@ -425,7 +426,7 @@ impl WireGuardRelay {
             daita: self.features.daita.map(|_| true).unwrap_or(self.daita),
             shadowsocks_extra_addr_in: HashSet::from_iter(self.shadowsocks_extra_addr_in),
             quic: self.features.quic.map(relay_list::Quic::from),
-            lwo: self.features.lwo.is_some(),
+            lwo,
         };
 
         relay_list::WireguardRelay::new(
@@ -446,6 +447,18 @@ struct Features {
     daita: Option<Daita>,
     quic: Option<Quic>,
     lwo: Option<Lwo>,
+    lwo_v2: Option<Lwo>,
+}
+
+impl Features {
+    /// The latest supported LWO version, or `None`.
+    fn lwo_version(&self) -> Option<LwoVersion> {
+        match (&self.lwo_v2, &self.lwo) {
+            (Some(_), _) => Some(LwoVersion::V2),
+            (None, Some(_)) => Some(LwoVersion::V1),
+            (None, None) => None,
+        }
+    }
 }
 
 /// DAITA doesn't have any configuration options (exposed by the API).

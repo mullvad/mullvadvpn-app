@@ -67,7 +67,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "al-tia-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a04:27c0:0:e::b017",
                     "2a04:27c0:0:e::b010",
@@ -146,7 +146,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "al-tia-wg-003.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "103.204.123.136"
                   ]
@@ -185,7 +185,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "al-tia-wg-004.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "103.124.165.197"
                   ]
@@ -237,7 +237,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ar-bue-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "149.22.83.5"
                   ]
@@ -275,7 +275,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ar-bue-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "149.22.83.34"
                   ]
@@ -321,7 +321,7 @@
                   "public_key": "GLqlOTVJCyRpJx3vgR3ykTPNJLGKNytHXu61zBWIAls=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "146.70.116.143",
                     "146.70.116.141",
@@ -392,7 +392,7 @@
                   "public_key": "FSGkeqzoy8fWkGcGl5nrYeiQG04C511+qdH5iMramxE=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "135.136.51.20",
                     "2001:ac8:29:b4::b01a",
@@ -463,7 +463,7 @@
                   "public_key": "HsWJFTCpoe7niGs8EOMI2/ES4Q4MuhqLIoRc9QLSpSk=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:29:b5::b01a",
                     "2001:ac8:29:b5::b00e",
@@ -534,7 +534,7 @@
                   "public_key": "dj3qNfJfA4dWXsWokPcDh4oo6xaPtOTPfbr5UzHKZ0M=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "185.24.11.132"
                   ]
@@ -566,7 +566,7 @@
                   "public_key": "DANFtH+sFB19BnW1CYEwZ2pOIt7P8nLjSadjpS2rLWE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "185.24.11.161"
                   ]
@@ -612,7 +612,7 @@
                   "public_key": "rm2hpBiN91c7reV+cYKlw7QNkYtME/+js7IMyYBB2Aw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -642,7 +642,7 @@
                   "public_key": "e4jouH8n4e8oyi/Z7d6lJLd6975hlPZmnynJeoU+nWM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -672,7 +672,7 @@
                   "public_key": "X9vdIZG69ZDU4Wf05T8F+C+NuWeYOgojmOVeASdiIWo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -710,7 +710,7 @@
                   "public_key": "1H/gj8SVNebAIEGlvMeUVC5Rnf274dfVKbyE+v5G8HA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -740,7 +740,7 @@
                   "public_key": "z+JG0QA4uNd/wRTpjCqn9rDpQsHKhf493omqQ5rqYAc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -770,7 +770,7 @@
                   "public_key": "AdUQ6vk1e1SMzlLpgwmg86A0SSj8YGrJE2UWlflGtCg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -852,7 +852,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-mel-wg-401.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2406:d501:f:dfa::b01b",
                     "91.190.106.18",
@@ -969,7 +969,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-mel-wg-402.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "163.47.16.153",
                     "2406:d501:f:dfb::b010",
@@ -1087,7 +1087,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-mel-wg-403.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2406:d501:f:dfc::b016",
                     "2406:d501:f:dfc::b014",
@@ -1168,7 +1168,7 @@
                   "public_key": "hQXsNk/9R2We0pzP1S9J3oNErEu2CyENlwTdmDUYFhg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1198,7 +1198,7 @@
                   "public_key": "t3Ly8bBdF2gMHzT3d529bVLDw8Jd2/FFG9GXoBEx01g=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1236,7 +1236,7 @@
                   "public_key": "4JpfHBvthTFOhCK0f5HAbzLXAVcB97uAkuLx7E8kqW0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1266,7 +1266,7 @@
                   "public_key": "lUeDAOy+iAhZDuz5+6zh0Co8wZcs3ahdu2jfqQoDW3E=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1296,7 +1296,7 @@
                   "public_key": "LXuRwa9JRTt2/UtldklKGlj/IVLORITqgET4II4DRkU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1326,7 +1326,7 @@
                   "public_key": "NKP4jSvSDZg5HJ3JxpGYMxIYt7QzoxSFrU2F0m1ZxwA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1356,7 +1356,7 @@
                   "public_key": "w825smx7YI9/SrwSYGdsuwD1Qt5UsS/CyaGTjwSYljU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1386,7 +1386,7 @@
                   "public_key": "poOHsF6v91yURxDrNe/P/adyNUqsRGzhFIioyBYUPww=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1416,7 +1416,7 @@
                   "public_key": "61Ovy3ObuHqllZK/P/5cOWZnY26SY2csmjzVK1q+fFs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1453,7 +1453,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-syd-wg-301.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.120.6.13"
                   ]
@@ -1491,7 +1491,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-syd-wg-302.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.120.6.138"
                   ]
@@ -1529,7 +1529,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-syd-wg-303.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.141.60.13"
                   ]
@@ -1567,7 +1567,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "au-syd-wg-304.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.141.60.138"
                   ]
@@ -1613,7 +1613,7 @@
                   "public_key": "GE2WP6hmwVggSvGVWLgq2L10T3WM2VspnUptK5F4B0U=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1643,7 +1643,7 @@
                   "public_key": "IY+FKw487MEWqMGNyyrT4PnTrJxce8oiGNHT0zifam8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1673,7 +1673,7 @@
                   "public_key": "b5A1ela+BVI+AbNXz7SWekZHvdWWpt3rqUKTJj0SqCU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1717,7 +1717,7 @@
                   "public_key": "J8KysHmHZWqtrVKKOppneDXSks/PDsB1XTlRHpwiABA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1747,7 +1747,7 @@
                   "public_key": "dg+Fw7GnKvDPBxFpnj1KPoNIu1GakuVoDJjKRni+pRU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1798,7 +1798,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "br-for-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.219.14"
                   ]
@@ -1837,7 +1837,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "br-for-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.219.139"
                   ]
@@ -1877,7 +1877,7 @@
                   "public_key": "8c9M6w1BQbgMVr/Zgrj4GwSdU6q3qfQfWs17kMLC9y4=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1907,7 +1907,7 @@
                   "public_key": "jWURoz8SLBUlRTQnAFTA/LDZUTpvlO0ghiVWH7MgaHQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -1944,7 +1944,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "br-sao-wg-302.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.139.178.74",
                     "103.139.178.75"
@@ -1984,7 +1984,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "br-sao-wg-303.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.139.178.134",
                     "103.139.178.135"
@@ -2024,7 +2024,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "br-sao-wg-304.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.139.178.195",
                     "103.139.178.194"
@@ -2078,7 +2078,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -2108,7 +2108,7 @@
                   "public_key": "7X6zOgtJfJAK8w8C3z+hekcS9Yf3qK3Bp4yx56lqxBQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -2138,7 +2138,7 @@
                   "public_key": "57Zu2qPzRScZWsoC2NhXgz0FiC0HiKkbEa559sbxB3k=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -2168,7 +2168,7 @@
                   "public_key": "Cc5swfQ9f2tAgLduuIqC3bLbwDVoOFkkETghsE6/twA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -2198,7 +2198,7 @@
                   "public_key": "m1DF8sQgOBo+vfdl1//sCvu2TnsHKdRzfsiszbBZQzs=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "62.93.167.132"
                   ]
@@ -2230,7 +2230,7 @@
                   "public_key": "NqU0AZRAYH1p8BDUbirqITPJX47WYJsyxO73RHcEjEQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "62.93.167.162"
                   ]
@@ -2312,7 +2312,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-301.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.120.17",
                     "2607:9000:f00:2::b00b",
@@ -2438,7 +2438,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-302.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:3::b01a",
                     "23.234.120.135",
@@ -2564,7 +2564,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-303.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:4::b018",
                     "23.234.121.11",
@@ -2690,7 +2690,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-304.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.121.138",
                     "2607:9000:f00:5::b009",
@@ -2816,7 +2816,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-305.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:6::b012",
                     "2607:9000:f00:6::b016",
@@ -2942,7 +2942,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-306.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:7::b003",
                     "2607:9000:f00:7::b004",
@@ -3068,7 +3068,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-307.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:8::b008",
                     "23.234.123.5",
@@ -3194,7 +3194,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-mtr-wg-308.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:f00:9::b00f",
                     "2607:9000:f00:9::b015",
@@ -3278,7 +3278,7 @@
                   "public_key": "HjcUGVDXWdrRkaKNpc/8494RM5eICO6DPyrhCtTv9Ws=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3308,7 +3308,7 @@
                   "public_key": "iqZSgVlU9H67x/uYE5xsnzLCDXf7FL9iMfyKfl6WsV8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3345,7 +3345,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-201.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.84.13"
                   ]
@@ -3383,7 +3383,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-202.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.84.138"
                   ]
@@ -3421,7 +3421,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-203.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.85.13"
                   ]
@@ -3459,7 +3459,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-204.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.85.138"
                   ]
@@ -3497,7 +3497,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-205.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.86.13"
                   ]
@@ -3535,7 +3535,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-206.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.86.138"
                   ]
@@ -3574,7 +3574,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ca-tor-wg-207.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.87.13"
                   ]
@@ -3614,7 +3614,7 @@
                   "public_key": "hYbb2NQKB0g2RefngdHl3bfaLImUuzeVIv2i1VCVIlQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3644,7 +3644,7 @@
                   "public_key": "wGqcNxXH7A3bSptHZo7Dfmymy/Y30Ea/Zd47UkyEbzo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3674,7 +3674,7 @@
                   "public_key": "BzYINbABQiSbRLDZIlmgsLgL88offQJCEH3JkcjRGUk=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3704,7 +3704,7 @@
                   "public_key": "EOOkxbmbdHmjb8F45s33yKrIzKWH6lGIgJf2kTOxwFw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3742,7 +3742,7 @@
                   "public_key": "L4RcVwk0cJJp2u8O9+86sdyUpxfYnr+ME57Ex0RY1Wo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3772,7 +3772,7 @@
                   "public_key": "u9J/fzrSqM2aEFjTs91KEKgBsaQ/I/4XkIP1Z/zYkXA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -3852,7 +3852,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ch-zrh-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b01f",
                     "2a03:1b20:a:f011::b011",
@@ -3913,7 +3913,7 @@
                   "public_key": "qcvI02LwBnTb7aFrOyZSWvg4kb7zNW9/+rS6alnWyFE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b108",
                     "2a03:1b20:a:f011::b107",
@@ -3974,7 +3974,7 @@
                   "public_key": "5Ms10UxGjCSzwImTrvEjcygsWY8AfMIdYyRvgFuTqH8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b214",
                     "2a03:1b20:a:f011::b20f",
@@ -4035,7 +4035,7 @@
                   "public_key": "C3jAgPirUZG6sNYe4VuAgDEYunENUyG34X42y+SBngQ=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b30e",
                     "2a03:1b20:a:f011::b31f",
@@ -4096,7 +4096,7 @@
                   "public_key": "dV/aHhwG0fmp0XuvSvrdWjCtdyhPDDFiE/nuv/1xnRM=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b41b",
                     "2a03:1b20:a:f011::b41c",
@@ -4157,7 +4157,7 @@
                   "public_key": "wDjbvO94t0UI1RlimpEFFv7kJ6DngthvuRX6uBN0wAA=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:a:f011::b612",
                     "2a03:1b20:a:f011::b616",
@@ -4218,7 +4218,7 @@
                   "public_key": "66NPINP4+1AlojLP0J6O9GxdloiegNnGMV4Yit9Kzg0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4248,7 +4248,7 @@
                   "public_key": "gSLSfY2zNFRczxHndeda258z+ayMvd7DqTlKYlKWJUo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4278,7 +4278,7 @@
                   "public_key": "45ud3I5O6GmPXTrMJiqkiPMI/ubucDqzGaiq3CHJXk8=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4308,7 +4308,7 @@
                   "public_key": "7VCMEE+Oljm/qKfQJSUCOYPtRSwdOnuPyqo5Vob+GRY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4338,7 +4338,7 @@
                   "public_key": "Jmhds6oPu6/j94hjllJCIaKLDyWu6V+ZNRrVVFhWJkI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4368,7 +4368,7 @@
                   "public_key": "zfNQqDyPmSUY8+20wxACe/wpk4Q5jpZm5iBqjXj2hk8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4455,7 +4455,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ch-zrh-wg-502.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "135.136.18.229",
                     "135.136.18.233",
@@ -4591,7 +4591,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ch-zrh-wg-503.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:28:ac::b01a",
                     "2001:ac8:28:ac::b01e",
@@ -4711,7 +4711,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ch-zrh-wg-504.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:28:ad::b01a",
                     "2001:ac8:28:ad::b012",
@@ -4798,7 +4798,7 @@
                   "public_key": "03qeK7CSn6wcMzfqilmVt6Tf81VZIPWnSG04euSkyxM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4828,7 +4828,7 @@
                   "public_key": "rn9O+cXj0WQgZAkGCoYvvWgzaB5GcOaVfke3WKsp1Ro=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4872,7 +4872,7 @@
                   "public_key": "iaMa84nCHK+v4TnQH4h2rxkqwwxemORXM12VbJDRZSU=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4902,7 +4902,7 @@
                   "public_key": "IZDwbG9C/NrOOGVUrn+fDaPr8ZwD/yhvST7XWGk1ln8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -4946,7 +4946,7 @@
                   "public_key": "Ae9YcQjcQT+W8MU0EhKXx6KPWo6ticS1NI91e+Zy5GA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "195.47.194.133"
                   ]
@@ -4978,7 +4978,7 @@
                   "public_key": "LOd1SY9YCHGiJUVT+XdYRdORu6ZMw4CqOKQBW2ElLg8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "195.47.194.163"
                   ]
@@ -5024,7 +5024,7 @@
                   "public_key": "tWVga+pS/Ztrbx/L/PBlaWPGhkI3PCPBzbQlCeXWqn8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5060,7 +5060,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "cz-prg-wg-102.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5090,7 +5090,7 @@
                   "public_key": "5FZW+fNA2iVBSY99HFl+KjGc9AFVNE+UFAedLNhu8lc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5120,7 +5120,7 @@
                   "public_key": "ReGrGPKDHri64D7qeXmgcLzjsTJ0B/yM7eekFz1P/34=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5180,7 +5180,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.20",
                     "151.241.171.27",
@@ -5238,7 +5238,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-002.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.52",
                     "151.241.171.58",
@@ -5296,7 +5296,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-003.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.86",
                     "151.241.171.83",
@@ -5354,7 +5354,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-004.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.112",
                     "193.32.248.92",
@@ -5412,7 +5412,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-005.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.144",
                     "151.241.171.142",
@@ -5470,7 +5470,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-006.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.178",
                     "151.241.171.174",
@@ -5528,7 +5528,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-007.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.191",
                     "151.241.171.197",
@@ -5587,7 +5587,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-ber-wg-008.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "151.241.171.226",
                     "151.241.171.227",
@@ -5637,7 +5637,7 @@
                   "public_key": "ku1NYeOAGbY65YL/JKZhrqVzDJKXQiVj9USXbfkOBA0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5667,7 +5667,7 @@
                   "public_key": "TPAIPTgu9jIitgX1Bz5xMCZJ9pRRZTdtZEOIxArO0Hc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5697,7 +5697,7 @@
                   "public_key": "XgSe9UwEV4JJNPPzFFOVYS6scMTL4DeNlwqBl32lDw0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -5771,7 +5771,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b003",
                     "2a03:1b20:6:f011::b00f",
@@ -5887,7 +5887,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-002.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b10e",
                     "151.241.163.39",
@@ -6008,7 +6008,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-003.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "151.241.163.109",
                     "151.241.163.111",
@@ -6129,7 +6129,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-004.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b318",
                     "2a03:1b20:6:f011::b31b",
@@ -6265,7 +6265,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-005.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b40a",
                     "151.241.163.233",
@@ -6356,7 +6356,7 @@
                   "public_key": "nAF0wrLG2+avwQfqxnXhBGPUBCvc3QCqWKH4nK5PfEU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b512",
                     "2a03:1b20:6:f011::b513",
@@ -6417,7 +6417,7 @@
                   "public_key": "mTmrSuXmTnIC9l2Ur3/QgodGrVEhhIE3pRwOHZpiYys=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -6447,7 +6447,7 @@
                   "public_key": "+DuVLLPwGNlfZFoI24PRPdaTrO4i+WPDlYaOVcavHDo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b703",
                     "2a03:1b20:6:f011::b714",
@@ -6508,7 +6508,7 @@
                   "public_key": "flq7zR8W5FxouHBuZoTRHY0A0qFEMQZF5uAgV4+sHVw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:6:f011::b90c",
                     "2a03:1b20:6:f011::b91a",
@@ -6615,7 +6615,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-101.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "146.70.117.23",
                     "146.70.117.18",
@@ -6733,7 +6733,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-102.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "146.70.117.146",
                     "146.70.117.153",
@@ -6851,7 +6851,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-103.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:20:271::b01b",
                     "2001:ac8:20:271::b009",
@@ -6969,7 +6969,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "de-fra-wg-104.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:20:272::b017",
                     "135.136.19.151",
@@ -7041,7 +7041,7 @@
                   "public_key": "dNKRyh2MkJGZdg9jyUJtf9w5GHjX3+/fYatg+xi9TUM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7071,7 +7071,7 @@
                   "public_key": "A3DbIgPycEJhJ1fQ4zzcajLOKTZsJMeawjdPQiWav20=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7101,7 +7101,7 @@
                   "public_key": "2P+9SjwVCEnMDnBiYfZtQLq9p2S2TFhCM0xJBoevYk4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7131,7 +7131,7 @@
                   "public_key": "VgNcwWy8MRhfEZY+XSisDM1ykX+uXlHQScOLqqGMLkc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7161,7 +7161,7 @@
                   "public_key": "AbM8fnQWmmX6Nv0Tz68LigPbGkamJgNjxgzPfENOdXU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7191,7 +7191,7 @@
                   "public_key": "6/PBbPtoeWpJA+HZc9Iqg/PPQWD7mGVvZdwQlr1vtRk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7221,7 +7221,7 @@
                   "public_key": "HWzSNMbQOQafkVp68B7aLRirhNJ6x5Wjw8/y7oUuHW0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7302,7 +7302,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "dk-cph-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:8:f011::b007",
                     "2a03:1b20:8:f011::b01f",
@@ -7364,7 +7364,7 @@
                   "public_key": "R5LUBgM/1UjeAR4lt+L/yA30Gee6/VqVZ9eAB3ZTajs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:8:f011::b11c",
                     "2a03:1b20:8:f011::b11e",
@@ -7469,7 +7469,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "dk-cph-wg-101.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a02:6ea0:470b:0:1::b01f",
                     "2a02:6ea0:470b:0:1::b01c",
@@ -7586,7 +7586,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "dk-cph-wg-102.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a02:6ea0:470b:0:2::b01c",
                     "2a02:6ea0:470b:0:2::b004",
@@ -7703,7 +7703,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "dk-cph-wg-103.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a02:6ea0:470b:0:3::b008",
                     "2a02:6ea0:470b:0:3::b010",
@@ -7773,7 +7773,7 @@
                   "public_key": "Jjml2TSqKlgzW6UzPiJszaun743QYpyl5jQk8UOQYg0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7803,7 +7803,7 @@
                   "public_key": "ML0NcFPqy+x+ZJg7y9vfh77hXAOtgueIqp1j+CJVrXM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7847,7 +7847,7 @@
                   "public_key": "bdq37KtfoG1Tm7yQcfitdRyGeZOn/c7PwLN+LgG/6nA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7877,7 +7877,7 @@
                   "public_key": "vqGmmcERr/PAKDzy6Dxax8g4150rC93kmKYabZuAzws=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7907,7 +7907,7 @@
                   "public_key": "+8dUgpD7YA4wMPnRQkO7EI7AeYd30QPMKh/hOaaGIXY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7951,7 +7951,7 @@
                   "public_key": "asbfbY0oP07dBdmVNDSuO3o5rbkGnR56PkXTGXO7YFg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -7981,7 +7981,7 @@
                   "public_key": "SoTWu5Cf7JSfaPVftMrTVzeyICGc7oc+ODl6GfqzUHA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8018,7 +8018,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "es-bcn-wg-101.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8055,7 +8055,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "es-bcn-wg-102.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8093,7 +8093,7 @@
                   "public_key": "oPpPeyiQhUYqtOxwR387dmFfII8OK5LX2RPyns1rx2U=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8123,7 +8123,7 @@
                   "public_key": "1Wo/cQeVHX2q9k95nxN+48lgkGLsPQ+uesRb/9XdY1Y=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8153,7 +8153,7 @@
                   "public_key": "LyO4Xs1eV8JwFr63a1FRnKboQn2Tu/oeMzHhbr7Y6GU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8183,7 +8183,7 @@
                   "public_key": "iehXacO91FbBqni2IFxedEYPlW2Wvvt9GtRPPPMo9zc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8221,7 +8221,7 @@
                   "public_key": "aEObX8ThiHcN/Y40UqY8dXaGMJsVQUWhrEphbpuQRkw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8251,7 +8251,7 @@
                   "public_key": "JEDqyG7iGjy/rYsE/9H7y0Sz8Sl+KWYYUvkPG7NnCjk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8302,7 +8302,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8353,7 +8353,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a0c:f040:0:2790::b205",
                     "2a0c:f040:0:2790::b202",
@@ -8415,7 +8415,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-003.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a0c:f040:0:2790::b33",
                     "2a0c:f040:0:2790::b35",
@@ -8461,7 +8461,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-101.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8491,7 +8491,7 @@
                   "public_key": "xeHVhXxyyFqUEE+nsu5Tzd/t9en+++4fVFcSFngpcAU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8521,7 +8521,7 @@
                   "public_key": "Mlvu14bSD6jb7ajH/CiJ/IO8W+spB8H6VmdGkFGOcUQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8551,7 +8551,7 @@
                   "public_key": "keRQGHUbYP2qgDTbYqOsI9byfNb0LOpTZ/KdC67cJiA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -8643,7 +8643,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-201.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:d:f011:1::b003",
                     "91.206.168.76",
@@ -8820,7 +8820,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-202.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:d:f011:2::b00a",
                     "2a03:1b20:d:f011:2::b01b",
@@ -8988,7 +8988,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fi-hel-wg-203.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:d:f011:3::b01c",
                     "91.206.168.232",
@@ -9098,7 +9098,7 @@
                   "public_key": "y6dcYS7MPeApbLoWLahjku5w5cufnNkwHzj1iwDPpS0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9128,7 +9128,7 @@
                   "public_key": "ZBOJ2w5DqG35T1zjV/F1UgrXkDhNxObnwdm2FUwyu2o=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9166,7 +9166,7 @@
                   "public_key": "MOk2OTDEaFFN4vsCAgf+qQi6IlY99nCeDEzpXyo65wg=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9196,7 +9196,7 @@
                   "public_key": "Z0LEgZIPhNj0+/VWknU3roHlVI3qqAfoV6th9NSC0F0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9234,7 +9234,7 @@
                   "public_key": "ov323GyDOEHLT0sNRUUPYiE3BkvFDjpmi1a4fzv49hE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9264,7 +9264,7 @@
                   "public_key": "R5Ve+PJD24QjNXi2Dim7szwCiOLnv+6hg+WyTudAYmE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9294,7 +9294,7 @@
                   "public_key": "w4r/o6VImF7l0/De3JpOGnpzjAFv9wcCu8Rop5eZkWc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9324,7 +9324,7 @@
                   "public_key": "E/KjR7nlFouuRXh1pwGDr7iK2TAZ6c4K0LjjmA1A2Tc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9354,7 +9354,7 @@
                   "public_key": "cmqtSjWUa4/0bENQDKxdr0vQqf4nFVDodarHm0Pc0hY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9384,7 +9384,7 @@
                   "public_key": "x0k8A2S7Dx7VNX2Yo2qRPZW/VefIogID5bVynklBugE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9414,7 +9414,7 @@
                   "public_key": "D2o4woLw59apODi8NgvVtsbEJOAF5HRxXCp3R4mzGAs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9489,7 +9489,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fr-par-wg-101.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "146.70.184.22",
                     "2001:ac8:25:3a::b00e",
@@ -9605,7 +9605,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fr-par-wg-102.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:25:3b::b00e",
                     "2001:ac8:25:3b::b00a",
@@ -9721,7 +9721,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "fr-par-wg-103.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:25:3c::b017",
                     "2001:ac8:25:3c::b01d",
@@ -9792,7 +9792,7 @@
                   "public_key": "gCYpOei4ZYsWJ3mOgCdQo6bnsRgdLNJR9SWEA69U7Gw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "95.173.222.5"
                   ]
@@ -9824,7 +9824,7 @@
                   "public_key": "CpbLl0WVeiW+YbJKNod5khzAI03D2hX2dhq2CCYc2Xc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "95.173.222.33"
                   ]
@@ -9870,7 +9870,7 @@
                   "public_key": "xCPSxGj0QVKC637D8HpRsUUCaSfgAF4ephG/CjhQ2kU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9900,7 +9900,7 @@
                   "public_key": "tX+LKwiFvZhGtbuJq8e62+/vhogHNqdAdjHeoOlWqws=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -9978,7 +9978,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-lon-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b003",
                     "2a03:1b20:7:f011::b009",
@@ -10041,7 +10041,7 @@
                   "public_key": "J57ba81Q8bigy9RXBXvl0DgABTrbl81nb37GuX50gnY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b106",
                     "2a03:1b20:7:f011::b114",
@@ -10103,7 +10103,7 @@
                   "public_key": "VZwE8hrpNzg6SMwn9LtEqonXzSWd5dkFk62PrNWFW3Y=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b206",
                     "2a03:1b20:7:f011::b20d",
@@ -10165,7 +10165,7 @@
                   "public_key": "PLpO9ikFX1garSFaeUpo7XVSMrILrTB8D9ZwQt6Zgwk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b30d",
                     "2a03:1b20:7:f011::b30e",
@@ -10227,7 +10227,7 @@
                   "public_key": "bG6WulLmMK408n719B8nQJNuTRyRA3Qjm7bsm9d6v2M=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b404",
                     "2a03:1b20:7:f011::b40d",
@@ -10289,7 +10289,7 @@
                   "public_key": "INRhM0h4T1hi9j28pcC+vRv47bp7DIsNKtagaFZFSBI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b50d",
                     "2a03:1b20:7:f011::b512",
@@ -10351,7 +10351,7 @@
                   "public_key": "MVqe9e9aDwfFuvEhEn4Wd/zWV3cmiCX9fZMWetz+23A=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::b60e",
                     "2a03:1b20:7:f011::b60b",
@@ -10413,7 +10413,7 @@
                   "public_key": "uHkxYjfx6yzPHSdyqYqSEHsgFNFV8QCSV6aghuQK3AA=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:7:f011::c819",
                     "2a03:1b20:7:f011::c808",
@@ -10475,7 +10475,7 @@
                   "public_key": "b71Y8V/vVwNRGkL4d1zvApDVL18u7m31dN+x+i5OJVs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -10505,7 +10505,7 @@
                   "public_key": "+iQWuT3wb2DCy1u2eUKovhJTCB4aUdJUnpxGtONDIVE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -10535,7 +10535,7 @@
                   "public_key": "G7XDQqevQOw1SVL7Iarn9PM+RvmI6H/CfkmahBYEG0g=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -10565,7 +10565,7 @@
                   "public_key": "tJVHqpfkV2Xgmd4YK60aoErSt6PmJKJjkggHNDfWwiU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -10640,7 +10640,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-lon-wg-305.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "146.70.119.21",
                     "2a04:9dc0:18:70::b013",
@@ -10766,7 +10766,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-lon-wg-306.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a04:9dc0:18:71::b008",
                     "146.70.119.161",
@@ -10892,7 +10892,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-lon-wg-308.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a04:9dc0:18:73::b002",
                     "135.136.58.150",
@@ -11018,7 +11018,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-mnc-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:8b:104::b01f",
                     "2001:ac8:8b:104::b015",
@@ -11138,7 +11138,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "gb-mnc-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:8b:105::b016",
                     "2001:ac8:8b:105::b007",
@@ -11211,7 +11211,7 @@
                   "public_key": "x3APiw/mxJzdD+3WAPxTFnvOZHVotm6SGomHtMoR4Hg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "167.160.13.14"
                   ]
@@ -11243,7 +11243,7 @@
                   "public_key": "OpQgffPufxbHQUbItRoezS2V+yAEBKZ10jfU82YIByI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "167.160.13.139"
                   ]
@@ -11289,7 +11289,7 @@
                   "public_key": "li+thkAD7s6IZDgUoiKw4YSjM/U1q203PuthMzIJIU0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11319,7 +11319,7 @@
                   "public_key": "OL0gbjlNt1s26CDQjRP9wgMZbgYff7/xyUI8ypOn01s=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11363,7 +11363,7 @@
                   "public_key": "Oxh13dmwY6nNUa5rVHr7sLiFOj0fjzsaAUAUV87/nGs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2403:2c81:1000::b00e",
                     "103.125.233.8",
@@ -11430,7 +11430,7 @@
                   "public_key": "zmhMPHfkgo+uQxP+l919Gw7cj5NTatg9nMU37eEUWis=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11466,7 +11466,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "hk-hkg-wg-301.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11496,7 +11496,7 @@
                   "public_key": "7FADgmd9KyAVs3eFJE/ob9tV3E6m/klONEEIOfCoPTU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11526,7 +11526,7 @@
                   "public_key": "RtTENHB7VBUiowxtdAzopcb2Fvd+OFneN73k13oPUEo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11570,7 +11570,7 @@
                   "public_key": "PJvsgLogdAgZiVSxwTDyk9ri02mLZGuElklHShIjDGM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11600,7 +11600,7 @@
                   "public_key": "V0iDOyLSj870sjGGenDvAWqJudlPKDc212cQN85snEo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11644,7 +11644,7 @@
                   "public_key": "u+h0GmQJ8UBaMTi2BP9Ls6UUszcGC51y6vTmNr/y+AU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11674,7 +11674,7 @@
                   "public_key": "iEWLm2F4xV013ZETeZcT1dyUd5O+JnyndHso8RP8txw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11704,7 +11704,7 @@
                   "public_key": "RPhw+caiytSurUMQfZhEFlxGK83xcwWMNtXCkpTqJBI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "79.127.182.132"
                   ]
@@ -11736,7 +11736,7 @@
                   "public_key": "xiC/w18znzSImAuzMYpP5NH+1T912cwZXo8M1V4Ruiw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "79.127.182.162"
                   ]
@@ -11782,7 +11782,7 @@
                   "public_key": "XYQvOrRqu8j521Hy/8+jGRDLZoSAssOvCectyKz350Y=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11812,7 +11812,7 @@
                   "public_key": "gWsH1w7lTYbsS+WxsE6w6vtXSAJoHM6PhDX5DFMYM1k=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -11902,7 +11902,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ie-dub-wg-101.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "146.70.189.26",
                     "2001:ac8:88:107::b009",
@@ -12020,7 +12020,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ie-dub-wg-102.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:88:108::b01b",
                     "2001:ac8:88:108::b002",
@@ -12138,7 +12138,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "ie-dub-wg-103.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2001:ac8:88:109::b019",
                     "130.195.213.151",
@@ -12224,7 +12224,7 @@
                   "public_key": "XOedjVJaT2IrEDJbzvtZeL4hP5uPRHzFxvD1cwVwUFo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12254,7 +12254,7 @@
                   "public_key": "UNeML4rXjvOerAstTNf4gG5B+OfjVzjSQrWE6mrswD0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12284,7 +12284,7 @@
                   "public_key": "11FJ/NY3jaAw1PSYG9w7bxsMxAzlI+1p8/juh1LJPT0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12328,7 +12328,7 @@
                   "public_key": "Sa9fFFthvihGMO4cPExJ7ZaWSHNYoXmOqZMvJsaxOVk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12358,7 +12358,7 @@
                   "public_key": "RJ7e37UEP6hfyLQM/lJ2K5wcZOJQFhm2VhFaBniH1kg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12388,7 +12388,7 @@
                   "public_key": "WOyki5Gzoez07X7D3jAhG68hpoiYIWAx1yypVbkQaVY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12418,7 +12418,7 @@
                   "public_key": "XHwDoIVZGoVfUYbfcPiRp1LhaOCDc0A3QrS72i3ztBw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12448,7 +12448,7 @@
                   "public_key": "y5raL0QZx2CpOozrL+Knmjj7nnly3JKatFnxynjXpE0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12486,7 +12486,7 @@
                   "public_key": "cE6s9wV8jfAa84sgXWJ5C4d769m5Ki/XA3rxPdMWhVw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12516,7 +12516,7 @@
                   "public_key": "bGtOejMzRDKzFR1gNBAi185dkr/5RtN+QiC8EVl4kU4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12566,7 +12566,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "jp-osa-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12596,7 +12596,7 @@
                   "public_key": "wzGXxsYOraTCPZuRxfXVTNmoWsRkMFLqMqDxI4PutBg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12626,7 +12626,7 @@
                   "public_key": "Pt18GnBffElW0sqnd6IDRr5r0B/NDezy6NicoPI+fG8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12656,7 +12656,7 @@
                   "public_key": "JpDAtRuR39GLFKoQNiKvpzuJ65jOOLD7h85ekZ3reVc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12694,7 +12694,7 @@
                   "public_key": "AUo2zhQ0wCDy3/jmZgOe4QMncWWqrdME7BbY2UlkgyI=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12724,7 +12724,7 @@
                   "public_key": "zdlqydCbeR7sG1y5L8sS65X1oOtRKvfVbAuFgqEGhi4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12754,7 +12754,7 @@
                   "public_key": "0j7u9Vd+EsqFs8XeV/T/ZM7gE+TWgEsYCsqcZUShvzc=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12784,7 +12784,7 @@
                   "public_key": "yLKGIH/eaNUnrOEPRtgvC3PSMTkyAFK/0t8lNjam02k=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12814,7 +12814,7 @@
                   "public_key": "tgTYDEfbDgr35h6hYW01MH76CJrwuBvbQFhyVsazEic=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12864,7 +12864,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "mx-qro-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12894,7 +12894,7 @@
                   "public_key": "kGkalo3qvm8MynKdzwW7CGBYXkqRwGhHfYVssgKOWnU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12924,7 +12924,7 @@
                   "public_key": "hRamkTwXw0usPFDorPl2vf1qP8chczEBcqeV5bA1QDA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12954,7 +12954,7 @@
                   "public_key": "Q3yqhnYHK/bFjrd6yqti8gSV1gzOwvnl5N5tXuUxMyk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -12998,7 +12998,7 @@
                   "public_key": "RnwTFcAl6z4UfXio9ApLqlOjBcYvD0gWG0htl6fiCl4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "98.98.47.132"
                   ]
@@ -13030,7 +13030,7 @@
                   "public_key": "BVh+R5uifa9kn6fDNozd1OrnlGlV8qTr/IUIg0PDGl0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "162.128.129.100"
                   ]
@@ -13076,7 +13076,7 @@
                   "public_key": "nlpbIResE9vYypA9M/tKvfbUamsmCSawTqmq0cbVJjw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "79.127.149.132"
                   ]
@@ -13108,7 +13108,7 @@
                   "public_key": "Hel+ma9otIsWedjgK6Dp51t/WmUys+Q/hUqpvN7qBXg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "79.127.149.161"
                   ]
@@ -13154,7 +13154,7 @@
                   "public_key": "UrQiI9ISdPPzd4ARw1NHOPKKvKvxUhjwRjaI0JpJFgM=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b008",
                     "2a03:1b20:3:f011::b01e",
@@ -13251,7 +13251,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "nl-ams-wg-002.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b115",
                     "2a03:1b20:3:f011::b105",
@@ -13312,7 +13312,7 @@
                   "public_key": "if4HpJZbN7jft5E9R9wAoTcggIu6eZhgYDvqxnwrXic=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b215",
                     "2a03:1b20:3:f011::b20e",
@@ -13373,7 +13373,7 @@
                   "public_key": "hnRyse6QxPPcZOoSwRsHUtK1W+APWXnIoaDTmH6JsHQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b306",
                     "2a03:1b20:3:f011::b303",
@@ -13434,7 +13434,7 @@
                   "public_key": "33BoONMGCm2vknq2eq72eozRsHmHQY6ZHEEZ4851TkY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b411",
                     "2a03:1b20:3:f011::b413",
@@ -13495,7 +13495,7 @@
                   "public_key": "xpZ3ZDEukbqKQvdHwaqKMUhsYhcYD3uLPUh1ACsVr1s=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b505",
                     "2a03:1b20:3:f011::b50e",
@@ -13556,7 +13556,7 @@
                   "public_key": "Os/BwxAIWehlypQ8QjrKVEK5PhY84b413+U3YWZJYXQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b71d",
                     "2a03:1b20:3:f011::b718",
@@ -13617,7 +13617,7 @@
                   "public_key": "hf+klJbIyUoGUaFHgac9W+yriwb9uvSnafDfnmEW9Hc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:3:f011::b812",
                     "2a03:1b20:3:f011::b808",
@@ -13679,7 +13679,7 @@
                   "public_key": "m9w2Fr0rcN6R1a9HYrGnUTU176rTZIq2pcsovPd9sms=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13709,7 +13709,7 @@
                   "public_key": "uUYbYGKoA6UBh1hfkAz5tAWFv4SmteYC9kWh7/K6Ah0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13745,7 +13745,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "nl-ams-wg-103.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13775,7 +13775,7 @@
                   "public_key": "vt+yTcpxWvH8qiSncd1wSPV/78vt2aE2BBU8ZbG7x1Q=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13805,7 +13805,7 @@
                   "public_key": "BChJDLOwZu9Q1oH0UcrxcHP6xxHhyRbjrBUsE0e07Vk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13835,7 +13835,7 @@
                   "public_key": "M5z8TKjJYpIJ3FXoXy7k58IUaoVro2tWMKSgC5WIqR8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -13888,7 +13888,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "178.255.149.131"
                   ]
@@ -13929,7 +13929,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "176.125.235.95"
                   ]
@@ -13970,7 +13970,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-003.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "176.125.235.105"
                   ]
@@ -14038,7 +14038,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-101.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:c:f011:1::b00f",
                     "2a03:1b20:c:f011:1::b010",
@@ -14136,7 +14136,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-102.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:c:f011:2::b009",
                     "2a03:1b20:c:f011:2::b01c",
@@ -14234,7 +14234,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "no-osl-wg-103.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:c:f011:3::b01f",
                     "2a03:1b20:c:f011:3::b00c",
@@ -14304,7 +14304,7 @@
                   "public_key": "kduYoE/b1mA2Pjszx1CzE4Lktsdc2zsUU8Relul2m2U=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14334,7 +14334,7 @@
                   "public_key": "U9fbFesIIr2HotWdkfMpKyOEPk+RYtE2oYn3KoLmkj4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14364,7 +14364,7 @@
                   "public_key": "btc4mh3n9jVCW6yikw3cOPct0x3B5cDK+kKnvgCV0S0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14394,7 +14394,7 @@
                   "public_key": "Fu98PLCZw/FTcQqyTy0vzaepkfxuSLAah7wnafGVO1g=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14438,7 +14438,7 @@
                   "public_key": "BOEOP01bcND1a0zvmOxRHPB/ObgjgPIzBJE5wbm7B0M=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14468,7 +14468,7 @@
                   "public_key": "80WGWgFP9q3eU16MuLJISB1fzAu2LM2heschmokVSVU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14498,7 +14498,7 @@
                   "public_key": "1G7/wskBBlY77PXMV3sSAv4eCm5IPjxx99Wlfs58QSI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14542,7 +14542,7 @@
                   "public_key": "S4j4wshSstg9Au6ewFWr9vsZ8giovGPpKbKehXN8Nwc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "95.173.223.132"
                   ]
@@ -14574,7 +14574,7 @@
                   "public_key": "y7LsVrzYjeMLlTZmVUuuDkFvJp0kONC6+w+wP0gUIyo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "95.173.223.161"
                   ]
@@ -14620,7 +14620,7 @@
                   "public_key": "hORxMf/YMmN2/8VWOnTCdgGzGfEyXUEQQ5EBfoCyFDM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "129.227.118.164"
                   ]
@@ -14652,7 +14652,7 @@
                   "public_key": "TfNj4SJuIZzaXSxulpNzreDZXcX6GJJj+UYpqA2XMVE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "156.59.127.196"
                   ]
@@ -14698,7 +14698,7 @@
                   "public_key": "fO4beJGkKZxosCZz1qunktieuPyzPnEVKVQNhzanjnA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14728,7 +14728,7 @@
                   "public_key": "nJEWae9GebEY7yJONXQ1j4gbURV4QULjx388woAlbDs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14758,7 +14758,7 @@
                   "public_key": "07eUtSNhiJ9dQXBmUqFODj0OqhmbKQGbRikIq9f90jM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14788,7 +14788,7 @@
                   "public_key": "XwFAczY5LdogFwE9soDecXWqywSCDGuRyJhr/0psI00=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14818,7 +14818,7 @@
                   "public_key": "nyfOkamv1ryTS62lsmyU96cqI0dtqek84DhyxWgAQGY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14862,7 +14862,7 @@
                   "public_key": "JCAe7D/owe11Ii2rhpIKhGZvP/V1P1cVZwZAjpSRqmc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14892,7 +14892,7 @@
                   "public_key": "5P4CQYQeSozk/3KQZh/kl7tUMFGgRB60Ttx6x2nh+F8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14922,7 +14922,7 @@
                   "public_key": "A2+7EIVBsq1jZlnx0AWb8xkoaTkkn8LRFwAl3Qb/xTc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14952,7 +14952,7 @@
                   "public_key": "4V8TnXninUL+vjZqXKUIFnBPOhjFEicdVHa5ZMZhSzc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -14996,7 +14996,7 @@
                   "public_key": "xpKhRTf9JI269S2PujLbrJm1TwIe67HD5CLe+sP4tUU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15026,7 +15026,7 @@
                   "public_key": "Ekc3+qU88FuMfkEMyLlgRqDYv+WHJvUsfOMI/C0ydE4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15070,7 +15070,7 @@
                   "public_key": "Orrce1127WpljZa+xKbF21zJkJ9wM1M3VJ5GJ/UsIDU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15100,7 +15100,7 @@
                   "public_key": "35lawt+YUx10ELTFhZhg4/xzXRmjxCl/j1O4RK5d60M=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15144,7 +15144,7 @@
                   "public_key": "5JMPeO7gXIbR5CnUa/NPNK4L5GqUnreF0/Bozai4pl4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:5:f011:31::b004",
                     "2a03:1b20:5:f011:31::b010",
@@ -15206,7 +15206,7 @@
                   "public_key": "AtvE5KdPeQtOcE2QyXaPt9eQoBV3GBxzimQ2FIuGQ2U=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:5:f011:31::b20b",
                     "2a03:1b20:5:f011:31::b21a",
@@ -15334,7 +15334,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-got-wg-003.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:5:f011:3:b:0:6",
                     "2a03:1b20:5:f011:3:b:0:1b",
@@ -15427,7 +15427,7 @@
                   "public_key": "veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a03:1b20:5:f011:31::b404",
                     "2a03:1b20:5:f011:31::b41a",
@@ -15495,7 +15495,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-got-wg-005.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15532,7 +15532,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-got-wg-006.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15569,7 +15569,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-got-wg-007.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15606,7 +15606,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-got-wg-008.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15636,7 +15636,7 @@
                   "public_key": "B8UVAeNkAW4NiGHd1lpl933Drh4y7pMqpXJpH0SrGjQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15674,7 +15674,7 @@
                   "public_key": "Qn1QaXYTJJSmJSMw18CGdnFiVM0/Gj/15OdkxbXCSG0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15704,7 +15704,7 @@
                   "public_key": "5y66WShsFXqM5K7/4CPEGCWfk7PQyNhVBT2ILjbGm2I=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15734,7 +15734,7 @@
                   "public_key": "fZFAcd8vqWOBpRqlXifsjzGf16gMTg2GuwKyZtkG6UU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15764,7 +15764,7 @@
                   "public_key": "m4jnogFbACz7LByjo++8z5+1WV0BuR1T7E1OWA+n8h0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15794,7 +15794,7 @@
                   "public_key": "qnJrQEf2JiDHMnMWFFxWz8I9NREockylVgYVE95s72s=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15824,7 +15824,7 @@
                   "public_key": "vclzw8ytARhkEqw4cLUJPC3REvMZqWsO+7TYD/U2UVk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "141.98.255.96"
                   ]
@@ -15856,7 +15856,7 @@
                   "public_key": "aPcHJj3I1oISU8cwLz2Uyq4ctUOXdTpuS96aW89snUs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "141.98.255.99"
                   ]
@@ -15888,7 +15888,7 @@
                   "public_key": "7ncbaCb+9za3jnXlR95I6dJBkwL1ABB5i4ndFUesYxE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15918,7 +15918,7 @@
                   "public_key": "cwglRdgLQ4gMG36TIYlc5OIemLNrYs4UM1KTc8mnzxk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15948,7 +15948,7 @@
                   "public_key": "XscA5gebj51nmhAr6o+aUCnMHWGjbS1Gvvd0tuLRiFE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -15985,7 +15985,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-mma-wg-111.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "45.129.59.29"
                   ]
@@ -16024,7 +16024,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-mma-wg-112.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "45.129.59.139"
                   ]
@@ -16064,7 +16064,7 @@
                   "public_key": "MkP/Jytkg51/Y/EostONjIN6YaFRpsAYiNKMX27/CAY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16094,7 +16094,7 @@
                   "public_key": "q2ZZPfumPaRVl4DJfzNdQF/GHfe6BYAzQ2GZZHb6rmI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16124,7 +16124,7 @@
                   "public_key": "qZbwfoY4LHhDPzUROFbG+LqOjB0+Odwjg/Nv3kGolWc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16154,7 +16154,7 @@
                   "public_key": "YD4k8xaiw2kcRhfLRf2UiRNcDmvvu5NV0xT4d5xOFzU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16184,7 +16184,7 @@
                   "public_key": "4nOXEaCDYBV//nsVXk7MrnHpxLV9MbGjt+IGQY//p3k=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16220,7 +16220,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-009.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16250,7 +16250,7 @@
                   "public_key": "pWhNidLbYca9j66c7iw/3kgtU+UyFRIgc75xy8riqzg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16280,7 +16280,7 @@
                   "public_key": "GqKpm8VwKJQLQEQ0PXbkRueY9hDqiMibr+EpW3n9syk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16310,7 +16310,7 @@
                   "public_key": "1493vtFUbIfSpQKRBki/1d0YgWIQwMV4AQAvGxjCNVM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16340,7 +16340,7 @@
                   "public_key": "u3pZZjXm0NHCNqPIhKlZ7Vy6CQm5G9YpfgvaywurTho=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16370,7 +16370,7 @@
                   "public_key": "DYlwUsH63DLjEfKC9yq7P+FoQx99WdKvZGGhXoUZVgk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16407,7 +16407,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-201.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.16"
                   ]
@@ -16446,7 +16446,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-202.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.72"
                   ]
@@ -16485,7 +16485,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-203.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.135"
                   ]
@@ -16524,7 +16524,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-204.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "89.37.63.196"
                   ]
@@ -16562,7 +16562,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-205.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.16"
                   ]
@@ -16600,7 +16600,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-206.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.72"
                   ]
@@ -16638,7 +16638,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-207.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.135"
                   ]
@@ -16676,7 +16676,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-208.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.176"
                   ]
@@ -16714,7 +16714,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "se-sto-wg-209.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "170.62.100.217"
                   ]
@@ -16760,7 +16760,7 @@
                   "public_key": "sFHv/qzG7b6ds5pow+oAR3G5Wqp9eFbBD3BmEGBuUWU=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16790,7 +16790,7 @@
                   "public_key": "WM5I4IFwQcVysM4fF4NXZtQXNrSkqVWkQxNPPygOiF0=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16820,7 +16820,7 @@
                   "public_key": "3HtGdhEXUPKQIDRW49wCUoTK2ZXfq+QfzjfYoldNchg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16850,7 +16850,7 @@
                   "public_key": "KB6ZA1PAixd74c+mO0VBY4j7LaitK8B4L1APbFIQyQ0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16880,7 +16880,7 @@
                   "public_key": "qrhHOwk0ree+LFxW6htvGEfVFuhM2efQ/M+4p0sx/gA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16924,7 +16924,7 @@
                   "public_key": "fXWKnogYH3IORGePtkyFg3r/56ZQGkF6hjdw2svhmw8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16954,7 +16954,7 @@
                   "public_key": "HkPoWKRG/KV2C8afaaah9Jl5lYuvJo1loCaFadKDZVU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -16998,7 +16998,7 @@
                   "public_key": "QEVIaIycN8p5twXCuZeQTEj9utozakw/MU8H6+/whls=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17028,7 +17028,7 @@
                   "public_key": "JeEuObwimNmoVtPn4kpMI1y1UM+IChGVBLtmP3CNNVQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17072,7 +17072,7 @@
                   "public_key": "zX6pm3TVJe7rjQ9GrFH1IY29vw/PJL6LGh3/ALxEyx4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17102,7 +17102,7 @@
                   "public_key": "L8CCv3NWDaMyUh4dxO44LSy07ETWCcWBeeGFyQZIlyo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17146,7 +17146,7 @@
                   "public_key": "jPhK/ziQfJ1Z5GCPj+qR3A7YV2mIQSQtEPCRuG7TUW8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "149.102.229.131"
                   ]
@@ -17178,7 +17178,7 @@
                   "public_key": "TDHn9OvFYoHh9nwlYG7OCpPRvCjfODUOksSQPzhguTg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "149.102.229.160"
                   ]
@@ -17224,7 +17224,7 @@
                   "public_key": "PO2o3ewguPP24wLy8bbDqx1xuAnTOIVzdzVGVT0d8kU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17254,7 +17254,7 @@
                   "public_key": "HUj/J8Rxx7QVGh3kJsFgPZoqtm2BQIX03vKJSIyTOSo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17304,7 +17304,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-atl-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17334,7 +17334,7 @@
                   "public_key": "ECeGYeh8CfPJO3v56ucCDdl+PlKcj2bBszUGkT+hVWQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17364,7 +17364,7 @@
                   "public_key": "49LoowbQpQfc/Yw+1DZ0A/Gien3wRnxwJzvo7Gz8Zhw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.108.14"
                   ]
@@ -17396,7 +17396,7 @@
                   "public_key": "9CYtFK8cSKxzEiFYpiCuKgYnjMO5Jqri2iFiG2lDUlM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.108.139"
                   ]
@@ -17428,7 +17428,7 @@
                   "public_key": "a64LFZfr0htAq1mk5EvVPmQPi52oboISpVUHaYKGE1E=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.109.14"
                   ]
@@ -17460,7 +17460,7 @@
                   "public_key": "kYm0GM0/fD37iCZM3+60vAxRV1w/PUW+WQkYV14QZFo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.109.139"
                   ]
@@ -17492,7 +17492,7 @@
                   "public_key": "643HR3VhN/WVydahUwuKL/e8jT8UNDHduBfDPMF/2E8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.110.14"
                   ]
@@ -17524,7 +17524,7 @@
                   "public_key": "spmw1nZv6lgKC/T1KMSuLKyAfCifmrxCdXvVPNhQFCY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.110.139"
                   ]
@@ -17556,7 +17556,7 @@
                   "public_key": "e2UcVruvaIHcCXYjaHe6alKbZW/Qc9lbYzYh1AckWEU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.111.14"
                   ]
@@ -17588,7 +17588,7 @@
                   "public_key": "x3sKDqtdNIUhOjCiZCzMSZmoMps20J0JloSQMebYK2o=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.111.139"
                   ]
@@ -17628,7 +17628,7 @@
                   "public_key": "CsysTnZ0HvyYRjsKMPx60JIgy777JhD0h9WpbHbV83o=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17658,7 +17658,7 @@
                   "public_key": "LLkA2XSBvfUeXgLdMKP+OTQeKhtGB03kKskJEwlzAE8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17688,7 +17688,7 @@
                   "public_key": "oxJ2PIqrQOmS0uiyXvnxT64E1uZnjZDWPbP/+APToAE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17718,7 +17718,7 @@
                   "public_key": "wcmmadJObux2/62ES+QbIO21BkU7p2I0s6n4WNZZgW0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17756,7 +17756,7 @@
                   "public_key": "+Xx2mJnoJ+JS11Z6g8mp6aUZV7p6DAN9ZTAzPaHakhM=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17786,7 +17786,7 @@
                   "public_key": "rmN4IM0I0gF7V9503/xnQMOLsu9txl8GTqci9dgUO18=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17816,7 +17816,7 @@
                   "public_key": "V0ilKm3bVqt0rmJ80sP0zSVK4m6O3nADi88IQAL5kjw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -17846,7 +17846,7 @@
                   "public_key": "g9Dlad9R9OcM9w1yu3gq9pQWARQBc3Muj4KfeRY1p20=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.4"
                   ]
@@ -17878,7 +17878,7 @@
                   "public_key": "rEVQ7I5Ckvg44uLaSg1l085FcQvFHfM01hMfHxyAQz0=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.35"
                   ]
@@ -17910,7 +17910,7 @@
                   "public_key": "DfmNHT84TTS6JcJJfZJwT7tZZVgKIKRJU/2AE5sJ6A4=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.66"
                   ]
@@ -17942,7 +17942,7 @@
                   "public_key": "Tr2rkoiqX7bERbeLMDw9CLiTaB0dp9/Fov/Ytz3C+xY=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.97"
                   ]
@@ -17974,7 +17974,7 @@
                   "public_key": "jx/3CJiJRozty6hUTs40M/Swhfcch0z3yElmS1VKoVg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.128"
                   ]
@@ -18006,7 +18006,7 @@
                   "public_key": "WlEbNkNAx/186YZH/UPE6YWkMyAMxRpMRP+IqWrq+TE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.159"
                   ]
@@ -18038,7 +18038,7 @@
                   "public_key": "U9UAYlVm8nXZjWPrF/vbb1P9oqSRmHo+IfK52yDYpGo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.190"
                   ]
@@ -18070,7 +18070,7 @@
                   "public_key": "gJsL4BfGcf2QOLGY1Std2Mjg6V2t2w7T2FScANlkJ2I=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "68.235.46.211"
                   ]
@@ -18152,7 +18152,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-309.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:100:41::b007",
                     "173.249.252.7",
@@ -18278,7 +18278,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-310.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:100:42::b012",
                     "173.249.252.140",
@@ -18404,7 +18404,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-311.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "173.249.253.18",
                     "2607:9000:100:43::b017",
@@ -18530,7 +18530,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-312.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:100:44::b002",
                     "173.249.253.139",
@@ -18656,7 +18656,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-313.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:100:45::b01f",
                     "2607:9000:100:45::b013",
@@ -18782,7 +18782,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-314.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "173.249.254.131",
                     "173.249.254.141",
@@ -18908,7 +18908,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-315.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "173.249.255.9",
                     "2607:9000:100:47::b013",
@@ -19034,7 +19034,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-chi-wg-316.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "173.249.255.130",
                     "2607:9000:100:48::b007",
@@ -19124,7 +19124,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19154,7 +19154,7 @@
                   "public_key": "OYG1hxzz3kUGpVeGjx9DcCYreMO3S6tZN17iHUK+zDE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19184,7 +19184,7 @@
                   "public_key": "jn/i/ekJOkkRUdMj2I4ViUKd3d/LAdTQ+ICKmBy1tkM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19214,7 +19214,7 @@
                   "public_key": "xZsnCxFN7pOvx6YlTbi92copdsY5xgekTCp//VUMyhE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19244,7 +19244,7 @@
                   "public_key": "sPQEji8BhxuM/Za0Q0/9aWYxyACtQF0qRpzaBLumEzo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19274,7 +19274,7 @@
                   "public_key": "4s9JIhxC/D02tosXYYcgrD+pHI+C7oTAFsXzVisKjRs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -19304,7 +19304,7 @@
                   "public_key": "353XrBhmW0VisDN/ztYLb7WwnxQUTnL9Ys5FBPUHHVw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.102.246.14"
                   ]
@@ -19336,7 +19336,7 @@
                   "public_key": "Vm9kQsUFIGgNeb+NBrY0KZpW51dC84cAQWMY9eMa8Ho=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.102.246.139"
                   ]
@@ -19368,7 +19368,7 @@
                   "public_key": "Y5SK28yMGjcZVByWZkMb24KdmbmY07mDnwLN6817yEE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.102.247.14"
                   ]
@@ -19400,7 +19400,7 @@
                   "public_key": "7Wyh9lX1nIkKfIpwUywcSUVF8pOxP0c04EehfEeIWg4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.102.247.139"
                   ]
@@ -19482,7 +19482,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-701.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.104.11",
                     "2607:9000:b00:31::b01e",
@@ -19608,7 +19608,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-702.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:b00:31::b017",
                     "2607:9000:b00:31::b007",
@@ -19734,7 +19734,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-703.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:b00:33::b01c",
                     "23.234.105.14",
@@ -19860,7 +19860,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-704.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:b00:34::b003",
                     "2607:9000:b00:34::b01b",
@@ -19986,7 +19986,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-705.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.106.5",
                     "2607:9000:b00:35::b007",
@@ -20112,7 +20112,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-706.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.106.132",
                     "23.234.106.140",
@@ -20238,7 +20238,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-707.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:b00:37::b00b",
                     "2607:9000:b00:37::b006",
@@ -20364,7 +20364,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-dal-wg-708.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.107.136",
                     "23.234.107.134",
@@ -20448,7 +20448,7 @@
                   "public_key": "74U+9EQrMwVOafgXuSp8eaKG0+p4zjSsDe3J7+ojhx0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20478,7 +20478,7 @@
                   "public_key": "T44stCRbQXFCBCcpdDbZPlNHp2eZEi91ooyk0JDC21E=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20508,7 +20508,7 @@
                   "public_key": "Az+PGHQ0xFElmRBv+PKZuRnEzKPrPtUpRD3vpxb4si4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20538,7 +20538,7 @@
                   "public_key": "MsF1hhYtyCsvPt4B8f48biVcVYd692STflhcbKwTGAw=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.68.13"
                   ]
@@ -20570,7 +20570,7 @@
                   "public_key": "YP20qT+/cY/sbBhlXo6fWZlfVhRU+emQlZ1am+vUNnw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.68.138"
                   ]
@@ -20602,7 +20602,7 @@
                   "public_key": "D8TSWEfmRIm1qMS0RgO8uireFMMZCMi+XxhIJ2jPBEU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.69.13"
                   ]
@@ -20634,7 +20634,7 @@
                   "public_key": "DZcEpwNSf+6BoDcHknHBVPwAA0ZJjz7DgQ+llATpAzg=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.69.138"
                   ]
@@ -20666,7 +20666,7 @@
                   "public_key": "0LQQJLKBZD0Wf0s0nwFfyMW0MMEKoxNPZ14ZbxkogiY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.70.13"
                   ]
@@ -20698,7 +20698,7 @@
                   "public_key": "Y4waCBM7GE9iOT+xl9PcZ2mNKGiawEOBv8UkH84CaAo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.70.138"
                   ]
@@ -20730,7 +20730,7 @@
                   "public_key": "nUnmeY34CDLjW4Q3TAbJQ168jVXmkY4MVAp28rmpzEc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.71.13"
                   ]
@@ -20762,7 +20762,7 @@
                   "public_key": "Fo6J7nLUeSnNPenB1NiPoivVod3m4fN4OE5yjafxYXY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.71.138"
                   ]
@@ -20802,7 +20802,7 @@
                   "public_key": "+USmlxhnLmlNkDnBbu+rXwjUwa383e0ilYEqPkEkNHA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20832,7 +20832,7 @@
                   "public_key": "cYqP1UqhOYuaj47e4jAbgL55h52L+ALjtML26OtBvFU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20870,7 +20870,7 @@
                   "public_key": "NKscQ4mm24nsYWfpL85Cve+BKIExR0JaysldUtVSlzg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20900,7 +20900,7 @@
                   "public_key": "tzSfoiq9ZbCcE5I0Xz9kCrsWksDn0wgvaz9TiHYTmnU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20930,7 +20930,7 @@
                   "public_key": "fNSu30TCgbADxNKACx+5qWY6XGJOga4COmTZZE0k0R4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -20960,7 +20960,7 @@
                   "public_key": "NkZMYUEcHykPkAFdm3dE8l2U9P2mt58Dw6j6BWhzaCc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -21048,7 +21048,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-001.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.72.16",
                     "2607:9000:300:31::b01e",
@@ -21174,7 +21174,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-002.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:300:32::b017",
                     "2607:9000:300:32::b002",
@@ -21300,7 +21300,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-003.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:300:33::b004",
                     "2607:9000:300:33::b01b",
@@ -21426,7 +21426,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-004.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:300:34::b00a",
                     "2607:9000:300:34::b00e",
@@ -21552,7 +21552,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-005.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:300:35::b015",
                     "2607:9000:300:35::b017",
@@ -21678,7 +21678,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-006.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.74.136",
                     "2607:9000:300:36::b016",
@@ -21804,7 +21804,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-007.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:300:37::b00e",
                     "2607:9000:300:37::b014",
@@ -21917,7 +21917,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-008.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.75.140",
                     "23.234.75.142",
@@ -21993,7 +21993,7 @@
                   "public_key": "xWobY7DWTL+vL1yD4NWwbQ3V4e8qz10Yz+EFdkIjq0Y=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22023,7 +22023,7 @@
                   "public_key": "SDnciTlujuy2APFTkhzfq5X+LDi+lhfU38wI2HBCxxs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22053,7 +22053,7 @@
                   "public_key": "W6/Yamxmfx3geWTwwtBbJe/J8UdEzOfa6M+cEpNPIwg=",
                   "daita": true,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22083,7 +22083,7 @@
                   "public_key": "EKZXvHlSDeqAjfC/m9aQR0oXfQ6Idgffa9L0DH5yaCo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22113,7 +22113,7 @@
                   "public_key": "mBqaWs6pti93U+1feyj6LRzzveNmeklancn3XuKoPWI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22143,7 +22143,7 @@
                   "public_key": "YGl+lj1tk08U9x9Z73zowUW3rk8i0nPmYkxGzNdE4VM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22173,7 +22173,7 @@
                   "public_key": "Pe86fNGUd+AIeaabsn7Hk4clQf1kJvxOXPykfVGjeho=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22209,7 +22209,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-lax-wg-406.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22239,7 +22239,7 @@
                   "public_key": "1nGkBr+oLwK5lQcVt9vF6rGM5R3ra5bmYTGJfGIh0lk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22269,7 +22269,7 @@
                   "public_key": "9L5cW9VuUJUS2gH6H7ln2JeCI66fMnnjLiD5UymAtlo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22299,7 +22299,7 @@
                   "public_key": "V+LTWA5DxEVITAXqHexqBzeZo95b8r+3WR8g1FsbPQ4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22329,7 +22329,7 @@
                   "public_key": "oA6/33kBggrBOJ7z+uo5gZW6L1w2zYcCILKXXax8knY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.162.40.14"
                   ]
@@ -22361,7 +22361,7 @@
                   "public_key": "oLu1H6C8YaoWtmaPzAFboFX8r102Wb1uma9spVPqAX8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.162.40.139"
                   ]
@@ -22393,7 +22393,7 @@
                   "public_key": "qeojNB247YQbT0/ysFyZDjs9RJ6Y4bFaKCLu6PjeMxA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.159.216.14"
                   ]
@@ -22425,7 +22425,7 @@
                   "public_key": "GKl6nhOl96/1AJtVCdEZpOO6F0BS5/TMkrjdH2fb93A=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.159.216.139"
                   ]
@@ -22457,7 +22457,7 @@
                   "public_key": "DbZksYqiYPGxOEF7iIaAiyN4+hZc+8HcuMMqpLW3XmA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.160.24.14"
                   ]
@@ -22489,7 +22489,7 @@
                   "public_key": "AW1YO/vYtXJioBmD8BhSGpz1DQNIQeU+jOu+3F7KBDY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.160.24.139"
                   ]
@@ -22521,7 +22521,7 @@
                   "public_key": "ItEcyDXwTXtq6bQubbO6lY0K/oh0dfk26AV+muU+Ah4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.168.216.14"
                   ]
@@ -22553,7 +22553,7 @@
                   "public_key": "ikLR1TUKk+PTWFnydqwZ9m0HaD1dPaMNI9DwZTvzYBs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.168.216.139"
                   ]
@@ -22585,7 +22585,7 @@
                   "public_key": "EM/33kdl9RiNOF5jvwtp/nfchPAD/sq7MJleg1bZikU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.251.26.14"
                   ]
@@ -22617,7 +22617,7 @@
                   "public_key": "ddv7vosBlf396nOa79nWn6qXQu2LzezGXfNUDO3hAXQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.251.26.139"
                   ]
@@ -22649,7 +22649,7 @@
                   "public_key": "/FWUNK2WlEQbmwYaXuTzUmtshvIYvJnKWVnuqgzlfXw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.251.27.14"
                   ]
@@ -22681,7 +22681,7 @@
                   "public_key": "KPjr8jrGP3dVI+GbMq2LNc9eREW6EhGHndoSWHqakxE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.251.27.139"
                   ]
@@ -22721,7 +22721,7 @@
                   "public_key": "FVEKAMJqaJU2AwWn5Mg9TK9IAfJc4XDUmSzEeC/VXGs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22751,7 +22751,7 @@
                   "public_key": "H5t7PsMDnUAHrR8D2Jt3Mh6N6w43WmCzrOHShlEU+zw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22781,7 +22781,7 @@
                   "public_key": "N/3F0QvCuiWWzCwaJmnPZO53LZrKn6sr7rItecrQSQY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -22819,7 +22819,7 @@
                   "public_key": "0EwMQYJ2uo6xu0C3lOEfsxMdc4NpFOURVc0JPJqkhlI=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.116.14"
                   ]
@@ -22851,7 +22851,7 @@
                   "public_key": "XeYfktwZerrhrXzVVEd9FQUw5MaUwv2gZmkTJWK8wSU=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.116.139"
                   ]
@@ -22883,7 +22883,7 @@
                   "public_key": "FOPZvXEnM1XWHH+WY17JX25N4EwJz6SSmqmAxP5y7CA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.117.14"
                   ]
@@ -22915,7 +22915,7 @@
                   "public_key": "8ueNKHj+2nbTpnnv4MpxY98VrhtIKSMMwh0R9HF6iyE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.117.139"
                   ]
@@ -22947,7 +22947,7 @@
                   "public_key": "KHbQz9XJVVj5M/sK3azWfgNyybdLNOjXahnHIzYYqXY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.118.14"
                   ]
@@ -22979,7 +22979,7 @@
                   "public_key": "bQWDsoitERBoPnP0AXI/jCUhk4AX8cMFbhCW93wn3HM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.118.139"
                   ]
@@ -23011,7 +23011,7 @@
                   "public_key": "e7BOh4K+tNWSnwUMWKI7yDCiskyamqXtpLjcg00KTn8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.119.14"
                   ]
@@ -23043,7 +23043,7 @@
                   "public_key": "9PByPs4okeg0lWhPYkW7tuyw1XKy5+BKhgVuQbxSOk4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.119.139"
                   ]
@@ -23075,7 +23075,7 @@
                   "public_key": "Nk6dTIVRHBQzIZ6CUrJH7l4dItXEz3XOSBwmI933WUo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.191.14"
                   ]
@@ -23107,7 +23107,7 @@
                   "public_key": "ie5ag1xd2x/P3fxodzB21vPbLEmqhtfqKcUs1OR0BDs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.191.64"
                   ]
@@ -23139,7 +23139,7 @@
                   "public_key": "5dpXegNTyOFwWswBaJxViEwrXSAgC+Je9KokpT1sdjU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.191.114"
                   ]
@@ -23171,7 +23171,7 @@
                   "public_key": "wugRpkJNlfAV2lE3p1UXsTfZtO8JYWEdA9ZMLFeF3G4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.191.164"
                   ]
@@ -23203,7 +23203,7 @@
                   "public_key": "9w1yXK8tpAKZ2au6JHcu+L7TytOYmmZo9q7qfCwa1U8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "155.2.191.214"
                   ]
@@ -23243,7 +23243,7 @@
                   "public_key": "IzqkjVCdJYC1AShILfzebchTlKCqVCt/SMEXolaS3Uc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23273,7 +23273,7 @@
                   "public_key": "gH/fZJwc9iLv9fazk09J/DUWT2X7/LFXijRS15e2n34=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23309,7 +23309,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-303.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23339,7 +23339,7 @@
                   "public_key": "FMNXnFgDHNTrT9o49U8bb3Z8J90LZzVJPpRzKtJM9W8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23369,7 +23369,7 @@
                   "public_key": "cmUR4g9aIFDa5Xnp4B6Zjyp20jwgTTMgBdhcdvDV0FM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23399,7 +23399,7 @@
                   "public_key": "czE6NJ8CccA5jnJkKoZGDpMXFqSudeVTzxU5scLP/H8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23429,7 +23429,7 @@
                   "public_key": "MVa5yuoYnjXJtSCeBsyvaemuaK4KFN1p78+37Nvm2m0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23459,7 +23459,7 @@
                   "public_key": "jrjogHbVDuPxyloBldvtB51TmebNJo+4rW2JFrN33iM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23489,7 +23489,7 @@
                   "public_key": "IjdtI6sz8ZjU5tlK3eW4HAPp+GRvHErDtqxBcr8JvTM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23525,7 +23525,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-601.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23555,7 +23555,7 @@
                   "public_key": "4Lg7yQlukAMp6EX+2Ap+q4O+QIV/OEZyybtFJmN9umw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23585,7 +23585,7 @@
                   "public_key": "s3N8Xeh6khECbgRYPk9pp5slw2uE0deOxa9rSJ6bzwE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23615,7 +23615,7 @@
                   "public_key": "FIcFPDjxfF24xBrv+W7Bcqb2wADSWd+HAWPKYo6xZEk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23645,7 +23645,7 @@
                   "public_key": "78nFhfPEjrfOxBkUf2ylM7w6upYBEcHXm93sr8CMTE4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23675,7 +23675,7 @@
                   "public_key": "a8+VB6Cgah7Q5mWY860VfgU/h3Zf+pMpMdHB22e1uTQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -23705,7 +23705,7 @@
                   "public_key": "S3X2pCfD9X6c29fd4C6b86mEO0b01mc/WUCDN5OgyjM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.162.8.9"
                   ]
@@ -23737,7 +23737,7 @@
                   "public_key": "O81+YN0WHF4wuWRejhPG62PGK9bv/8BQTa6Ni3fomWM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.162.8.73"
                   ]
@@ -23769,7 +23769,7 @@
                   "public_key": "Ycm86cSu1NKGpC+vZA6htq6YE9BUFk9wweE2/RySA1g=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.162.8.136"
                   ]
@@ -23807,7 +23807,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-801.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.100.14"
                   ]
@@ -23845,7 +23845,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-802.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.100.139"
                   ]
@@ -23883,7 +23883,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-803.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.101.14"
                   ]
@@ -23921,7 +23921,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-804.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.101.139"
                   ]
@@ -23959,7 +23959,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-805.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.102.14"
                   ]
@@ -23997,7 +23997,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-806.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.102.139"
                   ]
@@ -24035,7 +24035,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-807.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.103.14"
                   ]
@@ -24073,7 +24073,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-nyc-wg-808.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.103.139"
                   ]
@@ -24113,7 +24113,7 @@
                   "public_key": "8mie5kslgD63v3pZkbFmwGdj3dg5mu8Wm2Ji5kntfXA=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.88.14"
                   ]
@@ -24145,7 +24145,7 @@
                   "public_key": "I8eCMCSsFlb78N8VNaFqSJKM4Z2+3iVdlG6CvJkYEiA=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.88.139"
                   ]
@@ -24177,7 +24177,7 @@
                   "public_key": "nSeEIx++JuzqxNqLPOm2BVCXwPpR72Q3QLflDUK8tTA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.89.14"
                   ]
@@ -24209,7 +24209,7 @@
                   "public_key": "0is4/9V/KIBWwfeuDVDlBmPa134UuV5gaFGUqI1emXY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.89.139"
                   ]
@@ -24241,7 +24241,7 @@
                   "public_key": "sZMMs5XaQN+p0HXCK15zYV1jo7IJN7agm1Ftm7JDnnk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.90.14"
                   ]
@@ -24273,7 +24273,7 @@
                   "public_key": "fdA7Lc9cpwb1oPy4Oa/A8sPm+RaDpW5yrdgjykde4jM=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.90.139"
                   ]
@@ -24305,7 +24305,7 @@
                   "public_key": "G5tIt92dwuvvln9nlsi/cI3Au47U94mOMgSdODRMIxs=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.91.14"
                   ]
@@ -24337,7 +24337,7 @@
                   "public_key": "4nHL/Y9efuazXJB0cx6ktdBb0L0gkITWzCFCswfCh04=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.91.139"
                   ]
@@ -24377,7 +24377,7 @@
                   "public_key": "JEuuPzZE8uE53OFhd3YFiZuwwANLqwmdXWMHPUbBwnk=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -24407,7 +24407,7 @@
                   "public_key": "5hlEb3AjTzVIJyYWCYvJvbgA4p25Ltfp2cYnys90LQ0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -24437,7 +24437,7 @@
                   "public_key": "oD9IFZsA5sync37K/sekVXaww76MwA3IvDRpR/irZWQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -24467,7 +24467,7 @@
                   "public_key": "no0QE15NRHLECYe/B976IH9mLn22QecYBbcYl3LZhD0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.81.230.14"
                   ]
@@ -24499,7 +24499,7 @@
                   "public_key": "eUTgjAPvpLba9wwMcC0HNcLwC2Q42QYCKZuFPy34+Ug=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "103.81.230.139"
                   ]
@@ -24531,7 +24531,7 @@
                   "public_key": "tI5F6pIZMEf0aJUTG/I2ZvYkkJDJpOxVakObTLLmBAI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "103.81.231.14"
                   ]
@@ -24563,7 +24563,7 @@
                   "public_key": "2bvhh22EcdV3MIuIJze47gD2KmXpplYrNbCjNff2ID8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "103.81.231.139"
                   ]
@@ -24645,7 +24645,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-301.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.96.13",
                     "23.234.96.14",
@@ -24771,7 +24771,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-302.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.96.143",
                     "2607:9000:900:32::b002",
@@ -24897,7 +24897,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-303.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:900:33::b019",
                     "2607:9000:900:33::b00c",
@@ -25023,7 +25023,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-304.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.97.138",
                     "2607:9000:900:34::b00a",
@@ -25149,7 +25149,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-305.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.98.19",
                     "2607:9000:900:35::b00b",
@@ -25275,7 +25275,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-306.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:900:36::b018",
                     "23.234.98.139",
@@ -25401,7 +25401,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-307.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:900:37::b005",
                     "2607:9000:900:37::b009",
@@ -25527,7 +25527,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-qas-wg-308.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2607:9000:900:38::b006",
                     "23.234.99.134",
@@ -25611,7 +25611,7 @@
                   "public_key": "MuKjekVqBwpSizHLNwVRl4b8bwi6aTCBOshPiOOWrEQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.76.13"
                   ]
@@ -25643,7 +25643,7 @@
                   "public_key": "T2diUJ97txooCDntCrB6Q29Qe0fm/hMdZDzdc9uOUgQ=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.76.138"
                   ]
@@ -25675,7 +25675,7 @@
                   "public_key": "4BioSTLTYH1qL/oYGY/z5IZ049I7oSzs5IKoFZzrgn0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.77.13"
                   ]
@@ -25707,7 +25707,7 @@
                   "public_key": "Tk5lPM5K5qrXPWDktHH+AvcxC+UxhGSX6aILsPi33zU=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.77.138"
                   ]
@@ -25739,7 +25739,7 @@
                   "public_key": "z7vhWZ1oY+UkE7PoXF/QtofOhTNGnNfoP20al/cniyc=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.78.13"
                   ]
@@ -25771,7 +25771,7 @@
                   "public_key": "ekRrcTqihriWz4TldL2deIEbHlqwytL3pu1WV+v7zjw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.78.138"
                   ]
@@ -25803,7 +25803,7 @@
                   "public_key": "Y16tMAXHpCEExSZJ8AL5LfskKqPqIrZWeLFbSLE/piE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.79.13"
                   ]
@@ -25835,7 +25835,7 @@
                   "public_key": "lCyIXwxSGEBSpUah0kYSyuaZuDJJB0Cwia7gv4r7XTA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.79.138"
                   ]
@@ -25875,7 +25875,7 @@
                   "public_key": "bZQF7VRDRK/JUJ8L6EFzF/zRw2tsqMRk6FesGtTgsC0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -25905,7 +25905,7 @@
                   "public_key": "Xt80FGN9eLy1vX3F29huj6oW2MnQt7ne3DMBpo525Qw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -25935,7 +25935,7 @@
                   "public_key": "4ke8ZSsroiI6Sp23OBbMAU6yQmdF3xU2N8CyzQXE/Qw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -25971,7 +25971,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-401.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.80.13"
                   ]
@@ -26009,7 +26009,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-402.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.80.138"
                   ]
@@ -26047,7 +26047,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-403.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.81.13"
                   ]
@@ -26085,7 +26085,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-404.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.81.138"
                   ]
@@ -26123,7 +26123,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-405.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.82.13"
                   ]
@@ -26161,7 +26161,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-406.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.82.138"
                   ]
@@ -26199,7 +26199,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-407.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.83.13"
                   ]
@@ -26237,7 +26237,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sea-wg-408.blockerad.eu"
                   },
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.83.138"
                   ]
@@ -26332,7 +26332,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sfo-wg-001.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a06:3040:9:610::b113",
                     "2a06:3040:9:610::b11a",
@@ -26468,7 +26468,7 @@
                     "token": "d18a23fc-7d5e-4fd2-8372-5e0e73de741a",
                     "domain": "us-sfo-wg-002.blockerad.eu"
                   },
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "2a06:3040:9:610::c21e",
                     "194.126.179.33",
@@ -26557,7 +26557,7 @@
                   "public_key": "8wVb4HUgmpQEa5a1Q8Ff1hTDTJVaHts487bksJVugEo=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -26587,7 +26587,7 @@
                   "public_key": "2ZQTRk/3jT+ccfG3G/QoJV3NFC4CFHQwGBCSokOvBnA=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -26617,7 +26617,7 @@
                   "public_key": "2q0LGwWvnV2qbNEAgOOHh4tvol5vGeQXJZDAbazCSBY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -26647,7 +26647,7 @@
                   "public_key": "+UZsgTzYTdG3LvqpL+V9ZkwEMiFcls32YlpuI0cqDQ4=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -26677,7 +26677,7 @@
                   "public_key": "wbK8/hP/ZMr972OtanZxugSqUVt/sM/G9rnTiQ5YbSw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.92.14"
                   ]
@@ -26709,7 +26709,7 @@
                   "public_key": "dCHtOy+ieOOMzgpZPr557dXygpmlj9RRNCAvUQvXj3I=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.92.139"
                   ]
@@ -26741,7 +26741,7 @@
                   "public_key": "HqWGqZbCgLxYLGHQG7P3jHYWQgc5p6ImqaxgqA97WCY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.93.14"
                   ]
@@ -26773,7 +26773,7 @@
                   "public_key": "hQ/UqXflXztKM2T39HmQRPpPjWP8I2r9FMqnqFWy53M=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.93.139"
                   ]
@@ -26805,7 +26805,7 @@
                   "public_key": "v0CXmb+wIy1P+IbFA/1nYTB3KoDzFyW5k7n8vXoTxiY=",
                   "daita": true,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.94.14"
                   ]
@@ -26837,7 +26837,7 @@
                   "public_key": "sjWKL/W2+21cyjEBjtMd4TQQlWTsLTUN4skYOF7YgnU=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.94.139"
                   ]
@@ -26869,7 +26869,7 @@
                   "public_key": "IKhrTUlWJXlcH30jNV82mlWlj6NEre3PZffJ7MoT0zc=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.95.14"
                   ]
@@ -26901,7 +26901,7 @@
                   "public_key": "rIqRJ1o3UxvuwXj9B7VDquiTZ8BtQdab4wsb4F1L7l8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.95.139"
                   ]
@@ -26941,7 +26941,7 @@
                   "public_key": "tA/k8ouzYiVmgCRCF7TWibVzv5xRp3cgv9TJX66poGE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.112.14"
                   ]
@@ -26973,7 +26973,7 @@
                   "public_key": "6hF/LLVCkxlW+mH6wFob5ZiDZNu2DqfEj82w8wzVnHY=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.112.139"
                   ]
@@ -27005,7 +27005,7 @@
                   "public_key": "Taa3TPPNUUcD3upveDHqpi9uaNHbeXzh6kX+sQUcM0s=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.113.14"
                   ]
@@ -27037,7 +27037,7 @@
                   "public_key": "+ru/ZmhgTYWNLyn3ZWuC57PMOU64yMfuWPZ5ow0XY3A=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "23.234.113.139"
                   ]
@@ -27069,7 +27069,7 @@
                   "public_key": "QkiwUWRNNtI+8YSK0SPCq6KeKPSohpX/8FbFZkx+uHg=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.114.14"
                   ]
@@ -27101,7 +27101,7 @@
                   "public_key": "Gv4GZOT46WQsTOAH4mYlauwFRxtpCX08BI0bzot5Piw=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.114.139"
                   ]
@@ -27133,7 +27133,7 @@
                   "public_key": "6pJrsejyhJLRotKdS+RCZez28/WqlOw6qEs1BbjQVSI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.115.14"
                   ]
@@ -27165,7 +27165,7 @@
                   "public_key": "f7xT56F8RP9XDXW7UCxBcjgP+SAGyH+y2OZ4fieR4X8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "23.234.115.139"
                   ]
@@ -27205,7 +27205,7 @@
                   "public_key": "+OCONjBoN5RytiPy000VOzhZsiu1tSzecmc1hl/q8hI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -27235,7 +27235,7 @@
                   "public_key": "mjv8qVNwhVKO0ePAI97CRil188uwdR/VR6ihcNY/hio=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -27273,7 +27273,7 @@
                   "public_key": "utm9eFUk8tH0j/dwKLJvlb6BRSfm3GZbomxr52ZDGn0=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "104.36.50.5"
                   ]
@@ -27305,7 +27305,7 @@
                   "public_key": "8Rh2Qc+vXTREhJb/RfCcpXS13U9xSqy4Pnw4+Wwt7iE=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": [
                     "104.36.50.35"
                   ]
@@ -27345,7 +27345,7 @@
                   "public_key": "qD3AH8vI8MhEVc9+0+2O8zV0Gx9FfKdy7ri3Bnpzo10=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "185.213.193.14"
                   ]
@@ -27377,7 +27377,7 @@
                   "public_key": "2AvJGG4MJfnJMRSR6kcha9FZMMkhJM/AtktI5DSESSI=",
                   "daita": false,
                   "quic": null,
-                  "lwo": true,
+                  "lwo": "v1",
                   "shadowsocks_extra_addr_in": [
                     "185.213.193.139"
                   ]
@@ -27423,7 +27423,7 @@
                   "public_key": "5dOGXJ9JK/Bul0q57jsuvjNnc15gRpSO1rMbxkf4J2M=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,
@@ -27453,7 +27453,7 @@
                   "public_key": "lTq6+yUYfYsXwBpj/u3LnYqpLhW8ZJXQQ19N/ybP2B8=",
                   "daita": false,
                   "quic": null,
-                  "lwo": false,
+                  "lwo": null,
                   "shadowsocks_extra_addr_in": []
                 },
                 "needs_other_entry": false,

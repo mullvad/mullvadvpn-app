@@ -10,6 +10,7 @@ use std::{
 };
 use talpid_types::net::{
     TransportProtocol,
+    obfuscation::LwoVersion,
     proxy::{Shadowsocks, ShadowsocksCipher},
     wireguard::{self, PublicKey},
 };
@@ -444,9 +445,9 @@ pub struct WireguardRelayEndpointData {
     /// Parameters for connecting to the masque-proxy running on the relay.
     #[serde(default)]
     pub quic: Option<Quic>,
-    /// Whether the relay supports LWO
+    /// The highest supported LWO version, or `None` if the relay does not support LWO.
     #[serde(default)]
-    pub lwo: bool,
+    pub lwo: Option<LwoVersion>,
     /// Optional IP addresses used by Shadowsocks
     #[serde(default)]
     pub shadowsocks_extra_addr_in: HashSet<IpAddr>,
@@ -479,7 +480,7 @@ impl WireguardRelayEndpointData {
 
     pub fn set_lwo(self, enabled: bool) -> Self {
         Self {
-            lwo: enabled,
+            lwo: enabled.then_some(LwoVersion::V2),
             ..self
         }
     }
