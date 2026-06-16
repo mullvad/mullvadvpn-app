@@ -33,6 +33,8 @@ unsafe impl Sync for GotaTunCallbacks {}
 
 impl TunnelCallbackHandler for GotaTunCallbacks {
     fn on_connected(&self) {
+        // SAFETY: `on_connected` is a valid Swift function pointer and `context` is
+        // valid for the tunnel's lifetime (upheld by `gotatun_start_tunnel`).
         unsafe { (self.on_connected)(self.context) };
     }
 
