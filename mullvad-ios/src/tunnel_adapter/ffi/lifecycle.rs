@@ -69,6 +69,9 @@ pub unsafe extern "C" fn gotatun_start_tunnel(
     if config.is_null() {
         return std::ptr::null_mut();
     }
+    // SAFETY: `config` is non-null (checked above) and, per this function's `# Safety`
+    // contract, was produced by `gotatun_config_new` and not yet freed or consumed, so
+    // it is safe to reclaim the `Box` and move its contents out.
     let config = unsafe { *Box::from_raw(config) };
 
     let runtime = match crate::mullvad_ios_runtime() {
