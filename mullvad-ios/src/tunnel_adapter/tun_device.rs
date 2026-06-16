@@ -40,6 +40,9 @@ struct FdCloseGuard(RawFd);
 
 impl Drop for FdCloseGuard {
     fn drop(&mut self) {
+        // SAFETY: `self.0` is the fd we obtained from `dup()` in `IosTunDevice::new`
+        // and have owned exclusively ever since. `Drop` runs at most once, so the fd
+        // is still open and is not closed anywhere else.
         unsafe { libc::close(self.0) };
         log::debug!("IosTunDevice: closed dup'd fd {}", self.0);
     }
