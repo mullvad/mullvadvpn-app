@@ -282,6 +282,9 @@ pub unsafe extern "C" fn gotatun_config_set_establish_timeout(
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn gotatun_config_free(config: *mut GotaTunConfigHandle) {
     if !config.is_null() {
+        // SAFETY: `config` is non-null (checked) and, per this function's `# Safety`
+        // contract, was produced by `gotatun_config_new` via `Box::into_raw` and not
+        // yet freed, so reconstructing the `Box` and dropping it exactly once is sound.
         drop(unsafe { Box::from_raw(config) });
     }
 }
