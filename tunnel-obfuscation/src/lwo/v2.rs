@@ -3,6 +3,8 @@
 //! The expected calling order on send is [`padding_len`] (append that many random bytes to the
 //! packet), then [`obfuscate`]. On receive, [`deobfuscate`] validates the packet and returns a
 //! [`Verdict`] telling the caller whether to forward, truncate, or drop it.
+//!
+//! Correct implementation requires using the WireGuard timers defined in [timers].
 
 use rand::Rng;
 
@@ -28,6 +30,25 @@ const MAX_PADDING: usize = 256;
 /// Marker bits in byte 1 identifying an LWO v2 packet: bit 7 = 0, bit 6 = 1.
 const MARKER_MASK: u8 = 0xc0;
 const MARKER: u8 = 0x40;
+
+/// Custom WireGuard timer parameters
+pub mod timers {
+    use core::ops::RangeInclusive;
+    use std::time::Duration;
+
+    /// Passive keepalive: 10 s +/- 2 s
+    pub const KEEPALIVE_TIMEOUT: RangeInclusive<Duration> =
+        Duration::from_secs(8)..=Duration::from_secs(12);
+    /// New handshake after silence: 15 s +/- 2 s
+    pub const NEW_HANDSHAKE_TIMEOUT: RangeInclusive<Duration> =
+        Duration::from_secs(13)..=Duration::from_secs(17);
+    /// Handshake retransmit: 5 s +/- 250 ms
+    pub const REKEY_TIMEOUT: RangeInclusive<Duration> =
+        Duration::from_millis(4750)..=Duration::from_millis(5250);
+    /// Rekey-after-time: only ever moved earlier
+    pub const REKEY_AFTER_TIME: RangeInclusive<Duration> =
+        Duration::from_secs(100)..=Duration::from_secs(120);
+}
 
 /// The result of [`deobfuscate`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

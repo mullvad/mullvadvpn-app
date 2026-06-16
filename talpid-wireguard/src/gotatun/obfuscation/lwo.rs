@@ -3,7 +3,7 @@
 //! LWO also changes the timing of some WireGuard timers; see [`lwo_timer_params`]. These must
 //! be applied to the [`gotatun::device::Peer`] of LWO peers.
 
-use std::{io, net::SocketAddr, time::Duration};
+use std::{io, net::SocketAddr};
 
 use gotatun::{
     noise::TimerParams,
@@ -12,21 +12,17 @@ use gotatun::{
 };
 use rand::RngCore;
 use talpid_types::net::obfuscation::{ObfuscatorConfig, Obfuscators};
-use tunnel_obfuscation::lwo::v2::{self, Verdict};
+use tunnel_obfuscation::lwo::v2::{self, Verdict, timers};
 
 use crate::config::Config;
 
 /// WireGuard timer tuning for LWO V2 peers.
 pub fn lwo_timer_params() -> TimerParams {
     TimerParams {
-        // Passive keepalive: 10 s +/- 2 s
-        keepalive_timeout: Duration::from_secs(8)..=Duration::from_secs(12),
-        // New handshake after silence: 15 s +/- 2 s
-        new_handshake_timeout: Duration::from_secs(13)..=Duration::from_secs(17),
-        // Handshake retransmit: 5 s +/- 250 ms
-        rekey_timeout: Duration::from_millis(4750)..=Duration::from_millis(5250),
-        // Rekey-after-time: only ever moved earlier
-        rekey_after_time: Duration::from_secs(100)..=Duration::from_secs(120),
+        keepalive_timeout: timers::KEEPALIVE_TIMEOUT,
+        new_handshake_timeout: timers::NEW_HANDSHAKE_TIMEOUT,
+        rekey_timeout: timers::REKEY_TIMEOUT,
+        rekey_after_time: timers::REKEY_AFTER_TIME,
     }
 }
 
