@@ -14,11 +14,12 @@ data class LocationMarkerColors(
         private const val DEFAULT_SHADOW_ALPHA = 0.55f
         private const val DEFAULT_PERIMETER_ALPHA = 0.4f
 
-        fun default() =
+        fun default(alpha: Float = 1f) =
             LocationMarkerColors(
                 perimeterColors = null,
-                centerColor = Color(0xFF192E45.toInt()),
-                ringBorderColor = Color(0xFFFFFFFF.toInt()),
+                centerColor = Color(0xFF192E45.toInt()).copy(alpha = alpha),
+                ringBorderColor = Color(0xFFFFFFFF.toInt()).copy(alpha = alpha * alpha),
+                shadowColor = Color.Black.copy(DEFAULT_SHADOW_ALPHA * alpha),
             )
     }
 }

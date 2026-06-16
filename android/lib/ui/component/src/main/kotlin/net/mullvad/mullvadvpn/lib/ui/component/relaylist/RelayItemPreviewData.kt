@@ -39,6 +39,7 @@ private fun generateRelayItemCity(
     RelayItem.Location.City(
         name = name,
         id = name.generateCityCode(countryCode),
+        latLong = LatLong(latitude = Latitude(0f), longitude = Longitude(0f)),
         relays =
             List(numberOfRelays) { index ->
                 generateRelayItemRelay(
