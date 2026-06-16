@@ -426,6 +426,7 @@ impl Client {
         packet_rx: mpsc::Receiver<B>,
         packet_tx: mpsc::Sender<Bytes>,
     ) -> RunningClient {
+        log::trace!("run_inline");
         let stream_id: StreamId = self.request_stream.id();
 
         let mut tasks = JoinSet::new();
@@ -435,6 +436,7 @@ impl Client {
             ($fn_name:ident $args:tt) => {{
                 let future = $fn_name $args;
                 tasks.spawn(async move {
+                    log::trace!("{} spawned", stringify!($fn_name));
                     let result = future.await;
                     if let Err(err) = &result {
                         log::debug!("{} exited with error {:?}", stringify!($fn_name), err);
@@ -517,10 +519,12 @@ async fn server_socket_task_new(
     mut outgoing_packet_rx: mpsc::Receiver<Bytes>,
 ) -> Result<Stopped> {
     loop {
+        log::trace!("server_socket_task_new: waiting for datagram or packet");
         select! {
             datagram = connection.read_datagram() => {
                 match datagram {
                     Ok(Some(response)) => {
+                        log::trace!("Got QUIC datagram");
                         if server_tx.send(response).await.is_err() {
                             break; // channel closed, exit gracefully
                         }
@@ -533,6 +537,7 @@ async fn server_socket_task_new(
             }
             packet = outgoing_packet_rx.recv() => {
                 if let Some(packet) = packet {
+                    log::trace!("Sending QUIC datagram");
                     connection
                         .send_datagram(stream_id, packet)
                         .map_err(Error::SendDatagram)?;
@@ -819,6 +824,8 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
     max_udp_payload_size: u16,
     stats: Arc<Stats>,
 ) -> Result<Stopped> {
+    log::trace!("Starting inline_rx_task");
+
     let mut fragment_id = 0u16;
     let stream_id_size = VarInt::from(stream_id).size() as u16;
 
@@ -826,6 +833,7 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
     let mut client_read_buf = BytesMut::with_capacity(TOTAL_BUFFER_CAPACITY);
     let client_read_buf = &mut client_read_buf;
 
+    log::trace!("inline_rx_task: waiting for packet_rx.recv()");
     while let Some(packet) = packet_rx.recv().await {
         if !client_read_buf.try_reclaim(crate::MAX_UDP_SIZE) {
             // Allocate space for new packets
@@ -840,6 +848,7 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
         };
 
         if packet.as_ref().len() <= usize::from(maximum_packet_size) {
+            log::trace!("Outbound QUIC proxy packet");
             stats.tx(packet.as_ref().len(), false);
             crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(client_read_buf);
             client_read_buf.extend_from_slice(packet.as_ref());
@@ -851,10 +860,13 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
                 break;
             }
         } else {
+            log::trace!("Outbound QUIC proxy packet must be fragmented");
+
             for fragment in
                 fragment::fragment_packet(maximum_packet_size, packet.as_ref(), fragment_id)
                     .map_err(Error::PacketTooLarge)?
             {
+                log::trace!("Sending fragment of size {}", fragment.len());
                 debug_assert!(fragment.len() <= maximum_packet_size as usize);
 
                 stats.tx(fragment.len(), true);
@@ -864,7 +876,9 @@ async fn inline_rx_task<B: AsRef<[u8]>>(
             }
             fragment_id = fragment_id.wrapping_add(1);
         }
+        log::trace!("inline_rx_task: waiting for packet_rx.recv()");
     }
+    log::trace!("inline_rx_task closed");
     Ok(Stopped)
 }
 
@@ -874,6 +888,7 @@ async fn fragment_reassembly_task_new(
     send_tx: mpsc::Sender<Bytes>,
     stats: Arc<Stats>,
 ) -> Result<Stopped> {
+    log::trace!("Starting fragment_reassembly_task_new");
     let mut fragments = Fragments::default();
 
     while let Some(response) = server_rx.recv().await {
@@ -886,18 +901,23 @@ async fn fragment_reassembly_task_new(
 
         match fragments.handle_incoming_packet(payload) {
             Ok(DefragReceived::Nonfragmented(payload)) => {
+                log::trace!("DefragReceived::Nonfragmented");
                 stats.rx(payload.len(), false);
                 if send_tx.send(payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
             Ok(DefragReceived::Reassembled(reassembled_payload)) => {
+                log::trace!("DefragReceived::Reassembled");
                 stats.rx(original_payload_len, true);
                 if send_tx.send(reassembled_payload).await.is_err() {
                     break; // channel closed, exit gracefully
                 }
             }
-            Ok(DefragReceived::Fragment) => stats.rx(original_payload_len, true),
+            Ok(DefragReceived::Fragment) => {
+                log::trace!("DefragReceived::Fragment");
+                stats.rx(original_payload_len, true)
+            }
             Err(e) => {
                 use log::Level::*;
                 let level = if cfg!(debug_assertions) { Debug } else { Trace };

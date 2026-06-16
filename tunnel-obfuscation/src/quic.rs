@@ -152,6 +152,7 @@ impl std::str::FromStr for AuthToken {
 
 impl QuicLocalSocket {
     pub(crate) async fn new(settings: &Settings) -> crate::Result<Self> {
+        log::debug!("Starting QUIC proxy client over local socket");
         let (local_socket, local_udp_client_addr) =
             QuicLocalSocket::create_local_udp_socket(settings.quic_endpoint.is_ipv4())
                 .await
