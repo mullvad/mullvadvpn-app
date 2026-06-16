@@ -520,6 +520,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
         currentLocation = currentLocation.value,
         progressIndicatorBias,
         markers = markers,
+        locations = state.locations,
         hops = hops,
         globeColors =
             GlobeColors(

@@ -51,6 +51,7 @@ fun InteractiveMap(
     currentLocation: LatLong,
     verticalBias: Float = .5f,
     markers: List<Marker>,
+    locations: List<LatLong>,
     hops: List<Hop>,
     modifier: Modifier = Modifier,
     onMarkerClick: ((Marker) -> Unit)? = null,
@@ -63,6 +64,11 @@ fun InteractiveMap(
     val alphaAnimation = remember {
         Animatable(0f)
     }
+
+    val locationMarkers = locations.map {
+        Marker(it, colors = LocationMarkerColors.default(alphaAnimation.value))
+    }
+
 
     val zoomAnimatable = remember {
         Animatable(zoomRange.start).also {
@@ -91,7 +97,7 @@ fun InteractiveMap(
             latLngAnimatable.animateTo(currentLocation.toOffset(), animationSpec = tween(duration))
         }
         launch { zoomAnimatable.animateTo(zoomRange.start, animationSpec = tween(duration)) }
-        launch { alphaAnimation.animateTo(1f, animationSpec = tween(duration)) }
+        launch { alphaAnimation.animateTo(0f, animationSpec = tween(duration)) }
     }
 
     val tracker = remember { DiffVelocityTracker() }
@@ -184,7 +190,7 @@ fun InteractiveMap(
     val globeViewState =
         GlobeViewState(
             cameraPosition,
-            markers,
+            markers + locationMarkers,
             hops.map { it.copy(color = Color.White.copy(alpha = alphaAnimation.value)) },
             globeColors,
         )
@@ -205,7 +211,6 @@ fun InteractiveMap(
                         onGestureEnd = onGestureEnd,
                     )
                 },
-        //                .then(modifier),
         factory = { MapSurfaceView(it) },
         update = { glSurfaceView ->
             glSurfaceView.lifecycle = lifeCycleState

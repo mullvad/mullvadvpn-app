@@ -614,6 +614,7 @@ internal fun ManagementInterface.RelayListCity.toDomain(
     return RelayItem.Location.City(
         name = name,
         countryName = countryName,
+        latLong = LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat())),
         id = cityCode,
         relays =
             relaysList

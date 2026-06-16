@@ -91,7 +91,7 @@ class ConnectViewModel(
                 deviceName ->
                 ConnectUiState(
                     hops = connectionPath,
-                    locations = relayList.flatMap { it.cities },
+                    locations = relayList.flatMap { it.cities }.map { it.latLong },
                     internetLocation =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->

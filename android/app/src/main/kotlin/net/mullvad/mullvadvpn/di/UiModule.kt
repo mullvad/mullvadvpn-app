@@ -290,6 +290,7 @@ val uiModule = module {
         ConnectViewModel(
             accountRepository = get(),
             deviceRepository = get(),
+            relayListRepository = get(),
             changelogRepository = get(),
             inAppNotificationController = get(),
             newDeviceRepository = get(),
