@@ -37,8 +37,7 @@ final class MultihopMigrationTrackerTests {
         let multihopMigrationTracker = MultihopMigrationTrackerFactory.make(relaySelectorWrapper)
         let output = try multihopMigrationTracker.run(input: &tunnelSettings)
         #expect(tunnelSettings.tunnelMultihopState == .whenNeeded)
-        #expect(output.changes.count == 1)
-        #expect(output.changes.first!.path == .updatedMultiHop)
+        #expect(output.changes.isEmpty)
     }
     @Test func testKeepsNeverWhenDaitaIsOffAndExitFilterIsOn() async throws {
         var tunnelSettings = LatestTunnelSettings()

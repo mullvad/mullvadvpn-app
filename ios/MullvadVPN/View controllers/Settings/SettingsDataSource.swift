@@ -62,6 +62,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case language
         case notificationSettings
         case includeAllNetworks
+        case migratedSettings
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -85,6 +86,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 .notificationSettingsCell
             case .includeAllNetworks:
                 .includeAllNetworksCell
+            case .migratedSettings:
+                .migratedSettingsCell
             }
         }
 
@@ -100,12 +103,19 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     private var storedAccountData: StoredAccountData?
     private let settingsCellFactory: SettingsCellFactory
     private weak var tableView: UITableView?
+    private var appPreferences: AppPreferencesDataSource
 
     weak var delegate: SettingsDataSourceDelegate?
 
-    init(tableView: UITableView, interactor: SettingsInteractor, breadcrumbs: Set<Breadcrumb>) {
+    init(
+        tableView: UITableView,
+        interactor: SettingsInteractor,
+        appPreferences: AppPreferencesDataSource,
+        breadcrumbs: Set<Breadcrumb>
+    ) {
         self.tableView = tableView
         self.interactor = interactor
+        self.appPreferences = appPreferences
 
         let settingsCellFactory = SettingsCellFactory(
             tableView: tableView,
@@ -256,6 +266,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
         snapshot.appendSections([.general])
         snapshot.appendItems([.notificationSettings, .changelog], toSection: .general)
+
+        if isLoggedIn, appPreferences.migratedSettingsState.shouldShowMigratedSettingsMenuItem {
+            snapshot.appendItems([.migratedSettings], toSection: .general)
+        }
 
         snapshot.appendSections([.misc])
         snapshot.appendItems([.problemReport, .faq, .language], toSection: .misc)
