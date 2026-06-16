@@ -81,6 +81,9 @@ pub unsafe extern "C" fn gotatun_config_new(
 /// - `config` must be a valid pointer from `gotatun_config_new`.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn gotatun_config_set_mtu(config: *mut GotaTunConfigHandle, mtu: u16) {
+    // SAFETY: per this function's `# Safety` contract, `config` is either null (then
+    // `as_mut` yields `None`) or a valid, uniquely-owned pointer from
+    // `gotatun_config_new`, so taking a mutable reference for this call is sound.
     if let Some(config) = unsafe { config.as_mut() } {
         config.mtu = mtu;
     }
