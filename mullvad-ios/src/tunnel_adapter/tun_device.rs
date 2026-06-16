@@ -70,6 +70,7 @@ impl IosTunDevice {
             unsafe { libc::close(dup_fd) };
             return Err(err);
         }
+        // SAFETY: `dup_fd` is valid; `F_SETFL` consumes the `flags` int argument.
         let ret = unsafe { libc::fcntl(dup_fd, libc::F_SETFL, flags | libc::O_NONBLOCK) };
         if ret < 0 {
             let err = io::Error::last_os_error();
