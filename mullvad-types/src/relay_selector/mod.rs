@@ -7,13 +7,67 @@ use talpid_types::net::IpVersion;
 
 use crate::{
     Intersection,
-    constraints::Constraint,
+    constraints::{Constraint, Match},
+    custom_list::CustomListsSettings,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, LwoSettings, ObfuscationMode, Ownership,
         Providers, ShadowsocksSettings, Udp2TcpObfuscationSettings,
     },
     relay_list::WireguardRelay,
 };
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ResolvedLocationConstraint(Vec<GeographicLocationConstraint>);
+
+impl ResolvedLocationConstraint {
+    /// Define the mapping from a [location][`LocationConstraint`] and a set of
+    /// [custom lists][`CustomListsSettings`] to [`ResolvedLocationConstraint`].
+    pub fn from_constraint(
+        location_constraint: Constraint<LocationConstraint>,
+        custom_lists: &CustomListsSettings,
+    ) -> Constraint<ResolvedLocationConstraint> {
+        match location_constraint {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(location) => Constraint::Only(match location {
+                LocationConstraint::Location(location) => {
+                    ResolvedLocationConstraint(vec![location])
+                }
+                LocationConstraint::CustomList { list_id } => custom_lists
+                    .iter()
+                    .find(|list| list.id() == list_id)
+                    .map(|custom_list| {
+                        ResolvedLocationConstraint(custom_list.locations.iter().cloned().collect())
+                    })
+                    .unwrap_or_else(|| {
+                        log::warn!("Resolved non-existent custom list with id {list_id:?}");
+                        ResolvedLocationConstraint(vec![])
+                    }),
+            }),
+        }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &GeographicLocationConstraint> {
+        self.0.iter()
+    }
+}
+
+impl From<GeographicLocationConstraint> for ResolvedLocationConstraint {
+    fn from(value: GeographicLocationConstraint) -> Self {
+        Self(vec![value])
+    }
+}
+
+impl From<GeographicLocationConstraint> for Constraint<ResolvedLocationConstraint> {
+    fn from(value: GeographicLocationConstraint) -> Self {
+        Self::Only(ResolvedLocationConstraint::from(value))
+    }
+}
+
+impl Match<WireguardRelay> for &ResolvedLocationConstraint {
+    fn matches(&self, relay: &WireguardRelay) -> bool {
+        self.iter().any(|location| location.matches(relay))
+    }
+}
 
 /// Specify the constraints that should be applied when selecting relays,
 /// along with a context that may affect the selection behavior.
@@ -41,7 +95,7 @@ pub struct EntrySpecificConstraints {
 
 #[derive(Debug, Default, Clone, PartialEq, Eq, Intersection)]
 pub struct ExitConstraints {
-    pub location: Constraint<LocationConstraint>,
+    pub location: Constraint<ResolvedLocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
 }
@@ -176,7 +230,7 @@ impl EntrySpecificConstraints {
 }
 
 impl ExitConstraints {
-    pub fn location(mut self, location: impl Into<LocationConstraint>) -> Self {
+    pub fn location(mut self, location: impl Into<ResolvedLocationConstraint>) -> Self {
         self.location = Constraint::Only(location.into());
         self
     }

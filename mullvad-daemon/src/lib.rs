@@ -31,7 +31,8 @@ mod tunnel;
 pub mod version;
 
 use crate::{
-    relay_list::parsed_relays::parse_relays_from_file, target_state::PersistentTargetState,
+    relay_list::parsed_relays::parse_relays_from_file, relay_selector::RelaySelectorIO,
+    target_state::PersistentTargetState,
 };
 use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
@@ -47,7 +48,6 @@ use mullvad_api::{
     ApiEndpoint, CachedRelayList, access_mode::AccessMethodEvent, proxy::ApiConnectionMode,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayExternalObfuscatedAccountId, PlayPurchase};
 #[cfg(any(target_os = "windows", target_os = "android", target_os = "macos"))]
@@ -687,7 +687,7 @@ pub struct Daemon {
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_handle: version::router::VersionRouterHandle,
-    relay_selector: RelaySelector,
+    relay_selector: RelaySelectorIO,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
     shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
@@ -717,6 +717,12 @@ impl Daemon {
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
+
+        // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
+        // connections.
+        let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
+            .inspect_err(|err| log::error!("{err}"))
+            .ok();
 
         let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
             .await
@@ -750,11 +756,6 @@ impl Daemon {
 
         let mut settings = SettingsPersister::load(&config.settings_dir).await;
 
-        // Initialize relay selector asap, since it's a pre-requisite for accepting incoming gRPC
-        // connections.
-        let initial_relay_list = parse_relays_from_file(&config.cache_dir, &config.resource_dir)
-            .inspect_err(|err| log::error!("{err}"))
-            .ok();
         let relay_selector = {
             let (initial_relay_list, initial_bridge_list) = initial_relay_list
                 .clone()
@@ -763,8 +764,8 @@ impl Daemon {
             // TODO: This should preferably be done once, by the relay list updater.
             let initial_relay_list =
                 initial_relay_list.apply_overrides(settings.relay_overrides.clone());
-            RelaySelector::from_settings(
-                &settings,
+            RelaySelectorIO::from_settings(
+                settings.to_settings(),
                 initial_relay_list.clone(),
                 initial_bridge_list.clone(),
             )
