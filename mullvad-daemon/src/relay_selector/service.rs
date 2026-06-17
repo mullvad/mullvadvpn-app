@@ -2,7 +2,6 @@
 
 use mullvad_management_interface::types::relay_selector as proto;
 use mullvad_management_interface::{RelaySelectorService, Request, Response, Status};
-use mullvad_relay_selector::CustomListProvider;
 
 use crate::relay_selector::RelaySelectorIO;
 

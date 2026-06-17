@@ -10,15 +10,15 @@ use crate::relay_selector::RelaySelectorIO;
 use anyhow::Context;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_relay_selector::query::{Hops, RelayQuery};
-use mullvad_relay_selector::{CustomListProvider, GetRelay, RelaySelector, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::relay_selector::ResolvedLocationConstraint;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashSet;
 
-impl CustomListProvider for CustomListsSettings {
-    fn custom_lists(&self) -> mullvad_types::custom_list::CustomListsSettings {
-        let custom_lists: Vec<_> = self
+impl From<CustomListsSettings> for mullvad_types::custom_list::CustomListsSettings {
+    fn from(value: CustomListsSettings) -> Self {
+        let custom_lists: Vec<_> = value
             .custom_lists
             .iter()
             .cloned()
@@ -110,7 +110,7 @@ impl Settings {
 
     /// Run the relay selector to find out if "Magic multihop" is required to connect or not.
     pub fn check_magic_mulithop(mut self) -> anyhow::Result<Self> {
-        let relay_selector = RelaySelectorIO::load(self.custom_lists.clone())
+        let relay_selector = RelaySelectorIO::load(self.custom_lists.clone().into())
             .context("Failed to initialize relay selector. Skipping migration.")?;
         // Query the relay selector for entry relay
         // If an entry relay needs to be selected even though multihop is not explicitly enabled, the

@@ -8,7 +8,7 @@ use std::sync::{Arc, Mutex};
 
 use mullvad_relay_selector::query::RelayQuery;
 use mullvad_relay_selector::{
-    CustomListProvider, EntrySpecificConstraints, Error, GetRelay, RETRY_ORDER, RelaySelector,
+    EntrySpecificConstraints, Error, GetRelay, RETRY_ORDER, RelaySelector,
 };
 use mullvad_types::custom_list::CustomListsSettings;
 use mullvad_types::relay_list::{BridgeList, RelayList};
@@ -87,6 +87,12 @@ pub struct Config {
     custom_lists: Arc<Mutex<CustomListsSettings>>,
 }
 
+impl Config {
+    fn custom_lists(&self) -> CustomListsSettings {
+        self.custom_lists.lock().unwrap().clone()
+    }
+}
+
 impl From<Settings> for Config {
     fn from(settings: Settings) -> Self {
         let custom_lists = Arc::new(Mutex::new(settings.custom_lists.clone()));
@@ -106,12 +112,6 @@ impl From<RelayQuery> for Config {
             query,
             custom_lists,
         }
-    }
-}
-
-impl CustomListProvider for Config {
-    fn custom_lists(&self) -> CustomListsSettings {
-        self.custom_lists.lock().unwrap().clone()
     }
 }
 
